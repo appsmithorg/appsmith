@@ -5,6 +5,7 @@ import type { WidgetType } from "WidgetProvider/factory";
 export interface AnvilFlexComponentProps {
   children: ReactNode;
   className?: string;
+  elevatedBackground?: boolean;
   layoutId: string;
   parentId?: string;
   rowIndex: number;

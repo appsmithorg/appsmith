@@ -597,6 +597,16 @@ export interface CallExpressionData {
   params: NodeWithLocation<MemberExpressionNode | LiteralNode>[];
 }
 
+// This interface is used for storing call expression nodes with callee as member node
+// example of such case is when a function is called on object like obj.func()
+// This is required to understand whether appsmith.store.test.func() is present in script
+// in order to display mutation error on such statements.
+export interface MemberCallExpressionData {
+  property: NodeWithLocation<MemberExpressionNode | LiteralNode>;
+  object: NodeWithLocation<MemberExpressionNode>;
+  parentNode: NodeWithLocation<CallExpressionNode>;
+}
+
 export interface AssignmentExpressionNode extends Node {
   operator: string;
   left: Expression;
@@ -628,9 +638,11 @@ export const extractExpressionsFromCode = (
   invalidTopLevelMemberExpressionsArray: MemberExpressionData[];
   assignmentExpressionsData: AssignmentExpressionData[];
   callExpressionsData: CallExpressionData[];
+  memberCallExpressionData: MemberCallExpressionData[];
 } => {
   const assignmentExpressionsData = new Set<AssignmentExpressionData>();
   const callExpressionsData = new Set<CallExpressionData>();
+  const memberCallExpressionData = new Set<MemberCallExpressionData>();
   const invalidTopLevelMemberExpressions = new Set<MemberExpressionData>();
   const variableDeclarations = new Set<string>();
   let functionalParams = new Set<string>();
@@ -646,6 +658,7 @@ export const extractExpressionsFromCode = (
         invalidTopLevelMemberExpressionsArray: [],
         assignmentExpressionsData: [],
         callExpressionsData: [],
+        memberCallExpressionData: [],
       };
     }
     throw e;
@@ -726,11 +739,23 @@ export const extractExpressionsFromCode = (
       } as AssignmentExpressionData);
     },
     CallExpression(node: Node) {
-      if (isCallExpressionNode(node) && isIdentifierNode(node.callee)) {
-        callExpressionsData.add({
-          property: node.callee,
-          params: node.arguments,
-        } as CallExpressionData);
+      if (isCallExpressionNode(node)) {
+        if (isIdentifierNode(node.callee)) {
+          callExpressionsData.add({
+            property: node.callee,
+            params: node.arguments,
+          } as CallExpressionData);
+        }
+
+        if (isMemberExpressionNode(node.callee)) {
+          const { object, property } = node.callee;
+
+          memberCallExpressionData.add({
+            object,
+            property,
+            parentNode: node,
+          } as MemberCallExpressionData);
+        }
       }
     },
   });
@@ -748,6 +773,7 @@ export const extractExpressionsFromCode = (
     invalidTopLevelMemberExpressionsArray,
     assignmentExpressionsData: [...assignmentExpressionsData],
     callExpressionsData: [...callExpressionsData],
+    memberCallExpressionData: [...memberCallExpressionData],
   };
 };
 

@@ -4,7 +4,7 @@ import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
 
 const QueriesAddState = () => {
   return (
-    <Flex justifyContent="center">
+    <Flex height="100%" justifyContent="center">
       <AddQuery
         containerProps={{
           px: "spaces-4",

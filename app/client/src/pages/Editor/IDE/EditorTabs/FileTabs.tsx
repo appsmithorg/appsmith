@@ -22,6 +22,8 @@ interface Props {
   onClose: (actionId?: string) => void;
 }
 
+const FILE_TABS_CONTAINER_ID = "file-tabs-container";
+
 const FileTabs = (props: Props) => {
   const { navigateToTab, onClose, tabs } = props;
   const { segment, segmentMode } = useCurrentEditorState();
@@ -38,6 +40,15 @@ const FileTabs = (props: Props) => {
       });
     }
   }, [tabs, segmentMode]);
+
+  useEffect(() => {
+    const ele = document.getElementById(FILE_TABS_CONTAINER_ID)?.parentElement;
+    if (ele && ele.scrollWidth > ele.clientWidth) {
+      ele.style.borderRight = "1px solid var(--ads-v2-color-border)";
+    } else if (ele) {
+      ele.style.borderRight = "unset";
+    }
+  }, [tabs]);
 
   const onCloseClick = (e: React.MouseEvent, id?: string) => {
     e.stopPropagation();
@@ -56,7 +67,7 @@ const FileTabs = (props: Props) => {
       }}
       size={"sm"}
     >
-      <Flex gap="spaces-2" height="100%">
+      <Flex gap="spaces-2" height="100%" id={FILE_TABS_CONTAINER_ID}>
         {tabs.map((tab: EntityItem) => (
           <StyledTab
             className={clsx(

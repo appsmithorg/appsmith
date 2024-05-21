@@ -34,6 +34,7 @@ export interface ModalContentProps {
 export interface ModalHeaderProps {
   /** Adds a header modal Title and the necessary aria attributes. */
   title: string;
+  excludeFromTabOrder?: boolean;
 }
 
 export interface ModalFooterProps {
@@ -47,6 +48,7 @@ export interface ModalFooterProps {
   closeText?: string;
   /** The event that is triggered when the submit button is clicked. */
   onSubmit?: () => void;
+  excludeFromTabOrder?: boolean;
 }
 
 export interface ModalBodyProps {

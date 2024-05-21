@@ -11,7 +11,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   `${ANVIL_EDITOR_TEST}: Validating multiple widgets in anvil layout mode with App navigation settings`,
-  { tags: ["@tag.Anvil"] },
+  { tags: ["@tag.Anvil", "@tag.IDE"] },
   function () {
     beforeEach(() => {
       // intercept features call for Anvil + WDS tests
@@ -41,6 +41,17 @@ describe(
       propPane.NavigateToPage("Page1", "onClick");
       appSettings.OpenAppSettings();
       agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
+      // assert that the default value of "Show Navbar" is "Off" for anvil apps
+      agHelper.AssertExistingCheckedState(
+        appSettings.locators._navigationSettings._showNavbar,
+        "false",
+      );
+      // enable the navigation
+      agHelper.GetNClick(
+        appSettings.locators._navigationSettings._showNavbar,
+        0,
+        true,
+      );
       agHelper.GetNClick(
         appSettings.locators._navigationSettings._orientationOptions._side,
       );

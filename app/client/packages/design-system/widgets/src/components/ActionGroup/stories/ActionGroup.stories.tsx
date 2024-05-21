@@ -125,6 +125,26 @@ export const Orientation: Story = {
 };
 
 /**
+ * The `ActionGroup` can be aligned to the start, or end. By default, it is aligned to the start.
+ */
+export const Alignment: Story = {
+  render: () => (
+    <Flex direction="column" gap="spacing-3" width="sizing-100">
+      <ActionGroup alignment="start">
+        <Item key="option-1">Option 1</Item>
+        <Item key="option-2">Option 2</Item>
+        <Item key="option-3">Option 3</Item>
+      </ActionGroup>
+      <ActionGroup alignment="end">
+        <Item key="option-1">Option 1</Item>
+        <Item key="option-2">Option 2</Item>
+        <Item key="option-3">Option 3</Item>
+      </ActionGroup>
+    </Flex>
+  ),
+};
+
+/**
  * The `ActionGroup` can be `compact` or `regular`. By default, it is regular.
  */
 
