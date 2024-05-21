@@ -70,15 +70,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-tags: true
-
-      - name: Print inputs
-        run: |
-          cat <<EOF
-          ${{ toJson(inputs) }}
-          EOF
-          echo "github.pull_request.base.ref = ${{ github.pull_request.base.ref }}"
-          echo "steps.changed-files-specific.outputs.any_changed = ${{ steps.changed-files-specific.outputs.any_changed }}"
-          echo "github.event_name = ${{ github.event_name }}"
     
       - name: Get changed files in the client folder
         id: changed-files-specific
@@ -103,6 +94,15 @@ jobs:
         with:
           script: |
             await require("client-build-compliance.js")({core, github, context})
+
+      - name: Print inputs
+        run: |
+          cat <<EOF
+          ${{ toJson(inputs) }}
+          EOF
+          echo "github.pull_request.base.ref = ${{ github.pull_request.base.ref }}"
+          echo "steps.changed-files-specific.outputs.any_changed = ${{ steps.changed-files-specific.outputs.any_changed }}"
+          echo "github.event_name = ${{ github.event_name }}"
 
       - name: Get all the added or changed files in client/src folder
         if: inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
