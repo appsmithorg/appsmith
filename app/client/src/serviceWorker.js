@@ -6,14 +6,10 @@ import {
   NetworkOnly,
   StaleWhileRevalidate,
 } from "workbox-strategies";
-import {
-  getPrefetchConsolidatedApiRequest,
-  ConsolidatedApiCacheStrategy,
-} from "utils/serviceWorkerUtils";
 
 setCacheNameDetails({
   prefix: "appsmith",
-  suffix: "",
+  suffix: undefined,
   precache: "precache-v1",
   runtime: "runtime",
   googleAnalytics: "appsmith-ga",
@@ -38,31 +34,6 @@ self.__WB_DISABLE_DEV_DEBUG_LOGS = false;
 skipWaiting();
 clientsClaim();
 
-const consolidatedApiCacheStrategy = new ConsolidatedApiCacheStrategy();
-
-/**
- *
- * @param {ExtendableEvent} event
- * @param {Request} request
- * @param {URL} url
- * @returns
- */
-const handleFetchHtml = async (event, request, url) => {
-  // Get the prefetch consolidated api request if the url matches the builder or viewer path
-  const prefetchConsolidatedApiRequest = getPrefetchConsolidatedApiRequest(url);
-
-  if (prefetchConsolidatedApiRequest) {
-    consolidatedApiCacheStrategy
-      .cacheConsolidatedApi(prefetchConsolidatedApiRequest)
-      .catch(() => {
-        // Silently fail
-      });
-  }
-
-  const networkHandler = new NetworkOnly();
-  return networkHandler.handle({ event, request });
-};
-
 // This route's caching seems too aggressive.
 // TODO(abhinav): Figure out if this is really necessary.
 // Maybe add the assets locally?
@@ -81,30 +52,7 @@ registerRoute(({ url }) => {
 }, new StaleWhileRevalidate());
 
 registerRoute(
-  new Route(
-    ({ request, sameOrigin }) => {
-      return sameOrigin && request.destination === "document";
-    },
-    async ({ event, request, url }) => handleFetchHtml(event, request, url),
-  ),
-);
-
-// Route for fetching the API directly
-registerRoute(
-  new RegExp("/api/v1/consolidated-api/"),
-  async ({ event, request }) => {
-    // Check for cached response
-    const cachedResponse =
-      await consolidatedApiCacheStrategy.getCachedResponse(request);
-
-    // If the response is cached, return the response
-    if (cachedResponse) {
-      return cachedResponse;
-    }
-
-    // If the response is not cached, fetch the response
-    const networkHandler = new NetworkOnly();
-    return networkHandler.handle({ event, request });
-  },
-  "GET",
+  new Route(({ request, sameOrigin }) => {
+    return sameOrigin && request.destination === "document";
+  }, new NetworkOnly()),
 );
