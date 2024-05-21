@@ -1,12 +1,12 @@
 package com.appsmith.server.migrations;
 
 import org.flywaydb.core.api.configuration.Configuration;
+import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
 import org.flywaydb.core.api.resolver.ResolvedMigration;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
-import org.springframework.stereotype.Component;
 
 /**
  * Guidelines for writing a new migration:
@@ -15,8 +15,7 @@ import org.springframework.stereotype.Component;
  *    a. Incremental migrations should be named <code>V{version}__{description}.java</code> <br>
  *    b. Repeatable migrations should be named <code>R__{description}.java</code> <br>
  */
-@Component
-public abstract class AppsmithJavaMigration extends org.flywaydb.core.api.migration.BaseJavaMigration {
+public abstract class AppsmithJavaMigration extends BaseJavaMigration {
     @Override
     public ResolvedMigration getResolvedMigration(Configuration config, StatementInterceptor statementInterceptor) {
         return super.getResolvedMigration(config, statementInterceptor);
