@@ -29,6 +29,7 @@ export interface AnvilDnDListenerStates {
   activateOverlayWidgetDrop: boolean;
   allowToDrop: boolean;
   canActivate: boolean;
+  currentWidgetHierarchy: number;
   draggedBlocks: DraggedWidget[];
   dragDetails: DragDetails;
   isCurrentDraggedCanvas: boolean;
@@ -169,6 +170,7 @@ export const useAnvilDnDListenerStates = ({
     activateOverlayWidgetDrop,
     allowToDrop,
     canActivate,
+    currentWidgetHierarchy,
     draggedBlocks,
     dragDetails,
     dragMeta: {
