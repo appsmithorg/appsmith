@@ -55,6 +55,7 @@ const MIN_HEIGHT = {
 };
 
 interface Props {
+  className?: string;
   behaviour: ViewHideBehaviour;
   displayMode?: ViewDisplayMode;
   height: number;
@@ -125,7 +126,7 @@ const BottomView = (props: Props) => {
 
   return (
     <Container
-      className={`select-text`}
+      className={`select-text ${props.className || ""}`}
       displayMode={props.displayMode || ViewDisplayMode.BLOCK}
       ref={panelRef}
     >
