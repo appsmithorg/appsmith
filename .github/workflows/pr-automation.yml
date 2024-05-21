@@ -34,16 +34,16 @@ jobs:
                 exit 1
               fi
 
-      # Reads the PR description to retrieve /ok-to-test slash command
+      # Reads the PR description to retrieve the /ok-to-test or, if that's absent, the /test command
       - name: Get tags
+        uses: actions/github-script@v7
         id: getTags
         env:
-          PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          REGEX='/ok-to-test tags="([^"]*)"';
-          if [[ $PR_BODY =~ $REGEX ]]; then
-            echo "tags=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
-          fi
+          NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
+        with:
+          script: |
+            const testTagParser = require("test-tag-parser.js")
+            core.setOutput("tags", testTagParser.parseTags({core, context}))
 
       # Parses the retrieved /ok-to-test slash command to retrieve tags
       - name: Parse tags
@@ -112,7 +112,7 @@ jobs:
       - name: Stop the workflow run if tags are incorrect
         if: steps.checkTags.outputs.outcome == 'failure'
         run: exit 1
-    
+
       # In case of a run with all test cases, allocate a larger matrix
       - name: Check if @tag.All is present in tags
         id: checkAll
