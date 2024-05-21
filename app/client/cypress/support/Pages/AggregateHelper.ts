@@ -302,8 +302,8 @@ export class AggregateHelper {
     return exists === "noVerify"
       ? locator // Return the locator without verification if exists is "noVerify"
       : exists === "exist"
-        ? locator.should("have.length.at.least", 1)
-        : locator.should("have.length", 0);
+      ? locator.should("have.length.at.least", 1)
+      : locator.should("have.length", 0);
   }
 
   public GetNAssertElementText(
@@ -1835,27 +1835,34 @@ export class AggregateHelper {
 
   public selectAndValidateWidgetNameAndProperty({
     clickOptions = {},
-    widgetName,
-    widgetType = EntityType.Widget,
     hierarchy = [],
     propFieldName,
-    valueToValidate,
     toggleEle = null,
+    valueToValidate,
+    widgetName,
+    widgetType = EntityType.Widget,
   }: SelectAndValidateParams) {
+    // Select the widget by name, type, and hierarchy with optional click options
     EditorNavigator.SelectEntityByName(
       widgetName,
       widgetType,
       clickOptions,
       hierarchy,
     );
+
+    // Assert that the Property Pane title matches the widget name
     this.AssertText(
       ObjectsRegistry.PropertyPane._paneTitle,
       "text",
       widgetName,
     );
+
+    // If a toggle element is provided, toggle its JavaScript mode
     if (toggleEle) {
       ObjectsRegistry.PropertyPane.ToggleJSMode(toggleEle);
     }
+
+    // Validate that the property field value matches the expected value
     ObjectsRegistry.PropertyPane.ValidatePropertyFieldValue(
       propFieldName,
       valueToValidate,
