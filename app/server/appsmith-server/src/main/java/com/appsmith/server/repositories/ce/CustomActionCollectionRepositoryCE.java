@@ -51,6 +51,4 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
             String contextId, CreatorContextType contextType, AclPermission permission);
 
     List<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission);
-
-    Optional<Integer> updateById(String id, BridgeUpdate updateObj);
 }

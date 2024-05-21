@@ -13,6 +13,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -195,6 +196,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         AppsmithError.NO_RESOURCE_FOUND,
                         genericDomain.getSimpleName().toLowerCase(),
                         id))); // */
+    }
+
+    public int updateByIdWithoutPermissionCheck(@NonNull String id, BridgeUpdate update) {
+        return queryBuilder().byId(id).updateFirst(update);
     }
 
     @Modifying

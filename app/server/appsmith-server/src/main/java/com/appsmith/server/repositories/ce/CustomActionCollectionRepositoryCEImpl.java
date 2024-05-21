@@ -14,6 +14,8 @@ import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -243,10 +245,5 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         }
 
         return queryBuilder().criteria(query).permission(permission).all();
-    }
-
-    @Override
-    public Optional<Integer> updateById(@NonNull String id, BridgeUpdate updateObj) {
-        return Optional.of(queryBuilder().byId(id).updateFirst(updateObj));
     }
 }

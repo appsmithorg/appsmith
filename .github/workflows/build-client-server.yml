@@ -220,6 +220,7 @@ jobs:
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
+          overwrite: true
 
       - name: Get Latest flaky Tests
         shell: bash
@@ -337,6 +338,7 @@ jobs:
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
+          overwrite: true
 
       - name: Get Latest flaky Tests
         shell: bash

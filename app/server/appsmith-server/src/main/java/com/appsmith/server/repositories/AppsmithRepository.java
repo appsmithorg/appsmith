@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
+import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,6 +17,8 @@ public interface AppsmithRepository<T extends BaseDomain> {
     Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
 
     Optional<T> updateById(String id, T resource, AclPermission permission);
+
+    int updateByIdWithoutPermissionCheck(String id, BridgeUpdate update);
 
     /*no-cake*/ QueryAllParams<T> queryBuilder();
 

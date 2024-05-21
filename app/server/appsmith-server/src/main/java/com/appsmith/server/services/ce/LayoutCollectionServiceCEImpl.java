@@ -327,7 +327,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
             updateObj.set(path, actionCollectionDTO.getBody());
 
-            return actionCollectionRepository.updateById(dbActionCollection.getId(), updateObj);
+            return actionCollectionRepository.updateByIdWithoutPermissionCheck(dbActionCollection.getId(), updateObj);
         });
     }
 
