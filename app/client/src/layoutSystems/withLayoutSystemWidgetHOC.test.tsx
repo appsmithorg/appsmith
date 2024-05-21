@@ -207,6 +207,11 @@ describe("Layout System HOC's Tests", () => {
         isVisible: true,
         detachFromLayout: true,
         renderMode: RenderModes.CANVAS,
+        layout: [
+          {
+            layoutId: "modalLayoutId",
+          },
+        ],
       });
       jest
         .spyOn(editorSelectors, "getRenderMode")
