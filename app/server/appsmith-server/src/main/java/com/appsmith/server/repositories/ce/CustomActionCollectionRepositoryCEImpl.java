@@ -9,7 +9,9 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
 
@@ -241,5 +243,10 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         }
 
         return queryBuilder().criteria(query).permission(permission).all();
+    }
+
+    @Override
+    public Optional<Integer> updateById(@NonNull String id, BridgeUpdate updateObj) {
+        return Optional.of(queryBuilder().byId(id).updateFirst(updateObj));
     }
 }

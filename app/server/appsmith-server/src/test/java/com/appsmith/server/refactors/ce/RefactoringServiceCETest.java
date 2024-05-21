@@ -812,7 +812,7 @@ class RefactoringServiceCETest {
 
         assert createdActionCollectionDTO1 != null;
         final Mono<ActionCollection> actionCollectionMono =
-                actionCollectionService.getById(createdActionCollectionDTO1.getId());
+                actionCollectionService.getByIdWithoutPermissionCheck(createdActionCollectionDTO1.getId());
         final Mono<NewAction> actionMono = newActionService
                 .findByCollectionIdAndViewMode(createdActionCollectionDTO1.getId(), false, null)
                 .next();
@@ -881,7 +881,7 @@ class RefactoringServiceCETest {
         final Mono<Tuple2<ActionCollection, NewAction>> tuple2Mono = refactoringService
                 .refactorEntityName(refactorActionNameInCollectionDTO, null)
                 .then(actionCollectionService
-                        .getById(dto.getId())
+                        .getByIdWithoutPermissionCheck(dto.getId())
                         .zipWith(newActionService.findById(
                                 dto.getActions().get(0).getId())));
 

@@ -11,6 +11,7 @@ import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import {
   createMessage,
+  DEBUGGER_RESPONSE,
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
 } from "@appsmith/constants/messages";
@@ -246,7 +247,7 @@ export function EditorJSONtoForm(props: Props) {
     if (currentActionConfig) {
       responseTabs.push({
         key: "response",
-        title: "Response",
+        title: createMessage(DEBUGGER_RESPONSE),
         panelComponent: (
           <QueryResponseTab
             actionSource={actionSource}
@@ -307,7 +308,7 @@ export function EditorJSONtoForm(props: Props) {
         />
         {notification}
         <Wrapper>
-          <div className="flex flex-1">
+          <div className="flex flex-1 w-full">
             <SecondaryWrapper>
               <TabContainerView>
                 <Tabs

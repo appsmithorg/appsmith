@@ -18,33 +18,6 @@ create table action_collection
     workspace_id varchar(255)
 );
 
-create table action_configuration
-(
-    id varchar(255) not null
-        primary key,
-    auto_generated_headers jsonb,
-    body varchar(255),
-    body_form_data jsonb,
-    encode_params_toggle boolean,
-    form_data jsonb,
-    headers jsonb,
-    http_method varchar(255),
-    http_version varchar(255),
-    is_async boolean,
-    is_valid boolean,
-    js_arguments jsonb,
-    next varchar(255),
-    pagination_type varchar(255),
-    path varchar(255),
-    plugin_specified_templates jsonb,
-    prev varchar(255),
-    query_parameters jsonb,
-    route_parameters jsonb,
-    timeout_in_millisecond integer
-        constraint action_configuration_timeout_in_millisecond_check
-            check ((timeout_in_millisecond >= 0) AND (timeout_in_millisecond <= 60000))
-);
-
 create table application
 (
     id varchar(255) not null
@@ -80,23 +53,20 @@ create table application
     last_edited_at timestamp(6) with time zone,
     name varchar(255) not null,
     pages jsonb,
-    published_app_layout bytea,
+    published_app_layout jsonb,
     published_application_detail jsonb,
     published_customjslibs jsonb,
     published_mode_theme_id varchar(255),
     published_pages jsonb,
     server_schema_version integer,
     slug varchar(255),
-    unpublished_app_layout bytea,
+    unpublished_app_layout jsonb,
     unpublished_application_detail jsonb,
     unpublished_customjslibs jsonb,
     unread_comment_threads bigint not null,
     view_mode boolean,
     workspace_id varchar(255)
 );
-
-create unique index workspace_app_deleted_git_application_metadata
-    on application (name, workspace_id, deleted_at, (git_application_metadata ->> 'remoteUrl'::text), (git_application_metadata ->> 'branchName'::text));
 
 create table application_page
 (
@@ -459,9 +429,7 @@ create table tenant
     updated_at timestamp(6) with time zone,
     display_name varchar(255),
     pricing_plan varchar(255),
-    slug varchar(255)
-        constraint uk_kmgrjdf7i4m9lbmfvfsht9g62
-            unique,
+    slug varchar(255) unique,
     tenant_configuration jsonb
 );
 

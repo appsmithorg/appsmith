@@ -26,7 +26,7 @@ public class V6__createAnonymousUser extends AppsmithJavaMigration {
             return;
         }
         String insertUserQuery =
-                "INSERT INTO \"user\" (id, email, name,  current_workspace_id, workspace_ids, is_anonymous, tenant_id, created_at, updated_at) VALUES (gen_random_uuid(), ?, ?, ?, cast(? as jsonb), ?, ?, now() ,now())";
+                "INSERT INTO \"user\" (id, email, name,  current_workspace_id, workspace_ids, is_anonymous, tenant_id, is_system_generated, created_at, updated_at) VALUES (gen_random_uuid(), ?, ?, ?, cast(? as jsonb), ?, ?, true, now() ,now())";
         jdbcTemplate.update(
                 insertUserQuery,
                 FieldName.ANONYMOUS_USER,

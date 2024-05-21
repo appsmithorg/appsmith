@@ -7,11 +7,14 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.PropertyAccessorFactory;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public final class AppsmithBeanUtils {
 
@@ -42,21 +45,6 @@ public final class AppsmithBeanUtils {
         final Set<String> fieldsToIgnore = new HashSet<>(extraFieldsToIgnore);
         fieldsToIgnore.addAll(Set.of(getNullPropertyNames(src)));
         BeanUtils.copyProperties(src, target, fieldsToIgnore.toArray(new String[0]));
-    }
-
-    public static int countOfNonNullFields(Object source) {
-        int count = 0;
-        final BeanWrapper src = new BeanWrapperImpl(source);
-        java.beans.PropertyDescriptor[] pds = src.getPropertyDescriptors();
-
-        for (java.beans.PropertyDescriptor pd : pds) {
-            Object srcValue = src.getPropertyValue(pd.getName());
-            if (srcValue != null) {
-                count++;
-            }
-        }
-
-        return count++;
     }
 
     public static void copyNestedNonNullProperties(Object source, Object target) {
@@ -132,5 +120,17 @@ public final class AppsmithBeanUtils {
         }
 
         return values;
+    }
+
+    public static Stream<Field> getAllFields(Class<?> currentType) {
+
+        Set<Class<?>> classes = new HashSet<>();
+
+        while (currentType != null) {
+            classes.add(currentType);
+            currentType = currentType.getSuperclass();
+        }
+
+        return classes.stream().flatMap(currentClass -> Arrays.stream(currentClass.getDeclaredFields()));
     }
 }

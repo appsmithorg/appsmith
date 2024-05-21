@@ -110,21 +110,7 @@ export class DebuggerHelper {
         this.agHelper.AssertElementVisibility(
           this.locators._bottomPaneContainer[pageType],
         );
-        // this.agHelper.AssertHeight(
-        //   this.locators._bottomPaneContainer[pageType],
-        //   this.bottomPaneHeight,
-        // );
         break;
-      // case PageType.Query:
-      // case PageType.DataSources:
-      //   this.agHelper.AssertElementVisibility(
-      //     this.locators._bottomPaneContainer[pageType],
-      //   );
-      //   // this.agHelper.AssertHeight(
-      //   //   this.locators._bottomPaneContainer[pageType],
-      //   //   this.bottomPaneHeight - 1, // -1 to offset error
-      //   // );
-      //   break;
     }
   }
 
@@ -150,12 +136,7 @@ export class DebuggerHelper {
   }
 
   LogStateContains(text: string, index?: number) {
-    this.agHelper.GetNAssertContains(
-      this.locators._logState,
-      text,
-      "exist",
-      index,
-    );
+    this.agHelper.GetNAssertContains(this.locators._logState, text, "exist");
   }
 
   AssertErrorCount(count: number) {

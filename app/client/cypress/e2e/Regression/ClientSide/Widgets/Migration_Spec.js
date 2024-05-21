@@ -10,6 +10,10 @@ import {
   agHelper,
   homePage as homePageHelpers,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  createMessage,
+  IMPORT_APP_SUCCESSFUL,
+} from "../../../../../src/ce/constants/messages";
 
 describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
   it("1. Import application and Validate Migration on pageload", function () {
@@ -28,7 +32,7 @@ describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
     cy.wait("@importNewApplication").then(() => {
       cy.get(homePage.toastMessage).should(
         "contain",
-        "Application imported successfully",
+        createMessage(IMPORT_APP_SUCCESSFUL),
       );
 
       //Renaming imported app!

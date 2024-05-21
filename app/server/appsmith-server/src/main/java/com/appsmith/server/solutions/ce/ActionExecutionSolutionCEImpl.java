@@ -1000,7 +1000,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
                         Mono.just(application),
                         sessionUserService.getCurrentUser(),
                         newPageService.getNameByPageId(actionDTO.getPageId(), executeActionDto.getViewMode()),
-                        pluginService.getById(actionDTO.getPluginId()),
+                        pluginService.getByIdWithoutPermissionCheck(actionDTO.getPluginId()),
                         datasourceStorageService.getEnvironmentNameFromEnvironmentIdForAnalytics(
                                 datasourceStorage.getEnvironmentId())))
                 .flatMap(tuple -> {
