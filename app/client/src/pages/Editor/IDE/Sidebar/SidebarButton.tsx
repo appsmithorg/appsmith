@@ -4,12 +4,14 @@ import styled from "styled-components";
 import DatasourceStarterLayoutPrompt from "pages/Editor/Explorer/Datasources/DatasourceStarterLayoutPrompt";
 import { SidebarTopButtonTitles } from "@appsmith/entities/IDE/constants";
 
-interface Props {
+export interface SidebarButtonProps {
   title?: string;
   selected: boolean;
   icon: string;
   onClick: () => void;
   tooltip?: string;
+  conditionIcon?: string;
+  conditionIconColor?: string;
 }
 
 const Container = styled.div`
@@ -33,6 +35,7 @@ const IconContainer = styled.div<{ selected: boolean }>`
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  position: relative;
   &:hover {
     background: ${(props) =>
       props.selected
@@ -41,7 +44,13 @@ const IconContainer = styled.div<{ selected: boolean }>`
   }
 `;
 
-function SidebarButton(props: Props) {
+const ConditionIcon = styled(Icon)`
+  position: absolute;
+  bottom: 3px;
+  right: -1px;
+`;
+
+function SidebarButton(props: SidebarButtonProps) {
   return (
     <Container>
       {props.title === SidebarTopButtonTitles.DATA && (
@@ -59,6 +68,13 @@ function SidebarButton(props: Props) {
           selected={props.selected}
         >
           <Icon name={props.icon} size="lg" />
+          {props.conditionIcon && (
+            <ConditionIcon
+              color={props.conditionIconColor}
+              name={props.conditionIcon}
+              size="md"
+            />
+          )}
         </IconContainer>
       </Tooltip>
       {props.title ? <Text kind="body-s">{props.title}</Text> : null}
