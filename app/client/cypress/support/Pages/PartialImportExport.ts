@@ -1,7 +1,10 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "./AssertHelper";
 import { AppSidebar, AppSidebarButton, PageLeftPane } from "./EditorNavigation";
-
+import {
+  createMessage,
+  ERROR_IN_EXPORTING_APP,
+} from "../../../src/ce/constants/messages";
 const exportedPropertiesToUIEntitiesMap = {
   jsObjects: "actionCollectionList",
   datasources: "datasourceList",
@@ -87,9 +90,7 @@ export default class PartialImportExport {
       false,
     );
     this.agHelper.GetNClick(this.locators.export.modelContents.exportButton);
-    this.agHelper.FailIfErrorToast(
-      "Error exporting application. Please try again.",
-    );
+    this.agHelper.FailIfErrorToast(createMessage(ERROR_IN_EXPORTING_APP));
 
     cy.readFile(`cypress/downloads/${fixtureName}`).then((exportedFile) => {
       cy.fixture(`PartialImportExport/${fileNameToCompareWith}`).then(
@@ -211,8 +212,6 @@ export default class PartialImportExport {
       false,
     );
     this.agHelper.GetNClick(this.locators.export.modelContents.exportButton);
-    this.agHelper.FailIfErrorToast(
-      "Error exporting application. Please try again.",
-    );
+    this.agHelper.FailIfErrorToast(createMessage(ERROR_IN_EXPORTING_APP));
   }
 }
