@@ -17,6 +17,7 @@ export function PhoneInputComponent(props: PhoneInputComponentProps) {
       errorMessage={props.errorMessage}
       isDisabled={props.isDisabled}
       isReadOnly={props.isReadOnly}
+      isRequired={props.isRequired}
       label={props.label}
       onChange={props.onValueChange}
       onFocusChange={props.onFocusChange}
