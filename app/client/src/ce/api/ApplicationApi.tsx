@@ -92,6 +92,7 @@ export interface CreateApplicationRequest {
   color?: AppColorCode;
   icon?: IconNames;
   layoutSystemType: LayoutSystemTypes;
+  showNavbar?: boolean;
 }
 
 export interface SetDefaultPageRequest {
@@ -340,6 +341,18 @@ export class ApplicationApi extends Api {
   static async createApplication(
     request: CreateApplicationRequest,
   ): Promise<AxiosPromise<PublishApplicationResponse>> {
+    const applicationDetail = {
+      appPositioning: {
+        type: request.layoutSystemType,
+      },
+    } as any;
+
+    if (request.showNavbar !== undefined) {
+      applicationDetail.navigationSetting = {
+        showNavbar: request.showNavbar,
+      };
+    }
+
     return Api.post(
       ApplicationApi.baseURL +
         ApplicationApi.createApplicationPath(request.workspaceId),
@@ -347,11 +360,7 @@ export class ApplicationApi extends Api {
         name: request.name,
         color: request.color,
         icon: request.icon,
-        applicationDetail: {
-          appPositioning: {
-            type: request.layoutSystemType,
-          },
-        },
+        applicationDetail,
       },
     );
   }

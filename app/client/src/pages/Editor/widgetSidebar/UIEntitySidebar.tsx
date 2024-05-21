@@ -110,7 +110,7 @@ function UIEntitySidebar({
         />
       </div>
       <Flex
-        className="flex-grow px-3 overflow-y-scroll"
+        className="flex-grow px-3 overflow-y-scroll flex-col"
         data-testid="t--widget-sidebar-scrollable-wrapper"
         pt="spaces-2"
       >

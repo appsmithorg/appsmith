@@ -1806,4 +1806,18 @@ export class AggregateHelper {
   //     }
   //     return items;
   //   }, { timeout: 5000 });
+
+  public GetChildrenNClick(
+    selector: string,
+    childSelector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+    ctrlKey = false,
+  ) {
+    return this.ScrollIntoView(selector, index)
+      .children(childSelector)
+      .click({ force: force, ctrlKey: ctrlKey })
+      .wait(waitTimeInterval);
+  }
 }
