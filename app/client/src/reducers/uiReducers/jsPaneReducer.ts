@@ -72,17 +72,7 @@ const jsPaneReducer = createReducer(initialState, {
     ...state,
     isCreating: false,
   }),
-  [ReduxActionTypes.UPDATE_JS_ACTION_INIT]: (
-    state: JsPaneReduxState,
-    action: ReduxAction<{ id: string }>,
-  ) => ({
-    ...state,
-    isSaving: {
-      ...state.isSaving,
-      [action.payload.id]: true,
-    },
-  }),
-  [ReduxActionTypes.UPDATE_JS_ACTION_BODY_INIT]: (
+  [ReduxActionTypes.JS_ACTION_SAVE_START]: (
     state: JsPaneReduxState,
     action: ReduxAction<{ id: string }>,
   ) => ({
@@ -94,16 +84,16 @@ const jsPaneReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.JS_ACTION_SAVE_COMPLETE]: (
     state: JsPaneReduxState,
-    action: ReduxAction<{ data: JSCollection }>,
+    action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
     isSaving: {
       ...state.isSaving,
-      [action.payload.data.id]: false,
+      [action.payload.id]: false,
     },
     isDirty: {
       ...state.isDirty,
-      [action.payload.data.id]: false,
+      [action.payload.id]: false,
     },
   }),
   [ReduxActionErrorTypes.UPDATE_JS_ACTION_BODY_ERROR]: (

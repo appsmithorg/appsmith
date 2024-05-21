@@ -61,6 +61,7 @@ import {
   setJsPaneDebuggerState,
   createNewJSCollection,
   jsSaveActionComplete,
+  jsSaveActionStart,
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -316,8 +317,6 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
   if (updateType === "UPDATE") {
     yield handleUpdateCollection(data, jsAction, parsedBody);
   }
-
-  yield put(jsSaveActionComplete({ data: jsAction }));
 }
 
 export function* makeUpdateJSCollection(
@@ -327,7 +326,19 @@ export function* makeUpdateJSCollection(
 
   yield all(
     Object.keys(jsUpdates).map((key) =>
+      put(jsSaveActionStart({ id: jsUpdates[key].id })),
+    ),
+  );
+
+  yield all(
+    Object.keys(jsUpdates).map((key) =>
       call(handleEachUpdateJSCollection, jsUpdates[key]),
+    ),
+  );
+
+  yield all(
+    Object.keys(jsUpdates).map((key) =>
+      put(jsSaveActionComplete({ id: jsUpdates[key].id })),
     ),
   );
 }
