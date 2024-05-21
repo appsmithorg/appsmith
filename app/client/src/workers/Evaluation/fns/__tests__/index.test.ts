@@ -3,6 +3,7 @@ import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/
 import { setEvalContext } from "workers/Evaluation/evaluate";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { RenderModes } from "constants/WidgetConstants";
 
 const dataTree: DataTree = {
   action1: {
@@ -27,6 +28,11 @@ const dataTree: DataTree = {
     version: 1,
     dynamicBindingPathList: [],
     ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+    meta: {},
+    widgetId: "sfwe",
+    renderMode: RenderModes.CANVAS,
+    parentColumnSpace: 3,
+    parentRowSpace: 4,
   },
 };
 
