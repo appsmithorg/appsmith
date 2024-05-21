@@ -16,11 +16,6 @@ on:
         description: "This is the branch to be used for the build."
         required: false
         type: string
-      ads-compliant-check:
-        description: "This is a boolean value in case the workflow is being called in build deploy-preview"
-        required: false
-        type: string
-        default: "true"
 
 permissions:
   contents: read
@@ -70,7 +65,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-tags: true
-    
+
       - name: Get changed files in the client folder
         id: changed-files-specific
         uses: tj-actions/changed-files@v41
