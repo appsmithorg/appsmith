@@ -23,8 +23,8 @@ interface SubActionParams {
   toastToValidate?: string;
 }
 interface SelectAndValidateParams {
-  widgetName: string;
   clickOptions?: Partial<ClickOptions>;
+  widgetName: string;
   widgetType?: EntityType;
   hierarchy?: string[];
   propFieldName: string;
@@ -1834,8 +1834,8 @@ export class AggregateHelper {
   }
 
   public selectAndValidateWidgetNameAndProperty({
-    widgetName,
     clickOptions = {},
+    widgetName,
     widgetType = EntityType.Widget,
     hierarchy = [],
     propFieldName,
