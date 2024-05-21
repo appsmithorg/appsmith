@@ -8,13 +8,7 @@ interface Props {
 
 const SegmentAddHeader = (props: Props) => {
   return (
-    <Flex
-      alignItems="center"
-      justifyContent="space-between"
-      pl="spaces-4"
-      pr="spaces-2"
-      py="spaces-2"
-    >
+    <Flex alignItems="center" justifyContent="space-between" p="spaces-3">
       <Text color="var(--ads-v2-color-fg)" kind="heading-xs">
         {createMessage(props.titleMessage)}
       </Text>
