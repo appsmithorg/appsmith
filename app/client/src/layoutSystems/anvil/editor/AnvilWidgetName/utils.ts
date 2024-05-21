@@ -77,7 +77,7 @@ export function handleWidgetUpdate(
           shift(),
           offset({ mainAxis: 0, crossAxis: -5 }),
           getOverflowMiddleware(widgetsEditorElement as HTMLDivElement),
-          hide({ strategy: "referenceHidden" }),
+          hide({ strategy: "referenceHidden", padding: 40 }),
           hide({ strategy: "escaped" }),
         ],
       }).then(({ middlewareData, x, y }) => {
@@ -89,7 +89,9 @@ export function handleWidgetUpdate(
         Object.assign(widgetNameComponent.style, {
           left: `${x - shiftOffset}px`,
           top: `${y}px`,
-          visibility: "visible",
+          visibility: middlewareData.hide?.referenceHidden
+            ? "hidden"
+            : "visible",
           zIndex:
             nameComponentState === "focus"
               ? "calc(var(--on-canvas-ui-zindex) + 1)"
