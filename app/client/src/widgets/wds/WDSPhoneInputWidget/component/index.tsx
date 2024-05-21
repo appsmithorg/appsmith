@@ -9,6 +9,12 @@ export function PhoneInputComponent(props: PhoneInputComponentProps) {
     (option) => option.dial_code === props.dialCode,
   );
 
+  const prefix = (
+    <Text
+      style={{ whiteSpace: "nowrap" }}
+    >{`${selectedCountry?.dial_code}`}</Text>
+  );
+
   return (
     <TextInput
       autoComplete={props.autoComplete}
@@ -20,12 +26,9 @@ export function PhoneInputComponent(props: PhoneInputComponentProps) {
       label={props.label}
       onChange={props.onValueChange}
       onFocusChange={props.onFocusChange}
+      onKeyDown={props.onKeyDown}
       placeholder={props.placeholder}
-      prefix={
-        <Text
-          style={{ whiteSpace: "nowrap" }}
-        >{`${selectedCountry?.dial_code}`}</Text>
-      }
+      prefix={prefix}
       validationState={props.validationStatus}
       value={props.value}
     />
