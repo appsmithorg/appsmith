@@ -7,12 +7,11 @@ import { DropWidgetsHereMessage } from "layoutSystems/anvil/common/messages";
 
 export const EMPTY_MODAL_PADDING = 4;
 
-const StyledEmptyModalDropArenaWrapper = styled.div<{ isModalEmpty: boolean }>`
+const StyledModalEditorDropArenaWrapper = styled.div<{ isModalEmpty: boolean }>`
   position: relative;
   ${(props) =>
     props.isModalEmpty &&
     `
-  height: 100% !important;
   padding: ${EMPTY_MODAL_PADDING}px;
   `}
 `;
@@ -64,7 +63,10 @@ export const AnvilModalDropArena = ({
   const widget = useSelector(getWidgetByID(modalId));
   const isModalEmpty = widget.children?.length === 0;
   return (
-    <StyledEmptyModalDropArenaWrapper isModalEmpty={isModalEmpty}>
+    <StyledModalEditorDropArenaWrapper
+      isModalEmpty={isModalEmpty}
+      style={{ height: isModalEmpty ? "100%" : "auto" }}
+    >
       <StyledEmptyModalDropArena
         isActive={isCurrentDraggedCanvas}
         isModalEmpty={isModalEmpty}
@@ -72,6 +74,6 @@ export const AnvilModalDropArena = ({
         {DropWidgetsHereMessage()}
       </StyledEmptyModalDropArena>
       {children}
-    </StyledEmptyModalDropArenaWrapper>
+    </StyledModalEditorDropArenaWrapper>
   );
 };

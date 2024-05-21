@@ -1,6 +1,7 @@
 package com.appsmith.server.applications.git;
 
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.ArtifactGitReference;
@@ -43,14 +44,12 @@ import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -144,7 +143,7 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
     private void setApplicationMetadataInApplicationReference(
             ApplicationJson applicationJson, ApplicationGitReference applicationReference) {
         // Pass metadata
-        Iterable<String> keys = getAllFields(applicationJson)
+        Iterable<String> keys = AppsmithBeanUtils.getAllFields(applicationJson.getClass())
                 .map(Field::getName)
                 .filter(name -> !getBlockedMetadataFields().contains(name))
                 .collect(Collectors.toList());
@@ -305,19 +304,6 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
                 });
         applicationReference.setActions(resourceMap);
         applicationReference.setActionBody(resourceMapBody);
-    }
-
-    protected Stream<Field> getAllFields(ApplicationJson applicationJson) {
-        Class<?> currentType = applicationJson.getClass();
-
-        Set<Class<?>> classes = new HashSet<>();
-
-        while (currentType != null) {
-            classes.add(currentType);
-            currentType = currentType.getSuperclass();
-        }
-
-        return classes.stream().flatMap(currentClass -> Arrays.stream(currentClass.getDeclaredFields()));
     }
 
     private void removeUnwantedFieldsFromApplication(Application application) {

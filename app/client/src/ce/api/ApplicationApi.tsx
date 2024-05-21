@@ -13,7 +13,7 @@ import type {
   LayoutSystemTypeConfig,
   LayoutSystemTypes,
 } from "layoutSystems/types";
-import type { ActionViewMode } from "entities/Action";
+import type { BaseAction } from "entities/Action";
 
 export type EvaluationVersion = number;
 
@@ -92,6 +92,7 @@ export interface CreateApplicationRequest {
   color?: AppColorCode;
   icon?: IconNames;
   layoutSystemType: LayoutSystemTypes;
+  showNavbar?: boolean;
 }
 
 export interface SetDefaultPageRequest {
@@ -268,9 +269,14 @@ export interface ImportBuildingBlockToApplicationRequest {
   templateId: string;
 }
 
+interface ImportBuildingBlockOnPageActions extends BaseAction {
+  timeoutInMilliseconds: number;
+  pluginType: string;
+}
+
 export interface ImportBuildingBlockToApplicationResponse {
   widgetDsl: string;
-  onPageLoadActions: Omit<ActionViewMode, "pageId">[];
+  onPageLoadActions: ImportBuildingBlockOnPageActions[];
 }
 
 export class ApplicationApi extends Api {
@@ -335,6 +341,18 @@ export class ApplicationApi extends Api {
   static async createApplication(
     request: CreateApplicationRequest,
   ): Promise<AxiosPromise<PublishApplicationResponse>> {
+    const applicationDetail = {
+      appPositioning: {
+        type: request.layoutSystemType,
+      },
+    } as any;
+
+    if (request.showNavbar !== undefined) {
+      applicationDetail.navigationSetting = {
+        showNavbar: request.showNavbar,
+      };
+    }
+
     return Api.post(
       ApplicationApi.baseURL +
         ApplicationApi.createApplicationPath(request.workspaceId),
@@ -342,11 +360,7 @@ export class ApplicationApi extends Api {
         name: request.name,
         color: request.color,
         icon: request.icon,
-        applicationDetail: {
-          appPositioning: {
-            type: request.layoutSystemType,
-          },
-        },
+        applicationDetail,
       },
     );
   }

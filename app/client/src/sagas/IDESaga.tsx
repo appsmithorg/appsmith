@@ -29,14 +29,15 @@ import {
 } from "@appsmith/selectors/appIDESelectors";
 
 export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
-  const { entity, id } = entityInfo;
+  const { entity, id, params } = entityInfo;
+  if (!params.pageId) return;
   if (
     entity === FocusEntity.JS_OBJECT ||
     entity === FocusEntity.JS_MODULE_INSTANCE
   ) {
     const jsTabs: string[] = yield select(getJSTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, jsTabs);
-    yield put(setJSTabs(newTabs));
+    yield put(setJSTabs(newTabs, params.pageId));
   }
   if (
     entity === FocusEntity.QUERY ||
@@ -44,7 +45,7 @@ export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
   ) {
     const queryTabs: string[] = yield select(getQueryTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, queryTabs);
-    yield put(setQueryTabs(newTabs));
+    yield put(setQueryTabs(newTabs, params.pageId));
   }
 }
 

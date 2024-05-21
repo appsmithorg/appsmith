@@ -33,7 +33,7 @@ const ListQuery = () => {
   );
   const applicationId = useSelector(getCurrentApplicationId);
 
-  const addButtonClickHandler = useQueryAdd();
+  const { openAddQuery } = useQueryAdd();
   const showWorkflows = useSelector(getShowWorkflowFeature);
 
   return (
@@ -49,7 +49,7 @@ const ListQuery = () => {
           <Button
             className="t--add-item"
             kind={"secondary"}
-            onClick={addButtonClickHandler}
+            onClick={openAddQuery}
             size={"sm"}
             startIcon={"add-line"}
           >

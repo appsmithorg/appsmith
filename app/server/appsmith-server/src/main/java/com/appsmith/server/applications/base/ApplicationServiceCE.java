@@ -2,6 +2,7 @@ package com.appsmith.server.applications.base;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
@@ -16,23 +17,19 @@ import java.util.Optional;
 
 public interface ApplicationServiceCE extends CrudService<Application, String> {
 
+    Mono<Application> getById(String id);
+
+    Mono<Application> findByIdAndBranchName(String id, String branchName);
+
     Mono<Application> findByIdAndBranchName(String id, List<String> projectionFieldNames, String branchName);
 
     Mono<Application> findById(String id);
 
     Mono<Application> findById(String id, AclPermission aclPermission);
 
-    Mono<Application> findById(String id, Optional<AclPermission> aclPermission);
-
-    Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission);
-
     Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission);
 
     Flux<Application> findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(String workspaceId);
-
-    Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
-
-    Mono<Application> findByName(String name, AclPermission permission);
 
     Mono<Application> save(Application application);
 
@@ -75,16 +72,11 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
             List<String> projectionFieldNames,
             AclPermission aclPermission);
 
-    Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(
-            String branchName, String defaultApplicationId, String fieldName, AclPermission aclPermission);
-
     Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 
     Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
     Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(String workspaceId);
-
-    Flux<Application> getGitConnectedApplicationsByWorkspaceId(String workspaceId);
 
     String getRandomAppCardColor();
 
@@ -104,4 +96,7 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Mono<Boolean> isApplicationConnectedToGit(String applicationId);
 
     Mono<Void> updateProtectedBranches(String applicationId, List<String> protectedBranches);
+
+    Mono<Application> findByDefaultIdBranchNameAndApplicationMode(
+            String defaultApplicationId, String branchName, ApplicationMode mode);
 }

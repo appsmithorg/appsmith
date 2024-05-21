@@ -28,6 +28,14 @@
     max-inline-size: none;
   }
 
+  &[data-alignment="start"] {
+    justify-content: flex-start;
+  }
+
+  &[data-alignment="end"] {
+    justify-content: flex-end;
+  }
+
   &[data-overflow="collapse"] {
     flex-wrap: nowrap;
   }

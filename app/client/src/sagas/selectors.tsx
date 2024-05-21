@@ -77,6 +77,14 @@ export const getWidgetIdsByType = (state: AppState, type: WidgetType) => {
     .map((widget: FlattenedWidgetProps) => widget.widgetId);
 };
 
+export const getAllDetachedWidgetIds = memoize(
+  (canvasWidgets: CanvasWidgetsReduxState) => {
+    return Object.values(canvasWidgets)
+      .filter((widget: FlattenedWidgetProps) => !!widget.detachFromLayout)
+      .map((widget: FlattenedWidgetProps) => widget.widgetId);
+  },
+);
+
 export const getWidgetOptionsTree = memoize((state: AppState) =>
   Object.values(state.entities.canvasWidgets)
     .filter((w) => w.type !== "CANVAS_WIDGET" && w.type !== "BUTTON_WIDGET")

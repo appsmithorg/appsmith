@@ -60,6 +60,12 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return config.methodsConfig;
   }
 
+  static getDerivedPropertiesMap() {
+    return {
+      name: "{{this.widgetName}}",
+    };
+  }
+
   static *performPasteOperation(
     allWidgets: CanvasWidgetsReduxState,
     copiedWidgets: CopiedWidgetData[],
@@ -131,14 +137,20 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         setOpen={(val) => this.setState({ isVisible: val })}
         size={this.props.size}
       >
-        <ModalContent className={contentClassName}>
-          {this.props.showHeader && <ModalHeader title={this.props.title} />}
+        <ModalContent className={contentClassName.trim()}>
+          {this.props.showHeader && (
+            <ModalHeader
+              excludeFromTabOrder={!this.props.allowWidgetInteraction}
+              title={this.props.title}
+            />
+          )}
           <ModalBody className={WDS_MODAL_WIDGET_CLASSNAME}>
             <ModalLayoutProvider {...this.props} />
           </ModalBody>
           {this.props.showFooter && (
             <ModalFooter
               closeText={closeText}
+              excludeFromTabOrder={!this.props.allowWidgetInteraction}
               onSubmit={submitText ? this.onSubmitClick : undefined}
               submitText={submitText}
             />

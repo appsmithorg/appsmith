@@ -16,7 +16,7 @@ const BlankState: React.FC = () => {
     isFeatureEnabled,
     pagePermissions,
   );
-  const addButtonClickHandler = useJSAdd();
+  const { openAddJS } = useJSAdd();
 
   return (
     <EmptyState
@@ -24,7 +24,7 @@ const BlankState: React.FC = () => {
       buttonText={createMessage(EDITOR_PANE_TEXTS.js_add_button)}
       description={createMessage(EDITOR_PANE_TEXTS.js_blank_state_description)}
       icon={"js-square-v3"}
-      onClick={canCreateActions ? addButtonClickHandler : undefined}
+      onClick={canCreateActions ? openAddJS : undefined}
     />
   );
 };

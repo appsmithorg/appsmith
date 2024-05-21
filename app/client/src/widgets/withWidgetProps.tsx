@@ -232,6 +232,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       const needsErrorInfo =
         !isPreviewMode &&
         renderMode === RenderModes.CANVAS &&
+        evaluatedWidget &&
         !!WidgetFactory.getConfig(evaluatedWidget?.type)?.needsErrorInfo;
 
       widgetProps.errors = needsErrorInfo

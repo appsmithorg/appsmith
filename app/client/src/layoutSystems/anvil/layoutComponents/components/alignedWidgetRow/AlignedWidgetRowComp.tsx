@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import {
   LayoutComponentTypes,
   type LayoutComponentProps,
@@ -12,13 +12,6 @@ import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
 import { FlexLayout, type FlexLayoutProps } from "../FlexLayout";
 import { isFillWidgetPresentInList } from "layoutSystems/anvil/utils/layouts/widgetUtils";
-import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import {
-  ALIGNMENT_WIDTH_THRESHOLD,
-  shouldOverrideAlignmentStyle,
-} from "layoutSystems/anvil/integrations/layoutSelectors";
-import { useSelector } from "react-redux";
-import { RenderModes } from "constants/WidgetConstants";
 
 /**
  * If AlignedRow hasFillWidget:
@@ -30,67 +23,18 @@ import { RenderModes } from "constants/WidgetConstants";
  * Each alignment has following characteristics:
  * 1. Mobile viewport:
  *   - flex-wrap: wrap.
- *   - flex-basis: auto.
  *   ~ This ensures the alignment takes up as much space as needed by the children.
  *   ~ It can stretch to the full width of the viewport.
  *   ~ or collapse completely if there is no content.
  *
  * 2. Larger view ports:
  *  - flex-wrap: nowrap.
- *  - flex-basis: 0%.
  *  ~ This ensures that alignments share the total space equally, until possible.
  *  ~ Soon as the content in any alignment needs more space, it will wrap to the next line
  *    thanks to flex wrap in the parent layout.
  */
 const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
   const { canvasId, layout, layoutId, renderMode } = props;
-  // Whether default alignment styles should be overridden, when renderMode = Canvas.
-  const shouldOverrideStyle: boolean = useSelector(
-    shouldOverrideAlignmentStyle(layoutId),
-  );
-
-  // check if layout renders a Fill widget.
-  const hasFillWidget: boolean = isFillWidgetPresentInList(
-    layout as WidgetLayoutProps[],
-  );
-
-  const [isAnyAlignmentOverflowing, setIsAnyAlignmentOverflowing] =
-    useState(false);
-
-  useEffect(() => {
-    // getBoundingClientRect is an expensive operation and should only be used when renderMode = Page,
-    // because layout positions are not available in that case.
-    if (hasFillWidget || renderMode !== RenderModes.PAGE) return;
-    const parentLayoutId = getAnvilLayoutDOMId(canvasId, layoutId);
-    const parentLayout = document.getElementById(parentLayoutId);
-    if (parentLayout) {
-      const parentLayoutWidth = parentLayout.getBoundingClientRect().width;
-
-      // Use requestAnimationFrame to ensure calculation is done after rendering
-      requestAnimationFrame(() => {
-        const isOverflowing = [
-          FlexLayerAlignment.Start,
-          FlexLayerAlignment.Center,
-          FlexLayerAlignment.End,
-        ].some((each: FlexLayerAlignment) => {
-          const alignmentId = `${parentLayoutId}-${AlignmentIndexMap[each]}`;
-          const alignment = document.getElementById(alignmentId);
-          if (!alignment) return false;
-          const alignmentWidth = alignment.getBoundingClientRect().width;
-          // return true if width of any alignment exceeds the limit.
-          return (
-            alignmentWidth >= parentLayoutWidth * ALIGNMENT_WIDTH_THRESHOLD
-          );
-        });
-        setIsAnyAlignmentOverflowing(isOverflowing);
-      });
-    }
-  }, [hasFillWidget, layout.length, renderMode]);
-
-  useEffect(() => {
-    if (hasFillWidget || renderMode === RenderModes.PAGE) return;
-    setIsAnyAlignmentOverflowing(shouldOverrideStyle);
-  }, [hasFillWidget, renderMode, shouldOverrideStyle]);
 
   const commonProps: Omit<
     FlexLayoutProps,
@@ -100,20 +44,22 @@ const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
       alignSelf: "stretch",
       canvasId,
       direction: "row",
-      flexBasis: isAnyAlignmentOverflowing
-        ? { base: "auto" }
-        : { base: "auto", [`${MOBILE_BREAKPOINT}px`]: "0%" },
+      flexBasis: "0%",
       flexGrow: 1,
       flexShrink: 1,
       layoutType: LayoutComponentTypes.WIDGET_ROW,
       parentDropTarget: props.parentDropTarget,
-      renderMode: props.renderMode,
-      wrap: isAnyAlignmentOverflowing
-        ? { base: "wrap" }
-        : { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
+      renderMode,
+      wrap: { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
       className: props.className,
+      maxWidth: "100%",
     };
-  }, [isAnyAlignmentOverflowing]);
+  }, []);
+
+  // check if layout renders a Fill widget.
+  const hasFillWidget: boolean = isFillWidgetPresentInList(
+    layout as WidgetLayoutProps[],
+  );
 
   // If a Fill widget exists, then render the child widgets together.
   if (hasFillWidget) {

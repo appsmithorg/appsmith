@@ -1,87 +1,51 @@
-import React, { memo } from "react";
+import React, { memo, useState } from "react";
+import type { ButtonProps, COLORS } from "@design-system/widgets";
+import { Button } from "@design-system/widgets";
 
-import { CellWrapper } from "../TableStyledWrappers";
 import type { BaseCellComponentProps } from "../Constants";
-import { TABLE_SIZES } from "../Constants";
-import { Button } from "./Button";
-import type { ButtonColumnActions } from "widgets/wds/WDSTableWidget/constants";
-import styled from "styled-components";
 
-const StyledButton = styled(Button)<{ compactMode: string }>`
-  max-height: ${(props) => TABLE_SIZES[props.compactMode].ROW_HEIGHT}px;
-`;
-
-export interface RenderActionProps extends BaseCellComponentProps {
-  isSelected: boolean;
-  columnActions?: ButtonColumnActions[];
-  isDisabled: boolean;
-  onCommandClick: (dynamicTrigger: string, onComplete: () => void) => void;
+export interface ButtonCellProps {
+  buttonLabel?: string;
+  buttonColor?: keyof typeof COLORS;
+  buttonVariant?: ButtonProps["variant"];
+  onClick?: (onComplete: () => void) => void;
+  isDisabled?: boolean;
 }
 
-function ButtonCellComponent(props: RenderActionProps) {
+function ButtonCell(props: ButtonCellProps & BaseCellComponentProps) {
   const {
-    allowCellWrapping,
-    cellBackground,
-    columnActions,
-    compactMode,
-    fontStyle,
-    horizontalAlignment,
-    isCellDisabled,
-    isCellVisible,
+    buttonColor = "accent",
+    buttonLabel,
+    buttonVariant,
     isDisabled,
-    isHidden,
-    isSelected,
-    onCommandClick,
-    textColor,
-    textSize,
-    verticalAlignment,
   } = props;
+  const [isLoading, setIsLoading] = useState(false);
 
-  if (!columnActions)
-    return (
-      <CellWrapper
-        allowCellWrapping={allowCellWrapping}
-        cellBackground={cellBackground}
-        compactMode={compactMode}
-        fontStyle={fontStyle}
-        horizontalAlignment={horizontalAlignment}
-        isCellDisabled={isCellDisabled}
-        isCellVisible={isCellVisible}
-        isHidden={isHidden}
-        textColor={textColor}
-        textSize={textSize}
-        verticalAlignment={verticalAlignment}
-      />
-    );
+  const onComplete = () => {
+    setIsLoading(false);
+  };
+
+  const onClick = () => {
+    setIsLoading(true);
+
+    if (props.onClick) {
+      props.onClick(onComplete);
+    }
+  };
 
   return (
-    <CellWrapper
-      allowCellWrapping={allowCellWrapping}
-      cellBackground={cellBackground}
-      compactMode={compactMode}
-      fontStyle={fontStyle}
-      horizontalAlignment={horizontalAlignment}
-      isCellDisabled={isCellDisabled}
-      isCellVisible={isCellVisible}
-      isHidden={isHidden}
-      textColor={textColor}
-      textSize={textSize}
-      verticalAlignment={verticalAlignment}
+    <Button
+      color={buttonColor}
+      isDisabled={isDisabled}
+      isLoading={isLoading}
+      onPress={onClick}
+      variant={buttonVariant}
     >
-      {columnActions.map((action: ButtonColumnActions) => {
-        return (
-          <StyledButton
-            action={action}
-            compactMode={compactMode}
-            isCellVisible={isCellVisible}
-            isDisabled={isDisabled}
-            isSelected={isSelected}
-            key={action.id}
-            onCommandClick={onCommandClick}
-          />
-        );
-      })}
-    </CellWrapper>
+      {buttonLabel}
+    </Button>
   );
 }
-export const ButtonCell = memo(ButtonCellComponent);
+
+const MemoizedButtonCell = memo(ButtonCell);
+
+export { MemoizedButtonCell as ButtonCell };

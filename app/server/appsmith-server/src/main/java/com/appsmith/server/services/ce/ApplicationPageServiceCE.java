@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -9,6 +10,7 @@ import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface ApplicationPageServiceCE {
@@ -29,8 +31,6 @@ public interface ApplicationPageServiceCE {
     Mono<Application> createApplication(Application application);
 
     Mono<Application> createApplication(Application application, String workspaceId);
-
-    Mono<PageDTO> getPageByName(String applicationName, String pageName, boolean viewMode);
 
     Mono<Application> makePageDefault(PageDTO page);
 
@@ -72,4 +72,9 @@ public interface ApplicationPageServiceCE {
     Mono<Application> createOrUpdateSuffixedApplication(Application application, String name, int suffix);
 
     int getEvaluationVersion();
+
+    Mono<List<NewPage>> getPagesBasedOnApplicationMode(
+            Application branchedApplication, ApplicationMode applicationMode);
+
+    Mono<PageDTO> getPageDTOAfterMigratingDSL(NewPage newPage, boolean viewMode, boolean migrateDsl);
 }

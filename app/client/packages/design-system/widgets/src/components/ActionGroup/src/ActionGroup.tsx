@@ -2,20 +2,21 @@ import React, { forwardRef } from "react";
 import { FocusScope } from "@react-aria/focus";
 import { useDOMRef } from "@react-spectrum/utils";
 import type { DOMRef } from "@react-types/shared";
-import { Item, Menu, MenuList } from "../../Menu";
 import { useListState } from "@react-stately/list";
 
 import styles from "./styles.module.css";
-import type { ButtonGroupProps } from "../../../index";
-import { useActionGroup } from "./useActionGroup";
+import type { ActionGroupProps } from "./types";
 import { IconButton } from "../../IconButton";
+import { useActionGroup } from "./useActionGroup";
+import { Item, Menu, MenuList } from "../../Menu";
 import { ActionGroupItem } from "./ActionGroupItem";
 
 const _ActionGroup = <T extends object>(
-  props: ButtonGroupProps<T>,
+  props: ActionGroupProps<T>,
   ref: DOMRef<HTMLDivElement>,
 ) => {
   const {
+    alignment = "start",
     color = "accent",
     density = "regular",
     isDisabled,
@@ -42,6 +43,7 @@ const _ActionGroup = <T extends object>(
     <FocusScope>
       <div
         className={styles.actionGroup}
+        data-alignment={alignment}
         data-density={Boolean(density) ? density : undefined}
         data-orientation={orientation}
         data-overflow={overflowMode}

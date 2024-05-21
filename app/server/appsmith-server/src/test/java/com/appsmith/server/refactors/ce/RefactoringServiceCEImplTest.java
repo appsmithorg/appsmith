@@ -168,7 +168,8 @@ class RefactoringServiceCEImplTest {
         layout1.setId("testLayoutId");
         layout1.setDsl(jsonObject);
         pageDTO.setLayouts(List.of(layout1));
-        Mockito.when(newPageService.getById(Mockito.anyString())).thenReturn(Mono.just(newPage));
+        Mockito.when(newPageService.getByIdWithoutPermissionCheck(Mockito.anyString()))
+                .thenReturn(Mono.just(newPage));
 
         Mockito.when(newPageService.findPageById(Mockito.anyString(), Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(pageDTO));
@@ -242,7 +243,8 @@ class RefactoringServiceCEImplTest {
         newPage.setUnpublishedPage(pageDTO);
         Mockito.when(newPageService.findPageById(Mockito.anyString(), Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(pageDTO));
-        Mockito.when(newPageService.getById(Mockito.anyString())).thenReturn(Mono.just(newPage));
+        Mockito.when(newPageService.getByIdWithoutPermissionCheck(Mockito.anyString()))
+                .thenReturn(Mono.just(newPage));
 
         final Mono<LayoutDTO> layoutDTOMono =
                 refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO, null);
@@ -295,7 +297,8 @@ class RefactoringServiceCEImplTest {
         layout1.setId("testLayoutId");
         layout1.setDsl(new JSONObject());
         pageDTO.setLayouts(List.of(layout1));
-        Mockito.when(newPageService.getById(Mockito.anyString())).thenReturn(Mono.just(newPage));
+        Mockito.when(newPageService.getByIdWithoutPermissionCheck(Mockito.anyString()))
+                .thenReturn(Mono.just(newPage));
 
         Mockito.when(newPageService.findPageById(Mockito.anyString(), Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(pageDTO));

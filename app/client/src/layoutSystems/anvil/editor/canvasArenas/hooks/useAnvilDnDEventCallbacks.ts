@@ -16,6 +16,8 @@ import {
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type { AnvilDnDListenerStates } from "./useAnvilDnDListenerStates";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
+import type { AnvilDetachedWidgetsDnDDetail } from "../../hooks/useAnvilDetachedWidgetsDnD";
+import { widgetHierarchy } from "layoutSystems/anvil/utils/constants";
 
 export const useAnvilDnDEventCallbacks = ({
   anvilDnDListenerRef,
@@ -41,6 +43,7 @@ export const useAnvilDnDEventCallbacks = ({
     activateOverlayWidgetDrop,
     allowToDrop,
     canActivate,
+    currentWidgetHierarchy,
     draggedBlocks,
     edgeCompensatorValues,
     isCurrentDraggedCanvas,
@@ -71,10 +74,11 @@ export const useAnvilDnDEventCallbacks = ({
     // Resetting the dnd listener state when necessary
     if (anvilDnDListenerRef.current) {
       removeDisallowDroppingsUI(anvilDnDListenerRef.current);
-      canvasIsDragging.current = false;
-      dispatch(setHighlightsDrawnAction());
-      setHighlightShown(null);
     }
+    canvasIsDragging.current = false;
+    dispatch(setHighlightsDrawnAction());
+    setHighlightShown(null);
+    currentSelectedHighlight.current = null;
   }, [dispatch, setHighlightShown]);
   const onMouseUp = useCallback(() => {
     if (
@@ -207,10 +211,26 @@ export const useAnvilDnDEventCallbacks = ({
   );
 
   const onMouseOut = useCallback(() => {
-    setDraggingCanvas("");
-  }, [setDraggingCanvas]);
+    if (currentWidgetHierarchy !== widgetHierarchy.WDS_MODAL_WIDGET) {
+      // mouse out is handled by useAnvilDetachedWidgetsDnD for detached widgets(modal widgets)
+      setDraggingCanvas("");
+    }
+  }, [setDraggingCanvas, currentWidgetHierarchy]);
+
+  const onMouseMoveForDetachedWidgets = useCallback(
+    ((e: CustomEvent<AnvilDetachedWidgetsDnDDetail>) => {
+      if (currentWidgetHierarchy === widgetHierarchy.WDS_MODAL_WIDGET) {
+        anvilDnDListenerRef.current?.dispatchEvent(
+          new MouseEvent("mousemove", e.detail.event),
+        );
+      }
+    }) as EventListener,
+    [currentWidgetHierarchy],
+  );
+
   return {
     onMouseMove,
+    onMouseMoveForDetachedWidgets,
     onMouseOver,
     onMouseOut,
     onMouseUp,
