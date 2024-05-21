@@ -1459,23 +1459,21 @@ Cypress.Commands.add(
     cy.get(tooltipSelector).should("be.visible").and("contain", expectedText);
   },
 );
+
 Cypress.Commands.add(
   "paste",
-  {
-    prevSubject: true,
-    element: true,
-  },
-  ($element, text) => {
-    const subString = text.slice(0, -1);
-    const lastChar = text.slice(-1);
-
-    cy.get(commonlocators.entityExplorersearch)
-      .clear({ force: true })
-      .click({ force: true })
-      .then(() => {
-        $element.text(subString);
-        $element.val(subString);
-        cy.get($element).type(lastChar);
-      });
+  { prevSubject: true },
+  (selector, pastePayload) => {
+    cy.wrap(selector).then(($destination) => {
+      const pasteEvent = Object.assign(
+        new Event("paste", { bubbles: true, cancelable: true }),
+        {
+          clipboardData: {
+            getData: () => pastePayload,
+          },
+        },
+      );
+      $destination[0].dispatchEvent(pasteEvent);
+    });
   },
 );
