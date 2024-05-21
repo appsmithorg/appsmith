@@ -76,6 +76,9 @@ jobs:
           cat <<EOF
           ${{ toJson(inputs) }}
           EOF
+          echo "github.pull_request.base.ref = ${{ github.pull_request.base.ref }}"
+          echo "steps.changed-files-specific.outputs.any_changed = ${{ steps.changed-files-specific.outputs.any_changed }}"
+          echo "github.event_name = ${{ github.event_name }}"
     
       - name: Get changed files in the client folder
         id: changed-files-specific
