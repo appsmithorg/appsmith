@@ -4,6 +4,8 @@ function parseConfig() {
 const LOG_LEVELS = ["debug", "error"];
 const CONFIG_LOG_LEVEL_INDEX = 1;
 
+//dummy edit
+
 module.exports = {
   setupFiles: ["jest-canvas-mock"],
   roots: ["<rootDir>/src"],
