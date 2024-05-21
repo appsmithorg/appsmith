@@ -21,7 +21,7 @@ describe(
       partialImportExport.OpenExportModal();
     });
 
-    it("1. Import Downloaded file and Verify all the widgets and their properties", () => {
+    it("1. Test to export a partial app, import it, and verify all the widgets and their properties", () => {
       //Export widgets selected
       partialImportExport.PartiallyExportFile(
         4,
