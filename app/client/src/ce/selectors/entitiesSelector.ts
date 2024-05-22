@@ -1507,13 +1507,13 @@ export const getQuerySegmentItems = createSelector(
         );
         if (action.config.pluginType === PluginType.API) {
           group = isEmbeddedRestDatasource(action.config.datasource)
-            ? "APIs"
+            ? GROUP_TYPES.API
             : datasourceIdToNameMap[action.config.datasource.id] ?? "APIs";
         } else if (action.config.pluginType === PluginType.AI) {
           group = isEmbeddedAIDataSource(action.config.datasource)
-            ? "AI Queries"
+            ? GROUP_TYPES.AI
             : datasourceIdToNameMap[action.config.datasource.id] ??
-              "AI Queries";
+              GROUP_TYPES.AI;
         } else {
           group = datasourceIdToNameMap[action.config.datasource.id];
         }
