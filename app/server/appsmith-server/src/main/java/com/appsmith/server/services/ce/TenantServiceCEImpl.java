@@ -168,7 +168,25 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         // Fetching Tenant from redis cache
         return getDefaultTenantId()
                 .flatMap(tenantId -> cacheableRepositoryHelper.fetchDefaultTenant(tenantId))
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
+                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)))
+                .onErrorResume(e -> {
+                    log.error("Error fetching default tenant from redis!", e);
+                    // If there is an error fetching the tenant from the cache, then evict the cache and fetching from
+                    // the db. This handles the case for deserialization errors. This prevents the entire instance to
+                    // go down if tenant cache is corrupted.
+                    // More info - https://github.com/appsmithorg/appsmith/issues/33504
+                    return cacheableRepositoryHelper
+                            .evictCachedTenant(tenantId)
+                            .then(repository.findBySlug(FieldName.DEFAULT).map(tenant -> {
+                                if (tenant.getTenantConfiguration() == null) {
+                                    tenant.setTenantConfiguration(new TenantConfiguration());
+                                }
+                                return tenant;
+                            }))
+                            .flatMap(tenant -> repository
+                                    .setUserPermissionsInObject(tenant)
+                                    .switchIfEmpty(Mono.just(tenant)));
+                });
     }
 
     @Override
