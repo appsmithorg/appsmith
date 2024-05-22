@@ -40,6 +40,7 @@ public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCE
                 responseUtils,
                 applicationPermission,
                 objectMapper,
-                sessionUserService);
+                sessionUserService,
+                cacheableTemplateHelper);
     }
 }

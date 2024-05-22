@@ -12,6 +12,8 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
+import com.appsmith.server.dtos.CacheableApplicationJson;
+import com.appsmith.server.dtos.CacheableApplicationTemplate;
 import com.appsmith.server.dtos.TemplateDTO;
 import com.appsmith.server.dtos.TemplateUploadDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -40,9 +42,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.server.helpers.CacheableTemplateHelper.clearTemplateApplicationDataCache;
+import static com.appsmith.server.helpers.CacheableTemplateHelper.clearTemplateMetadataCache;
 import static com.appsmith.server.helpers.CacheableTemplateHelper.getApplicationByTemplateId;
 import static com.appsmith.server.helpers.CacheableTemplateHelper.getTemplates;
 
@@ -59,6 +64,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final ApplicationPermission applicationPermission;
     private final ObjectMapper objectMapper;
     private final SessionUserService sessionUserService;
+
+    private final int CACHE_LIFE_TIME_IN_SECONDS = 60 * 60 * 24; // 24 hours
 
     public ApplicationTemplateServiceCEImpl(
             CloudServicesConfig cloudServicesConfig,
@@ -109,7 +116,17 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
     @Override
     public Mono<List<ApplicationTemplate>> getActiveTemplates(List<String> templateIds) {
-        return getTemplates(releaseNotesService.getRunningVersion(), cloudServicesConfig.getBaseUrl());
+        return getTemplates(releaseNotesService.getRunningVersion(), cloudServicesConfig.getBaseUrl())
+                .flatMap(templates -> {
+                    if (Instant.now().minusSeconds(CACHE_LIFE_TIME_IN_SECONDS).isAfter(templates.getLastUpdated())) {
+                        return clearTemplateMetadataCache(releaseNotesService.getRunningVersion())
+                                .then(Mono.defer(() -> getTemplates(
+                                        releaseNotesService.getRunningVersion(), cloudServicesConfig.getBaseUrl())))
+                                .map(CacheableApplicationTemplate::getApplicationTemplateList);
+                    } else {
+                        return Mono.just(templates.getApplicationTemplateList());
+                    }
+                });
     }
 
     @Override
@@ -133,7 +150,17 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     @Override
     public Mono<ApplicationJson> getApplicationJsonFromTemplate(String templateId) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
-        return getApplicationByTemplateId(templateId, baseUrl);
+        return getApplicationByTemplateId(templateId, baseUrl).flatMap(cacheableApplicationJson -> {
+            if (Instant.now()
+                    .minusSeconds(CACHE_LIFE_TIME_IN_SECONDS)
+                    .isAfter(cacheableApplicationJson.getLastUpdated())) {
+                return clearTemplateApplicationDataCache(templateId)
+                        .then(Mono.defer(() -> getApplicationByTemplateId(templateId, baseUrl)))
+                        .map(CacheableApplicationJson::getApplicationJson);
+            } else {
+                return Mono.just(cacheableApplicationJson.getApplicationJson());
+            }
+        });
     }
 
     @Override
