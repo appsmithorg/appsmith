@@ -954,9 +954,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   cy.intercept("GET", "/api/v1/plugins/*/form").as("getPluginForm");
   cy.intercept("DELETE", "/api/v1/applications/*").as("deleteApplication");
-  cy.intercept("POST", "/api/v1/applications?workspaceId=*").as(
-    "createNewApplication",
-  );
+  cy.intercept("POST", "/api/v1/applications").as("createNewApplication");
   cy.intercept("PUT", "/api/v1/applications/*").as("updateApplication");
   cy.intercept("PUT", "/api/v1/actions/*").as("saveAction");
   cy.intercept("PUT", "/api/v1/actions/move").as("moveAction");
