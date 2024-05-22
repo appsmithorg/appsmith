@@ -2516,4 +2516,4 @@ export const BUTTON_WIDGET_DEFAULT_LABEL = () => "Do something";
 export const PAGE_ENTITY_NAME = "Page";
 
 export const EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON = () =>
-  "Connect a datasource to enable functionality in this app.";
+  "Create a datasource to power your app with data.";
