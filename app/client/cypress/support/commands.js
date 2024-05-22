@@ -1475,3 +1475,9 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
+  cy.LogOutUser();
+  cy.LoginUser(uname, pword);
+  initLocalstorage();
+});
