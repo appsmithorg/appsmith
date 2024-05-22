@@ -1,6 +1,5 @@
 package com.appsmith.external.helpers.restApiUtils.helpers;
 
-import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.models.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
@@ -100,10 +99,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
         AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
 
         // if authenticationType is api_key then check the addTo method and mask the api_key set by user accordingly.
-        if (authentication != null
-                && authentication.getAuthenticationType() != null
-                && authentication.getAuthenticationType().equals(Authentication.API_KEY)) {
-            ApiKeyAuth auth = (ApiKeyAuth) authentication;
+        if (authentication instanceof ApiKeyAuth auth) {
             if (auth.getAddTo() != null) {
                 if (auth.getAddTo().equals(ApiKeyAuth.Type.HEADER)) {
                     headerToMask = auth.getLabel();
