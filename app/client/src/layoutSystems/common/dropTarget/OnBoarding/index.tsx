@@ -18,6 +18,7 @@ import { getIsMobileCanvasLayout } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import BuildingBlockExplorerDropTarget from "../buildingBlockExplorerDropTarget";
 import StarterBuildingBlocks from "../starterBuildingBlocks";
+
 function Onboarding() {
   const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
   const appState = useCurrentAppState();
