@@ -3,6 +3,7 @@ package com.appsmith.server.domains.ce;
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -57,19 +58,37 @@ public class CustomJSLibCE extends BranchAwareDomain {
     String defs;
 
     public CustomJSLibCE(String name, Set<String> accessor, String url, String docsUrl, String version, String defs) {
-        this.name = name;
-        this.accessor = accessor;
-        this.url = url;
-        this.docsUrl = docsUrl;
-        this.defs = defs;
-        this.version = version;
-        setUidString();
+        setName(name);
+        setAccessor(accessor);
+        setUrl(url);
+        setDocsUrl(docsUrl);
+        setDefs(defs);
+        setVersion(version);
     }
 
-    public void setUidString() {
-        List<String> accessorList = new ArrayList(this.accessor);
-        Collections.sort(accessorList);
-        this.uidString = String.join("_", accessorList) + "_" + this.url;
+    public void setAccessor(Set<String> value) {
+        accessor = value;
+        recomputeUid();
+    }
+
+    public void setUrl(String value) {
+        url = value;
+        recomputeUid();
+    }
+
+    private void recomputeUid() {
+        final List<String> items = new ArrayList<>();
+
+        // Add all accessor items, sorted.
+        if (!CollectionUtils.isNullOrEmpty(accessor)) {
+            items.addAll(accessor);
+            Collections.sort(items);
+        }
+
+        // Add URL to the end of sorted accessors list.
+        items.add(url);
+
+        setUidString(String.join("_", items));
     }
 
     /**
