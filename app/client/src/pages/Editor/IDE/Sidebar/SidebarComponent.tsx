@@ -36,7 +36,6 @@ function SidebarComponent(props: SidebarComponentProps) {
         if (datasources.length === 0)
           return {
             conditionIcon: "warning",
-            conditionIconColor: "#FFE283",
             tooltip: conditionTooltip,
           };
         return {};
@@ -78,10 +77,6 @@ function SidebarComponent(props: SidebarComponentProps) {
             }}
             selected={appState === b.state}
             tooltip={b.title}
-            {...getConditionalIconAndTooltip(
-              b.conditionType,
-              b.conditionTooltip,
-            )}
           />
         ))}
       </div>

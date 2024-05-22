@@ -11,7 +11,6 @@ export interface SidebarButtonProps {
   onClick: () => void;
   tooltip?: string;
   conditionIcon?: string;
-  conditionIconColor?: string;
 }
 
 const Container = styled.div`
@@ -48,6 +47,9 @@ const ConditionIcon = styled(Icon)`
   position: absolute;
   bottom: 3px;
   right: -1px;
+  &.t--sidebar-${SidebarTopButtonTitles.DATA}-condition-icon {
+    color: #ffe283;
+  }
 `;
 
 function SidebarButton(props: SidebarButtonProps) {
@@ -70,7 +72,7 @@ function SidebarButton(props: SidebarButtonProps) {
           <Icon name={props.icon} size="lg" />
           {props.conditionIcon && (
             <ConditionIcon
-              color={props.conditionIconColor}
+              className={`t--sidebar-${props.title}-condition-icon`}
               name={props.conditionIcon}
               size="md"
             />

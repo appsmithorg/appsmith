@@ -10,12 +10,11 @@ const sidebarButtonProps: SidebarButtonProps = {
   selected: false,
   title: TopButtons[1].title,
   conditionIcon: "warning",
-  conditionIconColor: "#FFE283",
   tooltip: TopButtons[1].conditionTooltip,
 };
 
 describe("SidebarButton", () => {
-  it("is rendered", () => {
+  it("should render the warning icon incase the datasource list is empty", () => {
     const { container } = render(<SidebarButton {...sidebarButtonProps} />);
 
     const svgs = container.querySelectorAll("svg");
