@@ -72,7 +72,7 @@ export function handleWidgetUpdate(
       middleware: [
         flip(),
         shift(),
-        offset({ mainAxis: 8, crossAxis: -5 }),
+        offset({ mainAxis: 0, crossAxis: -5 }),
         getOverflowMiddleware(widgetsEditorElement as HTMLDivElement),
         hide({ strategy: "referenceHidden" }),
         hide({ strategy: "escaped" }),
