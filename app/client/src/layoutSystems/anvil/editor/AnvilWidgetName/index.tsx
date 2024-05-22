@@ -43,7 +43,7 @@ export function AnvilWidgetName(props: {
     (state) => getWidgetErrorCount(state, widgetId) > 0,
   );
 
-  const isParentSelected = useSelector(isWidgetSelected(parentId || ""));
+  const isParentSelected = useSelector(isWidgetSelected(parentId));
 
   const styleProps = getWidgetNameComponentStyleProps(
     widgetType,
