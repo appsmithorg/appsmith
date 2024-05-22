@@ -53,7 +53,7 @@ public class TenantConfigurationCE {
 
     Boolean isStrongPasswordPolicyEnabled;
 
-    private Boolean isAtomicPushAllowed;
+    private Boolean isAtomicPushAllowed = false;
 
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
