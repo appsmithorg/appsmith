@@ -20,6 +20,7 @@ import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 export interface WorkspaceActionProps {
   workspace: Workspace;
@@ -45,6 +46,7 @@ function WorkspaceAction({
   const isCreatingApplication = Boolean(
     useSelector(getIsCreatingApplicationByWorkspaceId(workspace.id)),
   );
+  const isAirgappedInstance = isAirgapped();
 
   const openActionMenu = useCallback(() => {
     setIsActionMenuOpen(true);
@@ -93,14 +95,16 @@ function WorkspaceAction({
         </MenuItem>
         {<Divider className="!block mb-[2px]" />}
 
-        <MenuItem
-          data-testid="t--workspace-action-create-app-from-template"
-          disabled={!hasCreateNewApplicationPermission}
-          onSelect={() => onStartFromTemplate(workspaceId)}
-          startIcon="layout-2-line"
-        >
-          {createMessage(NEW_APP_FROM_TEMPLATE)}
-        </MenuItem>
+        {!isAirgappedInstance && (
+          <MenuItem
+            data-testid="t--workspace-action-create-app-from-template"
+            disabled={!hasCreateNewApplicationPermission}
+            onSelect={() => onStartFromTemplate(workspaceId)}
+            startIcon="layout-2-line"
+          >
+            {createMessage(NEW_APP_FROM_TEMPLATE)}
+          </MenuItem>
+        )}
 
         {enableImportExport && hasCreateNewApplicationPermission && (
           <MenuItem
