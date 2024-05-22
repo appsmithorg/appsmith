@@ -1497,3 +1497,8 @@ Cypress.Commands.add("createJSObject", (JSCode) => {
 Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
   PageLeftPane.expandCollapseItem(item);
 });
+
+Cypress.Commands.add("text", { prevSubject: true }, (subject, text) => {
+  subject.val(text);
+  return cy.wrap(subject);
+});
