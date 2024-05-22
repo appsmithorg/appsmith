@@ -55,25 +55,7 @@ public class SeedData {
                             .orElseThrow() /* this is when config exists, but permission group doesn't */;
                     return new PublicPermissionInfo(permissionGroup, config);
                 })
-                .orElseGet(() -> {
-                    log.debug("Adding anonymous user permission group");
-                    // Find anonymous user
-                    final User anonymousUser =
-                            userRepository.findByEmail(FieldName.ANONYMOUS_USER).orElseThrow();
-
-                    final PermissionGroup publicPermissionGroup = new PermissionGroup();
-                    publicPermissionGroup.setName(FieldName.PUBLIC_PERMISSION_GROUP);
-                    publicPermissionGroup.setDescription("Role for giving accesses for all objects to anonymous users");
-                    assert anonymousUser.getId() != null : "Anonymous user id is null";
-                    publicPermissionGroup.setAssignedToUserIds(Set.of(anonymousUser.getId()));
-                    permissionGroupRepository.save(publicPermissionGroup);
-
-                    final Config config = configRepository.save(new Config(
-                            new JSONObject(Map.of(FieldName.PERMISSION_GROUP_ID, publicPermissionGroup.getId())),
-                            FieldName.PUBLIC_PERMISSION_GROUP));
-
-                    return new PublicPermissionInfo(publicPermissionGroup, config);
-                });
+                .orElse(null);
     }
 
     @Bean

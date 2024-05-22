@@ -154,12 +154,13 @@ public class RepositoryHelperMethods {
     public PermissionGroup createPermissionGroup(PermissionGroup permissionGroup) throws JsonProcessingException {
         String uuid = UUID.randomUUID().toString();
         String insertInstanceConfigurationQuery =
-                "INSERT INTO permission_group (id, name,  permissions, created_at, updated_at) VALUES (?, ?, cast(? as jsonb), now(), now())";
+                "INSERT INTO permission_group (id, name, permissions, assigned_to_user_ids, created_at, updated_at) VALUES (?, ?, cast(? as jsonb), ?::jsonb, now(), now())";
         jdbcTemplate.update(
                 insertInstanceConfigurationQuery,
                 uuid,
                 permissionGroup.getName(),
-                JsonHelper.convertToString(permissionGroup.getPermissions()));
+                JsonHelper.convertToString(permissionGroup.getPermissions()),
+                JsonHelper.convertToString(permissionGroup.getAssignedToUserIds()));
         permissionGroup.setId(uuid);
         return permissionGroup;
     }
