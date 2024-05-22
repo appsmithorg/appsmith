@@ -3,14 +3,15 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 export const defaultsConfig = {
   isVisible: true,
-  widgetName: "StatBoxWidget",
+  widgetName: "StatsWidget",
   version: 1,
   animateLoading: true,
-  valueImpact: "positive",
+  valueColor: "neutral",
   valueChange: "+50%",
+  valueChangeColor: "positive",
   value: "42",
   label: "Active Users",
-  sublabel: "This week",
+  caption: "This week",
   iconName: "shopping-bag",
   responsiveBehavior: ResponsiveBehavior.Fill,
 } as unknown as WidgetDefaultProps;

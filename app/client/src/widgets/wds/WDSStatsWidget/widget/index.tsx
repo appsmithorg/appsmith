@@ -4,16 +4,17 @@ import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 
 import * as config from "../config";
-import { StatBoxComponent } from "../component";
-import type { StatBoxWidgetProps } from "./types";
+import { StatsComponent } from "../component";
+import type { StatsWidgetProps } from "./types";
 import type { AnvilConfig } from "WidgetProvider/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
-class WDSStatBoxWidget extends BaseWidget<StatBoxWidgetProps, WidgetState> {
-  constructor(props: StatBoxWidgetProps) {
+class WDSStatsWidget extends BaseWidget<StatsWidgetProps, WidgetState> {
+  constructor(props: StatsWidgetProps) {
     super(props);
   }
 
-  static type = "WDS_STATBOX_WIDGET";
+  static type = "WDS_STATS_WIDGET";
 
   static getConfig() {
     return config.metaConfig;
@@ -48,8 +49,29 @@ class WDSStatBoxWidget extends BaseWidget<StatBoxWidgetProps, WidgetState> {
   }
 
   getWidgetView() {
-    return <StatBoxComponent {...this.props} />;
+    const onClick = () => {
+      if (this.props.onClick) {
+        this.setState({ isLoading: true });
+
+        super.executeAction({
+          triggerPropertyName: "onClick",
+          dynamicString: this.props.onClick,
+          event: {
+            type: EventType.ON_CLICK,
+          },
+        });
+
+        return;
+      }
+    };
+
+    return (
+      <StatsComponent
+        {...this.props}
+        onClick={this.props.onClick !== undefined ? onClick : undefined}
+      />
+    );
   }
 }
 
-export { WDSStatBoxWidget };
+export { WDSStatsWidget };

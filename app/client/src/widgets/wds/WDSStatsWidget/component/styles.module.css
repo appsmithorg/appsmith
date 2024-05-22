@@ -1,0 +1,9 @@
+.statbox {
+  border-radius: var(--border-radius-elevation-3);
+  width: 100%;
+}
+
+.statbox[data-clickable]:hover {
+  cursor: pointer;
+  background: var(--color-bg-elevation-3);
+}

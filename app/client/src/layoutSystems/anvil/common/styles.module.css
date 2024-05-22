@@ -3,12 +3,15 @@
   [data-elevation] — true or false, indicates whether elevation is enabled or not
   [elevation="1"] — section
   [elevation="2"] — zone
+  [elevation="3"] — card
 */
 .anvilWidgetWrapper {
   /** If a section or zone have elevation, then add padding */
   [data-elevation="true"][elevation="1"],
   [data-elevation="true"][elevation="2"],
-  [elevation="1"]:has([data-elevation="true"]) [data-elevation="false"] {
+  [data-elevation="true"][elevation="3"],
+  [elevation="1"]:has([data-elevation="true"]) [data-elevation="false"],
+  [elevation="2"]:has([data-elevation="true"]) [data-elevation="false"] {
     padding-block: var(--outer-spacing-3);
     padding-inline: var(--outer-spacing-3);
   }
