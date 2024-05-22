@@ -1475,3 +1475,25 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("LogintoAppTestUser", (uname, pword) => {
+  cy.LogOutUser();
+  cy.LoginUser(uname, pword);
+  initLocalstorage();
+});
+
+Cypress.Commands.add("createJSObject", (JSCode) => {
+  cy.NavigateToJSEditor();
+  cy.wait(1000);
+  cy.get(".CodeMirror textarea")
+    .first()
+    .focus()
+    .type("{downarrow}{downarrow}{downarrow}{downarrow}  ")
+    .type(JSCode);
+  cy.wait(1000);
+  cy.get(jsEditorLocators.runButton).first().click();
+});
+
+Cypress.Commands.add("CheckAndUnfoldEntityItem", (item) => {
+  PageLeftPane.expandCollapseItem(item);
+});
