@@ -188,7 +188,7 @@ To change Appsmith configurations, you can use configuration UI in application o
 | `applicationConfig.APPSMITH_RECAPTCHA_SITE_KEY`					| `""`									|
 | `applicationConfig.APPSMITH_RECAPTCHA_SECRET_KEY`				| `""`									|
 | `applicationConfig.APPSMITH_RECAPTCHA_ENABLED`					| `""`									|
-| `applicationConfig.APPSMITH_DB_URL`								| `""`									|
+| `applicationConfig.APPSMITH_MONGODB_URI`								| `""`									|
 | `applicationConfig.APPSMITH_REDIS_URL`									| `""`									|
 | `applicationConfig.APPSMITH_ENCRYPTION_PASSWORD`				| `""`									|
 | `applicationConfig.APPSMITH_ENCRYPTION_SALT`						| `""`									|
