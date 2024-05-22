@@ -60,7 +60,7 @@ public class VisionCommand implements OpenAICommand {
 
     private final Gson gson;
 
-    private final String regex = "(ft:)?(gpt).*(vision).*";
+    private final String regex = "^(gpt-4-(vision-preview|\\d{4}-vision-preview)|gpt-4o(.*)?|ft:(gpt-4-(vision-preview|\\d{4}-vision-preview)|gpt-4o).*)$";
     private final Pattern pattern = Pattern.compile(regex);
 
     @Override
