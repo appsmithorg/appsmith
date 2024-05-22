@@ -24,7 +24,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -176,7 +175,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
 
         return rtsCaller
                 .get("/rts-api/v1/health-check")
-                .flatMap(WebClient.ResponseSpec::toBodilessEntity)
+                .flatMap((spec) -> spec.retrieve().toBodilessEntity())
                 .doOnNext(nextSignal -> {
                     log.debug("RTS health check succeeded");
                     this.isRtsAccessible = true;

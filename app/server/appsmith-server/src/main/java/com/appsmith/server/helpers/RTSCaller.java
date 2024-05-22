@@ -44,7 +44,7 @@ public class RTSCaller {
                 .build();
     }
 
-    private Mono<WebClient.ResponseSpec> makeRequest(HttpMethod method, String path, Object requestBody) {
+    private Mono<WebClient.RequestBodySpec> makeRequest(HttpMethod method, String path, Object requestBody) {
         final WebClient.RequestBodySpec spec = webClient.method(method).uri(path);
 
         if (requestBody != null) {
@@ -64,15 +64,19 @@ public class RTSCaller {
                 }
             }
 
-            return spec.retrieve();
+            return spec;
         });
     }
 
-    public Mono<WebClient.ResponseSpec> get(@NonNull String path) {
+    public Mono<WebClient.RequestBodySpec> get(@NonNull String path) {
         return makeRequest(HttpMethod.GET, path, null);
     }
 
-    public Mono<WebClient.ResponseSpec> post(@NonNull String path, @NonNull Object requestBody) {
+    public Mono<WebClient.RequestBodySpec> post(@NonNull String path, @NonNull Object requestBody) {
         return makeRequest(HttpMethod.POST, path, requestBody);
+    }
+
+    public Mono<WebClient.RequestBodySpec> put(@NonNull String path, @NonNull Object requestBody) {
+        return makeRequest(HttpMethod.PUT, path, requestBody);
     }
 }

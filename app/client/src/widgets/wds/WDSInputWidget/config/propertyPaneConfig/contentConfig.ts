@@ -76,6 +76,9 @@ export const propertyPaneContentConfig = [
   },
   {
     sectionName: "Validation",
+    hidden: (props: InputWidgetProps) => {
+      return Boolean(props.isReadOnly);
+    },
     children: [
       {
         propertyName: "isRequired",

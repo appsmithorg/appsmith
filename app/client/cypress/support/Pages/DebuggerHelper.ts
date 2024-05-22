@@ -12,17 +12,12 @@ export class DebuggerHelper {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private commonLocators = ObjectsRegistry.CommonLocators;
 
-  // ActionExecutionResizerHeight -> in repo
-  private readonly bottomPaneHeight = 360;
-  // from design system
-  private readonly TAB_MIN_HEIGHT = 36;
-
   public readonly locators = {
     _debuggerIcon: ".t--debugger-count",
     _debuggerToggle: "[data-testid=t--debugger-toggle]",
     _debuggerDownStreamErrMsg: "[data-testid=t--debugger-downStreamErrorMsg]",
     _tabsContainer: ".t--debugger-tabs-container",
-    _closeButton: ".t--close-debugger",
+    _closeButton: "[data-testid=t--view-hide-button]",
     _logMessage: ".t--debugger-log-message",
     _logEntityLink: ".t--debugger-log-entity-link",
     _logState: ".t--debugger-log-state",

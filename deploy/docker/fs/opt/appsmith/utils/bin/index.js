@@ -13,6 +13,11 @@ const APPLICATION_CONFIG_PATH = "/appsmith-stacks/configuration/docker.env";
 // Loading latest application configuration
 require("dotenv").config({ path: APPLICATION_CONFIG_PATH });
 
+// Check if APPSMITH_DB_URL is set, if not set, fall back to APPSMITH_MONGODB_URI
+if (!process.env.APPSMITH_DB_URL) {
+  process.env.APPSMITH_DB_URL = process.env.APPSMITH_MONGODB_URI;
+}
+
 const command = process.argv[2];
 
 if (["export-db", "export_db", "ex"].includes(command)) {
