@@ -19,7 +19,7 @@ public class DSLMigrationUtils {
                 new ParameterizedTypeReference<>() {};
         return rtsCaller
                 .get("/rts-api/v1/dsl/version")
-                .flatMap(spec -> spec.bodyToMono(parameterizedTypeReference))
+                .flatMap(spec -> spec.retrieve().bodyToMono(parameterizedTypeReference))
                 .map(responseDTO -> responseDTO.getData().getVersion());
     }
 
@@ -34,7 +34,7 @@ public class DSLMigrationUtils {
 
         return rtsCaller
                 .post("/rts-api/v1/dsl/migrate", pageDsl)
-                .flatMap(spec -> spec.bodyToMono(parameterizedTypeReference))
+                .flatMap(spec -> spec.retrieve().bodyToMono(parameterizedTypeReference))
                 .map(responseDTO -> responseDTO.getData());
     }
 }

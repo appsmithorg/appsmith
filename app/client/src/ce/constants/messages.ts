@@ -701,7 +701,9 @@ export const IMPORT_APP_SUCCESSFUL = () => "Application imported successfully";
 //Unable to import application in workspace
 export const UNABLE_TO_IMPORT_APP = () =>
   "Unable to import application in workspace";
-
+//
+export const ERROR_IN_EXPORTING_APP = () =>
+  "Error exporting application. Please try again.";
 //undo redo
 export const WIDGET_REMOVED = (widgetName: string) =>
   `${widgetName} is removed`;
