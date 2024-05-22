@@ -307,6 +307,10 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                         workspaceId, defaultApplicationId, repoName, branchName, ArtifactType.APPLICATION))
                 .flatMap(r -> setProgress(r, defaultApplicationId, 30))
                 .flatMap(applicationJson -> {
+                    ModifiedResources modifiedResources = new ModifiedResources();
+                    // setting all modified would help in serialisation of all the files, unoptimised
+                    modifiedResources.setAllModified(true);
+                    applicationJson.setModifiedResources(modifiedResources);
                     return saveApplicationJsonToFileSystem((ApplicationJson) applicationJson, autoCommitEvent);
                 })
                 .flatMap(r -> setProgress(r, defaultApplicationId, 50))
