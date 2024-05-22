@@ -122,10 +122,10 @@ export const PropertyPaneSidebar = memo((props: Props) => {
   }, [isWalkthroughOpened]);
 
   return (
-    <div className="relative h-full">
+    <div className="relative h-full bg-white border-l ">
       {/* PROPERTY PANE */}
       <div
-        className="js-property-pane-sidebar t--property-pane-sidebar flex h-full border-l bg-white"
+        className="js-property-pane-sidebar t--property-pane-sidebar flex h-full"
         id={PROPERTY_PANE_ID}
         ref={sidebarRef}
       >

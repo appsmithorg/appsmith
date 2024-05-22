@@ -4,6 +4,9 @@ import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { CreateNewQueryModal } from "pages/Editor/IDE/RightPane/components/CreateNewQueryModal";
+import classNames from "classnames";
+import { tailwindLayers } from "constants/Layers";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 
 /**
  * PropertyPaneWrapper
@@ -30,16 +33,24 @@ function PropertyPaneWrapper() {
   const onRightSidebarWidthChange = useCallback((newWidth) => {
     dispatch(setPropertyPaneWidthAction(newWidth));
   }, []);
+  const isCombinedPreviewMode = useSelector(combinedPreviewModeSelector);
 
   return (
-    <>
+    <div
+      className={classNames({
+        [`transition-transform transform duration-400 h-full ${tailwindLayers.propertyPane}`]:
+          true,
+        relative: !isCombinedPreviewMode,
+        "translate-x-full fixed right-0": isCombinedPreviewMode,
+      })}
+    >
       <PropertyPaneSidebar
         onDragEnd={onRightSidebarDragEnd}
         onWidthChange={onRightSidebarWidthChange}
         width={propertyPaneWidth}
       />
       <CreateNewQueryModal />
-    </>
+    </div>
   );
 }
 
