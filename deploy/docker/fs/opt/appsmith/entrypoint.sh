@@ -194,34 +194,25 @@ check_db_uri() {
   fi
 }
 
-init_local_db() {
+init_mongodb() {
   if [[ $isUriLocal -eq 0 ]]; then
-    if [[ $isMongoUrl -eq 1 ]]; then
-      echo "Initializing local MongoDB"
-      mkdir -p "$MONGO_DB_PATH"
-      mkdir -p "$MONGO_LOG_PATH"
-      MONGO_DB_PATH="$stacks_path/data/mongodb"
-      MONGO_LOG_PATH="$MONGO_DB_PATH/log"
-      MONGO_DB_KEY="$MONGO_DB_PATH/key"
-      mkdir -p "$MONGO_DB_PATH"
-      touch "$MONGO_LOG_PATH"
+    echo "Initializing local database"
+    MONGO_DB_PATH="$stacks_path/data/mongodb"
+    MONGO_LOG_PATH="$MONGO_DB_PATH/log"
+    MONGO_DB_KEY="$MONGO_DB_PATH/key"
+    mkdir -p "$MONGO_DB_PATH"
+    touch "$MONGO_LOG_PATH"
 
-      if [[ ! -f "$MONGO_DB_KEY" ]]; then
-        openssl rand -base64 756 > "$MONGO_DB_KEY"
-      fi
-      use-mongodb-key "$MONGO_DB_KEY"
-      ./mongodb-fixer.sh &
-    elif [[ $isPostgresUrl -eq 1 ]]; then
-      echo "Initializing local Postgres"
-      POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
-      POSTGRES_LOG_PATH="$POSTGRES_DB_PATH/log"
-      mkdir -p "$POSTGRES_DB_PATH"
-      touch "$POSTGRES_LOG_PATH"
+    if [[ ! -f "$MONGO_DB_KEY" ]]; then
+      openssl rand -base64 756 > "$MONGO_DB_KEY"
     fi
+    use-mongodb-key "$MONGO_DB_KEY"
+
+    ./mongodb-fixer.sh &
   fi
 }
 
-init_mongo_replica_set() {
+init_replica_set() {
   echo "Checking initialized database"
   shouldPerformInitdb=1
   for path in \
@@ -293,143 +284,6 @@ use-mongodb-key() {
   chmod 600 "$MONGODB_TMP_KEY_PATH"
 }
 
-init_postgres() {
-  # Initialize embedded postgres by default; set APPSMITH_ENABLE_EMBEDDED_DB to 0, to use existing cloud postgres mockdb instance
-  if [[ $isUriLocal -eq 0 ]]; then
-    echo ""
-    echo "Checking initialized local postgres"
-    POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
-
-    mkdir -p "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
-
-    # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-    chown -R postgres:postgres "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
-
-    if [[ -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
-      echo "Found existing Postgres, Skipping initialization"
-      cleanup_postgres_mock
-    else
-      echo "Initializing local postgresql database"
-      mkdir -p "$POSTGRES_DB_PATH"
-
-      # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-      chown postgres:postgres "$POSTGRES_DB_PATH"
-
-      # Initialize the postgres db file system
-      su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
-      sed -Ei "s,^#(unix_socket_directories =).*,\\1 '$TMP/pg-runtime'," "$POSTGRES_DB_PATH/postgresql.conf"
-
-      # Start the postgres server in daemon mode
-      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
-
-      # Stop the postgres daemon
-      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
-    fi
-  else
-    runEmbeddedPostgres=0
-  fi
-
-}
-
-cleanup_postgres_mock() {
-  psql -U postgres -c "DROP DATABASE mockdb;"
-  psql -U postgres -c "DROP ROLE mockdb;"
-  psql -U postgres -c "DROP DATABASE users;"
-  psql -U postgres -c "DROP ROLE users;"
-}
-
-ensurePostgresAvailability() {
-  if pg_isready -h "${TEMPORAL_DB_HOST}" -p "${TEMPORAL_DB_PORT}"; then
-    echo "PostgreSQL is ready."
-  else
-    echo "PostgreSQL is not ready. Error. Exiting Temporal setup"
-    exit 1
-  fi
-}
-
-# Function to extract details from PostgreSQL connection string
-# Args:
-#     conn_string (string): PostgreSQL connection string
-# Returns:
-#     None
-# Example:
-#     extract_postgres_db_params "postgresql://user:password@localhost:5432/appsmith"
-#     extract_postgres_db_params "postgresql://user:password@localhost/appsmith"
-#     extract_postgres_db_params "postgresql://user@localhost:5432/appsmith"
-#     extract_postgres_db_params "postgresql://user@localhost/appsmith"
-extract_postgres_db_params() {
-  local conn_string=$1
-
-  # Remove the protocol prefix
-  local temp_string="${conn_string#postgresql://}"
-
-  # Extract username and password (if present)
-  local credentials="${temp_string%%@*}"
-  local username="${credentials%%:*}"
-  local password="" # Default if no password
-  if [[ "$credentials" == *":"* ]]; then
-    password="${credentials#*:}"
-  fi
-
-  # Extract the remaining string after '@' and before '?'
-  local after_credentials="${temp_string#*@}"
-  local endpoint_and_db="${after_credentials%%\?*}"
-
-  # Extract endpoint and optional port
-  local endpoint="${endpoint_and_db%%/*}"
-  local port="5432" # Default port
-  if [[ "$endpoint" == *":"* ]]; then
-    port="${endpoint#*:}"
-    endpoint="${endpoint%%:*}"
-  fi
-
-  # Extract database
-  local db="${endpoint_and_db#*/}"
-
-  dbparams[username]="$username"
-  dbparams[password]="$password"
-  dbparams[endpoint]="$endpoint"
-  dbparams[port]="$port"
-  dbparams[db]="$db"
-}
-
-setup_temporal_postgres_embedded() {
-
-  # proceed only if postgres is up and running
-  ensurePostgresAvailability
-
-  # Check if temporal and temporal_visibility schemas exist in postgres. If not, create them.
-  appsmith_db_exists=$(
-    psql \
-      -U "${postgres_admin_user}" \
-      -h "${TEMPORAL_DB_HOST}" \
-      -p "${TEMPORAL_DB_PORT}" \
-      -tAc "SELECT 1 FROM pg_database WHERE datname = '${TEMPORAL_DB_NAME}'"
-  )
-  if [ "$appsmith_db_exists" != "1" ]; then
-    echo "Setting up Temporal Postgres embedded for first time ..."
-
-    # Create temporal user
-    su ${postgres_admin_user} -c "/usr/lib/postgresql/13/bin/createuser -h ${TEMPORAL_DB_HOST} ${TEMPORAL_DB_USER} -s"
-
-    local common_params="--plugin ${temporal_db_plugin} -u ${TEMPORAL_DB_USER}  --ep ${TEMPORAL_DB_HOST} -p ${TEMPORAL_DB_PORT} --db ${TEMPORAL_DB_NAME}"
-
-    # Create common appsmith database
-    "$TEMPORAL_HOME"/temporal-sql-tool ${common_params} create
-
-    # Create temporal namespace and tables
-    SCHEMA_DIR="${temporal_src}/schema/postgresql/${temporal_postgres_version_dir}/temporal/versioned"
-    psql -U "${TEMPORAL_DB_USER}" -h "${TEMPORAL_DB_HOST}" -p "${TEMPORAL_DB_PORT}" -d "${TEMPORAL_DB_NAME}" -c "CREATE SCHEMA ${temporal_schemaname};"
-    "$TEMPORAL_HOME"/temporal-sql-tool ${common_params} --ca "search_path=${temporal_schemaname}" setup-schema -v 0.0
-    "$TEMPORAL_HOME"/temporal-sql-tool ${common_params} --ca "search_path=${temporal_schemaname}" update-schema -d "${SCHEMA_DIR}"
-
-    # Create temporal_visibility namespace and tables
-    VISIBILITY_SCHEMA_DIR="${temporal_src}/schema/postgresql/${temporal_postgres_version_dir}/visibility/versioned"
-    psql -U "${TEMPORAL_DB_USER}" -h "${TEMPORAL_DB_HOST}" -p "${TEMPORAL_DB_PORT}" -d "${TEMPORAL_DB_NAME}" -c "CREATE SCHEMA ${temporal_visibility_schemaname=};"
-    "$TEMPORAL_HOME"/temporal-sql-tool ${common_params} --ca "search_path=${temporal_visibility_schemaname}" setup-schema -v 0.0
-    "$TEMPORAL_HOME"/temporal-sql-tool ${common_params} --ca "search_path=${temporal_visibility_schemaname}" update-schema -d "${VISIBILITY_SCHEMA_DIR}"
-  fi
-}
 is_empty_directory() {
   [[ -d $1 && -z "$(ls -A "$1")" ]]
 }
@@ -507,15 +361,15 @@ configure_supervisord() {
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
-    if [[ $isUriLocal -eq 0 && $isMongoUrl -eq 1 ]]; then
+    if [[ $isUriLocal -eq 0 ]]; then
       cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
-    fi
-    if [[ $isUriLocal -eq 0 && $isPostgresUrl -eq 1 ]]; then
-      cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
     fi
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
+    fi
+    if [[ $runEmbeddedPostgres -eq 1 ]]; then
+      cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
     fi
   fi
 
@@ -547,6 +401,67 @@ check_redis_compatible_page_size() {
   else
     echo "Redis is compatible with page size of $page_size"
   fi
+}
+
+init_postgres() {
+  # Initialize embedded postgres by default; set APPSMITH_ENABLE_EMBEDDED_DB to 0, to use existing cloud postgres mockdb instance
+  if [[ ${APPSMITH_ENABLE_EMBEDDED_DB: -1} != 0 ]]; then
+    echo ""
+    echo "Checking initialized local postgres"
+    POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
+
+    mkdir -p "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
+
+    # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
+    chown -R postgres:postgres "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
+
+    if [[ -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
+      echo "Found existing Postgres, Skipping initialization"
+    else
+      echo "Initializing local postgresql database"
+      mkdir -p "$POSTGRES_DB_PATH"
+
+      # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
+      chown postgres:postgres "$POSTGRES_DB_PATH"
+
+      # Initialize the postgres db file system
+      su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
+      sed -Ei "s,^#(unix_socket_directories =).*,\\1 '$TMP/pg-runtime'," "$POSTGRES_DB_PATH/postgresql.conf"
+
+      # Start the postgres server in daemon mode
+      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
+
+      # Create mockdb db and user and populate it with the data
+      seed_embedded_postgres
+      # Stop the postgres daemon
+      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
+    fi
+  else
+    runEmbeddedPostgres=0
+  fi
+
+}
+
+seed_embedded_postgres(){
+    # Create mockdb database
+    psql -U postgres -c "CREATE DATABASE mockdb;"
+    # Create mockdb superuser
+    su postgres -c "/usr/lib/postgresql/13/bin/createuser mockdb -s"
+    # Dump the sql file containing mockdb data
+    psql -U postgres -d mockdb --file='/opt/appsmith/templates/mockdb_postgres.sql'
+
+    # Create users database
+    psql -U postgres -c "CREATE DATABASE users;"
+    # Create users superuser
+    su postgres -c "/usr/lib/postgresql/13/bin/createuser users -s"
+    # Dump the sql file containing mockdb data
+    psql -U postgres -d users --file='/opt/appsmith/templates/users_postgres.sql'
+}
+
+safe_init_postgres(){
+runEmbeddedPostgres=1
+# fail safe to prevent entrypoint from exiting, and prevent postgres from starting
+init_postgres || runEmbeddedPostgres=0
 }
 
 init_loading_pages(){
@@ -583,14 +498,14 @@ configure_database_connection_url
 check_db_uri
 # Don't run MongoDB if running in a Heroku dyno.
 if [[ -z "${DYNO}" ]]; then
-  init_local_db
   if [[ $isMongoUrl -eq 1 ]]; then
     # Setup MongoDB and initialize replica set
     echo "Initializing MongoDB"
-    init_mongo_replica_set
+    init_mongodb
+    init_replica_set
   elif [[ $isPostgresUrl -eq 1 ]]; then
     echo "Initializing Postgres"
-    init_postgres
+    # init_postgres
   fi
 else
   # These functions are used to limit heap size for Backend process when deployed on Heroku
@@ -604,6 +519,8 @@ check_setup_custom_ca_certificates
 setup-custom-ca-certificates
 
 check_redis_compatible_page_size
+
+safe_init_postgres
 
 configure_supervisord
 
