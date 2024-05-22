@@ -70,14 +70,16 @@ class WDSToolbarButtonsWidget extends BaseWidget<
   };
 
   getWidgetView() {
+    const { alignment, buttonsList, color, variant, widgetId } = this.props;
+
     return (
       <ToolbarButtonsComponent
-        alignment={this.props.alignment}
-        buttonsList={this.props.buttonsList}
-        color={this.props.color}
-        key={this.props.widgetId}
+        alignment={alignment}
+        buttonsList={buttonsList}
+        color={color}
+        key={widgetId}
         onButtonClick={this.onButtonClick}
-        variant={this.props.variant}
+        variant={variant}
       />
     );
   }

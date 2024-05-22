@@ -1,22 +1,22 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import type { ActionGroupItem } from "@design-system/widgets";
-import { ActionGroup } from "@design-system/widgets";
+import type { ToolbarButtonsItem } from "@design-system/widgets";
+import { ToolbarButtons } from "@design-system/widgets";
 
 /**
- * A `ActionGroup` is a group of `MenuItem` that are visually connected together.
+ * A `ToolbarButtons` is a group of `MenuItem` that are visually connected together.
  * The `MenuItem` accepts the same props as the `Button` except `variant` and `color`.
  * More information about `Button` props you can find [here](?path=/docs/design-system-widgets-button--docs).
  */
-const meta: Meta<typeof ActionGroup> = {
-  component: ActionGroup,
-  title: "Design-system/Widgets/ActionGroup",
+const meta: Meta<typeof ToolbarButtons> = {
+  component: ToolbarButtons,
+  title: "Design-system/Widgets/ToolbarButtons",
 };
 
 export default meta;
-type Story = StoryObj<typeof ActionGroup>;
+type Story = StoryObj<typeof ToolbarButtons>;
 
-const items: ActionGroupItem[] = [
+const items: ToolbarButtonsItem[] = [
   { id: 1, label: "Aerospace", icon: "rocket" },
   { id: 2, label: "Mechanical", icon: "settings" },
   { id: 3, label: "Civil" },
@@ -30,5 +30,5 @@ const items: ActionGroupItem[] = [
 ];
 
 export const Main: Story = {
-  render: (args) => <ActionGroup items={items} {...args} />,
+  render: (args) => <ToolbarButtons items={items} {...args} />,
 };

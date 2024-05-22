@@ -3,25 +3,24 @@ import type { ListState } from "@react-stately/list";
 import { useCallback, type RefObject, useMemo } from "react";
 import type { DOMAttributes, FocusableElement } from "@react-types/shared";
 
-import type { ButtonGroupProps } from "../../../";
 import {
   useLayoutEffect,
   useResizeObserver,
   useValueEffect,
 } from "@react-aria/utils";
-import type { ActionGroupProps } from "./types";
+import type { ToolbarButtonsProps } from "./types";
 
-export interface ActionGroupAria {
-  actionGroupProps: DOMAttributes;
+export interface ToolbarButtonsAria {
+  toolbarButtonsProps: DOMAttributes;
   isMeasuring: boolean;
   visibleItems: number;
 }
 
-export function useActionGroup<T>(
-  props: ActionGroupProps<T>,
+export function useToolbarButtons<T>(
+  props: ToolbarButtonsProps<T>,
   state: ListState<T>,
   ref: RefObject<FocusableElement>,
-): ActionGroupAria {
+): ToolbarButtonsAria {
   const { overflowMode = "collapse" } = props;
   const focusManager = createFocusManager(ref);
 
@@ -154,7 +153,7 @@ export function useActionGroup<T>(
   useLayoutEffect(updateOverflow, [updateOverflow, state.collection]);
 
   return {
-    actionGroupProps: {
+    toolbarButtonsProps: {
       onKeyDown,
     },
     isMeasuring,

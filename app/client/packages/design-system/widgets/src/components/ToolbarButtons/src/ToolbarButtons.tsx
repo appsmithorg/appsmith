@@ -1,22 +1,22 @@
 import React, { forwardRef } from "react";
+import { Button, Menu } from "@design-system/widgets";
 import { FocusScope } from "@react-aria/focus";
 import { useDOMRef } from "@react-spectrum/utils";
-import { Button, Menu } from "@design-system/widgets";
 import { useListState } from "@react-stately/list";
-import { MenuTrigger } from "react-aria-components";
-import { ActionGroupButton } from "./ActionGroupButton";
-import { useActionGroup } from "./useActionGroup";
-import styles from "./styles.module.css";
 import { Item } from "@react-stately/collections";
-import type { ActionGroupItem, ActionGroupProps } from "./types";
+import { MenuTrigger } from "react-aria-components";
+import { ToolbarButton } from "./ToolbarButton";
+import { useToolbarButtons } from "./useToolbarButtons";
+import styles from "./styles.module.css";
+import type { ToolbarButtonsItem, ToolbarButtonsProps } from "./types";
 import type { DOMRef, CollectionChildren } from "@react-types/shared";
 
-interface ActionGroupInnerProps<T> extends ActionGroupProps<T> {
+interface ToolbarButtonsInnerProps<T> extends ToolbarButtonsProps<T> {
   children?: CollectionChildren<T>;
 }
 
-const _ActionGroupInner = <T extends ActionGroupItem>(
-  props: ActionGroupInnerProps<T>,
+const _ToolbarButtonsInner = <T extends ToolbarButtonsItem>(
+  props: ToolbarButtonsInnerProps<T>,
   ref: DOMRef<HTMLDivElement>,
 ) => {
   const {
@@ -32,25 +32,27 @@ const _ActionGroupInner = <T extends ActionGroupItem>(
   } = props;
   const domRef = useDOMRef(ref);
   const state = useListState({ ...props, suppressTextValueWarning: true });
-  const { actionGroupProps, visibleItems } = useActionGroup(
+  const { toolbarButtonsProps, visibleItems } = useToolbarButtons(
     props,
     state,
     domRef,
   );
 
   let children = [...state.collection];
-  const menuChildren = (props.items as ActionGroupItem[]).slice(visibleItems);
+  const menuChildren = (props.items as ToolbarButtonsItem[]).slice(
+    visibleItems,
+  );
   children = children.slice(0, visibleItems);
 
   return (
     <FocusScope>
       <div
-        className={styles.actionGroup}
+        className={styles.toolbarButtons}
         data-alignment={alignment}
         data-density={Boolean(density) ? density : undefined}
         data-overflow={overflowMode}
         ref={domRef}
-        {...actionGroupProps}
+        {...toolbarButtonsProps}
         {...others}
       >
         {children.map((item) => {
@@ -59,7 +61,7 @@ const _ActionGroupInner = <T extends ActionGroupItem>(
           }
 
           return (
-            <ActionGroupButton
+            <ToolbarButton
               color={color}
               icon={item.props.icon}
               iconPosition={item.props.iconPosition}
@@ -92,19 +94,19 @@ const _ActionGroupInner = <T extends ActionGroupItem>(
   );
 };
 
-const ActionGroupInner = forwardRef(_ActionGroupInner);
+const ToolbarButtonsInner = forwardRef(_ToolbarButtonsInner);
 
-const _ActionGroup = <T extends ActionGroupItem>(
-  props: Omit<ActionGroupProps<T>, "children">,
+const _ToolbarButtons = <T extends ToolbarButtonsItem>(
+  props: Omit<ToolbarButtonsProps<T>, "children">,
   ref: DOMRef<HTMLDivElement>,
 ) => {
   const { items, ...rest } = props;
 
   return (
-    <ActionGroupInner items={items} {...rest} ref={ref}>
+    <ToolbarButtonsInner items={items} {...rest} ref={ref}>
       {(item) => <Item {...item}>{item.label}</Item>}
-    </ActionGroupInner>
+    </ToolbarButtonsInner>
   );
 };
 
-export const ActionGroup = forwardRef(_ActionGroup);
+export const ToolbarButtons = forwardRef(_ToolbarButtons);

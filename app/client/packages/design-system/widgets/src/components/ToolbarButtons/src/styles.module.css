@@ -1,6 +1,6 @@
 @import "../../../shared/colors/colors.module.css";
 
-.actionGroup {
+.toolbarButtons {
   display: flex;
   width: 100%;
 
@@ -16,7 +16,7 @@
 
   [data-button]:not(:last-of-type) {
     /*
-     We use !important here to be sure that button width and the logic of useActionGroup hook will not be changed from the outside
+     We use !important here to be sure that button width and the logic of useToolbarButtons hook will not be changed from the outside
     */
     min-inline-size: fit-content !important;
   }

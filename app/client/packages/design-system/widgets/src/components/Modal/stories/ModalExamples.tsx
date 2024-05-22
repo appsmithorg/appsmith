@@ -1,6 +1,6 @@
 import React, { useRef, useState } from "react";
 import {
-  ActionGroup,
+  ToolbarButtons,
   Modal,
   ModalBody,
   ModalContent,
@@ -30,7 +30,7 @@ export const ModalExamples = () => {
 
   return (
     <>
-      <ActionGroup
+      <ToolbarButtons
         items={[
           { id: "small", label: "Small" },
           { id: "medium", label: "Medium" },

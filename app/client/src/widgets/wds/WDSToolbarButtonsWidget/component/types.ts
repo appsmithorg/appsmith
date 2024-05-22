@@ -1,12 +1,12 @@
 import type {
-  ActionGroupProps,
-  ButtonProps,
-  IconProps,
+  ToolbarButtonsProps,
+  ToolbarButtonsItem,
 } from "@design-system/widgets";
-import type { ButtonsList } from "../widget/types";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import type { ButtonsList } from "../widget/types";
 
-export interface ToolbarButtonsComponentProps extends ActionGroupProps<object> {
+export interface ToolbarButtonsComponentProps
+  extends ToolbarButtonsProps<ToolbarButtonsItem> {
   buttonsList: ButtonsList;
   onButtonClick: (
     onClick?: string,
@@ -14,16 +14,10 @@ export interface ToolbarButtonsComponentProps extends ActionGroupProps<object> {
   ) => void;
 }
 
-export interface ToolbarButtonsItemComponentProps {
-  label?: string;
+export interface ToolbarButtonsItemComponentProps extends ToolbarButtonsItem {
   isVisible?: boolean;
-  isLoading?: boolean;
-  isDisabled?: boolean;
   widgetId: string;
-  id: string;
   index: number;
-  iconName?: IconProps["name"];
-  iconAlign?: ButtonProps["iconPosition"];
   onClick?: string;
   itemType: "SEPARATOR" | "BUTTON";
 }

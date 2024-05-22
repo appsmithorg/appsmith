@@ -1,17 +1,14 @@
-import type { ListState } from "@react-stately/list";
 import type { SpectrumActionGroupProps } from "@react-types/actiongroup";
-import type { Node } from "@react-types/shared";
 import type { StyleProps } from "@react-types/shared";
 import type { ButtonProps } from "../../Button";
 import type { SIZES } from "../../../shared";
-import type { IconProps } from "../../Icon";
 
 export const ACTION_GROUP_ALIGNMENTS = {
   start: "Start",
   end: "End",
 } as const;
 
-export interface ActionGroupProps<T>
+export interface ToolbarButtonsProps<T>
   extends Omit<
       SpectrumActionGroupProps<T>,
       | "staticColor"
@@ -34,14 +31,12 @@ export interface ActionGroupProps<T>
   alignment?: keyof typeof ACTION_GROUP_ALIGNMENTS;
 }
 
-export interface ActionGroupItem {
+export interface ToolbarButtonsItem
+  extends Pick<
+    ButtonProps,
+    "icon" | "iconPosition" | "isLoading" | "isDisabled"
+  > {
   id: string | number;
   label?: string;
-  icon?: IconProps["name"];
   isSeparator?: boolean;
-}
-
-export interface ActionGroupButtonProps<T> extends ButtonProps {
-  state: ListState<T>;
-  item: Node<T>;
 }

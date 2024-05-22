@@ -8,7 +8,7 @@ import {
   TooltipRoot,
   TooltipTrigger,
   TooltipContent,
-  ActionGroup,
+  ToolbarButtons,
   Flex,
   SwitchGroup,
   Switch,
@@ -56,7 +56,7 @@ export const ComplexForm = () => {
       </Flex>
 
       <Flex direction="column" gap="spacing-5">
-        <ActionGroup
+        <ToolbarButtons
           items={[
             { id: 1, label: "Fast food" },
             { id: 2, label: "Salads" },
