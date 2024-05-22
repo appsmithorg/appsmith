@@ -34,11 +34,7 @@ import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";
 import { executeJSFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
-import type {
-  JSCollectionDifference,
-  JSUpdate,
-  ParsedBody,
-} from "utils/JSPaneUtils";
+import type { JSUpdate } from "utils/JSPaneUtils";
 import {
   getDifferenceInJSCollection,
   pushLogsForObjectUpdate,
@@ -200,122 +196,93 @@ function* handleJSCollectionCreatedSaga(
   );
 }
 
-function getJSCollectionUpdateType(difference: JSCollectionDifference) {
-  if (difference.nameChangedActions.length) {
-    return "REFACTOR";
-  }
-
-  if (
-    difference.newActions.length ||
-    difference.updateActions.length ||
-    difference.deletedActions.length
-  ) {
-    return "UPDATE";
-  }
-
-  return "NO_CHANGE";
-}
-
-function* handleRefactorJSCollection(
-  difference: JSCollectionDifference,
-  actionCollection: JSCollection,
-) {
-  yield all(
-    difference.nameChangedActions.map((action) =>
-      call(
-        handleRefactorJSActionNameSaga,
-        {
-          actionId: action.id,
-          collectionName: actionCollection.name,
-          pageId: action.pageId,
-          moduleId: action.moduleId,
-          oldName: action.oldName,
-          newName: action.newName,
-        },
-        actionCollection,
-      ),
-    ),
-  );
-}
-
-function* handleUpdateCollection(
-  difference: JSCollectionDifference,
-  actionCollection: JSCollection,
-  parsedBody: ParsedBody,
-) {
-  const workspaceId: string = yield select(getCurrentWorkspaceId);
-  let newActions: JSAction[] = [];
-  let updateActions: JSAction[] = [];
-  let deletedActions: JSAction[] = [];
-  const changedVariables = difference.changedVariables;
-  if (changedVariables.length) {
-    actionCollection.variables = parsedBody.variables;
-  }
-  if (difference.newActions.length) {
-    newActions = difference.newActions as JSAction[];
-    difference.newActions.forEach((action) => {
-      actionCollection.actions.push({
-        ...(action as JSAction),
-        workspaceId: workspaceId,
-      });
-    });
-  }
-  if (difference.updateActions.length > 0) {
-    updateActions = difference.updateActions;
-    let changedActions: JSAction[] = [];
-    for (let i = 0; i < difference.updateActions.length; i++) {
-      changedActions = actionCollection.actions.map(
-        (js: JSAction) =>
-          difference.updateActions.find(
-            (update: JSAction) => update.id === js.id,
-          ) || js,
-      );
-    }
-    actionCollection.actions = changedActions;
-  }
-  if (difference.deletedActions.length > 0) {
-    deletedActions = difference.deletedActions;
-    const nonDeletedActions = actionCollection.actions.filter(
-      (js: JSAction) => {
-        return !difference.deletedActions.find((deleted) => {
-          return deleted.id === js.id;
-        });
-      },
-    );
-    actionCollection.actions = nonDeletedActions;
-  }
-
-  newActions.forEach((action) => {
-    AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_ADDED", {
-      name: action.name,
-      jsObjectName: actionCollection.name,
-    });
-  });
-
-  yield call(updateJSCollection, {
-    jsCollection: actionCollection,
-    newActions: newActions,
-    updatedActions: updateActions,
-    deletedActions: deletedActions,
-  });
-}
-
 function* handleEachUpdateJSCollection(update: JSUpdate) {
-  const { id, parsedBody } = update;
-  if (!id || !parsedBody) return;
-
-  const jsAction: JSCollection = yield select(getJSCollection, id);
-  if (!jsAction) return;
-
-  const data = getDifferenceInJSCollection(parsedBody, jsAction);
-  const updateType = getJSCollectionUpdateType(data);
-
-  if (updateType === "REFACTOR") {
-    yield handleRefactorJSCollection(data, jsAction);
-  }
-
-  if (updateType === "UPDATE") {
-    yield handleUpdateCollection(data, jsAction, parsedBody);
+  const jsActionId = update.id;
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  if (jsActionId) {
+    const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
+    const parsedBody = update.parsedBody;
+    if (parsedBody && !!jsAction) {
+      const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
+      // jsActionTobeUpdated.body = jsAction.body;
+      const data = getDifferenceInJSCollection(parsedBody, jsAction);
+      if (data.nameChangedActions.length) {
+        for (let i = 0; i < data.nameChangedActions.length; i++) {
+          yield call(
+            handleRefactorJSActionNameSaga,
+            {
+              actionId: data.nameChangedActions[i].id,
+              collectionName: jsAction.name,
+              pageId: data.nameChangedActions[i].pageId,
+              moduleId: data.nameChangedActions[i].moduleId,
+              oldName: data.nameChangedActions[i].oldName,
+              newName: data.nameChangedActions[i].newName,
+            },
+            jsActionTobeUpdated,
+          );
+        }
+      } else {
+        let newActions: Partial<JSAction>[] = [];
+        let updateActions: JSAction[] = [];
+        let deletedActions: JSAction[] = [];
+        let updateCollection = false;
+        const changedVariables = data.changedVariables;
+        if (changedVariables.length) {
+          jsActionTobeUpdated.variables = parsedBody.variables;
+          updateCollection = true;
+        }
+        if (data.newActions.length) {
+          newActions = data.newActions;
+          for (let i = 0; i < data.newActions.length; i++) {
+            jsActionTobeUpdated.actions.push({
+              ...data.newActions[i],
+              workspaceId: workspaceId,
+            });
+          }
+          updateCollection = true;
+        }
+        if (data.updateActions.length > 0) {
+          updateActions = data.updateActions;
+          let changedActions = [];
+          for (let i = 0; i < data.updateActions.length; i++) {
+            changedActions = jsActionTobeUpdated.actions.map(
+              (js: JSAction) =>
+                data.updateActions.find(
+                  (update: JSAction) => update.id === js.id,
+                ) || js,
+            );
+          }
+          updateCollection = true;
+          jsActionTobeUpdated.actions = changedActions;
+        }
+        if (data.deletedActions.length > 0) {
+          deletedActions = data.deletedActions;
+          const nonDeletedActions = jsActionTobeUpdated.actions.filter(
+            (js: JSAction) => {
+              return !data.deletedActions.find((deleted) => {
+                return deleted.id === js.id;
+              });
+            },
+          );
+          updateCollection = true;
+          jsActionTobeUpdated.actions = nonDeletedActions;
+        }
+        if (updateCollection) {
+          newActions.forEach((action) => {
+            AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_ADDED", {
+              name: action.name,
+              jsObjectName: jsAction.name,
+            });
+          });
+          yield call(updateJSCollection, {
+            jsCollection: jsActionTobeUpdated,
+            newActions: newActions,
+            updatedActions: updateActions,
+            deletedActions: deletedActions,
+          });
+        }
+      }
+    }
   }
 }
 
