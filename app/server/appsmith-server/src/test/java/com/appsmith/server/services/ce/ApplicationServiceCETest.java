@@ -81,9 +81,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.Query;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -416,14 +414,23 @@ public class ApplicationServiceCETest {
 
     private <T extends BaseDomain> Mono<T> getArchivedResource(String id, Class<T> domainClass) {
         return asMono(() -> {
-            final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-            final CriteriaQuery<T> cq = cb.createQuery(domainClass);
-            final Root<T> root = cq.from(domainClass);
-            return Optional.ofNullable(entityManager
-                    .createQuery(cq.where(
-                            cb.equal(root.get(BaseDomain.Fields.id), id),
-                            cb.isNotNull(root.get(BaseDomain.Fields.deletedAt))))
-                    .getSingleResult());
+            // The stuff we do in this method, should be considered flaky, horrible code, and should not be used in
+            // normal circumstances. We're only living with this, because this is a test file, so this code never runs
+            // in production, and because this is filling in for a function defined with MongoDB, where it wasn't nearly
+            // as bad. Don't do any of this in other places of the project. Please.
+            String tableName = domainClass
+                    .getSimpleName()
+                    .replaceAll("[A-Z]", "_$0")
+                    .replaceAll("^_", "")
+                    .toUpperCase();
+            final Query nativeQuery = entityManager.createNativeQuery(
+                    """
+                SELECT * FROM %s WHERE deleted_at IS NOT NULL AND id = ?
+                """
+                            .formatted(tableName),
+                    domainClass);
+            nativeQuery.setParameter(1, id);
+            return Optional.ofNullable((T) nativeQuery.getSingleResult());
         });
     }
 
