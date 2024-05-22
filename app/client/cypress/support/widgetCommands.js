@@ -1325,3 +1325,13 @@ Cypress.Commands.add("resizeColumn", (columnName, resizeAmount) => {
     .trigger("mousemove", { x: resizeAmount, y: 0, force: true })
     .trigger("mouseup");
 });
+
+Cypress.Commands.add("AssertTableRowSavable", (x, y) => {
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Save')`,
+  ).should("exist");
+
+  cy.get(
+    `[data-colindex="${x}"][data-rowindex="${y}"] button span:contains('Save')`,
+  ).should("not.be.disabled");
+});
