@@ -66,7 +66,7 @@ const _ToolbarButtonsInner = <T extends ToolbarButtonsItem>(
               icon={item.props.icon}
               iconPosition={item.props.iconPosition}
               isDisabled={
-                Boolean(state.disabledKeys.has(item.key)) || isDisabled
+                Boolean(state.disabledKeys.has(String(item.key))) || isDisabled
               }
               isLoading={item.props.isLoading}
               item={item}
@@ -83,7 +83,8 @@ const _ToolbarButtonsInner = <T extends ToolbarButtonsItem>(
             <Button
               color={color}
               data-action-group-menu
-              icon="menu-2"
+              icon="dots"
+              isDisabled={isDisabled}
               variant={variant}
             />
             <Menu items={menuChildren} onAction={onAction} />

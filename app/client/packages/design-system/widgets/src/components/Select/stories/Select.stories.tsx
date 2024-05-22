@@ -15,15 +15,15 @@ export default meta;
 type Story = StoryObj<typeof Select>;
 
 const items: SelectItem[] = [
-  { key: 1, name: "Aerospace", icon: "rocket" },
-  { key: 2, name: "Mechanical", icon: "settings" },
-  { key: 3, name: "Civil" },
-  { key: 4, name: "Biomedical" },
-  { key: 5, name: "Nuclear" },
-  { key: 6, name: "Industrial" },
-  { key: 7, name: "Chemical" },
-  { key: 8, name: "Agricultural" },
-  { key: 9, name: "Electrical" },
+  { id: 1, label: "Aerospace", icon: "rocket" },
+  { id: 2, label: "Mechanical", icon: "settings" },
+  { id: 3, label: "Civil" },
+  { id: 4, label: "Biomedical" },
+  { id: 5, label: "Nuclear" },
+  { id: 6, label: "Industrial" },
+  { id: 7, label: "Chemical" },
+  { id: 8, label: "Agricultural" },
+  { id: 9, label: "Electrical" },
 ];
 
 export const Main: Story = {

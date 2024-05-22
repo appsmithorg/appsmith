@@ -49,7 +49,7 @@ const items: MenuItem[] = [
 export const Main: Story = {
   render: (args) => (
     <MenuTrigger>
-      <Button icon="menu-2" />
+      <Button icon="dots" />
       <Menu items={items} {...args} />
     </MenuTrigger>
   ),

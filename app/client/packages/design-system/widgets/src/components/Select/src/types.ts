@@ -27,7 +27,7 @@ export interface SelectProps<T extends object>
 }
 
 export interface SelectItem {
-  name: string;
-  key: number;
+  id: string | number;
+  label: string;
   icon?: IconProps["name"];
 }

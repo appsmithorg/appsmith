@@ -96,9 +96,9 @@ export const Select = <T extends object>(props: SelectProps<T>) => {
           <Popover UNSTABLE_portalContainer={root}>
             <ListBox className={styles.listBox} items={items} shouldFocusWrap>
               {(item) => (
-                <ListBoxItem key={item.key} textValue={item.name}>
+                <ListBoxItem key={item.id} textValue={item.label}>
                   {item.icon && <Icon name={item.icon} />}
-                  {item.name}
+                  {item.label}
                 </ListBoxItem>
               )}
             </ListBox>

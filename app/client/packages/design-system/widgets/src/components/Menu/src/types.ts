@@ -12,6 +12,7 @@ export interface MenuItem {
   id: string | number;
   label?: string;
   icon?: IconProps["name"];
+  isDisabled?: boolean;
   isSeparator?: boolean;
   childItems?: Iterable<MenuItem>;
   hasSubmenu?: boolean;

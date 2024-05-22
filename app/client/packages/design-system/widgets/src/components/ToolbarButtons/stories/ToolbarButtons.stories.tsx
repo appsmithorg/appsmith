@@ -22,11 +22,10 @@ const items: ToolbarButtonsItem[] = [
   { id: 3, label: "Civil" },
   { id: 4, label: "Biomedical" },
   { id: 5, label: "Nuclear" },
-  { id: 6, label: "Industrial" },
+  { id: 6, label: "Industrial", icon: "settings" },
   { id: 7, label: "Chemical" },
-  { id: 99, isSeparator: true },
   { id: 8, label: "Agricultural" },
-  { id: 9, label: "Electrical", icon: "settings" },
+  { id: 9, label: "Electrical", isDisabled: true },
 ];
 
 export const Main: Story = {

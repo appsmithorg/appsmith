@@ -4,16 +4,16 @@
   display: flex;
   align-items: center;
   padding-inline: var(--inner-spacing-3);
-  block-size: var(--sizing-12);
+  block-size: var(--sizing-11);
 }
 
 .item [data-icon] {
-  margin-inline-end: var(--inner-spacing-1);
+  margin-inline-end: var(--inner-spacing-2);
 }
 
 .item [data-chevron] {
   margin-inline-end: 0;
-  margin-inline-start: var(--inner-spacing-1);
+  margin-inline-start: var(--inner-spacing-2);
 }
 
 .item:first-of-type {
@@ -38,14 +38,6 @@
   background-color: var(--color-bg-accent-subtle-active);
 }
 
-.item:not([data-disabled]) {
-  @each $color in colors {
-    &[data-color="$(color)"] {
-      color: var(--color-fg-$(color));
-    }
-  }
-}
-
 .item[data-disabled] {
   opacity: var(--opacity-disabled);
   cursor: not-allowed;
@@ -63,7 +55,7 @@
 }
 
 .text {
-  width: 100%;
+  flex: 1;
 }
 
 /* making sure the first and last child are not displayed when they have the data-separator attribute */

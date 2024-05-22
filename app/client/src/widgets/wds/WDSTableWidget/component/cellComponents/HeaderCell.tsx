@@ -187,7 +187,6 @@ const HeaderCellComponent = (props: HeaderProps) => {
             variant="ghost"
           />
           <Menu
-            disabledKeys={["separator"]}
             items={[
               { id: "sort-asc", label: "Sort column ascending" },
               { id: "sort-desc", label: "Sort column descending" },

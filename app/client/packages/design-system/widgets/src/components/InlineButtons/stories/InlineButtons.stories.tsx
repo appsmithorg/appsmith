@@ -21,6 +21,7 @@ const items: InlineButtonsItem[] = [
   { id: 2, label: "Mechanical", icon: "settings" },
   { id: 3, label: "Civil", icon: "settings" },
   { id: 4, label: "Biomedical" },
+  { id: 43, isSeparator: true },
   { id: 5, label: "Nuclear" },
   { id: 6, label: "Industrial" },
   { id: 7, label: "Chemical" },

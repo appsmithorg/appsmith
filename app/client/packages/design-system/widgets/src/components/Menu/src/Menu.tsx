@@ -1,7 +1,11 @@
 import React from "react";
-import { Popover } from "@design-system/widgets";
-import { Menu as HeadlessMenu, SubmenuTrigger } from "react-aria-components";
-import { MenuItem } from "./MenuItem";
+import { Icon, listItemStyles, Popover, Text } from "@design-system/widgets";
+import {
+  Menu as HeadlessMenu,
+  MenuItem,
+  Separator,
+  SubmenuTrigger,
+} from "react-aria-components";
 import styles from "./styles.module.css";
 import type { MenuProps, MenuItemProps } from "./types";
 
@@ -22,17 +26,45 @@ export const Menu = (props: MenuProps) => {
 };
 
 const renderFunc = (item: MenuItemProps, props: MenuProps) => {
-  const { childItems, ...rest } = item;
-  if (childItems != null) {
+  const {
+    childItems,
+    icon,
+    id,
+    isDisabled,
+    isSeparator = false,
+    label,
+    ...rest
+  } = item;
+
+  if (childItems != null)
     return (
       <SubmenuTrigger {...rest}>
-        <MenuItem hasSubmenu {...rest} />
-        <Menu hasSubmenu items={childItems}>
+        <MenuItem
+          className={listItemStyles.item}
+          isDisabled={isDisabled}
+          key={id}
+        >
+          {icon && <Icon name={icon} />}
+          <Text className={listItemStyles.text} lineClamp={1}>
+            {label}
+          </Text>
+          <Icon data-chevron name="chevron-right" size="small" />
+        </MenuItem>
+        <Menu {...props} hasSubmenu items={childItems}>
           {(item) => renderFunc(item, props)}
         </Menu>
       </SubmenuTrigger>
     );
-  } else {
-    return <MenuItem {...rest} />;
-  }
+
+  if (isSeparator)
+    return <Separator className={listItemStyles.separator} key={id} />;
+
+  return (
+    <MenuItem className={listItemStyles.item} isDisabled={isDisabled} key={id}>
+      {icon && <Icon name={icon} />}
+      <Text className={listItemStyles.text} lineClamp={1}>
+        {label}
+      </Text>
+    </MenuItem>
+  );
 };

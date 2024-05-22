@@ -57,7 +57,7 @@ const _InlineButtonsInner = <T extends InlineButtonsItem>(
               icon={item.props.icon}
               iconPosition={item.props.iconPosition}
               isDisabled={
-                Boolean(state.disabledKeys.has(item.key)) ||
+                Boolean(state.disabledKeys.has(String(item.key))) ||
                 Boolean(isDisabled) ||
                 item.props.isDisabled
               }
