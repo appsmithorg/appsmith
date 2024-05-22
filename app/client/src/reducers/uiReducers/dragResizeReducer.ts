@@ -19,7 +19,13 @@ const initialState: WidgetDragResizeState = {
   isAutoCanvasResizing: false,
   anvil: {
     highlightShown: undefined,
-    isDistributingSpace: false,
+    spaceDistribution: {
+      isDistributingSpace: false,
+      widgetsEffected: {
+        section: "",
+        zones: [],
+      },
+    },
   },
   isDraggingDisabled: false,
   blockSelection: false,
@@ -138,13 +144,22 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   //space distribution redux
   [AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_START]: (
     state: WidgetDragResizeState,
+    action: ReduxAction<{
+      section: string;
+      zones: string[];
+    }>,
   ) => {
-    state.anvil.isDistributingSpace = true;
+    state.anvil.spaceDistribution.widgetsEffected.section =
+      action.payload.section;
+    state.anvil.spaceDistribution.widgetsEffected.zones = action.payload.zones;
+    state.anvil.spaceDistribution.isDistributingSpace = true;
   },
   [AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP]: (
     state: WidgetDragResizeState,
   ) => {
-    state.anvil.isDistributingSpace = false;
+    state.anvil.spaceDistribution.isDistributingSpace = false;
+    state.anvil.spaceDistribution.widgetsEffected.section = "";
+    state.anvil.spaceDistribution.widgetsEffected.zones = [];
   },
   [AnvilReduxActionTypes.ANVIL_SET_HIGHLIGHT_SHOWN]: (
     state: WidgetDragResizeState,
@@ -175,7 +190,13 @@ export interface WidgetDragResizeState {
   isResizing: boolean;
   anvil: {
     highlightShown?: AnvilHighlightInfo;
-    isDistributingSpace: boolean;
+    spaceDistribution: {
+      isDistributingSpace: boolean;
+      widgetsEffected: {
+        section: string;
+        zones: string[];
+      };
+    };
   };
   lastSelectedWidget?: string;
   focusedWidget?: string;

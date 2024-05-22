@@ -227,6 +227,7 @@ jobs:
           name: failed-server-tests
           path: app/server/failed-server-tests.txt
           if-no-files-found: ignore
+          overwrite: true
 
       - name: Fetch server build from cache
         if: steps.changed-files-specific.outputs.any_changed == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
@@ -266,6 +267,7 @@ jobs:
         with:
           name: server-build
           path: app/server/dist/
+          overwrite: true
 
       - name: Put release build in cache
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
