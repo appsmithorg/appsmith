@@ -4,7 +4,6 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.projections.UserRecentlyUsedEntitiesProjection;
-import com.appsmith.server.projections.UserRecentlyUsedEntitiesProjection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaUpdate;

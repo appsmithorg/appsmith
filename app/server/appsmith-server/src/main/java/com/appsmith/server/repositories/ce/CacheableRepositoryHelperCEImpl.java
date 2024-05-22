@@ -19,14 +19,19 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
+import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
+import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
+import static com.appsmith.server.helpers.ReactorUtils.asMono;
 
 @Slf4j
 @Component
@@ -147,6 +152,22 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Override
     public Mono<String> getInstanceAdminPermissionGroupId() {
         String instanceAdminPermissionGroupId = inMemoryCacheableRepositoryHelper.getInstanceAdminPermissionGroupId();
-        return Mono.just(instanceAdminPermissionGroupId);
+        if (instanceAdminPermissionGroupId != null && !instanceAdminPermissionGroupId.isEmpty()) {
+            return Mono.just(instanceAdminPermissionGroupId);
+        }
+
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Config> cq = cb.createQuery(Config.class);
+        final Root<Config> root = cq.from(Config.class);
+
+        cq.where(cb.equal(root.get(Config.Fields.name), INSTANCE_CONFIG));
+
+        return asMono(() -> Optional.of(entityManager.createQuery(cq).getSingleResult()))
+                .map(instanceConfig -> {
+                    JSONObject config = instanceConfig.getConfig();
+                    return (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
+                })
+                .doOnSuccess(permissionGroupId ->
+                        inMemoryCacheableRepositoryHelper.setInstanceAdminPermissionGroupId(permissionGroupId));
     }
 }
