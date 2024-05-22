@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.caching.annotations.Cache;
+import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
@@ -49,7 +50,7 @@ public class CacheableTemplateHelper {
                 .collectList();
     }
 
-    @Cache(cacheName = "TemplateApplicationData", key = "{#templateId}")
+    @Cache(cacheName = "templateApplicationData", key = "{#templateId}")
     public static Mono<ApplicationJson> getApplicationByTemplateId(String templateId, String baseUrl) {
         final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/application";
         /*
@@ -84,5 +85,15 @@ public class CacheableTemplateHelper {
                 })
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "template", templateId)));
+    }
+
+    @CacheEvict(cacheName = "templateMetadata", key = "{#releaseVersion}")
+    public Mono<Void> clearTemplateMetadataCache() {
+        return Mono.empty();
+    }
+
+    @CacheEvict(cacheName = "templateApplicationData", key = "{#templateId}")
+    public Mono<Void> clearTemplateApplicationDataCache() {
+        return Mono.empty();
     }
 }
