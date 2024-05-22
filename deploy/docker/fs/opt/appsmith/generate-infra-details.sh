@@ -14,6 +14,12 @@ function get_cloud_provider() {
      cloud_provider="azure";
   elif [[ $release_details == *"cloud"* ]];then
      cloud_provider="gcp";
+  elif [[ $release_details == *"generic"* ]];then
+     cloud_provider="digitalocean"
+  elif [[ $release_details == *"ecs"* ]];then
+     cloud_provider="alibaba"
+  elif [[ ! -z "${DYNO}" ]];then
+     cloud_provider="heroku"
   else
      cloud_provider="local";
   fi
