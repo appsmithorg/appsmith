@@ -19,27 +19,6 @@ const assertHelper = ObjectsRegistry.AssertHelper;
 
 const commonLocators = require("../locators/commonlocators.json");
 
-Cypress.Commands.add("revokeAccessGit", (appName) => {
-  cy.xpath("//span[text()= `${appName}`]").parent().next().click();
-  cy.get(gitSyncLocators.disconnectAppNameInput).type(appName);
-  cy.get(gitSyncLocators.disconnectButton).click();
-  cy.intercept("POST", "api/v1/git/disconnect/app/*").as("disconnect");
-  cy.get(gitSyncLocators.disconnectButton).click();
-  cy.wait("@disconnect").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  cy.window()
-    .its("store")
-    .invoke("getState")
-    .then((state) => {
-      const { id, name } = state.ui.gitSync.disconnectingGitApp;
-      expect(name).to.eq("");
-      expect(id).to.eq("");
-    });
-});
-
 Cypress.Commands.add("latestDeployPreview", () => {
   cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
   // Wait before publish
@@ -216,71 +195,5 @@ Cypress.Commands.add(
         });
       }
     });
-  },
-);
-
-Cypress.Commands.add("gitDiscardChanges", () => {
-  cy.get(gitSyncLocators.bottomBarCommitButton).click();
-  cy.get(gitSyncLocators.discardChanges).should("be.visible");
-  cy.get(gitSyncLocators.discardChanges)
-    .children()
-    .should("have.text", "Discard & pull");
-  cy.get(gitSyncLocators.discardChanges).click();
-  cy.contains(Cypress.env("MESSAGES").DISCARD_CHANGES_WARNING());
-  cy.get(gitSyncLocators.discardChanges)
-    .children()
-    .should("have.text", "Are you sure?");
-  cy.get(gitSyncLocators.discardChanges).click();
-  cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
-  cy.validateToastMessage("Discarded changes successfully.");
-  cy.wait(2000);
-  assertHelper.AssertContains(createMessage(UNABLE_TO_IMPORT_APP), "not.exist");
-});
-
-Cypress.Commands.add(
-  "regenerateSSHKey",
-  (repo, generateKey = true, protocol = "ECDSA") => {
-    let generatedKey;
-    cy.get(gitSyncLocators.bottomBarCommitButton).click();
-    cy.get("[data-testid=t--tab-GIT_CONNECTION]").click();
-    cy.wait(2000);
-    cy.get(gitSyncLocators.SSHKeycontextmenu).eq(2).click();
-    if (protocol === "ECDSA") {
-      cy.get(gitSyncLocators.regenerateSSHKeyECDSA).click();
-    } else if (protocol === "RSA") {
-      cy.get(gitSyncLocators.regenerateSSHKeyRSA).click();
-    }
-    cy.contains(Cypress.env("MESSAGES").REGENERATE_KEY_CONFIRM_MESSAGE());
-    cy.xpath(gitSyncLocators.confirmButton).click();
-    if (protocol === "ECDSA") {
-      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-        `generateKey-${repo}`,
-      );
-    } else if (protocol === "RSA") {
-      cy.intercept("POST", "/api/v1/applications/ssh-keypair/*?keyType=RSA").as(
-        `generateKey-${repo}-RSA`,
-      );
-    }
-
-    if (generateKey) {
-      if (protocol === "ECDSA") {
-        cy.wait(`@generateKey-${repo}`).then((result) => {
-          const key = result.response.body.data.publicKey.trimEnd();
-          cy.request({
-            method: "POST",
-            url: `${dataManager.GIT_API_BASE}/api/v1/repos/Cypress/${repo}/keys`,
-            body: {
-              title: "key1",
-              key,
-              read_only: false,
-            },
-          });
-
-          cy.get(gitSyncLocators.closeGitSyncModal);
-        });
-      } else if (protocol === "RSA") {
-        // doesn't work with github
-      }
-    }
   },
 );
