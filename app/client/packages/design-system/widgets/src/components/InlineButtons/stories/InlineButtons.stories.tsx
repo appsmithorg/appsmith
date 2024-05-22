@@ -1,22 +1,22 @@
 import React from "react";
+import { InlineButtons } from "@design-system/widgets";
 import type { Meta, StoryObj } from "@storybook/react";
-import type { ButtonGroupItem } from "@design-system/widgets";
-import { ButtonGroup } from "@design-system/widgets";
+import type { InlineButtonsItem } from "@design-system/widgets";
 
 /**
- * A `ButtonGroup` is a group of buttons that are visually connected together.
+ * A `InlineButtons` is a group of buttons that are visually connected together.
  * The `Item` accepts the same props as the `Button` except `variant` and `color`.
  * More information about `Button` props you can find [here](?path=/docs/design-system-widgets-button--docs).
  */
-const meta: Meta<typeof ButtonGroup> = {
-  component: ButtonGroup,
-  title: "Design-system/Widgets/ButtonGroup",
+const meta: Meta<typeof InlineButtons> = {
+  component: InlineButtons,
+  title: "Design-system/Widgets/InlineButtons",
 };
 
 export default meta;
-type Story = StoryObj<typeof ButtonGroup>;
+type Story = StoryObj<typeof InlineButtons>;
 
-const items: ButtonGroupItem[] = [
+const items: InlineButtonsItem[] = [
   { id: 1, label: "Aerospace", icon: "rocket" },
   { id: 2, label: "Mechanical", icon: "settings" },
   { id: 3, label: "Civil", icon: "settings" },
@@ -27,5 +27,5 @@ const items: ButtonGroupItem[] = [
 ];
 
 export const Main: Story = {
-  render: (args) => <ButtonGroup items={items} {...args} />,
+  render: (args) => <InlineButtons items={items} {...args} />,
 };

@@ -3,7 +3,7 @@ import type { StyleProps } from "@react-types/shared";
 import type { ButtonProps } from "../../Button";
 import type { SIZES } from "../../../shared";
 
-export const ACTION_GROUP_ALIGNMENTS = {
+export const TOOLBAR_BUTTONS_ALIGNMENTS = {
   start: "Start",
   end: "End",
 } as const;
@@ -28,14 +28,11 @@ export interface ToolbarButtonsProps<T>
     >,
     Pick<ButtonProps, "variant" | "color"> {
   size?: Omit<keyof typeof SIZES, "large">;
-  alignment?: keyof typeof ACTION_GROUP_ALIGNMENTS;
+  alignment?: keyof typeof TOOLBAR_BUTTONS_ALIGNMENTS;
 }
 
 export interface ToolbarButtonsItem
-  extends Pick<
-    ButtonProps,
-    "icon" | "iconPosition" | "isLoading" | "isDisabled"
-  > {
+  extends Pick<ButtonProps, "icon" | "isLoading" | "isDisabled"> {
   id: string | number;
   label?: string;
   isSeparator?: boolean;

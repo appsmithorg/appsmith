@@ -18,7 +18,7 @@ export * from "./components/Menu";
 export * from "./components/Modal";
 export * from "./components/TagGroup";
 export * from "./components/ToolbarButtons";
-export * from "./components/ButtonGroup";
+export * from "./components/InlineButtons";
 export * from "./components/Select";
 export * from "./components/ContextualHelp";
 export * from "./components/Link";

@@ -1,8 +1,12 @@
-import type { ButtonGroupProps, ButtonProps } from "@design-system/widgets";
+import type {
+  InlineButtonsProps,
+  InlineButtonsItem,
+} from "@design-system/widgets";
 import type { ButtonsList } from "../widget/types";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
-export interface InlineButtonsComponentProps extends ButtonGroupProps<object> {
+export interface InlineButtonsComponentProps
+  extends InlineButtonsProps<InlineButtonsItem> {
   buttonsList: ButtonsList;
   onButtonClick: (
     onClick?: string,
@@ -10,13 +14,9 @@ export interface InlineButtonsComponentProps extends ButtonGroupProps<object> {
   ) => void;
 }
 
-export interface InlineButtonsItemComponentProps extends ButtonProps {
-  label?: string;
+export interface InlineButtonsItemComponentProps extends InlineButtonsItem {
   isVisible?: boolean;
-  isLoading?: boolean;
-  isDisabled?: boolean;
   widgetId: string;
-  id: string;
   index: number;
   onClick?: string;
   itemType: "SEPARATOR" | "BUTTON";

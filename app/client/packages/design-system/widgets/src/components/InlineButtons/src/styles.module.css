@@ -1,13 +1,13 @@
 @import "../../../shared/colors/colors.module.css";
 
-.buttonGroup {
+.inlineButtons {
   display: flex;
   width: 100%;
   gap: var(--inner-spacing-2);
 
   & :is([data-button]) {
     /*
-      We use !important here to be sure that button width and the logic of useButtonGroup hook will not be changed from the outside
+      We use !important here to be sure that button width and the logic of useInlineButtons hook will not be changed from the outside
     */
     min-inline-size: fit-content !important;
   }
@@ -19,7 +19,7 @@
 
   &[data-orientation="vertical"] :is([data-button]) {
     /*
-     We use !important here to be sure that button width and the logic of useButtonGroup hook will not be changed from the outside
+     We use !important here to be sure that button width and the logic of useInlineButtons hook will not be changed from the outside
     */
     min-inline-size: 100% !important;
     max-inline-size: none;

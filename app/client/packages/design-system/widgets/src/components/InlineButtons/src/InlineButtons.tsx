@@ -2,19 +2,19 @@ import React, { forwardRef } from "react";
 import { FocusScope } from "@react-aria/focus";
 import { useDOMRef } from "@react-spectrum/utils";
 import { useListState } from "@react-stately/list";
-import { ButtonGroupButton } from "./ButtonGroupButton";
-import { useButtonGroup } from "./useButtonGroup";
+import { InlineButton } from "./InlineButton";
+import { useInlineButtons } from "./useInlineButtons";
 import { Item } from "@react-stately/collections";
 import styles from "./styles.module.css";
 import type { CollectionChildren, DOMRef } from "@react-types/shared";
-import type { ButtonGroupItem, ButtonGroupProps } from "./types";
+import type { InlineButtonsItem, InlineButtonsProps } from "./types";
 
-interface ButtonGroupInnerProps<T> extends ButtonGroupProps<T> {
+interface InlineButtonsInnerProps<T> extends InlineButtonsProps<T> {
   children?: CollectionChildren<T>;
 }
 
-const _ButtonGroupInner = <T extends ButtonGroupItem>(
-  props: ButtonGroupInnerProps<T>,
+const _InlineButtonsInner = <T extends InlineButtonsItem>(
+  props: InlineButtonsInnerProps<T>,
   ref: DOMRef<HTMLDivElement>,
 ) => {
   const {
@@ -28,7 +28,7 @@ const _ButtonGroupInner = <T extends ButtonGroupItem>(
   } = props;
   const domRef = useDOMRef(ref);
   const state = useListState({ ...props, suppressTextValueWarning: true });
-  const { buttonGroupProps, orientation } = useButtonGroup(
+  const { inlineButtonsProps, orientation } = useInlineButtons(
     props,
     state,
     domRef,
@@ -39,11 +39,11 @@ const _ButtonGroupInner = <T extends ButtonGroupItem>(
   return (
     <FocusScope>
       <div
-        className={styles.buttonGroup}
+        className={styles.inlineButtons}
         data-orientation={orientation}
         data-overflow={overflowMode}
         ref={domRef}
-        {...buttonGroupProps}
+        {...inlineButtonsProps}
         {...others}
       >
         {children.map((item) => {
@@ -52,7 +52,7 @@ const _ButtonGroupInner = <T extends ButtonGroupItem>(
           }
 
           return (
-            <ButtonGroupButton
+            <InlineButton
               color={item.props.color ?? color}
               icon={item.props.icon}
               iconPosition={item.props.iconPosition}
@@ -76,19 +76,19 @@ const _ButtonGroupInner = <T extends ButtonGroupItem>(
   );
 };
 
-const ButtonGroupInner = forwardRef(_ButtonGroupInner);
+const InlineButtonsInner = forwardRef(_InlineButtonsInner);
 
-const _ButtonGroup = <T extends ButtonGroupItem>(
-  props: ButtonGroupProps<T>,
+const _InlineButtons = <T extends InlineButtonsItem>(
+  props: InlineButtonsProps<T>,
   ref: DOMRef<HTMLDivElement>,
 ) => {
   const { items, ...rest } = props;
 
   return (
-    <ButtonGroupInner items={items} {...rest} ref={ref}>
+    <InlineButtonsInner items={items} {...rest} ref={ref}>
       {(item) => <Item {...item}>{item.label}</Item>}
-    </ButtonGroupInner>
+    </InlineButtonsInner>
   );
 };
 
-export const ButtonGroup = forwardRef(_ButtonGroup);
+export const InlineButtons = forwardRef(_InlineButtons);

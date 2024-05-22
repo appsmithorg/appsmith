@@ -3,23 +3,23 @@ import type { ListState } from "@react-stately/list";
 import { useCallback, type RefObject, useMemo } from "react";
 import type { DOMAttributes, FocusableElement } from "@react-types/shared";
 
-import type { ButtonGroupProps } from "./types";
+import type { InlineButtonsProps } from "./types";
 import {
   useLayoutEffect,
   useResizeObserver,
   useValueEffect,
 } from "@react-aria/utils";
 
-export interface ButtonGroupAria {
-  buttonGroupProps: DOMAttributes;
-  orientation: ButtonGroupProps<object>["orientation"];
+export interface InlineButtonsAria {
+  inlineButtonsProps: DOMAttributes;
+  orientation: InlineButtonsProps<object>["orientation"];
 }
 
-export function useButtonGroup<T>(
-  props: ButtonGroupProps<T>,
+export function useInlineButtons<T>(
+  props: InlineButtonsProps<T>,
   state: ListState<T>,
   ref: RefObject<FocusableElement>,
-): ButtonGroupAria {
+): InlineButtonsAria {
   const focusManager = createFocusManager(ref);
 
   const onKeyDown = (e: React.KeyboardEvent<FocusableElement>) => {
@@ -106,7 +106,7 @@ export function useButtonGroup<T>(
   useLayoutEffect(updateOverflow, [updateOverflow, state.collection]);
 
   return {
-    buttonGroupProps: {
+    inlineButtonsProps: {
       "aria-orientation": orientation,
       onKeyDown,
     },
