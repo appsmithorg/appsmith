@@ -73,6 +73,9 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        hidden: (props: BaseInputWidgetProps) => {
+          return Boolean(props.isReadOnly);
+        },
       },
       {
         helpText: "Sets a placeholder text for the input",
@@ -83,6 +86,9 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        hidden: (props: BaseInputWidgetProps) => {
+          return Boolean(props.isReadOnly);
+        },
       },
       {
         helpText: "Controls the visibility of the widget",
@@ -103,6 +109,9 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (props: BaseInputWidgetProps) => {
+          return Boolean(props.isReadOnly);
+        },
       },
       {
         helpText:
@@ -135,6 +144,9 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (props: BaseInputWidgetProps) => {
+          return Boolean(props.isReadOnly);
+        },
       },
       {
         propertyName: "allowFormatting",
@@ -153,6 +165,9 @@ export const propertyPaneContentConfig = [
   },
   {
     sectionName: "Events",
+    hidden: (props: BaseInputWidgetProps) => {
+      return Boolean(props.isReadOnly);
+    },
     children: [
       {
         helpText: "when the text is changed",

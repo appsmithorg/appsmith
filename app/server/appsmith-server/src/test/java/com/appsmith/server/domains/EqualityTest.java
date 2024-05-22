@@ -58,12 +58,9 @@ public class EqualityTest {
 
     @Test
     void testApplicationDetail() {
-        Application.AppPositioning p1 = new Application.AppPositioning();
-        p1.setType(Application.AppPositioning.Type.AUTO);
-        Application.AppPositioning p2 = new Application.AppPositioning();
-        p2.setType(Application.AppPositioning.Type.AUTO);
-        Application.AppPositioning p3 = new Application.AppPositioning();
-        p3.setType(Application.AppPositioning.Type.FIXED);
+        Application.AppPositioning p1 = new Application.AppPositioning(Application.AppPositioning.Type.AUTO);
+        Application.AppPositioning p2 = new Application.AppPositioning(Application.AppPositioning.Type.AUTO);
+        Application.AppPositioning p3 = new Application.AppPositioning(Application.AppPositioning.Type.FIXED);
         assertThat(p1).isEqualTo(p2).isNotEqualTo(p3);
 
         ApplicationDetail d1 = new ApplicationDetail();

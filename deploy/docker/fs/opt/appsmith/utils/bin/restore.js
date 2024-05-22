@@ -59,10 +59,10 @@ async function extractArchive(backupFilePath, restoreRootPath) {
 
 async function restoreDatabase(restoreContentsPath) {
   console.log('Restoring database...');
-  const cmd = ['mongorestore', `--uri=${process.env.APPSMITH_MONGODB_URI}`, '--drop', `--archive=${restoreContentsPath}/mongodb-data.gz`, '--gzip']
+  const cmd = ['mongorestore', `--uri=${process.env.APPSMITH_DB_URL}`, '--drop', `--archive=${restoreContentsPath}/mongodb-data.gz`, '--gzip']
   try {
     const fromDbName = await getBackupDatabaseName(restoreContentsPath);
-    const toDbName = utils.getDatabaseNameFromMongoURI(process.env.APPSMITH_MONGODB_URI);
+    const toDbName = utils.getDatabaseNameFromMongoURI(process.env.APPSMITH_DB_URL);
     console.log("Restoring database from " + fromDbName + " to " + toDbName)
     cmd.push('--nsInclude=*', `--nsFrom=${fromDbName}.*`, `--nsTo=${toDbName}.*`)
   } catch (error) {
@@ -105,10 +105,10 @@ async function restoreDockerEnvFile(restoreContentsPath, backupName, overwriteEn
         hideEchoBack: true
       });
     }
-    await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_ENCRYPTION_PASSWORD=' + encryptionPwd + '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt + '\nAPPSMITH_MONGODB_URI=' + process.env.APPSMITH_MONGODB_URI +
+    await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_ENCRYPTION_PASSWORD=' + encryptionPwd + '\nAPPSMITH_ENCRYPTION_SALT=' + encryptionSalt + '\nAPPSMITH_DB_URL=' + process.env.APPSMITH_DB_URL +
     '\nAPPSMITH_MONGODB_USER=' + process.env.APPSMITH_MONGODB_USER + '\nAPPSMITH_MONGODB_PASSWORD=' + process.env.APPSMITH_MONGODB_PASSWORD ) ;
     } else {
-    await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_MONGODB_URI=' + process.env.APPSMITH_MONGODB_URI +
+    await fsPromises.appendFile(dockerEnvFile, '\nAPPSMITH_DB_URL=' + process.env.APPSMITH_DB_URL +
     '\nAPPSMITH_MONGODB_USER=' + process.env.APPSMITH_MONGODB_USER + '\nAPPSMITH_MONGODB_PASSWORD=' + process.env.APPSMITH_MONGODB_PASSWORD ) ;
     }
     console.log('Restoring docker environment file completed');
