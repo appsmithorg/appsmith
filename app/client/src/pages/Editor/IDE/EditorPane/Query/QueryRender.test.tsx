@@ -498,7 +498,7 @@ describe("IDE URL rendering of Queries", () => {
   });
 
   describe("Google Sheets Routes", () => {
-    const gsheetsDS = datasourceFactory().build({
+    const gSheetsDS = datasourceFactory().build({
       name: "Sheet",
       id: "GoogleSheetsDatasourceID",
     });
@@ -512,7 +512,7 @@ describe("IDE URL rendering of Queries", () => {
       const state = getIDETestState({
         actions: [anQuery],
         pages: [page],
-        datasources: [gsheetsDS],
+        datasources: [gSheetsDS],
         tabs: {
           [EditorEntityTab.QUERIES]: ["saas_api_id"],
           [EditorEntityTab.JS]: [],
@@ -561,7 +561,7 @@ describe("IDE URL rendering of Queries", () => {
       const state = getIDETestState({
         actions: [anQuery],
         pages: [page],
-        datasources: [gsheetsDS],
+        datasources: [gSheetsDS],
         tabs: {
           [EditorEntityTab.QUERIES]: ["saas_api_id"],
           [EditorEntityTab.JS]: [],
@@ -647,7 +647,7 @@ describe("IDE URL rendering of Queries", () => {
     });
     it("Renders Google Sheets add routes in Split Screen", async () => {
       const page = PageFactory.build();
-      const anQuery = PostgresFactory.build({
+      const anQuery = GoogleSheetFactory.build({
         name: "Sheets4",
         id: "saas_api_id",
         pageId: page.pageId,
@@ -655,7 +655,7 @@ describe("IDE URL rendering of Queries", () => {
       const state = getIDETestState({
         actions: [anQuery],
         pages: [page],
-        datasources: [gsheetsDS],
+        datasources: [gSheetsDS],
         tabs: {
           [EditorEntityTab.QUERIES]: ["saas_api_id"],
           [EditorEntityTab.JS]: [],
@@ -675,7 +675,7 @@ describe("IDE URL rendering of Queries", () => {
         },
       );
 
-      // There will be 1 Api4 text ( The tab )
+      // There will be 1 Sheets4 text (The tab)
       expect(getAllByText("Sheets4").length).toEqual(1);
       // Tabs active state
       expect(
@@ -690,7 +690,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));
       getByText("New datasource");
       getByText("REST API");
-      // Check new tab presence
+      // Check the new tab presence
       const newTab = getByTestId("t--ide-tab-new");
       expect(newTab).not.toBeNull();
       // Close button is rendered
