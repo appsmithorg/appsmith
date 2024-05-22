@@ -172,7 +172,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     protected Mono<Set<String>> getCurrentUserPermissionGroupsIfRequired(
             AclPermission permission, boolean includeAnonymousUserPermissions) {
-        return permission != null
+        return permission == null
                 ? Mono.just(Set.of())
                 : getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
     }
