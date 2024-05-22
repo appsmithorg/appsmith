@@ -189,7 +189,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   };
 
   onFocusChange = (isFocused?: boolean) => {
-    // We don't want to deformat orthe text or trigger
+    // We don't want to deformat or the text or trigger
     // any event on focus if the widget is read only
     if (Boolean(this.props.isReadOnly)) return;
 
