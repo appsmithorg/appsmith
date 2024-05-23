@@ -65,38 +65,42 @@ export function handleWidgetUpdate(
   widgetsEditorElement: HTMLDivElement,
   nameComponentState: NameComponentStates,
 ) {
-  return autoUpdate(widgetElement, widgetNameComponent, () => {
-    computePosition(widgetElement as HTMLDivElement, widgetNameComponent, {
-      placement: "top-start",
-      strategy: "fixed",
-      middleware: [
-        flip(),
-        shift(),
-        offset({ mainAxis: 0, crossAxis: -5 }),
-        getOverflowMiddleware(widgetsEditorElement as HTMLDivElement),
-        hide({ strategy: "referenceHidden" }),
-        hide({ strategy: "escaped" }),
-      ],
-    }).then(({ middlewareData, x, y }) => {
-      let shiftOffset = 0;
-      if (middlewareData.containWithinCanvas.overflowAmount > 0) {
-        shiftOffset = middlewareData.containWithinCanvas.overflowAmount + 5;
-      }
+  return autoUpdate(
+    widgetElement,
+    widgetNameComponent,
+    () => {
+      computePosition(widgetElement as HTMLDivElement, widgetNameComponent, {
+        placement: "top-start",
+        strategy: "fixed",
+        middleware: [
+          flip(),
+          shift(),
+          offset({ mainAxis: 0, crossAxis: -5 }),
+          getOverflowMiddleware(widgetsEditorElement as HTMLDivElement),
+          hide({ strategy: "referenceHidden" }),
+          hide({ strategy: "escaped" }),
+        ],
+      }).then(({ middlewareData, x, y }) => {
+        let shiftOffset = 0;
+        if (middlewareData.containWithinCanvas.overflowAmount > 0) {
+          shiftOffset = middlewareData.containWithinCanvas.overflowAmount + 5;
+        }
 
-      Object.assign(widgetNameComponent.style, {
-        left: `${x - shiftOffset}px`,
-        top: `${y}px`,
-        visibility:
-          nameComponentState === "none" || middlewareData.hide?.referenceHidden
+        Object.assign(widgetNameComponent.style, {
+          left: `${x - shiftOffset}px`,
+          top: `${y}px`,
+          visibility: middlewareData.hide?.referenceHidden
             ? "hidden"
             : "visible",
-        zIndex:
-          nameComponentState === "focus"
-            ? "calc(var(--on-canvas-ui-zindex) + 1)"
-            : "var(--on-canvas-ui-zindex)",
+          zIndex:
+            nameComponentState === "focus"
+              ? "calc(var(--on-canvas-ui-zindex) + 1)"
+              : "var(--on-canvas-ui-zindex)",
+        });
       });
-    });
-  });
+    },
+    { animationFrame: true },
+  );
 }
 
 export function getWidgetNameComponentStyleProps(
