@@ -69,6 +69,10 @@
   display: none;
 }
 
+.listBox {
+  min-inline-size: var(--trigger-width);
+}
+
 .listBox:has([data-icon]) [role="option"]:not(:has([data-icon])) {
   padding-inline-start: calc(
     var(--icon-size-2) + var(--inner-spacing-3) + var(--inner-spacing-2)

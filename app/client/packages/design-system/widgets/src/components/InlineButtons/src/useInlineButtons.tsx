@@ -10,9 +10,11 @@ import {
   useValueEffect,
 } from "@react-aria/utils";
 
+type Orientation = "vertical" | "horizontal";
+
 export interface InlineButtonsAria {
   inlineButtonsProps: DOMAttributes;
-  orientation: InlineButtonsProps<object>["orientation"];
+  orientation: Orientation;
 }
 
 export function useInlineButtons<T>(
@@ -46,14 +48,11 @@ export function useInlineButtons<T>(
     }
   };
 
-  const [{ orientation }, setOrientation] = useValueEffect({
-    orientation: props.orientation,
-  });
+  const [orientation, setOrientation] =
+    useValueEffect<Orientation>("horizontal");
 
   const updateOverflow = useCallback(() => {
-    if (props.orientation === "vertical") return;
-
-    const computeOrientation = () => {
+    const computeOrientation = (): Orientation => {
       if (ref.current) {
         const listItems = Array.from(ref.current.children) as HTMLLIElement[];
         const containerSize = ref.current.getBoundingClientRect().width;
@@ -78,17 +77,11 @@ export function useInlineButtons<T>(
     };
 
     setOrientation(function* () {
-      yield {
-        orientation: "horizontal",
-      };
+      yield "horizontal";
 
-      const orientation = computeOrientation();
-
-      yield {
-        orientation: orientation,
-      };
+      yield computeOrientation();
     });
-  }, [ref, state.collection, setOrientation, props.orientation]);
+  }, [ref, state.collection, setOrientation]);
 
   const parentRef = useMemo(
     () => ({

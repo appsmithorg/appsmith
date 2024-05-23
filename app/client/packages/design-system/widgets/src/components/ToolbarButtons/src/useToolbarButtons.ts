@@ -21,7 +21,7 @@ export function useToolbarButtons<T>(
   state: ListState<T>,
   ref: RefObject<FocusableElement>,
 ): ToolbarButtonsAria {
-  const { overflowMode = "collapse" } = props;
+  // const { overflowMode = "collapse" } = props;
   const focusManager = createFocusManager(ref);
 
   const onKeyDown = (e: React.KeyboardEvent<FocusableElement>) => {
@@ -54,9 +54,9 @@ export function useToolbarButtons<T>(
   });
 
   const updateOverflow = useCallback(() => {
-    if (overflowMode === "wrap") {
-      return;
-    }
+    // if (overflowMode === "wrap") {
+    //   return;
+    // }
 
     const computeVisibleItems = (visibleItems: number) => {
       if (ref.current) {
@@ -135,7 +135,7 @@ export function useToolbarButtons<T>(
         };
       }
     });
-  }, [ref, state.collection, setVisibleItems, overflowMode]);
+  }, [ref, state.collection, setVisibleItems]);
 
   const parentRef = useMemo(
     () => ({
@@ -147,7 +147,7 @@ export function useToolbarButtons<T>(
   );
 
   useResizeObserver({
-    ref: overflowMode !== "wrap" ? parentRef : undefined,
+    ref: parentRef,
     onResize: updateOverflow,
   });
   useLayoutEffect(updateOverflow, [updateOverflow, state.collection]);

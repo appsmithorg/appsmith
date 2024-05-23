@@ -21,10 +21,8 @@ const _InlineButtonsInner = <T extends InlineButtonsItem>(
     color = "accent",
     isDisabled,
     onAction,
-    overflowMode = "collapse",
     size = "medium",
     variant = "filled",
-    ...others
   } = props;
   const domRef = useDOMRef(ref);
   const state = useListState({ ...props, suppressTextValueWarning: true });
@@ -41,10 +39,8 @@ const _InlineButtonsInner = <T extends InlineButtonsItem>(
       <div
         className={styles.inlineButtons}
         data-orientation={orientation}
-        data-overflow={overflowMode}
         ref={domRef}
         {...inlineButtonsProps}
-        {...others}
       >
         {children.map((item) => {
           if (Boolean(item.props.isSeparator)) {
@@ -57,7 +53,7 @@ const _InlineButtonsInner = <T extends InlineButtonsItem>(
               icon={item.props.icon}
               iconPosition={item.props.iconPosition}
               isDisabled={
-                Boolean(state.disabledKeys.has(String(item.key))) ||
+                Boolean(state.disabledKeys.has(item.key)) ||
                 Boolean(isDisabled) ||
                 item.props.isDisabled
               }

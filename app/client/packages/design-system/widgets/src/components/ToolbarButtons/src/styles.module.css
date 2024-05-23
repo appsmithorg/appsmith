@@ -33,10 +33,6 @@
     justify-content: flex-end;
   }
 
-  &[data-overflow="collapse"] {
-    flex-wrap: nowrap;
-  }
-
   &:not([data-density="compact"]) {
     gap: var(--inner-spacing-2);
   }

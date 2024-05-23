@@ -1,12 +1,8 @@
 import type { SpectrumActionGroupProps } from "@react-types/actiongroup";
+import type { Key } from "@react-types/shared";
 import type { StyleProps } from "@react-types/shared";
 import type { ButtonProps } from "../../Button";
 import type { SIZES } from "../../../shared";
-
-export const INLINE_BUTTONS_ORIENTATIONS = {
-  vertical: "vertical",
-  horizontal: "horizontal",
-};
 
 export interface InlineButtonsProps<T>
   extends Omit<
@@ -25,19 +21,20 @@ export interface InlineButtonsProps<T>
       | "selectedKeys"
       | "density"
       | "children"
+      | "overflowMode"
+      | "id"
       | keyof StyleProps
     >,
     Pick<ButtonProps, "variant" | "color"> {
   size?: Omit<keyof typeof SIZES, "large">;
-  orientation?: keyof typeof INLINE_BUTTONS_ORIENTATIONS;
 }
 
 export interface InlineButtonsItem
   extends Pick<
     ButtonProps,
-    "icon" | "iconPosition" | "isLoading" | "isDisabled"
+    "icon" | "iconPosition" | "isLoading" | "isDisabled" | "variant" | "color"
   > {
-  id: string | number;
+  id: Key;
   label?: string;
   isSeparator?: boolean;
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
 import { Select, Button, Flex, SIZES } from "@design-system/widgets";
-import type { SelectItem } from "../src/types";
+import { selectItems, selectItemsWithIcons } from "./selectData";
 
 /**
  * A select displays a collapsible list of options and allows a user to select one of them.
@@ -14,21 +14,9 @@ const meta: Meta<typeof Select> = {
 export default meta;
 type Story = StoryObj<typeof Select>;
 
-const items: SelectItem[] = [
-  { id: 1, label: "Aerospace", icon: "rocket" },
-  { id: 2, label: "Mechanical", icon: "settings" },
-  { id: 3, label: "Civil" },
-  { id: 4, label: "Biomedical" },
-  { id: 5, label: "Nuclear" },
-  { id: 6, label: "Industrial" },
-  { id: 7, label: "Chemical" },
-  { id: 8, label: "Agricultural" },
-  { id: 9, label: "Electrical" },
-];
-
 export const Main: Story = {
   args: {
-    items: items,
+    items: selectItems,
   },
   render: (args) => (
     <Flex width="sizing-60">
@@ -46,7 +34,12 @@ export const Sizes: Story = {
       {Object.keys(SIZES)
         .filter((size) => !["large"].includes(size))
         .map((size) => (
-          <Select items={items} key={size} placeholder={size} size={size} />
+          <Select
+            items={selectItems}
+            key={size}
+            placeholder={size}
+            size={size}
+          />
         ))}
     </Flex>
   ),
@@ -56,7 +49,7 @@ export const Loading: Story = {
   args: {
     placeholder: "Loading",
     isLoading: true,
-    items: items,
+    items: selectItems,
   },
 };
 
@@ -72,7 +65,7 @@ export const Validation: Story = {
         <Select
           description="description"
           isRequired
-          items={items}
+          items={selectItems}
           label="Validation"
         />
         <Button type="submit">Submit</Button>
@@ -86,6 +79,13 @@ export const ContextualHelp: Story = {
     label: "Label",
     placeholder: "Contextual Help Text",
     contextualHelp: "This is a contextual help text",
-    items: items,
+    items: selectItems,
+  },
+};
+
+export const WithIcons: Story = {
+  args: {
+    label: "With icons",
+    items: selectItemsWithIcons,
   },
 };

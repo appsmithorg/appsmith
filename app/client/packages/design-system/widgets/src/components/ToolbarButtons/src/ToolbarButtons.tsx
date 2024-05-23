@@ -25,10 +25,8 @@ const _ToolbarButtonsInner = <T extends ToolbarButtonsItem>(
     density = "regular",
     isDisabled,
     onAction,
-    overflowMode = "collapse",
     size = "medium",
     variant = "filled",
-    ...others
   } = props;
   const domRef = useDOMRef(ref);
   const state = useListState({ ...props, suppressTextValueWarning: true });
@@ -50,10 +48,8 @@ const _ToolbarButtonsInner = <T extends ToolbarButtonsItem>(
         className={styles.toolbarButtons}
         data-alignment={alignment}
         data-density={Boolean(density) ? density : undefined}
-        data-overflow={overflowMode}
         ref={domRef}
         {...toolbarButtonsProps}
-        {...others}
       >
         {children.map((item) => {
           if (Boolean(item.props.isSeparator)) {
@@ -66,7 +62,9 @@ const _ToolbarButtonsInner = <T extends ToolbarButtonsItem>(
               icon={item.props.icon}
               iconPosition={item.props.iconPosition}
               isDisabled={
-                Boolean(state.disabledKeys.has(String(item.key))) || isDisabled
+                Boolean(state.disabledKeys.has(item.key)) ||
+                Boolean(item.props.isDisabled) ||
+                isDisabled
               }
               isLoading={item.props.isLoading}
               item={item}
@@ -87,7 +85,7 @@ const _ToolbarButtonsInner = <T extends ToolbarButtonsItem>(
               isDisabled={isDisabled}
               variant={variant}
             />
-            <Menu items={menuChildren} onAction={onAction} />
+            <Menu {...props} items={menuChildren} />
           </MenuTrigger>
         )}
       </div>

@@ -1,3 +1,4 @@
+import type { Key } from "@react-types/shared";
 import type { ReactNode } from "react";
 import type {
   SelectProps as SpectrumSelectProps,
@@ -27,7 +28,7 @@ export interface SelectProps<T extends object>
 }
 
 export interface SelectItem {
-  id: string | number;
+  id: Key;
   label: string;
   icon?: IconProps["name"];
 }

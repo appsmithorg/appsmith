@@ -1,4 +1,5 @@
 import type { SpectrumActionGroupProps } from "@react-types/actiongroup";
+import type { Key } from "@react-types/shared";
 import type { StyleProps } from "@react-types/shared";
 import type { ButtonProps } from "../../Button";
 import type { SIZES } from "../../../shared";
@@ -24,6 +25,8 @@ export interface ToolbarButtonsProps<T>
       | "onSelectionChange"
       | "selectedKeys"
       | "children"
+      | "overflowMode"
+      | "id"
       | keyof StyleProps
     >,
     Pick<ButtonProps, "variant" | "color"> {
@@ -33,7 +36,7 @@ export interface ToolbarButtonsProps<T>
 
 export interface ToolbarButtonsItem
   extends Pick<ButtonProps, "icon" | "isLoading" | "isDisabled"> {
-  id: string | number;
+  id: Key;
   label?: string;
   isSeparator?: boolean;
 }

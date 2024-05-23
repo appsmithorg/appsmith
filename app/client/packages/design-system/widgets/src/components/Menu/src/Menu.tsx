@@ -8,6 +8,7 @@ import {
 } from "react-aria-components";
 import styles from "./styles.module.css";
 import type { MenuProps, MenuItemProps } from "./types";
+import type { Key } from "@react-types/shared";
 
 export const Menu = (props: MenuProps) => {
   const { hasSubmenu = false } = props;
@@ -26,22 +27,17 @@ export const Menu = (props: MenuProps) => {
 };
 
 const renderFunc = (item: MenuItemProps, props: MenuProps) => {
-  const {
-    childItems,
-    icon,
-    id,
-    isDisabled,
-    isSeparator = false,
-    label,
-    ...rest
-  } = item;
+  const { childItems, icon, id, isDisabled, isSeparator = false, label } = item;
+
+  const isItemDisabled = () =>
+    Boolean((props.disabledKeys as Key[])?.includes(id)) || isDisabled;
 
   if (childItems != null)
     return (
-      <SubmenuTrigger {...rest}>
+      <SubmenuTrigger {...props}>
         <MenuItem
           className={listItemStyles.item}
-          isDisabled={isDisabled}
+          isDisabled={isItemDisabled()}
           key={id}
         >
           {icon && <Icon name={icon} />}
@@ -50,7 +46,7 @@ const renderFunc = (item: MenuItemProps, props: MenuProps) => {
           </Text>
           <Icon data-chevron name="chevron-right" size="small" />
         </MenuItem>
-        <Menu {...props} hasSubmenu items={childItems}>
+        <Menu hasSubmenu items={childItems}>
           {(item) => renderFunc(item, props)}
         </Menu>
       </SubmenuTrigger>
@@ -60,7 +56,11 @@ const renderFunc = (item: MenuItemProps, props: MenuProps) => {
     return <Separator className={listItemStyles.separator} key={id} />;
 
   return (
-    <MenuItem className={listItemStyles.item} isDisabled={isDisabled} key={id}>
+    <MenuItem
+      className={listItemStyles.item}
+      isDisabled={isItemDisabled()}
+      key={id}
+    >
       {icon && <Icon name={icon} />}
       <Text className={listItemStyles.text} lineClamp={1}>
         {label}
