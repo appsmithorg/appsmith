@@ -59,7 +59,7 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_PASSWORD: postgres
+          POSTGRES_PASSWORD: password
         ports:
           - 5432:5432
 
