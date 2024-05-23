@@ -30,8 +30,7 @@ public class CommonDBConfig {
     @Primary
     @Profile("!test")
     public MongoProperties configureMongoDB() {
-        log.debug("Configuring MongoDB with url: {}", appsmithDbUrl);
-        if (!appsmithDbUrl.contains("mongodb")) {
+        if (!appsmithDbUrl.startsWith("mongodb")) {
             return null;
         }
         log.info("Found MongoDB uri configuring now");
