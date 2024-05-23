@@ -2,7 +2,7 @@ import { runSaga } from "redux-saga";
 import { AppIDEFocusStrategy } from "./AppIDEFocusStrategy";
 import { NavigationMethod } from "utils/history";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
-import { take } from "redux-saga/effects";
+import { all, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 describe("AppIDEFocusStrategy", () => {
@@ -247,6 +247,20 @@ describe("AppIDEFocusStrategy", () => {
       );
 
       expect(pageChangeGen.next().value).toEqual(undefined);
+    });
+
+    it("waits for actions and plugins to be loaded in case of first page load", () => {
+      const pageChangeGen = AppIDEFocusStrategy.waitForPathLoad(
+        "/app/appSlug/pageSlug-pageId/edit/api/actionId",
+        "",
+      );
+
+      expect(pageChangeGen.next().value).toEqual(
+        all([
+          take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
+          take(ReduxActionTypes.FETCH_PLUGINS_SUCCESS),
+        ]),
+      );
     });
   });
 });
