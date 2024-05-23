@@ -1,10 +1,15 @@
+import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { getErrorCount } from "selectors/debuggerSelectors";
 import { Text, TextType } from "design-system-old";
+import Resizable, {
+  ResizerCSS,
+} from "components/editorComponents/Debugger/Resizer";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import {
   DEBUGGER_ERRORS,
@@ -32,13 +37,22 @@ import { setQueryPaneDebuggerState } from "actions/queryPaneActions";
 import { actionResponseDisplayDataFormats } from "../utils";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import { IDEBottomView, ViewHideBehaviour } from "../../../IDE";
 
 const ResultsCount = styled.div`
   position: absolute;
   right: ${(props) => props.theme.spaces[17] + 1}px;
   top: 9px;
   color: var(--ads-v2-color-fg);
+`;
+
+export const TabbedViewContainer = styled.div`
+  ${ResizerCSS};
+  height: ${ActionExecutionResizerHeight}px;
+  // Minimum height of bottom tabs as it can be resized
+  min-height: 36px;
+  width: 100%;
+  background-color: var(--ads-v2-color-bg);
+  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 interface QueryDebuggerTabsProps {
@@ -63,6 +77,8 @@ function QueryDebuggerTabs({
   showSchema,
 }: QueryDebuggerTabsProps) {
   let output: Record<string, any>[] | null = null;
+
+  const panelRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
 
   const { open, responseTabHeight, selectedTab } = useSelector(
@@ -170,12 +186,12 @@ function QueryDebuggerTabs({
     dispatch(setQueryPaneDebuggerState({ responseTabHeight: height }));
   }, []);
 
-  const onToggle = useCallback(() => {
-    dispatch(setQueryPaneDebuggerState({ open: !open }));
-  }, [open]);
+  const onClose = useCallback(() => {
+    dispatch(setQueryPaneDebuggerState({ open: false }));
+  }, []);
 
   const setSelectedResponseTab = useCallback((tabKey: string) => {
-    dispatch(setQueryPaneDebuggerState({ open: true, selectedTab: tabKey }));
+    dispatch(setQueryPaneDebuggerState({ selectedTab: tabKey }));
   }, []);
 
   const ideViewMode = useSelector(getIDEViewMode);
@@ -228,15 +244,23 @@ function QueryDebuggerTabs({
     });
   }
 
+  if (!open) return null;
+
   return (
-    <IDEBottomView
-      behaviour={ViewHideBehaviour.COLLAPSE}
-      className="t--query-bottom-pane-container"
-      height={responseTabHeight}
-      hidden={!open}
-      onHideClick={onToggle}
-      setHeight={setQueryResponsePaneHeight}
+    <TabbedViewContainer
+      className="t--query-bottom-pane-container select-text"
+      ref={panelRef}
     >
+      <Resizable
+        initialHeight={responseTabHeight}
+        onResizeComplete={(height: number) =>
+          setQueryResponsePaneHeight(height)
+        }
+        openResizer={isRunning}
+        panelRef={panelRef}
+        snapToHeight={ActionExecutionResizerHeight}
+      />
+
       {output && !!output.length && (
         <ResultsCount>
           <Text type={TextType.P3}>
@@ -249,12 +273,20 @@ function QueryDebuggerTabs({
       )}
 
       <EntityBottomTabs
-        isCollapsed={!open}
+        expandedHeight={`${ActionExecutionResizerHeight}px`}
         onSelect={setSelectedResponseTab}
         selectedTabKey={selectedTab || ""}
         tabs={responseTabs}
       />
-    </IDEBottomView>
+      <CloseDebugger
+        className="close-debugger t--close-debugger"
+        isIconButton
+        kind="tertiary"
+        onClick={onClose}
+        size="md"
+        startIcon="close-modal"
+      />
+    </TabbedViewContainer>
   );
 }
 

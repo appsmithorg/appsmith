@@ -41,7 +41,8 @@ export const Form = styled.form<{
 }>`
   display: flex;
   flex-direction: column;
-  ${(props) => !props.viewMode && `height: 100%`}
+  ${(props) =>
+    !props.viewMode && `height: ${`calc(100% - ${props?.theme.backBanner})`};`}
   padding-bottom: var(--ads-v2-spaces-6);
   overflow-y: auto;
   margin-left: ${(props) => (props.viewMode ? "0px" : "24px")};
