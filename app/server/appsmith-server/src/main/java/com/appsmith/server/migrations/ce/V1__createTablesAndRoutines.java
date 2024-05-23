@@ -14,8 +14,6 @@ public class V1__createTablesAndRoutines extends AppsmithJavaMigration {
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
         String createTablesSQL = loadSQLFileAsString("/sql/createTables.sql");
-        String createFunctionsSQL = loadSQLFileAsString("/sql/createRoutines.sql");
         jdbcTemplate.execute(createTablesSQL);
-        jdbcTemplate.execute(createFunctionsSQL);
     }
 }
