@@ -300,6 +300,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         label={this.props.label}
         onFocusChange={this.onFocusChange}
         onISDCodeChange={this.onISDCodeChange}
+        onKeyDown={this.onKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         tooltip={this.props.tooltip}
