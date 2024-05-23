@@ -7,8 +7,6 @@ import type { AnvilGlobalDnDStates } from "./hooks/useAnvilGlobalDnDStates";
 import { useAnvilGlobalDnDStates } from "./hooks/useAnvilGlobalDnDStates";
 import { AnvilDragPreview } from "../canvasArenas/AnvilDragPreview";
 import { AnvilWidgetElevationProvider } from "./providers/AnvilWidgetElevationProvider";
-import { focusWidget } from "actions/widgetActions";
-import { useDispatch } from "react-redux";
 
 export const AnvilDnDStatesContext = React.createContext<
   AnvilGlobalDnDStates | undefined
@@ -21,11 +19,6 @@ export const AnvilDnDStatesContext = React.createContext<
  */
 export const AnvilEditorCanvas = (props: BaseWidgetProps) => {
   const canvasRef = useRef<HTMLDivElement>(null);
-  /** When leaving the confines of the canvas we need to unfocus all widgets */
-  const dispatch = useDispatch();
-  const handleMouseLeave = () => {
-    dispatch(focusWidget());
-  };
 
   /* This is a click event listener to clear selections on clicking outside of the widget */
   const clickToClearSelections = useClickToClearSelections(props.widgetId);
@@ -52,10 +45,8 @@ export const AnvilEditorCanvas = (props: BaseWidgetProps) => {
 
   useEffect(() => {
     canvasRef.current?.addEventListener("click", handleOnClickCapture);
-    canvasRef.current?.addEventListener("mouseleave", handleMouseLeave);
     return () => {
       canvasRef.current?.removeEventListener("click", handleOnClickCapture);
-      canvasRef.current?.removeEventListener("mouseleave", handleMouseLeave);
     };
   }, []);
   /* End of click event listener */
