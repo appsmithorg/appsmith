@@ -263,7 +263,7 @@ jobs:
 
       - name: Return status for ui-matrix
         run: |
-          if [[ "${{ needs.ci-test.result }}" == "success" || "${{ needs.client-unit-tests.result }}" == "success" ||"${{ needs.server-unit-tests.result }}" == "success" ]]; then
+          if [[ "${{ needs.ci-test.result }}" == "success" && "${{ needs.client-unit-tests.result }}" == "success" && "${{ needs.server-unit-tests.result }}" == "success" ]]; then
             echo "Integration, Client unit and Server unit tests completed successfully!";
             exit 0;
           elif [[ "${{ needs.ci-test.result }}" == "skipped" ]]; then
