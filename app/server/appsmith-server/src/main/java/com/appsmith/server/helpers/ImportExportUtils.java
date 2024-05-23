@@ -5,7 +5,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import lombok.extern.slf4j.Slf4j;
@@ -78,37 +77,6 @@ public class ImportExportUtils {
         }
 
         return "";
-    }
-
-    /**
-     * This function sets the current applicationDetail properties to null if the user wants to discard the changes
-     * and accept from the git repo which doesn't contain these.
-     * @param importedApplicationDetail
-     * @param existingApplicationDetail
-     */
-    private static void setPropertiesToApplicationDetail(
-            ApplicationDetail importedApplicationDetail, ApplicationDetail existingApplicationDetail) {
-        // If the initial commit to git doesn't contain these keys and if we want to discard the changes,
-        // the function copyNestedNonNullProperties ignore these properties and the changes are not discarded
-
-        // this case would be handled when the bean would be copied
-        if (existingApplicationDetail == null) {
-            return;
-        }
-
-        Application.AppPositioning appPositioning = null;
-        Application.NavigationSetting navigationSetting = null;
-        Application.ThemeSetting themeSetting = null;
-
-        if (importedApplicationDetail == null) {
-            appPositioning = importedApplicationDetail.getAppPositioning();
-            navigationSetting = importedApplicationDetail.getNavigationSetting();
-            themeSetting = importedApplicationDetail.getThemeSetting();
-        }
-
-        existingApplicationDetail.setAppPositioning(appPositioning);
-        existingApplicationDetail.setNavigationSetting(navigationSetting);
-        existingApplicationDetail.setThemeSetting(themeSetting);
     }
 
     public static void setPropertiesToExistingApplication(
