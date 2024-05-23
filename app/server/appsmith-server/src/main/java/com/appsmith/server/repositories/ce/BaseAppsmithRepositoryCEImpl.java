@@ -9,6 +9,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.mongodb.BasicDBObject;
@@ -143,6 +144,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         update.keySet().forEach(entry -> updateObj.set(entry, update.get(entry)));
 
         return queryBuilder().byId(id).permission(permission).updateFirstAndFind(updateObj);
+    }
+
+    public Mono<Integer> updateByIdWithoutPermissionCheck(@NonNull String id, BridgeUpdate update) {
+        return queryBuilder().byId(id).updateFirst(update);
     }
 
     public Mono<Integer> updateFieldByDefaultIdAndBranchName(
@@ -455,7 +460,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
      *
      * @see FindAndModifyOptions
      */
-    public Mono<T> updateAndReturn(String id, UpdateDefinition updateObj, Optional<AclPermission> permission) {
+    public Mono<T> updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission) {
         Query query = new Query(Criteria.where("id").is(id));
 
         FindAndModifyOptions findAndModifyOptions =

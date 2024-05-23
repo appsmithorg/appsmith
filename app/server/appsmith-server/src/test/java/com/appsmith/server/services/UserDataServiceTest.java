@@ -496,8 +496,9 @@ public class UserDataServiceTest {
 
         Mono<GitProfile> gitConfigMono = gitService.getDefaultGitProfileOrCreateIfEmpty();
 
-        Mono<User> userData =
-                userDataService.getForCurrentUser().flatMap(userData1 -> userService.getById(userData1.getUserId()));
+        Mono<User> userData = userDataService
+                .getForCurrentUser()
+                .flatMap(userData1 -> userService.getByIdWithoutPermissionCheck(userData1.getUserId()));
 
         StepVerifier.create(gitConfigMono.zipWhen(gitProfile -> userData))
                 .assertNext(tuple -> {

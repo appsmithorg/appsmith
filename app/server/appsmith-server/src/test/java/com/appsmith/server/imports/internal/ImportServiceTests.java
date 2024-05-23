@@ -1952,7 +1952,7 @@ public class ImportServiceTests {
                     action.setPageId(application.getPages().get(0).getId());
                     return layoutActionService.createAction(action);
                 })
-                .flatMap(actionDTO -> newActionService.getById(actionDTO.getId()))
+                .flatMap(actionDTO -> newActionService.getByIdWithoutPermissionCheck(actionDTO.getId()))
                 .flatMap(newAction -> applicationRepository.findById(newAction.getApplicationId()))
                 .cache();
 
@@ -2055,7 +2055,8 @@ public class ImportServiceTests {
 
                     return layoutCollectionService.createCollection(actionCollectionDTO1, null);
                 })
-                .flatMap(actionCollectionDTO -> actionCollectionService.getById(actionCollectionDTO.getId()))
+                .flatMap(actionCollectionDTO ->
+                        actionCollectionService.getByIdWithoutPermissionCheck(actionCollectionDTO.getId()))
                 .flatMap(actionCollection -> applicationRepository.findById(actionCollection.getApplicationId()))
                 .cache();
 

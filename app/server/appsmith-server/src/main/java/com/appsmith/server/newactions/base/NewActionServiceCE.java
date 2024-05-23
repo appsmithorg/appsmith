@@ -29,6 +29,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     void setCommonFieldsFromActionDTOIntoNewAction(ActionDTO action, NewAction newAction);
 
+    Mono<NewAction> findByIdAndBranchName(String id, String branchName);
+
     ActionDTO generateActionByViewMode(NewAction newAction, Boolean viewMode);
 
     void generateAndSetActionPolicies(NewPage page, NewAction action);
