@@ -211,7 +211,7 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperCECompatibleImpl
     }
 
     @Override
-    public Mono<Boolean> isServerAutocommitRequired(String workspaceId, GitArtifactMetadata gitMetadata) {
+    public Mono<Boolean> isServerAutoCommitRequired(String workspaceId, GitArtifactMetadata gitMetadata) {
 
         String defaultApplicationId = gitMetadata.getDefaultArtifactId();
         String branchName = gitMetadata.getBranchName();

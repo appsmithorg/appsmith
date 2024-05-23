@@ -18,7 +18,7 @@ public class GitAutoCommitHelperCECompatibleImpl implements GitAutoCommitHelperC
     }
 
     @Override
-    public Mono<Boolean> isServerAutocommitRequired(String workspaceId, GitArtifactMetadata gitMetadata) {
+    public Mono<Boolean> isServerAutoCommitRequired(String workspaceId, GitArtifactMetadata gitMetadata) {
         return Mono.just(Boolean.FALSE);
     }
 }

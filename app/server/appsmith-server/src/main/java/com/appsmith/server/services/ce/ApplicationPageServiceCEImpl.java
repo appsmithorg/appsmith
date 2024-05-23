@@ -374,7 +374,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 });
 
         Mono<Boolean> isServerAutocommitRequiredMono = gitAutoCommitHelper
-                .isServerAutocommitRequired(workspaceId, gitMetadata)
+                .isServerAutoCommitRequired(workspaceId, gitMetadata)
                 .onErrorResume(error -> {
                     log.debug(
                             "Error in checking server migration for application id : {} branch name : {}",

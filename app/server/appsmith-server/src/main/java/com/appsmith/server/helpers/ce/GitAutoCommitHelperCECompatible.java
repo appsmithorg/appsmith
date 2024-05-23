@@ -9,5 +9,5 @@ public interface GitAutoCommitHelperCECompatible {
 
     Mono<Boolean> autoCommitServerMigration(String defaultApplicationId, String branchName);
 
-    Mono<Boolean> isServerAutocommitRequired(String workspaceId, GitArtifactMetadata gitMetadata);
+    Mono<Boolean> isServerAutoCommitRequired(String workspaceId, GitArtifactMetadata gitMetadata);
 }
