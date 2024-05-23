@@ -183,7 +183,6 @@ configure_database_connection_url() {
   elif [[ "${APPSMITH_DB_URL}" == "mongodb"* ]]; then
     isMongoUrl=1
   fi
-  echo "Configured database connection URL is $APPSMITH_DB_URL"
 }
 
 check_db_uri() {
