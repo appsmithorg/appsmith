@@ -17,6 +17,9 @@ import { AnvilWidgetNameComponent } from "./AnvilWidgetNameComponent";
 import { getWidgetErrorCount, shouldSelectOrFocus } from "./selectors";
 import type { NameComponentStates } from "./types";
 import { generateDragStateForAnvilLayout } from "layoutSystems/anvil/utils/widgetUtils";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { isWidgetSelected } from "selectors/widgetSelectors";
 
 export function AnvilWidgetName(props: {
   widgetId: string;
@@ -40,23 +43,28 @@ export function AnvilWidgetName(props: {
     (state) => getWidgetErrorCount(state, widgetId) > 0,
   );
 
+  const isParentSelected = useSelector(isWidgetSelected(parentId));
+
   const styleProps = getWidgetNameComponentStyleProps(
     widgetType,
     nameComponentState,
     showError,
+    isParentSelected,
   );
 
   const { setDraggingState } = useWidgetDragResize();
+  const { selectWidget } = useWidgetSelection();
 
   const onDragStart = useCallback(
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       e.stopPropagation();
-      if (nameComponentState === "select") {
-        setDraggingState(generateDragState());
-      }
+      // If we're dragging a focused widget, we need to select it before dragging
+      // Otherwise, the currently selected widget will instead be dragged.
+      selectWidget(SelectionRequestType.One, [widgetId]);
+      setDraggingState(generateDragState());
     },
-    [setDraggingState, nameComponentState],
+    [setDraggingState],
   );
 
   /** Setup Floating UI logic */
@@ -77,7 +85,13 @@ export function AnvilWidgetName(props: {
 
   let cleanup = () => {};
   useEffect(() => {
-    if (widgetElement && widgetNameComponent && widgetsEditorElement) {
+    if (
+      widgetElement &&
+      widgetNameComponent &&
+      widgetsEditorElement &&
+      // Makes sure we add listeners only if the widget is selected or focused
+      nameComponentState !== "none"
+    ) {
       cleanup = handleWidgetUpdate(
         widgetElement,
         widgetNameComponent,
@@ -100,6 +114,8 @@ export function AnvilWidgetName(props: {
     return null;
   // Don't show widget name component if the widget DOM element isn't found
   if (!widgetElement) return null;
+  // Don't render any DOM nodes if the widget is not selected or focused
+  if (nameComponentState === "none") return null;
 
   return (
     <FloatingPortal>
