@@ -9,7 +9,6 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.git.constants.GitSpan;
-import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.ArtifactType;
@@ -42,9 +41,8 @@ import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
+import com.appsmith.server.helpers.ce.autocommit.GitAutoCommitHelper;
 import com.appsmith.server.imports.internal.ImportService;
-import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.GitArtifactHelper;
@@ -3491,47 +3489,5 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         }
 
         return Flux.merge(eventSenderMonos).then();
-    }
-
-    /**
-     * Provides the server schema version in the application json for the given branch
-     *
-     * @param workspaceId : workspaceId of the artifact
-     * @param defaultArtifactId : default branch id of the artifact
-     * @param branchName : current branch name of the artifact
-     * @param repoName : repository name
-     * @param artifactType : artifact type of this operation
-     * @return the server schema migration version number
-     */
-    @Override
-    public Mono<Integer> getMetadataServerSchemaMigrationVersion(
-            String workspaceId,
-            String defaultArtifactId,
-            String branchName,
-            String repoName,
-            ArtifactType artifactType) {
-
-        if (!hasText(workspaceId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
-        }
-
-        if (!hasText(defaultArtifactId)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ARTIFACT_ID));
-        }
-
-        if (!hasText(branchName)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
-        }
-
-        if (!hasText(repoName)) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.REPO_NAME));
-        }
-
-        return commonGitFileUtils
-                .reconstructMetadataFromRepo(workspaceId, defaultArtifactId, branchName, repoName, artifactType)
-                .map(metadataMap -> {
-                    return metadataMap.getOrDefault(
-                            CommonConstants.SERVER_SCHEMA_VERSION, JsonSchemaVersions.serverVersion);
-                });
     }
 }

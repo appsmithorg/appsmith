@@ -1,11 +1,11 @@
-package com.appsmith.server.helpers.ce;
+package com.appsmith.server.helpers.ce.autocommit;
 
-import com.appsmith.server.domains.GitArtifactMetadata;
+import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 @Component
-public class GitAutoCommitHelperCECompatibleImpl implements GitAutoCommitHelperCECompatible {
+public class GitAutoCommitHelperFallbackImpl implements GitAutoCommitHelper {
 
     @Override
     public Mono<Boolean> autoCommitClientMigration(String defaultApplicationId, String branchName) {
@@ -18,7 +18,13 @@ public class GitAutoCommitHelperCECompatibleImpl implements GitAutoCommitHelperC
     }
 
     @Override
-    public Mono<Boolean> isServerAutoCommitRequired(String workspaceId, GitArtifactMetadata gitMetadata) {
+    public Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId) {
+        return Mono.empty();
+    }
+
+    @Override
+    public Mono<Boolean> autoCommitApplication(
+            AutoCommitTriggerDTO autoCommitTriggerDTO, String defaultApplicationId, String branchName) {
         return Mono.just(Boolean.FALSE);
     }
 }

@@ -1,9 +1,8 @@
-package com.appsmith.server.helpers.ce;
+package com.appsmith.server.helpers.ce.autocommit;
 
 import com.appsmith.external.annotations.FeatureFlagged;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitProfile;
@@ -12,28 +11,24 @@ import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.CommonGitService;
-import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.AutoCommitEventHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
-import static java.lang.Boolean.FALSE;
-import static java.lang.Boolean.TRUE;
-
 @Slf4j
+@Primary
 @Service
-public class GitAutoCommitHelperImpl extends GitAutoCommitHelperCECompatibleImpl implements GitAutoCommitHelper {
+public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl implements GitAutoCommitHelper {
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
     private final AutoCommitEventHandler autoCommitEventHandler;
     private final UserDataService userDataService;
-    private final FeatureFlagService featureFlagService;
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
     private final RedisUtils redisUtils;
@@ -43,7 +38,6 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperCECompatibleImpl
             GitPrivateRepoHelper gitPrivateRepoHelper,
             AutoCommitEventHandler autoCommitEventHandler,
             UserDataService userDataService,
-            FeatureFlagService featureFlagService,
             ApplicationService applicationService,
             ApplicationPermission applicationPermission,
             RedisUtils redisUtils,
@@ -51,7 +45,6 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperCECompatibleImpl
         this.gitPrivateRepoHelper = gitPrivateRepoHelper;
         this.autoCommitEventHandler = autoCommitEventHandler;
         this.userDataService = userDataService;
-        this.featureFlagService = featureFlagService;
         this.applicationService = applicationService;
         this.applicationPermission = applicationPermission;
         this.redisUtils = redisUtils;
@@ -125,7 +118,6 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperCECompatibleImpl
         return autoCommitApplication(defaultApplicationId, branchName, Boolean.FALSE);
     }
 
-    @Override
     public Mono<Boolean> autoCommitApplication(
             String defaultApplicationId, String branchName, Boolean isClientMigration) {
 
@@ -210,29 +202,20 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperCECompatibleImpl
                 });
     }
 
-    @Override
-    public Mono<Boolean> isServerAutoCommitRequired(String workspaceId, GitArtifactMetadata gitMetadata) {
+    public Mono<Boolean> autoCommitApplication(
+            AutoCommitTriggerDTO autoCommitTriggerDTO, String defaultApplicationId, String branchName) {
 
-        String defaultApplicationId = gitMetadata.getDefaultArtifactId();
-        String branchName = gitMetadata.getBranchName();
-        String repoName = gitMetadata.getRepoName();
+        if (!Boolean.TRUE.equals(autoCommitTriggerDTO.getIsAutoCommitRequired())) {
+            return Mono.just(Boolean.FALSE);
+        }
 
-        return commonGitService
-                .getMetadataServerSchemaMigrationVersion(
-                        workspaceId, defaultApplicationId, branchName, repoName, ArtifactType.APPLICATION)
-                .map(serverSchemaVersion -> {
-                    if (JsonSchemaVersions.serverVersion > serverSchemaVersion) {
-                        return TRUE;
-                    }
+        // Since server autocommit is a subset of the client migration, hence if only the client migration
+        // is true then we can only go ahead with client migration.
+        if (Boolean.TRUE.equals(autoCommitTriggerDTO.getIsClientAutoCommitRequired())) {
+            return autoCommitClientMigration(defaultApplicationId, branchName);
+        }
 
-                    return FALSE;
-                })
-                .onErrorResume(error -> {
-                    log.debug(
-                            "error while retrieving the metadata for defaultApplicationId : {}, branchName : {}",
-                            defaultApplicationId,
-                            branchName);
-                    return Mono.just(FALSE);
-                });
+        // at this point only server flag could be true.
+        return autoCommitServerMigration(defaultApplicationId, branchName);
     }
 }
