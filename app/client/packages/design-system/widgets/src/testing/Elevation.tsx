@@ -6,7 +6,7 @@ export const Elevation = () => {
     <Flex direction="column" gap="spacing-8">
       <Flex direction="row" gap="spacing-6">
         <Flex alignItems="center" direction="column" gap="spacing-4">
-          <Text variant="subtitle">Border</Text>
+          <Text size="subtitle">Border</Text>
           <Flex
             direction="column"
             padding="spacing-6"
@@ -46,7 +46,7 @@ export const Elevation = () => {
           </Flex>
         </Flex>
         <Flex alignItems="center" direction="column" gap="spacing-4">
-          <Text variant="subtitle">Shadow</Text>
+          <Text size="subtitle">Shadow</Text>
           <Flex
             direction="column"
             padding="spacing-6"
@@ -82,7 +82,7 @@ export const Elevation = () => {
       </Flex>
       <Flex direction="row" gap="spacing-6">
         <Flex alignItems="center" direction="column" gap="spacing-4">
-          <Text variant="subtitle">Both</Text>
+          <Text size="subtitle">Both</Text>
           <Flex
             direction="column"
             padding="spacing-6"
@@ -125,7 +125,7 @@ export const Elevation = () => {
           </Flex>
         </Flex>
         <Flex alignItems="center" direction="column" gap="spacing-4">
-          <Text variant="subtitle">None</Text>
+          <Text size="subtitle">None</Text>
           <Flex
             direction="column"
             padding="spacing-6"

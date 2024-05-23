@@ -51,7 +51,7 @@ export const Select = <T extends object>(props: SelectProps<T>) => {
           <Flex alignItems="center" gap="spacing-1">
             {Boolean(label) && (
               <Label>
-                <Text fontWeight={600} variant="caption">
+                <Text fontWeight={600} size="caption">
                   {label}
                   {Boolean(isRequired) && (
                     <span
@@ -87,7 +87,7 @@ export const Select = <T extends object>(props: SelectProps<T>) => {
             {errorMessage}
           </FieldError>
           {Boolean(description) && !Boolean(isInvalid) && (
-            <Text className={styles.description} variant="footnote">
+            <Text className={styles.description} size="footnote">
               {description}
             </Text>
           )}

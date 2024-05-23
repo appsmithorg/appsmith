@@ -659,24 +659,15 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 permissionGroupService.getPublicPermissionGroupId().cache().repeat();
 
         // Set isPublic field if the application is public
-        Flux<Application> updatedApplicationWithIsPublicFlux = permissionGroupService
-                .getPublicPermissionGroupId()
-                .cache()
-                .repeat()
-                .zipWith(applicationsFlux)
-                .map(tuple -> {
-                    Application application = tuple.getT2();
-                    String publicPermissionGroupId = tuple.getT1();
+        return publicPermissionGroupIdFlux.zipWith(applicationsFlux).map(tuple -> {
+            Application application = tuple.getT2();
+            String publicPermissionGroupId = tuple.getT1();
 
-                    application.setIsPublic(permissionGroupService.isEntityAccessible(
-                            application,
-                            applicationPermission.getReadPermission().getValue(),
-                            publicPermissionGroupId));
+            application.setIsPublic(permissionGroupService.isEntityAccessible(
+                    application, applicationPermission.getReadPermission().getValue(), publicPermissionGroupId));
 
-                    return application;
-                });
-
-        return updatedApplicationWithIsPublicFlux;
+            return application;
+        });
     }
 
     /**
@@ -884,7 +875,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         AppsmithError.NO_RESOURCE_FOUND,
                         FieldName.APPLICATION,
                         defaultApplicationId + ", " + branchName)))
-                .map(Application::getId);
+                .map(application -> application.getId());
     }
 
     public Mono<String> findBranchedApplicationId(
@@ -1049,5 +1040,24 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     return Mono.empty();
                 }))
                 .then();
+    }
+
+    /**
+     * Gets branched application with the right permission set based on mode of application
+     * @param defaultApplicationId : default app id
+     * @param branchName : branch name of the application
+     * @param mode : is it edit mode or view mode
+     * @return : returns a publisher of branched application
+     */
+    @Override
+    public Mono<Application> findByDefaultIdBranchNameAndApplicationMode(
+            String defaultApplicationId, String branchName, ApplicationMode mode) {
+        AclPermission permissionForApplication = ApplicationMode.PUBLISHED.equals(mode)
+                ? applicationPermission.getReadPermission()
+                : applicationPermission.getEditPermission();
+
+        return findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, permissionForApplication)
+                // sets isPublic field in the application
+                .flatMap(this::setTransientFields);
     }
 }

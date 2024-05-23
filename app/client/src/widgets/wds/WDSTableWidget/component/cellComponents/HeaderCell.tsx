@@ -168,32 +168,26 @@ const HeaderCellComponent = (props: HeaderProps) => {
         onDrop={onDrop}
         style={
           {
-            "--padding-inline-end": props.isAscOrder
-              ? "calc((var(--outer-spacing-2) * 2) + (2 *var(--sizing-7)))"
-              : "calc((var(--outer-spacing-2) * 2) + var(--sizing-7))",
+            "--padding-inline-end":
+              props.isAscOrder !== undefined
+                ? "calc((var(--outer-spacing-2) * 2) + (2 *var(--sizing-7)))"
+                : "calc((var(--outer-spacing-2) * 2) + var(--sizing-7))",
+            justifyContent: column.columnProperties.horizontalAlignment,
           } as React.CSSProperties
         }
       >
-        <Flex
-          alignItems="center"
-          gap="spacing-1"
-          justifyContent={column.columnProperties.horizontalAlignment}
-        >
+        <Flex alignItems="center" gap="spacing-1">
           {isColumnEditable && <Icon name="edit" size="small" />}
           <Text
             lineClamp={1}
+            size="caption"
             title={props.columnName.replace(/\s/g, "\u00a0")}
-            variant="caption"
           >
             {props.columnName.replace(/\s/g, "\u00a0")}
           </Text>
         </Flex>
       </div>
-      <Flex
-        alignItems="center"
-        gap="spacing-1"
-        style={{ pointerEvents: "none" }}
-      >
+      <Flex alignItems="center" gap="spacing-1">
         {props.isAscOrder !== undefined && (
           <Icon
             name={props.isAscOrder ? "arrow-up" : "arrow-down"}

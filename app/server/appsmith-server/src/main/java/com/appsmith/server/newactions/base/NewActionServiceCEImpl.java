@@ -653,7 +653,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     private Mono<NewAction> extractAndSetNativeQueryFromFormData(NewAction action) {
-        Mono<Plugin> pluginMono = pluginService.getById(action.getPluginId());
+        Mono<Plugin> pluginMono = pluginService.getByIdWithoutPermissionCheck(action.getPluginId());
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         return pluginExecutorMono
@@ -1175,7 +1175,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO) {
-        Mono<Plugin> pluginMono = pluginService.getById(actionDTO.getPluginId());
+        Mono<Plugin> pluginMono = pluginService.getByIdWithoutPermissionCheck(actionDTO.getPluginId());
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         return pluginExecutorMono.map(pluginExecutor -> {
