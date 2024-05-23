@@ -124,11 +124,11 @@ With the prerequisites met, let's build the code.
 
         This command creates a `.env` file in the `app/server` folder. All run scripts pick up environment configuration from this file.
 
-5. Ensure that the environment variables `APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis.
+5. Ensure that the environment variables `APPSMITH_DB_URL` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis.
 
 6.  **Update the replica set name with correct value in the mongo connection string in the [.env](#setup-environment-file) file.** The replica name is the same as passed [here](#setting-up-a-local-mongodb-instance)
     ```bash
-    APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith?replicaSet=<replica-set-name>"
+    APPSMITH_DB_URL="mongodb://localhost:27017/appsmith?replicaSet=<replica-set-name>"
     ```
 
 7. Run the following command to create the final JAR for the Appsmith server:
@@ -152,7 +152,7 @@ With the prerequisites met, let's build the code.
         - On Ubuntu Linux environment docker needs root privilege, hence `./build.sh` script needs to be run with root privilege as well.
         - On Ubuntu Linux environment, the script may not be able to read `.env` file, so it is advised that you run the cmd like:
             ```console
-            sudo APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
+            sudo APPSMITH_DB_URL="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
             ```
 
 
@@ -260,7 +260,7 @@ cp envs/dev.env.example .env
 
 This command creates a `.env` file in the `app/server` folder. All run scripts pick up environment configuration from this file.
 
-5. Ensure that the environment variables `APPSMITH_MONGODB_URI` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis.
+5. Ensure that the environment variables `APPSMITH_DB_URL` and `APPSMITH_REDIS_URI` in the file `.env` point to your local running instances of MongoDB and Redis.
 
 6. Run the following command to create the final JAR for the Appsmith server:
 
@@ -274,7 +274,7 @@ Note:
 - On Ubuntu Linux environment docker needs root privilege, hence ./build.sh script needs to be run with root privilege as well.
 - On Ubuntu Linux environment, the script may not be able to read .env file, so it is advised that you run the cmd like:
 ```console
-sudo APPSMITH_MONGODB_URI="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
+sudo APPSMITH_DB_URL="mongodb://localhost:27017/appsmith" APPSMITH_REDIS_URL="redis://127.0.0.1:6379" APPSMITH_MAIL_ENABLED=false APPSMITH_ENCRYPTION_PASSWORD=abcd APPSMITH_ENCRYPTION_SALT=abcd ./build.sh
 ```
 - If the volume containing docker's data root path (macOS: `~/Library/Containers/com.docker.docker/Data/vms/0/`, Ubuntu: `/var/lib/docker/`) has less than 2 GB of free space, then the script may fail with the following error:
 ```console

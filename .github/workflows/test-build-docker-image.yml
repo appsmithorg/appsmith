@@ -153,7 +153,8 @@ jobs:
           rm -f ~/combined_failed_spec_ci
 
       # Download failed_spec_ci list for all CI container jobs
-      - uses: actions/download-artifact@v4
+      - name: Download failed_spec_ci list for all CI container jobs
+        uses: actions/download-artifact@v4
         if: needs.ci-test.result != 'success'
         id: download_ci
         with:
@@ -161,7 +162,7 @@ jobs:
           path: ~/failed_spec_ci
 
       # In case for any ci job failure, create combined failed spec
-      - name: "combine all specs for CI"
+      - name: Combine all specs for CI
         if: needs.ci-test.result != 'success'
         run: |
           rm -f ~/combined_failed_spec_ci
@@ -200,7 +201,7 @@ jobs:
             echo "slack_icon=:warning:" >> $GITHUB_OUTPUT
           fi
 
-      - name: Slack Notification
+      - name: Slack notification
         continue-on-error: true
         if: always()
         uses: rtCamp/action-slack-notify@v2
@@ -253,7 +254,7 @@ jobs:
 
       # Upload combined failed CI spec list to a file
       # This is done for debugging.
-      - name: upload combined failed spec
+      - name: Upload combined failed spec
         if: needs.ci-test.result != 'success'
         uses: actions/upload-artifact@v4
         with:
