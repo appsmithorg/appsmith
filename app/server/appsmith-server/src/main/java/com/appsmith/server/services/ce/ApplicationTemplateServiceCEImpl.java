@@ -29,6 +29,7 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -52,6 +53,7 @@ import static com.appsmith.server.helpers.CacheableTemplateHelper.getApplication
 import static com.appsmith.server.helpers.CacheableTemplateHelper.getTemplates;
 
 @Service
+@Slf4j
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
     private final CloudServicesConfig cloudServicesConfig;
     private final ReleaseNotesService releaseNotesService;
@@ -126,6 +128,14 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     } else {
                         return Mono.just(templates.getApplicationTemplateList());
                     }
+                })
+                .onErrorResume(e -> {
+                    log.error("Error fetching templates data from redis!", e);
+                    // If there is an error fetching the template from the cache, then evict the cache and fetch from CS
+                    return clearTemplateMetadataCache(releaseNotesService.getRunningVersion())
+                            .then(Mono.defer(() -> getTemplates(
+                                    releaseNotesService.getRunningVersion(), cloudServicesConfig.getBaseUrl())))
+                            .map(CacheableApplicationTemplate::getApplicationTemplateList);
                 });
     }
 
@@ -150,17 +160,25 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     @Override
     public Mono<ApplicationJson> getApplicationJsonFromTemplate(String templateId) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
-        return getApplicationByTemplateId(templateId, baseUrl).flatMap(cacheableApplicationJson -> {
-            if (Instant.now()
-                    .minusSeconds(CACHE_LIFE_TIME_IN_SECONDS)
-                    .isAfter(cacheableApplicationJson.getLastUpdated())) {
-                return clearTemplateApplicationDataCache(templateId)
-                        .then(Mono.defer(() -> getApplicationByTemplateId(templateId, baseUrl)))
-                        .map(CacheableApplicationJson::getApplicationJson);
-            } else {
-                return Mono.just(cacheableApplicationJson.getApplicationJson());
-            }
-        });
+        return getApplicationByTemplateId(templateId, baseUrl)
+                .flatMap(cacheableApplicationJson -> {
+                    if (Instant.now()
+                            .minusSeconds(CACHE_LIFE_TIME_IN_SECONDS)
+                            .isAfter(cacheableApplicationJson.getLastUpdated())) {
+                        return clearTemplateApplicationDataCache(templateId)
+                                .then(Mono.defer(() -> getApplicationByTemplateId(templateId, baseUrl)))
+                                .map(CacheableApplicationJson::getApplicationJson);
+                    } else {
+                        return Mono.just(cacheableApplicationJson.getApplicationJson());
+                    }
+                })
+                .onErrorResume(e -> {
+                    log.error("Error fetching template json data from redis!", e);
+                    // If there is an error fetching the template from the cache, then evict the cache and fetch from CS
+                    return clearTemplateApplicationDataCache(templateId)
+                            .then(Mono.defer(() -> getApplicationByTemplateId(templateId, baseUrl)))
+                            .map(CacheableApplicationJson::getApplicationJson);
+                });
     }
 
     @Override

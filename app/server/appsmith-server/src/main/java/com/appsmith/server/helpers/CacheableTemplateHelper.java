@@ -101,11 +101,11 @@ public class CacheableTemplateHelper {
 
     @CacheEvict(cacheName = "templateMetadata", key = "{#releaseVersion}")
     public static Mono<Void> clearTemplateMetadataCache(String releaseVersion) {
-        return Mono.empty();
+        return Mono.empty().then();
     }
 
     @CacheEvict(cacheName = "templateApplicationData", key = "{#templateId}")
     public static Mono<Void> clearTemplateApplicationDataCache(String templateId) {
-        return Mono.empty();
+        return Mono.empty().then();
     }
 }
