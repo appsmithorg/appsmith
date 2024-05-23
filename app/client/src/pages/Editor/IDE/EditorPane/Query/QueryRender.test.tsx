@@ -17,7 +17,6 @@ import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PageFactory } from "test/factories/PageFactory";
 import { screen } from "@testing-library/react";
 import { GoogleSheetFactory } from "test/factories/Actions/GoogleSheetFactory";
-import { datasourceFactory } from "test/factories/DatasourceFactory";
 
 const FeatureFlags = {
   rollout_side_by_side_enabled: true,
@@ -300,10 +299,6 @@ describe("IDE URL rendering of Queries", () => {
   });
 
   describe("Postgres Routes", () => {
-    const mockDS = datasourceFactory().build({
-      name: "Users",
-      id: "PostgresDatasourceID",
-    });
     it("Renders Postgres routes in Full Screen", async () => {
       const page = PageFactory.build();
       const anQuery = PostgresFactory.build({
@@ -313,7 +308,6 @@ describe("IDE URL rendering of Queries", () => {
       const state = getIDETestState({
         actions: [anQuery],
         pages: [page],
-        datasources: [mockDS],
         tabs: {
           [EditorEntityTab.QUERIES]: ["query_id"],
           [EditorEntityTab.JS]: [],
@@ -361,7 +355,6 @@ describe("IDE URL rendering of Queries", () => {
       const state = getIDETestState({
         actions: [anQuery],
         pages: [page],
-        datasources: [mockDS],
         tabs: {
           [EditorEntityTab.QUERIES]: ["query_id"],
           [EditorEntityTab.JS]: [],
@@ -410,7 +403,6 @@ describe("IDE URL rendering of Queries", () => {
       const state = getIDETestState({
         actions: [anQuery],
         pages: [page],
-        datasources: [mockDS],
         tabs: {
           [EditorEntityTab.QUERIES]: ["query_id"],
           [EditorEntityTab.JS]: [],
@@ -452,7 +444,6 @@ describe("IDE URL rendering of Queries", () => {
       const state = getIDETestState({
         actions: [anQuery],
         pages: [page],
-        datasources: [mockDS],
         tabs: {
           [EditorEntityTab.QUERIES]: ["query_id"],
           [EditorEntityTab.JS]: [],
@@ -487,7 +478,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));
       getByText("New datasource");
       getByText("REST API");
-      // Check the new tab presence
+      // Check new tab presence
       const newTab = getByTestId("t--ide-tab-new");
       expect(newTab).not.toBeNull();
       // Close button is rendered
@@ -498,10 +489,6 @@ describe("IDE URL rendering of Queries", () => {
   });
 
   describe("Google Sheets Routes", () => {
-    const gSheetsDS = datasourceFactory().build({
-      name: "Sheet",
-      id: "GoogleSheetsDatasourceID",
-    });
     it("Renders Google Sheets routes in Full Screen", async () => {
       const page = PageFactory.build();
       const anQuery = GoogleSheetFactory.build({
@@ -512,7 +499,6 @@ describe("IDE URL rendering of Queries", () => {
       const state = getIDETestState({
         actions: [anQuery],
         pages: [page],
-        datasources: [gSheetsDS],
         tabs: {
           [EditorEntityTab.QUERIES]: ["saas_api_id"],
           [EditorEntityTab.JS]: [],
@@ -561,7 +547,6 @@ describe("IDE URL rendering of Queries", () => {
       const state = getIDETestState({
         actions: [anQuery],
         pages: [page],
-        datasources: [gSheetsDS],
         tabs: {
           [EditorEntityTab.QUERIES]: ["saas_api_id"],
           [EditorEntityTab.JS]: [],
@@ -647,7 +632,7 @@ describe("IDE URL rendering of Queries", () => {
     });
     it("Renders Google Sheets add routes in Split Screen", async () => {
       const page = PageFactory.build();
-      const anQuery = GoogleSheetFactory.build({
+      const anQuery = PostgresFactory.build({
         name: "Sheets4",
         id: "saas_api_id",
         pageId: page.pageId,
@@ -655,7 +640,6 @@ describe("IDE URL rendering of Queries", () => {
       const state = getIDETestState({
         actions: [anQuery],
         pages: [page],
-        datasources: [gSheetsDS],
         tabs: {
           [EditorEntityTab.QUERIES]: ["saas_api_id"],
           [EditorEntityTab.JS]: [],
@@ -675,7 +659,7 @@ describe("IDE URL rendering of Queries", () => {
         },
       );
 
-      // There will be 1 Sheets4 text (The tab)
+      // There will be 1 Api4 text ( The tab )
       expect(getAllByText("Sheets4").length).toEqual(1);
       // Tabs active state
       expect(
@@ -690,7 +674,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));
       getByText("New datasource");
       getByText("REST API");
-      // Check the new tab presence
+      // Check new tab presence
       const newTab = getByTestId("t--ide-tab-new");
       expect(newTab).not.toBeNull();
       // Close button is rendered
