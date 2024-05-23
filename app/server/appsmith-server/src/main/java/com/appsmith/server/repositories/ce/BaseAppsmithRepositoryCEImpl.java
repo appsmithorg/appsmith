@@ -24,6 +24,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Transient;
 import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CompoundSelection;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
@@ -55,6 +56,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static com.appsmith.external.helpers.ReflectionHelpers.getAllFields;
 import static com.appsmith.server.helpers.ce.ReflectionHelpers.map;
@@ -496,7 +498,25 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             Object value = op.value();
 
             if (op.isRawValue()) {
-                if (isJsonColumn(genericDomain, key)) {
+                if (key.contains(".")) {
+                    // Updating a nested field in a JSONB column.
+                    final Expression<CompoundSelection<Object[]>> path = cb.literal(cb.array(
+                            Stream.of(key.split("\\.")).skip(1).map(cb::literal).toArray(Selection[]::new)));
+                    try {
+                        cu.<Object>set(
+                                root.get(key),
+                                cb.function(
+                                        "jsonb_set",
+                                        Object.class,
+                                        root.get(key),
+                                        path,
+                                        cb.literal(objectMapper.writeValueAsString(value))));
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                } else if (isJsonColumn(genericDomain, key)) {
+
                     try {
                         // The type witness is needed here to pick the right overloaded signature of the set method.
                         // Without it, we see a compile error.

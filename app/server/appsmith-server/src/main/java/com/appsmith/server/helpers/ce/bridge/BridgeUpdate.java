@@ -2,7 +2,6 @@ package com.appsmith.server.helpers.ce.bridge;
 
 import lombok.Getter;
 import lombok.NonNull;
-import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,12 +11,16 @@ public class BridgeUpdate {
     private final List<SetOp> setOps = new ArrayList<>();
 
     public BridgeUpdate set(String key, Object value) {
+        if (key.contains("$")) {
+            throw new UnsupportedOperationException(
+                    "Conditionally setting nested field values in JSON columns, is not implemented yet, and isn't a priority today");
+        }
         setOps.add(new SetOp(key, value));
         return this;
     }
 
     public BridgeUpdate pull(@NonNull String key, @NonNull Object value) {
-        throw new NotImplementedException();
+        throw new UnsupportedOperationException();
     }
 
     /**

@@ -19,20 +19,19 @@ import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.StringUtils;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.helpers.ReactorUtils.asFlux;
-import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -139,22 +138,22 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Optional<Void> setDefaultPage(String applicationId, String pageId) {
+    @Transactional
+    @Modifying
+    public Optional<Void> setDefaultPage(String applicationId, @NonNull String pageId) {
         // Since this can only happen during edit, the page in question is unpublished page. Hence the update should
         // be to pages and not publishedPages
 
-        final Mono<Integer> setAllAsNonDefaultMono = asMonoDirect(() -> queryBuilder()
-                .byId(applicationId)
-                .criteria(Bridge.isTrue("pages.isDefault"))
-                .updateFirst(Bridge.update().set("pages.$.isDefault", false)));
+        queryBuilder().byId(applicationId).one().ifPresent(application -> {
+            for (ApplicationPage page : application.getPages()) {
+                page.setIsDefault(pageId.equals(page.getId()));
+            }
+            queryBuilder()
+                    .byId(applicationId)
+                    .updateFirst(Bridge.update().set(Application.Fields.pages, application.getPages()));
+        });
 
-        final Mono<Integer> setDefaultMono = asMonoDirect(() -> queryBuilder()
-                .byId(applicationId)
-                .criteria(Bridge.equal(
-                        "pages._id", pageId /* Note: This was wrapped in a `new ObjectID()` with MongoDB */))
-                .updateFirst(Bridge.update().set("pages.$.isDefault", true)));
-
-        return setAllAsNonDefaultMono.then(setDefaultMono).then().blockOptional();
+        return Optional.empty();
     }
 
     @Override

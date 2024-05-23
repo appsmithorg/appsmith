@@ -469,7 +469,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .then(applicationService.findById(applicationId, applicationPermission.getEditPermission()))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
-                .flatMap(application -> Mono.justOrEmpty(applicationRepository.setDefaultPage(applicationId, pageId))
+                .flatMap(application -> applicationRepository
+                        .setDefaultPage(applicationId, pageId)
                         .then(applicationService.getById(applicationId)));
     }
 
