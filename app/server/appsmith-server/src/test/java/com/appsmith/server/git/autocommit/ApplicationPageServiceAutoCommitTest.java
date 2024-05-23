@@ -118,7 +118,9 @@ public class ApplicationPageServiceAutoCommitTest {
     private static final String APP_JSON_NAME = "autocommit.json";
     private static final String APP_NAME = "autocommit";
     private static final Integer WAIT_DURATION_FOR_ASYNC_EVENT = 5;
-
+    private static final String PUBLIC_KEY = "public-key";
+    private static final String PRIVATE_KEY = "private-key";
+    private static final String REPO_URL = "domain.xy";
     private static final String DEFAULT_APP_ID = "default-app-id", DEFAULT_BRANCH_NAME = "master";
 
     private Application createApplication() {
@@ -137,10 +139,11 @@ public class ApplicationPageServiceAutoCommitTest {
         gitArtifactMetadata.setDefaultBranchName(DEFAULT_BRANCH_NAME);
         gitArtifactMetadata.setRepoName(REPO_NAME);
         gitArtifactMetadata.setDefaultApplicationId(DEFAULT_APP_ID);
+        gitArtifactMetadata.setRemoteUrl(REPO_URL);
 
         GitAuth gitAuth = new GitAuth();
-        gitAuth.setPrivateKey("private-key");
-        gitAuth.setPublicKey("public-key");
+        gitAuth.setPrivateKey(PRIVATE_KEY);
+        gitAuth.setPublicKey(PUBLIC_KEY);
         gitArtifactMetadata.setGitAuth(gitAuth);
 
         application.setGitApplicationMetadata(gitArtifactMetadata);
@@ -189,16 +192,16 @@ public class ApplicationPageServiceAutoCommitTest {
 
         Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(0);
 
-        doReturn(Mono.just("success"))
-                .when(gitExecutor)
-                .pushApplication(any(Path.class), anyString(), anyString(), anyString(), anyString());
-
         // create New Pages
         NewPage newPage = createNewPage();
 
         // create application
         testApplication = createApplication();
         baseRepoSuffix = Paths.get(WORKSPACE_ID, DEFAULT_APP_ID, REPO_NAME);
+
+        doReturn(Mono.just("success"))
+                .when(gitExecutor)
+                .pushApplication(baseRepoSuffix, REPO_URL, PUBLIC_KEY, PRIVATE_KEY, BRANCH_NAME);
 
         doReturn(Mono.just(newPage.getUnpublishedPage()))
                 .when(applicationPageService)
@@ -233,7 +236,8 @@ public class ApplicationPageServiceAutoCommitTest {
 
         // server migration as true
         doReturn(Mono.just(TRUE)).when(autoCommitEligibiltyHelper).isServerAutoCommitRequired(any(), any());
-        Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(DSL_VERSION_NUMBER));
+        // client migration as false
+        doReturn(Mono.just(FALSE)).when(autoCommitEligibiltyHelper).isClientMigrationRequired(any());
 
         ApplicationJson applicationJson1 = new ApplicationJson();
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(applicationJson, applicationJson1);
@@ -264,6 +268,7 @@ public class ApplicationPageServiceAutoCommitTest {
                 .then(Mono.delay(Duration.ofSeconds(WAIT_DURATION_FOR_ASYNC_EVENT)))
                 .then(gitExecutor.getCommitHistory(baseRepoSuffix));
 
+        // verifying final number of commits
         StepVerifier.create(gitlogDTOsMono)
                 .assertNext(gitLogDTOs -> {
                     assertThat(gitLogDTOs).isNotEmpty();
@@ -323,6 +328,7 @@ public class ApplicationPageServiceAutoCommitTest {
                 .then(Mono.delay(Duration.ofSeconds(WAIT_DURATION_FOR_ASYNC_EVENT)))
                 .then(gitExecutor.getCommitHistory(baseRepoSuffix));
 
+        // verifying final number of commits
         StepVerifier.create(gitlogDTOsMono)
                 .assertNext(gitLogDTOs -> {
                     assertThat(gitLogDTOs).isNotEmpty();
@@ -344,7 +350,8 @@ public class ApplicationPageServiceAutoCommitTest {
 
         // server migration as false
         doReturn(Mono.just(FALSE)).when(autoCommitEligibiltyHelper).isServerAutoCommitRequired(any(), any());
-        Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(DSL_VERSION_NUMBER));
+        // client migration as false
+        doReturn(Mono.just(FALSE)).when(autoCommitEligibiltyHelper).isClientMigrationRequired(any());
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);
@@ -361,12 +368,13 @@ public class ApplicationPageServiceAutoCommitTest {
                 })
                 .verifyComplete();
 
-        // this would trigger autocommit
+        // this would not trigger autocommit
         Mono<List<GitLogDTO>> gitlogDTOsMono = applicationPageService
                 .getPagesBasedOnApplicationMode(testApplication, ApplicationMode.EDIT)
                 .then(Mono.delay(Duration.ofSeconds(WAIT_DURATION_FOR_ASYNC_EVENT)))
                 .then(gitExecutor.getCommitHistory(baseRepoSuffix));
 
+        // verifying final number of commits
         StepVerifier.create(gitlogDTOsMono)
                 .assertNext(gitLogDTOs -> {
                     assertThat(gitLogDTOs).isNotEmpty();

@@ -313,12 +313,39 @@ public class AutoCommitEventHandlerImplTest {
                         autoCommitEvent.getBranchName(),
                         ArtifactType.APPLICATION);
 
-        // the rest of the process should not trigger as no migration is required
+        doReturn(Mono.just(baseRepoSuffix))
+                .when(gitFileUtils)
+                .saveApplicationToLocalRepo(
+                        autoCommitEvent.getWorkspaceId(),
+                        autoCommitEvent.getApplicationId(),
+                        autoCommitEvent.getRepoName(),
+                        applicationJson,
+                        autoCommitEvent.getBranchName());
+
+        doReturn(Mono.just("success"))
+                .when(gitExecutor)
+                .commitArtifact(
+                        baseRepoSuffix,
+                        String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()),
+                        autoCommitEvent.getAuthorName(),
+                        autoCommitEvent.getAuthorEmail(),
+                        false,
+                        false);
+
+        doReturn(Mono.just("success"))
+                .when(gitExecutor)
+                .pushApplication(
+                        baseRepoSuffix,
+                        autoCommitEvent.getRepoUrl(),
+                        autoCommitEvent.getPublicKey(),
+                        autoCommitEvent.getPrivateKey(),
+                        autoCommitEvent.getBranchName());
+
         StepVerifier.create(autoCommitEventHandler
                         .autoCommitServerMigration(autoCommitEvent)
                         .zipWhen(result -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
                 .assertNext(tuple2 -> {
-                    assertThat(tuple2.getT1()).isFalse();
+                    assertThat(tuple2.getT1()).isTrue();
                     assertThat(tuple2.getT2()).isEqualTo(100);
                 })
                 .verifyComplete();
@@ -360,6 +387,15 @@ public class AutoCommitEventHandlerImplTest {
                         autoCommitEvent.getRepoName(),
                         autoCommitEvent.getBranchName(),
                         ArtifactType.APPLICATION);
+
+        doReturn(Mono.just(baseRepoSuffix))
+                .when(gitFileUtils)
+                .saveApplicationToLocalRepo(
+                        autoCommitEvent.getWorkspaceId(),
+                        autoCommitEvent.getApplicationId(),
+                        autoCommitEvent.getRepoName(),
+                        applicationJson,
+                        autoCommitEvent.getBranchName());
 
         // the rest of the process should not trigger as no migration is required
         StepVerifier.create(autoCommitEventHandler
@@ -500,7 +536,7 @@ public class AutoCommitEventHandlerImplTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
 
         CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_cleanup_feature_enabled.name(), TRUE));
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_cleanup_feature_enabled.name(), FALSE));
         Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
                 .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 
