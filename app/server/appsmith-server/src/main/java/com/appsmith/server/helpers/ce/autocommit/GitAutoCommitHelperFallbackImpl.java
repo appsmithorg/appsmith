@@ -18,18 +18,12 @@ public class GitAutoCommitHelperFallbackImpl implements GitAutoCommitHelper {
     }
 
     @Override
-    public Mono<Boolean> autoCommitApplication(
-            String defaultApplicationId, String branchName, Boolean isClientMigration) {
-        return Mono.just(Boolean.FALSE);
-    }
-
-    @Override
     public Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId) {
         return Mono.empty();
     }
 
     @Override
-    public Mono<Boolean> triggerAutoCommit(
+    public Mono<Boolean> autoCommitApplication(
             AutoCommitTriggerDTO autoCommitTriggerDTO, String defaultApplicationId, String branchName) {
         return Mono.just(Boolean.FALSE);
     }

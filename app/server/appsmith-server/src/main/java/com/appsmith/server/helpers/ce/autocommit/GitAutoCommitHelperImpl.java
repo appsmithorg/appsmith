@@ -118,7 +118,6 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
         return autoCommitApplication(defaultApplicationId, branchName, Boolean.FALSE);
     }
 
-    @Override
     public Mono<Boolean> autoCommitApplication(
             String defaultApplicationId, String branchName, Boolean isClientMigration) {
 
@@ -203,7 +202,7 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
                 });
     }
 
-    public Mono<Boolean> triggerAutoCommit(
+    public Mono<Boolean> autoCommitApplication(
             AutoCommitTriggerDTO autoCommitTriggerDTO, String defaultApplicationId, String branchName) {
 
         if (!Boolean.TRUE.equals(autoCommitTriggerDTO.getIsAutoCommitRequired())) {

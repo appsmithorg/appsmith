@@ -70,7 +70,7 @@ public class AutoCommitEligibilityHelperTest {
     }
 
     @Test
-    public void isAutoCommitRequired_WhenClientAndServerAreNotEligible_VerifyDTOReturnTrue() {
+    public void isAutoCommitRequired_WhenClientAndServerAreNotEligible_VerifyDTOReturnFalse() {
 
         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
         PageDTO pageDTO = new PageDTO();

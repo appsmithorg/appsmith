@@ -5,14 +5,12 @@ import reactor.core.publisher.Mono;
 
 public interface GitAutoCommitHelper {
 
-    Mono<Boolean> autoCommitApplication(String defaultApplicationId, String branchName, Boolean isClientMigration);
-
     Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId);
 
     Mono<Boolean> autoCommitClientMigration(String defaultApplicationId, String branchName);
 
     Mono<Boolean> autoCommitServerMigration(String defaultApplicationId, String branchName);
 
-    Mono<Boolean> triggerAutoCommit(
+    Mono<Boolean> autoCommitApplication(
             AutoCommitTriggerDTO autoCommitTriggerDTO, String defaultApplicationId, String branchName);
 }

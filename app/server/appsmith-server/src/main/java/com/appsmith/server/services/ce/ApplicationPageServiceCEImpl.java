@@ -362,7 +362,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     .isAutoCommitRequired(workspaceId, gitMetadata, pageDTO)
                     .flatMap(autoCommitTriggerDTO -> {
                         if (Boolean.TRUE.equals(autoCommitTriggerDTO.getIsAutoCommitRequired())) {
-                            return gitAutoCommitHelper.triggerAutoCommit(
+                            return gitAutoCommitHelper.autoCommitApplication(
                                     autoCommitTriggerDTO, defaultApplicationId, branchName);
                         }
 
