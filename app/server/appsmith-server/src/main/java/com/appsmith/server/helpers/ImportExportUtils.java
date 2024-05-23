@@ -90,29 +90,34 @@ public class ImportExportUtils {
             ApplicationDetail importedApplicationDetail, ApplicationDetail existingApplicationDetail) {
         // If the initial commit to git doesn't contain these keys and if we want to discard the changes,
         // the function copyNestedNonNullProperties ignore these properties and the changes are not discarded
-        if (importedApplicationDetail != null && existingApplicationDetail != null) {
-            if (importedApplicationDetail.getAppPositioning() == null) {
-                existingApplicationDetail.setAppPositioning(null);
-            }
 
-            if (importedApplicationDetail.getNavigationSetting() == null) {
-                existingApplicationDetail.setNavigationSetting(null);
-            }
-
-            if (importedApplicationDetail.getThemeSetting() == null) {
-                existingApplicationDetail.setThemeSetting(null);
-            }
+        // this case would be handled when the bean would be copied
+        if (existingApplicationDetail == null) {
+            return;
         }
+
+        Application.AppPositioning appPositioning = null;
+        Application.NavigationSetting navigationSetting = null;
+        Application.ThemeSetting themeSetting = null;
+
+        if (importedApplicationDetail == null) {
+            appPositioning = importedApplicationDetail.getAppPositioning();
+            navigationSetting = importedApplicationDetail.getNavigationSetting();
+            themeSetting = importedApplicationDetail.getThemeSetting();
+        }
+
+        existingApplicationDetail.setAppPositioning(appPositioning);
+        existingApplicationDetail.setNavigationSetting(navigationSetting);
+        existingApplicationDetail.setThemeSetting(themeSetting);
     }
 
     public static void setPropertiesToExistingApplication(
             Application importedApplication, Application existingApplication) {
         importedApplication.setId(existingApplication.getId());
 
-        ApplicationDetail importedUnpublishedAppDetail = importedApplication.getUnpublishedApplicationDetail();
-        ApplicationDetail importedPublishedAppDetail = importedApplication.getPublishedApplicationDetail();
-        ApplicationDetail existingUnpublishedAppDetail = existingApplication.getUnpublishedApplicationDetail();
-        ApplicationDetail existingPublishedAppDetail = existingApplication.getPublishedApplicationDetail();
+        // Since we don't want to merge the ApplicationDetailObjects we would just assign the imported values directly
+        existingApplication.setPublishedApplicationDetail(importedApplication.getPublishedApplicationDetail());
+        existingApplication.setUnpublishedApplicationDetail(importedApplication.getUnpublishedApplicationDetail());
 
         // For the existing application we don't need to default
         // value of the flag
@@ -125,21 +130,12 @@ public class ImportExportUtils {
         // These properties are not present in the application when it is created, hence the initial commit
         // to git doesn't contain these keys and if we want to discard the changes, the function
         // copyNestedNonNullProperties ignore these properties and the changes are not discarded
-        if (importedUnpublishedAppDetail == null) {
-            existingApplication.setUnpublishedApplicationDetail(null);
-        }
-        if (importedPublishedAppDetail == null) {
-            existingApplication.setPublishedApplicationDetail(null);
-        }
         if (importedApplication.getPublishedAppLayout() == null) {
             existingApplication.setPublishedAppLayout(null);
         }
         if (importedApplication.getUnpublishedAppLayout() == null) {
             existingApplication.setUnpublishedAppLayout(null);
         }
-
-        setPropertiesToApplicationDetail(importedUnpublishedAppDetail, existingUnpublishedAppDetail);
-        setPropertiesToApplicationDetail(importedPublishedAppDetail, existingPublishedAppDetail);
 
         copyNestedNonNullProperties(importedApplication, existingApplication);
     }
