@@ -43,6 +43,7 @@ const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
       data-testid="t--ide-add-pane"
       height="100%"
       justifyContent="center"
+      p="spaces-3"
       {...containerProps}
     >
       <Flex
