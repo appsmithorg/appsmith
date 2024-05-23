@@ -55,6 +55,13 @@ jobs:
         image: mongo
         ports:
           - 27017:27017
+      # Add PostgreSQL service
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
 
     steps:
       - name: Set up Depot CLI
