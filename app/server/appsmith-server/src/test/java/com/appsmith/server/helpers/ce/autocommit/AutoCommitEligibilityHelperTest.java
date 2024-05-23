@@ -4,9 +4,9 @@ import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.services.CommonGitService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ public class AutoCommitEligibilityHelperTest {
     AutoCommitEligibiltyHelper autoCommitEligibiltyHelper;
 
     @SpyBean
-    CommonGitService commonGitService;
+    CommonGitFileUtils commonGitFileUtils;
 
     @MockBean
     DSLMigrationUtils dslMigrationUtils;
@@ -169,7 +169,7 @@ public class AutoCommitEligibilityHelperTest {
         gitArtifactMetadata.setRepoName(repoName);
         gitArtifactMetadata.setBranchName(branchName);
 
-        Mockito.when(commonGitService.getMetadataServerSchemaMigrationVersion(
+        Mockito.when(commonGitFileUtils.getMetadataServerSchemaMigrationVersion(
                         workspaceId, defaultApplicationId, branchName, repoName, ArtifactType.APPLICATION))
                 .thenReturn(Mono.just(JsonSchemaVersions.serverVersion));
 
@@ -195,7 +195,7 @@ public class AutoCommitEligibilityHelperTest {
         gitArtifactMetadata.setRepoName(repoName);
         gitArtifactMetadata.setBranchName(branchName);
 
-        Mockito.when(commonGitService.getMetadataServerSchemaMigrationVersion(
+        Mockito.when(commonGitFileUtils.getMetadataServerSchemaMigrationVersion(
                         workspaceId, defaultApplicationId, branchName, repoName, ArtifactType.APPLICATION))
                 .thenReturn(Mono.just(JsonSchemaVersions.serverVersion - 1));
 

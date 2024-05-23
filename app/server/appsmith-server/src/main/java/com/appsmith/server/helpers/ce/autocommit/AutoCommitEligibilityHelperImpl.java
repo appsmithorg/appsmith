@@ -4,13 +4,13 @@ import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
-import com.appsmith.server.services.CommonGitService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -19,16 +19,11 @@ import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibiltyHelper {
 
-    private final CommonGitService commonGitService;
+    private final CommonGitFileUtils commonGitFileUtils;
     private final DSLMigrationUtils dslMigrationUtils;
-
-    public AutoCommitEligibilityHelperImpl(
-            @Lazy CommonGitService commonGitService, DSLMigrationUtils dslMigrationUtils) {
-        this.commonGitService = commonGitService;
-        this.dslMigrationUtils = dslMigrationUtils;
-    }
 
     @Override
     public Mono<Boolean> isServerAutoCommitRequired(String workspaceId, GitArtifactMetadata gitMetadata) {
@@ -37,7 +32,7 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibiltyHelp
         String branchName = gitMetadata.getBranchName();
         String repoName = gitMetadata.getRepoName();
 
-        return commonGitService
+        return commonGitFileUtils
                 .getMetadataServerSchemaMigrationVersion(
                         workspaceId, defaultApplicationId, branchName, repoName, ArtifactType.APPLICATION)
                 .map(serverSchemaVersion -> {
