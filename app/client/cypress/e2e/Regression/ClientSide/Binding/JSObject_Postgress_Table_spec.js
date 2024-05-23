@@ -13,7 +13,8 @@ describe(
   { tags: ["@tag.Binding"] },
   function () {
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      _.dataSources.StartDataSourceRoutes();
+      // cy.startRoutesForDatasource();
     });
 
     it("1. Create a query and populate response by choosing addWidget and validate in Table Widget & Bug 7413", () => {

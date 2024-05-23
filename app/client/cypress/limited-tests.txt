@@ -1,5 +1,21 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+cypress/e2e/Regression/ServerSide/QueryPane/AddWidget_spec.js
+cypress/e2e/Regression/ServerSide/QueryPane/AddWidgetTableAndBind_spec.js
+cypress/e2e/Regression/ClientSide/ExplorerTests/CopyQuery_RenameDatasource_spec.js
+cypress/e2e/Sanity/Datasources/ElasticSearchDatasource_spec.js
+cypress/e2e/Regression/ServerSide/QueryPane/EmptyDataSource_spec.js
+cypress/e2e/Regression/ServerSide/Params/ExecutionParams_spec.js
+cypress/e2e/Regression/ClientSide/OtherUIFeatures/GlobalSearch_spec.js
+cypress/e2e/Regression/ClientSide/Binding/JSObject_Postgress_Table_spec.js
+cypress/e2e/Sanity/Datasources/MySQL_spec.js
+cypress/e2e/Sanity/Datasources/MySQLNoiseTest_spec.js
+cypress/e2e/Sanity/Datasources/PostgresDatasource_spec.js
+cypress/e2e/Regression/ClientSide/ExplorerTests/Query_Datasource_spec.js
+cypress/e2e/Sanity/Datasources/RedshiftDataSourceStub_spec.js
+cypress/e2e/Regression/ServerSide/QueryPane/S3_1_spec.js
+cypress/e2e/Regression/ServerSide/GenerateCRUD/S3_Spec.js
+cypress/e2e/Sanity/Datasources/SMTPDatasource_spec.js
+cypress/e2e/Regression/ServerSide/QueryPane/SwitchDatasource_spec.js
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
