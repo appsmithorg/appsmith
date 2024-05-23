@@ -70,6 +70,8 @@ sh /opt/appsmith/run-starting-page-init.sh &
 exec java ${APPSMITH_JAVA_ARGS:-} ${APPSMITH_JAVA_HEAP_ARG:-} \
   --add-opens java.base/java.time=ALL-UNNAMED \
   --add-opens java.base/java.nio=ALL-UNNAMED \
+  -Dnewrelic.config.agent_enabled=${APPSMITH_NEW_RELIC_ENABLED} \
+  -javaagent:/opt/newrelic/newrelic.jar \
   -Dserver.port=8080 \
   -XX:+ShowCodeDetailsInExceptionMessages \
   -Djava.security.egd=file:/dev/./urandom \

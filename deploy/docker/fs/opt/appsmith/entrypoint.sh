@@ -541,6 +541,7 @@ export APPSMITH_LOG_DIR="${APPSMITH_LOG_DIR:-/appsmith-stacks/logs}"
 mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 setup_auto_heal
+node newrelic-reconfigure.mjs 
 capture_infra_details
 
 # Handle CMD command
