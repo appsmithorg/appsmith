@@ -30,7 +30,7 @@ export const StatsComponent = (props: StatsComponentProps) => {
       )}
       <Flex direction="column" flexGrow={1} gap="spacing-3" isInner>
         {label && (
-          <Text color={valueColor} lineClamp={1} size="footnote">
+          <Text color="neutral" lineClamp={1} size="footnote">
             {label}
           </Text>
         )}
@@ -42,7 +42,12 @@ export const StatsComponent = (props: StatsComponentProps) => {
             isInner
             maxWidth="calc(100% - var(--sizing-1))"
           >
-            <Text fontWeight={500} lineClamp={1} size="subtitle">
+            <Text
+              color={valueColor}
+              fontWeight={500}
+              lineClamp={1}
+              size="subtitle"
+            >
               {value}
             </Text>
             {valueChange && (

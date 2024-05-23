@@ -31,7 +31,7 @@ export const propertyPaneContentConfig = [
         label: "Value color",
         controlType: "DROP_DOWN",
         fullWidth: true,
-        helpText: "Emphasizes the change's semantic impact",
+        helpText: "Emphasizes the value's semantic impact",
         options: Object.values(COLORS).map((semantic) => ({
           label: capitalize(semantic),
           value: semantic,
@@ -124,7 +124,7 @@ export const propertyPaneContentConfig = [
       {
         propertyName: "caption",
         label: "Caption",
-        helpText: "Sets the sublabel of the statbox",
+        helpText: "Sets the caption of the statbox",
         controlType: "INPUT_TEXT",
         placeholderText: "Since 21 Jan 2022",
         isBindProperty: true,
