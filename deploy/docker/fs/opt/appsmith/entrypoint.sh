@@ -428,7 +428,7 @@ init_postgres() {
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
 
       # Create mockdb db and user and populate it with the data
-      seed_embedded_postgres
+      # seed_embedded_postgres
       # Stop the postgres daemon
       su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
     fi
