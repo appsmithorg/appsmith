@@ -1,4 +1,4 @@
-package com.appsmith.server.services;
+package com.appsmith.server.git.autocommit;
 
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.enums.FeatureFlagEnum;
@@ -22,6 +22,10 @@ import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.CommonGitService;
+import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.testhelpers.git.GitFileSystemTestHelper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;

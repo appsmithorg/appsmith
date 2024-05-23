@@ -47,6 +47,7 @@ public class GitFileSystemTestHelper {
         String metadataFileName = CommonConstants.METADATA + CommonConstants.JSON_EXTENSION;
 
         // create a new repository
+        log.debug("Setting up Git repository at path: {}", gitCompletePath);
         gitExecutor.createNewRepository(gitCompletePath);
         File file = gitCompletePath.resolve(metadataFileName).toFile();
         file.createNewFile();
@@ -59,8 +60,8 @@ public class GitFileSystemTestHelper {
         // checkout to the new branch
         gitExecutor.createAndCheckoutToBranch(suffix, branchName).block();
 
-        // save the files from into repo from json
-        // This would later be replaced by the files in resources
+        // saving the files into the git repository from application json
+        // The files would later be saved in this git repository from resources section instead of applicationJson
         commonGitFileUtils
                 .saveArtifactToLocalRepo(workspaceId, applicationId, repoName, applicationJson, branchName)
                 .block();
