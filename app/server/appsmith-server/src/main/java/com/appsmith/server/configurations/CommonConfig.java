@@ -65,6 +65,13 @@ public class CommonConfig {
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 
+    @Value("${appsmith.rts.host:http://127.0.0.1}")
+    private String rtsHost;
+
+    @Value("${appsmith.rts.port:8091}")
+    private String rtsPort;
+
+
     @Value("${appsmith.micrometer.tracing.detail.enabled:false}")
     private boolean tracingDetail;
 
@@ -139,6 +146,11 @@ public class CommonConfig {
         // If `true`, then disable signup. If anything else, including empty string, then signups will be enabled.
         isSignupDisabled = "true".equalsIgnoreCase(value);
     }
+
+    public String getRtsBaseUrl() {
+        return rtsHost.endsWith("/") ? rtsHost + rtsPort : rtsHost + "/" + rtsPort;
+    }
+
 
     public boolean isMongoUptoDate() {
         ComparableVersion minSupportedVersion = new ComparableVersion(MIN_SUPPORTED_MONGODB_VERSION);
