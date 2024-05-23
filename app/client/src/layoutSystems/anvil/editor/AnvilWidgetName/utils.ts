@@ -72,7 +72,7 @@ export function handleWidgetUpdate(
       middleware: [
         flip(),
         shift(),
-        offset({ mainAxis: 8, crossAxis: -5 }),
+        offset({ mainAxis: 0, crossAxis: -5 }),
         getOverflowMiddleware(widgetsEditorElement as HTMLDivElement),
         hide({ strategy: "referenceHidden" }),
         hide({ strategy: "escaped" }),
@@ -103,6 +103,7 @@ export function getWidgetNameComponentStyleProps(
   widgetType: string,
   nameComponentState: NameComponentStates,
   showError: boolean,
+  isParentSelected: boolean,
 ) {
   const config = WidgetFactory.getConfig(widgetType);
   const onCanvasUI = config?.onCanvasUI || {
@@ -121,11 +122,6 @@ export function getWidgetNameComponentStyleProps(
       ? onCanvasUI.focusColorCSSVar
       : onCanvasUI.selectionColorCSSVar;
 
-  let disableParentToggle = onCanvasUI.disableParentSelection;
-  if (nameComponentState === "focus") {
-    disableParentToggle = true;
-  }
-
   // If there is an error, show the widget name in error state
   // This includes background being the error color
   // and font color being white.
@@ -134,7 +130,8 @@ export function getWidgetNameComponentStyleProps(
     colorCSSVar = "--on-canvas-ui-white";
   }
   return {
-    disableParentToggle,
+    // disable parent toggle if the parent is already selected
+    disableParentToggle: isParentSelected || onCanvasUI.disableParentSelection,
     bGCSSVar,
     colorCSSVar,
     selectionBGCSSVar: onCanvasUI.selectionBGCSSVar,
