@@ -175,6 +175,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     // the db. This handles the case for deserialization errors. This prevents the entire instance to
                     // go down if tenant cache is corrupted.
                     // More info - https://github.com/appsmithorg/appsmith/issues/33504
+                    log.info("Evicting the default tenant from cache and fetching from the database!");
                     return cacheableRepositoryHelper
                             .evictCachedTenant(tenantId)
                             .then(repository.findBySlug(FieldName.DEFAULT).map(tenant -> {
