@@ -44,7 +44,7 @@ export const propertyPaneContentConfig = [
         isBindProperty: false,
         isTriggerProperty: false,
         updateHook: inputTypeUpdateHook,
-        dependencies: ["dynamicHeight"],
+        dependencies: ["defaultText"],
       },
       {
         helpText:
