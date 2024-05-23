@@ -44,7 +44,7 @@ RUN set -o xtrace \
 # Install NodeJS
 RUN set -o xtrace \
   && mkdir -p /opt/node \
-  && version="$(node -e 'console.log(JSON.parse(require("fs").readFileSync("app/client/package.json")).engines.node.match(/[.\d]+/)?.[0] ?? "")')" \
+  && version="$(cat app/client/package.json | tr -d '\n' | grep -Eo '"engines".+?"node".+?".+?"' | grep -Eo '[.0-9]+')" \
   && test -n "$version" \
   && curl "https://nodejs.org/dist/v$version/node-v$version-linux-$(uname -m | sed 's/x86_64/x64/; s/aarch64/arm64/').tar.gz" \
   | tar -xz -C /opt/node --strip-components 1
