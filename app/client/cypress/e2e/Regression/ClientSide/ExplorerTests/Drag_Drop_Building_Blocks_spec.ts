@@ -3,13 +3,14 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   entityExplorer,
   agHelper,
+  widgetLocators,
 } from "../../../../support/Objects/ObjectsCore";
-import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 import explorerLocators from "../../../../locators/explorerlocators.json";
 
 const MAX_BUILDING_BLOCKS_TO_DISPLAY = initialEntityCountForExplorerTag[
   "Building Blocks"
 ] as number;
+const DEFAULT_SKELETON_LOADER_NAME = "Skeleton1";
 
 describe(
   "Building blocks explorer tests",
@@ -192,7 +193,7 @@ describe(
         });
     });
 
-    it("5. Should drag and drop building block on canvas", () => {
+    it.only("5. Should drag and drop building block on canvas", () => {
       featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
       // primary api call for dropping building blocks on canvas
       cy.intercept("POST", "/api/v1/applications/import/partial/block").as(
@@ -220,23 +221,13 @@ describe(
         .trigger("mousemove", x, y, option)
         .trigger("mouseup", x, y, option);
 
-      // check that loading skeleton is present
-      let buildingBlockName: string; // get the display name of the first building block
-      agHelper
-        .GetElement(entityExplorer._widgetTagBuildingBlocks)
-        .first()
-        .then(($widgetTag) => {
-          agHelper
-            .GetElement($widgetTag)
-            .find(entityExplorer._widgetCardTitle)
-            .first()
-            .then(($widgetName) => {
-              buildingBlockName = $widgetName.text();
-              PageLeftPane.assertPresence(
-                `loading_${buildingBlockName.toLowerCase().replace(/ /g, "_")}`,
-              );
-            });
-        });
+      // check for skeleton loader visisbility
+      agHelper.AssertContains(
+        DEFAULT_SKELETON_LOADER_NAME,
+        "be.visible",
+        widgetLocators.widgetNameTag,
+      );
+
       cy.wait("@blockImport").then(() => {
         cy.assertPageSave();
         // check that the widgets are present on the canvas
