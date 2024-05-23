@@ -2,6 +2,9 @@ import React from "react";
 import styled from "styled-components";
 import SidebarButton from "./SidebarButton";
 import type { SidebarButton as SidebarButtonType } from "@appsmith/entities/IDE/constants";
+import { SideButtonType } from "@appsmith/entities/IDE/constants";
+import { useSelector } from "react-redux";
+import { getDatasources } from "@appsmith/selectors/entitiesSelector";
 
 const Container = styled.div`
   width: 50px;
@@ -23,6 +26,23 @@ interface SidebarComponentProps {
 
 function SidebarComponent(props: SidebarComponentProps) {
   const { appState, bottomButtons, onClick, topButtons } = props;
+  const datasources = useSelector(getDatasources);
+  const getConditionalIconAndTooltip = (
+    type?: SideButtonType,
+    conditionTooltip?: string,
+  ) => {
+    switch (type) {
+      case SideButtonType.DATSOURCE:
+        if (datasources.length === 0)
+          return {
+            conditionIcon: "warning",
+            tooltip: conditionTooltip,
+          };
+        return {};
+      default:
+        return {};
+    }
+  };
 
   return (
     <Container className="t--sidebar" id="t--app-sidebar">
@@ -38,6 +58,10 @@ function SidebarComponent(props: SidebarComponentProps) {
             }}
             selected={appState === b.state}
             title={b.title}
+            {...getConditionalIconAndTooltip(
+              b.conditionType,
+              b.conditionTooltip,
+            )}
           />
         ))}
       </div>
