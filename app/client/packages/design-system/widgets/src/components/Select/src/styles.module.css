@@ -73,6 +73,7 @@
   min-inline-size: var(--trigger-width);
 }
 
+/** If at least one select item has an icon, we need to add extra padding for items that doesn't have an icon. */
 .listBox:has([data-icon]) [role="option"]:not(:has([data-icon])) {
   padding-inline-start: calc(
     var(--icon-size-2) + var(--inner-spacing-3) + var(--inner-spacing-2)

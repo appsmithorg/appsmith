@@ -39,7 +39,7 @@ export const Submenus: Story = {
 };
 
 /**
- * You can disable items by passing disabledKeys or isDisabled in the item configuration
+ * The items can be disabled by passing `disabledKeys` or `isDisabled` in the item configuration.
  */
 
 export const DisabledItems: Story = {

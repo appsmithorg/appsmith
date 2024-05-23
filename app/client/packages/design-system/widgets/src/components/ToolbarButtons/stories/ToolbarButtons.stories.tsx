@@ -15,7 +15,7 @@ import {
 } from "./toolbarButtonsData";
 
 /**
- * A `ToolbarButtons` is a group of buttons that are visually connected together.
+ * The `ToolbarButtons` is a group of buttons that are visually connected together.
  * The `MenuItem` accepts the same props as the `Button` except `variant` and `color`.
  * More information about `Button` props you can find [here](?path=/docs/design-system-widgets-button--docs).
  */
@@ -45,7 +45,7 @@ export const Variants: Story = {
 };
 
 /**
- * `ToolbarButtons` component has 3 visual style variants and 5 semantic color options
+ * The `ToolbarButtons` component has 3 visual style variants and 5 semantic color options
  */
 export const Semantic: Story = {
   render: () => (

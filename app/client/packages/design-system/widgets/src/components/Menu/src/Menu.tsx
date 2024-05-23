@@ -18,6 +18,7 @@ export const Menu = (props: MenuProps) => {
   ) as HTMLButtonElement;
 
   return (
+    // We should put only parent Popover in the root, if we put the child ones, then Menu will work incorrectly
     <Popover UNSTABLE_portalContainer={hasSubmenu ? undefined : root}>
       <HeadlessMenu className={styles.menu} {...props}>
         {(item) => renderFunc(item, props)}
