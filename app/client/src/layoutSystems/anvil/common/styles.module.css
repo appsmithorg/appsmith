@@ -6,18 +6,38 @@
   [elevation="3"] — card
 */
 .anvilWidgetWrapper {
-  /** If a section or zone have elevation, then add padding */
+  /** If a section,zone and card have elevation, then add padding */
   [data-elevation="true"][elevation="1"],
   [data-elevation="true"][elevation="2"],
   [data-elevation="true"][elevation="3"],
-  [elevation="1"]:has([data-elevation="true"]) [data-elevation="false"],
-  [elevation="2"]:has([data-elevation="true"]) [data-elevation="false"] {
+  /** If a section has any zone with elevation, then add padding to all the zones that don't have elevation */
+  [elevation="1"]:has([data-elevation="2"][data-elevation="true"]) [data-elevation="2"][data-elevation="false"],
+  /** If a zone has any card with elevation, then add padding to all the cards that don't have elevation */
+  [elevation="2"]:has([data-elevation="3"][data-elevation="true"]) [data-elevation="3"][data-elevation="false"] {
     padding-block: var(--outer-spacing-3);
     padding-inline: var(--outer-spacing-3);
   }
 
   [data-elevation="false"][elevation="2"] {
     min-height: var(--sizing-8);
+  }
+
+  /** If a zone has elevation and, cards inside it don't have elevation, then add elevation styles-3 to the zone */
+  [data-elevation="true"][elevation="2"]:has([data-elevation="false"]),
+  /** If a card has elevation, then add elevation styles-3 to the card */
+  [data-elevation="true"][elevation="3"] {
+    background-color: var(--color-bg-elevation-3);
+    border-radius: var(--border-radius-elevation-3);
+    outline: var(--border-width-1) solid var(--color-bd-elevation-3);
+  }
+
+  /** if a zone has elevation and, any of its cards also have elevation, then add elevation 
+    styles-2 to the zones NOTE: this selector is required to override the above 
+    elevation styles-3 for zone where none of the zones have elevation */
+  [data-elevation="true"][elevation="2"]:has([data-elevation="true"]) {
+    background-color: var(--color-bg-elevation-2);
+    border-radius: var(--border-radius-elevation-2);
+    outline: var(--border-width-1) solid var(--color-bd-elevation-2);
   }
 
   /**
