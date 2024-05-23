@@ -72,7 +72,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
                 if (keyValuePair.length > 1) {
                     keyValuePair[1] = MASKED_VALUE;
                 } else {
-                    keyValuePair = new String[]{keyValuePair[0], MASKED_VALUE};
+                    keyValuePair = new String[] {keyValuePair[0], MASKED_VALUE};
                 }
             }
             newQuery.add(keyValuePair[0] + "=" + keyValuePair[1]);
