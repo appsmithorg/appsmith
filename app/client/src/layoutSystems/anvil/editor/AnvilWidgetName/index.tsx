@@ -85,7 +85,13 @@ export function AnvilWidgetName(props: {
 
   let cleanup = () => {};
   useEffect(() => {
-    if (widgetElement && widgetNameComponent && widgetsEditorElement) {
+    if (
+      widgetElement &&
+      widgetNameComponent &&
+      widgetsEditorElement &&
+      // Makes sure we add listeners only if the widget is selected or focused
+      nameComponentState !== "none"
+    ) {
       cleanup = handleWidgetUpdate(
         widgetElement,
         widgetNameComponent,
@@ -108,6 +114,8 @@ export function AnvilWidgetName(props: {
     return null;
   // Don't show widget name component if the widget DOM element isn't found
   if (!widgetElement) return null;
+  // Don't render any DOM nodes if the widget is not selected or focused
+  if (nameComponentState === "none") return null;
 
   return (
     <FloatingPortal>
