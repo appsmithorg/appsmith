@@ -18,7 +18,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
-import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
+import com.appsmith.server.helpers.ce.autocommit.AutoCommitEligibiltyHelper;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -75,9 +75,6 @@ public class ApplicationPageServiceAutoCommitTest {
     GitFileSystemTestHelper gitFileSystemTestHelper;
 
     @SpyBean
-    GitAutoCommitHelper gitAutoCommitHelper;
-
-    @SpyBean
     GitExecutor gitExecutor;
 
     @MockBean
@@ -97,6 +94,9 @@ public class ApplicationPageServiceAutoCommitTest {
 
     @MockBean
     GitPrivateRepoHelper gitPrivateRepoHelper;
+
+    @SpyBean
+    AutoCommitEligibiltyHelper autoCommitEligibiltyHelper;
 
     @MockBean
     BranchTrackingStatus branchTrackingStatus;
@@ -232,7 +232,7 @@ public class ApplicationPageServiceAutoCommitTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource(APP_JSON_NAME));
 
         // server migration as true
-        doReturn(Mono.just(TRUE)).when(gitAutoCommitHelper).isServerAutocommitRequired(any(), any());
+        doReturn(Mono.just(TRUE)).when(autoCommitEligibiltyHelper).isServerAutoCommitRequired(any(), any());
         Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(DSL_VERSION_NUMBER));
 
         ApplicationJson applicationJson1 = new ApplicationJson();
@@ -293,7 +293,7 @@ public class ApplicationPageServiceAutoCommitTest {
                 .intValue();
 
         // server migration as false
-        doReturn(Mono.just(FALSE)).when(gitAutoCommitHelper).isServerAutocommitRequired(any(), any());
+        doReturn(Mono.just(FALSE)).when(autoCommitEligibiltyHelper).isServerAutoCommitRequired(any(), any());
         Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(pageDSLNumber + 1));
 
         JSONObject dslAfterMigration = new JSONObject();
@@ -343,7 +343,7 @@ public class ApplicationPageServiceAutoCommitTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource(APP_JSON_NAME));
 
         // server migration as false
-        doReturn(Mono.just(FALSE)).when(gitAutoCommitHelper).isServerAutocommitRequired(any(), any());
+        doReturn(Mono.just(FALSE)).when(autoCommitEligibiltyHelper).isServerAutoCommitRequired(any(), any());
         Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(DSL_VERSION_NUMBER));
 
         gitFileSystemTestHelper.setupGitRepository(
