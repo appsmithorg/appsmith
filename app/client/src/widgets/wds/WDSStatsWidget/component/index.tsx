@@ -1,7 +1,6 @@
 import React from "react";
 import type { StatsComponentProps } from "./types";
 
-import styles from "./styles.module.css";
 import { Flex, Icon, Text } from "@design-system/widgets";
 
 export const StatsComponent = (props: StatsComponentProps) => {
@@ -20,7 +19,6 @@ export const StatsComponent = (props: StatsComponentProps) => {
   return (
     <Flex
       alignItems="center"
-      className={styles.statbox}
       data-clickable={onClick !== undefined ? "" : undefined}
       direction={iconAlign === "end" ? "row-reverse" : "row"}
       gap="spacing-2"
