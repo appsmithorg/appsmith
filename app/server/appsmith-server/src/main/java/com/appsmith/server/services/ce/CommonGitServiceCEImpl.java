@@ -42,7 +42,7 @@ import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
+import com.appsmith.server.helpers.ce.autocommit.GitAutoCommitHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.GitDeployKeysRepository;

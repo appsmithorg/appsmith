@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers.ce;
+package com.appsmith.server.helpers.ce.autocommit;
 
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.acl.AclPermission;
@@ -12,7 +12,6 @@ import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.CommonGitService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.UserDataService;
@@ -362,9 +361,6 @@ public class GitAutoCommitHelperImplTest {
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_server_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.TRUE));
 
-        Mockito.when(commonGitService.getMetadataServerSchemaMigrationVersion(any(), any(), any(), any(), any()))
-                .thenReturn(Mono.just(JsonSchemaVersions.serverVersion - 1));
-
         Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
@@ -405,9 +401,6 @@ public class GitAutoCommitHelperImplTest {
 
         Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
-
-        Mockito.when(commonGitService.getMetadataServerSchemaMigrationVersion(any(), any(), any(), any(), any()))
-                .thenReturn(Mono.just(JsonSchemaVersions.serverVersion));
 
         StepVerifier.create(gitAutoCommitHelper.autoCommitServerMigration(defaultApplicationId, branchName))
                 .assertNext(isAutoCommitPublished -> {

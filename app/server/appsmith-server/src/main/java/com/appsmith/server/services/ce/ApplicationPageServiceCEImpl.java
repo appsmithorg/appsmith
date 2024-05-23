@@ -40,7 +40,8 @@ import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
-import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
+import com.appsmith.server.helpers.ce.autocommit.AutoCommitEligibiltyHelper;
+import com.appsmith.server.helpers.ce.autocommit.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -127,6 +128,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final DatasourcePermission datasourcePermission;
     private final DSLMigrationUtils dslMigrationUtils;
     private final GitAutoCommitHelper gitAutoCommitHelper;
+    private final AutoCommitEligibiltyHelper autoCommitEligibiltyHelper;
     private final ClonePageService<NewAction> actionClonePageService;
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
 
@@ -355,53 +357,18 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         // since this method is only called when the app is in edit mode
         Mono<PageDTO> pageDTOMono = getPage(newPages.get(0), false);
 
-        Mono<Boolean> isClientAutocommitRequiredMono = pageDTOMono
-                .zipWith(dslMigrationUtils.getLatestDslVersion())
-                .map(tuple2 -> {
-                    PageDTO pageDTO = tuple2.getT1();
-                    Integer latestDslVersion = tuple2.getT2();
+        return pageDTOMono.flatMap(pageDTO -> {
+            return autoCommitEligibiltyHelper
+                    .isAutoCommitRequired(workspaceId, gitMetadata, pageDTO)
+                    .flatMap(autoCommitTriggerDTO -> {
+                        if (Boolean.TRUE.equals(autoCommitTriggerDTO.getIsAutoCommitRequired())) {
+                            return gitAutoCommitHelper.triggerAutoCommit(
+                                    autoCommitTriggerDTO, defaultApplicationId, branchName);
+                        }
 
-                    // ensuring that the page has only one layout, as we don't support multiple layouts yet
-                    // when multiple layouts are supported, this code will have to be updated
-                    assert pageDTO.getLayouts().size() == 1;
-                    Layout layout = pageDTO.getLayouts().get(0);
-                    JSONObject layoutDsl = layout.getDsl();
-                    return GitUtils.isMigrationRequired(layoutDsl, latestDslVersion);
-                })
-                .onErrorResume(error -> {
-                    log.debug("Error fetching latest DSL version");
-                    return Mono.just(Boolean.FALSE);
-                });
-
-        Mono<Boolean> isServerAutocommitRequiredMono = gitAutoCommitHelper
-                .isServerAutoCommitRequired(workspaceId, gitMetadata)
-                .onErrorResume(error -> {
-                    log.debug(
-                            "Error in checking server migration for application id : {} branch name : {}",
-                            defaultApplicationId,
-                            branchName);
-                    return Mono.just(Boolean.FALSE);
-                });
-
-        return isClientAutocommitRequiredMono
-                .zipWith(isServerAutocommitRequiredMono)
-                .flatMap(tuple2 -> {
-                    Boolean clientFlag = tuple2.getT1();
-                    Boolean serverFlag = tuple2.getT2();
-
-                    if (Boolean.FALSE.equals(clientFlag) && Boolean.FALSE.equals(serverFlag)) {
                         return Mono.just(Boolean.FALSE);
-                    }
-
-                    // Since server autocommit is a subset of the client migration, hence if only the client migration
-                    // is true then we can only go ahead with client migration.
-                    if (Boolean.TRUE.equals(clientFlag)) {
-                        return gitAutoCommitHelper.autoCommitClientMigration(defaultApplicationId, branchName);
-                    }
-
-                    // at this point only server flag could be true.
-                    return gitAutoCommitHelper.autoCommitServerMigration(defaultApplicationId, branchName);
-                });
+                    });
+        });
     }
 
     @Override
