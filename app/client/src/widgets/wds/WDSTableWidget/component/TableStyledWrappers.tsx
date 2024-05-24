@@ -1,52 +1,24 @@
 import styled, { css } from "styled-components";
 import type {
-  TableSizes,
   CellLayoutProperties,
   CellAlignment,
   VerticalAlignment,
   ImageSize,
 } from "./Constants";
 import {
-  JUSTIFY_CONTENT,
-  ALIGN_ITEMS,
-  IMAGE_HORIZONTAL_ALIGN,
-  IMAGE_VERTICAL_ALIGN,
-  TEXT_ALIGN,
   TABLE_SIZES,
   ImageSizes,
   MULTISELECT_CHECKBOX_WIDTH,
 } from "./Constants";
-import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
 import { invisible } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
-import type { TableVariant } from "../constants";
 import { Layers } from "constants/Layers";
 
 const BORDER_RADIUS = "border-radius: 4px;";
 const HEADER_CONTROL_FONT_SIZE = "12px";
-
-export const TableWrapper = styled.div<{
-  width: number;
-  height: number;
-  tableSizes: TableSizes;
-  accentColor: string;
-  backgroundColor?: Color;
-  triggerRowSelection: boolean;
-  isHeaderVisible?: boolean;
-  borderRadius: string;
-  boxShadow?: string;
-  borderColor?: string;
-  borderWidth?: number;
-  isResizingColumn?: boolean;
-  variant?: TableVariant;
-  isAddRowInProgress: boolean;
-}>`
-  .column-freeze {
-  }
-`;
 
 export const DropDownWrapper = styled.div`
   display: flex;
@@ -169,12 +141,6 @@ export const CellWrapper = styled.div<{
     props.fontStyle?.includes(FontStyleTypes.UNDERLINE) && props.isTextType
       ? "underline"
       : ""};
-  justify-content: ${(props) =>
-    props.horizontalAlignment && JUSTIFY_CONTENT[props.horizontalAlignment]};
-  text-align: ${(props) =>
-    props.horizontalAlignment && TEXT_ALIGN[props.horizontalAlignment]};
-  align-items: ${(props) =>
-    props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
 
   background: ${(props) => {
     if (props.isCellDisabled) {
@@ -219,16 +185,6 @@ export const CellWrapper = styled.div<{
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;`}
-  .image-cell-wrapper {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: ${(props) =>
-      props.verticalAlignment && IMAGE_VERTICAL_ALIGN[props.verticalAlignment]};
-    justify-content: ${(props) =>
-      props.horizontalAlignment &&
-      IMAGE_HORIZONTAL_ALIGN[props.horizontalAlignment]};
-  }
   .image-cell {
     height: ${(props) =>
       props.imageSize ? ImageSizes[props.imageSize] : ImageSizes.DEFAULT};
@@ -254,14 +210,6 @@ export const CellWrapper = styled.div<{
       ${BORDER_RADIUS}
     }
   }
-  .link-text {
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    word-break: break-word;
-    text-align: ${(props) =>
-      props.horizontalAlignment && TEXT_ALIGN[props.horizontalAlignment]};
-  }
   .hidden-icon {
     display: none;
   }
@@ -272,34 +220,12 @@ export const CellWrapper = styled.div<{
   }
 `;
 
-export const CellCheckboxWrapper = styled(CellWrapper)<{
-  isChecked?: boolean;
-  accentColor?: string;
-  borderRadius?: string;
-}>`
+export const CellCheckboxWrapper = styled(CellWrapper)`
   left: 0;
   z-index: ${Layers.modalWidget};
   justify-content: center;
   width: ${MULTISELECT_CHECKBOX_WIDTH}px;
   height: auto;
-  & > div {
-    border-radius: ${({ borderRadius }) => borderRadius};
-
-    ${(props) =>
-      props.isChecked
-        ? `
-          background: ${props.accentColor};
-          &:hover {
-            background: ${darkenColor(props.accentColor)};
-          }
-            `
-        : `
-          border: 1px solid ${Colors.GREY_3};
-          &:hover {
-            border: 1px solid ${Colors.GREY_5};
-          }
-        `};
-  }
 `;
 
 export const CellCheckbox = styled.div`

@@ -15,6 +15,9 @@ public interface LayoutCollectionServiceCE {
 
     Mono<ActionCollectionDTO> moveCollection(ActionCollectionMoveDTO actionCollectionMoveDTO, String branchName);
 
+    Mono<Integer> updateUnpublishedActionCollectionBody(
+            String id, ActionCollectionDTO actionCollectionDTO, String branchName);
+
     Mono<ActionCollectionDTO> updateUnpublishedActionCollection(
             String id, ActionCollectionDTO actionCollectionDTO, String branchName);
 }

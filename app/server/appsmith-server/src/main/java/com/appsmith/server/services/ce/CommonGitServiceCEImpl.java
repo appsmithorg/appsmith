@@ -41,7 +41,7 @@ import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
+import com.appsmith.server.helpers.ce.autocommit.GitAutoCommitHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -102,6 +102,7 @@ import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
+import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
 @Service
@@ -2030,7 +2031,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
          * 4.Get the latest artifact from the DB and send it back to client
          * */
 
-        if (!org.springframework.util.StringUtils.hasText(branchName)) {
+        if (!hasText(branchName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, branchName));
         }
 
@@ -3370,7 +3371,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
      */
     @Override
     public Mono<Boolean> autoCommitApplication(String defaultArtifactId, String branchName, ArtifactType artifactType) {
-        return gitAutoCommitHelper.autoCommitApplication(defaultArtifactId, branchName);
+        return gitAutoCommitHelper.autoCommitClientMigration(defaultArtifactId, branchName);
     }
 
     @Override

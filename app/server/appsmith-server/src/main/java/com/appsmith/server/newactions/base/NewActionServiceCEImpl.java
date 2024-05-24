@@ -653,7 +653,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     private Mono<NewAction> extractAndSetNativeQueryFromFormData(NewAction action) {
-        Mono<Plugin> pluginMono = pluginService.getById(action.getPluginId());
+        Mono<Plugin> pluginMono = pluginService.getByIdWithoutPermissionCheck(action.getPluginId());
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         return pluginExecutorMono
@@ -1175,7 +1175,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO) {
-        Mono<Plugin> pluginMono = pluginService.getById(actionDTO.getPluginId());
+        Mono<Plugin> pluginMono = pluginService.getByIdWithoutPermissionCheck(actionDTO.getPluginId());
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
 
         return pluginExecutorMono.map(pluginExecutor -> {
@@ -1454,16 +1454,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     return analyticsService.sendDeleteEvent(newAction1, data).thenReturn(zippedActions.getT1());
                 })
                 .thenReturn(toDelete);
-    }
-
-    @Override
-    public Mono<NewAction> archiveByIdAndBranchName(String id, String branchName) {
-        Mono<NewAction> branchedActionMono =
-                this.findByBranchNameAndDefaultActionId(branchName, id, false, actionPermission.getDeletePermission());
-
-        return branchedActionMono
-                .flatMap(branchedAction -> this.archiveById(branchedAction.getId()))
-                .map(responseUtils::updateNewActionWithDefaultResources);
     }
 
     @Override

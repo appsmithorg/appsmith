@@ -8,9 +8,7 @@ import {
   INPUT_INVALID_TYPE_ERROR,
   INPUT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
-import { InputTypes } from "components/constants";
 import type { InputType } from "../component/types";
-import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 import { INPUT_TYPES } from "../constants";
@@ -142,14 +140,6 @@ export function inputTypeUpdateHook(
     },
   ];
 
-  if (propertyValue === InputTypes.MULTI_LINE_TEXT) {
-    if (props.dynamicHeight === DynamicHeight.FIXED) {
-      updates.push({
-        propertyPath: "dynamicHeight",
-        propertyValue: DynamicHeight.AUTO_HEIGHT,
-      });
-    }
-  }
   // if input type is email or password default the autofill state to be true
   // the user needs to explicity set autofill to fault disable autofill
   updates.push({

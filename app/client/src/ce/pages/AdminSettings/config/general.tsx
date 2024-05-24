@@ -1,7 +1,5 @@
 import React from "react";
 import { isEmail } from "utils/formhelpers";
-import { apiRequestConfig } from "api/Api";
-import UserApi from "@appsmith/api/UserApi";
 import type {
   AdminConfigType,
   Setting,
@@ -46,21 +44,6 @@ export const APPSMITH_ADMIN_EMAILS_SETTING: Setting = {
       return "Please enter valid email id(s)";
     }
   },
-};
-
-export const APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING: Setting = {
-  id: "APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE",
-  action: () => {
-    const { host, protocol } = window.location;
-    window.open(
-      `${protocol}//${host}${apiRequestConfig.baseURL}${UserApi.downloadConfigURL}`,
-      "_blank",
-    );
-  },
-  category: SettingCategories.GENERAL,
-  controlType: SettingTypes.BUTTON,
-  label: "Generated docker compose file",
-  text: "Download",
 };
 
 export const APPSMITH_DISABLE_TELEMETRY_SETTING: Setting = {
@@ -119,6 +102,15 @@ export const APPSMITH_USER_SESSION_TIMEOUT_SETTING: Setting = {
   isFeatureEnabled: false,
   isEnterprise: true,
   isDisabled: () => true,
+};
+
+export const APPSMITH_IS_ATOMIC_PUSH_ALLOWED: Setting = {
+  id: "isAtomicPushAllowed",
+  name: "isAtomicPushAllowed",
+  category: SettingCategories.GENERAL,
+  controlType: SettingTypes.CHECKBOX,
+  label: "Allow atomic pushes",
+  text: "Git operations on this tenant should attempt to perform pushes atomically",
 };
 
 export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
@@ -195,12 +187,12 @@ export const config: AdminConfigType = {
   settings: [
     APPSMITH_INSTANCE_NAME_SETTING_SETTING,
     APPSMITH_ADMIN_EMAILS_SETTING,
-    APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING,
     APPSMITH_DISABLE_TELEMETRY_SETTING,
     APPSMITH_HIDE_WATERMARK_SETTING,
     APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING,
     APPSMITH_SINGLE_USER_PER_SESSION_SETTING,
     APPSMITH_USER_SESSION_TIMEOUT_SETTING,
+    APPSMITH_IS_ATOMIC_PUSH_ALLOWED,
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
   ],
 } as AdminConfigType;

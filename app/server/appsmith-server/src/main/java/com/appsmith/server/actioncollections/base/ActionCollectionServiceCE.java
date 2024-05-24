@@ -27,6 +27,8 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Flux<ActionCollection> saveAll(List<ActionCollection> collections);
 
+    Mono<ActionCollection> findByIdAndBranchName(String id, String branchName);
+
     Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(
             MultiValueMap<String, String> params, Boolean viewMode);
 
@@ -69,6 +71,8 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
             String pageId, boolean viewMode, AclPermission permission);
 
     Flux<ActionCollection> findByPageIdsForExport(List<String> pageIds, AclPermission permission);
+
+    Mono<ActionCollection> archiveById(String id);
 
     Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission);

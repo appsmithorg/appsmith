@@ -231,7 +231,7 @@ describe("bgNeutralOpacity color", () => {
     const { bgNeutralOpacity } = new LightModeTheme(
       "oklch(0.51 0.24 279)",
     ).getColors();
-    expect(bgNeutralOpacity).toEqual("rgb(4.2704% 4.3279% 4.6942% / 0.5)");
+    expect(bgNeutralOpacity).toEqual("rgb(4.2704% 4.3279% 4.6942% / 0.6)");
   });
 });
 
@@ -476,7 +476,7 @@ describe("bgNegativeSubtle color", () => {
     const { bgNegativeSubtle } = new LightModeTheme(
       "oklch(0.55 0.22 27)",
     ).getColors();
-    expect(bgNegativeSubtle).toEqual("rgb(80.074% 0% 19.209%)");
+    expect(bgNegativeSubtle).toEqual("rgb(100% 89.936% 89.52%)");
   });
 });
 

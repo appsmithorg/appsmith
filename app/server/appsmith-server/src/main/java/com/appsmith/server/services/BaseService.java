@@ -40,21 +40,15 @@ public abstract class BaseService<
 
     @Override
     public Mono<T> update(ID id, T resource) {
-        return update(id, resource, "id");
-    }
-
-    public Mono<T> update(ID id, T resource, String key) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
         resource.setUpdatedAt(Instant.now());
 
-        // TODO(Shri): update happens with `key=id` and find happens with `id=id` criteria. This is incorrect, but is
-        //   too fragile to touch right now. Need to dig in slow and deep to fix this.
         return repository
                 .queryBuilder()
-                .criteria(Bridge.equal(key, (String) id))
+                .byId((String) id)
                 .updateFirst(resource)
                 .flatMap(obj -> repository.findById(id))
                 .flatMap(savedResource ->
@@ -62,7 +56,7 @@ public abstract class BaseService<
     }
 
     @Override
-    public Mono<T> getById(ID id) {
+    public Mono<T> getByIdWithoutPermissionCheck(ID id) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -79,11 +73,6 @@ public abstract class BaseService<
                 .flatMap(repository::save)
                 .flatMap(savedResource ->
                         analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));
-    }
-
-    @Override
-    public Mono<T> archiveById(ID id) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
     /**
@@ -107,44 +96,6 @@ public abstract class BaseService<
     @Override
     public Map<String, Object> getAnalyticsProperties(T savedResource) {
         return new HashMap<>();
-    }
-
-    /**
-     * This function is used to filter the entities based on the entity fields and the search string.
-     * The search is performed with contains operator on the entity fields and is case-insensitive.
-     * @param searchableEntityFields  The list of entity fields to search for. If null or empty, all entities are searched.
-     * @param searchString  The string to search for in the entity fields.
-     * @param pageable      The page number of the results to return.
-     * @param sort          The sort order of the results to return.
-     * @param permission    The permission to check for the entity.
-     * @return  A Flux of entities.
-     */
-    public Flux<T> filterByEntityFields(
-            List<String> searchableEntityFields,
-            String searchString,
-            Pageable pageable,
-            Sort sort,
-            AclPermission permission) {
-
-        if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
-        }
-
-        List<BridgeQuery<T>> criteria = new ArrayList<>();
-        for (String fieldName : searchableEntityFields) {
-            criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
-        }
-
-        Flux<T> result = repository
-                .queryBuilder()
-                .criteria(Bridge.or(criteria))
-                .permission(permission)
-                .sort(sort)
-                .all();
-        if (pageable != null) {
-            return result.skip(pageable.getOffset()).take(pageable.getPageSize());
-        }
-        return result;
     }
 
     /**
