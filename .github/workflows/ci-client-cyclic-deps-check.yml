@@ -46,7 +46,7 @@ jobs:
       - name: Count circular dependencies on release branch
         id: coun-cyclic-deps-in-release
         run: |
-          npx dpdm --circular > release_circular_deps.txt
+          npx dpdm ./src/* --circular --warning=false --tree=false > release_circular_deps.txt
           release_count=$(cat release_circular_deps.txt | wc -l)
           echo "release_count=$release_count" >> $GITHUB_OUTPUT
 
