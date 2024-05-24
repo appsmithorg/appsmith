@@ -35,10 +35,9 @@ jobs:
           echo "pr_count=$pr_count" >> $GITHUB_OUTPUT
 
       - name: Checkout release branch
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           ref: release
-
       - name: Check release log
         run: |
           git log -1
