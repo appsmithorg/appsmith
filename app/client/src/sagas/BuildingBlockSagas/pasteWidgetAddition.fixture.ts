@@ -1298,6 +1298,5 @@ export const copiedWidgets: CopiedWidgetGroup[] = [
     ],
     parentId: "0",
     widgetId: "ppci5prygm",
-    widgetPositionInfo: null,
   },
 ];
