@@ -42,8 +42,7 @@
     "prettier:ci": "yarn workspaces foreach -ptv run prettier",
     "check-types": "yarn tsc --noEmit",
     "init-husky": "cd ../.. && husky install app/client/.husky",
-    "clean:workspaces": "yarn workspaces foreach -pAv exec rm -rf node_modules",
-    "check-cyclic-deps": "node scripts/circular_deps_check.js"
+    "clean:workspaces": "yarn workspaces foreach -pAv exec rm -rf node_modules"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.441.0",
@@ -323,7 +322,6 @@
     "cypress-xpath": "^1.6.0",
     "diff": "^5.0.0",
     "dotenv": "^8.1.0",
-    "dpdm": "^3.14.0",
     "eslint": "^8.51.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-import-resolver-babel-module": "^5.3.2",
