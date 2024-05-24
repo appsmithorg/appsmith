@@ -11,8 +11,6 @@ on:
 jobs:
   check-cyclic-dependencies:
     runs-on: ubuntu-latest
-    outputs:
-      has_more_cyclic_deps: ${{ steps.check_cyclic_deps.outputs.has_more_cyclic_deps }}
     defaults:
       run:
         working-directory: app/client
@@ -29,78 +27,52 @@ jobs:
         with:
           ref: refs/pull/${{ inputs.pr }}/merge
 
-      # In case this is second attempt try restoring status of the prior attempt from cache
-      - name: Restore the previous run result
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-client
-
-      # Fetch prior run result
-      - name: Get the previous run result
-        id: run_result
-        run: cat ~/run_result 2>/dev/null || echo 'default'
-
-      # In case of prior failure run the job
-      - if: steps.run_result.outputs.run_result != 'success'
-        run: echo "I'm alive!" && exit 0
-
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version-file: app/client/package.json
-
-      # actions/setup-node@v3 doesn’t work properly with Yarn 3
-      # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
-      # Restoring the cache manually instead
-      - name: Restore Yarn cache
-        if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/cache@v3
-        with:
-          path: app/client/.yarn/cache
-          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-          restore-keys: |
-            v1-yarn3-
-
-      # Install all the dependencies
-      - name: Install dependencies
-        if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --immutable
-
-      # Check for cyclic dependencies and save the output
-      - name: Check for Cyclic Dependencies
-        if: steps.run_result.outputs.run_result != 'success'
-        id: check_cyclic_deps
+      - name: Count circular dependencies on PR branch
+        id: count-cyclic-deps-in-pr
         run: |
-          OUTPUT=$(yarn check-cyclic-deps 2>&1) || true
+          npx dpdm ./src/* --circular --warning=false --tree=false > pr_circular_deps.txt
+          pr_count=$(cat pr_circular_deps.txt | wc -l)
+          echo "pr_count=$pr_count" >> $GITHUB_OUTPUT
 
-          if [[ $OUTPUT == *"Failed!"* ]]; then
+      - name: Checkout release branch
+        uses: actions/checkout@v3
+        with:
+          ref: release
+
+      - name: Check release log
+        run: |
+          git log -1
+
+      - name: Count circular dependencies on release branch
+        id: coun-cyclic-deps-in-release
+        run: |
+          npx dpdm --circular > release_circular_deps.txt
+          release_count=$(cat release_circular_deps.txt | wc -l)
+          echo "release_count=$release_count" >> $GITHUB_OUTPUT
+
+      - name: Compare circular dependencies
+        id: compare-deps
+        run: |
+          release_count=${{ steps.coun-cyclic-deps-in-release.outputs.release_count }}
+          pr_count=${{ steps.count-cyclic-deps-in-pr.outputs.pr_count }}
+          diff=$((pr_count - release_count))
+
+          if [ "$diff" -gt 0 ]; then
             echo "has_more_cyclic_deps=true" >> "$GITHUB_OUTPUT"
+            echo "diff=$diff" >> "$GITHUB_OUTPUT"
           fi
 
       # Comment on the PR if cyclic dependencies are found
       - name: Comment the result on PR
-        if: steps.check_cyclic_deps.outputs.has_more_cyclic_deps == 'true'
+        if: steps.compare-deps.outputs.has_more_cyclic_deps == 'true'
         uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const prNumber = context.payload.pull_request.number;
-            const message = `⚠️ Cyclic Dependency Check:\n\nThis PR has increased the number of cyclic dependencies, when compared with the release branch.\n\nRefer [this document](https://appsmith.notion.site/How-to-check-cyclic-dependencies-c47b08fe5f2f4261a3a234b19e13f2db) to identify the cyclic dependencies introduced by this PR.`;
+            const message = `⚠️ Cyclic Dependency Check:\n\nThis PR has increased the number of cyclic dependencies by ${{steps.compare-deps.outputs.diff}}, when compared with the release branch.\n\nRefer [this document](https://appsmith.notion.site/How-to-check-cyclic-dependencies-c47b08fe5f2f4261a3a234b19e13f2db) to identify the cyclic dependencies introduced by this PR.`;
             github.issues.createComment({
               ...context.repo,
               issue_number: prNumber,
               body: message
             });
-
-      # Saving the cache to use it in subsequent runs
-      - name: Save Yarn cache
-        uses: actions/cache/save@v3
-        with:
-          path: app/client/.yarn/cache
-          key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
-
-      # Set status = success
-      - name: Save the status of the run
-        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
