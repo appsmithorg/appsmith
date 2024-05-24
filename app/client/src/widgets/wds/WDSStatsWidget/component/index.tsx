@@ -19,7 +19,6 @@ export const StatsComponent = (props: StatsComponentProps) => {
   return (
     <Flex
       alignItems="center"
-      data-clickable={onClick !== undefined ? "" : undefined}
       direction={iconAlign === "end" ? "row-reverse" : "row"}
       gap="spacing-2"
       isInner
