@@ -14,4 +14,5 @@ export const defaultsConfig = {
   caption: "This week",
   iconName: "shopping-bag",
   responsiveBehavior: ResponsiveBehavior.Fill,
+  elevatedBackground: false,
 } as unknown as WidgetDefaultProps;
