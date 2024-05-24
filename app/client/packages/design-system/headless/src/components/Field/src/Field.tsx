@@ -1,20 +1,35 @@
-import type { Ref } from "react";
+import type { ReactNode, Ref } from "react";
 import React, { forwardRef } from "react";
 import type { SpectrumFieldProps } from "@react-types/label";
 
 import { Label } from "./Label";
 import { HelpText } from "./HelpText";
-import type { StyleProps, ValidationState } from "@react-types/shared";
-
-export type FieldProps = Omit<
+export type FieldProps = Pick<
   SpectrumFieldProps,
-  "showErrorIcon" | "labelPosition" | "labelAlign" | keyof StyleProps
+  | "contextualHelp"
+  | "description"
+  | "descriptionProps"
+  | "elementType"
+  | "errorMessage"
+  | "errorMessageProps"
+  | "includeNecessityIndicatorInAccessibilityName"
+  | "isDisabled"
+  | "isRequired"
+  | "label"
+  | "labelProps"
+  | "necessityIndicator"
+  | "wrapperClassName"
+  | "wrapperProps"
 > & {
   fieldType?: "field" | "field-group";
   labelClassName?: string;
   helpTextClassName?: string;
   validationState?: ValidationState;
+  children: ReactNode;
+  isReadOnly?: boolean;
 };
+
+import type { ValidationState } from "@react-types/shared";
 
 export type FieldRef = Ref<HTMLDivElement>;
 
@@ -75,7 +90,9 @@ const _Field = (props: FieldProps, ref: FieldRef) => {
             includeNecessityIndicatorInAccessibilityName
           }
           isRequired={isRequired}
-          necessityIndicator={!Boolean(isReadOnly) && necessityIndicator}
+          necessityIndicator={
+            !Boolean(isReadOnly) ? necessityIndicator : undefined
+          }
         >
           <span>{label}</span>
         </Label>
