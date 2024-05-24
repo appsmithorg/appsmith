@@ -321,7 +321,9 @@ export class GitSync {
       assertCreateBranch &&
         this.assertHelper.AssertNetworkStatus("createBranch", 201);
       this.agHelper.AssertElementAbsence(
-        this.locator._specificToast(Cypress.env("MESSAGES").UNABLE_TO_IMPORT_APP()),
+        this.locator._specificToast(
+          Cypress.env("MESSAGES").UNABLE_TO_IMPORT_APP(),
+        ),
       );
       this.agHelper.WaitUntilEleAppear(this._branchName(branch + uid));
       this.agHelper.AssertElementVisibility(this._branchName(branch + uid));

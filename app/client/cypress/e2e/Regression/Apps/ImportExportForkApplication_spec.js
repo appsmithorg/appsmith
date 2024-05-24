@@ -36,7 +36,7 @@ describe(
         } else {
           cy.get(homePageLocatores.toastMessage).should(
             "contain",
-            Cypress.env("MESSAGES").IMPORT_APP_SUCCESSFUL()
+            Cypress.env("MESSAGES").IMPORT_APP_SUCCESSFUL(),
           );
         }
         agHelper.GenerateUUID();

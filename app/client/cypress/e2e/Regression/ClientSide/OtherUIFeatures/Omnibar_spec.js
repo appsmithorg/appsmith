@@ -31,7 +31,10 @@ describe("Omnibar functionality test cases", () => {
       .eq(1)
       .should("have.text", "Create new")
       .next()
-      .should("have.text", Cypress.env("MESSAGES").ACTION_OPERATION_DESCRIPTION());
+      .should(
+        "have.text",
+        Cypress.env("MESSAGES").ACTION_OPERATION_DESCRIPTION(),
+      );
     cy.get("body").type("{esc}");
   });
 

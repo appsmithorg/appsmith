@@ -25,7 +25,9 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-          Cypress.env("MESSAGES").EDITOR_PANE_TEXTS.widget_blank_state_description(),
+          Cypress.env(
+            "MESSAGES",
+          ).EDITOR_PANE_TEXTS.widget_blank_state_description(),
         ),
       );
       agHelper.AssertElementVisibility(
@@ -36,7 +38,9 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-          Cypress.env("MESSAGES").EDITOR_PANE_TEXTS.query_blank_state_description(),
+          Cypress.env(
+            "MESSAGES",
+          ).EDITOR_PANE_TEXTS.query_blank_state_description(),
         ),
       );
       agHelper.AssertElementVisibility(
@@ -53,7 +57,9 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.JS);
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-          Cypress.env("MESSAGES").EDITOR_PANE_TEXTS.js_blank_state_description(),
+          Cypress.env(
+            "MESSAGES",
+          ).EDITOR_PANE_TEXTS.js_blank_state_description(),
         ),
       );
       agHelper.AssertElementVisibility(

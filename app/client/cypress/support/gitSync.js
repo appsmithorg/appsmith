@@ -230,7 +230,10 @@ Cypress.Commands.add("gitDiscardChanges", () => {
   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
   cy.validateToastMessage("Discarded changes successfully.");
   cy.wait(2000);
-  assertHelper.AssertContains(Cypress.env("MESSAGES").UNABLE_TO_IMPORT_APP(), "not.exist");
+  assertHelper.AssertContains(
+    Cypress.env("MESSAGES").UNABLE_TO_IMPORT_APP(),
+    "not.exist",
+  );
 });
 
 Cypress.Commands.add(

@@ -641,7 +641,9 @@ export class HomePage {
       HomePageLocators.workspaceImportAppModal,
     );
     this.agHelper.AssertElementAbsence(
-      this.locator._specificToast(Cypress.env("MESSAGES").UNABLE_TO_IMPORT_APP()),
+      this.locator._specificToast(
+        Cypress.env("MESSAGES").UNABLE_TO_IMPORT_APP(),
+      ),
     );
   }
 
@@ -733,7 +735,9 @@ export class HomePage {
   }
 
   public AssertImportToast(timeout = 5000) {
-    this.agHelper.AssertContains(Cypress.env("MESSAGES").IMPORT_APP_SUCCESSFUL());
+    this.agHelper.AssertContains(
+      Cypress.env("MESSAGES").IMPORT_APP_SUCCESSFUL(),
+    );
     this.agHelper.Sleep(timeout); //for imported app to settle!
     cy.get(this.locator._loading).should("not.exist");
   }

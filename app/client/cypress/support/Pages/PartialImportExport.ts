@@ -86,7 +86,9 @@ export default class PartialImportExport {
       false,
     );
     this.agHelper.GetNClick(this.locators.export.modelContents.exportButton);
-    this.agHelper.FailIfErrorToast(Cypress.env("MESSAGES").ERROR_IN_EXPORTING_APP());
+    this.agHelper.FailIfErrorToast(
+      Cypress.env("MESSAGES").ERROR_IN_EXPORTING_APP(),
+    );
 
     cy.readFile(`cypress/downloads/${fixtureName}`).then((exportedFile) => {
       cy.fixture(`PartialImportExport/${fileNameToCompareWith}`).then(
@@ -208,6 +210,8 @@ export default class PartialImportExport {
       false,
     );
     this.agHelper.GetNClick(this.locators.export.modelContents.exportButton);
-    this.agHelper.FailIfErrorToast(Cypress.env("MESSAGES").ERROR_IN_EXPORTING_APP());
+    this.agHelper.FailIfErrorToast(
+      Cypress.env("MESSAGES").ERROR_IN_EXPORTING_APP(),
+    );
   }
 }
