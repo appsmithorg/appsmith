@@ -38,9 +38,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: release
-      - name: Check release log
-        run: |
-          git log -1
 
       - name: Count circular dependencies on release branch
         id: coun-cyclic-deps-in-release
