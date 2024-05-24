@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.ArtifactType;
@@ -29,6 +30,9 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
@@ -43,6 +47,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -178,6 +183,13 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     return clearTemplateApplicationDataCache(templateId)
                             .then(Mono.defer(() -> getApplicationByTemplateId(templateId, baseUrl)))
                             .map(CacheableApplicationJson::getApplicationJson);
+                })
+                .map(cacheableApplicationJson -> {
+                    Gson gson = new GsonBuilder()
+                            .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
+                            .create();
+                    Type fileType = new TypeToken<ApplicationJson>() {}.getType();
+                    return gson.fromJson(cacheableApplicationJson, fileType);
                 });
     }
 

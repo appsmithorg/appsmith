@@ -2,8 +2,6 @@ package com.appsmith.server.helpers;
 
 import com.appsmith.caching.annotations.Cache;
 import com.appsmith.caching.annotations.CacheEvict;
-import com.appsmith.external.converters.ISOStringToInstantConverter;
-import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.CacheableApplicationJson;
 import com.appsmith.server.dtos.CacheableApplicationTemplate;
@@ -11,9 +9,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ce.ApplicationTemplateServiceCEImpl;
 import com.appsmith.util.WebClientUtils;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -24,7 +19,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.lang.reflect.Type;
 import java.time.Instant;
 
 @AllArgsConstructor
@@ -84,14 +78,8 @@ public class CacheableTemplateHelper {
                 .retrieve()
                 .bodyToMono(String.class)
                 .map(jsonString -> {
-                    Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
-                            .create();
-                    Type fileType = new TypeToken<ApplicationJson>() {}.getType();
-
-                    ApplicationJson jsonFile = gson.fromJson(jsonString, fileType);
                     CacheableApplicationJson cacheableApplicationJson = new CacheableApplicationJson();
-                    cacheableApplicationJson.setApplicationJson(jsonFile);
+                    cacheableApplicationJson.setApplicationJson(jsonString);
                     cacheableApplicationJson.setLastUpdated(Instant.now());
                     return cacheableApplicationJson;
                 })
