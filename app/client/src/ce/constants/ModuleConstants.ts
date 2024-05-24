@@ -17,7 +17,8 @@ export interface ModuleInputSection {
   children?: ModuleInput[];
 }
 
-export interface Module {
+export interface Module
+  extends Pick<ModuleMetadata, "pluginId" | "pluginType" | "datasourceId"> {
   id: ID;
   name: string;
   packageId: ID;
