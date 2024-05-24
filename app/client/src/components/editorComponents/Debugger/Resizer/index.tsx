@@ -24,6 +24,7 @@ interface ResizerProps {
   snapToHeight?: number;
   openResizer?: boolean;
   initialHeight?: number;
+  minHeight?: number;
 }
 
 function Resizer(props: ResizerProps) {
@@ -52,13 +53,10 @@ function Resizer(props: ResizerProps) {
     const { height } = panel.getBoundingClientRect();
     const updatedHeight = height - movementY;
     const headerHeightNumber = 35;
-    const minHeight = parseInt(
-      window.getComputedStyle(panel).minHeight.replace("px", ""),
-    );
 
     if (
       updatedHeight < window.innerHeight - headerHeightNumber &&
-      updatedHeight > minHeight
+      updatedHeight > (props.minHeight || 0)
     ) {
       panel.style.height = `${height - movementY}px`;
       setHeight(height - movementY);

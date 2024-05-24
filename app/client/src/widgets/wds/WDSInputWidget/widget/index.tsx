@@ -76,6 +76,12 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     return {};
   }
 
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      defaultText: ["inputType"],
+    };
+  }
+
   onFocusChange = (focusState: boolean) => {
     if (focusState) {
       this.props.updateWidgetMetaProperty("isFocused", focusState, {
