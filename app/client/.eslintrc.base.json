@@ -7,8 +7,7 @@
     "jest.config.js",
     "jest.setup.ts",
     "rollup.config.js",
-    ".eslintrc.js",
-    "scripts/circular_deps_check.js"
+    ".eslintrc.js"
   ],
   "plugins": [
     "react",
