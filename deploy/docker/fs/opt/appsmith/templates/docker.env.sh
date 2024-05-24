@@ -61,7 +61,7 @@ APPSMITH_RECAPTCHA_SITE_KEY=
 APPSMITH_RECAPTCHA_SECRET_KEY=
 APPSMITH_RECAPTCHA_ENABLED=
 
-APPSMITH_DB_URL=postgresql://postgres:password@localhost:5432/postgres
+APPSMITH_DB_URL=postgresql://localhost:5432/postgres
 APPSMITH_API_BASE_URL=http://localhost:8080/api/v1
 
 APPSMITH_REDIS_URL=redis://127.0.0.1:6379
