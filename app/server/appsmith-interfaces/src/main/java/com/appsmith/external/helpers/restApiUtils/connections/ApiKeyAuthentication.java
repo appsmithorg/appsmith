@@ -17,6 +17,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Setter
 @Getter
@@ -68,19 +70,21 @@ public class ApiKeyAuthentication extends APIConnection {
             headerValue = this.headerPrefix.trim() + " ";
         }
         headerValue += this.value;
-
         return headerValue.trim();
     }
 
     private URI appendApiKeyParamToUrl(URI oldUrl) {
 
+        // encode to value to avoid error for value having special chars like "secret&another=123" here without encoding
+        // it will result it creating 2 queryParam.
+        String encodedValue = URLEncoder.encode(value, StandardCharsets.UTF_8);
         return UriComponentsBuilder.newInstance()
                 .scheme(oldUrl.getScheme())
                 .host(oldUrl.getHost())
                 .port(oldUrl.getPort())
                 .path(oldUrl.getPath())
                 .query(oldUrl.getQuery())
-                .queryParam(label, value)
+                .queryParam(label, encodedValue)
                 .fragment(oldUrl.getFragment())
                 .build()
                 .toUri();
