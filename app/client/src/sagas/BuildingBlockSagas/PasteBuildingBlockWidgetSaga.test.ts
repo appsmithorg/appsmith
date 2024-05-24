@@ -1,3 +1,9 @@
+import type {
+  AllEffect,
+  CallEffect,
+  PutEffect,
+  SelectEffect,
+} from "redux-saga/effects";
 import { call, select } from "redux-saga/effects";
 import { pasteBuildingBlockWidgetsSaga } from "./BuildingBlockAdditionSagas";
 import { getCopiedWidgets } from "utils/storage";
@@ -16,6 +22,7 @@ import {
   leftMostWidget,
   topMostWidget,
 } from "./pasteWidgetAddition.fixture";
+import type { NewPastePositionVariables } from "sagas/WidgetOperationUtils";
 
 // Mock data for testing
 const gridPosition = { top: 50, left: 500 };
@@ -23,14 +30,24 @@ const parentWidgetId = "parentWidgetId";
 
 const totalWidth = 31;
 const flexLayers: FlexLayer[] = [];
+type GeneratorType = Generator<
+  | CallEffect<NewPastePositionVariables>
+  | SelectEffect
+  | Promise<any>
+  | CallEffect<void>
+  | AllEffect<any>
+  | PutEffect<any>,
+  void,
+  unknown
+>;
 
 describe("pasteBuildingBlockWidgetsSaga", () => {
   const copiedWidgetsResponse = { widgets: copiedWidgets, flexLayers };
   it("should handle pasting into a valid parent widget", () => {
-    const generator = pasteBuildingBlockWidgetsSaga(
+    const generator: GeneratorType = pasteBuildingBlockWidgetsSaga(
       gridPosition,
       parentWidgetId,
-    ) as any;
+    );
 
     // Step 1: call getCopiedWidgets()
     let result = generator.next();
@@ -120,10 +137,10 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
   });
 
   it("should handle errors gracefully", () => {
-    const generator = pasteBuildingBlockWidgetsSaga(
+    const generator: GeneratorType = pasteBuildingBlockWidgetsSaga(
       { left: 0, top: 0 },
       "testParentId",
-    ) as any;
+    );
 
     generator.next();
     // Introduce an error by throwing one manually
