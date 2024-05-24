@@ -2,7 +2,7 @@ import type {
   BufferedReduxAction,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import { affectedJSObjectsFns } from "@appsmith/sagas/EvaluationsSagaUtils";
+import { AFFECTED_JS_OBJECTS_FNS } from "@appsmith/sagas/EvaluationsSagaUtils";
 import log from "loglevel";
 import type { DiffWithNewTreeState } from "workers/Evaluation/helpers";
 
@@ -53,7 +53,7 @@ export interface AffectedJSObjects {
 const mergeAffectedJSObjects = (
   action: ReduxAction<unknown> | BufferedReduxAction<unknown>,
 ) => {
-  return affectedJSObjectsFns.reduce(
+  return AFFECTED_JS_OBJECTS_FNS.reduce(
     (acc, affectedJSObjectsFn) => {
       // when either of the action isAllJSObjectsAffected return true.
       // In this case perform diff on all js objects

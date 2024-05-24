@@ -65,7 +65,7 @@ function getAffectedJSObjectIdsFromBufferedAction(
   );
 }
 
-export const affectedJSObjectsFns = [
+export const AFFECTED_JS_OBJECTS_FNS = [
   getAffectedJSObjectIdsFromJSAction,
   getAffectedJSObjectIdsFromBufferedAction,
 ];
