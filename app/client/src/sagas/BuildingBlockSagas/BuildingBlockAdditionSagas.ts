@@ -418,7 +418,6 @@ export function* pasteBuildingBlockWidgetsSaga(
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
 
-  // add another entry key and value to canvasWidgets
   try {
     const isThereACollision = false;
 
