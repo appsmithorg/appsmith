@@ -16,8 +16,8 @@ function create_new_relic_config_yml_file() {
 
     let data = fs.readFileSync(templatePath, "utf-8")
     
-    for (const key in values) {
-        data = data.replace(key, `'${values[key]}'`)
+    for (const [key, value] of Object.entries(values)) {
+        data = data.replace(key, value)
     }
     
     fs.writeFileSync(outputPath, data)

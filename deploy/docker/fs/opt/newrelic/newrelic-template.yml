@@ -13,7 +13,8 @@ common: &default_settings
   # account. For example, if your license key is 12345 use this:
   # license_key: '12345'
   # The key binds your agent's data to your account in the New Relic service.
-  license_key: $APPSMITH_NEW_RELIC_APM_LICENSE_KEY
+  license_key: |
+    $APPSMITH_NEW_RELIC_APM_LICENSE_KEY
 
   # Agent Enabled
   # Use this setting to disable the agent instead of removing it from the startup command.
@@ -29,7 +30,8 @@ common: &default_settings
   # app_name: My Application;My Application 2
   # This setting is required. Up to 3 different application names can be specified.
   # The first application name must be unique.
-  app_name: $APPSMITH_NEW_RELIC_APM_NAME
+  app_name: |
+    $APPSMITH_NEW_RELIC_APM_NAME
 
   # To enable high security, set this property to true. When in high
   # security mode, the agent will use SSL and obfuscated SQL. Additionally,
