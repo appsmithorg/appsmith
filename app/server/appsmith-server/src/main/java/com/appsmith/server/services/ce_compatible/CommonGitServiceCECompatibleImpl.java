@@ -7,7 +7,7 @@ import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
+import com.appsmith.server.helpers.ce.autocommit.GitAutoCommitHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AnalyticsService;
