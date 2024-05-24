@@ -9,4 +9,6 @@ public interface AutoCommitEventHandlerCE {
     void handle(AutoCommitEvent event);
 
     Mono<Boolean> autoCommitDSLMigration(AutoCommitEvent autoCommitEvent);
+
+    Mono<Boolean> autoCommitServerMigration(AutoCommitEvent autoCommitEvent);
 }
