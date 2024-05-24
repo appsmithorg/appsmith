@@ -399,7 +399,7 @@ export function* pasteBuildingBlockWidgetsSaga(
     top: number;
     left: number;
   },
-  parentWidgetId: string,
+  pastingIntoWidgetId: string,
 ) {
   const {
     flexLayers,
@@ -419,10 +419,7 @@ export function* pasteBuildingBlockWidgetsSaga(
   const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   // add another entry key and value to canvasWidgets
-
   try {
-    const pastingIntoWidgetId: string = parentWidgetId;
-
     const isThereACollision = false;
 
     if (
@@ -462,7 +459,6 @@ export function* pasteBuildingBlockWidgetsSaga(
       leftMostWidget.leftColumn,
       { gridPosition },
     );
-
     for (const widgetGroup of copiedWidgetGroups) {
       //This is required when you cut the widget as CanvasWidgetState doesn't have the widget anymore
       const widgetType = widgetGroup.list.find(
