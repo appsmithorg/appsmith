@@ -1,3 +1,5 @@
+import type { CopiedWidgetGroup } from "sagas/WidgetOperationUtils";
+
 export const leftMostWidget = {
   needsErrorInfo: false,
   boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
@@ -126,7 +128,7 @@ export const topMostWidget = {
   originalBottomRow: 64,
   minDynamicHeight: 10,
 };
-export const copiedWidgets = [
+export const copiedWidgets: CopiedWidgetGroup[] = [
   {
     hierarchy: 4,
     list: [

@@ -56,7 +56,6 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
       topMostWidget,
       totalWidth,
     };
-    const copiedWidgetGroups = copiedWidgets ? [...copiedWidgets] : [];
 
     const newPastingPositionMap = {
       ppci5prygm: {
@@ -80,7 +79,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
     expect(result.value).toEqual(
       call(
         getNewPositions,
-        copiedWidgetGroups as any,
+        copiedWidgets,
         boundaryWidgets.totalWidth,
         boundaryWidgets.topMostWidget.topRow,
         boundaryWidgets.leftMostWidget.leftColumn,
@@ -113,7 +112,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
 
     // Step 7: mock the entire copied widget handling logic
     for (let i = 0; i < newWidgetList.length; i++) {
-      result = generator.next({ pageId: "somePageId" });
+      result = generator.next({ pageId: "pageId" });
     }
 
     result = generator.next();
