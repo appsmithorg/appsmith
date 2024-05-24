@@ -384,6 +384,11 @@ class TenantServiceCETest {
                 .verifyComplete();
     }
 
+    /**
+     * This test checks that the tenant cache is created and data is fetched without any deserialization errors
+     * This will ensure if any new nested user-defined classes are created in the tenant object in the future, and
+     * implements serializable is missed for that class, the deserialization will fail leads this test to fail.
+     */
     @Test
     @WithUserDetails(value = "api_user")
     public void testDeserializationErrors() {
