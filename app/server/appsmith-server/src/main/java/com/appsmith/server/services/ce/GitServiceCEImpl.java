@@ -50,7 +50,7 @@ import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
+import com.appsmith.server.helpers.ce.autocommit.GitAutoCommitHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -3358,7 +3358,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<Boolean> autoCommitApplication(String defaultApplicationId, String branchName) {
-        return gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName);
+        return gitAutoCommitHelper.autoCommitClientMigration(defaultApplicationId, branchName);
     }
 
     @Override
