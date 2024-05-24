@@ -464,13 +464,21 @@ runEmbeddedPostgres=1
 init_postgres || runEmbeddedPostgres=0
 }
 
+setup_caddy() {
+  if [[ "$APPSMITH_RATE_LIMIT" == "disabled" ]]; then
+    export _APPSMITH_CADDY="/opt/caddy/caddy_vanilla"
+  else
+    export _APPSMITH_CADDY="/opt/caddy/caddy"
+  fi
+}
+
 init_loading_pages(){
   export XDG_DATA_HOME=/appsmith-stacks/data  # so that caddy saves tls certs and other data under stacks/data/caddy
   export XDG_CONFIG_HOME=/appsmith-stacks/configuration
   mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
   cp templates/loading.html "$WWW_PATH"
   node caddy-reconfigure.mjs
-  /opt/caddy/caddy start --config "$TMP/Caddyfile"
+  "$_APPSMITH_CADDY" start --config "$TMP/Caddyfile"
 }
 
 function setup_auto_heal(){
@@ -491,6 +499,7 @@ function capture_infra_details(){
 
 # Main Section
 print_appsmith_info
+setup_caddy
 init_loading_pages
 unset_unused_variables
 
