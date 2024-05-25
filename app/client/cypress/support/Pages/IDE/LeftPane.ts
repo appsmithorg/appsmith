@@ -1,5 +1,7 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
+import { PagePaneSegment } from "../EditorNavigation";
 import AddView from "./AddView";
+import FileTabs from "./FileTabs";
 import ListView from "./ListView";
 
 export class LeftPane {
@@ -15,8 +17,6 @@ export class LeftPane {
     activeItemSelector: "",
     selector: "",
   };
-
-  private addView: AddView;
   private listView: ListView;
 
   constructor(
@@ -29,7 +29,6 @@ export class LeftPane {
     this.segments = segments;
     this.locators.selector = selector;
     this.locators.activeItemSelector = activeItemSelector;
-    this.addView = new AddView();
     this.listView = new ListView();
   }
 
@@ -109,15 +108,15 @@ export class LeftPane {
   }
 
   public assertInAddView() {
-    this.addView.assertInAddView();
+    AddView.assertInAddView();
   }
 
   public closeAddView() {
-    this.addView.closeAddView();
+    AddView.closeAddView();
   }
 
-  public getCreateOptions() {
-    return this.addView.getCreateOptions();
+  public clickCreateOption(name: string) {
+    return AddView.clickCreateOption(name);
   }
 
   public assertInListView() {
