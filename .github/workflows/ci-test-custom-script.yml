@@ -278,6 +278,9 @@ jobs:
               echo "COMMIT_INFO_MESSAGE=$(echo "$eventCommit" | awk -F '\\\\n' '{print $1}' | sed 's/^"//;s/"$//')" >> $GITHUB_ENV
             fi
           fi
+      - name: Record start time
+        id: start-time
+        run: echo "START_TIME=$(date +%s)" >> $GITHUB_ENV
 
       - name: Run the cypress test
         uses: cypress-io/github-action@v6
@@ -352,6 +355,16 @@ jobs:
           config-file: cypress_ci_custom.config.ts
           working-directory: app/client
           env: "NODE_ENV=development"
+      
+      - name: Record end time and calculate duration
+        id: end-time
+        run: |
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - $START_TIME))
+          HOURS=$((DURATION / 3600))
+          MINUTES=$(( (DURATION % 3600) / 60 ))
+          SECONDS=$((DURATION % 60))
+          echo "DURATION=$(printf "%02d:%02d:%02d" $HOURS $MINUTES $SECONDS)" >> $GITHUB_ENV
 
       - name: Trim number of cypress log files
         if: failure()
@@ -420,6 +433,9 @@ jobs:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log
           overwrite: true
+
+      - name: Display test duration
+        run: 'echo "Test duration: ${{ env.DURATION }}"'
 
       # Set status = success
       - name: Save the status of the run
