@@ -559,7 +559,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         for (Map.Entry<Path<Object>, List<Pair<Expression<String>, Expression<String>>>> entry :
                 nestedFieldModifications.entrySet()) {
             final Path<Object> field = entry.getKey();
-            Expression<Object> finalExpression = field;
+            // If the existing field value is `null`, the `jsonb_set` function doesn't do anything and just returns
+            // `null`. So we have to "coalesce" it with an empty object, `{}`, which is the MongoDB behavior.
+            // This is documented behaviour in `jsonb_set`, of course!
+            // TODO(Shri): This still doesn't work for nested missing fields, also as documented. Solve when needed.
+            Expression<Object> finalExpression = cb.coalesce(field, cb.literal("{}"));
             for (Pair<Expression<String>, Expression<String>> pair : entry.getValue()) {
                 finalExpression =
                         cb.function("jsonb_set", Object.class, finalExpression, pair.getLeft(), pair.getRight());
