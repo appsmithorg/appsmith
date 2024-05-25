@@ -33,10 +33,20 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
                 var value = unit.value();
 
                 if (Objects.requireNonNull(op) == Op.EQUAL) {
-                    predicate = cb.equal(keyToExpression(String.class, root, cb, key), cb.literal(value));
+                    final Expression<String> field = keyToExpression(String.class, root, cb, key);
+                    // In Postgres `null = 1` is `null`, not `false`. But we want our `equal` operation to result in
+                    // `false` in that case. So we need the extra "null check" here.
+                    // We're relying on the fact that the `.equal` method has `@NonNull` on the value, so it can never
+                    // be null.
+                    predicate = cb.and(cb.isNotNull(field), cb.equal(field, cb.literal(value)));
 
                 } else if (Objects.requireNonNull(op) == Op.NOT_EQUAL) {
-                    predicate = cb.notEqual(root.get(key), cb.literal(value));
+                    final Expression<String> field = keyToExpression(String.class, root, cb, key);
+                    // In Postgres `null != 1` is `null`, not `false`. But we want our `notEqual` operation to result in
+                    // `false` in that case. So we need the extra "null check" here.
+                    // We're relying on the fact that the `.notEqual` method has `@NonNull` on the value, so it can
+                    // never be null.
+                    predicate = cb.or(cb.isNull(field), cb.notEqual(field, cb.literal(value)));
 
                 } else if (op == Op.EQ_IGNORE_CASE) {
                     predicate = cb.equal(cb.lower(root.get(key)), cb.literal(((String) value).toLowerCase()));
