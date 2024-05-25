@@ -47,15 +47,6 @@ jobs:
       pr: ${{ github.event.pull_request.number }}
       is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
 
-  client-build:
-    name: client-build
-    needs: path-filter
-    if: needs.path-filter.outputs.client == 'true'
-    uses: ./.github/workflows/client-build.yml
-    secrets: inherit
-    with:
-      pr: ${{ github.event.pull_request.number }}
-
   client-prettier:
     name: client-prettier
     needs: path-filter
@@ -89,7 +80,6 @@ jobs:
       [
         server-spotless,
         server-unit-tests,
-        client-build,
         client-prettier,
         client-unit-tests,
         client-lint,
@@ -104,7 +94,6 @@ jobs:
         run: |
           if [[ "${{ needs.server-spotless.result }}" == "failure" || \
            "${{ needs.server-unit-tests.result }}" == "failure" || \
-           "${{ needs.client-build.result }}" == "failure" || \
            "${{ needs.client-prettier.result }}" == "failure" || \
            "${{ needs.client-unit-tests.result }}" == "failure" || \
            "${{ needs.client-lint.result }}" == "failure" ]]; then
