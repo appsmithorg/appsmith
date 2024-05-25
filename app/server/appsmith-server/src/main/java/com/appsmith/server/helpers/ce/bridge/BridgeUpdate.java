@@ -5,6 +5,7 @@ import lombok.NonNull;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.function.IntPredicate;
 
 @Getter
 public class BridgeUpdate {
@@ -21,6 +22,10 @@ public class BridgeUpdate {
         if (key.contains("$")) {
             throw new UnsupportedOperationException(
                     "Conditionally setting nested field values in JSON columns, is not implemented yet, and isn't a priority today");
+        }
+        if (key.chars().filter((i) -> i == '.').count() > 1) {
+            throw new UnsupportedOperationException("Setting values at more than one level of nesting will not work, if first-level nested JSON field is missing in the JSONb data." +
+                " See https://github.com/appsmithorg/appsmith/commit/c7c93b2dfdd25f44fc721e018df05efcd9cc719a");
         }
         addOp(new SetOp(key, value));
         return this;
