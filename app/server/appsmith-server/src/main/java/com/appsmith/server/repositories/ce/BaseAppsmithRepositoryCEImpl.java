@@ -36,6 +36,7 @@ import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.annotations.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
@@ -52,6 +53,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -492,7 +494,23 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         cu.where(predicate);
 
-        for (BridgeUpdate.SetOp op : update.getSetOps()) {
+        // This piece of work is intended to handle multiple set operations on the same top-level field, but different
+        // JSON-nested fields.
+        // Example: Bridge.update().set("unpublishedAction.name", "new").set("unpublishedAction.something", "another");
+        // This should end up with SQL fragment like:
+        //   SET unpublished_action = jsonb_set(jsonb_set(unpublished_action, '{name}', 'new'), '{something}',
+        // 'another')
+        // And not:
+        //   SET unpublished_action = jsonb_set(unpublished_action, '{something}', 'another') and unpublished_action =
+        // jsonb_set(unpublished_action, '{name}', 'new')
+        // Which is invalid SQL since we're setting the same column twice.
+        // To solve this, we group these operations by the field name, and build that nested-looking `jsonb_set`
+        // calls expression after we're done with all the `SetOp`s.
+        // Not pretty, not simple, but hopefully will go away as we reduce our usage of nested JSON type columns.
+        final Map<Path<Object>, List<Pair<Expression<String>, Expression<String>>>> nestedFieldModifications =
+                new LinkedHashMap<>();
+
+        for (BridgeUpdate.SetOp op : update.getSetOps().values()) {
             String key = op.key();
             Object value = op.value();
 
@@ -507,14 +525,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     final Expression<String> path = cb.literal("{" + String.join(",", parts[1].split("\\.")) + "}");
 
                     try {
-                        cu.<Object>set(
-                                field,
-                                cb.function(
-                                        "jsonb_set",
-                                        Object.class,
-                                        field,
-                                        path,
-                                        cb.literal(objectMapper.writeValueAsString(value))));
+                        if (!nestedFieldModifications.containsKey(field)) {
+                            nestedFieldModifications.put(field, new ArrayList<>());
+                        }
+                        nestedFieldModifications
+                                .get(field)
+                                .add(Pair.of(path, cb.literal(objectMapper.writeValueAsString(value))));
                     } catch (JsonProcessingException e) {
                         throw new RuntimeException(e);
                     }
@@ -538,6 +554,17 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 // The type witness is necessary here to fix ambiguity regarding the method being called.
                 cu.<Object>set(root.get(key), root.get((String) value));
             }
+        }
+
+        for (Map.Entry<Path<Object>, List<Pair<Expression<String>, Expression<String>>>> entry :
+                nestedFieldModifications.entrySet()) {
+            final Path<Object> field = entry.getKey();
+            Expression<Object> finalExpression = field;
+            for (Pair<Expression<String>, Expression<String>> pair : entry.getValue()) {
+                finalExpression =
+                        cb.function("jsonb_set", Object.class, finalExpression, pair.getLeft(), pair.getRight());
+            }
+            cu.<Object>set(field, finalExpression);
         }
 
         return em.createQuery(cu).executeUpdate();
