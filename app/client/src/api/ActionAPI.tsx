@@ -7,7 +7,6 @@ import axios from "axios";
 import type { Action, ActionViewMode } from "entities/Action";
 import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
-import { omit } from "lodash";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
 import { wrapFnWithParentTraceContext } from "UITelemetry/generateTraces";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
@@ -193,11 +192,13 @@ class ActionAPI extends API {
       ActionAPI.apiUpdateCancelTokenSource.cancel();
     }
     ActionAPI.apiUpdateCancelTokenSource = axios.CancelToken.source();
-    let action = Object.assign({}, apiConfig);
+    const action: any = Object.assign({}, apiConfig);
     // While this line is not required, name can not be changed from this endpoint
     delete action.name;
     // Removing datasource storages from the action object since embedded datasources don't have storages
-    action = omit(action, ["datasource.datasourceStorages"]);
+    delete action.datasource?.datasourceStorages;
+    delete action.datasource?.isValid;
+    delete action.entityReferenceType;
     return API.put(`${ActionAPI.url}/${action.id}`, action, undefined, {
       cancelToken: ActionAPI.apiUpdateCancelTokenSource.token,
     });
