@@ -687,33 +687,34 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             CriteriaBuilder cb,
             Root<T> root,
             Predicate predicate) {
-
-        if (!permissionGroups.isEmpty()) {
-            Map<String, String> fnVars = new HashMap<>();
-            fnVars.put("p", permission.getValue());
-            final List<String> conditions = new ArrayList<>();
-            for (var i = 0; i < permissionGroups.size(); i++) {
-                fnVars.put("g" + i, permissionGroups.get(i));
-                conditions.add("@ == $g" + i);
-            }
-
-            try {
-                return cb.and(
-                        predicate,
-                        cb.isTrue(cb.function(
-                                "jsonb_path_exists",
-                                Boolean.class,
-                                root.get(PermissionGroup.Fields.policies),
-                                cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
-                                        + String.join(" || ", conditions) + ")))"),
-                                cb.literal(objectMapper.writeValueAsString(fnVars)))));
-            } catch (JsonProcessingException e) {
-                // This should never happen, were serializing a Map<String, String>, which ideally should
-                // never fail.
-                throw new RuntimeException(e);
-            }
+        if (permission != null && permissionGroups.isEmpty()) {
+            // TODO(Shri): Yes, this is an "always-fail" condition. We're working on whether we need it at all, on `release` branch.
+            return cb.and(cb.literal(1).isNull());
         }
-        return predicate;
+
+        Map<String, String> fnVars = new HashMap<>();
+        fnVars.put("p", permission.getValue());
+        final List<String> conditions = new ArrayList<>();
+        for (var i = 0; i < permissionGroups.size(); i++) {
+            fnVars.put("g" + i, permissionGroups.get(i));
+            conditions.add("@ == $g" + i);
+        }
+
+        try {
+            return cb.and(
+                    predicate,
+                    cb.isTrue(cb.function(
+                            "jsonb_path_exists",
+                            Boolean.class,
+                            root.get(PermissionGroup.Fields.policies),
+                            cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
+                                    + String.join(" || ", conditions) + ")))"),
+                            cb.literal(objectMapper.writeValueAsString(fnVars)))));
+        } catch (JsonProcessingException e) {
+            // This should never happen, were serializing a Map<String, String>, which ideally should
+            // never fail.
+            throw new RuntimeException(e);
+        }
     }
 
     /**

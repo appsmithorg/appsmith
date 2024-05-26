@@ -9,7 +9,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
-import com.appsmith.server.repositories.TenantRepository;
+import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.EnvManager;
@@ -57,7 +57,7 @@ class TenantServiceCETest {
     UserRepositoryCake userRepository;
 
     @Autowired
-    TenantRepository tenantRepository;
+    TenantRepositoryCake tenantRepository;
 
     @Autowired
     UserUtils userUtils;
@@ -73,8 +73,10 @@ class TenantServiceCETest {
         assert tenant != null;
         originalTenantConfiguration = tenant.getTenantConfiguration();
 
-        tenantRepository.updateAndReturn(
-                tenant.getId(), Bridge.update().set(Tenant.Fields.tenantConfiguration, null), Optional.empty());
+        tenantRepository
+                .updateAndReturn(
+                        tenant.getId(), Bridge.update().set(Tenant.Fields.tenantConfiguration, null), Optional.empty())
+                .block();
 
         // Make api_user super-user to test tenant admin functionality
         // Todo change this to tenant admin once we introduce multitenancy
@@ -88,7 +90,7 @@ class TenantServiceCETest {
     public void cleanup() {
         tenantService
                 .getDefaultTenant()
-                .map(tenant -> tenantRepository.updateAndReturn(
+                .flatMap(tenant -> tenantRepository.updateAndReturn(
                         tenant.getId(),
                         Bridge.update().set(Tenant.Fields.tenantConfiguration, originalTenantConfiguration),
                         Optional.empty()))
