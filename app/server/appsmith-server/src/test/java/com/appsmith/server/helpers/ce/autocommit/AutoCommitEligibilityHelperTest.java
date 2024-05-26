@@ -170,7 +170,7 @@ public class AutoCommitEligibilityHelperTest {
         gitArtifactMetadata.setBranchName(branchName);
 
         Mockito.when(commonGitFileUtils.getMetadataServerSchemaMigrationVersion(
-                        workspaceId, defaultApplicationId, branchName, repoName, ArtifactType.APPLICATION))
+                        workspaceId, defaultApplicationId, repoName, branchName, ArtifactType.APPLICATION))
                 .thenReturn(Mono.just(JsonSchemaVersions.serverVersion));
 
         Mono<Boolean> autoCommitTriggerDTOMono =
@@ -196,7 +196,7 @@ public class AutoCommitEligibilityHelperTest {
         gitArtifactMetadata.setBranchName(branchName);
 
         Mockito.when(commonGitFileUtils.getMetadataServerSchemaMigrationVersion(
-                        workspaceId, defaultApplicationId, branchName, repoName, ArtifactType.APPLICATION))
+                        workspaceId, defaultApplicationId, repoName, branchName, ArtifactType.APPLICATION))
                 .thenReturn(Mono.just(JsonSchemaVersions.serverVersion - 1));
 
         Mono<Boolean> autoCommitTriggerDTOMono =

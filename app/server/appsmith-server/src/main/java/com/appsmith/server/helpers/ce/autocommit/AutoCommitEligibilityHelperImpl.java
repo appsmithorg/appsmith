@@ -11,6 +11,7 @@ import com.appsmith.server.migrations.JsonSchemaVersions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -18,6 +19,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
+@Primary
 @Component
 @RequiredArgsConstructor
 public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibiltyHelper {
@@ -34,19 +36,22 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibiltyHelp
 
         return commonGitFileUtils
                 .getMetadataServerSchemaMigrationVersion(
-                        workspaceId, defaultApplicationId, branchName, repoName, ArtifactType.APPLICATION)
+                        workspaceId, defaultApplicationId, repoName, branchName, ArtifactType.APPLICATION)
                 .map(serverSchemaVersion -> {
-                    if (JsonSchemaVersions.serverVersion > serverSchemaVersion) {
-                        return TRUE;
-                    }
-
-                    return FALSE;
+                    log.info(
+                            "server schema for application id {} :  and branch name : {} is : {}",
+                            defaultApplicationId,
+                            branchName,
+                            serverSchemaVersion);
+                    return JsonSchemaVersions.serverVersion > serverSchemaVersion ? TRUE : FALSE;
                 })
+                .defaultIfEmpty(FALSE)
                 .onErrorResume(error -> {
                     log.debug(
-                            "error while retrieving the metadata for defaultApplicationId : {}, branchName : {}",
+                            "error while retrieving the metadata for defaultApplicationId : {}, branchName : {} error : {}",
                             defaultApplicationId,
-                            branchName);
+                            branchName,
+                            error.getMessage());
                     return Mono.just(FALSE);
                 });
     }
@@ -63,6 +68,7 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibiltyHelp
                     JSONObject layoutDsl = layout.getDsl();
                     return GitUtils.isMigrationRequired(layoutDsl, latestDslVersion);
                 })
+                .defaultIfEmpty(FALSE)
                 .onErrorResume(error -> {
                     log.debug("Error fetching latest DSL version");
                     return Mono.just(Boolean.FALSE);
@@ -72,21 +78,11 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibiltyHelp
     @Override
     public Mono<AutoCommitTriggerDTO> isAutoCommitRequired(
             String workspaceId, GitArtifactMetadata gitArtifactMetadata, PageDTO pageDTO) {
-        String defaultApplicationId = gitArtifactMetadata.getDefaultArtifactId();
-        String branchName = gitArtifactMetadata.getBranchName();
 
         Mono<Boolean> isClientAutocommitRequiredMono =
                 isClientMigrationRequired(pageDTO).defaultIfEmpty(FALSE);
 
-        Mono<Boolean> isServerAutocommitRequiredMono = isServerAutoCommitRequired(workspaceId, gitArtifactMetadata)
-                .defaultIfEmpty(FALSE)
-                .onErrorResume(error -> {
-                    log.debug(
-                            "Error in checking server migration for application id : {} branch name : {}",
-                            defaultApplicationId,
-                            branchName);
-                    return Mono.just(Boolean.FALSE);
-                });
+        Mono<Boolean> isServerAutocommitRequiredMono = isServerAutoCommitRequired(workspaceId, gitArtifactMetadata);
 
         return isServerAutocommitRequiredMono
                 .zipWith(isClientAutocommitRequiredMono)
