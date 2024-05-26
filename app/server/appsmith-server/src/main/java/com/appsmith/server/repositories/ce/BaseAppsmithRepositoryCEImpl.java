@@ -687,7 +687,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             CriteriaBuilder cb,
             Root<T> root,
             Predicate predicate) {
-        if (permission != null && permissionGroups.isEmpty()) {
+        if (permission == null) {
+            return predicate;
+        }
+
+        if (permissionGroups.isEmpty()) {
             // TODO(Shri): Yes, this is an "always-fail" condition. We're working on whether we need it at all, on `release` branch.
             return cb.and(cb.literal(1).isNull());
         }
