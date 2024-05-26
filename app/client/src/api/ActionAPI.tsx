@@ -1,3 +1,4 @@
+import type React from "react";
 import type { HttpMethod } from "api/Api";
 import API from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
@@ -11,33 +12,9 @@ import type { OtlpSpan } from "UITelemetry/generateTraces";
 import { wrapFnWithParentTraceContext } from "UITelemetry/generateTraces";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
-export interface CreateActionRequest<T> extends APIRequest {
-  datasourceId: string;
-  pageId: string;
-  name: string;
-  actionConfiguration: T;
-}
-
-export interface UpdateActionRequest<T> extends CreateActionRequest<T> {
-  actionId: string;
-}
-
 export interface Property {
   key: string;
   value?: string;
-}
-
-export interface BodyFormData {
-  editable: boolean;
-  mandatory: boolean;
-  description: string;
-  key: string;
-  value?: string;
-  type: string;
-}
-
-export interface QueryConfig {
-  queryString: string;
 }
 
 export type ActionCreateUpdateResponse = ApiResponse & {
@@ -64,10 +41,6 @@ export interface ExecuteActionRequest extends APIRequest {
   >;
   analyticsProperties?: Record<string, boolean>;
 }
-
-export type ExecuteActionResponse = ApiResponse & {
-  actionId: string;
-};
 
 export interface ActionApiResponseReq {
   headers: Record<string, string[]>;
@@ -133,11 +106,6 @@ export interface PluginErrorDetails {
 export interface MoveActionRequest {
   action: Action;
   destinationPageId: string;
-}
-
-export interface CopyActionRequest {
-  action: Action;
-  pageId: string;
 }
 
 export interface UpdateActionNameRequest {
