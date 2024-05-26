@@ -108,6 +108,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         if (permission == null) {
             return null;
         }
+
+        if (permissionGroups == null || permissionGroups.isEmpty()) {
+            // Just a check that's known to always fail. When permission groups is empty, the below `elemMatch`
+            // condition always fails. This is an experiment to confirm that in the product as well.
+            return Criteria.where("_id").isNull();
+        }
+
         // Check if the permission is being provided by any of the permission groups
         return Criteria.where(BaseDomain.Fields.policies)
                 .elemMatch(Criteria.where("permissionGroups")
