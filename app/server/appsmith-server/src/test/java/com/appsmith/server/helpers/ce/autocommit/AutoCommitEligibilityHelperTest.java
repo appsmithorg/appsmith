@@ -32,7 +32,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 public class AutoCommitEligibilityHelperTest {
 
     @SpyBean
-    AutoCommitEligibiltyHelper autoCommitEligibiltyHelper;
+    AutoCommitEligibilityHelper autoCommitEligibilityHelper;
 
     @SpyBean
     CommonGitFileUtils commonGitFileUtils;
@@ -48,15 +48,15 @@ public class AutoCommitEligibilityHelperTest {
         String workspaceId = UUID.randomUUID().toString();
 
         Mockito.doReturn(Mono.just(Boolean.TRUE))
-                .when(autoCommitEligibiltyHelper)
+                .when(autoCommitEligibilityHelper)
                 .isServerAutoCommitRequired(anyString(), any(GitArtifactMetadata.class));
 
         Mockito.doReturn(Mono.just(Boolean.TRUE))
-                .when(autoCommitEligibiltyHelper)
+                .when(autoCommitEligibilityHelper)
                 .isClientMigrationRequired(any(PageDTO.class));
 
         Mono<AutoCommitTriggerDTO> autoCommitTriggerDTOMono =
-                autoCommitEligibiltyHelper.isAutoCommitRequired(workspaceId, gitArtifactMetadata, pageDTO);
+                autoCommitEligibilityHelper.isAutoCommitRequired(workspaceId, gitArtifactMetadata, pageDTO);
 
         StepVerifier.create(autoCommitTriggerDTOMono)
                 .assertNext(autoCommitTriggerDTO -> {
@@ -77,15 +77,15 @@ public class AutoCommitEligibilityHelperTest {
         String workspaceId = UUID.randomUUID().toString();
 
         Mockito.doReturn(Mono.just(Boolean.FALSE))
-                .when(autoCommitEligibiltyHelper)
+                .when(autoCommitEligibilityHelper)
                 .isServerAutoCommitRequired(anyString(), any(GitArtifactMetadata.class));
 
         Mockito.doReturn(Mono.just(Boolean.FALSE))
-                .when(autoCommitEligibiltyHelper)
+                .when(autoCommitEligibilityHelper)
                 .isClientMigrationRequired(any(PageDTO.class));
 
         Mono<AutoCommitTriggerDTO> autoCommitTriggerDTOMono =
-                autoCommitEligibiltyHelper.isAutoCommitRequired(workspaceId, gitArtifactMetadata, pageDTO);
+                autoCommitEligibilityHelper.isAutoCommitRequired(workspaceId, gitArtifactMetadata, pageDTO);
 
         StepVerifier.create(autoCommitTriggerDTOMono)
                 .assertNext(autoCommitTriggerDTO -> {
@@ -106,15 +106,15 @@ public class AutoCommitEligibilityHelperTest {
         String workspaceId = UUID.randomUUID().toString();
 
         Mockito.doReturn(Mono.just(Boolean.FALSE))
-                .when(autoCommitEligibiltyHelper)
+                .when(autoCommitEligibilityHelper)
                 .isServerAutoCommitRequired(anyString(), any(GitArtifactMetadata.class));
 
         Mockito.doReturn(Mono.just(Boolean.TRUE))
-                .when(autoCommitEligibiltyHelper)
+                .when(autoCommitEligibilityHelper)
                 .isClientMigrationRequired(any(PageDTO.class));
 
         Mono<AutoCommitTriggerDTO> autoCommitTriggerDTOMono =
-                autoCommitEligibiltyHelper.isAutoCommitRequired(workspaceId, gitArtifactMetadata, pageDTO);
+                autoCommitEligibilityHelper.isAutoCommitRequired(workspaceId, gitArtifactMetadata, pageDTO);
 
         StepVerifier.create(autoCommitTriggerDTOMono)
                 .assertNext(autoCommitTriggerDTO -> {
@@ -135,15 +135,15 @@ public class AutoCommitEligibilityHelperTest {
         String workspaceId = UUID.randomUUID().toString();
 
         Mockito.doReturn(Mono.just(Boolean.TRUE))
-                .when(autoCommitEligibiltyHelper)
+                .when(autoCommitEligibilityHelper)
                 .isServerAutoCommitRequired(anyString(), any(GitArtifactMetadata.class));
 
         Mockito.doReturn(Mono.just(Boolean.FALSE))
-                .when(autoCommitEligibiltyHelper)
+                .when(autoCommitEligibilityHelper)
                 .isClientMigrationRequired(any(PageDTO.class));
 
         Mono<AutoCommitTriggerDTO> autoCommitTriggerDTOMono =
-                autoCommitEligibiltyHelper.isAutoCommitRequired(workspaceId, gitArtifactMetadata, pageDTO);
+                autoCommitEligibilityHelper.isAutoCommitRequired(workspaceId, gitArtifactMetadata, pageDTO);
 
         StepVerifier.create(autoCommitTriggerDTOMono)
                 .assertNext(autoCommitTriggerDTO -> {
@@ -174,7 +174,7 @@ public class AutoCommitEligibilityHelperTest {
                 .thenReturn(Mono.just(JsonSchemaVersions.serverVersion));
 
         Mono<Boolean> autoCommitTriggerDTOMono =
-                autoCommitEligibiltyHelper.isServerAutoCommitRequired(workspaceId, gitArtifactMetadata);
+                autoCommitEligibilityHelper.isServerAutoCommitRequired(workspaceId, gitArtifactMetadata);
 
         StepVerifier.create(autoCommitTriggerDTOMono)
                 .assertNext(isServerMigrationRequired ->
@@ -200,7 +200,7 @@ public class AutoCommitEligibilityHelperTest {
                 .thenReturn(Mono.just(JsonSchemaVersions.serverVersion - 1));
 
         Mono<Boolean> autoCommitTriggerDTOMono =
-                autoCommitEligibiltyHelper.isServerAutoCommitRequired(workspaceId, gitArtifactMetadata);
+                autoCommitEligibilityHelper.isServerAutoCommitRequired(workspaceId, gitArtifactMetadata);
 
         StepVerifier.create(autoCommitTriggerDTOMono)
                 .assertNext(isServerMigrationRequired ->
@@ -232,7 +232,7 @@ public class AutoCommitEligibilityHelperTest {
 
         Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(dslNumber));
 
-        Mono<Boolean> autoCommitTriggerDTOMono = autoCommitEligibiltyHelper.isClientMigrationRequired(pageDTO);
+        Mono<Boolean> autoCommitTriggerDTOMono = autoCommitEligibilityHelper.isClientMigrationRequired(pageDTO);
 
         StepVerifier.create(autoCommitTriggerDTOMono)
                 .assertNext(isClientMigrationRequired ->
@@ -247,7 +247,7 @@ public class AutoCommitEligibilityHelperTest {
 
         Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(dslNumber));
 
-        Mono<Boolean> autoCommitTriggerDTOMono = autoCommitEligibiltyHelper.isClientMigrationRequired(pageDTO);
+        Mono<Boolean> autoCommitTriggerDTOMono = autoCommitEligibilityHelper.isClientMigrationRequired(pageDTO);
 
         StepVerifier.create(autoCommitTriggerDTOMono)
                 .assertNext(isClientMigrationRequired ->

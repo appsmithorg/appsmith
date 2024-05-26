@@ -4,7 +4,7 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.dtos.PageDTO;
 import reactor.core.publisher.Mono;
 
-public interface AutoCommitEligibiltyHelper {
+public interface AutoCommitEligibilityHelper {
 
     Mono<Boolean> isServerAutoCommitRequired(String workspaceId, GitArtifactMetadata gitMetadata);
 

@@ -22,7 +22,7 @@ import static java.lang.Boolean.TRUE;
 @Primary
 @Component
 @RequiredArgsConstructor
-public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibiltyHelper {
+public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHelper {
 
     private final CommonGitFileUtils commonGitFileUtils;
     private final DSLMigrationUtils dslMigrationUtils;
