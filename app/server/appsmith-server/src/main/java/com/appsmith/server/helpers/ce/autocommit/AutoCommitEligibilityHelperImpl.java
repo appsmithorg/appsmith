@@ -1,12 +1,17 @@
 package com.appsmith.server.helpers.ce.autocommit;
 
+import com.appsmith.external.annotations.FeatureFlagged;
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitUtils;
+import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +19,10 @@ import net.minidev.json.JSONObject;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
+import static com.appsmith.server.helpers.GitUtils.MAX_RETRIES;
+import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -22,19 +30,35 @@ import static java.lang.Boolean.TRUE;
 @Primary
 @Component
 @RequiredArgsConstructor
-public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHelper {
+public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelperFallbackImpl
+        implements AutoCommitEligibilityHelper {
 
     private final CommonGitFileUtils commonGitFileUtils;
     private final DSLMigrationUtils dslMigrationUtils;
+    private final RedisUtils redisUtils;
+
+    private Mono<Boolean> addFileLock(String defaultApplicationId) {
+        return redisUtils
+                .addFileLock(defaultApplicationId)
+                .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
+                        .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
+                            throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
+                        }));
+    }
+
+    private Mono<Boolean> releaseFileLock(String defaultApplicationId) {
+        return redisUtils.releaseFileLock(defaultApplicationId);
+    }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_server_autocommit_feature_enabled)
     public Mono<Boolean> isServerAutoCommitRequired(String workspaceId, GitArtifactMetadata gitMetadata) {
 
         String defaultApplicationId = gitMetadata.getDefaultArtifactId();
         String branchName = gitMetadata.getBranchName();
         String repoName = gitMetadata.getRepoName();
 
-        return commonGitFileUtils
+        Mono<Boolean> isServerMigrationRequiredMonoCached = commonGitFileUtils
                 .getMetadataServerSchemaMigrationVersion(
                         workspaceId, defaultApplicationId, repoName, branchName, ArtifactType.APPLICATION)
                 .map(serverSchemaVersion -> {
@@ -46,17 +70,24 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibilityHel
                     return JsonSchemaVersions.serverVersion > serverSchemaVersion ? TRUE : FALSE;
                 })
                 .defaultIfEmpty(FALSE)
+                .cache();
+
+        return addFileLock(defaultApplicationId)
+                .then(Mono.defer(() -> isServerMigrationRequiredMonoCached))
+                .then(releaseFileLock(defaultApplicationId))
+                .then(isServerMigrationRequiredMonoCached)
                 .onErrorResume(error -> {
                     log.debug(
                             "error while retrieving the metadata for defaultApplicationId : {}, branchName : {} error : {}",
                             defaultApplicationId,
                             branchName,
                             error.getMessage());
-                    return Mono.just(FALSE);
+                    return releaseFileLock(defaultApplicationId).then(Mono.just(FALSE));
                 });
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     public Mono<Boolean> isClientMigrationRequired(PageDTO pageDTO) {
         return dslMigrationUtils
                 .getLatestDslVersion()
