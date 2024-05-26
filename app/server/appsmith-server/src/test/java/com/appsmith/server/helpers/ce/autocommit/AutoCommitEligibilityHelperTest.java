@@ -1,21 +1,28 @@
 package com.appsmith.server.helpers.ce.autocommit;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.ArtifactType;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.domains.Theme;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.FeatureFlagService;
+import com.appsmith.server.testhelpers.git.GitFileSystemTestHelper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
@@ -23,6 +30,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -46,6 +55,9 @@ public class AutoCommitEligibilityHelperTest {
 
     @MockBean
     RedisUtils redisUtils;
+
+    @Autowired
+    GitFileSystemTestHelper gitFileSystemTestHelper;
 
     private static final int RANDOM_DSL_VERSION_NUMBER = 123;
     private static final String REPO_NAME = "test-repo";
@@ -200,9 +212,11 @@ public class AutoCommitEligibilityHelperTest {
     public void isServerMigrationRequired_whenJsonSchemaIsNotAhead_returnsFalse() {
         GitArtifactMetadata gitArtifactMetadata = createGitMetadata();
 
-        Mockito.when(commonGitFileUtils.getMetadataServerSchemaMigrationVersion(
-                        WORKSPACE_ID, DEFAULT_APPLICATION_ID, REPO_NAME, BRANCH_NAME, ArtifactType.APPLICATION))
-                .thenReturn(Mono.just(JsonSchemaVersions.serverVersion));
+        // this leads to server migration requirement as false
+        Mockito.doReturn(Mono.just(JsonSchemaVersions.serverVersion))
+                .when(commonGitFileUtils)
+                .getMetadataServerSchemaMigrationVersion(
+                        WORKSPACE_ID, DEFAULT_APPLICATION_ID, REPO_NAME, BRANCH_NAME, ArtifactType.APPLICATION);
 
         Mono<Boolean> isServerMigrationRequiredMono =
                 autoCommitEligibilityHelper.isServerAutoCommitRequired(WORKSPACE_ID, gitArtifactMetadata);
@@ -217,9 +231,11 @@ public class AutoCommitEligibilityHelperTest {
     public void isServerMigrationRequired_whenJsonSchemaIsAhead_returnsTrue() {
         GitArtifactMetadata gitArtifactMetadata = createGitMetadata();
 
-        Mockito.when(commonGitFileUtils.getMetadataServerSchemaMigrationVersion(
-                        WORKSPACE_ID, DEFAULT_APPLICATION_ID, REPO_NAME, BRANCH_NAME, ArtifactType.APPLICATION))
-                .thenReturn(Mono.just(JsonSchemaVersions.serverVersion - 1));
+        // this leads to server migration requirement as true
+        Mockito.doReturn(Mono.just(JsonSchemaVersions.serverVersion - 1))
+                .when(commonGitFileUtils)
+                .getMetadataServerSchemaMigrationVersion(
+                        WORKSPACE_ID, DEFAULT_APPLICATION_ID, REPO_NAME, BRANCH_NAME, ArtifactType.APPLICATION);
 
         Mono<Boolean> isServerMigrationRequiredMono =
                 autoCommitEligibilityHelper.isServerAutoCommitRequired(WORKSPACE_ID, gitArtifactMetadata);
@@ -287,7 +303,7 @@ public class AutoCommitEligibilityHelperTest {
     }
 
     @Test
-    public void isAutoCommit_whenFeatureIsFlagFalse_returnsAllFalse() {
+    public void isAutoCommitRequired_whenFeatureIsFlagFalse_returnsAllFalse() {
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.FALSE));
 
@@ -309,5 +325,46 @@ public class AutoCommitEligibilityHelperTest {
                             .isFalse();
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void isServerMigrationRequired_fileSystemOperation_returnsTrue() throws GitAPIException, IOException {
+        ApplicationJson applicationJson = new ApplicationJson();
+
+        Application application = new Application();
+        application.setPolicies(new HashSet<>());
+
+        applicationJson.setExportedApplication(application);
+        applicationJson.setDatasourceList(List.of());
+        applicationJson.setActionCollectionList(List.of());
+        applicationJson.setActionList(List.of());
+        applicationJson.setCustomJSLibList(List.of());
+        applicationJson.setPageList(List.of());
+        applicationJson.setPublishedTheme(new Theme());
+        applicationJson.setEditModeTheme(new Theme());
+        applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+        applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion - 1);
+
+        ModifiedResources modifiedResources = new ModifiedResources();
+        modifiedResources.setAllModified(true);
+        applicationJson.setModifiedResources(new ModifiedResources());
+
+        GitArtifactMetadata gitArtifactMetadata = createGitMetadata();
+
+        try {
+            gitFileSystemTestHelper.setupGitRepository(
+                    WORKSPACE_ID, DEFAULT_APPLICATION_ID, BRANCH_NAME, REPO_NAME, applicationJson);
+
+            Mono<Boolean> isServerMigrationRequiredMono =
+                    autoCommitEligibilityHelper.isServerAutoCommitRequired(WORKSPACE_ID, gitArtifactMetadata);
+
+            StepVerifier.create(isServerMigrationRequiredMono)
+                    .assertNext(isServerMigrationRequired ->
+                            assertThat(isServerMigrationRequired).isTrue())
+                    .verifyComplete();
+
+        } finally {
+            gitFileSystemTestHelper.deleteWorkspaceDirectory(WORKSPACE_ID);
+        }
     }
 }
