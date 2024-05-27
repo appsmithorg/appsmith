@@ -114,8 +114,6 @@ class TenantServiceCETest {
                     System.err.println("Error during cleanup: " + error.getMessage());
                 })
                 .block();
-        // cleaning up all tenant cache after each test to avoid interference between tests
-        cacheManager.evictAll("tenant").block();
     }
 
     @Test
