@@ -4,11 +4,7 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.dtos.EntityType;
-import com.appsmith.server.dtos.LayoutDTO;
-import com.appsmith.server.dtos.RefactorEntityNameDTO;
-import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
+import com.appsmith.server.dtos.*;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutService;
@@ -17,14 +13,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Mono;
 
 @RequestMapping(Url.LAYOUT_URL)
@@ -43,16 +32,6 @@ public class LayoutControllerCE {
         this.service = layoutService;
         this.updateLayoutService = updateLayoutService;
         this.refactoringService = refactoringService;
-    }
-
-    @JsonView(Views.Public.class)
-    @PostMapping("/pages/{defaultPageId}")
-    public Mono<ResponseDTO<Layout>> createLayout(
-            @PathVariable String defaultPageId,
-            @Valid @RequestBody Layout layout,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return service.createLayout(defaultPageId, layout, branchName)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
