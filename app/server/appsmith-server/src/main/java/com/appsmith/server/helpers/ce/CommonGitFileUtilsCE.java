@@ -40,6 +40,7 @@ import java.util.Map;
 import static com.appsmith.git.constants.CommonConstants.CLIENT_SCHEMA_VERSION;
 import static com.appsmith.git.constants.CommonConstants.FILE_FORMAT_VERSION;
 import static com.appsmith.git.constants.CommonConstants.SERVER_SCHEMA_VERSION;
+import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -283,7 +284,11 @@ public class CommonGitFileUtilsCE {
     }
 
     public Mono<Map<String, Integer>> reconstructMetadataFromRepo(
-            String workspaceId, String applicationId, String repoName, String branchName, Path baseRepoSuffix) {
+            String workspaceId, String applicationId, String repoName, String branchName, ArtifactType artifactType) {
+
+        ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
+        Path baseRepoSuffix = artifactGitFileUtils.getRepoSuffixPath(workspaceId, applicationId, repoName);
+
         return fileUtils
                 .reconstructMetadataFromGitRepo(workspaceId, applicationId, repoName, branchName, baseRepoSuffix)
                 .onErrorResume(error -> Mono.error(
@@ -301,6 +306,46 @@ public class CommonGitFileUtilsCE {
                     metadataMap.put(CLIENT_SCHEMA_VERSION, clientSchemaVersion);
                     metadataMap.put(FILE_FORMAT_VERSION, fileFormatVersion);
                     return metadataMap;
+                });
+    }
+
+    /**
+     * Provides the server schema version in the application json for the given branch
+     *
+     * @param workspaceId       : workspaceId of the artifact
+     * @param defaultArtifactId : default branch id of the artifact
+     * @param repoName          : repository name
+     * @param branchName        : current branch name of the artifact
+     * @param artifactType      : artifact type of this operation
+     * @return the server schema migration version number
+     */
+    public Mono<Integer> getMetadataServerSchemaMigrationVersion(
+            String workspaceId,
+            String defaultArtifactId,
+            String repoName,
+            String branchName,
+            ArtifactType artifactType) {
+
+        if (!hasText(workspaceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
+
+        if (!hasText(defaultArtifactId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ARTIFACT_ID));
+        }
+
+        if (!hasText(branchName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
+        }
+
+        if (!hasText(repoName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.REPO_NAME));
+        }
+
+        return reconstructMetadataFromRepo(workspaceId, defaultArtifactId, repoName, branchName, artifactType)
+                .map(metadataMap -> {
+                    return metadataMap.getOrDefault(
+                            CommonConstants.SERVER_SCHEMA_VERSION, JsonSchemaVersions.serverVersion);
                 });
     }
 

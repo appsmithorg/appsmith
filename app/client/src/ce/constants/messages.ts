@@ -2514,3 +2514,6 @@ export const BETA_TAG = () => `Beta`;
 export const BUTTON_WIDGET_DEFAULT_LABEL = () => "Do something";
 
 export const PAGE_ENTITY_NAME = "Page";
+
+export const EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON = () =>
+  "Create a datasource to power your app with data.";

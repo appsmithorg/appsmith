@@ -12,7 +12,6 @@ import jakarta.validation.ValidatorFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.maven.artifact.versioning.ComparableVersion;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -138,16 +137,6 @@ public class CommonConfig {
     public void setSignupDisabled(@Value("${signup.disabled}") String value) {
         // If `true`, then disable signup. If anything else, including empty string, then signups will be enabled.
         isSignupDisabled = "true".equalsIgnoreCase(value);
-    }
-
-    public boolean isMongoUptoDate() {
-        ComparableVersion minSupportedVersion = new ComparableVersion(MIN_SUPPORTED_MONGODB_VERSION);
-        ComparableVersion connectedMongoVersion = new ComparableVersion(mongoDBVersion);
-        return minSupportedVersion.compareTo(connectedMongoVersion) <= 0;
-    }
-
-    public boolean isConnectedMongoVersionAvailable() {
-        return mongoDBVersion != null;
     }
 
     public Long getCurrentTimeInstantEpochMilli() {

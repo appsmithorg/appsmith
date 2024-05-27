@@ -155,7 +155,7 @@ const SettingsWrapper = styled.div`
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 135px);
+  height: 100%;
   position: relative;
 `;
 

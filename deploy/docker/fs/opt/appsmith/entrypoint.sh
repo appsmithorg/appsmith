@@ -168,11 +168,28 @@ unset_unused_variables() {
   fi
 }
 
-check_mongodb_uri() {
-  echo "Checking APPSMITH_MONGODB_URI"
+configure_database_connection_url() {
+  echo "Configuring database connection URL"
+  isPostgresUrl=0
+  isMongoUrl=0
+  # Check if APPSMITH_DB_URL is not set
+  if [[ -z "${APPSMITH_DB_URL}" ]]; then
+    # If APPSMITH_DB_URL is not set, fall back to APPSMITH_MONGODB_URI
+    export APPSMITH_DB_URL="${APPSMITH_MONGODB_URI}"
+  fi
+
+  if [[ "${APPSMITH_DB_URL}" == "postgresql:"* ]]; then
+    isPostgresUrl=1
+  elif [[ "${APPSMITH_DB_URL}" == "mongodb"* ]]; then
+    isMongoUrl=1
+  fi
+}
+
+check_db_uri() {
+  echo "Checking APPSMITH_DB_URL"
   isUriLocal=1
-  if [[ $APPSMITH_MONGODB_URI == *"localhost"* || $APPSMITH_MONGODB_URI == *"127.0.0.1"* ]]; then
-    echo "Detected local MongoDB"
+  if [[ $APPSMITH_DB_URL == *"localhost"* || $APPSMITH_DB_URL == *"127.0.0.1"* ]]; then
+    echo "Detected local DB"
     isUriLocal=0
   fi
 }
@@ -239,7 +256,7 @@ init_replica_set() {
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$MONGODB_TMP_KEY_PATH" --bind_ip localhost
     echo "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
-    mongosh "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
+    mongosh "$APPSMITH_DB_URL" --eval 'rs.initiate()'
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
   fi
 
@@ -447,13 +464,21 @@ runEmbeddedPostgres=1
 init_postgres || runEmbeddedPostgres=0
 }
 
+setup_caddy() {
+  if [[ "$APPSMITH_RATE_LIMIT" == "disabled" ]]; then
+    export _APPSMITH_CADDY="/opt/caddy/caddy_vanilla"
+  else
+    export _APPSMITH_CADDY="/opt/caddy/caddy"
+  fi
+}
+
 init_loading_pages(){
   export XDG_DATA_HOME=/appsmith-stacks/data  # so that caddy saves tls certs and other data under stacks/data/caddy
   export XDG_CONFIG_HOME=/appsmith-stacks/configuration
   mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
   cp templates/loading.html "$WWW_PATH"
   node caddy-reconfigure.mjs
-  /opt/caddy/caddy start --config "$TMP/Caddyfile"
+  "$_APPSMITH_CADDY" start --config "$TMP/Caddyfile"
 }
 
 function setup_auto_heal(){
@@ -474,14 +499,23 @@ function capture_infra_details(){
 
 # Main Section
 print_appsmith_info
+setup_caddy
 init_loading_pages
 unset_unused_variables
 
-check_mongodb_uri
+configure_database_connection_url
+check_db_uri
+# Don't run MongoDB if running in a Heroku dyno.
 if [[ -z "${DYNO}" ]]; then
-  # Don't run MongoDB if running in a Heroku dyno.
-  init_mongodb
-  init_replica_set
+  if [[ $isMongoUrl -eq 1 ]]; then
+    # Setup MongoDB and initialize replica set
+    echo "Initializing MongoDB"
+    init_mongodb
+    init_replica_set
+  elif [[ $isPostgresUrl -eq 1 ]]; then
+    echo "Initializing Postgres"
+    # init_postgres
+  fi
 else
   # These functions are used to limit heap size for Backend process when deployed on Heroku
   get_maximum_heap
