@@ -6,12 +6,10 @@ import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitUtils;
-import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,10 +17,7 @@ import net.minidev.json.JSONObject;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
-import reactor.util.retry.Retry;
 
-import static com.appsmith.server.helpers.GitUtils.MAX_RETRIES;
-import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -35,20 +30,7 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
 
     private final CommonGitFileUtils commonGitFileUtils;
     private final DSLMigrationUtils dslMigrationUtils;
-    private final RedisUtils redisUtils;
-
-    private Mono<Boolean> addFileLock(String defaultApplicationId) {
-        return redisUtils
-                .addFileLock(defaultApplicationId)
-                .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
-                        .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
-                            throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
-                        }));
-    }
-
-    private Mono<Boolean> releaseFileLock(String defaultApplicationId) {
-        return redisUtils.releaseFileLock(defaultApplicationId);
-    }
+    private final GitRedisUtils gitRedisUtils;
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_server_autocommit_feature_enabled)
@@ -72,9 +54,9 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
                 .defaultIfEmpty(FALSE)
                 .cache();
 
-        return addFileLock(defaultApplicationId)
+        return Mono.defer(() -> gitRedisUtils.addFileLock(defaultApplicationId))
                 .then(Mono.defer(() -> isServerMigrationRequiredMonoCached))
-                .then(releaseFileLock(defaultApplicationId))
+                .then(Mono.defer(() -> gitRedisUtils.releaseFileLock(defaultApplicationId)))
                 .then(isServerMigrationRequiredMonoCached)
                 .onErrorResume(error -> {
                     log.debug(
@@ -82,7 +64,7 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
                             defaultApplicationId,
                             branchName,
                             error.getMessage());
-                    return releaseFileLock(defaultApplicationId).then(Mono.just(FALSE));
+                    return gitRedisUtils.releaseFileLock(defaultApplicationId).then(Mono.just(FALSE));
                 });
     }
 
