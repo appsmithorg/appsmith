@@ -13,8 +13,10 @@ import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type {
   DataTreeEntityConfig,
   DataTreeEntityObject,
+  JSActionEntity,
 } from "@appsmith/entities/DataTree/types";
 import { isObject } from "lodash";
+import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 
 export function getFixedTimeDifference(endTime: number, startTime: number) {
   return (endTime - startTime).toFixed(2) + " ms";
@@ -80,4 +82,31 @@ export function getValidEntityType(
       (!!entityConfig && entityConfig.ENTITY_TYPE) || entity.ENTITY_TYPE;
   }
   return !!entityType ? entityType : "noop";
+}
+
+// in this function we are filtering out only the JSObjects that are affected by the changes
+// through this we limit the number of JSObjects that are diffed
+export function getOnlyAffectedJSObjects(
+  jsDataTree: Record<string, JSActionEntity>,
+  affectedJSObjects: AffectedJSObjects,
+) {
+  const { ids, isAllAffected } = affectedJSObjects;
+  if (isAllAffected) {
+    return jsDataTree;
+  }
+  if (!ids || ids.length === 0) {
+    return {};
+  }
+  const idsSet = new Set(ids);
+  return Object.keys(jsDataTree).reduce(
+    (acc, key) => {
+      const { actionId } = jsDataTree[key];
+      //only matching action id will be included in the reduced jsDataTree
+      if (idsSet.has(actionId)) {
+        acc[key] = jsDataTree[key];
+      }
+      return acc;
+    },
+    {} as Record<string, JSActionEntity>,
+  );
 }

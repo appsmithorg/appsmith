@@ -15,7 +15,7 @@ import type {
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { klona } from "klona";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
-import evaluateSync from "../evaluate";
+import evaluateSync, { setEvalContext } from "../evaluate";
 import type { DescendantWidgetMap } from "sagas/WidgetOperationUtils";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
@@ -125,6 +125,14 @@ function resetWidgetMetaProperty(
         } else {
           finalValue = klona(expressionToEvaluate);
         }
+
+        // Switch back to async evaluation once done with sync tasks.
+        setEvalContext({
+          dataTree: evalTree,
+          configTree: dataTreeEvaluator.getConfigTree(),
+          isDataField: false,
+          isTriggerBased: true,
+        });
 
         const parsedValue = validateAndParseWidgetProperty({
           fullPropertyPath: `${widget.widgetName}.${defaultPropertyPath}`,

@@ -1,0 +1,74 @@
+@import "../../../shared/colors/colors.module.css";
+
+.toolbarButtons {
+  display: flex;
+  width: 100%;
+
+  & :is([data-separator]) {
+    min-inline-size: var(--sizing-5);
+    min-block-size: var(--sizing-5);
+  }
+
+  & [data-separator]:is(:first-child, :last-child),
+  &:has([data-action-group-menu]) [data-separator]:nth-last-child(2) {
+    display: none;
+  }
+
+  [data-button]:not(:last-of-type) {
+    /*
+     We use !important here to be sure that button width and the logic of useToolbarButtons hook will not be changed from the outside
+    */
+    min-inline-size: fit-content !important;
+  }
+
+  &:has([data-action-group-menu]) [data-button]:nth-last-child(2) {
+    min-inline-size: var(--sizing-18) !important;
+  }
+
+  &[data-alignment="start"] {
+    justify-content: flex-start;
+  }
+
+  &[data-alignment="end"] {
+    justify-content: flex-end;
+  }
+
+  &:not([data-density="compact"]) {
+    gap: var(--inner-spacing-2);
+  }
+
+  &[data-density="compact"] {
+    /* increasing z index to make sure the focused button is on top of the others */
+    & [data-button]:not([data-disabled]):focus-visible {
+      z-index: 1;
+    }
+
+    & [data-button]:first-child {
+      border-bottom-right-radius: 0;
+    }
+
+    & [data-button]:last-of-type {
+      border-top-left-radius: 0;
+    }
+
+    & [data-button]:not(:first-child):not(:last-of-type) {
+      border-radius: 0;
+    }
+
+    & [data-button]:not(:last-of-type) {
+      border-right-width: var(--border-width-1);
+    }
+
+    & [data-button]:first-child {
+      border-top-right-radius: 0;
+    }
+
+    & [data-button]:last-of-type {
+      border-bottom-left-radius: 0;
+    }
+
+    & [data-variant="outlined"] {
+      margin-right: calc(-1 * var(--border-width-1));
+    }
+  }
+}

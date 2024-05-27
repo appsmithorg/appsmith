@@ -110,7 +110,11 @@ import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchFeatureFlagsInit } from "actions/userActions";
-import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
+import type { AffectedJSObjects } from "./EvaluationsSagaUtils";
+import {
+  getAffectedJSObjectIdsFromAction,
+  parseUpdatesAndDeleteUndefinedUpdates,
+} from "./EvaluationsSagaUtils";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSelectors";
 import { evalErrorHandler } from "./EvalErrorHandler";
@@ -263,6 +267,7 @@ export function* evaluateTreeSaga(
   shouldReplay = true,
   forceEvaluation = false,
   requiresLogging = false,
+  affectedJSObjects: AffectedJSObjects = defaultAffectedJSObjects,
 ) {
   const allActionValidationConfig: ReturnType<
     typeof getAllActionValidationConfig
@@ -299,6 +304,7 @@ export function* evaluateTreeSaga(
     widgetsMeta,
     shouldRespondWithLogs,
     cachedDependencyMap,
+    affectedJSObjects,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -498,15 +504,44 @@ export function* validateProperty(
   return response;
 }
 
-function evalQueueBuffer() {
+// We are clubbing all pending action's affected JS objects into the buffered action
+// So that during that evaluation cycle all affected JS objects are correctly diffed
+function mergeJSBufferedActions(
+  prevAffectedJSAction: AffectedJSObjects,
+  newAffectedJSAction: AffectedJSObjects,
+) {
+  if (prevAffectedJSAction.isAllAffected || newAffectedJSAction.isAllAffected) {
+    return {
+      isAllAffected: true,
+      ids: [],
+    };
+  }
+  return {
+    isAllAffected: false,
+    ids: [...prevAffectedJSAction.ids, ...newAffectedJSAction.ids],
+  };
+}
+export const defaultAffectedJSObjects: AffectedJSObjects = {
+  isAllAffected: false,
+  ids: [],
+};
+export function evalQueueBuffer() {
   let canTake = false;
   let collectedPostEvalActions: any = [];
+  let collectedAffectedJSObjects: AffectedJSObjects = defaultAffectedJSObjects;
+
   const take = () => {
     if (canTake) {
       const resp = collectedPostEvalActions;
       collectedPostEvalActions = [];
+      const affectedJSObjects = collectedAffectedJSObjects;
+      collectedAffectedJSObjects = defaultAffectedJSObjects;
       canTake = false;
-      return { postEvalActions: resp, type: ReduxActionTypes.BUFFERED_ACTION };
+      return {
+        postEvalActions: resp,
+        affectedJSObjects,
+        type: ReduxActionTypes.BUFFERED_ACTION,
+      };
     }
   };
   const flush = () => {
@@ -522,6 +557,13 @@ function evalQueueBuffer() {
       return;
     }
     canTake = true;
+    // extract the affected JS action ids from the action and pass them
+    //  as a part of the buffered action
+    const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
+    collectedAffectedJSObjects = mergeJSBufferedActions(
+      collectedAffectedJSObjects,
+      affectedJSObjects,
+    );
 
     const postEvalActions = getPostEvalActions(action);
     collectedPostEvalActions.push(...postEvalActions);
@@ -571,10 +613,12 @@ function* evalAndLintingHandler(
     shouldReplay: boolean;
     forceEvaluation: boolean;
     requiresLogging: boolean;
+    affectedJSObjects: AffectedJSObjects;
   }>,
 ) {
   const span = startRootSpan("evalAndLintingHandler");
-  const { forceEvaluation, requiresLogging, shouldReplay } = options;
+  const { affectedJSObjects, forceEvaluation, requiresLogging, shouldReplay } =
+    options;
 
   const requiresLinting = getRequiresLinting(action);
 
@@ -608,6 +652,7 @@ function* evalAndLintingHandler(
         shouldReplay,
         forceEvaluation,
         requiresLogging,
+        affectedJSObjects,
       ),
     );
   }
@@ -659,19 +704,30 @@ function* evaluationChangeListenerSaga(): any {
   yield fork(evalAndLintingHandler, false, initAction, {
     shouldReplay: false,
     forceEvaluation: false,
+    // during startup all JS objects are affected
+    affectedJSObjects: {
+      ids: [],
+      isAllAffected: true,
+    },
   });
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
     EVAL_AND_LINT_REDUX_ACTIONS,
     evalQueueBuffer(),
   );
+
   while (true) {
     const action: EvaluationReduxAction<unknown | unknown[]> =
       yield take(evtActionChannel);
+
+    // We are dequing actions from the buffer and inferring the JS actions affected by each
+    // action. Through this we know ahead the nodes we need to specifically diff, thereby improving performance.
+    const affectedJSObjects = getAffectedJSObjectIdsFromAction(action);
 
     yield call(evalAndLintingHandler, true, action, {
       shouldReplay: get(action, "payload.shouldReplay"),
       forceEvaluation: shouldForceEval(action),
       requiresLogging: shouldLog(action),
+      affectedJSObjects,
     });
   }
 }

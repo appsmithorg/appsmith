@@ -156,7 +156,7 @@ jobs:
           path: ~/combined_failed_spec_ci
           overwrite: true
 
-      - name: Get Latest flaky Tests
+      - name: Get latest flaky tests
         shell: bash
         run: |
           curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures

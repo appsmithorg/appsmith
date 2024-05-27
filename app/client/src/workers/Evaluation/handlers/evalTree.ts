@@ -64,6 +64,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
   let isNewWidgetAdded = false;
 
   const {
+    affectedJSObjects,
     allActionValidationConfig,
     appMode,
     cachedDependencyMap,
@@ -185,6 +186,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
             unevalTree,
             configTree,
             webworkerTelemetry,
+            affectedJSObjects,
           ),
       );
 
