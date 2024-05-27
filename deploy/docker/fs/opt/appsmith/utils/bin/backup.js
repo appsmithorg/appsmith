@@ -134,11 +134,6 @@ async function createGitStorageArchive(destFolder) {
 
   const gitRoot = getGitRoot(process.env.APPSMITH_GIT_ROOT);
 
-  if (gitRoot != "/appsmith-stacks/git-storage/"){
-    console.log('WARNING: It appears a custom value has been configured for APPSMITH_GIT_ROOT.'+
-    ' This behaviour is deprecated and will soon be removed.')
-  }
-
   await executeCopyCMD(gitRoot, destFolder)
 
   console.log('Created git-storage archive');
