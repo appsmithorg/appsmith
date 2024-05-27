@@ -9,7 +9,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.helpers.ce.autocommit.AutoCommitEligibiltyHelper;
+import com.appsmith.server.helpers.ce.autocommit.AutoCommitEligibilityHelper;
 import com.appsmith.server.helpers.ce.autocommit.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -64,7 +64,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             DatasourcePermission datasourcePermission,
             DSLMigrationUtils dslMigrationUtils,
             GitAutoCommitHelper gitAutoCommitHelper,
-            AutoCommitEligibiltyHelper autoCommitEligibiltyHelper,
+            AutoCommitEligibilityHelper autoCommitEligibilityHelper,
             ClonePageService<NewAction> actionClonePageService,
             ClonePageService<ActionCollection> actionCollectionClonePageService) {
         super(
@@ -96,7 +96,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 datasourcePermission,
                 dslMigrationUtils,
                 gitAutoCommitHelper,
-                autoCommitEligibiltyHelper,
+                autoCommitEligibilityHelper,
                 actionClonePageService,
                 actionCollectionClonePageService);
     }
