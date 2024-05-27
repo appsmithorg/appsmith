@@ -62,11 +62,11 @@ public class LayoutControllerCE {
             @PathVariable String pageId,
             @RequestParam String applicationId,
             @PathVariable String layoutId,
-            @RequestBody Layout layout,
+            @RequestBody LayoutUpdateDTO dto,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("update layout received for page {}", pageId);
         return updateLayoutService
-                .updateLayout(pageId, applicationId, layoutId, layout, branchName)
+                .updateLayout(pageId, applicationId, layoutId, dto.toLayout(), branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 
