@@ -96,7 +96,7 @@ export const propertyPaneContentConfig = [
               sectionName: "General",
               children: [
                 {
-                  propertyName: "buttonVariant",
+                  propertyName: "variant",
                   label: "Button variant",
                   controlType: "ICON_TABS",
                   fullWidth: true,
@@ -118,9 +118,10 @@ export const propertyPaneContentConfig = [
                   },
                 },
                 {
-                  propertyName: "buttonColor",
+                  propertyName: "color",
                   label: "Button color",
                   controlType: "DROP_DOWN",
+                  defaultValue: COLORS.accent,
                   fullWidth: true,
                   helpText: "Sets the semantic color of the button",
                   options: Object.values(COLORS).map((semantic) => ({
@@ -145,7 +146,7 @@ export const propertyPaneContentConfig = [
               sectionName: "Icon",
               children: [
                 {
-                  propertyName: "iconName",
+                  propertyName: "icon",
                   label: "Icon",
                   helpText: "Sets the icon to be used for a button",
                   controlType: "ICON_SELECT_V2",
@@ -155,11 +156,12 @@ export const propertyPaneContentConfig = [
                   validation: { type: ValidationTypes.TEXT },
                 },
                 {
-                  propertyName: "iconAlign",
+                  propertyName: "iconPosition",
                   label: "Position",
                   helpText: "Sets the icon alignment of the button",
                   controlType: "ICON_TABS",
                   fullWidth: false,
+                  defaultValue: "start",
                   options: [
                     {
                       startIcon: "skip-left-line",

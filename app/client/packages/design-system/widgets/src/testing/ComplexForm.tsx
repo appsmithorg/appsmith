@@ -8,7 +8,7 @@ import {
   TooltipRoot,
   TooltipTrigger,
   TooltipContent,
-  ActionGroup,
+  ToolbarButtons,
   Flex,
   SwitchGroup,
   Switch,
@@ -21,7 +21,6 @@ import {
   ModalBody,
   ModalFooter,
   ModalContent,
-  Item,
 } from "@design-system/widgets";
 // This component is used only for testing purpose and is not used in the prod
 
@@ -57,12 +56,14 @@ export const ComplexForm = () => {
       </Flex>
 
       <Flex direction="column" gap="spacing-5">
-        <ActionGroup>
-          <Item>Fast food</Item>
-          <Item>Salads</Item>
-          <Item>Drinks</Item>
-          <Item>Sauces</Item>
-        </ActionGroup>
+        <ToolbarButtons
+          items={[
+            { id: 1, label: "Fast food" },
+            { id: 2, label: "Salads" },
+            { id: 3, label: "Salads" },
+            { id: 4, label: "Sauces" },
+          ]}
+        />
 
         <SwitchGroup label="Repeat order">
           <Switch value="value-1">Once a week</Switch>
