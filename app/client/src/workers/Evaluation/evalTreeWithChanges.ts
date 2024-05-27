@@ -26,7 +26,7 @@ export function evalTreeWithChanges(
   let dataTree: DataTree = {};
   const errors: EvalError[] = [];
   const logs: any[] = [];
-  const dependencies: DependencyMap = {};
+  const inverseDependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [...metaUpdates];
   let staleMetaIds: string[] = [];
   const removedPaths: Array<{ entityId: string; fullpath: string }> = [];
@@ -79,8 +79,9 @@ export function evalTreeWithChanges(
   );
 
   const evalTreeResponse: EvalTreeResponseData = {
+    dependencies: {},
     updates,
-    dependencies,
+    inverseDependencies,
     errors,
     evalMetaUpdates,
     evaluationOrder: evalOrder,

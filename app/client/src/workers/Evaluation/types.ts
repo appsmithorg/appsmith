@@ -41,10 +41,12 @@ export interface EvalTreeRequestData {
   appMode?: APP_MODE;
   widgetsMeta: Record<string, any>;
   shouldRespondWithLogs?: boolean;
+  cachedDependencyMap?: DependencyMap;
 }
 
 export interface EvalTreeResponseData {
-  dependencies: DependencyMap;
+  inverseDependencies: DependencyMap;
+  dependencies: any;
   errors: EvalError[];
   evalMetaUpdates: EvalMetaUpdates;
   evaluationOrder: string[];

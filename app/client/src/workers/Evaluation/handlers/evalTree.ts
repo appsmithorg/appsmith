@@ -55,6 +55,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
   let dataTree: DataTree = {};
   let errors: EvalError[] = [];
   let logs: any[] = [];
+  let inverseDependencies: DependencyMap = {};
   let dependencies: DependencyMap = {};
   let evalMetaUpdates: EvalMetaUpdates = [];
   let configTree: ConfigTree = {};
@@ -65,6 +66,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
   const {
     allActionValidationConfig,
     appMode,
+    cachedDependencyMap,
     forceEvaluation,
     metaWidgets,
     shouldReplay,
@@ -103,6 +105,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
             unevalTree,
             configTree,
             webworkerTelemetry,
+            cachedDependencyMap,
           ),
       );
 
@@ -213,7 +216,8 @@ export function evalTree(request: EvalWorkerSyncRequest) {
       );
       staleMetaIds = updateResponse.staleMetaIds;
     }
-    dependencies = dataTreeEvaluator.inverseDependencies;
+    inverseDependencies = dataTreeEvaluator.inverseDependencies;
+    dependencies = dataTreeEvaluator.dependencies;
     errors = dataTreeEvaluator.errors;
     dataTreeEvaluator.clearErrors();
     logs = dataTreeEvaluator.logs;
@@ -288,6 +292,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
   const evalTreeResponse: EvalTreeResponseData = {
     updates,
     dependencies,
+    inverseDependencies,
     errors,
     evalMetaUpdates,
     evaluationOrder: evalOrder,

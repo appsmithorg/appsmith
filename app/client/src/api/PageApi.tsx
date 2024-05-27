@@ -12,6 +12,7 @@ import type {
   CreatePageActionPayload,
 } from "actions/pageActions";
 import type { FetchApplicationResponse } from "@appsmith/api/ApplicationApi";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
 
 export interface FetchPageRequest {
   id: string;
@@ -59,6 +60,7 @@ export interface FetchPageResponseData {
   customSlug?: string;
   userPermissions?: string[];
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
+  dependencyMap?: DependencyMap;
 }
 
 export type FetchPublishedPageResponseData = FetchPageResponseData;
@@ -315,6 +317,16 @@ class PageApi extends Api {
     params: any,
   ): Promise<AxiosPromise<FetchApplicationResponse>> {
     return Api.get(PageApi.url, params);
+  }
+
+  static async updateDependencyMap({
+    dependencies,
+    pageId,
+  }: {
+    dependencies: DependencyMap | null;
+    pageId: string;
+  }): Promise<AxiosPromise<ApiResponse>> {
+    return Api.put(PageApi.url + `/${pageId}/dependencyMap`, dependencies);
   }
 }
 

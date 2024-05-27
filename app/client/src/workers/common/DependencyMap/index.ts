@@ -34,6 +34,7 @@ export function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalTree: DataTree,
   configTree: ConfigTree,
+  cachedDependencyMap?: Record<string, string[]>,
 ) {
   const { allKeys, dependencyMap } = dataTreeEvalRef;
   const allAppsmithInternalFunctions = convertArrayToObject(
@@ -45,25 +46,31 @@ export function createDependencyMap(
     false,
   );
 
-  Object.keys(configTree).forEach((entityName) => {
-    const entity = unEvalTree[entityName];
-    const entityConfig = configTree[entityName];
-    const entityDependencies = getEntityDependencies(
-      entity as DataTreeEntityObject,
-      entityConfig,
-      allKeys,
-    );
-
-    for (const path of Object.keys(entityDependencies)) {
-      const pathDependencies = entityDependencies[path];
-      const { errors, references } = extractInfoFromBindings(
-        pathDependencies,
+  if (cachedDependencyMap) {
+    Object.keys(cachedDependencyMap).forEach((path) => {
+      dependencyMap.addDependency(path, cachedDependencyMap[path]);
+    });
+  } else {
+    Object.keys(configTree).forEach((entityName) => {
+      const entity = unEvalTree[entityName];
+      const entityConfig = configTree[entityName];
+      const entityDependencies = getEntityDependencies(
+        entity as DataTreeEntityObject,
+        entityConfig,
         allKeys,
       );
-      dependencyMap.addDependency(path, references);
-      dataTreeEvalRef.errors.push(...errors);
-    }
-  });
+
+      for (const path of Object.keys(entityDependencies)) {
+        const pathDependencies = entityDependencies[path];
+        const { errors, references } = extractInfoFromBindings(
+          pathDependencies,
+          allKeys,
+        );
+        dependencyMap.addDependency(path, references);
+        dataTreeEvalRef.errors.push(...errors);
+      }
+    });
+  }
 
   DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
 

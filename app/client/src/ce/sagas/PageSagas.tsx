@@ -144,6 +144,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSele
 import { ActionExecutionContext } from "entities/Action";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { setDependencyCache } from "actions/evaluationActions";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -370,6 +371,8 @@ export function* fetchPublishedPageSaga(
       resizePublishedMainCanvasToLowestWidget(canvasWidgetsPayload.widgets);
       // Update the canvas
       yield put(initCanvasLayout(canvasWidgetsPayload));
+      // Set current page dependency map cache
+      yield put(setDependencyCache(response.data.dependencyMap));
       // set current page
       yield put(
         updateCurrentPage(

@@ -65,14 +65,39 @@ export const setEvaluatedTree = (
   };
 };
 
-export const setDependencyMap = (
-  inverseDependencyMap: DependencyMap,
-): ReduxAction<{ inverseDependencyMap: DependencyMap }> => {
+export const setInverseDependencyMap = ({
+  inverseDependencies: inverseDependencyMap,
+}: {
+  inverseDependencies: DependencyMap;
+}): ReduxAction<{
+  inverseDependencyMap: DependencyMap;
+}> => {
   return {
     type: ReduxActionTypes.SET_EVALUATION_INVERSE_DEPENDENCY_MAP,
     payload: { inverseDependencyMap },
   };
 };
+
+export const cacheDependencyMap = ({
+  dependencies,
+  pageId,
+}: {
+  dependencies: DependencyMap;
+  pageId: string;
+}): ReduxAction<{
+  dependencies: DependencyMap;
+  pageId: string;
+}> => {
+  return {
+    type: ReduxActionTypes.CACHE_DEPENDENCY_MAP,
+    payload: { dependencies, pageId },
+  };
+};
+
+export const setDependencyCache = (dependencyMap?: DependencyMap) => ({
+  type: ReduxActionTypes.SET_DEPENDENCY_MAP_CACHE,
+  payload: { dependencyMap },
+});
 
 // Called when a form is being setup, for setting up the base condition evaluations for the form
 export const initFormEvaluations = (

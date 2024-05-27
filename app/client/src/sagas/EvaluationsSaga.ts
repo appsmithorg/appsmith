@@ -9,6 +9,7 @@ import {
   select,
   spawn,
   take,
+  takeLatest,
 } from "redux-saga/effects";
 
 import type {
@@ -26,7 +27,11 @@ import { getMetaWidgets, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import WidgetFactory from "WidgetProvider/factory";
 import { GracefulWorkerService } from "utils/WorkerUtil";
-import type { EvalError, EvaluationError } from "utils/DynamicBindingUtils";
+import type {
+  DependencyMap,
+  EvalError,
+  EvaluationError,
+} from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
@@ -42,12 +47,13 @@ import {
   getRequiresLinting,
 } from "@appsmith/actions/evaluationActionsList";
 import {
-  setDependencyMap,
+  setInverseDependencyMap,
   setEvaluatedTree,
   shouldForceEval,
   shouldLog,
   shouldProcessAction,
   shouldTriggerEvaluation,
+  cacheDependencyMap,
 } from "actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
 import {
@@ -82,6 +88,7 @@ import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
 import {
   getAllActionValidationConfig,
   getAllJSActionsData,
+  getModuleInstances,
 } from "@appsmith/selectors/entitiesSelector";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
@@ -109,6 +116,9 @@ import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSele
 import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import PageApi from "api/PageApi";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCachedDependencyMap } from "selectors/evaluationSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -143,6 +153,7 @@ export function* updateDataTreeHandler(
     errors,
     evalMetaUpdates = [],
     evaluationOrder,
+    inverseDependencies,
     isCreateFirstTree = false,
     isNewWidgetAdded,
     jsUpdates,
@@ -199,7 +210,11 @@ export function* updateDataTreeHandler(
   AnalyticsUtil.setBlockErrorLogs(isCreateFirstTree);
   if (appMode !== APP_MODE.PUBLISHED) {
     const jsData: Record<string, unknown> = yield select(getAllJSActionsData);
+    const pageId: string = yield select(getCurrentPageId);
     postEvalActionsToDispatch.push(executeJSUpdates(jsUpdates));
+    postEvalActionsToDispatch.push(
+      cacheDependencyMap({ dependencies, pageId }),
+    );
 
     if (requiresLogging) {
       yield fork(
@@ -224,7 +239,7 @@ export function* updateDataTreeHandler(
     );
   }
 
-  yield put(setDependencyMap(dependencies));
+  yield put(setInverseDependencyMap({ inverseDependencies }));
   if (postEvalActionsToDispatch && postEvalActionsToDispatch.length) {
     yield call(postEvalActionDispatcher, postEvalActionsToDispatch);
   }
@@ -265,6 +280,9 @@ export function* evaluateTreeSaga(
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);
+  const cachedDependencyMap: DependencyMap | undefined = yield select(
+    getCachedDependencyMap,
+  );
 
   const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
 
@@ -280,6 +298,7 @@ export function* evaluateTreeSaga(
     appMode,
     widgetsMeta,
     shouldRespondWithLogs,
+    cachedDependencyMap,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -755,8 +774,30 @@ export function* setAppVersionOnWorkerSaga(action: {
   });
 }
 
-export default function* evaluationSagaListeners() {
-  yield take(ReduxActionTypes.START_EVALUATION);
+export function* cacheDependencyMapSaga(action: {
+  type: ReduxActionType;
+  payload: { dependencies: DependencyMap; pageId: string };
+}) {
+  // Debounce the sage by 500ms to avoid multiple cache calls post evaluation
+  // Ref: https://redux-saga.js.org/docs/recipes/#debouncing
+  yield delay(500);
+  const { dependencies, pageId } = action.payload;
+  const moduleInstances: Record<string, any> = yield select(getModuleInstances);
+  const shouldCache = Object.keys(moduleInstances || {}).length === 0;
+  const cachedDependencyMap = shouldCache ? dependencies : null;
+
+  try {
+    yield call(PageApi.updateDependencyMap, {
+      dependencies: cachedDependencyMap,
+      pageId,
+    });
+  } catch (e) {
+    log.error(e);
+    Sentry.captureException(e);
+  }
+}
+
+export function* evaluationSagaListeners() {
   while (true) {
     try {
       yield call(evaluationChangeListenerSaga);
@@ -765,6 +806,13 @@ export default function* evaluationSagaListeners() {
       Sentry.captureException(e);
     }
   }
+}
+
+export default function* rootSaga() {
+  yield all([
+    takeLatest(ReduxActionTypes.START_EVALUATION, evaluationChangeListenerSaga),
+    takeLatest(ReduxActionTypes.CACHE_DEPENDENCY_MAP, cacheDependencyMapSaga),
+  ]);
 }
 
 export { evalWorker as EvalWorker };

@@ -143,6 +143,7 @@ export function* publishApplicationSaga(
 ) {
   try {
     const request = requestAction.payload;
+    //
     const response: PublishApplicationResponse = yield call(
       ApplicationApi.publishApplication,
       request,

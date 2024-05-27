@@ -228,6 +228,7 @@ export default class DataTreeEvaluator {
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData> = {},
+    cachedDependencyMap?: Record<string, string[]>,
   ): {
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
@@ -283,7 +284,12 @@ export default class DataTreeEvaluator {
       undefined,
       webworkerTelemetry,
       () => {
-        return createDependencyMap(this, localUnEvalTree, configTree);
+        return createDependencyMap(
+          this,
+          localUnEvalTree,
+          configTree,
+          cachedDependencyMap,
+        );
       },
     );
     const createDependencyMapEndTime = performance.now();
