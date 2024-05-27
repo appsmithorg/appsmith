@@ -14,8 +14,9 @@
   [elevation="1"]:has([elevation="2"][data-elevation="true"]) [elevation="2"][data-elevation="false"],
   /** If a section has any card with elevation, then add padding to all the cards that don't have elevation */
   [elevation="1"]:has([elevation="3"][data-elevation="true"]) [elevation="3"][data-elevation="false"],
-  /** If a zone has any card with elevation, then add padding to all the cards that don't have elevation */
-  [elevation="2"]:has([elevation="3"][data-elevation="true"]) [elevation="3"][data-elevation="false"] {
+  /** If a zone has any card with elevation, then add padding to all the cards that don't have elevation, also we want to
+    adding padding to the widgets as well that are not cards, this is required to align widgets with elevations of cards */
+  [elevation="2"]:has([elevation="3"][data-elevation="true"]) :is([elevation="3"][data-elevation="false"], [data-widget-wrapper]:not(:has([data-elevation]))) {
     padding-block: var(--outer-spacing-3);
     padding-inline: var(--outer-spacing-3);
   }
@@ -24,7 +25,7 @@
     min-height: var(--sizing-8);
   }
 
-  /** by default, sections/zone/cards with elevation styles 1 */
+  /** by default, sections/zone/cards with elevation have styles 1 */
   [data-elevation="true"][elevation="1"],
   [data-elevation="true"][elevation="2"],
   [data-elevation="true"][elevation="3"] {
