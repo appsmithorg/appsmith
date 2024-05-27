@@ -13,14 +13,10 @@ import {
   useCurrentEditorState,
 } from "pages/Editor/IDE/hooks";
 import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
-import { getIsMobileCanvasLayout } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import BuildingBlockExplorerDropTarget from "../buildingBlockExplorerDropTarget";
-import StarterBuildingBlocks from "../starterBuildingBlocks";
 
 function Onboarding() {
-  const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
   const appState = useCurrentAppState();
   const isAirgappedInstance = isAirgapped();
   const { segment } = useCurrentEditorState();
@@ -32,10 +28,6 @@ function Onboarding() {
   const isEditorState = appState === IDEAppState.EDITOR;
   const isUISegment = segment === EditorEntityTab.UI;
 
-  const shouldShowStarterTemplates = useMemo(
-    () => isEditorState && !isMobileCanvas,
-    [isMobileCanvas, isEditorState],
-  );
   const shouldShowBuildingBlocksDropTarget = useMemo(
     () => isEditorState && isUISegment && releaseDragDropBuildingBlocksEnabled,
     [isEditorState, releaseDragDropBuildingBlocksEnabled, isUISegment],
@@ -44,8 +36,6 @@ function Onboarding() {
   if (!isAirgappedInstance) {
     if (shouldShowBuildingBlocksDropTarget) {
       return <BuildingBlockExplorerDropTarget />;
-    } else if (shouldShowStarterTemplates) {
-      return <StarterBuildingBlocks />;
     }
   }
   return (
