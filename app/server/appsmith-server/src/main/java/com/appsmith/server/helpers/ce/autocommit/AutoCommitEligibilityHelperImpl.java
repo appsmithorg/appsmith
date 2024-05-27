@@ -54,10 +54,11 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
                 .defaultIfEmpty(FALSE)
                 .cache();
 
-        return Mono.defer(() -> gitRedisUtils.addFileLock(defaultApplicationId))
+        return gitRedisUtils
+                .addFileLock(defaultApplicationId)
                 .then(Mono.defer(() -> isServerMigrationRequiredMonoCached))
-                .then(Mono.defer(() -> gitRedisUtils.releaseFileLock(defaultApplicationId)))
-                .then(Mono.defer(() -> isServerMigrationRequiredMonoCached))
+                .then(gitRedisUtils.releaseFileLock(defaultApplicationId))
+                .then(isServerMigrationRequiredMonoCached)
                 .onErrorResume(error -> {
                     log.debug(
                             "error while retrieving the metadata for defaultApplicationId : {}, branchName : {} error : {}",
