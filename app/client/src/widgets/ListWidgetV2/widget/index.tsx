@@ -247,6 +247,7 @@ class ListWidget extends BaseWidget<
             "https://docs.appsmith.com/widget-reference/how-to-use-widgets",
         },
         isVisible: DefaultAutocompleteDefinitions.isVisible,
+        emptyMessage: DefaultAutocompleteDefinitions.emptyMessage,
         itemSpacing: "number",
         selectedItem: generateTypeDef(widget.selectedItem, extraDefsToDefine),
         selectedItemView: generateTypeDef(
@@ -1391,7 +1392,7 @@ class ListWidget extends BaseWidget<
     ) {
       return (
         <>
-          <ListComponentEmpty>No data to display</ListComponentEmpty>
+          <ListComponentEmpty>{this.props.emptyMessage}</ListComponentEmpty>
           {this.renderPaginationUI()}
         </>
       );
@@ -1443,6 +1444,7 @@ export interface ListWidgetProps<T extends WidgetProps = WidgetProps>
   children?: T[];
   currentItemStructure?: Record<string, string>;
   itemSpacing?: number;
+  emptyMessage?: string;
   infiniteScroll?: boolean;
   level?: number;
   levelData?: LevelData;

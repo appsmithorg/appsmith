@@ -85,6 +85,7 @@ export default {
       },
     },
   },
+  emptyMessage: "No data to display",
   itemSpacing: 8,
   templateHeight: 160,
   listData: DEFAULT_LIST_DATA,

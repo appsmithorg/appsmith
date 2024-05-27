@@ -80,6 +80,7 @@ export interface GeneratorOptions {
   prevTemplateWidgets?: TemplateWidgets;
   data: Record<string, unknown>[];
   hooks?: Hooks;
+  emptyMessage?: string;
   itemSpacing: number;
   infiniteScroll: ConstructorProps["infiniteScroll"];
   level?: number;
@@ -223,6 +224,7 @@ class MetaWidgetGenerator {
   private getWidgetCache: ConstructorProps["getWidgetCache"];
   private getWidgetReferenceCache: ConstructorProps["getWidgetReferenceCache"];
   private hooks?: GeneratorOptions["hooks"];
+  private emptyMessage: GeneratorOptions["emptyMessage"];
   private itemSpacing: GeneratorOptions["itemSpacing"];
   private infiniteScroll: ConstructorProps["infiniteScroll"];
   private isListCloned: ConstructorProps["isListCloned"];
@@ -265,6 +267,7 @@ class MetaWidgetGenerator {
     this.data = [];
     this.getWidgetCache = props.getWidgetCache;
     this.getWidgetReferenceCache = props.getWidgetReferenceCache;
+    this.emptyMessage = "";
     this.itemSpacing = 0;
     this.infiniteScroll = props.infiniteScroll;
     this.isListCloned = props.isListCloned;
@@ -302,6 +305,7 @@ class MetaWidgetGenerator {
     this.containerParentId = options.containerParentId;
     this.containerWidgetId = options.containerWidgetId;
     this.data = options.data;
+    this.emptyMessage = options.emptyMessage;
     this.itemSpacing = options.itemSpacing;
     this.infiniteScroll = options.infiniteScroll;
     this.levelData = options.levelData;

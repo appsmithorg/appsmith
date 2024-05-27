@@ -3,6 +3,7 @@ import _ from "lodash";
 import {
   defaultSelectedItemValidation,
   primaryColumnValidation,
+  PropertyPaneContentConfig
 } from "./propertyConfig";
 import type { ListWidgetProps } from ".";
 import type { ValidationResponse } from "constants/WidgetValidation";
@@ -311,6 +312,21 @@ describe(".defaultSelectedItemValidation", () => {
       );
 
       expect(output).toEqual(expected(value));
+    }
+  });
+});
+
+describe('.propertyConfig', () => {
+  it('should include emptyMessage property', () => {
+    const config = PropertyPaneContentConfig as Array<{ sectionName: string; children: any[] }>;
+
+    const allChildren = config.flatMap(section => section.children);
+
+    const emptyMessageConfig = allChildren.find((prop: any) => prop.propertyName === 'emptyMessage');
+
+    expect(emptyMessageConfig).toBeDefined();
+    if (emptyMessageConfig) {
+      expect(emptyMessageConfig.controlType).toBe('INPUT_TEXT');
     }
   });
 });

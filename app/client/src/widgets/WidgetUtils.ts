@@ -76,6 +76,10 @@ export const DefaultAutocompleteDefinitions = {
     "!type": "bool",
     "!doc": "Boolean value indicating if the widget is in visible state",
   },
+  emptyMessage: {
+    "!type": "string",
+    "!doc": "String to display if widget is empty",
+  },
 };
 
 export const hexToRgb = (

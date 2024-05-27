@@ -413,6 +413,18 @@ export const PropertyPaneContentConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
       },
+      {
+        propertyName: "emptyMessage",
+        helpText: "Sets the message for when the list is empty",
+        placeholderText: "No data to display",
+        label: "Empty Message",
+        controlType: "INPUT_TEXT",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: {
+          type: ValidationTypes.TEXT,
+        },
+      },
     ],
   },
 ];
