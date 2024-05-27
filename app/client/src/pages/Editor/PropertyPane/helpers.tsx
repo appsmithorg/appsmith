@@ -1,17 +1,17 @@
+import type { WidgetCallout } from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
 import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
-import { debounce } from "lodash";
-import { useCallback, useState } from "react";
-import { layoutSystemBasedPropertyFilter } from "sagas/WidgetEnhancementHelpers";
-import type { WidgetProps } from "widgets/BaseWidget";
 import { Callout } from "design-system";
-import React from "react";
-import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetCallout } from "WidgetProvider/constants";
+import { debounce } from "lodash";
+import React, { useCallback, useState } from "react";
+import { layoutSystemBasedPropertyFilter } from "sagas/WidgetEnhancementHelpers";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { buildDeprecationWidgetMessage } from "../utils";
 
 export function useSearchText(initialVal: string) {
   const [searchText, setSearchText] = useState(initialVal);
@@ -104,6 +104,21 @@ export function updateConfigPaths(
 
 export function renderWidgetCallouts(props: WidgetProps): JSX.Element[] {
   const { getEditorCallouts } = WidgetFactory.getWidgetMethods(props.type);
+
+  const isDeprecated = WidgetFactory.getConfig(props.type)?.isDeprecated;
+  const widgetReplacedWith = WidgetFactory.getConfig(props.type)?.displayName;
+
+  if (isDeprecated) {
+    // generate messages
+    const deprecationMessage =
+      buildDeprecationWidgetMessage(widgetReplacedWith);
+    return [
+      <Callout data-testid="t--deprecation-warning" key={0} kind="warning">
+        {deprecationMessage}
+      </Callout>,
+    ];
+  }
+
   if (getEditorCallouts) {
     const callouts: WidgetCallout[] = getEditorCallouts(props);
     return callouts.map((callout, index) => {
