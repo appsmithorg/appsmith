@@ -2,7 +2,7 @@ import type {
   BufferedReduxAction,
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import { AFFECTED_JS_OBJECTS_FNS } from "@appsmith/sagas/EvaluationsSagaUtils";
+import { AFFECTED_JS_OBJECTS_FNS } from "@appsmith/sagas/InferAffectedJSObjects";
 import log from "loglevel";
 import type { DiffWithNewTreeState } from "workers/Evaluation/helpers";
 
