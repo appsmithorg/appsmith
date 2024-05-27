@@ -22,22 +22,27 @@ describe("evaluateTreeSaga", () => {
         [select(getWidgets), {}],
         [select(getMetaWidgets), {}],
         [select(getSelectedAppTheme), {}],
-        [select(getAppMode), false],
+        [select(getAppMode), "EDIT"],
         [select(getWidgetsMeta), {}],
       ])
-      .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
-        unevalTree: unEvalAndConfigTree,
-        widgetTypeConfigMap: undefined,
-        widgets: {},
-        theme: {},
-        shouldReplay: true,
-        allActionValidationConfig: {},
-        forceEvaluation: false,
-        metaWidgets: {},
-        appMode: false,
-        widgetsMeta: {},
-        shouldRespondWithLogs: true,
-      })
+      .call(
+        evalWorker.request,
+        EVAL_WORKER_ACTIONS.EVAL_TREE,
+        {
+          unevalTree: unEvalAndConfigTree,
+          widgetTypeConfigMap: undefined,
+          widgets: {},
+          theme: {},
+          shouldReplay: true,
+          allActionValidationConfig: {},
+          forceEvaluation: false,
+          metaWidgets: {},
+          appMode: "EDIT",
+          widgetsMeta: {},
+          shouldRespondWithLogs: true,
+        },
+        { appMode: "EDIT" },
+      )
       .run();
   });
   test("should set 'shouldRespondWithLogs' to false when the log level is not debug", async () => {
@@ -49,22 +54,27 @@ describe("evaluateTreeSaga", () => {
         [select(getWidgets), {}],
         [select(getMetaWidgets), {}],
         [select(getSelectedAppTheme), {}],
-        [select(getAppMode), false],
+        [select(getAppMode), "EDIT"],
         [select(getWidgetsMeta), {}],
       ])
-      .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
-        unevalTree: unEvalAndConfigTree,
-        widgetTypeConfigMap: undefined,
-        widgets: {},
-        theme: {},
-        shouldReplay: true,
-        allActionValidationConfig: {},
-        forceEvaluation: false,
-        metaWidgets: {},
-        appMode: false,
-        widgetsMeta: {},
-        shouldRespondWithLogs: false,
-      })
+      .call(
+        evalWorker.request,
+        EVAL_WORKER_ACTIONS.EVAL_TREE,
+        {
+          unevalTree: unEvalAndConfigTree,
+          widgetTypeConfigMap: undefined,
+          widgets: {},
+          theme: {},
+          shouldReplay: true,
+          allActionValidationConfig: {},
+          forceEvaluation: false,
+          metaWidgets: {},
+          appMode: "EDIT",
+          widgetsMeta: {},
+          shouldRespondWithLogs: false,
+        },
+        { appMode: "EDIT" },
+      )
       .run();
   });
 });
