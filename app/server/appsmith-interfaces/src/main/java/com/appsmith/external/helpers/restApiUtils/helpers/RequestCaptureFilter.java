@@ -18,16 +18,15 @@ import org.springframework.web.reactive.function.client.ClientRequest;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.ExchangeFilterFunction;
 import org.springframework.web.reactive.function.client.ExchangeFunction;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -44,7 +43,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
     private ClientRequest request;
     private final ObjectMapper objectMapper;
     private final BodyReceiver bodyReceiver = new BodyReceiver();
-    private final String MASKED_VALUE = "****";
+    private static final String MASKED_VALUE = "****";
 
     public RequestCaptureFilter(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -56,38 +55,29 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
         return next.exchange(request);
     }
 
-    private URI createURIWithMaskedQueryParam(URI uriToMask, String queryParamKeyToMask) {
+    private static String maskQueryParamInURL(URI uriToMask, String queryParamKeyToMask) {
+        MultiValueMap<String, String> queryParams =
+                UriComponentsBuilder.fromUri(uriToMask).build().getQueryParams();
+        UriComponentsBuilder uriBuilder = UriComponentsBuilder.fromUri(uriToMask);
+        // Clear the query parameters from the builder
+        uriBuilder.replaceQuery(null);
+        // Loop through the query parameters
+        for (Map.Entry<String, List<String>> entry : queryParams.entrySet()) {
+            String key = entry.getKey();
+            List<String> values = entry.getValue();
 
-        String query = uriToMask.getQuery();
-        if (query == null) {
-            return uriToMask;
-        }
-        String[] queryParams = query.split("&");
-        StringJoiner newQuery = new StringJoiner("&");
-        for (String queryParam : queryParams) {
-            String[] keyValuePair = queryParam.split("=");
-
-            if (queryParamKeyToMask.equals(keyValuePair[0])) {
-                // fix when value is not present
-                if (keyValuePair.length > 1) {
-                    keyValuePair[1] = MASKED_VALUE;
-                }
+            // If the key matches the queryParamKeyToMask, mask its values
+            if (key.equals(queryParamKeyToMask)) {
+                values = values.stream().map(value -> MASKED_VALUE).toList();
             }
-            newQuery.add(keyValuePair[0] + "=" + keyValuePair[1]);
+
+            // Add the (possibly masked) parameters back to the builder
+            for (String value : values) {
+                uriBuilder.queryParam(key, value);
+            }
         }
 
-        try {
-            return new URI(
-                    uriToMask.getScheme(),
-                    uriToMask.getUserInfo(),
-                    uriToMask.getHost(),
-                    uriToMask.getPort(),
-                    uriToMask.getPath(),
-                    newQuery.toString(),
-                    uriToMask.getRawFragment());
-        } catch (URISyntaxException e) {
-            return uriToMask;
-        }
+        return uriBuilder.build().toUriString();
     }
 
     public ActionExecutionRequest populateRequestFields(
@@ -105,7 +95,6 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
         AtomicBoolean isMultipart = new AtomicBoolean(false);
 
         String headerToMask = "";
-
         String URLString = request.url().toString();
 
         AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
@@ -117,8 +106,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
                     headerToMask = auth.getLabel();
                 }
                 if (auth.getAddTo().equals(ApiKeyAuth.Type.QUERY_PARAMS)) {
-                    URI maskedURI = createURIWithMaskedQueryParam(request.url(), auth.getLabel());
-                    URLString = maskedURI.toString();
+                    URLString = maskQueryParamInURL(request.url(), auth.getLabel());
                 }
             }
         }
@@ -126,9 +114,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
         MultiValueMap<String, String> headers =
                 CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
         request.headers().forEach((header, value) -> {
-            if (HttpHeaders.AUTHORIZATION.equalsIgnoreCase(header)
-                    || "api_key".equalsIgnoreCase(header)
-                    || finalHeaderToMask.equals(header)) {
+            if (HttpHeaders.AUTHORIZATION.equalsIgnoreCase(header) || finalHeaderToMask.equals(header)) {
                 headers.add(header, MASKED_VALUE);
             } else {
                 headers.addAll(header, value);
