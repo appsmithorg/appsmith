@@ -14,7 +14,7 @@ public record ApplicationCreationDTO(
         @IconName String icon,
         @Pattern(regexp = "#[A-F0-9]{6}") String color,
         Application.AppPositioning positioningType,
-        Boolean showNavBar) {
+        Boolean showNavbar) {
 
     public Application toApplication() {
         final Application application = new Application();
@@ -29,7 +29,7 @@ public record ApplicationCreationDTO(
         applicationDetail.setAppPositioning(positioningType);
 
         final Application.NavigationSetting navigationSetting = new Application.NavigationSetting();
-        navigationSetting.setShowNavbar(showNavBar);
+        navigationSetting.setShowNavbar(showNavbar);
         applicationDetail.setNavigationSetting(navigationSetting);
 
         return application;
