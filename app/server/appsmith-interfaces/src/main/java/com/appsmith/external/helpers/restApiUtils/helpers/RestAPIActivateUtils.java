@@ -71,7 +71,8 @@ public class RestAPIActivateUtils {
             ObjectMapper objectMapper,
             Set<String> hintMessages,
             ActionExecutionResult errorResult,
-            RequestCaptureFilter requestCaptureFilter) {
+            RequestCaptureFilter requestCaptureFilter,
+            DatasourceConfiguration datasourceConfiguration) {
         return httpCall(client, httpMethod, uri, requestBody, 0)
                 .flatMap(clientResponse -> clientResponse.toEntity(byte[].class))
                 .map(stringResponseEntity -> {
@@ -94,7 +95,7 @@ public class RestAPIActivateUtils {
                     // Set the request fields
                     boolean isBodySentWithApiRequest = requestBody == null ? false : true;
                     result.setRequest(requestCaptureFilter.populateRequestFields(
-                            actionExecutionRequest, isBodySentWithApiRequest));
+                            actionExecutionRequest, isBodySentWithApiRequest, datasourceConfiguration));
 
                     result.setStatusCode(statusCode.toString());
 

@@ -297,7 +297,8 @@ public class GitServiceCETest {
 
         return stringifiedFile
                 .map(data -> gson.fromJson(data, ApplicationJson.class))
-                .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
+                .map(JsonSchemaMigration::migrateArtifactToLatestSchema)
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
     private GitConnectDTO getConnectRequest(String remoteUrl, GitProfile gitProfile) {

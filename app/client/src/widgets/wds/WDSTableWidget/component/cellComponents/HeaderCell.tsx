@@ -7,9 +7,8 @@ import {
   Flex,
   Icon,
   IconButton,
-  Item,
   Menu,
-  MenuList,
+  MenuTrigger,
   Text,
 } from "@design-system/widgets";
 
@@ -76,14 +75,6 @@ const HeaderCellComponent = (props: HeaderProps) => {
     column.columnProperties.isEditable &&
     isColumnTypeEditable(column.columnProperties.columnType);
 
-  const toggleColumnFreeze = (value: StickyType) => {
-    props.handleColumnFreeze &&
-      props.handleColumnFreeze(
-        props.column.id,
-        props.column.sticky !== value ? value : StickyType.NONE,
-      );
-  };
-
   const onDragStart = useCallback(
     (e) => {
       props.onDragStart(e, props.columnIndex);
@@ -132,12 +123,6 @@ const HeaderCellComponent = (props: HeaderProps) => {
         break;
       case "sort-desc":
         props.sortTableColumn(props.columnIndex, false);
-        break;
-      case "freeze-left":
-        toggleColumnFreeze(StickyType.LEFT);
-        break;
-      case "freeze-right":
-        toggleColumnFreeze(StickyType.RIGHT);
         break;
       default:
         break;
@@ -194,18 +179,21 @@ const HeaderCellComponent = (props: HeaderProps) => {
             size="small"
           />
         )}
-        <Menu disabledKeys={["separator"]} onAction={onActionOnMenu}>
+        <MenuTrigger>
           <IconButton
             color="neutral"
             icon="chevron-down"
             size="small"
             variant="ghost"
           />
-          <MenuList>
-            <Item key="sort-asc">Sort column ascending</Item>
-            <Item key="sort-desc">Sort column descending</Item>
-          </MenuList>
-        </Menu>
+          <Menu
+            items={[
+              { id: "sort-asc", label: "Sort column ascending" },
+              { id: "sort-desc", label: "Sort column descending" },
+            ]}
+            onAction={onActionOnMenu}
+          />
+        </MenuTrigger>
       </Flex>
       <div
         {...column.getResizerProps()}
