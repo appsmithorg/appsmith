@@ -18,7 +18,8 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
-import com.appsmith.server.helpers.ce.autocommit.AutoCommitEligibiltyHelper;
+import com.appsmith.server.helpers.ce.autocommit.AutoCommitEligibilityHelper;
+import com.appsmith.server.helpers.ce.autocommit.AutoCommitTriggerDTO;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -96,7 +97,7 @@ public class ApplicationPageServiceAutoCommitTest {
     GitPrivateRepoHelper gitPrivateRepoHelper;
 
     @SpyBean
-    AutoCommitEligibiltyHelper autoCommitEligibiltyHelper;
+    AutoCommitEligibilityHelper autoCommitEligibilityHelper;
 
     @MockBean
     BranchTrackingStatus branchTrackingStatus;
@@ -228,16 +229,15 @@ public class ApplicationPageServiceAutoCommitTest {
     }
 
     @Test
-    public void testAutoCommit_WhenOnlyServerIsEligibleForMigration_CommitSuccess()
+    public void testAutoCommit_whenOnlyServerIsEligibleForMigration_commitSuccess()
             throws URISyntaxException, IOException, GitAPIException {
 
         ApplicationJson applicationJson =
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource(APP_JSON_NAME));
 
-        // server migration as true
-        doReturn(Mono.just(TRUE)).when(autoCommitEligibiltyHelper).isServerAutoCommitRequired(any(), any());
-        // client migration as false
-        doReturn(Mono.just(FALSE)).when(autoCommitEligibiltyHelper).isClientMigrationRequired(any());
+        doReturn(Mono.just(new AutoCommitTriggerDTO(TRUE, FALSE, TRUE)))
+                .when(autoCommitEligibilityHelper)
+                .isAutoCommitRequired(anyString(), any(GitArtifactMetadata.class), any(PageDTO.class));
 
         ApplicationJson applicationJson1 = new ApplicationJson();
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(applicationJson, applicationJson1);
@@ -282,7 +282,7 @@ public class ApplicationPageServiceAutoCommitTest {
     }
 
     @Test
-    public void testAutoCommit_WhenOnlyClientIsEligibleForMigration_CommitSuccess()
+    public void testAutoCommit_whenOnlyClientIsEligibleForMigration_commitSuccess()
             throws GitAPIException, IOException, URISyntaxException {
         ApplicationJson applicationJson =
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource(APP_JSON_NAME));
@@ -297,8 +297,10 @@ public class ApplicationPageServiceAutoCommitTest {
                 .getAsNumber("version")
                 .intValue();
 
-        // server migration as false
-        doReturn(Mono.just(FALSE)).when(autoCommitEligibiltyHelper).isServerAutoCommitRequired(any(), any());
+        doReturn(Mono.just(new AutoCommitTriggerDTO(TRUE, TRUE, FALSE)))
+                .when(autoCommitEligibilityHelper)
+                .isAutoCommitRequired(anyString(), any(GitArtifactMetadata.class), any(PageDTO.class));
+
         Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(pageDSLNumber + 1));
 
         JSONObject dslAfterMigration = new JSONObject();
@@ -342,16 +344,15 @@ public class ApplicationPageServiceAutoCommitTest {
     }
 
     @Test
-    public void testAutoCommit_WhenAutoCommitNotEligible_ReturnsFalse()
+    public void testAutoCommit_whenAutoCommitNotEligible_returnsFalse()
             throws URISyntaxException, IOException, GitAPIException {
 
         ApplicationJson applicationJson =
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource(APP_JSON_NAME));
 
-        // server migration as false
-        doReturn(Mono.just(FALSE)).when(autoCommitEligibiltyHelper).isServerAutoCommitRequired(any(), any());
-        // client migration as false
-        doReturn(Mono.just(FALSE)).when(autoCommitEligibiltyHelper).isClientMigrationRequired(any());
+        doReturn(Mono.just(new AutoCommitTriggerDTO(FALSE, FALSE, FALSE)))
+                .when(autoCommitEligibilityHelper)
+                .isAutoCommitRequired(anyString(), any(GitArtifactMetadata.class), any(PageDTO.class));
 
         gitFileSystemTestHelper.setupGitRepository(
                 WORKSPACE_ID, DEFAULT_APP_ID, BRANCH_NAME, REPO_NAME, applicationJson);
