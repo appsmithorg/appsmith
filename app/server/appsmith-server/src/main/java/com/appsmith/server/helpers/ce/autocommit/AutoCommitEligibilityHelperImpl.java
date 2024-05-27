@@ -32,6 +32,7 @@ public class AutoCommitEligibilityHelperImpl implements AutoCommitEligibiltyHelp
         String branchName = gitMetadata.getBranchName();
         String repoName = gitMetadata.getRepoName();
 
+        // This fetched the comments
         return commonGitFileUtils
                 .getMetadataServerSchemaMigrationVersion(
                         workspaceId, defaultApplicationId, branchName, repoName, ArtifactType.APPLICATION)
