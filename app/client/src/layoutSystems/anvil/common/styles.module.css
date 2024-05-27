@@ -22,55 +22,42 @@
     min-height: var(--sizing-8);
   }
 
-  /** if elevation is enabled for card, then add elevation styles-3 to the card */
-  [elevation="3"][data-elevation="true"] {
-    background-color: var(--color-bg-elevation-3);
-    border-radius: var(--border-radius-elevation-3);
-    outline: var(--border-width-1) solid var(--color-bd-elevation-3);
-  }
-
-  /** if elevation is enabled for zone, then add elevation styles-2 to the zone */
-  [elevation="2"][data-elevation="true"] {
+  /** by default, sections/zone/cards with elevation styles 1 */
+  [data-elevation="true"][elevation="1"],
+  [data-elevation="true"][elevation="2"],
+  [data-elevation="true"][elevation="3"] {
     background-color: var(--color-bg-elevation-2);
     border-radius: var(--border-radius-elevation-2);
     outline: var(--border-width-1) solid var(--color-bd-elevation-2);
   }
 
-  /** if elevation is enabled for section and zone and cards both have no elevation, then add elevation styles-2 to the section */
-  [elevation="1"][data-elevation="true"]:has(
-      [elevation="2"][data-elevation="false"]
-    ):has([elevation="3"][data-elevation="false"]) {
-    background-color: var(--color-bg-elevation-2);
-    border-radius: var(--border-radius-elevation-2);
-    outline: var(--border-width-1) solid var(--color-bd-elevation-2);
-  }
-
-  /** if elevation is enabled for section and any of zone or card has elevation, then add elevation styles-2 to the section */
-  [elevation="1"][data-elevation="true"]:has([data-elevation="true"]) {
-    background-color: var(--color-bg-elevation-1);
-    outline: var(--border-width-1) solid var(--color-bd-elevation-2);
-  }
-
-  /** if elevation is enabled for sectionm zone has elevation and card have no elevation, then add border-radius-1 */
-  [elevation="1"][data-elevation="true"]:has(
-      [elevation="2"][data-elevation="true"]
-    ):has([elevation="3"][data-elevation="false"]) {
-    border-radius: var(--border-radius-elevation-1);
-  }
-
-  /** if elevation is enabled for section and zone has no elevation and card has elevation, then add border-radius-2 */
-  [elevation="1"][data-elevation="true"]:has(
-      [elevation="2"][data-elevation="false"]
-    ):has([elevation="3"][data-elevation="true"]) {
-    border-radius: var(--border-radius-elevation-2);
-  }
-
-  /** if elevation is enabled for section and zone and card both have elevation, then add elevation styles-1 to the section */
-  [elevation="1"][data-elevation="true"]:has(
-      [elevation="2"][data-elevation="true"]
-    ):has([elevation="3"][data-elevation="true"]) {
+  [data-elevation="true"]:has([data-elevation="true"]) {
     background-color: var(--color-bg-elevation-1);
     border-radius: var(--border-radius-elevation-1);
     outline: var(--border-width-1) solid var(--color-bd-elevation-1);
+
+    [data-elevation="true"] {
+      background-color: var(--color-bg-elevation-2);
+      border-radius: var(--border-radius-elevation-2);
+      outline: var(--border-width-1) solid var(--color-bd-elevation-2);
+    }
+  }
+
+  [data-elevation="true"]:has([data-elevation="true"] [data-elevation="true"]) {
+    background-color: var(--color-bg-elevation-1);
+    border-radius: var(--border-radius-elevation-1);
+    outline: var(--border-width-1) solid var(--color-bd-elevation-1);
+
+    [data-elevation="true"] {
+      background-color: var(--color-bg-elevation-2);
+      border-radius: var(--border-radius-elevation-2);
+      outline: var(--border-width-1) solid var(--color-bd-elevation-2);
+
+      [data-elevation="true"] {
+        background-color: var(--color-bg-elevation-3);
+        border-radius: var(--border-radius-elevation-3);
+        outline: var(--border-width-1) solid var(--color-bd-elevation-3);
+      }
+    }
   }
 }
