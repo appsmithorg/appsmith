@@ -426,7 +426,7 @@ jobs:
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:nightly
 
   notify-slack-for-promotion:
-    needs: ci-test
+    needs: ci-test-result
     runs-on: ubuntu-latest
 
     if: ( failure() && github.ref == 'refs/heads/master' )
