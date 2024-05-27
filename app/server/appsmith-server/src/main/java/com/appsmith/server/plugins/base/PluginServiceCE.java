@@ -48,4 +48,6 @@ public interface PluginServiceCE extends CrudService<Plugin, String> {
     Flux<Plugin> saveAll(Iterable<Plugin> plugins);
 
     Flux<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields);
+
+    Mono<Map<String, Plugin>> findAllPluginsInWorkspace(String workspaceId);
 }

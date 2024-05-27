@@ -772,33 +772,26 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, AclPermission permission) {
-        Mono<List<Plugin>> pluginsListMono =
-                pluginService.getInWorkspace(workspaceId).collectList();
-        return pluginsListMono.flatMapMany(pluginList -> {
-            return repository
-                    .findAllByWorkspaceId(workspaceId, permission)
-                    .publishOn(Schedulers.boundedElastic())
-                    .flatMap(datasource -> datasourceStorageService
-                            .findByDatasource(datasource)
-                            .publishOn(Schedulers.boundedElastic())
-                            .flatMap(datasourceStorage ->
-                                    datasourceStorageService.populateHintMessages(datasourceStorage, pluginList))
-                            .map(datasourceStorage ->
-                                    datasourceStorageService.createDatasourceStorageDTOFromDatasourceStorage(
-                                            datasourceStorage))
-                            .collectMap(DatasourceStorageDTO::getEnvironmentId)
-                            .flatMap(datasourceStorages -> {
-                                datasource.setDatasourceStorages(datasourceStorages);
-                                return Mono.just(datasource);
-                            }))
-                    .collectList()
-                    .name(FETCH_ALL_DATASOURCES_WITH_STORAGES)
-                    .tap(Micrometer.observation(observationRegistry))
-                    .flatMapMany(datasourceList -> {
-                        markRecentlyUsed(datasourceList, 3);
-                        return Flux.fromIterable(datasourceList);
-                    });
-        });
+        return repository
+                .findAllByWorkspaceId(workspaceId, permission)
+                .publishOn(Schedulers.boundedElastic())
+                .flatMap(datasource -> datasourceStorageService
+                        .findByDatasource(datasource)
+                        .publishOn(Schedulers.boundedElastic())
+                        .flatMap(datasourceStorageService::populateHintMessages)
+                        .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
+                        .collectMap(DatasourceStorageDTO::getEnvironmentId)
+                        .flatMap(datasourceStorages -> {
+                            datasource.setDatasourceStorages(datasourceStorages);
+                            return Mono.just(datasource);
+                        }))
+                .collectList()
+                .name(FETCH_ALL_DATASOURCES_WITH_STORAGES)
+                .tap(Micrometer.observation(observationRegistry))
+                .flatMapMany(datasourceList -> {
+                    markRecentlyUsed(datasourceList, 3);
+                    return Flux.fromIterable(datasourceList);
+                });
     }
 
     @Override

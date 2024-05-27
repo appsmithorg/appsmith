@@ -39,8 +39,6 @@ public interface DatasourceStorageServiceCE {
 
     Mono<DatasourceStorage> checkEnvironment(DatasourceStorage datasourceStorage);
 
-    Mono<DatasourceStorage> populateHintMessages(DatasourceStorage datasourceStorage, List<Plugin> pluginList);
-
     Mono<DatasourceStorage> populateHintMessages(DatasourceStorage datasourceStorage);
 
     Map<String, Object> getAnalyticsProperties(DatasourceStorage datasourceStorage);
