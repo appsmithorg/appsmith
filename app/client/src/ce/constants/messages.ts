@@ -401,6 +401,11 @@ export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
 export const ERROR_WIDGET_CUT_NOT_ALLOWED = () =>
   `This selected widget cannot be cut.`;
+export const WIDGET_ARCHIVE = (widgetName: string) => `Archived ${widgetName}`;
+export const WIDGET_UNARCHIVE = (widgetName: string) =>
+  `Unarchived ${widgetName}`;
+export const ERROR_WIDGET_ARCHIVE_NOT_ALLOWED = () =>
+  `This selected widget cannot be archived.`;
 export const SELECT_ALL_WIDGETS_MSG = () =>
   `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;

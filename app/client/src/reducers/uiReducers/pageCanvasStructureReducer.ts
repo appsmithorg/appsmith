@@ -13,10 +13,12 @@ export interface CanvasStructure {
   widgetId: string;
   type: WidgetType;
   children?: CanvasStructure[];
+  archived?: CanvasStructure[];
 }
 
 export interface DSL extends WidgetProps {
   children?: DSL[];
+  archived?: DSL[];
 }
 export interface PageCanvasStructureReduxState {
   [pageId: string]: CanvasStructure;

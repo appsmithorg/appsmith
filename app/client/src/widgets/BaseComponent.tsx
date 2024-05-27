@@ -12,6 +12,7 @@ export interface ComponentProps {
   isDisabled?: boolean;
   isVisible?: boolean;
   backgroundColor?: Color;
+  isArchived?: boolean;
 }
 
 export default BaseComponent;

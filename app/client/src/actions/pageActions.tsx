@@ -306,6 +306,7 @@ export interface WidgetDelete {
   parentId?: string;
   disallowUndo?: boolean;
   isShortcut?: boolean;
+  archived?: boolean;
 }
 
 export interface MultipleWidgetDeletePayload {

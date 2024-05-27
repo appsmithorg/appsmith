@@ -20,7 +20,10 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
-export type WidgetTree = WidgetProps & { children?: WidgetTree[] };
+export type WidgetTree = WidgetProps & {
+  children?: WidgetTree[];
+  archived?: WidgetTree[];
+};
 
 const UNREGISTERED_WIDGETS: WidgetType[] = ["ICON_WIDGET"];
 

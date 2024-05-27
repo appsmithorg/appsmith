@@ -199,10 +199,12 @@ export enum BlueprintOperationTypes {
 
 export type FlattenedWidgetProps = WidgetProps & {
   children?: string[];
+  archived?: string[];
 };
 
 export interface DSLWidget extends WidgetProps {
   children?: DSLWidget[];
+  archived?: DSLWidget[];
 }
 
 interface LayoutProps {
@@ -226,6 +228,7 @@ export type AutocompletionDefinitions =
 const staticProps = omit(
   WIDGET_STATIC_PROPS,
   "children",
+  "archived",
   "topRowBeforeCollapse",
   "bottomRowBeforeCollapse",
 );
@@ -235,6 +238,7 @@ export type CanvasWidgetStructure = Pick<
 > &
   LayoutProps & {
     children?: CanvasWidgetStructure[];
+    archived?: CanvasWidgetStructure[];
     selected?: boolean;
     onClickCapture?: (event: React.MouseEvent<HTMLElement>) => void;
     isListWidgetCanvas?: boolean;

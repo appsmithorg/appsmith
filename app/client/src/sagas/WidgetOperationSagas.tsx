@@ -124,6 +124,7 @@ import {
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
 import widgetDeletionSagas from "./WidgetDeletionSagas";
+import widgetArchiveSagas from "./WidgetArchiveSagas";
 import type { CopiedWidgetGroup } from "./WidgetOperationUtils";
 import {
   createSelectedWidgetsAsCopiedWidgets,
@@ -1013,7 +1014,8 @@ function* copyWidgetSaga(action: ReduxAction<{ isShortcut: boolean }>) {
     return (
       allWidgets[each] &&
       !allWidgets[each].disallowCopy &&
-      allWidgets[each].type !== "CANVAS_WIDGET"
+      allWidgets[each].type !== "CANVAS_WIDGET" &&
+      !allWidgets[each].isArchived
     );
   });
 
@@ -1646,7 +1648,8 @@ function* cutWidgetSaga() {
     return (
       allWidgets[each] &&
       !allWidgets[each].disallowCopy &&
-      allWidgets[each].type !== "CANVAS_WIDGET"
+      allWidgets[each].type !== "CANVAS_WIDGET" &&
+      !allWidgets[each].isArchived
     );
   });
 
@@ -1849,6 +1852,7 @@ export default function* widgetOperationSagas() {
   yield fork(widgetAdditionSagas);
   yield fork(widgetDeletionSagas);
   yield fork(widgetSelectionSagas);
+  yield fork(widgetArchiveSagas);
   yield fork(widgetBatchUpdatePropertySaga);
   yield all([
     takeEvery(ReduxActionTypes.ADD_SUGGESTED_WIDGET, addSuggestedWidget),

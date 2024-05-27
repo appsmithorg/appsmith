@@ -14,11 +14,13 @@ import { klona } from "klona";
 export type FlattenedWidgetProps<orType = never> =
   | (WidgetProps & {
       children?: string[];
+      archived?: string[];
     })
   | orType;
 
 export interface CanvasWidgetsStructureReduxState {
   children?: CanvasWidgetsStructureReduxState[];
+  archived?: CanvasWidgetsStructureReduxState[];
   type: WidgetType;
   widgetId: string;
   parentId?: string;

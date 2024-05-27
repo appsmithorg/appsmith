@@ -208,8 +208,11 @@ function PropertyPaneView(
     tooltipContent: any;
     icon: ReactElement;
   }> => {
-    return [
-      {
+    const actionList = [];
+
+    // Do not show the copy button for archived widgets
+    if (widgetProperties && widgetProperties.isArchived !== true) {
+      actionList.push({
         tooltipContent: "Copy widget",
         icon: (
           <Button
@@ -220,21 +223,23 @@ function PropertyPaneView(
             startIcon="duplicate"
           />
         ),
-      },
-      {
-        tooltipContent: "Delete widget",
-        icon: (
-          <Button
-            data-testid="t--delete-widget"
-            isIconButton
-            kind="tertiary"
-            onClick={onDelete}
-            startIcon="delete-bin-line"
-          />
-        ),
-      },
-    ];
-  }, [onCopy, onDelete]);
+      });
+    }
+    actionList.push({
+      tooltipContent: "Delete widget",
+      icon: (
+        <Button
+          data-testid="t--delete-widget"
+          isIconButton
+          kind="tertiary"
+          onClick={onDelete}
+          startIcon="delete-bin-line"
+        />
+      ),
+    });
+
+    return actionList;
+  }, [onCopy, onDelete, widgetProperties]);
 
   useEffect(() => {
     setSearchText("");

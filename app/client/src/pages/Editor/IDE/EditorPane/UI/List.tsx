@@ -6,6 +6,7 @@ import { useSelector } from "react-redux";
 import {
   getCurrentPageId,
   selectWidgetsForCurrentPage,
+  selectArchivedWidgetsForCurrentPage,
 } from "@appsmith/selectors/entitiesSelector";
 import { getPagePermissions } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -20,10 +21,46 @@ import styled from "styled-components";
 const ListContainer = styled(Flex)`
   & .t--entity-item {
     height: 32px;
-    & .t--entity-name {
-      padding-left: var(--ads-v2-spaces-3);
-    }
   }
+
+  & .t--entity-name {
+    padding-left: var(--ads-v2-spaces-3);
+  }
+
+  height: 100%;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-3);
+  overflow: hidden; // Ensure that overflow handling is consistent
+  padding-top: var(--ads-v2-spaces-3);
+  padding-bottom: var(--ads-v2-spaces-3);
+
+  .widgets-container,
+  .archived-widgets-container {
+    flex-grow: 2;
+    overflow-y: auto;
+    padding-left: var(--ads-v2-spaces-3);
+    padding-right: var(--ads-v2-spaces-3);
+  }
+
+  .archived-widgets-wrapper {
+    flex-grow: 1;
+    margin-top: var(--ads-v2-spaces-5);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .archived-widgets-container {
+    flex-grow: 1;
+    overflow-y: auto;
+  }
+`;
+
+const ArchivedHeader = styled.div`
+  padding-left: var(--ads-v2-spaces-3);
+  font-weight: lighter;
+  font-size: var(--ads-canvas-widget-name-font-size);
+  color: var(--ads-canvas-widget-name-color);
+  flex-shrink: 0;
 `;
 
 const ListWidgets = (props: {
@@ -31,6 +68,7 @@ const ListWidgets = (props: {
 }) => {
   const pageId = useSelector(getCurrentPageId) as string;
   const widgets = useSelector(selectWidgetsForCurrentPage);
+  const archivedWidgets = useSelector(selectArchivedWidgetsForCurrentPage);
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
@@ -50,6 +88,8 @@ const ListWidgets = (props: {
 
   const widgetsExist =
     widgets && widgets.children && widgets.children.length > 0;
+
+  const archivedWidgetsExist = archivedWidgets && archivedWidgets.length > 0;
 
   useEffect(() => {
     props.setFocusSearchInput(false);
@@ -89,8 +129,8 @@ const ListWidgets = (props: {
       ) : null}
       {widgetsExist ? (
         <Flex
+          className="widgets-container"
           data-testid="t--ide-list"
-          flex="1"
           flexDirection={"column"}
           overflowY="auto"
           px="spaces-3"
@@ -110,6 +150,29 @@ const ListWidgets = (props: {
           ))}
         </Flex>
       ) : null}
+      {archivedWidgetsExist && (
+        <Flex className="archived-widgets-wrapper">
+          <ArchivedHeader>Archived Widgets</ArchivedHeader>
+          <Flex className="archived-widgets-container" flexDirection={"column"}>
+            {archivedWidgets?.map((widget) => (
+              <WidgetEntity
+                childWidgets={[
+                  ...(widget.children || []),
+                  ...(widget.archived || []),
+                ]}
+                key={widget.widgetId}
+                pageId={pageId}
+                searchKeyword=""
+                step={1}
+                widgetId={widget.widgetId}
+                widgetName={widget.widgetName}
+                widgetType={widget.type}
+                widgetsInStep={widgetsInStep}
+              />
+            ))}
+          </Flex>
+        </Flex>
+      )}
     </ListContainer>
   );
 };

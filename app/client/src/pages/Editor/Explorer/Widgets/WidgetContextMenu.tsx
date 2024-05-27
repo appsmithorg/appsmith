@@ -51,6 +51,7 @@ export function WidgetContextMenu(props: {
       payload: {
         widgetId,
         parentId,
+        archived: widget.isArchived,
       },
     });
   }, [dispatch, widgetId, parentId, widget, parentWidget]);
@@ -67,23 +68,68 @@ export function WidgetContextMenu(props: {
     });
   }, []);
 
+  const archiveWidget = useCallback(() => {
+    dispatch({
+      type: ReduxActionTypes.ARCHIVE_WIDGET,
+      payload: {
+        widgetId,
+        parentId,
+      },
+    });
+  }, [dispatch, widgetId, parentId]);
+
+  const unarchiveWidget = useCallback(() => {
+    dispatch({
+      type: ReduxActionTypes.UNARCHIVE_WIDGET,
+      payload: {
+        widgetId,
+        parentId,
+      },
+    });
+  }, [dispatch, widgetId, parentId]);
+
   const editWidgetName = useCallback(() => {
     dispatch(initExplorerEntityNameEdit(widgetId));
   }, [dispatch, widgetId]);
 
-  const optionTree: TreeDropdownOption[] = [
-    {
+  const optionTree: TreeDropdownOption[] = [];
+
+  if (!widget.isArchived) {
+    const showBindingsOption: TreeDropdownOption = {
       value: "showBinding",
       onSelect: () => showBinding(props.widgetId, widget.widgetName),
       label: "Show bindings",
-    },
-  ];
+    };
+    optionTree.push(showBindingsOption);
+  }
 
-  if (props.canManagePages) {
+  if (!widget.isArchived && props.canManagePages) {
     const option: TreeDropdownOption = {
       value: "rename",
       onSelect: editWidgetName,
       label: "Edit name",
+    };
+    optionTree.push(option);
+  }
+
+  if (
+    !widget.isArchived &&
+    widget.isDeletable !== false &&
+    props.canManagePages
+  ) {
+    const option: TreeDropdownOption = {
+      value: "archive",
+      onSelect: archiveWidget,
+      label: "Archive",
+    };
+    optionTree.push(option);
+  }
+
+  if (!parentWidget.isArchived && widget.isArchived && props.canManagePages) {
+    const option: TreeDropdownOption = {
+      value: "unarchive",
+      onSelect: unarchiveWidget,
+      label: "Unarchive",
     };
     optionTree.push(option);
   }

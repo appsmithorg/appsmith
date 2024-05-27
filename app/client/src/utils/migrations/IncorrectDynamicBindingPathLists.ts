@@ -38,5 +38,10 @@ export const migrateIncorrectDynamicBindingPathLists = (
       migrateIncorrectDynamicBindingPathLists,
     );
   }
+  if (currentDSL.archived) {
+    migratedDsl.archived = currentDSL.archived.map(
+      migrateIncorrectDynamicBindingPathLists,
+    );
+  }
   return migratedDsl;
 };

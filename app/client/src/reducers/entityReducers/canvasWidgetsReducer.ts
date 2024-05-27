@@ -32,6 +32,7 @@ export const initialState: CanvasWidgetsReduxState = {};
 export type FlattenedWidgetProps<orType = never> =
   | (WidgetProps & {
       children?: string[];
+      archived?: string[];
     })
   | orType;
 

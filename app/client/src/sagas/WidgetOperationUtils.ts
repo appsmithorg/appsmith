@@ -1501,7 +1501,10 @@ export function* createWidgetCopy(widget: FlattenedWidgetProps) {
   const allWidgets: { [widgetId: string]: FlattenedWidgetProps } =
     yield select(getWidgets);
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
-  const widgetsToStore = getAllWidgetsInTree(widget.widgetId, allWidgets);
+  const widgetsToStore = getAllWidgetsInTree(widget.widgetId, allWidgets)
+    // filter out the archived widgets
+    .filter((w) => !w.isArchived)
+    .map((w) => ({ ...w, archived: [] }));
   let widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
   if (widget.parentId && isAnvilLayout) {
     widgetPositionInfo = getWidgetLayoutMetaInfo(
@@ -1520,6 +1523,7 @@ export function* createWidgetCopy(widget: FlattenedWidgetProps) {
 
 export type WidgetsInTree = (WidgetProps & {
   children?: string[] | undefined;
+  archived?: string[] | undefined;
 })[];
 
 /**
@@ -1823,3 +1827,55 @@ const updateListWidgetBindings = (
 
   return widgets;
 };
+
+/**
+ * Handles the reassignment of archived children to the main canvas when a widget is deleted.
+ *
+ * @param otherWidgetsToDelete - Array of widgets that are scheduled to be deleted.
+ * @param canvasWidgets - The current state of all widgets.
+ * @returns Updated canvasWidgets with archived children moved to main canvas.
+ */
+export function* handleArchivedOnDelete(
+  otherWidgetsToDelete: WidgetsInTree,
+  canvasWidgets: CanvasWidgetsReduxState,
+): Generator<any, CanvasWidgetsReduxState, any> {
+  const updatedWidgets = { ...canvasWidgets };
+  const mainContainerWidget = updatedWidgets[MAIN_CONTAINER_WIDGET_ID];
+
+  if (!mainContainerWidget) {
+    console.error("Main container widget not found");
+    return updatedWidgets;
+  }
+
+  let newArchivedIDs: string[] = [];
+  otherWidgetsToDelete.forEach((widget) => {
+    if (widget.archived && widget.archived.length > 0) {
+      newArchivedIDs.push(...widget.archived);
+    }
+  });
+
+  const newArchived = [
+    ...(mainContainerWidget.archived || []),
+    ...newArchivedIDs,
+  ];
+  newArchivedIDs.forEach((archivedWidgetId) => {
+    const archivedWidget = updatedWidgets[archivedWidgetId];
+    if (archivedWidget) {
+      // Create a new object with updated properties
+      updatedWidgets[archivedWidgetId] = {
+        ...archivedWidget,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
+        widgetId: archivedWidgetId,
+        isArchived: true,
+      };
+    }
+  });
+
+  // Update the main container widget's archived list
+  updatedWidgets[MAIN_CONTAINER_WIDGET_ID] = {
+    ...mainContainerWidget,
+    archived: newArchived,
+  };
+
+  return updatedWidgets;
+}

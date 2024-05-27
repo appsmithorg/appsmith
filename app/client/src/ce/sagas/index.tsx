@@ -47,6 +47,7 @@ import utilSagas from "sagas/UtilSagas";
 import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
 import actionExecutionChangeListeners from "sagas/WidgetLoadingSaga";
 import widgetOperationSagas from "sagas/WidgetOperationSagas";
+import widgetArchiveSagas from "sagas/WidgetArchiveSagas";
 import oneClickBindingSaga from "sagas/OneClickBindingSaga";
 import entityNavigationSaga from "sagas/NavigationSagas";
 import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
@@ -64,6 +65,7 @@ export const sagas = [
   watchActionExecutionSagas,
   watchPluginActionExecutionSagas,
   widgetOperationSagas,
+  widgetArchiveSagas,
   errorSagas,
   watchDatasourcesSagas,
   applicationSagas,

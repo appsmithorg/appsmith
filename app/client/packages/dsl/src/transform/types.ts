@@ -1,7 +1,15 @@
-export type NestedDSLWidget<W> = W & { children?: NestedDSLWidget<W>[] };
+export type NestedDSLWidget<W> = W & {
+  children?: NestedDSLWidget<W>[];
+  archived?: NestedDSLWidget<W>[];
+};
+
 export type NestedDSL<W> = NestedDSLWidget<W>;
 
-export type FlattenedDSLWidget<W> = W & { children?: string[] };
+export type FlattenedDSLWidget<W> = W & {
+  children?: string[];
+  archived?: string[];
+};
+
 export interface FlattenedDSL<W> {
   [widgetId: string]: FlattenedDSLWidget<W>;
 }

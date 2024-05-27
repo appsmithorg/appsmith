@@ -14,7 +14,11 @@ import {
 import log from "loglevel";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getWidgets, getWidgetsMeta } from "sagas/selectors";
+import {
+  getWidgetsMeta,
+  getActiveWidgets,
+  getArchivedWidgets,
+} from "sagas/selectors";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   addNewLayer,
@@ -47,7 +51,7 @@ function* addWidgetAndReorderSaga(
     actionPayload.payload;
   const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(getActiveWidgets);
   try {
     const newParams: { [key: string]: any } = yield call(
       executeWidgetBlueprintBeforeOperations,
@@ -100,7 +104,15 @@ function* addWidgetAndReorderSaga(
       },
     );
 
-    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    // Fetch archived widgets and merge with active widgets
+    const archivedWidgets: CanvasWidgetsReduxState =
+      yield select(getArchivedWidgets);
+    const finalWidgets = {
+      ...archivedWidgets,
+      ...updatedWidgetsOnMove,
+    };
+
+    yield put(updateAndSaveLayout(finalWidgets));
     log.debug(
       "Auto-layout : add new widget took",
       performance.now() - start,
@@ -133,7 +145,7 @@ function* autoLayoutReorderSaga(
   const { alignment, index, isNewLayer, layerIndex, rowIndex } = dropPayload;
 
   try {
-    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const allWidgets: CanvasWidgetsReduxState = yield select(getActiveWidgets);
     const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
     if (!parentId || !movedWidgets || !movedWidgets.length) return;
     const updatedWidgets: CanvasWidgetsReduxState = yield call(
@@ -152,7 +164,15 @@ function* autoLayoutReorderSaga(
       },
     );
 
-    yield put(updateAndSaveLayout(updatedWidgets));
+    // Fetch archived widgets and merge with active widgets
+    const archivedWidgets: CanvasWidgetsReduxState =
+      yield select(getArchivedWidgets);
+    const finalWidgets = {
+      ...archivedWidgets,
+      ...updatedWidgets,
+    };
+
+    yield put(updateAndSaveLayout(finalWidgets));
     log.debug(
       "Auto-layout : reorder computations took",
       performance.now() - start,

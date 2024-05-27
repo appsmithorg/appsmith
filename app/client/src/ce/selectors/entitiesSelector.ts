@@ -65,6 +65,7 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 
 export enum GROUP_TYPES {
   API = "APIs",
@@ -1021,6 +1022,40 @@ export const selectWidgetsForCurrentPage = createSelector(
   (state: AppState) => state.ui.pageCanvasStructure,
   getCurrentPageId,
   (canvasStructure, pageId) => (pageId ? canvasStructure[pageId] : null),
+);
+
+export const selectArchivedWidgetsForCurrentPage = createSelector(
+  selectWidgetsForCurrentPage,
+  (canvasStructure) => {
+    // Function to recursively collect all archived widgets
+    const collectArchivedWidgets = (
+      widget: CanvasStructure | null,
+      collectedWidgets: CanvasStructure[],
+    ) => {
+      if (!widget) return;
+
+      // Collect archived from the current widget
+      if (widget.archived && widget.archived.length > 0) {
+        widget.archived.forEach((archivedWidget) => {
+          collectedWidgets.push(archivedWidget);
+          collectArchivedWidgets(archivedWidget, collectedWidgets);
+        });
+      }
+
+      // Recurse into children to collect their archived widgets
+      if (widget.children && widget.children.length > 0) {
+        widget.children.forEach((child) => {
+          collectArchivedWidgets(child, collectedWidgets);
+        });
+      }
+    };
+
+    const archivedWidgets: CanvasStructure[] = [];
+    if (canvasStructure) {
+      collectArchivedWidgets(canvasStructure, archivedWidgets);
+    }
+    return archivedWidgets;
+  },
 );
 
 export const selectAllPages = (state: AppState) => {

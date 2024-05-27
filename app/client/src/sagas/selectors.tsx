@@ -21,6 +21,43 @@ export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
 };
 
+/**
+ * Generic selector to fetch widgets based on their archival status.
+ * @param state - The entire application state.
+ * @param fetchArchived - Flag to determine whether to fetch archived or active widgets.
+ * @returns A filtered list of widgets based on the archival status.
+ */
+export const getWidgetsByArchivalStatus = (
+  state: AppState,
+  fetchArchived: boolean,
+): CanvasWidgetsReduxState => {
+  const allWidgets = state.entities.canvasWidgets;
+  const filteredWidgets: CanvasWidgetsReduxState = {};
+
+  Object.entries(allWidgets).forEach(([widgetId, widget]) => {
+    if (
+      widget.isArchived === fetchArchived ||
+      (!fetchArchived && widget.isArchived === undefined)
+    ) {
+      filteredWidgets[widgetId] = widget;
+    }
+  });
+
+  return filteredWidgets;
+};
+
+// Returns all widgets that are not archived
+export const getActiveWidgets = (state: AppState): CanvasWidgetsReduxState => {
+  return getWidgetsByArchivalStatus(state, false);
+};
+
+// Returns all widgets that are archived
+export const getArchivedWidgets = (
+  state: AppState,
+): CanvasWidgetsReduxState => {
+  return getWidgetsByArchivalStatus(state, true);
+};
+
 export const getWidgetsByName = createSelector(getWidgets, (widgets) => {
   return _.keyBy(widgets, "widgetName");
 });
@@ -41,7 +78,7 @@ export const getMetaWidgets = (state: AppState): MetaWidgetsReduxState => {
 };
 
 export const getCanvasAndMetaWidgets = createSelector(
-  getWidgets,
+  getActiveWidgets,
   getMetaWidgets,
   (canvasWidget, metaWidget) => defaults({}, canvasWidget, metaWidget),
 );

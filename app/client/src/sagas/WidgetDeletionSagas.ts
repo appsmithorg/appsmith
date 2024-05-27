@@ -39,6 +39,7 @@ import type { WidgetsInTree } from "./WidgetOperationUtils";
 import {
   getAllWidgetsInTree,
   updateListWidgetPropertiesOnChildDelete,
+  handleArchivedOnDelete,
 } from "./WidgetOperationUtils";
 import { showUndoRedoToast } from "utils/replayHelpers";
 import WidgetFactory from "WidgetProvider/factory";
@@ -163,12 +164,17 @@ type UpdatedDSLPostDelete =
       finalWidgets: CanvasWidgetsReduxState;
       otherWidgetsToDelete: (WidgetProps & {
         children?: string[] | undefined;
+        archived?: string[] | undefined;
       })[];
       widgetName: string;
     }
   | undefined;
 
-function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
+function* getUpdatedDslAfterDeletingWidget(
+  widgetId: string,
+  parentId: string,
+  archived?: boolean,
+) {
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   if (widgetId && parentId) {
     const widgets = { ...stateWidgets };
@@ -196,13 +202,26 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
       widgetName = widget.tabName;
     }
 
-    let finalWidgets: CanvasWidgetsReduxState =
-      updateListWidgetPropertiesOnChildDelete(widgets, widgetId, widgetName);
-
-    finalWidgets = omit(
-      finalWidgets,
-      otherWidgetsToDelete.map((widgets) => widgets.widgetId),
+    const updatedWidgets: CanvasWidgetsReduxState = yield call(
+      handleArchivedOnDelete,
+      otherWidgetsToDelete,
+      widgets,
     );
+
+    let finalWidgets: CanvasWidgetsReduxState =
+      updateListWidgetPropertiesOnChildDelete(
+        updatedWidgets,
+        widgetId,
+        widgetName,
+      );
+
+    // Determine which widgets should be deletable based on their archival status
+    // Important for archiving as there is widget duplication during the operation
+    let deletableWidgetIds = otherWidgetsToDelete
+      .filter((w) => w.isArchived === archived)
+      .map((w) => w.widgetId);
+
+    finalWidgets = omit(finalWidgets, deletableWidgetIds);
 
     return {
       finalWidgets,
@@ -214,7 +233,7 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
 
 function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
-    let { parentId, widgetId } = deleteAction.payload;
+    let { parentId, widgetId, archived } = deleteAction.payload;
 
     const { disallowUndo, isShortcut } = deleteAction.payload;
 
@@ -228,6 +247,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
 
       widgetId = selectedWidget.widgetId;
       parentId = selectedWidget.parentId;
+      archived = selectedWidget.isArchived;
     }
 
     if (widgetId && parentId) {
@@ -238,6 +258,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         getUpdatedDslAfterDeletingWidget,
         widgetId,
         parentId,
+        archived,
       );
 
       if (updatedObj) {
@@ -445,6 +466,7 @@ function* postDelete(
   widgetName: string,
   otherWidgetsToDelete: (WidgetProps & {
     children?: string[] | undefined;
+    archived?: string[] | undefined;
   })[],
 ) {
   showUndoRedoToast(widgetName, false, false, true);

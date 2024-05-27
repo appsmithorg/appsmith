@@ -56,8 +56,19 @@ const getIsResizing = (state: AppState) => state.ui.widgetDragResize.isResizing;
 
 const getPageListState = (state: AppState) => state.entities.pageList;
 
-const getWidgets = (state: AppState): CanvasWidgetsReduxState =>
-  state.entities.canvasWidgets;
+const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
+  const allWidgets = state.entities.canvasWidgets;
+  const filteredWidgets: CanvasWidgetsReduxState = {};
+
+  // Fetch only non-archived widgets
+  Object.entries(allWidgets).forEach(([widgetId, widget]) => {
+    if (!widget.isArchived || widget.isArchived === undefined) {
+      filteredWidgets[widgetId] = widget;
+    }
+  });
+
+  return filteredWidgets;
+};
 
 export const getIsEditorInitialized = (state: AppState) =>
   state.ui.editor.initialized;

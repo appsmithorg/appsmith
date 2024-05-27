@@ -287,4 +287,27 @@ export class EntityExplorer {
       PageLeftPane.assertPresence(renameVal);
     }
   }
+
+  public ArchiveWidgetFromEntityExplorer(widgetName: string) {
+    this.openContextMenu(widgetName);
+    cy.xpath(this.locator._contextMenuItem("Archive")).click({ force: true });
+    this.agHelper.Sleep();
+    this.agHelper.ValidateToastMessage(`Archived ${widgetName}`);
+  }
+
+  public UnarchiveWidgetFromEntityExplorer(widgetName: string) {
+    this.openContextMenu(widgetName);
+    cy.xpath(this.locator._contextMenuItem("Unarchive")).click({ force: true });
+    this.agHelper.Sleep();
+    this.agHelper.ValidateToastMessage(`Unarchived ${widgetName}`);
+  }
+
+  /**
+   * Helper method to open the context menu for a given widget.
+   */
+  private openContextMenu(widgetName: string) {
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
+    cy.xpath(this._contextMenu(widgetName)).last().click({ force: true });
+  }
 }

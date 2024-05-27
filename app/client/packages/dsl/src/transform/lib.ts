@@ -9,7 +9,7 @@ const SCHEMA_BY_ID = new schema.Entity(
   {},
   { idAttribute: "widgetId" },
 );
-SCHEMA_BY_ID.define({ children: [SCHEMA_BY_ID] });
+SCHEMA_BY_ID.define({ children: [SCHEMA_BY_ID], archived: [SCHEMA_BY_ID] });
 
 // Normalising using widgetId
 export function flattenDSL<W>(nestedDSL: NestedDSL<W>): FlattenedDSL<W> {

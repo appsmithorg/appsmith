@@ -34,7 +34,12 @@ import {
   executeWidgetBlueprintBeforeOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "sagas/WidgetBlueprintSagas";
-import { getWidget, getWidgets, getWidgetsMeta } from "sagas/selectors";
+import {
+  getWidget,
+  getWidgetsMeta,
+  getActiveWidgets,
+  getArchivedWidgets,
+} from "sagas/selectors";
 import {
   getCanvasWidth,
   getIsAutoLayoutMobileBreakPoint,
@@ -182,8 +187,15 @@ export function* addWidgetAndMoveWidgetsSaga(
     ) {
       throw Error;
     }
+    // Fetch archived widgets and merge with active widgets
+    const archivedWidgets: CanvasWidgetsReduxState =
+      yield select(getArchivedWidgets);
+    const finalWidgets = {
+      ...archivedWidgets,
+      ...updatedWidgetsOnAddAndMove,
+    };
     yield put(
-      updateAndSaveLayout(updatedWidgetsOnAddAndMove, {
+      updateAndSaveLayout(finalWidgets, {
         shouldReplay: actionPayload.payload.shouldReplay,
       }),
     );
@@ -209,7 +221,7 @@ function* addWidgetAndMoveWidgets(
   draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
   canvasId: string,
 ) {
-  const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+  const allWidgets: CanvasWidgetsReduxState = yield select(getActiveWidgets);
   const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
     getUpdateDslAfterCreatingChild,
     { ...newWidget, widgetId: canvasId },
@@ -338,7 +350,7 @@ function* moveWidgetsSaga(
 
   const { canvasId, draggedBlocksToUpdate } = actionPayload.payload;
   try {
-    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const allWidgets: CanvasWidgetsReduxState = yield select(getActiveWidgets);
 
     for (const dragBlock of draggedBlocksToUpdate) {
       yield call(
@@ -391,7 +403,15 @@ function* moveWidgetsSaga(
       throw Error;
     }
 
-    yield put(updateAndSaveLayout(updatedWidgetsOnMove));
+    // Fetch archived widgets and merge with active widgets
+    const archivedWidgets: CanvasWidgetsReduxState =
+      yield select(getArchivedWidgets);
+    const finalWidgets = {
+      ...archivedWidgets,
+      ...updatedWidgetsOnMove,
+    };
+
+    yield put(updateAndSaveLayout(finalWidgets));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     const block = draggedBlocksToUpdate[0];
