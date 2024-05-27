@@ -7,7 +7,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
@@ -110,7 +109,6 @@ public class OAuth2 extends AuthenticationDTO {
         }
     }
 
-    @JsonIgnore
     @Override
     public Mono<Boolean> hasExpired() {
         if (this.authenticationResponse == null) {
