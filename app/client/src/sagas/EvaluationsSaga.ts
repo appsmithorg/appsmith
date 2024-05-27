@@ -286,6 +286,7 @@ export function* evaluateTreeSaga(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
     evalTreeRequestData,
+    { appMode },
   );
 
   yield call(

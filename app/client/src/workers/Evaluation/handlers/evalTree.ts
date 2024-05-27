@@ -96,7 +96,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
       const setupFirstTreeResponse = profileFn(
         "setupFirstTree",
-        { description: "during initialisation" },
+        { description: "during initialisation", appMode },
         webworkerTelemetry,
         () =>
           dataTreeEvaluator?.setupFirstTree(
@@ -111,7 +111,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
       const dataTreeResponse = profileFn(
         "evalAndValidateFirstTree",
-        { description: "during initialisation" },
+        { description: "during initialisation", appMode },
         webworkerTelemetry,
         () => dataTreeEvaluator?.evalAndValidateFirstTree(),
       );
@@ -143,7 +143,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
       const setupFirstTreeResponse = profileFn(
         "setupFirstTree",
-        { description: "non-initialisation" },
+        { description: "non-initialisation", appMode },
         webworkerTelemetry,
         () => dataTreeEvaluator?.setupFirstTree(unevalTree, configTree),
       );
@@ -153,7 +153,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
       const dataTreeResponse = profileFn(
         "evalAndValidateFirstTree",
-        { description: "non-initialisation" },
+        { description: "non-initialisation", appMode },
         webworkerTelemetry,
         () => dataTreeEvaluator?.evalAndValidateFirstTree(),
       );
@@ -175,13 +175,14 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
       const setupUpdateTreeResponse = profileFn(
         "setupUpdateTree",
-        undefined,
+        { appMode },
         webworkerTelemetry,
         () =>
           dataTreeEvaluator?.setupUpdateTree(
             unevalTree,
             configTree,
             webworkerTelemetry,
+            { appMode },
           ),
       );
 
@@ -193,7 +194,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
       const updateResponse = profileFn(
         "evalAndValidateSubTree",
-        undefined,
+        { appMode },
         webworkerTelemetry,
         () =>
           dataTreeEvaluator?.evalAndValidateSubTree(
@@ -252,7 +253,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
   const updates = profileFn(
     "diffAndGenerateSerializeUpdates",
-    undefined,
+    { appMode },
     webworkerTelemetry,
     () => {
       let updates;
@@ -307,7 +308,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
   webworkerTelemetry["transferDataToMainThread"] = newWebWorkerSpanData(
     "transferDataToMainThread",
-    {},
+    { appMode },
   );
 
   return evalTreeResponse;

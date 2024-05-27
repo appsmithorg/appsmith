@@ -12,6 +12,7 @@ import {
   convertWebworkerSpansToRegularSpans,
   newWebWorkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
+import type { Attributes } from "@opentelemetry/api";
 
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
@@ -154,6 +155,7 @@ export class GracefulWorkerService {
     method,
     rootSpan,
     startTime,
+    telemetryAttributes = {},
     webworkerTelemetry,
   }: {
     webworkerTelemetry: Record<string, WebworkerSpanData>;
@@ -161,6 +163,7 @@ export class GracefulWorkerService {
     method: string;
     startTime: number;
     endTime: number;
+    telemetryAttributes: Attributes;
   }) {
     const webworkerTelemetryResponse = webworkerTelemetry as Record<
       string,
@@ -176,7 +179,7 @@ export class GracefulWorkerService {
       webworkerTelemetryResponse["completeWebworkerComputation"] = {
         startTime,
         endTime,
-        attributes: {},
+        attributes: telemetryAttributes,
         spanName: "completeWebworkerComputation",
       };
     }
@@ -188,7 +191,7 @@ export class GracefulWorkerService {
     // this span does not contain any child spans, it just captures the webworker computation alone
     const completeWebworkerComputationRoot = startRootSpan(
       "completeWebworkerComputationRoot",
-      undefined,
+      telemetryAttributes,
       startTime,
     );
     completeWebworkerComputationRoot?.setAttribute("taskType", method);
@@ -203,7 +206,11 @@ export class GracefulWorkerService {
    *
    * @returns response from the worker
    */
-  *request(method: string, data = {}): any {
+  *request(
+    method: string,
+    data = {},
+    telemetryAttributes: Attributes = {},
+  ): any {
     yield this.ready(true);
     // Impossible case, but helps avoid `?` later in code and makes it clearer.
     if (!this._Worker) return;
@@ -221,7 +228,7 @@ export class GracefulWorkerService {
     const webworkerTelemetryData: Record<string, WebworkerSpanData> = {
       transferDataToWorkerThread: newWebWorkerSpanData(
         "transferDataToWorkerThread",
-        {},
+        telemetryAttributes,
       ),
     };
 
@@ -248,6 +255,7 @@ export class GracefulWorkerService {
         method,
         startTime,
         endTime,
+        telemetryAttributes,
       });
 
       timeTaken = endTime - startTime;

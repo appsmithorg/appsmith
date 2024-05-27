@@ -133,6 +133,7 @@ import {
   profileFn,
   type WebworkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
+import type { Attributes } from "@opentelemetry/api";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -484,6 +485,7 @@ export default class DataTreeEvaluator {
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData> = {},
+    telemetryAttributes: Attributes = {},
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -508,7 +510,7 @@ export default class DataTreeEvaluator {
       Record<string, JSActionEntity>
     >[] = profileFn(
       "SetupUpdateTree.Diff1",
-      undefined,
+      telemetryAttributes,
       webworkerTelemetry,
       () =>
         convertMicroDiffToDeepDiff(
@@ -526,7 +528,7 @@ export default class DataTreeEvaluator {
     //save parsed functions in resolveJSFunctions, update current state of js collection
     const parsedCollections = profileFn(
       "SetupUpdateTree.parseJSActions",
-      undefined,
+      telemetryAttributes,
       webworkerTelemetry,
       () => {
         return parseJSActions(
@@ -619,14 +621,19 @@ export default class DataTreeEvaluator {
       dependenciesOfRemovedPaths,
       inverseDependencies,
       removedPaths,
-    } = profileFn("updateDependencyMap", undefined, webworkerTelemetry, () => {
-      return updateDependencyMap({
-        configTree,
-        dataTreeEvalRef: this,
-        translatedDiffs,
-        unEvalDataTree: localUnEvalTree,
-      });
-    });
+    } = profileFn(
+      "updateDependencyMap",
+      telemetryAttributes,
+      webworkerTelemetry,
+      () => {
+        return updateDependencyMap({
+          configTree,
+          dataTreeEvalRef: this,
+          translatedDiffs,
+          unEvalDataTree: localUnEvalTree,
+        });
+      },
+    );
     const updateDependencyEndTime = performance.now();
 
     this.dependencies = dependencies;
@@ -659,7 +666,7 @@ export default class DataTreeEvaluator {
 
     const setupUpdateTreeOutput = profileFn(
       "setupTree",
-      undefined,
+      telemetryAttributes,
       webworkerTelemetry,
       () => {
         return this.setupTree(localUnEvalTree, updatedValuePaths, {
