@@ -160,13 +160,18 @@ class ActionAPI extends API {
       ActionAPI.apiUpdateCancelTokenSource.cancel();
     }
     ActionAPI.apiUpdateCancelTokenSource = axios.CancelToken.source();
-    const action: any = Object.assign({}, apiConfig);
-    // While this line is not required, name can not be changed from this endpoint
-    delete action.name;
-    // Removing datasource storages from the action object since embedded datasources don't have storages
-    delete action.datasource?.datasourceStorages;
-    delete action.datasource?.isValid;
-    delete action.entityReferenceType;
+    const action: Partial<Action & { entityReferenceType: unknown }> = {
+      ...apiConfig,
+      name: undefined,
+      entityReferenceType: undefined,
+    };
+    if (action.datasource != null) {
+      action.datasource = {
+        ...(action as any).datasource,
+        datasourceStorages: undefined,
+        isValid: undefined,
+      };
+    }
     return API.put(`${ActionAPI.url}/${action.id}`, action, undefined, {
       cancelToken: ActionAPI.apiUpdateCancelTokenSource.token,
     });
