@@ -31,6 +31,7 @@
     outline: var(--border-width-1) solid var(--color-bd-elevation-2);
   }
 
+  /** when there are two elevation levels, then add styles-1 -> the first level and styles-2 -> second level */
   [data-elevation="true"]:has([data-elevation="true"]) {
     background-color: var(--color-bg-elevation-1);
     border-radius: var(--border-radius-elevation-1);
@@ -43,6 +44,7 @@
     }
   }
 
+  /** when there are three elevation levels, then add styles-1 -> the first level and styles-2 -> second level and styles-3 -> third level */
   [data-elevation="true"]:has([data-elevation="true"] [data-elevation="true"]) {
     background-color: var(--color-bg-elevation-1);
     border-radius: var(--border-radius-elevation-1);
