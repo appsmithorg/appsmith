@@ -82,6 +82,7 @@ public class PageDTO {
     Map<String, List<String>> dependencyMap;
 
     public void sanitiseToExportDBObject() {
+        this.setDependencyMap(null);
         this.getLayouts().forEach(Layout::sanitiseToExportDBObject);
     }
 }
