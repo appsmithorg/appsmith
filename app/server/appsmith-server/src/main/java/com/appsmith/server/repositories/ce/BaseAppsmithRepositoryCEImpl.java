@@ -692,7 +692,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         }
 
         if (permissionGroups.isEmpty()) {
-            // TODO(Shri): Yes, this is an "always-fail" condition. We're working on whether we need it at all, on `release` branch.
+            // TODO(Shri): Yes, this is an "always-fail" condition. We're working on whether we need it at all, on
+            // `release` branch.
             return cb.and(cb.literal(1).isNull());
         }
 

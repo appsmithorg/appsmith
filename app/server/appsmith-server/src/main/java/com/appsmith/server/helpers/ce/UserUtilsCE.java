@@ -50,13 +50,15 @@ public class UserUtilsCE {
     }
 
     public Mono<Boolean> isSuperUser(User user) {
-        return configRepository.findByNameAsUser(INSTANCE_CONFIG, user, MANAGE_INSTANCE_CONFIGURATION)
+        return configRepository
+                .findByNameAsUser(INSTANCE_CONFIG, user, MANAGE_INSTANCE_CONFIGURATION)
                 .map(config -> Boolean.TRUE)
                 .switchIfEmpty(Mono.just(Boolean.FALSE));
     }
 
     public Mono<Boolean> isCurrentUserSuperUser() {
-        return configRepository.findByName(INSTANCE_CONFIG, MANAGE_INSTANCE_CONFIGURATION)
+        return configRepository
+                .findByName(INSTANCE_CONFIG, MANAGE_INSTANCE_CONFIGURATION)
                 .map(config -> Boolean.TRUE)
                 .switchIfEmpty(Mono.just(Boolean.FALSE));
     }
