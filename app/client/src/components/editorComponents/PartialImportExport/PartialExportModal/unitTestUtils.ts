@@ -11216,8 +11216,6 @@ export const defaultAppState = {
     templates: {
       isImportingTemplate: false,
       isImportingTemplateToApp: false,
-      isImportingStarterBuildingBlockToApp: false,
-      starterBuildingBlockDatasourcePrompt: false,
       loadingFilters: false,
       gettingAllTemplates: false,
       gettingTemplate: false,
