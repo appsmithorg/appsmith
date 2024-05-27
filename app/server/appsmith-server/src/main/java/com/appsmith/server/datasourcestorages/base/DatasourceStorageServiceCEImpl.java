@@ -26,7 +26,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -261,7 +260,8 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
             return Mono.just(datasourceStorage);
         }
 
-        Mono<Map<String, Plugin>> pluginsMapMono = pluginService.findAllPluginsInWorkspace(datasourceStorage.getWorkspaceId());
+        Mono<Map<String, Plugin>> pluginsMapMono =
+                pluginService.findAllPluginsInWorkspace(datasourceStorage.getWorkspaceId());
         return pluginsMapMono.flatMap(pluginsMap -> {
             Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
                     .getPluginExecutor(Mono.just(pluginsMap.get(datasourceStorage.getPluginId())))
