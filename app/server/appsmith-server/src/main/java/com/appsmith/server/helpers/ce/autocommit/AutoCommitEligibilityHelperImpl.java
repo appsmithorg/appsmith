@@ -54,7 +54,7 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
                 .defaultIfEmpty(FALSE)
                 .cache();
 
-        return Mono.defer(() -> gitRedisUtils.addFileLockWithoutRetry(defaultApplicationId))
+        return Mono.defer(() -> gitRedisUtils.addFileLock(defaultApplicationId, FALSE))
                 .then(Mono.defer(() -> isServerMigrationRequiredMonoCached))
                 .then(Mono.defer(() -> gitRedisUtils.releaseFileLock(defaultApplicationId)))
                 .then(Mono.defer(() -> isServerMigrationRequiredMonoCached))
