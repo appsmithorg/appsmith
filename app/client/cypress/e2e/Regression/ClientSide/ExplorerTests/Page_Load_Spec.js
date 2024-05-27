@@ -1,19 +1,9 @@
 import {
-  EMPTY_CANVAS_HINTS,
-  createMessage,
-} from "../../../../../src/ce/constants/messages";
-import {
   agHelper,
   deployMode,
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
-import EditorNavigation, {
-  EntityType,
-} from "../../../../support/Pages/EditorNavigation";
-import PageList from "../../../../support/Pages/PageList";
-
-const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
   afterEach(() => {
@@ -28,7 +18,7 @@ describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
     agHelper.AddDsl("PageLoadDsl");
     PageList.AddNewPage();
     cy.get("h2").contains(
-      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
+      Cypress.env("MESSAGES").EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT(),
     );
   });
 
