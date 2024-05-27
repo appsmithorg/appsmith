@@ -15,12 +15,6 @@ Cypress.Commands.add("borderMouseover", (index, text) => {
   cy.get(themelocator.popover).contains(text);
 });
 
-Cypress.Commands.add("shadowMouseover", (text) => {
-  cy.xpath(theme.locators._boxShadow(text)).trigger("mouseover");
-  cy.wait(1000);
-  cy.get(themelocator.popover).contains(text);
-});
-
 Cypress.Commands.add("colorMouseover", (index, text) => {
   let colorType =
     index == 0
