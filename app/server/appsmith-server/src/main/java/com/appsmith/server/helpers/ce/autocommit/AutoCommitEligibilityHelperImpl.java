@@ -45,7 +45,7 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
                         workspaceId, defaultApplicationId, repoName, branchName, ArtifactType.APPLICATION)
                 .map(serverSchemaVersion -> {
                     log.info(
-                            "server schema for application id {} :  and branch name : {} is : {}",
+                            "server schema for application id : {}  and branch name : {} is : {}",
                             defaultApplicationId,
                             branchName,
                             serverSchemaVersion);
@@ -54,7 +54,7 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
                 .defaultIfEmpty(FALSE)
                 .cache();
 
-        return Mono.defer(() -> gitRedisUtils.addFileLock(defaultApplicationId))
+        return Mono.defer(() -> gitRedisUtils.addFileLockWithoutRetry(defaultApplicationId))
                 .then(Mono.defer(() -> isServerMigrationRequiredMonoCached))
                 .then(Mono.defer(() -> gitRedisUtils.releaseFileLock(defaultApplicationId)))
                 .then(Mono.defer(() -> isServerMigrationRequiredMonoCached))

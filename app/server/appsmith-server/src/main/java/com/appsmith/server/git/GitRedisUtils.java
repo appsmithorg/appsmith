@@ -26,6 +26,10 @@ public class GitRedisUtils {
                         }));
     }
 
+    public Mono<Boolean> addFileLockWithoutRetry(String defaultApplicationId) {
+        return redisUtils.addFileLock(defaultApplicationId);
+    }
+
     public Mono<Boolean> releaseFileLock(String defaultApplicationId) {
         return redisUtils.releaseFileLock(defaultApplicationId);
     }
