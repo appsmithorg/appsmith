@@ -23,6 +23,7 @@ const fakeSubmit = async () => {
 
 export const SimpleModal = (props: Omit<ModalProps, "children">) => {
   const [isOpen, setIsOpen] = useState(false);
+  const closeOnSubmit = true;
 
   return (
     <>
@@ -36,7 +37,7 @@ export const SimpleModal = (props: Omit<ModalProps, "children">) => {
               amet animi corporis laboriosam libero voluptas! A, reiciendis,
               veniam?
             </ModalBody>
-            <ModalFooter onSubmit={fakeSubmit} />
+            <ModalFooter closeOnSubmit={closeOnSubmit} onSubmit={fakeSubmit} />
           </ModalContent>
         </Unstyled>
       </Modal>

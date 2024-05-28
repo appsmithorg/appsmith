@@ -90,6 +90,16 @@ export const propertyPaneContentConfig = [
         placeholderText: "Submit",
       },
       {
+        propertyName: "closeOnSubmit",
+        label: "Close on submit",
+        helpText: "Set the modal to automatically close on submit button click",
+        controlType: "SWITCH",
+        hidden: (props: any) => !props.showFooter || !props.showSubmitButton,
+        dependencies: ["showFooter", "showSubmitButton"],
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
         propertyName: "cancelButtonText",
         label: "Cancel Button Text",
         helpText: "Label for the Cancel Button",
@@ -117,6 +127,8 @@ export const propertyPaneContentConfig = [
       {
         helpText: "Trigger an action when the submit button is pressed",
         propertyName: "onSubmit",
+        hidden: (props: any) => !props.showSubmitButton,
+        dependencies: ["showSubmitButton"],
         label: "onSubmit",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,

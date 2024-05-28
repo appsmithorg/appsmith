@@ -28,6 +28,7 @@ export const ModalExamples = () => {
   const smallRef = useRef(null);
   const mediumRef = useRef(null);
   const largeRef = useRef(null);
+  const closeOnSubmit = true;
 
   return (
     <>
@@ -50,6 +51,7 @@ export const ModalExamples = () => {
         <Item key="medium">Medium</Item>
         <Item key="large">Large</Item>
       </ActionGroup>
+
       <Modal
         initialFocus={2}
         isOpen={isLargeOpen}
@@ -98,7 +100,7 @@ export const ModalExamples = () => {
               nulla odio, perspiciatis quam quisquam quo ratione sapiente
               voluptatem? Autem inventore quae velit.
             </ModalBody>
-            <ModalFooter onSubmit={fakeSubmit} />
+            <ModalFooter closeOnSubmit={closeOnSubmit} onSubmit={fakeSubmit} />
           </ModalContent>
         </Unstyled>
       </Modal>
@@ -116,7 +118,7 @@ export const ModalExamples = () => {
               amet animi corporis laboriosam libero voluptas! A, reiciendis,
               veniam?
             </ModalBody>
-            <ModalFooter onSubmit={fakeSubmit} />
+            <ModalFooter closeOnSubmit={closeOnSubmit} onSubmit={fakeSubmit} />
           </ModalContent>
         </Unstyled>
       </Modal>
@@ -135,7 +137,7 @@ export const ModalExamples = () => {
               amet animi corporis laboriosam libero voluptas! A, reiciendis,
               veniam?
             </ModalBody>
-            <ModalFooter onSubmit={fakeSubmit} />
+            <ModalFooter closeOnSubmit={closeOnSubmit} onSubmit={fakeSubmit} />
           </ModalContent>
         </Unstyled>
       </Modal>
