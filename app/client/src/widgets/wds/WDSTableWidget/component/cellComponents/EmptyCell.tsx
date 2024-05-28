@@ -166,7 +166,7 @@ export const renderEmptyRows = (
                 style={{ ...distanceFromEdge }}
                 width={column.width}
               >
-                <Text data-empty-text="">&#8203;</Text>
+                <Text>&#8203;</Text>
               </EmptyCell>
             );
           })}
