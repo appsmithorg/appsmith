@@ -180,8 +180,8 @@ def generate_cake_class(domain):
         elif ret_type.startswith(("List", "Iterable")):
             ret_type = ret_type.replace("List", "Flux").replace("Iterable", "Flux")
             wrapper = FLUX_WRAPPER
-        elif ret_type.startswith(("Mono<", "Flux<")):
-            wrapper = "%s"
+        elif ret_type.startswith("Mono<"):
+            wrapper = SUBSCRIBE_WRAPPER
         elif not ret_type.islower():
             ret_type = ("Mono<" + ret_type + ">")
             wrapper = MONO_WRAPPER_NON_OPTIONAL

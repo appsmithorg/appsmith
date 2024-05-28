@@ -9,12 +9,11 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.NO_RECORD_LIMIT;
@@ -47,41 +46,41 @@ public class QueryAllParams<T extends BaseDomain> {
         this.repo = repo;
     }
 
-    public Flux<T> all() {
+    public List<T> all() {
         return repo.queryAllExecute(this);
     }
 
-    public <P> Flux<P> all(Class<P> projectionClass) {
+    public <P> List<P> all(Class<P> projectionClass) {
         return repo.queryAllExecute(this, projectionClass);
     }
 
-    public Mono<T> one() {
+    public Optional<T> one() {
         return repo.queryOneExecute(this);
     }
 
-    public <P> Mono<P> one(Class<P> projectionClass) {
+    public <P> Optional<P> one(Class<P> projectionClass) {
         return repo.queryOneExecute(this, projectionClass);
     }
 
-    public Mono<T> first() {
+    public Optional<T> first() {
         return repo.queryFirstExecute(this);
     }
 
-    public Mono<Long> count() {
+    public Optional<Long> count() {
         return repo.countExecute(this);
     }
 
-    public Mono<Integer> updateAll(@NonNull BridgeUpdate update) {
+    public int updateAll(@NonNull BridgeUpdate update) {
         scope = Scope.ALL;
         return repo.updateExecute(this, update);
     }
 
-    public Mono<Integer> updateFirst(@NonNull T resource) {
+    public int updateFirst(@NonNull T resource) {
         scope = Scope.FIRST;
         return repo.updateExecute(this, resource);
     }
 
-    public Mono<Integer> updateFirst(@NonNull BridgeUpdate update) {
+    public int updateFirst(@NonNull BridgeUpdate update) {
         scope = Scope.FIRST;
         return repo.updateExecute(this, update);
     }

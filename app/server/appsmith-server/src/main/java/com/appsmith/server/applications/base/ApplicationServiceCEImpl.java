@@ -67,6 +67,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.constants.Constraint.MAX_LOGO_SIZE_KB;
+import static com.appsmith.server.helpers.ReactorUtils.asMono;
 import static com.appsmith.server.helpers.ce.DomainSorter.sortDomainsBasedOnOrderedDomainIds;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -129,8 +130,7 @@ public class ApplicationServiceCEImpl
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return repositoryDirect
-                .findById(id, applicationPermission.getReadPermission())
+        return asMono(() -> repositoryDirect.findById(id, applicationPermission.getReadPermission()))
                 .flatMap(this::setTransientFields)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));

@@ -4,7 +4,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
-import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,21 +11,21 @@ import java.util.Optional;
 
 public interface AppsmithRepository<T extends BaseDomain> {
 
-    Mono<T> findById(String id, AclPermission permission);
+    Optional<T> findById(String id, AclPermission permission);
 
-    Mono<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
+    Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
 
-    Mono<T> updateById(String id, T resource, AclPermission permission);
+    Optional<T> updateById(String id, T resource, AclPermission permission);
 
-    Mono<Integer> updateByIdWithoutPermissionCheck(String id, BridgeUpdate update);
+    int updateByIdWithoutPermissionCheck(String id, BridgeUpdate update);
 
     /*no-cake*/ QueryAllParams<T> queryBuilder();
 
     T setUserPermissionsInObject(T obj, Collection<String> permissionGroups);
 
-    Mono<T> setUserPermissionsInObject(T obj);
+    T setUserPermissionsInObject(T obj);
 
-    Mono<T> updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission);
+    T updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission);
 
     /**
      * This method uses the mongodb bulk operation to save a list of new actions. When calling this method, please note
@@ -39,7 +38,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
      * @param domainList List of domains that'll be saved in bulk
      * @return List of actions that were passed in the method
      */
-    Mono<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> domainList);
+    Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> domainList);
 
-    Mono<Void> bulkUpdate(BaseRepository<T, String> baseRepository, List<T> domainList);
+    Optional<Void> bulkUpdate(BaseRepository<T, String> baseRepository, List<T> domainList);
 }

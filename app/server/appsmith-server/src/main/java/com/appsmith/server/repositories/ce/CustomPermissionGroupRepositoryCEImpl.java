@@ -15,8 +15,6 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.Modifying;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,14 +27,14 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
     @Override
-    public Flux<PermissionGroup> findByAssignedToUserIdsIn(String userId) {
+    public List<PermissionGroup> findByAssignedToUserIdsIn(String userId) {
         return queryBuilder()
                 .criteria(Bridge.jsonIn(userId, PermissionGroup.Fields.assignedToUserIds))
                 .all();
     }
 
     @Override
-    public Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
+    public List<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
             String userId, String workspaceId, AclPermission permission) {
         BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>jsonIn(
                         userId, PermissionGroup.Fields.assignedToUserIds)
@@ -49,7 +47,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     @Transactional
     @Modifying
-    public Mono<Integer> updateById(String id, BridgeUpdate updateObj) {
+    public int updateById(String id, BridgeUpdate updateObj) {
         if (id == null) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
         }
@@ -57,7 +55,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public Flux<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
+    public List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
         BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>equal(
                         PermissionGroup.Fields.defaultDomainId, workspaceId)
                 .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
@@ -65,7 +63,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public Flux<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
+    public List<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
         BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>in(
                         PermissionGroup.Fields.defaultDomainId, workspaceIds)
                 .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
@@ -73,27 +71,29 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public Mono<Void> evictPermissionGroupsUser(String email, String tenantId) {
-        return cacheableRepositoryHelper.evictPermissionGroupsUser(email, tenantId);
+    public Optional<Void> evictPermissionGroupsUser(String email, String tenantId) {
+        return cacheableRepositoryHelper
+                .evictPermissionGroupsUser(email, tenantId)
+                .blockOptional();
     }
 
     @Override
-    public Mono<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId) {
+    public Optional<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId) {
         return this.evictPermissionGroupsUser(email, tenantId);
     }
 
     @Override
-    public Mono<Set<String>> getCurrentUserPermissionGroups() {
+    public Set<String> getCurrentUserPermissionGroups() {
         return super.getCurrentUserPermissionGroups();
     }
 
     @Override
-    public Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user) {
+    public Set<String> getAllPermissionGroupsIdsForUser(User user) {
         return super.getAllPermissionGroupsForUser(user);
     }
 
     @Override
-    public Flux<PermissionGroup> findAllByAssignedToUserIn(
+    public List<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
         BridgeQuery<PermissionGroup> assignedToUserIdCriteria =
                 Bridge.in(PermissionGroup.Fields.assignedToUserIds, userIds);

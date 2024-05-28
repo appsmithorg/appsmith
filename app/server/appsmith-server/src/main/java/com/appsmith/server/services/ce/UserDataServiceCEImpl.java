@@ -38,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
+import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
 public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserDataRepositoryCake, UserData, String>
         implements UserDataServiceCE {
@@ -146,8 +147,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, UserData.Fields.userId));
         }
 
-        return repositoryDirect
-                .updateByUserId(userId, resource)
+        return asMonoDirect(() -> repositoryDirect.updateByUserId(userId, resource))
                 .flatMap(count -> count == 0 ? Mono.empty() : repository.findByUserId(userId))
                 .flatMap(analyticsService::sendUpdateEvent);
     }

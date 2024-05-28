@@ -16,8 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -31,7 +29,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         implements CustomNewPageRepositoryCE {
 
     @Override
-    public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
+    public List<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
                 .permission(aclPermission)
@@ -39,7 +37,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission) {
+    public List<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission) {
         BridgeQuery<NewPage> q = Bridge.<NewPage>equal(NewPage.Fields.applicationId, applicationId)
                 // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
                 // exist. To handle this, only fetch non-deleted pages
@@ -48,7 +46,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findByIdAndLayoutsIdAndViewMode(
+    public Optional<NewPage> findByIdAndLayoutsIdAndViewMode(
             String id, String layoutId, AclPermission aclPermission, Boolean viewMode) {
         // TODO(Shri): Why is this method's code different from that in `release` branch.
 
@@ -86,7 +84,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findByNameAndViewMode(String name, AclPermission aclPermission, Boolean viewMode) {
+    public Optional<NewPage> findByNameAndViewMode(String name, AclPermission aclPermission, Boolean viewMode) {
         final BridgeQuery<NewPage> q = getNameCriterion(name, viewMode);
 
         if (Boolean.FALSE.equals(viewMode)) {
@@ -99,7 +97,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findByNameAndApplicationIdAndViewMode(
+    public Optional<NewPage> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission aclPermission, Boolean viewMode) {
         BridgeQuery<NewPage> q = getNameCriterion(name, viewMode).equal(NewPage.Fields.applicationId, applicationId);
 
@@ -113,7 +111,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
+    public List<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
         List<String> includedFields = List.of(
                 FieldName.APPLICATION_ID,
                 FieldName.DEFAULT_RESOURCES,
@@ -143,7 +141,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<String> getNameByPageId(String pageId, boolean isPublishedName) {
+    public Optional<String> getNameByPageId(String pageId, boolean isPublishedName) {
         return queryBuilder().byId(pageId).one().map(p -> {
             PageDTO page = (isPublishedName ? p.getPublishedPage() : p.getUnpublishedPage());
             if (page != null) {
@@ -155,7 +153,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findPageByBranchNameAndDefaultPageId(
+    public Optional<NewPage> findPageByBranchNameAndDefaultPageId(
             String branchName, String defaultPageId, AclPermission permission) {
 
         final BridgeQuery<NewPage> q =
@@ -173,7 +171,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Flux<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
+    public List<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
         return queryBuilder()
                 .criteria(Bridge.in(NewPage.Fields.applicationId, applicationIds))
                 .fields(
@@ -187,13 +185,13 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
+    public Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, AclPermission permission) {
         return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
     }
 
     @Override
-    public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
+    public Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
 
         // defaultAppIdCriteria
@@ -213,17 +211,18 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     @Modifying
     @Transactional
-    public Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission) {
-        return queryBuilder()
+    public Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission) {
+        int count = queryBuilder()
                 .permission(permission)
                 .criteria(Bridge.in(NewPage.Fields.id, pageIds))
                 .updateAll(Bridge.update()
-                        .setToValueFromField(NewPage.Fields.publishedPage, NewPage.Fields.unpublishedPage))
-                .then();
+                        .setToValueFromField(NewPage.Fields.publishedPage, NewPage.Fields.unpublishedPage));
+
+        return Optional.empty();
     }
 
     @Override
-    public Flux<NewPage> findAllByApplicationIdsWithoutPermission(
+    public List<NewPage> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         return queryBuilder()
                 .criteria(Bridge.in(FieldName.APPLICATION_ID, applicationIds))

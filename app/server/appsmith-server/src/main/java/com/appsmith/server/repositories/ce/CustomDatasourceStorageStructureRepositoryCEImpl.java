@@ -6,7 +6,6 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
 @Component
 public class CustomDatasourceStorageStructureRepositoryCEImpl
@@ -15,7 +14,7 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
 
     @Override
     @Transactional
-    public Mono<Integer> updateStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
+    public int updateStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
         return queryBuilder()
                 .criteria(Bridge.equal(DatasourceStorageStructure.Fields.datasourceId, datasourceId)
                         .equal(DatasourceStorageStructure.Fields.environmentId, environmentId))

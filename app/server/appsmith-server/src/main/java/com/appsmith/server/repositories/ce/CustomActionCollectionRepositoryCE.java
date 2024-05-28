@@ -5,23 +5,21 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
 
 public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<ActionCollection> {
 
-    Flux<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
+    List<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
 
-    Flux<ActionCollection> findByApplicationId(
+    List<ActionCollection> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort);
 
-    Flux<ActionCollection> findByApplicationIdAndViewMode(
+    List<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission aclPermission);
 
-    Flux<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+    List<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
             String name,
             List<String> pageIds,
             boolean viewMode,
@@ -29,24 +27,24 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
             AclPermission aclPermission,
             Sort sort);
 
-    Flux<ActionCollection> findByPageId(String pageId, AclPermission permission);
+    List<ActionCollection> findByPageId(String pageId, AclPermission permission);
 
-    Flux<ActionCollection> findByPageId(String pageId);
+    List<ActionCollection> findByPageId(String pageId);
 
-    Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
+    Optional<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission);
 
-    Flux<ActionCollection> findByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
+    List<ActionCollection> findByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
-    Flux<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission);
+    List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission);
 
-    Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields);
+    List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields);
 
-    Flux<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
+    List<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission);
 
-    Flux<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
+    List<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission);
 
-    Flux<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission);
+    List<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission);
 }

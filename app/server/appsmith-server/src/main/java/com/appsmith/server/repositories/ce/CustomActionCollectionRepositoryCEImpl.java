@@ -12,8 +12,6 @@ import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,7 +23,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     @Deprecated
-    public Flux<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
+    public List<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
         final BridgeQuery<ActionCollection> bridgeQuery =
                 Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
 
@@ -37,7 +35,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByApplicationId(
+    public List<ActionCollection> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
 
         final BridgeQuery<ActionCollection> bridgeQuery = Bridge.<ActionCollection>equal(
@@ -66,7 +64,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByApplicationIdAndViewMode(
+    public List<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission aclPermission) {
         BridgeQuery<ActionCollection> bridgeQuery =
                 getBridgeQueryForFindByApplicationIdAndViewMode(applicationId, viewMode);
@@ -129,7 +127,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+    public List<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
             String name,
             List<String> pageIds,
             boolean viewMode,
@@ -148,7 +146,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByPageId(String pageId, AclPermission aclPermission) {
+    public List<ActionCollection> findByPageId(String pageId, AclPermission aclPermission) {
         String unpublishedPage = ActionCollection.Fields.unpublishedCollection_pageId;
         String publishedPage = ActionCollection.Fields.publishedCollection_pageId;
 
@@ -159,12 +157,12 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByPageId(String pageId) {
+    public List<ActionCollection> findByPageId(String pageId) {
         return this.findByPageId(pageId, null);
     }
 
     @Override
-    public Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
+    public Optional<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission) {
         final BridgeQuery<ActionCollection> bq = Bridge.<ActionCollection>equal(
                         ActionCollection.Fields.defaultResources_collectionId, defaultCollectionId)
@@ -174,7 +172,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
+    public List<ActionCollection> findByDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
         BridgeQuery<ActionCollection> query = Bridge.<ActionCollection>equal(
                         BranchAwareDomain.Fields.defaultResources_applicationId, defaultApplicationId)
                 .isNull(ActionCollection.Fields.unpublishedCollection_deletedAt);
@@ -183,14 +181,14 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
+    public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
         BridgeQuery<ActionCollection> pageIdCriteria =
                 Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds);
         return queryBuilder().criteria(pageIdCriteria).permission(permission).all();
     }
 
     @Override
-    public Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
+    public List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
         BridgeQuery<ActionCollection> applicationCriteria = Bridge.in(FieldName.APPLICATION_ID, applicationIds);
         return queryBuilder()
                 .criteria(Bridge.in(FieldName.APPLICATION_ID, applicationIds))
@@ -199,7 +197,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
+    public List<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission) {
         String contextIdPath = ActionCollection.Fields.unpublishedCollection_pageId;
         String contextTypePath = ActionCollection.Fields.unpublishedCollection_contextType;
@@ -212,7 +210,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
+    public List<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission) {
         String contextIdPath = ActionCollection.Fields.publishedCollection_pageId;
         String contextTypePath = ActionCollection.Fields.publishedCollection_contextType;
@@ -225,7 +223,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
+    public List<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
         final BridgeQuery<ActionCollection> query = Bridge.query();
 
         if (Boolean.TRUE.equals(viewMode)) {
