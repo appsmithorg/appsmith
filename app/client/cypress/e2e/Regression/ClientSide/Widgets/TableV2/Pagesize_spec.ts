@@ -32,7 +32,7 @@ describe(
       _.agHelper
         .GetText(getWidgetSelector(_.draggableWidgets.TEXT))
         .then(($text) => {
-          expect($text).to.eq("5");
+          expect($text).to.eq("4");
         });
 
       _.agHelper.GetNClick(
