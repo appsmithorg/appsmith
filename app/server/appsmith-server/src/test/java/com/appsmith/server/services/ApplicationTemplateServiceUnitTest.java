@@ -1,17 +1,14 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.dtos.ApplicationTemplate;
-import com.appsmith.server.dtos.PageNameIdDTO;
-import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.dtos.CacheableApplicationJson;
+import com.appsmith.server.dtos.CacheableApplicationTemplate;
 import com.appsmith.server.helpers.CacheableTemplateHelper;
-import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.ReleaseNotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import org.json.JSONArray;
@@ -22,12 +19,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
+import java.time.Instant;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,42 +38,20 @@ import static org.assertj.core.api.Assertions.assertThat;
  * https://www.baeldung.com/spring-mocking-webclient
  */
 @ExtendWith(SpringExtension.class)
+@SpringBootTest
 public class ApplicationTemplateServiceUnitTest {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static MockWebServer mockCloudServices;
-    ApplicationTemplateService applicationTemplateService;
 
     @MockBean
     ApplicationPermission applicationPermission;
 
     @MockBean
-    private UserDataService userDataService;
-
-    @MockBean
     private CloudServicesConfig cloudServicesConfig;
 
-    @MockBean
-    private ReleaseNotesService releaseNotesService;
+    @Autowired
+    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
 
-    @MockBean
-    private ImportService importService;
-
-    @MockBean
-    private ExportService exportService;
-
-    @MockBean
-    private AnalyticsService analyticsService;
-
-    @MockBean
-    private ApplicationService applicationService;
-
-    @MockBean
-    private ResponseUtils responseUtils;
-
-    @MockBean
-    private SessionUserService sessionUserService;
-
-    @MockBean
     private CacheableTemplateHelper cacheableTemplateHelper;
 
     @BeforeAll
@@ -94,19 +73,7 @@ public class ApplicationTemplateServiceUnitTest {
         // service base url
         Mockito.when(cloudServicesConfig.getBaseUrl()).thenReturn(baseUrl);
 
-        applicationTemplateService = new ApplicationTemplateServiceImpl(
-                cloudServicesConfig,
-                releaseNotesService,
-                importService,
-                exportService,
-                analyticsService,
-                userDataService,
-                applicationService,
-                responseUtils,
-                applicationPermission,
-                objectMapper,
-                sessionUserService,
-                cacheableTemplateHelper);
+        cacheableTemplateHelper = new CacheableTemplateHelper();
     }
 
     private ApplicationTemplate create(String id, String title) {
@@ -126,12 +93,17 @@ public class ApplicationTemplateServiceUnitTest {
         mockCloudServices.enqueue(new MockResponse()
                 .setBody(objectMapper.writeValueAsString(List.of(templateOne, templateTwo, templateThree)))
                 .addHeader("Content-Type", "application/json"));
+        CacheableApplicationTemplate cacheableApplicationTemplate = new CacheableApplicationTemplate();
+        cacheableApplicationTemplate.setApplicationTemplateList(List.of(templateOne, templateTwo, templateThree));
+        cacheableApplicationTemplate.setLastUpdated(Instant.now());
 
-        Mono<List<ApplicationTemplate>> templateListMono = applicationTemplateService.getActiveTemplates(null);
+        Mono<CacheableApplicationTemplate> templateListMono =
+                cacheableTemplateHelper.getTemplates("recently-used", cloudServicesConfig.getBaseUrl());
 
         StepVerifier.create(templateListMono)
-                .assertNext(applicationTemplates -> {
-                    assertThat(applicationTemplates).hasSize(3);
+                .assertNext(cacheableApplicationTemplate1 -> {
+                    assertThat(cacheableApplicationTemplate1.getApplicationTemplateList())
+                            .hasSize(3);
                 })
                 .verifyComplete();
     }
@@ -157,17 +129,19 @@ public class ApplicationTemplateServiceUnitTest {
         mockCloudServices.enqueue(
                 new MockResponse().setBody(templates.toString()).addHeader("Content-Type", "application/json"));
 
+        CacheableApplicationJson cacheableApplicationJson = new CacheableApplicationJson();
+        cacheableApplicationJson.setApplicationJson(new Gson().toJson(templates));
+        cacheableApplicationJson.setLastUpdated(Instant.now());
+
+        Mono<CacheableApplicationJson> templateListMono =
+                cacheableTemplateHelper.getApplicationByTemplateId("templatesId", cloudServicesConfig.getBaseUrl());
+
         // make sure we've received the response returned by the mockCloudServices
-        StepVerifier.create(applicationTemplateService.getActiveTemplates(null))
-                .assertNext(applicationTemplates -> {
-                    assertThat(applicationTemplates).hasSize(1);
-                    ApplicationTemplate applicationTemplate = applicationTemplates.get(0);
-                    assertThat(applicationTemplate.getPages()).hasSize(1);
-                    PageNameIdDTO pageNameIdDTO = applicationTemplate.getPages().get(0);
-                    assertThat(pageNameIdDTO.getId()).isEqualTo("1234567890");
-                    assertThat(pageNameIdDTO.getName()).isEqualTo("My Page");
-                    assertThat(pageNameIdDTO.getIcon()).isEqualTo("flight");
-                    assertThat(pageNameIdDTO.getIsDefault()).isTrue();
+        StepVerifier.create(templateListMono)
+                .assertNext(cacheableApplicationJson1 -> {
+                    assertThat(cacheableApplicationJson1.getApplicationJson()).isNotNull();
+                    assertThat(cacheableApplicationJson1.getApplicationJson()).isNotEmpty();
+                    assertThat(cacheableApplicationJson1.getApplicationJson()).isEqualTo(templates.toString());
                 })
                 .verifyComplete();
     }

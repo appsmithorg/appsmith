@@ -10,6 +10,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ce.ApplicationTemplateServiceCEImpl;
 import com.appsmith.util.WebClientUtils;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -23,7 +24,9 @@ import java.time.Instant;
 
 @AllArgsConstructor
 @Component
+@Slf4j
 public class CacheableTemplateHelper {
+    // Template metadata is used for showing the preview of the template
     @Cache(cacheName = "templateMetadata", key = "{#releaseVersion}")
     public Mono<CacheableApplicationTemplate> getTemplates(String releaseVersion, String baseUrl) {
         UriComponentsBuilder uriComponentsBuilder =
@@ -38,6 +41,9 @@ public class CacheableTemplateHelper {
                     if (clientResponse.statusCode().equals(HttpStatus.OK)) {
                         return clientResponse.bodyToFlux(ApplicationTemplate.class);
                     } else if (clientResponse.statusCode().isError()) {
+                        log.error(
+                                "Error fetching templates from cloud services. Status code: {}",
+                                clientResponse.statusCode());
                         return Flux.error(
                                 new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, clientResponse.statusCode()));
                     } else {
@@ -53,6 +59,7 @@ public class CacheableTemplateHelper {
                 });
     }
 
+    // Actual JSON object of the template
     @Cache(cacheName = "templateApplicationJSONData", key = "{#templateId}")
     public Mono<CacheableApplicationJson> getApplicationByTemplateId(String templateId, String baseUrl) {
         final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/application";
