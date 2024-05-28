@@ -25,7 +25,7 @@ import java.time.Instant;
 @Component
 public class CacheableTemplateHelper {
     @Cache(cacheName = "templateMetadata", key = "{#releaseVersion}")
-    public static Mono<CacheableApplicationTemplate> getTemplates(String releaseVersion, String baseUrl) {
+    public Mono<CacheableApplicationTemplate> getTemplates(String releaseVersion, String baseUrl) {
         UriComponentsBuilder uriComponentsBuilder =
                 UriComponentsBuilder.newInstance().queryParam("version", releaseVersion);
 
@@ -54,7 +54,7 @@ public class CacheableTemplateHelper {
     }
 
     @Cache(cacheName = "templateApplicationData", key = "{#templateId}")
-    public static Mono<CacheableApplicationJson> getApplicationByTemplateId(String templateId, String baseUrl) {
+    public Mono<CacheableApplicationJson> getApplicationByTemplateId(String templateId, String baseUrl) {
         final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/application";
         /*
          * using a custom url builder factory because default builder always encodes
@@ -88,12 +88,12 @@ public class CacheableTemplateHelper {
     }
 
     @CacheEvict(cacheName = "templateMetadata", key = "{#releaseVersion}")
-    public static Mono<Void> clearTemplateMetadataCache(String releaseVersion) {
+    public Mono<Void> clearTemplateMetadataCache(String releaseVersion) {
         return Mono.empty().then();
     }
 
     @CacheEvict(cacheName = "templateApplicationData", key = "{#templateId}")
-    public static Mono<Void> clearTemplateApplicationDataCache(String templateId) {
+    public Mono<Void> clearTemplateApplicationDataCache(String templateId) {
         return Mono.empty().then();
     }
 }

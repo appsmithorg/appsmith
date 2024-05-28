@@ -5,6 +5,7 @@ import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.helpers.CacheableTemplateHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -71,6 +72,9 @@ public class ApplicationTemplateServiceUnitTest {
     @MockBean
     private SessionUserService sessionUserService;
 
+    @MockBean
+    private CacheableTemplateHelper cacheableTemplateHelper;
+
     @BeforeAll
     public static void setUp() throws IOException {
         mockCloudServices = new MockWebServer();
@@ -101,7 +105,8 @@ public class ApplicationTemplateServiceUnitTest {
                 responseUtils,
                 applicationPermission,
                 objectMapper,
-                sessionUserService);
+                sessionUserService,
+                cacheableTemplateHelper);
     }
 
     private ApplicationTemplate create(String id, String title) {
