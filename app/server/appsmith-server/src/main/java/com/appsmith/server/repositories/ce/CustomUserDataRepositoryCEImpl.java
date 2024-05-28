@@ -13,17 +13,20 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.util.CollectionUtils;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.util.List;
-import java.util.Optional;
 
 public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<UserData>
         implements CustomUserDataRepositoryCE {
 
+    private static RepositoryOpsHelper repositoryOpsHelper;
+
     @Override
     @Transactional
     @Modifying
-    public int saveReleaseNotesViewedVersion(String userId, String version) {
+    public Mono<Integer> saveReleaseNotesViewedVersion(String userId, String version) {
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
                 .updateFirst(Bridge.update().set(UserData.Fields.releaseNotesViewedVersion, version));
@@ -32,7 +35,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Override
     @Transactional
     @Modifying
-    public Optional<Void> removeEntitiesFromRecentlyUsedList(String userId, String workspaceId) {
+    public Mono<Void> removeEntitiesFromRecentlyUsedList(String userId, String workspaceId) {
         /* Move to this piece of code, instead of direct entityManager use.
         BridgeUpdate update = new BridgeUpdate();
         RecentlyUsedEntityDTO recentlyUsedEntityDTO = new RecentlyUsedEntityDTO();
@@ -59,13 +62,14 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                         cb.literal("$[*] ? (@.workspaceId != \"" + workspaceId + "\")")));
 
         cu.where(cb.equal(root.get(UserData.Fields.userId), userId));
-
-        final int count = entityManager.createQuery(cu).executeUpdate();
-        return Optional.empty();
+        repositoryOpsHelper = new RepositoryOpsHelper(entityManager);
+        return Mono.fromCallable(() -> repositoryOpsHelper.updateExecute(cu))
+                .subscribeOn(Schedulers.boundedElastic())
+                .then();
     }
 
     @Override
-    public Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
+    public Mono<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
                 .one(UserRecentlyUsedEntitiesProjection.class)
@@ -80,7 +84,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Modifying
     @Transactional
     @Override
-    public int updateByUserId(String userId, UserData userData) {
+    public Mono<Integer> updateByUserId(String userId, UserData userData) {
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
                 .updateFirst(userData);

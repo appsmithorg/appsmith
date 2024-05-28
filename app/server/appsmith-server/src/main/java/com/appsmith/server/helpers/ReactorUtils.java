@@ -21,4 +21,19 @@ public class ReactorUtils {
     public static <T> Flux<T> asFlux(Supplier<? extends Iterable<T>> supplier) {
         return Mono.fromSupplier(supplier).flatMapMany(Flux::fromIterable).subscribeOn(Schedulers.boundedElastic());
     }
+
+    /*
+    private static <T> Mono<T> addContext(Mono<T> mono) {
+        return ReactiveSecurityContextHolder.getContext()
+            .flatMap(ctx -> mono.contextWrite(Context.of(ReactiveSecurityContextHolder.class, ctx)))
+            .switchIfEmpty(mono);
+    }
+
+    private static <T> Flux<T> addContext(Flux<T> flux) {
+        return ReactiveSecurityContextHolder.getContext()
+            .flatMapMany(ctx -> flux.contextWrite(Context.of(ReactiveSecurityContextHolder.class, Mono.just(ctx))))
+            .switchIfEmpty(flux);
+    }
+
+     */
 }

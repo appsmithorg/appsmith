@@ -10,16 +10,16 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
 
 @Component
 @Slf4j
 public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Theme> implements CustomThemeRepositoryCE {
     @Override
-    public List<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission) {
+    public Flux<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission) {
         BridgeQuery<Theme> appThemeCriteria = Bridge.equal(Theme.Fields.applicationId, applicationId);
         BridgeQuery<Theme> systemThemeCriteria = Bridge.isTrue(Theme.Fields.isSystemTheme);
         return queryBuilder()
@@ -29,7 +29,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     }
 
     @Override
-    public List<Theme> getSystemThemes() {
+    public Flux<Theme> getSystemThemes() {
         return queryBuilder()
                 .criteria(Bridge.isTrue(Theme.Fields.isSystemTheme))
                 .permission(AclPermission.READ_THEMES)
@@ -37,32 +37,32 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     }
 
     @Override
-    public Optional<Theme> getSystemThemeByName(String themeName) {
+    public Mono<Theme> getSystemThemeByName(String themeName) {
         return queryBuilder()
                 .criteria(Bridge.equalIgnoreCase(Theme.Fields.name, themeName).isTrue(Theme.Fields.isSystemTheme))
                 .permission(AclPermission.READ_THEMES)
                 .one();
     }
 
-    public Optional<Boolean> archiveThemeByCriteria(BridgeQuery<Theme> criteria) {
-        return Optional.of(queryBuilder()
-                        .criteria(criteria)
-                        .permission(AclPermission.MANAGE_THEMES)
-                        .updateAll(Bridge.update().set(Theme.Fields.deletedAt, Instant.now()))
-                > 0);
+    public Mono<Boolean> archiveThemeByCriteria(BridgeQuery<Theme> criteria) {
+        return queryBuilder()
+                .criteria(criteria)
+                .permission(AclPermission.MANAGE_THEMES)
+                .updateAll(Bridge.update().set(Theme.Fields.deletedAt, Instant.now()))
+                .map(result -> result > 0);
     }
 
     @Modifying
     @Transactional
     @Override
-    public Optional<Boolean> archiveByApplicationId(String applicationId) {
+    public Mono<Boolean> archiveByApplicationId(String applicationId) {
         return archiveThemeByCriteria(Bridge.equal(Theme.Fields.applicationId, applicationId));
     }
 
     @Modifying
     @Transactional
     @Override
-    public Optional<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
+    public Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
         BridgeQuery<Theme> criteria = Bridge.<Theme>in(
                         Theme.Fields.id, CollectionUtils.ofNonNulls(editModeThemeId, publishedModeThemeId))
                 .isFalse(Theme.Fields.isSystemTheme);

@@ -9,9 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
@@ -22,7 +21,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     private final SessionUserService sessionUserService;
 
     @Override
-    public Optional<Workspace> findByName(String name, AclPermission aclPermission) {
+    public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
         return queryBuilder()
                 .criteria(Bridge.equal(Workspace.Fields.name, name))
                 .permission(aclPermission)
@@ -30,7 +29,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<Workspace> findByIdsIn(
+    public Flux<Workspace> findByIdsIn(
             Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
         return queryBuilder()
                 .criteria(Bridge.<Workspace>in(Workspace.Fields.id, workspaceIds)
@@ -41,14 +40,10 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<Workspace> findAll(AclPermission permission) {
-        return sessionUserService
-                .getCurrentUser()
-                .flatMapMany(user -> Flux.fromIterable(queryBuilder()
-                        .criteria(Bridge.equal(Workspace.Fields.tenantId, user.getTenantId()))
-                        .permission(permission)
-                        .all()))
-                .collectList()
-                .block();
+    public Flux<Workspace> findAll(AclPermission permission) {
+        return sessionUserService.getCurrentUser().flatMapMany(user -> queryBuilder()
+                .criteria(Bridge.equal(Workspace.Fields.tenantId, user.getTenantId()))
+                .permission(permission)
+                .all());
     }
 }

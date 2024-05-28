@@ -5,6 +5,8 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.AppsmithRepository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,25 +14,25 @@ import java.util.Set;
 
 public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<PermissionGroup> {
 
-    List<PermissionGroup> findByAssignedToUserIdsIn(String userId);
+    Flux<PermissionGroup> findByAssignedToUserIdsIn(String userId);
 
-    List<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
+    Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
             String userId, String workspaceId, AclPermission permission);
 
-    int updateById(String id, BridgeUpdate updateObj);
+    Mono<Integer> updateById(String id, BridgeUpdate updateObj);
 
-    List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission);
+    Flux<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission);
 
-    List<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission);
+    Flux<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission);
 
-    Optional<Void> evictPermissionGroupsUser(String email, String tenantId);
+    Mono<Void> evictPermissionGroupsUser(String email, String tenantId);
 
-    Optional<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId);
+    Mono<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId);
 
-    List<PermissionGroup> findAllByAssignedToUserIn(
+    Flux<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission);
 
-    Set<String> getCurrentUserPermissionGroups();
+    Mono<Set<String>> getCurrentUserPermissionGroups();
 
-    Set<String> getAllPermissionGroupsIdsForUser(User user);
+    Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user);
 }

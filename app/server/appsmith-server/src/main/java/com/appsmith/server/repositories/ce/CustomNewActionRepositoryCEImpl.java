@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.List;
@@ -25,7 +27,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         implements CustomNewActionRepositoryCE {
 
     @Override
-    public List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
+    public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId))
                 .permission(aclPermission)
@@ -33,7 +35,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findByApplicationId(
+    public Flux<NewAction> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId)
@@ -44,7 +46,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Optional<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
+    public Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
         final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(NewAction.Fields.unpublishedAction_name, name)
                 .equal(NewAction.Fields.unpublishedAction_pageId, pageId)
                 // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
@@ -55,7 +57,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findByPageId(String pageId, AclPermission aclPermission) {
+    public Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission) {
         return queryBuilder()
                 .criteria(Bridge.or(
                         Bridge.equal(NewAction.Fields.unpublishedAction_pageId, pageId),
@@ -65,17 +67,17 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission) {
+    public Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission) {
         return findByPageId(pageId, aclPermission.orElse(null));
     }
 
     @Override
-    public List<NewAction> findByPageId(String pageId) {
+    public Flux<NewAction> findByPageId(String pageId) {
         return this.findByPageId(pageId, Optional.empty());
     }
 
     @Override
-    public List<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission) {
+    public Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission) {
         final BridgeQuery<NewAction> q;
 
         // Fetch published actions
@@ -94,7 +96,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
+    public Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
         return queryBuilder()
                 .criteria(getCriteriaForFindAllActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode))
@@ -138,7 +140,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findUnpublishedActionsByNameInAndPageId(
+    public Flux<NewAction> findUnpublishedActionsByNameInAndPageId(
             Set<String> names, String pageId, AclPermission permission) {
         BridgeQuery<NewAction> q = Bridge.equal(NewAction.Fields.unpublishedAction_pageId, pageId);
 
@@ -156,7 +158,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
+    public Flux<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
             String pageId, AclPermission permission) {
         BridgeQuery<NewAction> q = Bridge.<NewAction>isTrue(NewAction.Fields.unpublishedAction_executeOnLoad)
                 .isTrue(NewAction.Fields.unpublishedAction_userSetOnLoad)
@@ -169,7 +171,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
+    public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId))
                 .permission(aclPermission)
@@ -182,7 +184,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findByApplicationIdAndViewMode(
+    public Flux<NewAction> findByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission) {
         return queryBuilder()
                 .criteria(getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode))
@@ -204,7 +206,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Optional<NewAction> findByBranchNameAndDefaultActionId(
+    public Mono<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, Boolean viewMode, AclPermission permission) {
         final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(
                         NewAction.Fields.defaultResources_actionId, defaultActionId)
@@ -220,7 +222,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission) {
+    public Flux<NewAction> findByPageIds(List<String> pageIds, AclPermission permission) {
         return queryBuilder()
                 .criteria(Bridge.in(NewAction.Fields.unpublishedAction_pageId, pageIds))
                 .permission(permission)
@@ -229,12 +231,12 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     @Deprecated
-    public List<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
+    public Flux<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
         return findByPageIds(pageIds, permission.orElse(null));
     }
 
     @Override
-    public List<NewAction> findNonJsActionsByApplicationIdAndViewMode(
+    public Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission) {
         return queryBuilder()
                 .criteria(getCriteriaForFindNonJsActionsByApplicationIdAndViewMode(applicationId, viewMode))
@@ -257,7 +259,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
+    public Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
         return queryBuilder()
                 .criteria(getCriteriaForFindAllNonJsActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode))
@@ -302,7 +304,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
+    public Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
         final String defaultResources = BranchAwareDomain.Fields.defaultResources;
         return queryBuilder()
                 .criteria(Bridge.equal(NewAction.Fields.defaultResources_applicationId, defaultApplicationId)
@@ -314,27 +316,27 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     @Modifying
     @Transactional
-    public Optional<Void> publishActions(String applicationId, AclPermission permission) {
+    public Mono<Void> publishActions(String applicationId, AclPermission permission) {
         return copyUnpublishedActionToPublishedAction(getCriterionForFindByApplicationId(applicationId), permission);
     }
 
-    protected Optional<Void> copyUnpublishedActionToPublishedAction(
+    protected Mono<Void> copyUnpublishedActionToPublishedAction(
             BridgeQuery<NewAction> criteria, AclPermission permission) {
-        queryBuilder()
+        return queryBuilder()
                 .permission(permission)
                 .criteria(criteria)
                 .updateAll(Bridge.update()
-                        .setToValueFromField(NewAction.Fields.publishedAction, NewAction.Fields.unpublishedAction));
-        return Optional.empty();
+                        .setToValueFromField(NewAction.Fields.publishedAction, NewAction.Fields.unpublishedAction))
+                .then();
     }
 
     @Override
     @Modifying
     @Transactional
-    public Optional<Integer> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission) {
+    public Mono<Integer> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission) {
         final BridgeQuery<NewAction> q = getCriterionForFindByApplicationId(applicationId)
                 .isNotNull(NewAction.Fields.unpublishedAction_deletedAt);
-        int count = queryBuilder()
+        return queryBuilder()
                 // .spec(Bridge.equal(NewAction.Fields.applicationId,
                 // applicationId).notEqual(unpublishedDeletedAtFieldName, null))
                 .criteria(q /*(root, cq, cb) -> cb.and(
@@ -346,12 +348,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                                 cb.literal(FieldName.DELETED_AT))))*/)
                 .permission(permission)
                 .updateAll(Bridge.update().set(NewAction.Fields.deletedAt, Instant.now()));
-
-        return Optional.of(count);
     }
 
     @Override
-    public List<NewAction> findAllByApplicationIdsWithoutPermission(
+    public Flux<NewAction> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         return queryBuilder()
                 .criteria(Bridge.in(NewAction.Fields.applicationId, applicationIds))
@@ -360,7 +360,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findAllByCollectionIds(
+    public Flux<NewAction> findAllByCollectionIds(
             List<String> collectionIds, boolean viewMode, AclPermission aclPermission) {
         String collectionIdPath;
         if (viewMode) {
@@ -373,7 +373,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
+    public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
         String contextIdPath = NewAction.Fields.unpublishedAction_pageId;
         String contextTypePath = NewAction.Fields.unpublishedAction_contextType;
@@ -389,7 +389,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findAllPublishedActionsByContextIdAndContextType(
+    public Flux<NewAction> findAllPublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
         String contextIdPath = NewAction.Fields.publishedAction_pageId;
         String contextTypePath = NewAction.Fields.publishedAction_contextType;

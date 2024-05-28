@@ -4,6 +4,8 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.repositories.AppsmithRepository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
@@ -12,13 +14,13 @@ import java.util.Set;
 
 public interface CustomApplicationRepositoryCE extends AppsmithRepository<Application> {
 
-    Optional<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission);
+    Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission);
 
-    Optional<Application> findByName(String name, AclPermission permission);
+    Mono<Application> findByName(String name, AclPermission permission);
 
-    List<Application> findByWorkspaceId(String workspaceId, AclPermission permission);
+    Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission);
 
-    List<Application> findByMultipleWorkspaceIds(Set<String> workspaceIds, AclPermission permission);
+    Flux<Application> findByMultipleWorkspaceIds(Set<String> workspaceIds, AclPermission permission);
 
     /**
      * Finds all the applications that are directly assigned to the user.
@@ -27,12 +29,11 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
      * @param permission
      * @return A List of applications.
      */
-    List<Application> findAllUserApps(AclPermission permission);
+    Flux<Application> findAllUserApps(AclPermission permission);
 
-    List<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
+    Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
 
-    Optional<Integer> addPageToApplication(
-            String applicationId, String pageId, boolean isDefault, String defaultPageId);
+    Mono<Integer> addPageToApplication(String applicationId, String pageId, boolean isDefault, String defaultPageId);
 
     /*@Modifying
     @Query(value = "UPDATE Application SET pages = :pages WHERE id = :applicationId")
@@ -40,34 +41,34 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
         return Optional.empty();
     }*/
 
-    int setPages(String applicationId, List<ApplicationPage> pages);
+    Mono<Integer> setPages(String applicationId, List<ApplicationPage> pages);
 
-    Optional<Void> setDefaultPage(String applicationId, String pageId);
+    Mono<Void> setDefaultPage(String applicationId, String pageId);
 
-    Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(
+    Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
             String defaultApplicationId, String branchName, Optional<AclPermission> permission);
 
-    Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(
+    Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
             String defaultApplicationId, String branchName, AclPermission aclPermission);
 
-    Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(
+    Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
             String defaultApplicationId,
             List<String> projectionFieldNames,
             String branchName,
             AclPermission aclPermission);
 
-    List<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId, AclPermission permission);
+    Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
-    int setAppTheme(
+    Mono<Integer> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
 
-    Optional<Long> getGitConnectedApplicationWithPrivateRepoCount(String workspaceId);
+    Mono<Long> getGitConnectedApplicationWithPrivateRepoCount(String workspaceId);
 
-    List<Application> getGitConnectedApplicationByWorkspaceId(String workspaceId);
+    Flux<Application> getGitConnectedApplicationByWorkspaceId(String workspaceId);
 
-    Optional<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
+    Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
 
-    Optional<Integer> updateFieldByDefaultIdAndBranchName(
+    Mono<Integer> updateFieldByDefaultIdAndBranchName(
             String defaultId,
             String defaultIdPath,
             Map<String, Object> fieldNameValueMap,
@@ -75,15 +76,15 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
             String branchNamePath,
             AclPermission permission);
 
-    Optional<Long> countByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
+    Mono<Long> countByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission);
 
-    List<String> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
+    Flux<String> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
             String workspaceId, AclPermission permission, String permissionGroupId);
 
-    Optional<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
+    Mono<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
             AclPermission permission, String permissionGroupId);
 
-    int unprotectAllBranches(String applicationId, AclPermission permission);
+    Mono<Integer> unprotectAllBranches(String applicationId, AclPermission permission);
 
-    int protectBranchedApplications(String applicationId, List<String> branchNames, AclPermission permission);
+    Mono<Integer> protectBranchedApplications(String applicationId, List<String> branchNames, AclPermission permission);
 }

@@ -13,6 +13,7 @@ import com.appsmith.server.repositories.cakes.BaseCake;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.CrudRepository;
@@ -25,9 +26,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
-import static com.appsmith.server.helpers.ReactorUtils.asFlux;
 import static com.appsmith.server.helpers.ReactorUtils.asMono;
 
 @Slf4j
@@ -73,8 +72,9 @@ public abstract class BaseService<
 
         resource.setUpdatedAt(Instant.now());
 
-        return asMono(() -> Optional.of(repositoryDirect.updateById((String) id, resource, null)))
-                .flatMap(obj -> repository.findById((String) id))
+        return repositoryDirect
+                .updateById((String) id, resource, null)
+                .flatMap(obj -> asMono(() -> repositoryDirect.findById(id)))
                 .flatMap(savedResource ->
                         analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
@@ -147,13 +147,13 @@ public abstract class BaseService<
             criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
         }
 
-        Flux<T> result = asFlux(() -> repositoryDirect
+        Flux<T> result = repositoryDirect
                 .queryBuilder()
                 .criteria(Bridge.or(criteria))
                 .permission(permission)
                 .sort(sort)
                 .includeAnonymousUserPermissions(false)
-                .all());
+                .all();
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }

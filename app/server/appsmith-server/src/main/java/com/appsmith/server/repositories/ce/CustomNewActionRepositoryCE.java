@@ -5,6 +5,8 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,59 +14,59 @@ import java.util.Set;
 
 public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewAction> {
 
-    List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission);
+    Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission);
 
-    Optional<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission);
+    Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission);
 
-    List<NewAction> findByPageId(String pageId, AclPermission aclPermission);
+    Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission);
 
-    List<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission);
+    Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission);
 
-    List<NewAction> findByPageId(String pageId);
+    Flux<NewAction> findByPageId(String pageId);
 
-    List<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission);
+    Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission);
 
-    List<NewAction> findUnpublishedActionsByNameInAndPageId(Set<String> names, String pageId, AclPermission permission);
+    Flux<NewAction> findUnpublishedActionsByNameInAndPageId(Set<String> names, String pageId, AclPermission permission);
 
-    List<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
+    Flux<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
             String pageId, AclPermission permission);
 
-    List<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
+    Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
 
-    List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
+    Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
 
-    List<NewAction> findByApplicationId(
+    Flux<NewAction> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort);
 
-    List<NewAction> findByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission);
+    Flux<NewAction> findByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission);
 
-    Optional<NewAction> findByBranchNameAndDefaultActionId(
+    Mono<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, Boolean viewMode, AclPermission permission);
 
-    List<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
+    Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
 
-    List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission);
+    Flux<NewAction> findByPageIds(List<String> pageIds, AclPermission permission);
 
-    List<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
+    Flux<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
 
-    List<NewAction> findNonJsActionsByApplicationIdAndViewMode(
+    Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission);
 
-    List<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
+    Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
 
-    Optional<Void> publishActions(String applicationId, AclPermission permission);
+    Mono<Void> publishActions(String applicationId, AclPermission permission);
 
-    Optional<Integer> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
+    Mono<Integer> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
 
-    List<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
+    Flux<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 
-    List<NewAction> findAllByCollectionIds(List<String> collectionIds, boolean viewMode, AclPermission aclPermission);
+    Flux<NewAction> findAllByCollectionIds(List<String> collectionIds, boolean viewMode, AclPermission aclPermission);
 
-    List<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
+    Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs);
 
-    List<NewAction> findAllPublishedActionsByContextIdAndContextType(
+    Flux<NewAction> findAllPublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs);
 }
