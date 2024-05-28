@@ -11,7 +11,7 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import ButtonGroupComponent from "../component";
-import { getStylesheetValue } from "./helpers";
+import { getStylesheetValue, isIconNamePresent } from "./helpers";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
@@ -422,6 +422,12 @@ class ButtonGroupWidget extends BaseWidget<
                                 isBindProperty: false,
                                 isTriggerProperty: false,
                                 validation: { type: ValidationTypes.TEXT },
+                                hidden: (
+                                  props: ButtonGroupWidgetProps,
+                                  propertyPath: string,
+                                ) =>
+                                  !isIconNamePresent(props, propertyPath, true),
+                                dependencies: ["groupButtons"],
                               },
                             ],
                           },
@@ -562,6 +568,11 @@ class ButtonGroupWidget extends BaseWidget<
                       isBindProperty: false,
                       isTriggerProperty: false,
                       validation: { type: ValidationTypes.TEXT },
+                      hidden: (
+                        props: ButtonGroupWidgetProps,
+                        propertyPath: string,
+                      ) => !isIconNamePresent(props, propertyPath),
+                      dependencies: ["groupButtons"],
                     },
                     {
                       propertyName: "placement",

@@ -80,7 +80,7 @@ describe(
       cy.get(menuButton).should("have.css", "justify-content", "center");
     });
 
-    it("Update Placement and Verify buttons alignments", function () {
+    it("Update icon alignment and Verify buttons alignments and the position setting should be hidden when icon value is none", function () {
       // check first button placement
       cy.selectDropdownValue(
         ".t--property-control-placement .rc-select-selection-item",
@@ -113,6 +113,12 @@ describe(
       cy.get(firstButton)
         .eq(1)
         .should("have.css", "flex-direction", "row-reverse");
+      cy.wait(100);
+      cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
+        force: true,
+      });
+      cy.wait(100);
+      cy.get('[data-index="0"] > li > .bp3-menu-item').first().click();
     });
 
     after(() => {
