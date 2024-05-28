@@ -20,7 +20,6 @@ import reactor.util.context.Context;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.appsmith.external.constants.MDCConstants.SESSION_ID_LOG;
 import static com.appsmith.external.constants.MDCConstants.THREAD;
 import static com.appsmith.external.constants.MDCConstants.USER_EMAIL;
 import static java.util.stream.Collectors.toMap;
@@ -44,7 +43,6 @@ public class MDCFilter implements WebFilter {
 
     public static final String REQUEST_ID_HEADER = "X-Request-Id";
 
-    private static final String REQUEST_ID_LOG = "requestId";
     private static final String SESSION = "SESSION";
 
     @Override
@@ -52,7 +50,7 @@ public class MDCFilter implements WebFilter {
         try {
             // Using beforeCommit here ensures that the function `addContextToHttpResponse` isn't run immediately
             // It is only run when the response object is being created
-            exchange.getResponse().beforeCommit(() -> addContextToHttpResponse(exchange.getResponse()));
+            // exchange.getResponse().beforeCommit(() -> addContextToHttpResponse(exchange.getResponse()));
             return ReactiveSecurityContextHolder.getContext()
                     .map(ctx -> ctx.getAuthentication().getPrincipal())
                     .flatMap(principal -> {
@@ -75,22 +73,13 @@ public class MDCFilter implements WebFilter {
             contextMap.put(USER_EMAIL, user.getEmail());
         }
 
-        final String internalRequestId = request.getHeaders().getFirst(INTERNAL_REQUEST_ID_HEADER);
-        if (!StringUtils.isEmpty(internalRequestId)) {
-            contextMap.put(INTERNAL_REQUEST_ID_HEADER, internalRequestId);
-            contextMap.put(REQUEST_ID_LOG, internalRequestId);
-        }
+        final String internalRequestId = getOrCreateInternalRequestId(request);
+        contextMap.put(INTERNAL_REQUEST_ID_HEADER, internalRequestId);
 
         final String requestId = request.getHeaders().getFirst(REQUEST_ID_HEADER);
         if (!StringUtils.isEmpty(requestId)) {
             contextMap.put(REQUEST_ID_HEADER, requestId);
         }
-
-        contextMap.put(SESSION_ID_LOG, getSessionId(request));
-
-        // This is for the initial thread that started the request,
-        // any reactive forking will generate a new thread
-        contextMap.put(THREAD, Thread.currentThread().getName());
 
         // Set the MDC context here for regular non-reactive logs
         MDC.setContextMap(contextMap);
