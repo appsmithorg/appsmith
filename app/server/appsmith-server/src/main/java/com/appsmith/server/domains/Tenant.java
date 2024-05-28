@@ -6,9 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
-import org.checkerframework.common.aliasing.qual.Unique;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.data.mongodb.core.index.Indexed;
 
 @Getter
 @Setter
@@ -18,7 +18,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @FieldNameConstants
 public class Tenant extends BaseDomain {
 
-    @Unique String slug;
+    @Indexed(Unique= true)
+    String slug;
 
     String displayName;
 
