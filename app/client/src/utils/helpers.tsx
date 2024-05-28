@@ -172,12 +172,12 @@ function removeClass(ele: HTMLElement, cls: string) {
   }
 }
 
-export const removeSpecialChars = (value: string, limit?: number) => {
+export const removeSpecialChars = (value: string) => {
   const separatorRegex = /\W+/;
   return value
     .split(separatorRegex)
     .join("_")
-    .slice(0, limit || 30);
+    
 };
 
 export const flashElement = (

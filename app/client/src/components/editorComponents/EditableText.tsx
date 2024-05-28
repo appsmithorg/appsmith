@@ -84,7 +84,7 @@ const EditableTextWrapper = styled.div<{
     useFullWidth &&
     `
     > div {
-    width: 100%;
+    width: 90%;
     }
   `}
 `;

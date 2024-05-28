@@ -10,7 +10,7 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import { useSelector, useDispatch } from "react-redux";
 import type { Datasource } from "entities/Datasource";
-import { isNameValid } from "utils/helpers";
+import { isNameValid, removeSpecialChars } from "utils/helpers";
 import {
   saveDatasourceName,
   updateDatasourceName,
@@ -143,12 +143,14 @@ function FormTitle(props: FormTitleProps) {
         forceDefault={forceUpdate}
         isEditingDefault={props.focusOnMount}
         isInvalid={isInvalidDatasourceName}
-        maxLength={30}
+        maxLength={256}
         onTextChanged={handleDatasourceNameChange}
         placeholder="Datasource name"
         type="text"
         underline
         updating={saveStatus.isSaving}
+        valueTransform={removeSpecialChars}
+        useFullWidth
       />
     </Wrapper>
   );
