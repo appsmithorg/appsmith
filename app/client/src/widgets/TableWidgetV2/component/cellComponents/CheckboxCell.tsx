@@ -90,6 +90,7 @@ const CheckboxCellComponent = (props: CheckboxCellProps) => {
       labelPosition={LabelPosition.Auto}
       onCheckChange={() => onChange()}
       widgetId={""}
+      isFullWidth={false}
     />
   );
   return (

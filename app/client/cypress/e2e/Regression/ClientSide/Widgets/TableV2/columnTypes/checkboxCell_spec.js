@@ -69,6 +69,15 @@ describe(
           "justify-content",
           "center",
         );
+        cy.get(`${selector} div`)
+          .children()
+          .first()
+          .then(($el) => {
+            cy.wrap($el).then(($el) => {
+              // Ensure the width is 'auto' by checking it doesn't have an explicit value
+              expect($el[0].style.width).to.be.empty;
+            });
+          });
       });
 
       // Check vertical alignment
