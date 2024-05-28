@@ -23,16 +23,16 @@ describe(
       agHelper.PressDelete();
     });
     it("1. Change App navigation settings and valdiate the layout settings", () => {
-      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSINPUT, 5, 20, {
+      anvilLayout.DragDropNewAnvilWidgetNVerify(WIDGET.WDSINPUT, 5, 20, {
         skipWidgetSearch: true,
       });
-      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSINPUT, 5, 20, {
+      anvilLayout.DragDropNewAnvilWidgetNVerify(WIDGET.WDSINPUT, 5, 20, {
         skipWidgetSearch: true,
         dropTargetDetails: {
           name: "Zone1",
         },
       });
-      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSBUTTON, 5, 20, {
+      anvilLayout.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 5, 20, {
         skipWidgetSearch: true,
         dropTargetDetails: {
           name: "Zone1",

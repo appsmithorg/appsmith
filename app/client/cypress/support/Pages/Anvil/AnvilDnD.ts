@@ -1,12 +1,12 @@
-import { drop } from "lodash";
-import { getWidgetSelector } from "../../locators/WidgetLocators";
-import { ObjectsRegistry } from "../Objects/Registry";
+import { getWidgetSelector } from "../../../locators/WidgetLocators";
+import { ObjectsRegistry } from "../../Objects/Registry";
 import {
   AppSidebar,
   AppSidebarButton,
   PageLeftPane,
   PagePaneSegment,
-} from "./EditorNavigation";
+} from "../EditorNavigation";
+import { AnvilSelectors } from "./AnvilSelectors";
 
 interface DropTargetDetails {
   id?: string;
@@ -18,11 +18,10 @@ interface DragDropWidgetOptions {
   dropTargetDetails?: DropTargetDetails;
 }
 
-export class AnvilLayout {
+export class AnvilDnD extends AnvilSelectors {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
-  private agHelper = ObjectsRegistry.AggregateHelper;
-  public mainCanvasSelector = "#anvil-canvas-0";
+  protected agHelper = ObjectsRegistry.AggregateHelper;
   private getAnvilDropTargetSelectorFromOptions = (
     dropTarget?: DropTargetDetails,
   ) => {
@@ -36,9 +35,8 @@ export class AnvilLayout {
         }`;
       }
     }
-    return this.locator._anvilDnDListener;
+    return `${this.mainCanvasSelector} > ${this.locator._anvilDnDListener}`;
   };
-
   private performDnDInAnvil(
     xPos: number,
     yPos: number,
@@ -88,7 +86,6 @@ export class AnvilLayout {
       PageLeftPane.switchToAddNew();
     }
   }
-
   private DragNDropAnvilWidget(
     widgetType: string,
     x = 300,
@@ -100,18 +97,50 @@ export class AnvilLayout {
     this.startDraggingWidgetFromPane(widgetType);
     this.performDnDInAnvil(x, y, options);
   }
-
-  public DragDropAnvilWidgetNVerify(
+  public DragDropNewAnvilWidgetNVerify(
     widgetType: string,
     x = 300,
     y = 100,
     options = {} as DragDropWidgetOptions,
   ) {
-    this.DragNDropAnvilWidget(widgetType, x, y, options);
-    this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
-    this.agHelper.AssertElementExist(
-      this.locator._anvilWidgetInCanvas(widgetType),
-    );
-    this.agHelper.Sleep(200); //waiting a bit for widget properties to open
+    this.agHelper
+      .AssertElementExist(this.mainCanvasSelector)
+      .then((mainCanvas) => {
+        const mainCanvasX = mainCanvas.position().left;
+        const mainCanvasY = mainCanvas.position().top;
+        this.DragNDropAnvilWidget(
+          widgetType,
+          x + mainCanvasX,
+          y + mainCanvasY,
+          options,
+        );
+        this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
+        this.agHelper.AssertElementExist(
+          this.locator._anvilWidgetInCanvas(widgetType),
+        );
+        this.agHelper.Sleep(200); //waiting a bit for widget properties to open
+      });
+  }
+
+  public MoveAnvilWidget(
+    widgetName: string,
+    x = 300,
+    y = 100,
+    options = {} as DragDropWidgetOptions,
+  ) {
+    this.agHelper
+      .AssertElementExist(this.mainCanvasSelector)
+      .then((mainCanvas) => {
+        const mainCanvasX = mainCanvas.position().left;
+        const mainCanvasY = mainCanvas.position().top;
+        const widgetSelector = this.anvilWidgetNameSelector(widgetName);
+        // perform mouseover to focus the widget before drag to allow dragging
+        cy.get(widgetSelector).first().trigger("mouseover", { force: true });
+        cy.get(widgetSelector).first().trigger("dragstart", { force: true });
+        this.performDnDInAnvil(x + mainCanvasX, y + mainCanvasY, options);
+        this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
+        this.agHelper.AssertElementExist(widgetSelector);
+        this.agHelper.Sleep(200); //waiting a bit for widget properties to open
+      });
   }
 }
