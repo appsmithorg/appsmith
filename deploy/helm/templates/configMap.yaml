@@ -13,7 +13,8 @@ metadata:
     {{- include "appsmith.labels" . | nindent 4 }}
 data:
   {{- if and $.Values.mongodb.enabled (not .Values.applicationConfig.APPSMITH_MONGODB_URI) (not .Values.applicationConfig.APPSMITH_DB_URL) }}
-  APPSMITH_DB_URL: mongodb+srv://{{ $mongoUser }}:{{ $mongoPassword }}@{{ $mongoServicename }}.{{ $nameSpace }}.svc.cluster.local/appsmith?retryWrites=true&authSource=admin&ssl=false
+  APPSMITH_DB_URL: |
+    mongodb+srv://{{ $mongoUser }}:{{ $mongoPassword }}@{{ $mongoServicename }}.{{ $nameSpace }}.svc.cluster.local/appsmith?retryWrites=true&authSource=admin&ssl=false
   {{- end }}
 
   {{- range $key, $value := .Values.applicationConfig }}
