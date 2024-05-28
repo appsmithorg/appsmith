@@ -112,7 +112,11 @@ import {
   parseJSActions,
   updateEvalTreeWithJSCollectionState,
 } from "workers/Evaluation/JSObject";
-import { getFixedTimeDifference, replaceThisDotParams } from "./utils";
+import {
+  getFixedTimeDifference,
+  getOnlyAffectedJSObjects,
+  replaceThisDotParams,
+} from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   validateActionProperty,
@@ -134,6 +138,7 @@ import {
   type WebworkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
 import type { Attributes } from "@opentelemetry/api";
+import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -486,6 +491,7 @@ export default class DataTreeEvaluator {
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData> = {},
     telemetryAttributes: Attributes = {},
+    affectedJSObjects: AffectedJSObjects = { isAllAffected: false, ids: [] },
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -514,8 +520,16 @@ export default class DataTreeEvaluator {
       webworkerTelemetry,
       () =>
         convertMicroDiffToDeepDiff(
-          microDiff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) ||
-            [],
+          microDiff(
+            getOnlyAffectedJSObjects(
+              oldUnEvalTreeJSCollections,
+              affectedJSObjects,
+            ),
+            getOnlyAffectedJSObjects(
+              localUnEvalTreeJSCollection,
+              affectedJSObjects,
+            ),
+          ) || [],
         ),
     );
 
@@ -585,6 +599,7 @@ export default class DataTreeEvaluator {
         isNewWidgetAdded: false,
       };
     }
+
     DataStore.update(differences);
     let isNewWidgetAdded = false;
 

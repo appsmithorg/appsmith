@@ -1,7 +1,7 @@
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const metaConfig = {
-  name: "Statbox",
+  name: "Stats",
   needsMeta: false,
   isCanvas: false,
   searchTags: ["statbox"],
