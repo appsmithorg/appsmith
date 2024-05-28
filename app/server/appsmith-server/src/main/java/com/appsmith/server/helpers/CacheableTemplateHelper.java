@@ -53,7 +53,7 @@ public class CacheableTemplateHelper {
                 });
     }
 
-    @Cache(cacheName = "templateApplicationData", key = "{#templateId}")
+    @Cache(cacheName = "templateApplicationJSONData", key = "{#templateId}")
     public Mono<CacheableApplicationJson> getApplicationByTemplateId(String templateId, String baseUrl) {
         final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/application";
         /*
@@ -92,7 +92,7 @@ public class CacheableTemplateHelper {
         return Mono.empty().then();
     }
 
-    @CacheEvict(cacheName = "templateApplicationData", key = "{#templateId}")
+    @CacheEvict(cacheName = "templateApplicationJSONData", key = "{#templateId}")
     public Mono<Void> clearTemplateApplicationDataCache(String templateId) {
         return Mono.empty().then();
     }
