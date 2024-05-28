@@ -11,6 +11,7 @@ import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -178,9 +179,11 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     }
 
     @Override
-    public Mono<Application> publishArtifact(Artifact artifact) {
+    public Mono<Application> publishArtifact(Artifact artifact, Boolean isPublishedManually) {
         Application application = (Application) artifact;
-        return applicationPageService.publish(application.getId(), true).then(Mono.just(application));
+        return applicationPageService
+                .publish(application.getId(), isPublishedManually)
+                .then(Mono.just(application));
     }
 
     // TODO: scope for improvement
@@ -304,5 +307,24 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     @Override
     public Application updateArtifactWithDefaultReponseUtils(Artifact artifact) {
         return responseUtils.updateApplicationWithDefaultResources((Application) artifact);
+    }
+
+    @Override
+    public Mono<Application> createArtifactForImport(String workspaceId, String repoName) {
+        Application newApplication = new Application();
+        newApplication.setName(repoName);
+        newApplication.setWorkspaceId(workspaceId);
+        newApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        return applicationPageService.createOrUpdateSuffixedApplication(newApplication, newApplication.getName(), 0);
+    }
+
+    @Override
+    public Mono<Application> deleteArtifact(String artifactId) {
+        return applicationPageService.deleteApplication(artifactId);
+    }
+
+    @Override
+    public Boolean isArtifactResourcePopulatedProperly(ArtifactExchangeJson artifactExchangeJson) {
+        return null;
     }
 }

@@ -9,13 +9,16 @@ import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.GitArtifactHelper;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
+import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.services.ce.CommonGitServiceCEImpl;
+import com.appsmith.server.solutions.DatasourcePermission;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -37,6 +40,10 @@ public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl imp
             TransactionalOperator transactionalOperator,
             AnalyticsService analyticsService,
             ObservationRegistry observationRegistry,
+            WorkspaceService workspaceService,
+            DatasourceService datasourceService,
+            DatasourcePermission datasourcePermission,
+            PluginService pluginService,
             ExportService exportService,
             ImportService importService,
             GitExecutor gitExecutor,
@@ -54,6 +61,10 @@ public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl imp
                 transactionalOperator,
                 analyticsService,
                 observationRegistry,
+                workspaceService,
+                datasourceService,
+                datasourcePermission,
+                pluginService,
                 exportService,
                 importService,
                 gitExecutor,
