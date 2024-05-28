@@ -450,7 +450,7 @@ export default {
     /* skipping search when client side search is turned off */
     if (
       props.searchText &&
-      props.isVisibleSearch &&
+      (props.isVisibleSearch === undefined || props.isVisibleSearch === true) &&
       (!props.onSearchTextChanged || props.enableClientSideSearch)
     ) {
       searchKey = props.searchText.toLowerCase();
