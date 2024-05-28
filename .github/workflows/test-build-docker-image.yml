@@ -264,11 +264,23 @@ jobs:
 
       - name: Return status for ui-matrix
         run: |
-          if [[ "${{ needs.ci-test.result }}" == "success" ]]; then
-            echo "Integration tests completed successfully!";
+          if [[ "${{ needs.ci-test.result }}" == "success" && "${{ needs.client-unit-tests.result }}" == "success" && "${{ needs.server-unit-tests.result }}" == "success" ]]; then
+            echo "Integration, Client unit and Server unit tests completed successfully!";
             exit 0;
           elif [[ "${{ needs.ci-test.result }}" == "skipped" ]]; then
             echo "Integration tests were skipped";
+            exit 1;
+          elif [[ "${{ needs.client-unit-tests.result }}" == "skipped" ]]; then
+            echo "Client unit tests were skipped";
+            exit 1;
+          elif [[ "${{ needs.server-unit-tests.result }}" == "skipped" ]]; then
+            echo "Server unit tests were skipped";
+            exit 1;
+          elif [[ "${{ needs.client-unit-tests.result }}" == "failure" ]]; then
+            echo "Client unit tests have failed";
+            exit 1;
+          elif [[ "${{ needs.server-unit-tests.result }}" == "failure" ]]; then
+            echo "Server unit tests have failed";
             exit 1;
           else
             echo "Integration tests have failed";
@@ -426,7 +438,7 @@ jobs:
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:nightly
 
   notify-slack-for-promotion:
-    needs: ci-test
+    needs: ci-test-result
     runs-on: ubuntu-latest
 
     if: ( failure() && github.ref == 'refs/heads/master' )

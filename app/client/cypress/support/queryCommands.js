@@ -30,10 +30,6 @@ Cypress.Commands.add("ClickGotIt", () => {
   cy.get("span:contains('Got it')").click();
 });
 
-Cypress.Commands.add("fillGoogleSheetsDatasourceForm", () => {
-  cy.get(datasourceEditor["scope"]).click();
-});
-
 Cypress.Commands.add("fillAuthenticatedAPIForm", () => {
   const URL = datasourceFormData["authenticatedApiUrl"];
   cy.get(datasourceEditor.url).type(URL);
@@ -61,35 +57,12 @@ Cypress.Commands.add("onlyQueryRun", () => {
   cy.get(".ads-v2-spinner").should("not.exist");
 });
 
-Cypress.Commands.add("RunQueryWithoutWaitingForResolution", () => {
-  cy.xpath(queryEditor.runQuery).last().click({ force: true });
-});
-
 Cypress.Commands.add("hoverAndClick", (entity) => {
   cy.xpath(
     "//div[text()='" +
       entity +
       "']/ancestor::div[1]/following-sibling::div//button[contains(@class, 'entity-context-menu')]",
   ).click({ force: true });
-});
-
-Cypress.Commands.add("hoverAndClickParticularIndex", (index) => {
-  cy.xpath(apiwidget.popover)
-    .eq(index)
-    .should("be.hidden")
-    .invoke("show")
-    .click({ force: true });
-});
-
-Cypress.Commands.add("deleteQuery", () => {
-  cy.hoverAndClick();
-  cy.get(apiwidget.delete).click({ force: true });
-  cy.get(apiwidget.deleteConfirm).click({ force: true });
-  cy.wait("@deleteAction").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
 });
 
 Cypress.Commands.add("deleteQueryUsingContext", () => {
@@ -125,21 +98,6 @@ Cypress.Commands.add("executeDbQuery", (queryName, eventName) => {
   //   .click({ force: true });
 });
 
-Cypress.Commands.add("CreateMockQuery", (queryName) => {
-  // cy.get(queryEditor.addNewQueryBtn).click({ force: true });
-  // cy.get(queryEditor.createQuery)
-  //   .first()
-  //   .click({ force: true });
-  cy.get(queryEditor.queryNameField).type(queryName + "{enter}", {
-    force: true,
-  });
-  cy.assertPageSave();
-  cy.runQuery();
-  // cy.wait(3000);
-  // cy.get(queryEditor.runQuery)
-  //   .click({force: true});
-});
-
 Cypress.Commands.add("ValidateQueryParams", (param) => {
   cy.xpath(apiwidget.paramsTab).should("be.visible").click({ force: true });
 
@@ -169,46 +127,6 @@ Cypress.Commands.add(
   },
 );
 
-// targeting multiselect dropdowns, we target the data-testid value of the options
-Cypress.Commands.add(
-  "TargetMultiSelectDropdownAndSelectOptions",
-  (dropdownIdentifier, options, isDynamic = false) => {
-    if (isDynamic) {
-      cy.wait(5000);
-    }
-    cy.get(dropdownIdentifier)
-      .scrollIntoView()
-      .should("be.visible")
-      .click({ multiple: true });
-
-    options &&
-      options.map((option) => {
-        cy.get(formControls.dropdownWrapper)
-          .should("be.visible")
-          .get(option) //  we use a get instead of contains.
-          .first()
-          .click({ force: true });
-      });
-  },
-);
-
-Cypress.Commands.add(
-  "TargetFormControlAndSwitchViewType",
-  (formControlIdentifier, newViewType) => {
-    cy.get(formControlIdentifier).scrollIntoView().should("be.visible").click();
-
-    if (newViewType === "json") {
-      cy.get(formControlIdentifier)
-        .should("be.visible")
-        .should("have.class", "is-active");
-    } else if (newViewType === "component") {
-      cy.get(formControlIdentifier)
-        .should("be.visible")
-        .should("not.have.class", "is-active");
-    }
-  },
-);
-
 Cypress.Commands.add(
   "VerifyCurrentDropdownOption",
   (dropdownIdentifier, option) => {
@@ -234,9 +152,3 @@ Cypress.Commands.add(
     }
   },
 );
-
-Cypress.Commands.add("SelecJSFunctionAndRun", (functionName) => {
-  cy.xpath("//span[@name='expand-more']").first().click();
-  cy.get(`[data-testid='t--dropdown-option-${functionName}']`).click();
-  cy.get(jsEditorLocators.runButton).first().click();
-});
