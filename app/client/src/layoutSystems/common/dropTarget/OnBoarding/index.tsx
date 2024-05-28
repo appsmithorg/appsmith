@@ -29,14 +29,21 @@ function Onboarding() {
   const isUISegment = segment === EditorEntityTab.UI;
 
   const shouldShowBuildingBlocksDropTarget = useMemo(
-    () => isEditorState && isUISegment && releaseDragDropBuildingBlocksEnabled,
-    [isEditorState, releaseDragDropBuildingBlocksEnabled, isUISegment],
+    () =>
+      !isAirgappedInstance &&
+      isEditorState &&
+      isUISegment &&
+      releaseDragDropBuildingBlocksEnabled,
+    [
+      isEditorState,
+      releaseDragDropBuildingBlocksEnabled,
+      isUISegment,
+      isAirgappedInstance,
+    ],
   );
 
-  if (!isAirgappedInstance) {
-    if (shouldShowBuildingBlocksDropTarget) {
-      return <BuildingBlockExplorerDropTarget />;
-    }
+  if (shouldShowBuildingBlocksDropTarget) {
+    return <BuildingBlockExplorerDropTarget />;
   }
   return (
     <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
