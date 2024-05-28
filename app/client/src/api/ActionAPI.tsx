@@ -132,7 +132,7 @@ class ActionAPI extends API {
   static async createAction(
     apiConfig: Partial<Action>,
   ): Promise<AxiosPromise<ActionCreateUpdateResponse>> {
-    return API.post(ActionAPI.url, apiConfig);
+    return API.post(ActionAPI.url, { ...apiConfig, eventData: undefined });
   }
 
   static async fetchActions(
