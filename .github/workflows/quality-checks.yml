@@ -2,7 +2,7 @@ name: Quality checks
 
 on:
   pull_request:
-    branches: [release, master]
+    branches: [release, master, pg]
 
 jobs:
   path-filter:
@@ -45,6 +45,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.pull_request.number }}
+      is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
 
   client-build:
     name: client-build
@@ -78,6 +79,15 @@ jobs:
     needs: path-filter
     if: needs.path-filter.outputs.client == 'true'
     uses: ./.github/workflows/client-lint.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.pull_request.number }}
+
+  client-check-cyclic-deps:
+    name: client-check-cyclic-deps
+    needs: path-filter
+    if: needs.path-filter.outputs.client == 'true'
+    uses: ./.github/workflows/ci-client-cyclic-deps-check.yml
     secrets: inherit
     with:
       pr: ${{ github.event.pull_request.number }}

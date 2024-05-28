@@ -125,7 +125,7 @@ function getEncryptionPasswordFromUser(){
 
 async function exportDatabase(destFolder) {
   console.log('Exporting database');
-  await executeMongoDumpCMD(destFolder, process.env.APPSMITH_MONGODB_URI)
+  await executeMongoDumpCMD(destFolder, process.env.APPSMITH_DB_URL)
   console.log('Exporting database done.');
 }
 
@@ -141,7 +141,7 @@ async function createGitStorageArchive(destFolder) {
 
 async function createManifestFile(path) {
   const version = await utils.getCurrentAppsmithVersion()
-  const manifest_data = { "appsmithVersion": version, "dbName": utils.getDatabaseNameFromMongoURI(process.env.APPSMITH_MONGODB_URI) }
+  const manifest_data = { "appsmithVersion": version, "dbName": utils.getDatabaseNameFromMongoURI(process.env.APPSMITH_DB_URL) }
   await fsPromises.writeFile(path + '/manifest.json', JSON.stringify(manifest_data));
 }
 
@@ -207,7 +207,7 @@ function removeSensitiveEnvData(content) {
   // Remove encryption and Mongodb data from docker.env
   const output_lines = []
   content.split(/\r?\n/).forEach(line => {
-    if (!line.startsWith("APPSMITH_ENCRYPTION") && !line.startsWith("APPSMITH_MONGODB")) {
+    if (!line.startsWith("APPSMITH_ENCRYPTION") && !line.startsWith("APPSMITH_MONGODB") && !line.startsWith("APPSMITH_DB_URL=")) {
       output_lines.push(line);
     }
   });

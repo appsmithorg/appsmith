@@ -24,8 +24,8 @@ class ToolbarButtonListControl extends ButtonListControl {
         isDisabled: false,
         itemType: isSeparator ? "SEPARATOR" : "BUTTON",
         isVisible: true,
-        buttonVariant: "filled",
-        iconName: "thumb-up",
+        icon: "thumb-up",
+        isSeparator,
       },
     };
 
