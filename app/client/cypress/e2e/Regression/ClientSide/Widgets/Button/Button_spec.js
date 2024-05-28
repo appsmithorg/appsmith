@@ -22,7 +22,7 @@ describe(
       cy.openPropertyPane("buttonwidget");
     });
 
-    it("1. Icon alignment should not change when changing the icon", () => {
+    it("1. Icon alignment should not change when changing the icon and the position setting should be hidden when icon field is none", () => {
       cy.moveToStyleTab();
       cy.wait(500);
       // Add an icon

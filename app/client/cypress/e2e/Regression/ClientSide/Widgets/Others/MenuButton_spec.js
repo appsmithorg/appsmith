@@ -11,7 +11,7 @@ describe(
       _.agHelper.AddDsl("menuButtonDsl");
     });
 
-    it("1. Icon alignment should not change when changing the icon", () => {
+    it("1. Icon alignment should not change when changing the icon and the position should be hidden when icon is none", () => {
       cy.openPropertyPane("menubuttonwidget");
       cy.moveToStyleTab();
       // Add an icon

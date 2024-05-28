@@ -392,6 +392,8 @@ class ButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
                 allowedValues: ["center", "left", "right"],
               },
             },
+            hidden: (props: ButtonWidgetProps) => !props.iconName,
+            dependencies: ["iconName"],
           },
           {
             propertyName: "placement",

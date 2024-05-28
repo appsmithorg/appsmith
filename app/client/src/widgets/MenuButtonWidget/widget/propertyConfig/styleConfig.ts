@@ -98,6 +98,8 @@ export default [
             allowedValues: ["center", "left", "right"],
           },
         },
+        hidden: (props: MenuButtonWidgetProps) => !props.iconName,
+        dependencies: ["iconName"],
       },
       {
         propertyName: "placement",
