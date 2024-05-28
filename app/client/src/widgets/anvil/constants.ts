@@ -6,6 +6,7 @@ export const anvilWidgets = {
 export enum Elevations {
   SECTION_ELEVATION = 1,
   ZONE_ELEVATION = 2,
+  CARD_ELEVATION = 3,
 }
 
 /**

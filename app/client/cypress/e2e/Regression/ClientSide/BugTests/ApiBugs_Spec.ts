@@ -12,11 +12,6 @@ import {
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
-
-import {
-  ERROR_ACTION_EXECUTE_FAIL,
-  createMessage,
-} from "../../../../support/Objects/CommonErrorMessages";
 import {
   AppSidebar,
   AppSidebarButton,
@@ -55,7 +50,7 @@ describe("API Bugs", { tags: ["@tag.Datasource"] }, function () {
     apiPage.RunAPI();
     agHelper.AssertElementAbsence(
       locators._specificToast(
-        createMessage(ERROR_ACTION_EXECUTE_FAIL, "BindingExpressions"),
+        Cypress.env("MESSAGES").ERROR_ACTION_EXECUTE_FAIL("BindingExpressions"),
       ),
     ); //Assert that an error is not returned.
     apiPage.ResponseStatusCheck("200 OK");
