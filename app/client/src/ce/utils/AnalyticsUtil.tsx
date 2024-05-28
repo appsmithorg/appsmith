@@ -245,7 +245,7 @@ class AnalyticsUtil {
             ? {
                 id: AnalyticsUtil.cachedAnonymoustId,
                 email: userData.email,
-                appsmithVersion: `Appsmith ${appVersion.edition} ${appVersion.id}`,
+                version: `Appsmith ${appVersion.edition} ${appVersion.id}`,
                 instanceId: AnalyticsUtil.instanceId,
               }
             : {}),
