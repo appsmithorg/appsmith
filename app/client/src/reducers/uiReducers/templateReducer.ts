@@ -9,7 +9,6 @@ import type { Template, TemplateFiltersResponse } from "api/TemplatesApi";
 const initialState: TemplatesReduxState = {
   isImportingTemplate: false,
   isImportingTemplateToApp: false,
-  isImportingStarterBuildingBlockToApp: false,
   loadingFilters: false,
   gettingAllTemplates: false,
   gettingTemplate: false,
@@ -279,7 +278,6 @@ export interface TemplatesReduxState {
   templateSearchQuery: string;
   isImportingTemplate: boolean;
   isImportingTemplateToApp: boolean;
-  isImportingStarterBuildingBlockToApp: boolean;
   buildingBlockSourcePageId?: string;
   templateNotificationSeen: boolean | null;
   templatesModal: {
