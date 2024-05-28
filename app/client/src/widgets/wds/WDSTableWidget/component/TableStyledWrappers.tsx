@@ -300,7 +300,7 @@ export const TooltipContentWrapper = styled.div<{ width?: number }>`
   max-width: ${(props) => props.width}px;
 `;
 
-export const EmptyRow = styled.div`
+export const EmptyRow = styled.tr`
   display: flex;
   flex: 1 0 auto;
 `;

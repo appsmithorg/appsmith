@@ -124,7 +124,8 @@ export interface IconSelectControlState {
 }
 
 const NONE = "(none)";
-type IconType = Required<IconProps>["name"] | typeof NONE;
+const EMPTY = "";
+type IconType = Required<IconProps>["name"] | typeof NONE | typeof EMPTY;
 const ICON_NAMES = Object.keys(ICONS) as any as IconType[];
 const icons = new Set(ICON_NAMES);
 
@@ -247,7 +248,8 @@ class IconSelectControlV2 extends BaseControl<
             tabIndex={0}
           >
             <span>
-              {iconName !== NONE &&
+              {iconName !== "" &&
+                iconName !== NONE &&
                 iconName !== undefined &&
                 iconName !== null && <Icon name={iconName} />}
             </span>
@@ -439,7 +441,7 @@ class IconSelectControlV2 extends BaseControl<
           active={modifiers.active}
           key={icon}
           onClick={handleClick}
-          text={icon === NONE ? NONE : <Icon name={icon} />}
+          text={icon === NONE || icon === EMPTY ? NONE : <Icon name={icon} />}
           textClassName={icon === NONE ? "bp3-icon-(none)" : ""}
         />
       </Tooltip>

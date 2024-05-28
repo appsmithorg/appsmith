@@ -4,7 +4,6 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { cloneDeep, isString } from "lodash";
 import log from "loglevel";
@@ -28,7 +27,6 @@ import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import type { GridProps, SpaceMap } from "reflow/reflowTypes";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { flashElementsById } from "utils/helpers";
 import history from "utils/history";
@@ -47,9 +45,7 @@ import type { CopiedWidgetGroup } from "../WidgetOperationUtils";
 import {
   getBoundaryWidgetsFromCopiedGroups,
   getNextWidgetName,
-  getParentWidgetIdForPasting,
   getReflowedPositions,
-  getSelectedWidgetWhenPasting,
   handleSpecificCasesWhilePasting,
 } from "../WidgetOperationUtils";
 
@@ -92,6 +88,8 @@ import { validateResponse } from "../ErrorSagas";
 import { postPageAdditionSaga } from "../TemplatesSagas";
 import { getUpdateDslAfterCreatingChild } from "../WidgetAdditionSagas";
 import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getDragDetails } from "../selectors";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
@@ -233,10 +231,13 @@ export function* loadBuildingBlocksIntoApplication(
       // remove skeleton loader just before pasting the building block
       yield call(removeSkeletonLoaderFromCanvas, skeletonWidget.newWidgetId);
 
-      yield pasteBuildingBlockWidgetsSaga({
-        top: topRow,
-        left: leftColumn,
-      });
+      yield pasteBuildingBlockWidgetsSaga(
+        {
+          top: topRow,
+          left: leftColumn,
+        },
+        skeletonWidget.widgetId,
+      );
 
       const timeTakenToDropWidgetsInSeconds =
         (Date.now() - buildingBlockDragStartTimestamp) / 1000;
@@ -370,10 +371,13 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
  *
  * @param gridPosition - The position of the grid where the widgets will be pasted.
  */
-export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
-  top: number;
-  left: number;
-}) {
+export function* pasteBuildingBlockWidgetsSaga(
+  gridPosition: {
+    top: number;
+    left: number;
+  },
+  pastingIntoWidgetId: string,
+) {
   const {
     flexLayers,
     widgets: copiedWidgets,
@@ -387,18 +391,11 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
   const newlyCreatedWidgetIds: string[] = [];
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
-  const selectedWidget: FlattenedWidgetProps<undefined> =
-    yield getSelectedWidgetWhenPasting();
 
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   try {
-    let pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
-      canvasWidgets,
-      selectedWidget,
-    );
-
     const isThereACollision = false;
 
     if (
@@ -422,7 +419,6 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
     // new pasting positions, the variables are undefined if the positions cannot be calculated,
     // then it pastes the regular way at the bottom of the canvas
     const {
-      canvasId,
       gridProps,
       newPastingPositionMap,
       reflowedMovementMap,
@@ -439,9 +435,6 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
       leftMostWidget.leftColumn,
       { gridPosition },
     );
-
-    if (canvasId) pastingIntoWidgetId = canvasId;
-
     for (const widgetGroup of copiedWidgetGroups) {
       //This is required when you cut the widget as CanvasWidgetState doesn't have the widget anymore
       const widgetType = widgetGroup.list.find(

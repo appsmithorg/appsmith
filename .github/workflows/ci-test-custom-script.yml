@@ -144,11 +144,10 @@ jobs:
         run: |
           sudo /etc/init.d/ssh stop ;
           mkdir -p ~/git-server/keys
-          mkdir -p ~/git-server/repos
           ted_tag="${{inputs.ted_tag}}"
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
-          -p 5432:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
-          -v ~/git-server/repos:/git-server/repos "appsmith/test-event-driver:${ted_tag:-latest}"
+            -p 5432:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+            "appsmith/test-event-driver:${ted_tag:-latest}"
           docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
             --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
             -e APPSMITH_CLOUD_SERVICES_MONGODB_URI=mongodb://host.docker.internal:27017 \
@@ -175,9 +174,6 @@ jobs:
             -e ENTERPRISE_USER_PASSWORD=ent_user_password \
             -e ENTERPRISE_ADMIN_NAME=ent-admin@appsmith.com \
             -e ENTERPRISE_ADMIN_PASSWORD=ent_admin_password \
-            -e FLAGSMITH_URL=http://host.docker.internal:5001/flagsmith \
-            -e FLAGSMITH_SERVER_KEY=dummykey \
-            -e FLAGSMITH_SERVER_KEY_BUSINESS_FEATURES=dummykeybusinessfeatures \
             -e LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY=$LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY \
             appsmith/cloud-services:release
           cd cicontainerlocal
@@ -187,7 +183,7 @@ jobs:
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             -e APPSMITH_CLOUD_SERVICES_SIGNATURE_BASE_URL=http://host.docker.internal:8090 \
-            -e _APPSMITH_RATE_LIMIT=1000 \
+            -e APPSMITH_RATE_LIMIT=1000 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
 
