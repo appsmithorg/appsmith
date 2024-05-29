@@ -9,10 +9,24 @@ import { context } from "@opentelemetry/api";
 import { trace } from "@opentelemetry/api";
 import { deviceType } from "react-device-detect";
 
+import { APP_MODE } from "entities/App";
+import { matchBuilderPath, matchViewerPath } from "constants/routes";
+
 const GENERATOR_TRACE = "generator-tracer";
 
 const getCommonTelemetryAttributes = () => {
+  const pathname = "";
+  const isEditorUrl = matchBuilderPath(pathname);
+  const isViewerUrl = matchViewerPath(pathname);
+
+  const appMode = isEditorUrl
+    ? APP_MODE.EDIT
+    : isViewerUrl
+      ? APP_MODE.PUBLISHED
+      : "";
+
   return {
+    appMode,
     deviceType,
   };
 };

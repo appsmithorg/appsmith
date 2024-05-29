@@ -137,7 +137,6 @@ import {
   profileFn,
   type WebworkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
-import type { Attributes } from "@opentelemetry/api";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 
 type SortedDependencies = Array<string>;
@@ -490,7 +489,6 @@ export default class DataTreeEvaluator {
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData> = {},
-    telemetryAttributes: Attributes = {},
     affectedJSObjects: AffectedJSObjects = { isAllAffected: false, ids: [] },
   ): {
     unEvalUpdates: DataTreeDiff[];
@@ -516,7 +514,7 @@ export default class DataTreeEvaluator {
       Record<string, JSActionEntity>
     >[] = profileFn(
       "SetupUpdateTree.Diff1",
-      telemetryAttributes,
+      undefined,
       webworkerTelemetry,
       () =>
         convertMicroDiffToDeepDiff(
@@ -542,7 +540,7 @@ export default class DataTreeEvaluator {
     //save parsed functions in resolveJSFunctions, update current state of js collection
     const parsedCollections = profileFn(
       "SetupUpdateTree.parseJSActions",
-      telemetryAttributes,
+      undefined,
       webworkerTelemetry,
       () => {
         return parseJSActions(
@@ -636,19 +634,14 @@ export default class DataTreeEvaluator {
       dependenciesOfRemovedPaths,
       inverseDependencies,
       removedPaths,
-    } = profileFn(
-      "updateDependencyMap",
-      telemetryAttributes,
-      webworkerTelemetry,
-      () => {
-        return updateDependencyMap({
-          configTree,
-          dataTreeEvalRef: this,
-          translatedDiffs,
-          unEvalDataTree: localUnEvalTree,
-        });
-      },
-    );
+    } = profileFn("updateDependencyMap", undefined, webworkerTelemetry, () => {
+      return updateDependencyMap({
+        configTree,
+        dataTreeEvalRef: this,
+        translatedDiffs,
+        unEvalDataTree: localUnEvalTree,
+      });
+    });
     const updateDependencyEndTime = performance.now();
 
     this.dependencies = dependencies;
@@ -681,7 +674,7 @@ export default class DataTreeEvaluator {
 
     const setupUpdateTreeOutput = profileFn(
       "setupTree",
-      telemetryAttributes,
+      undefined,
       webworkerTelemetry,
       () => {
         return this.setupTree(localUnEvalTree, updatedValuePaths, {

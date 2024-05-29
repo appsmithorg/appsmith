@@ -35,28 +35,23 @@ describe("evaluateTreeSaga", () => {
         [select(getWidgets), {}],
         [select(getMetaWidgets), {}],
         [select(getSelectedAppTheme), {}],
-        [select(getAppMode), "EDIT"],
+        [select(getAppMode), false],
         [select(getWidgetsMeta), {}],
       ])
-      .call(
-        evalWorker.request,
-        EVAL_WORKER_ACTIONS.EVAL_TREE,
-        {
-          unevalTree: unEvalAndConfigTree,
-          widgetTypeConfigMap: undefined,
-          widgets: {},
-          theme: {},
-          shouldReplay: true,
-          allActionValidationConfig: {},
-          forceEvaluation: false,
-          metaWidgets: {},
-          appMode: "EDIT",
-          widgetsMeta: {},
-          shouldRespondWithLogs: true,
-          affectedJSObjects: { ids: [], isAllAffected: false },
-        },
-        { appMode: "EDIT" },
-      )
+      .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
+        unevalTree: unEvalAndConfigTree,
+        widgetTypeConfigMap: undefined,
+        widgets: {},
+        theme: {},
+        shouldReplay: true,
+        allActionValidationConfig: {},
+        forceEvaluation: false,
+        metaWidgets: {},
+        appMode: false,
+        widgetsMeta: {},
+        shouldRespondWithLogs: true,
+        affectedJSObjects: { ids: [], isAllAffected: false },
+      })
       .run();
   });
   test("should set 'shouldRespondWithLogs' to false when the log level is not debug", async () => {
@@ -68,28 +63,63 @@ describe("evaluateTreeSaga", () => {
         [select(getWidgets), {}],
         [select(getMetaWidgets), {}],
         [select(getSelectedAppTheme), {}],
-        [select(getAppMode), "EDIT"],
+        [select(getAppMode), false],
         [select(getWidgetsMeta), {}],
       ])
-      .call(
-        evalWorker.request,
-        EVAL_WORKER_ACTIONS.EVAL_TREE,
-        {
-          unevalTree: unEvalAndConfigTree,
-          widgetTypeConfigMap: undefined,
-          widgets: {},
-          theme: {},
-          shouldReplay: true,
-          allActionValidationConfig: {},
-          forceEvaluation: false,
-          metaWidgets: {},
-          appMode: "EDIT",
-          widgetsMeta: {},
-          shouldRespondWithLogs: false,
-          affectedJSObjects: { ids: [], isAllAffected: false },
-        },
-        { appMode: "EDIT" },
-      )
+      .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
+        unevalTree: unEvalAndConfigTree,
+        widgetTypeConfigMap: undefined,
+        widgets: {},
+        theme: {},
+        shouldReplay: true,
+        allActionValidationConfig: {},
+        forceEvaluation: false,
+        metaWidgets: {},
+        appMode: false,
+        widgetsMeta: {},
+        shouldRespondWithLogs: false,
+        affectedJSObjects: { ids: [], isAllAffected: false },
+      })
+      .run();
+  });
+  test("should propagate affectedJSObjects property to evaluation action", async () => {
+    const unEvalAndConfigTree = { unEvalTree: {}, configTree: {} };
+    const affectedJSObjects = {
+      isAllAffected: false,
+      ids: ["1", "2"],
+    };
+
+    return expectSaga(
+      evaluateTreeSaga,
+      unEvalAndConfigTree,
+      [],
+      undefined,
+      undefined,
+      undefined,
+      affectedJSObjects,
+    )
+      .provide([
+        [select(getAllActionValidationConfig), {}],
+        [select(getWidgets), {}],
+        [select(getMetaWidgets), {}],
+        [select(getSelectedAppTheme), {}],
+        [select(getAppMode), false],
+        [select(getWidgetsMeta), {}],
+      ])
+      .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
+        unevalTree: unEvalAndConfigTree,
+        widgetTypeConfigMap: undefined,
+        widgets: {},
+        theme: {},
+        shouldReplay: true,
+        allActionValidationConfig: {},
+        forceEvaluation: false,
+        metaWidgets: {},
+        appMode: false,
+        widgetsMeta: {},
+        shouldRespondWithLogs: false,
+        affectedJSObjects,
+      })
       .run();
   });
 });
