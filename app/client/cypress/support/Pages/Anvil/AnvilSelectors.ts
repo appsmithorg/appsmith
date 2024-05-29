@@ -14,6 +14,8 @@ const anvilZoneStepperControlSelector = (type: "add" | "remove") =>
 export const AnvilSelectors = {
   anvilWidgetSelector,
   anvilSelectedWidget: `${anvilWidgetSelector}[data-selected=true]`,
+  anvilDnDListener: "[data-type=anvil-dnd-listener]",
+  anvilWidgetInCanvas: locators._widgetInDeployed,
   mainCanvasSelector: `#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`,
   anvilZoneStepperControlInputValue:
     ".t--property-control-zones .ads-v2-input__input-section-input",

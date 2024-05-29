@@ -27,11 +27,11 @@ describe(
       });
       // section and zone for the widget should be created
       agHelper.AssertElementLength(
-        locators._anvilWidgetInCanvas(WIDGET.ZONE),
+        AnvilSelectors.anvilWidgetInCanvas(WIDGET.ZONE),
         1,
       );
       agHelper.AssertElementLength(
-        locators._anvilWidgetInCanvas(WIDGET.SECTION),
+        AnvilSelectors.anvilWidgetInCanvas(WIDGET.SECTION),
         1,
       );
       anvilLayout.verifyParentChildRelationship("Zone1", "Button1");
@@ -40,7 +40,7 @@ describe(
 
     it("2. Verify dragging and dropping a widget into an existing section", () => {
       agHelper.AssertElementLength(
-        locators._anvilWidgetInCanvas(WIDGET.ZONE),
+        AnvilSelectors.anvilWidgetInCanvas(WIDGET.ZONE),
         1,
       );
       anvilLayout.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 10, 10, {
@@ -50,12 +50,12 @@ describe(
         },
       });
       agHelper.AssertElementLength(
-        locators._anvilWidgetInCanvas(WIDGET.SECTION),
+        AnvilSelectors.anvilWidgetInCanvas(WIDGET.SECTION),
         1,
       );
       // zone count has to increase
       agHelper.AssertElementLength(
-        locators._anvilWidgetInCanvas(WIDGET.ZONE),
+        AnvilSelectors.anvilWidgetInCanvas(WIDGET.ZONE),
         2,
       );
       anvilLayout.verifyParentChildRelationship("Section1", "Zone2");
@@ -68,7 +68,7 @@ describe(
         },
       });
       agHelper.AssertElementLength(
-        locators._anvilWidgetInCanvas(WIDGET.ZONE),
+        AnvilSelectors.anvilWidgetInCanvas(WIDGET.ZONE),
         2,
       );
       anvilLayout.verifyParentChildRelationship("Zone1", "Button3");

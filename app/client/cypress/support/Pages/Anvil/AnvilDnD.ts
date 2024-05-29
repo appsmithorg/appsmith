@@ -31,11 +31,11 @@ export class AnvilDnD {
       }
       if (dropTarget.name) {
         return `${getWidgetSelector(dropTarget.name.toLowerCase() as any)} ${
-          this.locator._anvilDnDListener
+          AnvilSelectors.anvilDnDListener
         }`;
       }
     }
-    return `${AnvilSelectors.mainCanvasSelector} > ${this.locator._anvilDnDListener}`;
+    return `${AnvilSelectors.mainCanvasSelector} > ${AnvilSelectors.anvilDnDListener}`;
   };
   private performDnDInAnvil(
     xPos: number,
@@ -116,7 +116,7 @@ export class AnvilDnD {
         );
         this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
         this.agHelper.AssertElementExist(
-          this.locator._anvilWidgetInCanvas(widgetType),
+          AnvilSelectors.anvilWidgetInCanvas(widgetType),
         );
         this.agHelper.Sleep(200); //waiting a bit for widget properties to open
       });
