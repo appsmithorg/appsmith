@@ -8,7 +8,7 @@ import {
   anvilLayout,
 } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
-import { AnvilSelectors } from "../../../../support/Pages/Anvil/AnvilSelectors";
+import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
 
 describe(
   `${ANVIL_EDITOR_TEST}: Validating multiple widgets in anvil layout mode with App navigation settings`,
@@ -59,10 +59,10 @@ describe(
       agHelper.AssertElementExist(appSettings.locators._sideNavbar);
       agHelper.GetNClick(locators._canvas);
       agHelper.AssertElementExist(
-        AnvilSelectors.anvilWidgetInCanvas(WIDGET.WDSINPUT),
+        anvilLocators.anvilWidgetTypeSelector(WIDGET.WDSINPUT),
       );
       agHelper.AssertElementExist(
-        AnvilSelectors.anvilWidgetInCanvas(WIDGET.WDSINPUT),
+        anvilLocators.anvilWidgetTypeSelector(WIDGET.WDSINPUT),
         1,
       );
     });

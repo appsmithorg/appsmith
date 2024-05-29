@@ -1,6 +1,6 @@
 import { WIDGET } from "../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../Objects/Registry";
-import { AnvilSelectors } from "./AnvilSelectors";
+import { anvilLocators } from "./Locators";
 
 export class AnvilSections {
   protected agHelper = ObjectsRegistry.AggregateHelper;
@@ -11,9 +11,9 @@ export class AnvilSections {
     verifyZoneCountOnPropertyPane = false,
   ) {
     const sectionSelector =
-      AnvilSelectors.anvilWidgetNameSelector(sectionOrZoneName);
+      anvilLocators.anvilWidgetNameSelector(sectionOrZoneName);
 
-    const zoneWidgetsSelector = `${sectionSelector} ${AnvilSelectors.anvilWidgetTypeSelector(WIDGET.ZONE)}`;
+    const zoneWidgetsSelector = `${sectionSelector} ${anvilLocators.anvilWidgetTypeSelector(WIDGET.ZONE)}`;
     // verify all zones in the section
     this.agHelper
       .GetElement(zoneWidgetsSelector)
@@ -23,27 +23,27 @@ export class AnvilSections {
       // select the widget
       this.agHelper.GetNClick(sectionSelector);
       this.agHelper
-        .GetElement(AnvilSelectors.anvilZoneStepperControlInputValue)
+        .GetElement(anvilLocators.anvilZoneStepperControlInputValue)
         .should("have.value", zoneCount.toString());
     }
   }
 
   public incrementZones(sectionOrZoneName: string) {
     this.agHelper
-      .GetNClick(AnvilSelectors.anvilWidgetNameSelector(sectionOrZoneName))
+      .GetNClick(anvilLocators.anvilWidgetNameSelector(sectionOrZoneName))
       .then(() => {
         this.agHelper
-          .GetElement(AnvilSelectors.anvilZoneStepperControlSelector("add"))
+          .GetElement(anvilLocators.anvilZoneStepperControlSelector("add"))
           .click();
       });
   }
 
   public decrementZones(sectionOrZoneName: string) {
     this.agHelper.GetNClick(
-      AnvilSelectors.anvilWidgetNameSelector(sectionOrZoneName),
+      anvilLocators.anvilWidgetNameSelector(sectionOrZoneName),
     );
     this.agHelper
-      .GetElement(AnvilSelectors.anvilZoneStepperControlSelector("remove"))
+      .GetElement(anvilLocators.anvilZoneStepperControlSelector("remove"))
       .click();
   }
 }

@@ -6,7 +6,7 @@ import {
   PageLeftPane,
   PagePaneSegment,
 } from "../EditorNavigation";
-import { AnvilSelectors } from "./AnvilSelectors";
+import { anvilLocators } from "./Locators";
 
 interface DropTargetDetails {
   id?: string;
@@ -31,11 +31,11 @@ export class AnvilDnD {
       }
       if (dropTarget.name) {
         return `${getWidgetSelector(dropTarget.name.toLowerCase() as any)} ${
-          AnvilSelectors.anvilDnDListener
+          anvilLocators.anvilDnDListener
         }`;
       }
     }
-    return `${AnvilSelectors.mainCanvasSelector} > ${AnvilSelectors.anvilDnDListener}`;
+    return `${anvilLocators.mainCanvasSelector} > ${anvilLocators.anvilDnDListener}`;
   };
   private performDnDInAnvil(
     xPos: number,
@@ -104,7 +104,7 @@ export class AnvilDnD {
     options = {} as DragDropWidgetOptions,
   ) {
     this.agHelper
-      .AssertElementExist(AnvilSelectors.mainCanvasSelector)
+      .AssertElementExist(anvilLocators.mainCanvasSelector)
       .then((mainCanvas) => {
         const mainCanvasX = mainCanvas.position().left;
         const mainCanvasY = mainCanvas.position().top;
@@ -116,7 +116,7 @@ export class AnvilDnD {
         );
         this.agHelper.AssertAutoSave(); //settling time for widget on canvas!
         this.agHelper.AssertElementExist(
-          AnvilSelectors.anvilWidgetInCanvas(widgetType),
+          anvilLocators.anvilWidgetTypeSelector(widgetType),
         );
         this.agHelper.Sleep(200); //waiting a bit for widget properties to open
       });
@@ -129,12 +129,12 @@ export class AnvilDnD {
     options = {} as DragDropWidgetOptions,
   ) {
     this.agHelper
-      .AssertElementExist(AnvilSelectors.mainCanvasSelector)
+      .AssertElementExist(anvilLocators.mainCanvasSelector)
       .then((mainCanvas) => {
         const mainCanvasX = mainCanvas.position().left;
         const mainCanvasY = mainCanvas.position().top;
         const widgetSelector =
-          AnvilSelectors.anvilWidgetNameSelector(widgetName);
+          anvilLocators.anvilWidgetNameSelector(widgetName);
         // perform mouseover to focus the widget before drag to allow dragging
         cy.get(widgetSelector).first().trigger("mouseover", { force: true });
         cy.get(widgetSelector).first().trigger("dragstart", { force: true });

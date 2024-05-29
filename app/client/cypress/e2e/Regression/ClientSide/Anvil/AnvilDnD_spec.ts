@@ -6,7 +6,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { ANVIL_EDITOR_TEST, modifierKey } from "../../../../support/Constants";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
-import { AnvilSelectors } from "../../../../support/Pages/Anvil/AnvilSelectors";
+import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
 
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for DnD Module`,
@@ -27,11 +27,11 @@ describe(
       });
       // section and zone for the widget should be created
       agHelper.AssertElementLength(
-        AnvilSelectors.anvilWidgetInCanvas(WIDGET.ZONE),
+        anvilLocators.anvilWidgetTypeSelector(WIDGET.ZONE),
         1,
       );
       agHelper.AssertElementLength(
-        AnvilSelectors.anvilWidgetInCanvas(WIDGET.SECTION),
+        anvilLocators.anvilWidgetTypeSelector(WIDGET.SECTION),
         1,
       );
       anvilLayout.verifyParentChildRelationship("Zone1", "Button1");
@@ -40,7 +40,7 @@ describe(
 
     it("2. Verify dragging and dropping a widget into an existing section", () => {
       agHelper.AssertElementLength(
-        AnvilSelectors.anvilWidgetInCanvas(WIDGET.ZONE),
+        anvilLocators.anvilWidgetTypeSelector(WIDGET.ZONE),
         1,
       );
       anvilLayout.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 10, 10, {
@@ -50,12 +50,12 @@ describe(
         },
       });
       agHelper.AssertElementLength(
-        AnvilSelectors.anvilWidgetInCanvas(WIDGET.SECTION),
+        anvilLocators.anvilWidgetTypeSelector(WIDGET.SECTION),
         1,
       );
       // zone count has to increase
       agHelper.AssertElementLength(
-        AnvilSelectors.anvilWidgetInCanvas(WIDGET.ZONE),
+        anvilLocators.anvilWidgetTypeSelector(WIDGET.ZONE),
         2,
       );
       anvilLayout.verifyParentChildRelationship("Section1", "Zone2");
@@ -68,7 +68,7 @@ describe(
         },
       });
       agHelper.AssertElementLength(
-        AnvilSelectors.anvilWidgetInCanvas(WIDGET.ZONE),
+        anvilLocators.anvilWidgetTypeSelector(WIDGET.ZONE),
         2,
       );
       anvilLayout.verifyParentChildRelationship("Zone1", "Button3");
@@ -98,9 +98,9 @@ describe(
       anvilLayout.verifyParentChildRelationship("Section2", "Zone3");
     });
     it("6. Verify dragging and dropping multiple widgets simultaneously", () => {
-      agHelper.GetNClick(AnvilSelectors.anvilWidgetNameSelector("Button1"));
+      agHelper.GetNClick(anvilLocators.anvilWidgetNameSelector("Button1"));
       agHelper.GetNClick(
-        AnvilSelectors.anvilWidgetNameSelector("Button4"),
+        anvilLocators.anvilWidgetNameSelector("Button4"),
         0,
         false,
         500,
