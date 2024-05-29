@@ -1,4 +1,4 @@
-package com.appsmith.server.services.ce;
+package com.appsmith.server.git.common;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
@@ -3506,7 +3506,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         return Flux.merge(eventSenderMonos).then();
     }
 
-    //    @Override
+    @Override
     public Mono<? extends ArtifactImportDTO> importArtifactFromGit(
             String workspaceId, GitConnectDTO gitConnectDTO, ArtifactType artifactType) {
         // 1. Check private repo limit for workspace

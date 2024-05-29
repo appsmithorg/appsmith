@@ -1,4 +1,4 @@
-package com.appsmith.server.services.ce_compatible;
+package com.appsmith.server.git.common;
 
 import com.appsmith.server.services.ce.CommonGitServiceCE;
 

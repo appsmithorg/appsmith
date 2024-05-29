@@ -16,6 +16,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -43,6 +44,7 @@ import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.git.common.CommonGitServiceCE;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -63,7 +65,6 @@ import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.services.ce.GitServiceCE;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.themes.base.ThemeService;
@@ -141,7 +142,7 @@ import static org.mockito.Mockito.verify;
 @SpringBootTest
 @Slf4j
 @DirtiesContext
-public class GitServiceCETest {
+public class CommonGitServiceCETest {
 
     private static final String DEFAULT_BRANCH = "defaultBranchName";
     private static final String EMPTY_COMMIT_ERROR_MESSAGE = "On current branch nothing to commit, working tree clean";
@@ -156,8 +157,8 @@ public class GitServiceCETest {
     private static final String filePath =
             "test_assets/ImportExportServiceTest/valid-application-without-action-collection.json";
 
-    @Qualifier("gitServiceCEImpl") @Autowired
-    GitServiceCE gitService;
+    @Qualifier("commonGitServiceCEImpl") @Autowired
+    CommonGitServiceCE commonGitServiceCE;
 
     @Autowired
     Gson gson;
@@ -364,17 +365,20 @@ public class GitServiceCETest {
 
         String repoUrl = String.format("git@github.com:test/%s.git", name);
         GitConnectDTO gitConnectDTO = getConnectRequest(repoUrl, testUserProfile);
-        return gitService
-                .connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl")
+        return commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact)
                 .block();
     }
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_EmptyRemoteUrl_ThrowInvalidParameterException() {
+    public void connectArtifactToGit_EmptyRemoteUrl_ThrowInvalidParameterException() {
 
         GitConnectDTO gitConnectDTO = getConnectRequest(null, testUserProfile);
-        Mono<Application> applicationMono = gitService.connectApplicationToGit("testID", gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit("testID", gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -384,10 +388,12 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_EmptyOriginHeader_ThrowInvalidParameterException() {
+    public void connectArtifactToGit_EmptyOriginHeader_ThrowInvalidParameterException() {
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        Mono<Application> applicationMono = gitService.connectApplicationToGit("testID", gitConnectDTO, null);
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit("testID", gitConnectDTO, null, ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -397,7 +403,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_InvalidGitApplicationMetadata_ThrowInvalidGitConfigurationException() {
+    public void connectArtifactToGit_InvalidGitApplicationMetadata_ThrowInvalidGitConfigurationException() {
 
         Application testApplication = new Application();
         testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
@@ -407,8 +413,9 @@ public class GitServiceCETest {
                 applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> {
@@ -424,7 +431,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_EmptyPrivateKey_ThrowInvalidGitConfigurationException() {
+    public void connectArtifactToGit_EmptyPrivateKey_ThrowInvalidGitConfigurationException() {
 
         Application testApplication = new Application();
         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
@@ -438,8 +445,9 @@ public class GitServiceCETest {
                 applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -451,7 +459,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_EmptyPublicKey_ThrowInvalidGitConfigurationException() {
+    public void connectArtifactToGit_EmptyPublicKey_ThrowInvalidGitConfigurationException() {
 
         Application testApplication = new Application();
         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
@@ -465,8 +473,9 @@ public class GitServiceCETest {
                 applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -478,7 +487,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_InvalidRemoteUrl_ThrowInvalidRemoteUrl() throws IOException {
+    public void connectArtifactToGit_InvalidRemoteUrl_ThrowInvalidRemoteUrl() throws IOException {
 
         Application testApplication = new Application();
         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
@@ -499,8 +508,9 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("defaultBranchName"));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(false));
 
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException)
@@ -509,7 +519,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_InvalidRemoteUrlHttp_ThrowInvalidRemoteUrl() throws ClassCastException {
+    public void connectArtifactToGit_InvalidRemoteUrlHttp_ThrowInvalidRemoteUrl() throws ClassCastException {
 
         Application testApplication = new Application();
         GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
@@ -530,8 +540,9 @@ public class GitServiceCETest {
                 .thenReturn(Mono.error(new ClassCastException("TransportHttp")));
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
 
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .verifyErrorMessage(AppsmithError.INVALID_GIT_CONFIGURATION.getMessage("Remote URL is incorrect. "
@@ -540,7 +551,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_InvalidFilePath_ThrowIOException() throws IOException {
+    public void connectArtifactToGit_InvalidFilePath_ThrowIOException() throws IOException {
 
         Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -561,8 +572,9 @@ public class GitServiceCETest {
                 applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testy.git", testUserProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -572,7 +584,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_ClonedRepoNotEmpty_Failure() throws IOException {
+    public void connectArtifactToGit_ClonedRepoNotEmpty_Failure() throws IOException {
 
         Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -592,8 +604,9 @@ public class GitServiceCETest {
                 applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testy.git", testUserProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -603,7 +616,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_cloneException_throwGitException() throws IOException {
+    public void connectArtifactToGit_cloneException_throwGitException() throws IOException {
 
         Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -611,8 +624,10 @@ public class GitServiceCETest {
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(gitConnectedApplication.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(
+                        gitConnectedApplication.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -622,7 +637,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_WithEmptyPublishedPages_CloneSuccess() throws IOException, GitAPIException {
+    public void connectArtifactToGit_WithEmptyPublishedPages_CloneSuccess() throws IOException, GitAPIException {
 
         Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -673,8 +688,9 @@ public class GitServiceCETest {
                 applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .assertNext(application -> {
@@ -694,7 +710,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_WithoutGitProfileUsingDefaultProfile_CloneSuccess()
+    public void connectArtifactToGit_WithoutGitProfileUsingDefaultProfile_CloneSuccess()
             throws IOException, GitAPIException {
 
         Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
@@ -750,8 +766,9 @@ public class GitServiceCETest {
                 applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", gitProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .assertNext(application -> {
@@ -764,7 +781,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_WithoutGitProfileUsingLocalProfile_ThrowAuthorNameUnavailableError() {
+    public void connectArtifactToGit_WithoutGitProfileUsingLocalProfile_ThrowAuthorNameUnavailableError() {
 
         GitProfile gitProfile = new GitProfile();
         gitProfile.setAuthorName(null);
@@ -789,8 +806,9 @@ public class GitServiceCETest {
                 applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", gitProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -800,7 +818,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_WithNonEmptyPublishedPages_CloneSuccess() throws IOException, GitAPIException {
+    public void connectArtifactToGit_WithNonEmptyPublishedPages_CloneSuccess() throws IOException, GitAPIException {
 
         Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -847,7 +865,7 @@ public class GitServiceCETest {
         gitAuth.setDocUrl("docUrl");
         gitArtifactMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitArtifactMetadata);
-        testApplication.setName("connectApplicationToGit_WithNonEmptyPublishedPages");
+        testApplication.setName("connectArtifactToGit_WithNonEmptyPublishedPages");
         testApplication.setWorkspaceId(workspaceId);
         Application application1 =
                 applicationPageService.createApplication(testApplication).block();
@@ -858,8 +876,9 @@ public class GitServiceCETest {
         applicationPageService.createPage(page).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .assertNext(application -> {
@@ -878,7 +897,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_moreThanSupportedPrivateRepos_throwException()
+    public void connectArtifactToGit_moreThanSupportedPrivateRepos_throwException()
             throws IOException, GitAPIException {
         Workspace workspace = new Workspace();
         workspace.setName("Limit Private Repo Test Workspace");
@@ -921,14 +940,15 @@ public class GitServiceCETest {
         gitAuth.setDocUrl("docUrl");
         gitArtifactMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitArtifactMetadata);
-        testApplication.setName("connectApplicationToGit_WithNonEmptyPublishedPages");
+        testApplication.setName("connectArtifactToGit_WithNonEmptyPublishedPages");
         testApplication.setWorkspaceId(limitPrivateRepoTestWorkspaceId);
         Application application =
                 applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(error -> error instanceof AppsmithException
@@ -938,7 +958,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_toggleAccessibilityToPublicForConnectedApp_connectSuccessful()
+    public void connectArtifactToGit_toggleAccessibilityToPublicForConnectedApp_connectSuccessful()
             throws IOException, GitAPIException {
         Workspace workspace = new Workspace();
         workspace.setName("Toggle Accessibility To Public From Private Repo Test Workspace");
@@ -985,14 +1005,15 @@ public class GitServiceCETest {
         gitAuth.setDocUrl("docUrl");
         gitArtifactMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitArtifactMetadata);
-        testApplication.setName("connectApplicationToGit_WithNonEmptyPublishedPages");
+        testApplication.setName("connectArtifactToGit_WithNonEmptyPublishedPages");
         testApplication.setWorkspaceId(limitPrivateRepoTestWorkspaceId);
         Application application =
                 applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         // Use any dummy url so as to get 2xx response
         application1.getGitApplicationMetadata().setBrowserSupportedRemoteUrl("https://www.google.com/");
@@ -1007,7 +1028,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_WithValidCustomGitDomain_CloneSuccess() throws IOException, GitAPIException {
+    public void connectArtifactToGit_WithValidCustomGitDomain_CloneSuccess() throws IOException, GitAPIException {
 
         Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -1052,15 +1073,16 @@ public class GitServiceCETest {
         gitAuth.setGeneratedAt(Instant.now());
         gitArtifactMetadata.setGitAuth(gitAuth);
         testApplication.setGitApplicationMetadata(gitArtifactMetadata);
-        testApplication.setName("connectApplicationToGit_WithValidCustomGitDomain_CloneSuccess");
+        testApplication.setName("connectArtifactToGit_WithValidCustomGitDomain_CloneSuccess");
         testApplication.setWorkspaceId(workspaceId);
         Application application1 =
                 applicationPageService.createApplication(testApplication).block();
 
         GitConnectDTO gitConnectDTO =
                 getConnectRequest("git@github.test.net:user/test/tests/testRepo.git", testUserProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .assertNext(application -> {
@@ -1096,7 +1118,9 @@ public class GitServiceCETest {
                 applicationPageService.createApplication(testApplication).block();
         GitArtifactMetadata gitArtifactMetadata1 = null;
 
-        Mono<Application> applicationMono = gitService.updateGitMetadata(application1.getId(), gitArtifactMetadata1);
+        Mono<Application> applicationMono = commonGitServiceCE
+                .updateGitMetadata(application1.getId(), gitArtifactMetadata1, ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -1123,7 +1147,9 @@ public class GitServiceCETest {
         GitArtifactMetadata gitArtifactMetadata1 = application1.getGitApplicationMetadata();
         gitArtifactMetadata1.setRemoteUrl("https://test/.git");
 
-        Mono<Application> applicationMono = gitService.updateGitMetadata(application1.getId(), gitArtifactMetadata1);
+        Mono<Application> applicationMono = commonGitServiceCE
+                .updateGitMetadata(application1.getId(), gitArtifactMetadata1, ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .assertNext(application -> {
@@ -1256,8 +1282,9 @@ public class GitServiceCETest {
                             .map(tuple2 -> application);
                 });
 
-        Mono<Application> resultMono =
-                applicationMono.flatMap(application -> gitService.detachRemote(application.getId()));
+        Mono<Application> resultMono = applicationMono.flatMap(application -> commonGitServiceCE
+                .detachRemote(application.getId(), ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact));
 
         StepVerifier.create(resultMono.zipWhen(application -> Mono.zip(
                         newActionService
@@ -1348,7 +1375,9 @@ public class GitServiceCETest {
         Application application1 =
                 applicationPageService.createApplication(testApplication).block();
 
-        Mono<Application> applicationMono = gitService.detachRemote(application1.getId());
+        Mono<Application> applicationMono = commonGitServiceCE
+                .detachRemote(application1.getId(), ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -1358,7 +1387,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_emptyGitMetadata_throwError() {
+    public void listBranchForArtifact_emptyGitMetadata_throwError() {
 
         Application testApplication = new Application();
         testApplication.setGitApplicationMetadata(null);
@@ -1367,8 +1396,8 @@ public class GitServiceCETest {
         Application application1 =
                 applicationPageService.createApplication(testApplication).block();
 
-        Mono<List<GitBranchDTO>> listMono =
-                gitService.listBranchForApplication(application1.getId(), false, "defaultBranch");
+        Mono<List<GitBranchDTO>> listMono = commonGitServiceCE.listBranchForArtifact(
+                application1.getId(), false, "defaultBranch", ArtifactType.APPLICATION);
 
         StepVerifier.create(listMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -1380,7 +1409,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_applicationWithInvalidGitConfig_throwError() throws IOException {
+    public void listBranchForArtifact_applicationWithInvalidGitConfig_throwError() throws IOException {
 
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString()))
@@ -1388,14 +1417,14 @@ public class GitServiceCETest {
 
         Application testApplication = new Application();
         testApplication.setGitApplicationMetadata(null);
-        testApplication.setName("listBranchForApplication_GitFailure_ThrowError");
+        testApplication.setName("listBranchForArtifact_GitFailure_ThrowError");
         testApplication.setWorkspaceId(workspaceId);
 
         Application application1 =
                 applicationPageService.createApplication(testApplication).block();
 
-        Mono<List<GitBranchDTO>> listMono =
-                gitService.listBranchForApplication(application1.getId(), false, "defaultBranch");
+        Mono<List<GitBranchDTO>> listMono = commonGitServiceCE.listBranchForArtifact(
+                application1.getId(), false, "defaultBranch", ArtifactType.APPLICATION);
 
         StepVerifier.create(listMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -1407,7 +1436,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_defaultBranchNotChangesInRemote_Success() throws IOException, GitAPIException {
+    public void listBranchForArtifact_defaultBranchNotChangesInRemote_Success() throws IOException, GitAPIException {
         List<GitBranchDTO> branchList = List.of(
                 createGitBranchDTO("defaultBranch", false),
                 createGitBranchDTO("feature1", false),
@@ -1436,10 +1465,10 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("status"));
 
         Application application1 = createApplicationConnectedToGit(
-                "listBranchForApplication_pruneBranchNoChangesInRemote_Success", "defaultBranch");
+                "listBranchForArtifact_pruneBranchNoChangesInRemote_Success", "defaultBranch");
 
-        Mono<List<GitBranchDTO>> listMono =
-                gitService.listBranchForApplication(application1.getId(), true, "defaultBranch");
+        Mono<List<GitBranchDTO>> listMono = commonGitServiceCE.listBranchForArtifact(
+                application1.getId(), true, "defaultBranch", ArtifactType.APPLICATION);
 
         StepVerifier.create(listMono)
                 .assertNext(listBranch -> {
@@ -1450,7 +1479,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_defaultBranchChangesInRemoteExistsInDB_Success()
+    public void listBranchForArtifact_defaultBranchChangesInRemoteExistsInDB_Success()
             throws IOException, GitAPIException {
         List<GitBranchDTO> branchList = List.of(
                 createGitBranchDTO("defaultBranch", false),
@@ -1482,15 +1511,15 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just(true));
 
         Application application1 = createApplicationConnectedToGit(
-                "listBranchForApplication_pruneBranchWithBranchNotExistsInDB_Success", "defaultBranch");
+                "listBranchForArtifact_pruneBranchWithBranchNotExistsInDB_Success", "defaultBranch");
         // Create branch
         Application application2 = createApplicationConnectedToGit(
-                "listBranchForApplication_defaultBranchChangesInRemoteExistsInDB_Success", "feature1");
+                "listBranchForArtifact_defaultBranchChangesInRemoteExistsInDB_Success", "feature1");
         application2.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
         applicationService.save(application2).block();
 
-        Mono<Application> applicationUpdatedMono = gitService
-                .listBranchForApplication(application1.getId(), true, "defaultBranch")
+        Mono<Application> applicationUpdatedMono = commonGitServiceCE
+                .listBranchForArtifact(application1.getId(), true, "defaultBranch", ArtifactType.APPLICATION)
                 .then(applicationService.findById(application1.getId()));
 
         StepVerifier.create(applicationUpdatedMono)
@@ -1512,7 +1541,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_defaultBranchChangesInRemoteDoesNotExistsInDB_Success()
+    public void listBranchForArtifact_defaultBranchChangesInRemoteDoesNotExistsInDB_Success()
             throws IOException, GitAPIException {
         List<GitBranchDTO> branchList = List.of(
                 createGitBranchDTO("defaultBranch", false),
@@ -1548,10 +1577,10 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just(applicationJson));
 
         Application application1 = createApplicationConnectedToGit(
-                "listBranchForApplication_defaultBranchChangesInRemoteDoesNotExistsInDB_Success", "defaultBranch");
+                "listBranchForArtifact_defaultBranchChangesInRemoteDoesNotExistsInDB_Success", "defaultBranch");
 
-        Mono<Application> applicationUpdatedMono = gitService
-                .listBranchForApplication(application1.getId(), true, "defaultBranch")
+        Mono<Application> applicationUpdatedMono = commonGitServiceCE
+                .listBranchForArtifact(application1.getId(), true, "defaultBranch", ArtifactType.APPLICATION)
                 .then(applicationService.findById(application1.getId()));
 
         StepVerifier.create(applicationUpdatedMono)
@@ -1608,8 +1637,8 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.resetToLastCommit(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-        Mono<GitPullDTO> applicationMono = gitService.pullApplication(
-                application.getId(), application.getGitApplicationMetadata().getBranchName());
+        Mono<GitPullDTO> applicationMono = commonGitServiceCE.pullArtifact(
+                application.getId(), application.getGitApplicationMetadata().getBranchName(), ArtifactType.APPLICATION);
 
         StepVerifier.create(applicationMono)
                 .assertNext(gitPullDTO -> {
@@ -1650,8 +1679,8 @@ public class GitServiceCETest {
                         Mockito.anyString()))
                 .thenReturn(Mono.just(mergeStatusDTO));
 
-        Mono<GitPullDTO> applicationMono = gitService.pullApplication(
-                application.getId(), application.getGitApplicationMetadata().getBranchName());
+        Mono<GitPullDTO> applicationMono = commonGitServiceCE.pullArtifact(
+                application.getId(), application.getGitApplicationMetadata().getBranchName(), ArtifactType.APPLICATION);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -1698,8 +1727,8 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.resetToLastCommit(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-        Mono<GitPullDTO> applicationMono = gitService.pullApplication(
-                application.getId(), application.getGitApplicationMetadata().getBranchName());
+        Mono<GitPullDTO> applicationMono = commonGitServiceCE.pullArtifact(
+                application.getId(), application.getGitApplicationMetadata().getBranchName(), ArtifactType.APPLICATION);
 
         StepVerifier.create(applicationMono)
                 .assertNext(gitPullDTO -> {
@@ -1752,7 +1781,8 @@ public class GitServiceCETest {
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
 
-        Mono<MergeStatusDTO> applicationMono = gitService.isBranchMergeable(application.getId(), gitMergeDTO);
+        Mono<MergeStatusDTO> applicationMono =
+                commonGitServiceCE.isBranchMergeable(application.getId(), gitMergeDTO, ArtifactType.APPLICATION);
 
         StepVerifier.create(applicationMono)
                 .assertNext(s -> assertThat(s.isMergeAble()).isTrue())
@@ -1795,7 +1825,8 @@ public class GitServiceCETest {
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
 
-        Mono<MergeStatusDTO> applicationMono = gitService.isBranchMergeable(application.getId(), gitMergeDTO);
+        Mono<MergeStatusDTO> applicationMono =
+                commonGitServiceCE.isBranchMergeable(application.getId(), gitMergeDTO, ArtifactType.APPLICATION);
 
         StepVerifier.create(applicationMono)
                 .assertNext(s -> {
@@ -1845,8 +1876,8 @@ public class GitServiceCETest {
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
 
-        Mono<MergeStatusDTO> applicationMono =
-                gitService.isBranchMergeable(gitConnectedApplication.getId(), gitMergeDTO);
+        Mono<MergeStatusDTO> applicationMono = commonGitServiceCE.isBranchMergeable(
+                gitConnectedApplication.getId(), gitMergeDTO, ArtifactType.APPLICATION);
 
         StepVerifier.create(applicationMono)
                 .assertNext(s -> {
@@ -1864,8 +1895,8 @@ public class GitServiceCETest {
         gitMergeDTO.setSourceBranch("origin/branch2");
         gitMergeDTO.setDestinationBranch("defaultBranch");
 
-        Mono<MergeStatusDTO> applicationMono =
-                gitService.isBranchMergeable(gitConnectedApplication.getId(), gitMergeDTO);
+        Mono<MergeStatusDTO> applicationMono = commonGitServiceCE.isBranchMergeable(
+                gitConnectedApplication.getId(), gitMergeDTO, ArtifactType.APPLICATION);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -1902,8 +1933,9 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitExecutor.listBranches(any())).thenReturn(Mono.just(branchList));
 
-        Mono<Application> applicationMono = gitService
-                .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal", true)
+        Mono<Application> applicationMono = commonGitServiceCE
+                .checkoutBranch(
+                        gitConnectedApplication.getId(), "origin/branchNotInLocal", true, ArtifactType.APPLICATION)
                 .flatMap(application1 -> applicationService.findByBranchNameAndDefaultApplicationId(
                         "branchNotInLocal", gitConnectedApplication.getId(), READ_APPLICATIONS));
 
@@ -1978,8 +2010,12 @@ public class GitServiceCETest {
 
         Mono<Tuple4<Theme, Application, Theme, Theme>> resultMono =
                 setCustomThemeToGitConnectedAppMono.flatMap(theme -> {
-                    return gitService
-                            .checkoutBranch(gitConnectedApplication.getId(), "origin/branchNotInLocal2", true)
+                    return commonGitServiceCE
+                            .checkoutBranch(
+                                    gitConnectedApplication.getId(),
+                                    "origin/branchNotInLocal2",
+                                    true,
+                                    ArtifactType.APPLICATION)
                             .then(Mono.defer(() -> applicationService.findByBranchNameAndDefaultApplicationId(
                                     "branchNotInLocal2", gitConnectedApplication.getId(), READ_APPLICATIONS)))
                             .flatMap(application -> {
@@ -2041,8 +2077,9 @@ public class GitServiceCETest {
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
 
-        Mono<Application> applicationMono =
-                gitService.checkoutBranch(gitConnectedApplication.getId(), "origin/branchInLocal", true);
+        Mono<Application> applicationMono = commonGitServiceCE
+                .checkoutBranch(gitConnectedApplication.getId(), "origin/branchInLocal", true, ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -2056,7 +2093,9 @@ public class GitServiceCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void checkoutBranch_branchNotProvided_throwInvalidParameterError() {
-        Mono<Application> applicationMono = gitService.checkoutBranch(gitConnectedApplication.getId(), null, true);
+        Mono<Application> applicationMono = commonGitServiceCE
+                .checkoutBranch(gitConnectedApplication.getId(), null, true, ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -2068,7 +2107,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void commitApplication_noChangesInLocal_emptyCommitMessage() throws GitAPIException, IOException {
+    public void commitArtifact_noChangesInLocal_emptyCommitMessage() throws GitAPIException, IOException {
 
         GitCommitDTO commitDTO = new GitCommitDTO();
         commitDTO.setDoPush(false);
@@ -2086,8 +2125,8 @@ public class GitServiceCETest {
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.error(new EmptyCommitException("nothing to commit")));
 
-        Mono<String> commitMono =
-                gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+        Mono<String> commitMono = commonGitServiceCE.commitArtifact(
+                commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH, ArtifactType.APPLICATION);
 
         StepVerifier.create(commitMono)
                 .assertNext(commitMsg -> {
@@ -2098,7 +2137,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void commitApplication_applicationNotConnectedToGit_throwInvalidGitConfigException() {
+    public void commitArtifact_applicationNotConnectedToGit_throwInvalidGitConfigException() {
 
         Application application = new Application();
         application.setName("sampleAppNotConnectedToGit");
@@ -2110,7 +2149,8 @@ public class GitServiceCETest {
         commitDTO.setDoPush(false);
         commitDTO.setCommitMessage("empty commit");
 
-        Mono<String> commitMono = gitService.commitApplication(commitDTO, application.getId(), DEFAULT_BRANCH);
+        Mono<String> commitMono = commonGitServiceCE.commitArtifact(
+                commitDTO, application.getId(), DEFAULT_BRANCH, ArtifactType.APPLICATION);
 
         StepVerifier.create(commitMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -2122,15 +2162,14 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void commitApplication_localRepoNotAvailable_throwRepoNotFoundException()
-            throws GitAPIException, IOException {
+    public void commitArtifact_localRepoNotAvailable_throwRepoNotFoundException() throws GitAPIException, IOException {
 
         GitCommitDTO commitDTO = new GitCommitDTO();
         commitDTO.setDoPush(false);
         commitDTO.setCommitMessage("empty commit");
 
-        Mono<String> commitMono =
-                gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+        Mono<String> commitMono = commonGitServiceCE.commitArtifact(
+                commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH, ArtifactType.APPLICATION);
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
@@ -2148,7 +2187,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void commitApplication_commitChanges_success() throws GitAPIException, IOException {
+    public void commitArtifact_commitChanges_success() throws GitAPIException, IOException {
 
         GitCommitDTO commitDTO = new GitCommitDTO();
         commitDTO.setDoPush(false);
@@ -2166,8 +2205,8 @@ public class GitServiceCETest {
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("sample response for commit"));
 
-        Mono<String> commitMono =
-                gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+        Mono<String> commitMono = commonGitServiceCE.commitArtifact(
+                commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH, ArtifactType.APPLICATION);
 
         StepVerifier.create(commitMono)
                 .assertNext(commitMsg -> {
@@ -2178,7 +2217,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void commitApplication_BranchIsProtected_Failure() throws GitAPIException, IOException {
+    public void commitArtifact_BranchIsProtected_Failure() throws GitAPIException, IOException {
         GitCommitDTO commitDTO = new GitCommitDTO();
         commitDTO.setDoPush(false);
         commitDTO.setCommitMessage("commit message");
@@ -2195,9 +2234,11 @@ public class GitServiceCETest {
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("sample response for commit"));
 
-        Mono<String> commitMono = gitService
-                .updateProtectedBranches(gitConnectedApplication.getId(), List.of(DEFAULT_BRANCH))
-                .then(gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH));
+        Mono<String> commitMono = commonGitServiceCE
+                .updateProtectedBranches(
+                        gitConnectedApplication.getId(), List.of(DEFAULT_BRANCH), ArtifactType.APPLICATION)
+                .then(commonGitServiceCE.commitArtifact(
+                        commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH, ArtifactType.APPLICATION));
 
         StepVerifier.create(commitMono).verifyError();
     }
@@ -2231,8 +2272,8 @@ public class GitServiceCETest {
                         Mockito.anyString()))
                 .thenReturn(Mono.just("pushed successfully"));
 
-        Mono<String> commitAndPushMono =
-                gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+        Mono<String> commitAndPushMono = commonGitServiceCE.commitArtifact(
+                commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH, ArtifactType.APPLICATION);
 
         StepVerifier.create(commitAndPushMono.zipWhen(status ->
                         applicationService.findByIdAndBranchName(gitConnectedApplication.getId(), DEFAULT_BRANCH)))
@@ -2278,8 +2319,8 @@ public class GitServiceCETest {
                         Mockito.anyString()))
                 .thenReturn(Mono.just("pushed successfully"));
 
-        Mono<String> commitAndPushMono =
-                gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+        Mono<String> commitAndPushMono = commonGitServiceCE.commitArtifact(
+                commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH, ArtifactType.APPLICATION);
 
         StepVerifier.create(commitAndPushMono)
                 .assertNext(commitAndPushMsg -> {
@@ -2294,29 +2335,30 @@ public class GitServiceCETest {
      */
     @Test
     @WithUserDetails(value = "api_user")
-    public void commitApplication_pushFails_verifyAppNotPublished_throwUpstreamChangesFoundException()
+    public void commitArtifact_pushFails_verifyAppNotPublished_throwUpstreamChangesFoundException()
             throws GitAPIException, IOException {
 
         // Create and fetch the application state before adding new page
         Application testApplication =
                 createApplicationConnectedToGit("gitConnectedPushFailApplication", DEFAULT_BRANCH);
-        Application preCommitApplication = applicationService
+        Application precommitArtifact = applicationService
                 .getApplicationByDefaultApplicationIdAndDefaultBranch(testApplication.getId())
                 .block();
 
         // Creating a new page to commit to git
         PageDTO testPage = new PageDTO();
         testPage.setName("GitServiceTestPageGitPushFail");
-        testPage.setApplicationId(preCommitApplication.getId());
+        testPage.setApplicationId(precommitArtifact.getId());
         PageDTO createdPage = applicationPageService.createPage(testPage).block();
 
         GitCommitDTO commitDTO = new GitCommitDTO();
         commitDTO.setDoPush(true);
         commitDTO.setCommitMessage("New page added");
-        Mono<String> commitMono = gitService.commitApplication(commitDTO, preCommitApplication.getId(), DEFAULT_BRANCH);
+        Mono<String> commitMono = commonGitServiceCE.commitArtifact(
+                commitDTO, precommitArtifact.getId(), DEFAULT_BRANCH, ArtifactType.APPLICATION);
 
         Mono<Application> committedApplicationMono =
-                applicationService.getApplicationByDefaultApplicationIdAndDefaultBranch(preCommitApplication.getId());
+                applicationService.getApplicationByDefaultApplicationIdAndDefaultBranch(precommitArtifact.getId());
 
         // Mocking a git push failure
         Mockito.when(gitExecutor.pushApplication(any(), any(), any(), any(), any()))
@@ -2337,7 +2379,7 @@ public class GitServiceCETest {
                 .assertNext(application -> {
                     List<ApplicationPage> publishedPages = application.getPublishedPages();
                     assertThat(application.getPublishedPages())
-                            .hasSize(preCommitApplication.getPublishedPages().size());
+                            .hasSize(precommitArtifact.getPublishedPages().size());
                     publishedPages.forEach(publishedPage -> {
                         assertThat(publishedPage.getId().equals(createdPage.getId()))
                                 .isFalse();
@@ -2348,24 +2390,25 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void commitApplication_protectedBranch_pushFails() throws GitAPIException, IOException {
+    public void commitArtifact_protectedBranch_pushFails() throws GitAPIException, IOException {
         // Create and fetch the application state before adding new page
         Application testApplication =
-                createApplicationConnectedToGit("commitApplication_protectedBranch_pushFails", DEFAULT_BRANCH);
-        Application preCommitApplication = applicationService
+                createApplicationConnectedToGit("commitArtifact_protectedBranch_pushFails", DEFAULT_BRANCH);
+        Application precommitArtifact = applicationService
                 .getApplicationByDefaultApplicationIdAndDefaultBranch(testApplication.getId())
                 .block();
 
         // Creating a new page to commit to git
         PageDTO testPage = new PageDTO();
         testPage.setName("GitServiceTestPageGitPushFail");
-        testPage.setApplicationId(preCommitApplication.getId());
+        testPage.setApplicationId(precommitArtifact.getId());
         PageDTO createdPage = applicationPageService.createPage(testPage).block();
 
         GitCommitDTO commitDTO = new GitCommitDTO();
         commitDTO.setDoPush(true);
         commitDTO.setCommitMessage("New page added");
-        Mono<String> commitMono = gitService.commitApplication(commitDTO, preCommitApplication.getId(), DEFAULT_BRANCH);
+        Mono<String> commitMono = commonGitServiceCE.commitArtifact(
+                commitDTO, precommitArtifact.getId(), DEFAULT_BRANCH, ArtifactType.APPLICATION);
 
         // Mocking a git push failure
         Mockito.when(gitExecutor.pushApplication(any(), any(), any(), any(), any()))
@@ -2392,10 +2435,13 @@ public class GitServiceCETest {
         GitBranchDTO createGitBranchDTO = new GitBranchDTO();
         createGitBranchDTO.setBranchName("origin/createNewBranch");
 
-        Mono<Application> createBranchMono = gitService.createBranch(
-                gitConnectedApplication.getId(),
-                createGitBranchDTO,
-                gitConnectedApplication.getGitApplicationMetadata().getBranchName());
+        Mono<Application> createBranchMono = commonGitServiceCE
+                .createBranch(
+                        gitConnectedApplication.getId(),
+                        createGitBranchDTO,
+                        gitConnectedApplication.getGitApplicationMetadata().getBranchName(),
+                        ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(createBranchMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -2428,10 +2474,13 @@ public class GitServiceCETest {
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetchResult"));
         Mockito.when(gitExecutor.listBranches(any())).thenReturn(Mono.just(branchList));
-        Mono<Application> createBranchMono = gitService.createBranch(
-                gitConnectedApplication.getId(),
-                createGitBranchDTO,
-                gitConnectedApplication.getGitApplicationMetadata().getBranchName());
+        Mono<Application> createBranchMono = commonGitServiceCE
+                .createBranch(
+                        gitConnectedApplication.getId(),
+                        createGitBranchDTO,
+                        gitConnectedApplication.getGitApplicationMetadata().getBranchName(),
+                        ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(createBranchMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -2575,13 +2624,16 @@ public class GitServiceCETest {
                                                     layout.getId(),
                                                     layout)),
                                     layoutCollectionService.createCollection(actionCollectionDTO, null))
-                            .then(gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin"));
+                            .then(commonGitServiceCE.connectArtifactToGit(
+                                    application.getId(), gitConnectDTO, "origin", ArtifactType.APPLICATION))
+                            .map(artifact -> (Application) artifact);
                 })
-                .flatMap(application -> gitService
+                .flatMap(application -> commonGitServiceCE
                         .createBranch(
                                 application.getId(),
                                 createGitBranchDTO,
-                                application.getGitApplicationMetadata().getBranchName())
+                                application.getGitApplicationMetadata().getBranchName(),
+                                ArtifactType.APPLICATION)
                         .then(applicationService.findByBranchNameAndDefaultApplicationId(
                                 createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS)));
 
@@ -2758,13 +2810,16 @@ public class GitServiceCETest {
                                 theme.setName("Custom theme");
                                 return themeService.updateTheme(application.getId(), null, theme);
                             })
-                            .then(gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin"));
+                            .then(commonGitServiceCE.connectArtifactToGit(
+                                    application.getId(), gitConnectDTO, "origin", ArtifactType.APPLICATION))
+                            .map(artifact -> (Application) artifact);
                 })
-                .flatMap(application -> gitService
+                .flatMap(application -> commonGitServiceCE
                         .createBranch(
                                 application.getId(),
                                 createGitBranchDTO,
-                                application.getGitApplicationMetadata().getBranchName())
+                                application.getGitApplicationMetadata().getBranchName(),
+                                ArtifactType.APPLICATION)
                         .then(applicationService.findByBranchNameAndDefaultApplicationId(
                                 createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS)))
                 .zipWhen(application -> applicationService.findById(
@@ -2845,13 +2900,15 @@ public class GitServiceCETest {
 
         Mono<Tuple2<Application, Application>> createBranchMono = applicationPageService
                 .createApplication(testApplication)
-                .flatMap(
-                        application -> gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin"))
-                .flatMap(application -> gitService
+                .flatMap(application -> commonGitServiceCE.connectArtifactToGit(
+                        application.getId(), gitConnectDTO, "origin", ArtifactType.APPLICATION))
+                .map(artifact -> (Application) artifact)
+                .flatMap(application -> commonGitServiceCE
                         .createBranch(
                                 application.getId(),
                                 createGitBranchDTO,
-                                application.getGitApplicationMetadata().getBranchName())
+                                application.getGitApplicationMetadata().getBranchName(),
+                                ArtifactType.APPLICATION)
                         .then(applicationService.findByBranchNameAndDefaultApplicationId(
                                 createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS)))
                 .flatMap(branchedApplication -> {
@@ -2934,13 +2991,15 @@ public class GitServiceCETest {
 
         Mono<Tuple2<Application, Application>> createBranchMono = applicationPageService
                 .createApplication(testApplication)
-                .flatMap(
-                        application -> gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin"))
-                .flatMap(application -> gitService
+                .flatMap(application -> commonGitServiceCE.connectArtifactToGit(
+                        application.getId(), gitConnectDTO, "origin", ArtifactType.APPLICATION))
+                .map(artifact -> (Application) artifact)
+                .flatMap(application -> commonGitServiceCE
                         .createBranch(
                                 application.getId(),
                                 createGitBranchDTO,
-                                application.getGitApplicationMetadata().getBranchName())
+                                application.getGitApplicationMetadata().getBranchName(),
+                                ArtifactType.APPLICATION)
                         .then(applicationService.findByBranchNameAndDefaultApplicationId(
                                 createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS)))
                 .flatMap(branchedApplication -> {
@@ -2996,14 +3055,16 @@ public class GitServiceCETest {
 
         Mono<Tuple2<Application, Application>> createBranchMono = applicationPageService
                 .createApplication(testApplication)
-                .flatMap(
-                        application -> gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin"))
+                .flatMap(application -> commonGitServiceCE.connectArtifactToGit(
+                        application.getId(), gitConnectDTO, "origin", ArtifactType.APPLICATION))
+                .map(artifact -> (Application) artifact)
                 .flatMap(application -> Mono.zip(
-                        gitService
+                        commonGitServiceCE
                                 .createBranch(
                                         application.getId(),
                                         createGitBranchDTO,
-                                        application.getGitApplicationMetadata().getBranchName())
+                                        application.getGitApplicationMetadata().getBranchName(),
+                                        ArtifactType.APPLICATION)
                                 .then(applicationService.findByBranchNameAndDefaultApplicationId(
                                         createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS)),
                         Mono.just(application)))
@@ -3091,14 +3152,16 @@ public class GitServiceCETest {
 
         Mono<Tuple2<PageDTO, PageDTO>> createBranchMono = applicationPageService
                 .createApplication(testApplication)
-                .flatMap(
-                        application -> gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "origin"))
+                .flatMap(application -> commonGitServiceCE.connectArtifactToGit(
+                        application.getId(), gitConnectDTO, "origin", ArtifactType.APPLICATION))
+                .map(artifact -> (Application) artifact)
                 .flatMap(application -> Mono.zip(
-                        gitService
+                        commonGitServiceCE
                                 .createBranch(
                                         application.getId(),
                                         createGitBranchDTO,
-                                        application.getGitApplicationMetadata().getBranchName())
+                                        application.getGitApplicationMetadata().getBranchName(),
+                                        ArtifactType.APPLICATION)
                                 .then(applicationService.findByBranchNameAndDefaultApplicationId(
                                         createGitBranchDTO.getBranchName(), application.getId(), READ_APPLICATIONS)),
                         Mono.just(application)))
@@ -3140,7 +3203,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void connectApplicationToGit_cancelledMidway_cloneSuccess() throws IOException {
+    public void connectArtifactToGit_cancelledMidway_cloneSuccess() throws IOException {
 
         Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
@@ -3182,8 +3245,9 @@ public class GitServiceCETest {
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
 
-        gitService
-                .connectApplicationToGit(application1.getId(), gitConnectDTO, "baseUrl")
+        commonGitServiceCE
+                .connectArtifactToGit(application1.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact)
                 .timeout(Duration.ofNanos(100))
                 .subscribe();
 
@@ -3241,8 +3305,8 @@ public class GitServiceCETest {
                         Mockito.anyString()))
                 .thenReturn(Mono.just("pushed successfully"));
 
-        gitService
-                .commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH)
+        commonGitServiceCE
+                .commitArtifact(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH, ArtifactType.APPLICATION)
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
@@ -3308,11 +3372,12 @@ public class GitServiceCETest {
 
         Application application1 =
                 createApplicationConnectedToGit("createBranch_cancelledMidway_newApplicationCreated", "master");
-        gitService
+        commonGitServiceCE
                 .createBranch(
                         application1.getId(),
                         createGitBranchDTO,
-                        application1.getGitApplicationMetadata().getBranchName())
+                        application1.getGitApplicationMetadata().getBranchName(),
+                        ArtifactType.APPLICATION)
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
@@ -3353,7 +3418,7 @@ public class GitServiceCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void generateSSHKeyDefaultType_DataNotExistsInCollection_Success() {
-        Mono<GitAuth> publicKey = gitService.generateSSHKey(null);
+        Mono<GitAuth> publicKey = commonGitServiceCE.generateSSHKey(null);
 
         StepVerifier.create(publicKey)
                 .assertNext(s -> {
@@ -3367,7 +3432,7 @@ public class GitServiceCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void generateSSHKeyRSAType_DataNotExistsInCollection_Success() {
-        Mono<GitAuth> publicKey = gitService.generateSSHKey("RSA");
+        Mono<GitAuth> publicKey = commonGitServiceCE.generateSSHKey("RSA");
 
         StepVerifier.create(publicKey)
                 .assertNext(s -> {
@@ -3381,9 +3446,9 @@ public class GitServiceCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void generateSSHKeyDefaultType_KeyExistsInCollection_Success() {
-        GitAuth publicKey = gitService.generateSSHKey(null).block();
+        GitAuth publicKey = commonGitServiceCE.generateSSHKey(null).block();
 
-        Mono<GitAuth> newKey = gitService.generateSSHKey(null);
+        Mono<GitAuth> newKey = commonGitServiceCE.generateSSHKey(null);
 
         StepVerifier.create(newKey)
                 .assertNext(s -> {
@@ -3399,9 +3464,9 @@ public class GitServiceCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void generateSSHKeyRSA_KeyExistsInCollection_Success() {
-        GitAuth publicKey = gitService.generateSSHKey(null).block();
+        GitAuth publicKey = commonGitServiceCE.generateSSHKey(null).block();
 
-        Mono<GitAuth> newKey = gitService.generateSSHKey("RSA");
+        Mono<GitAuth> newKey = commonGitServiceCE.generateSSHKey("RSA");
 
         StepVerifier.create(newKey)
                 .assertNext(s -> {
@@ -3416,9 +3481,11 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_InvalidRemoteUrl_ThrowError() {
+    public void importArtifactFromGit_InvalidRemoteUrl_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest(null, testUserProfile);
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit("testID", gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = commonGitServiceCE
+                .importArtifactFromGit("testID", gitConnectDTO, ArtifactType.APPLICATION)
+                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -3428,9 +3495,11 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_emptyWorkspaceId_ThrowError() {
+    public void importArtifactFromGit_emptyWorkspaceId_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(null, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = commonGitServiceCE
+                .importArtifactFromGit(null, gitConnectDTO, ArtifactType.APPLICATION)
+                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -3442,13 +3511,15 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_privateRepoLimitReached_ThrowApplicationLimitError() {
+    public void importArtifactFromGit_privateRepoLimitReached_ThrowApplicationLimitError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        gitService.generateSSHKey(null).block();
+        commonGitServiceCE.generateSSHKey(null).block();
         Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(0));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = commonGitServiceCE
+                .importArtifactFromGit(workspaceId, gitConnectDTO, ArtifactType.APPLICATION)
+                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -3461,9 +3532,9 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_emptyRepo_ThrowError() {
+    public void importArtifactFromGit_emptyRepo_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey(null).block();
+        GitAuth gitAuth = commonGitServiceCE.generateSSHKey(null).block();
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.setExportedApplication(null);
@@ -3476,7 +3547,9 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = commonGitServiceCE
+                .importArtifactFromGit(workspaceId, gitConnectDTO, ArtifactType.APPLICATION)
+                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -3486,9 +3559,9 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_validRequest_Success() {
+    public void importArtifactFromGit_validRequest_Success() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey(null).block();
+        GitAuth gitAuth = commonGitServiceCE.generateSSHKey(null).block();
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testRepo");
@@ -3500,7 +3573,9 @@ public class GitServiceCETest {
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = commonGitServiceCE
+                .importArtifactFromGit(workspaceId, gitConnectDTO, ArtifactType.APPLICATION)
+                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
 
         StepVerifier.create(applicationMono)
                 .assertNext(applicationImportDTO -> {
@@ -3528,9 +3603,9 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_validRequestWithDuplicateApplicationName_Success() {
+    public void importArtifactFromGit_validRequestWithDuplicateApplicationName_Success() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey(null).block();
+        GitAuth gitAuth = commonGitServiceCE.generateSSHKey(null).block();
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitRepo (1)");
@@ -3547,7 +3622,9 @@ public class GitServiceCETest {
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = commonGitServiceCE
+                .importArtifactFromGit(workspaceId, gitConnectDTO, ArtifactType.APPLICATION)
+                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
 
         StepVerifier.create(applicationMono)
                 .assertNext(applicationImportDTO -> {
@@ -3573,7 +3650,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameType_Success() {
+    public void importArtifactFromGit_validRequestWithDuplicateDatasourceOfSameType_Success() {
         Workspace workspace = new Workspace();
         workspace.setName("gitImportOrg");
         final String testWorkspaceId =
@@ -3583,7 +3660,7 @@ public class GitServiceCETest {
                 .block();
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey(null).block();
+        GitAuth gitAuth = commonGitServiceCE.generateSSHKey(null).block();
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitImportRepo");
@@ -3609,7 +3686,9 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = commonGitServiceCE
+                .importArtifactFromGit(workspaceId, gitConnectDTO, ArtifactType.APPLICATION)
+                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
 
         StepVerifier.create(applicationMono)
                 .assertNext(applicationImportDTO -> {
@@ -3635,7 +3714,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfSameTypeCancelledMidway_Success() {
+    public void importArtifactFromGit_validRequestWithDuplicateDatasourceOfSameTypeCancelledMidway_Success() {
         Workspace workspace = new Workspace();
         workspace.setName("gitImportOrgCancelledMidway");
         final String testWorkspaceId =
@@ -3646,7 +3725,7 @@ public class GitServiceCETest {
 
         GitConnectDTO gitConnectDTO =
                 getConnectRequest("git@github.com:test/testGitImportRepoCancelledMidway.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey(null).block();
+        GitAuth gitAuth = commonGitServiceCE.generateSSHKey(null).block();
 
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName(null);
@@ -3674,8 +3753,8 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
 
-        gitService
-                .importApplicationFromGit(testWorkspaceId, gitConnectDTO)
+        commonGitServiceCE
+                .importArtifactFromGit(testWorkspaceId, gitConnectDTO, ArtifactType.APPLICATION)
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
@@ -3717,9 +3796,9 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_validRequestWithDuplicateDatasourceOfDifferentType_ThrowError() {
+    public void importArtifactFromGit_validRequestWithDuplicateDatasourceOfDifferentType_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testGitImportRepo1.git", testUserProfile);
-        gitService.generateSSHKey(null).block();
+        commonGitServiceCE.generateSSHKey(null).block();
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testGitImportRepo1");
         applicationJson.getDatasourceList().get(0).setName("db-auth-1");
@@ -3744,7 +3823,9 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = commonGitServiceCE
+                .importArtifactFromGit(workspaceId, gitConnectDTO, ArtifactType.APPLICATION)
+                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -3754,9 +3835,9 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplicationFromGit_validRequestWithEmptyRepo_ThrowError() {
+    public void importArtifactFromGit_validRequestWithEmptyRepo_ThrowError() {
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/emptyRepo.git", testUserProfile);
-        GitAuth gitAuth = gitService.generateSSHKey(null).block();
+        GitAuth gitAuth = commonGitServiceCE.generateSSHKey(null).block();
 
         ApplicationJson applicationJson = new ApplicationJson();
 
@@ -3768,7 +3849,9 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just(applicationJson));
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
 
-        Mono<ApplicationImportDTO> applicationMono = gitService.importApplicationFromGit(workspaceId, gitConnectDTO);
+        Mono<ApplicationImportDTO> applicationMono = commonGitServiceCE
+                .importArtifactFromGit(workspaceId, gitConnectDTO, ArtifactType.APPLICATION)
+                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -3787,7 +3870,9 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.deleteBranch(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-        Mono<Application> applicationMono = gitService.deleteBranch(application.getId(), "test");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .deleteBranch(application.getId(), "test", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .assertNext(application1 -> {
@@ -3805,7 +3890,9 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.deleteBranch(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-        Mono<Application> applicationMono = gitService.deleteBranch(application.getId(), "master");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .deleteBranch(application.getId(), "master", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .assertNext(application1 -> {
@@ -3825,9 +3912,11 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.deleteBranch(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-        Mono<Application> applicationMono = gitService
-                .updateProtectedBranches(application.getId(), List.of("master"))
-                .then(gitService.deleteBranch(application.getId(), branchName));
+        Mono<Application> applicationMono = commonGitServiceCE
+                .updateProtectedBranches(application.getId(), List.of("master"), ArtifactType.APPLICATION)
+                .then(commonGitServiceCE
+                        .deleteBranch(application.getId(), branchName, ArtifactType.APPLICATION)
+                        .map(artifact -> (Application) artifact));
 
         StepVerifier.create(applicationMono).verifyError();
     }
@@ -3842,7 +3931,9 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.deleteBranch(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(false));
 
-        Mono<Application> applicationMono = gitService.deleteBranch(application.getId(), "master");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .deleteBranch(application.getId(), "master", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -3859,7 +3950,9 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.deleteBranch(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(false));
 
-        Mono<Application> applicationMono = gitService.deleteBranch(application.getId(), "master");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .deleteBranch(application.getId(), "master", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -3883,7 +3976,9 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.deleteBranch(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-        Mono<Application> applicationMono = gitService.deleteBranch(application.getId(), "master");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .deleteBranch(application.getId(), "master", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .assertNext(application1 -> {
@@ -3922,8 +4017,12 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.rebaseBranch(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-        Mono<Application> applicationMono = gitService.discardChanges(
-                application.getId(), application.getGitApplicationMetadata().getBranchName());
+        Mono<Application> applicationMono = commonGitServiceCE
+                .discardChanges(
+                        application.getId(),
+                        application.getGitApplicationMetadata().getBranchName(),
+                        ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .assertNext(application1 -> {
@@ -3973,10 +4072,12 @@ public class GitServiceCETest {
                         Mockito.anyBoolean()))
                 .thenReturn(Mono.just("fetched"));
 
-        gitService
+        commonGitServiceCE
                 .discardChanges(
                         application.getId(),
-                        application.getGitApplicationMetadata().getBranchName())
+                        application.getGitApplicationMetadata().getBranchName(),
+                        ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact)
                 .timeout(Duration.ofNanos(100))
                 .subscribe();
 
@@ -4018,8 +4119,9 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.deleteBranch(any(Path.class), Mockito.anyString()))
                 .thenReturn(Mono.just(true));
 
-        gitService
-                .deleteBranch(application.getId(), TO_BE_DELETED_BRANCH)
+        commonGitServiceCE
+                .deleteBranch(application.getId(), TO_BE_DELETED_BRANCH, ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact)
                 .timeout(Duration.ofMillis(5))
                 .subscribe();
 
@@ -4082,11 +4184,11 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("pushed successfully"));
 
         // First request for commit operation
-        Mono<String> commitMonoReq1 =
-                gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+        Mono<String> commitMonoReq1 = commonGitServiceCE.commitArtifact(
+                commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH, ArtifactType.APPLICATION);
         // Second request for commit operation
-        Mono<String> commitMonoReq2 =
-                gitService.commitApplication(commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH);
+        Mono<String> commitMonoReq2 = commonGitServiceCE.commitArtifact(
+                commitDTO, gitConnectedApplication.getId(), DEFAULT_BRANCH, ArtifactType.APPLICATION);
 
         // Both the request to execute completely without the file lock error from jgit.
         StepVerifier.create(Mono.zip(commitMonoReq1, commitMonoReq2))
@@ -4142,7 +4244,8 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("success"));
         Mockito.when(gitExecutor.getBranchTrackingStatus(repoPath, branch)).thenReturn(Mono.just(branchTrackingStatus));
 
-        StepVerifier.create(gitService.fetchRemoteChanges(gitData.getDefaultApplicationId(), branch, false))
+        StepVerifier.create(commonGitServiceCE.fetchRemoteChanges(
+                        gitData.getDefaultApplicationId(), branch, false, ArtifactType.APPLICATION))
                 .assertNext(response -> {
                     assertThat(response.getAheadCount()).isEqualTo(1);
                     assertThat(response.getBehindCount()).isEqualTo(2);
@@ -4187,7 +4290,9 @@ public class GitServiceCETest {
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(applicationJson));
 
-        Mono<Application> checkoutBranchMono = gitService.checkoutBranch(application.getId(), "origin/develop", true);
+        Mono<Application> checkoutBranchMono = commonGitServiceCE
+                .checkoutBranch(application.getId(), "origin/develop", true, ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
         StepVerifier.create(checkoutBranchMono)
                 .assertNext(app -> {
                     assertThat(app.getId()).isEqualTo(application.getId());
@@ -4226,13 +4331,14 @@ public class GitServiceCETest {
 
     @WithUserDetails("api_user")
     @Test
-    public void ConnectApplicationToGit_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
+    public void connectArtifactToGit_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
         Application application =
                 createApplicationAndRemovePermissionFromApplication(applicationPermission.getGitConnectPermission());
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
-        Mono<Application> applicationMono =
-                gitService.connectApplicationToGit(application.getId(), gitConnectDTO, "baseUrl");
+        Mono<Application> applicationMono = commonGitServiceCE
+                .connectArtifactToGit(application.getId(), gitConnectDTO, "baseUrl", ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMessage(
@@ -4245,7 +4351,9 @@ public class GitServiceCETest {
     public void detachRemote_WhenUserDoesNotHaveRequiredPermission_OperationFails() {
         Application application =
                 createApplicationAndRemovePermissionFromApplication(applicationPermission.getGitConnectPermission());
-        Mono<Application> applicationMono = gitService.detachRemote(application.getId());
+        Mono<Application> applicationMono = commonGitServiceCE
+                .detachRemote(application.getId(), ArtifactType.APPLICATION)
+                .map(artifact -> (Application) artifact);
 
         StepVerifier.create(applicationMono)
                 .expectErrorMessage(
@@ -4269,7 +4377,8 @@ public class GitServiceCETest {
                     application.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationRepository.save(application);
                 })
-                .flatMap(application -> gitService.getProtectedBranches(application.getId()));
+                .flatMap(application ->
+                        commonGitServiceCE.getProtectedBranches(application.getId(), ArtifactType.APPLICATION));
 
         StepVerifier.create(branchListMono)
                 .assertNext(branches -> {
@@ -4293,7 +4402,8 @@ public class GitServiceCETest {
                     application.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationRepository.save(application);
                 })
-                .flatMap(application -> gitService.getProtectedBranches(application.getId()));
+                .flatMap(application ->
+                        commonGitServiceCE.getProtectedBranches(application.getId(), ArtifactType.APPLICATION));
 
         StepVerifier.create(branchListMono)
                 .assertNext(branches -> {
@@ -4346,13 +4456,16 @@ public class GitServiceCETest {
         // create three app with master as the default branch
         String defaultAppId = createBranchedApplication(branchList);
 
-        StepVerifier.create(gitService.updateProtectedBranches(defaultAppId, List.of("develop", "feature")))
+        StepVerifier.create(commonGitServiceCE.updateProtectedBranches(
+                        defaultAppId, List.of("develop", "feature"), ArtifactType.APPLICATION))
                 .verifyErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
 
-        StepVerifier.create(gitService.updateProtectedBranches(defaultAppId, List.of("develop")))
+        StepVerifier.create(commonGitServiceCE.updateProtectedBranches(
+                        defaultAppId, List.of("develop"), ArtifactType.APPLICATION))
                 .verifyErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
 
-        StepVerifier.create(gitService.updateProtectedBranches(defaultAppId, List.of("master", "develop")))
+        StepVerifier.create(commonGitServiceCE.updateProtectedBranches(
+                        defaultAppId, List.of("master", "develop"), ArtifactType.APPLICATION))
                 .verifyErrorMessage(AppsmithError.UNSUPPORTED_OPERATION.getMessage());
     }
 
@@ -4362,8 +4475,8 @@ public class GitServiceCETest {
         List<String> branchList = List.of("master", "develop", "feature");
         // create three app with master as the default branch
         String defaultAppId = createBranchedApplication(branchList);
-        Flux<Application> applicationFlux = gitService
-                .updateProtectedBranches(defaultAppId, List.of("master"))
+        Flux<Application> applicationFlux = commonGitServiceCE
+                .updateProtectedBranches(defaultAppId, List.of("master"), ArtifactType.APPLICATION)
                 .thenMany(applicationService.findAllApplicationsByDefaultApplicationId(
                         defaultAppId, applicationPermission.getEditPermission()));
 
@@ -4390,9 +4503,10 @@ public class GitServiceCETest {
         List<String> branchList = List.of("master", "develop", "feature");
         // create three app with master as the default branch
         String defaultAppId = createBranchedApplication(branchList);
-        Flux<Application> applicationFlux = gitService
-                .updateProtectedBranches(defaultAppId, List.of("master"))
-                .then(gitService.updateProtectedBranches(defaultAppId, List.of())) // unset the protected branch list
+        Flux<Application> applicationFlux = commonGitServiceCE
+                .updateProtectedBranches(defaultAppId, List.of("master"), ArtifactType.APPLICATION)
+                .then(commonGitServiceCE.updateProtectedBranches(
+                        defaultAppId, List.of(), ArtifactType.APPLICATION)) // unset the protected branch list
                 .thenMany(applicationService.findAllApplicationsByDefaultApplicationId(
                         defaultAppId, applicationPermission.getEditPermission()));
 
@@ -4415,7 +4529,7 @@ public class GitServiceCETest {
         Application application = createApplicationAndRemovePermissionFromApplication(
                 applicationPermission.getManageProtectedBranchPermission());
         Mono<List<String>> updateProtectedBranchesMono =
-                gitService.updateProtectedBranches(application.getId(), List.of());
+                commonGitServiceCE.updateProtectedBranches(application.getId(), List.of(), ArtifactType.APPLICATION);
 
         StepVerifier.create(updateProtectedBranchesMono)
                 .expectErrorMessage(
@@ -4434,7 +4548,8 @@ public class GitServiceCETest {
                 .when(applicationService)
                 .updateProtectedBranches(Mockito.any(), Mockito.any());
 
-        Mono<List<String>> updateProtectedBranchesMono = gitService.updateProtectedBranches(defaultAppId, List.of());
+        Mono<List<String>> updateProtectedBranchesMono =
+                commonGitServiceCE.updateProtectedBranches(defaultAppId, List.of(), ArtifactType.APPLICATION);
 
         StepVerifier.create(updateProtectedBranchesMono)
                 .expectErrorMessage(AppsmithError.GENERIC_BAD_REQUEST.getMessage("Test error"))
@@ -4469,8 +4584,8 @@ public class GitServiceCETest {
                 })
                 .cache();
 
-        Mono<List<String>> branchListMonoWithDefaultBranch =
-                applicationMono.flatMap(application -> gitService.getProtectedBranches(application.getId()));
+        Mono<List<String>> branchListMonoWithDefaultBranch = applicationMono.flatMap(
+                application -> commonGitServiceCE.getProtectedBranches(application.getId(), ArtifactType.APPLICATION));
 
         StepVerifier.create(branchListMonoWithDefaultBranch)
                 .assertNext(branchList -> {
@@ -4485,7 +4600,8 @@ public class GitServiceCETest {
                     gitArtifactMetadata.setBranchProtectionRules(List.of("develop", "feature"));
                     return applicationRepository.save(application);
                 })
-                .flatMap(application -> gitService.getProtectedBranches(application.getId()));
+                .flatMap(application ->
+                        commonGitServiceCE.getProtectedBranches(application.getId(), ArtifactType.APPLICATION));
 
         StepVerifier.create(branchListMonoWithoutDefaultBranch)
                 .assertNext(branchList -> {
@@ -4511,8 +4627,8 @@ public class GitServiceCETest {
                 })
                 .cache();
 
-        Mono<Boolean> toggleAutoCommitWhenSettingsIsNullMono =
-                createdApplicationMono.flatMap(application -> gitService.toggleAutoCommitEnabled(application.getId()));
+        Mono<Boolean> toggleAutoCommitWhenSettingsIsNullMono = createdApplicationMono.flatMap(application ->
+                commonGitServiceCE.toggleAutoCommitEnabled(application.getId(), ArtifactType.APPLICATION));
 
         StepVerifier.create(toggleAutoCommitWhenSettingsIsNullMono)
                 .assertNext(aBoolean -> {
@@ -4529,7 +4645,8 @@ public class GitServiceCETest {
                             .setEnabled(TRUE);
                     return applicationRepository.save(application);
                 })
-                .flatMap(application -> gitService.toggleAutoCommitEnabled(application.getId()));
+                .flatMap(application ->
+                        commonGitServiceCE.toggleAutoCommitEnabled(application.getId(), ArtifactType.APPLICATION));
 
         StepVerifier.create(toggleAutoCommitWhenSettingsHasTrue)
                 .assertNext(aBoolean -> {
@@ -4546,7 +4663,8 @@ public class GitServiceCETest {
                             .setEnabled(FALSE);
                     return applicationRepository.save(application);
                 })
-                .flatMap(application -> gitService.toggleAutoCommitEnabled(application.getId()));
+                .flatMap(application ->
+                        commonGitServiceCE.toggleAutoCommitEnabled(application.getId(), ArtifactType.APPLICATION));
 
         StepVerifier.create(toggleAutoCommitWhenSettingsHasFalse)
                 .assertNext(aBoolean -> {
@@ -4563,7 +4681,8 @@ public class GitServiceCETest {
                             .setEnabled(FALSE);
                     return applicationRepository.save(application);
                 })
-                .flatMap(application -> gitService.getGitApplicationMetadata(application.getId()));
+                .flatMap(application ->
+                        commonGitServiceCE.getGitArtifactMetadata(application.getId(), ArtifactType.APPLICATION));
 
         StepVerifier.create(metaDataAfterToggleMono)
                 .assertNext(gitApplicationMetadata -> {
@@ -4581,7 +4700,7 @@ public class GitServiceCETest {
                 applicationPermission.getManageAutoCommitPermission());
 
         Mono<Boolean> toggleAutoCommitWhenSettingsIsNullMono =
-                gitService.toggleAutoCommitEnabled(testApplication.getId());
+                commonGitServiceCE.toggleAutoCommitEnabled(testApplication.getId(), ArtifactType.APPLICATION);
 
         StepVerifier.create(toggleAutoCommitWhenSettingsIsNullMono)
                 .expectErrorMessage(
@@ -4591,7 +4710,7 @@ public class GitServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void listBranchForApplication_WhenLocalRepoDoesNotExist_RepoIsClonedFromRemote()
+    public void listBranchForArtifact_WhenLocalRepoDoesNotExist_RepoIsClonedFromRemote()
             throws IOException, GitAPIException {
         List<GitBranchDTO> branchList = List.of(
                 createGitBranchDTO("defaultBranch", false),
@@ -4620,10 +4739,10 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("status"));
 
         Application application1 = createApplicationConnectedToGit(
-                "listBranchForApplication_pruneBranchNoChangesInRemote_Success", "defaultBranch");
+                "listBranchForArtifact_pruneBranchNoChangesInRemote_Success", "defaultBranch");
 
-        Mono<List<GitBranchDTO>> listMono =
-                gitService.listBranchForApplication(application1.getId(), false, "defaultBranch");
+        Mono<List<GitBranchDTO>> listMono = commonGitServiceCE.listBranchForArtifact(
+                application1.getId(), false, "defaultBranch", ArtifactType.APPLICATION);
 
         StepVerifier.create(listMono)
                 .assertNext(listBranch -> {
