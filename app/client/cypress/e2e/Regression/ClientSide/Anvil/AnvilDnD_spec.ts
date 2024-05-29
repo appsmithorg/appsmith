@@ -22,7 +22,7 @@ describe(
       agHelper.PressDelete();
     });
     it("1. Verify dragging and dropping a widget into an empty area to create a new section", () => {
-      anvilLayout.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 10, 10, {
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 10, 10, {
         skipWidgetSearch: true,
       });
       // section and zone for the widget should be created
@@ -43,7 +43,7 @@ describe(
         anvilLocators.anvilWidgetTypeSelector(WIDGET.ZONE),
         1,
       );
-      anvilLayout.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 10, 10, {
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 10, 10, {
         skipWidgetSearch: true,
         dropTargetDetails: {
           name: "Section1",
@@ -61,7 +61,7 @@ describe(
       anvilLayout.verifyParentChildRelationship("Section1", "Zone2");
     });
     it("3. Verify dragging and dropping a widget into an existing zone", () => {
-      anvilLayout.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 10, 10, {
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 10, 10, {
         skipWidgetSearch: true,
         dropTargetDetails: {
           name: "Zone1",
@@ -74,12 +74,12 @@ describe(
       anvilLayout.verifyParentChildRelationship("Zone1", "Button3");
     });
     it("4. Verify moving a widget from one section to another", () => {
-      anvilLayout.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 50, 360, {
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 50, 360, {
         skipWidgetSearch: true,
       });
       anvilLayout.verifyParentChildRelationship("Section2", "Zone3");
       anvilLayout.verifyParentChildRelationship("Zone3", "Button4");
-      anvilLayout.MoveAnvilWidget("Button1", 10, 10, {
+      anvilLayout.dnd.MoveAnvilWidget("Button1", 10, 10, {
         dropTargetDetails: {
           name: "Section2",
         },
@@ -89,7 +89,7 @@ describe(
     it("5. Verify moving a widget from one zone to another within the same section", () => {
       anvilLayout.verifyParentChildRelationship("Section2", "Zone4");
       anvilLayout.verifyParentChildRelationship("Zone4", "Button1");
-      anvilLayout.MoveAnvilWidget("Button1", 10, 10, {
+      anvilLayout.dnd.MoveAnvilWidget("Button1", 10, 10, {
         dropTargetDetails: {
           name: "Zone3",
         },
@@ -106,7 +106,7 @@ describe(
         500,
         true,
       );
-      anvilLayout.MoveAnvilWidget("Button4", 10, 10, {
+      anvilLayout.dnd.MoveAnvilWidget("Button4", 10, 10, {
         dropTargetDetails: {
           name: "Zone4",
         },

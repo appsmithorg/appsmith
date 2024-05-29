@@ -1,9 +1,10 @@
-import { AnvilDnD } from "./AnvilDnD";
-import { AnvilSections } from "./AnvilSections";
+import { AnvilDnDHelper } from "./AnvilDnDHelper";
+import { AnvilSectionsZonesHelper } from "./AnvilSectionsZonesHelper";
 import { anvilLocators } from "./Locators";
 
-export class AnvilLayout extends AnvilDnD {
-  public sections = new AnvilSections();
+export class AnvilLayout {
+  public sections = new AnvilSectionsZonesHelper();
+  public dnd = new AnvilDnDHelper();
   public verifyParentChildRelationship(parentName: string, childName: string) {
     const parentWidgetSelector =
       anvilLocators.anvilWidgetNameSelector(parentName);

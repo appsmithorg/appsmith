@@ -2,7 +2,7 @@ import { WIDGET } from "../../../locators/WidgetLocators";
 import { ObjectsRegistry } from "../../Objects/Registry";
 import { anvilLocators } from "./Locators";
 
-export class AnvilSections {
+export class AnvilSectionsZonesHelper {
   protected agHelper = ObjectsRegistry.AggregateHelper;
 
   public verifyZoneCount(

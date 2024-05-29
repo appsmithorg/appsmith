@@ -18,7 +18,7 @@ interface DragDropWidgetOptions {
   dropTargetDetails?: DropTargetDetails;
 }
 
-export class AnvilDnD {
+export class AnvilDnDHelper {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
   protected agHelper = ObjectsRegistry.AggregateHelper;

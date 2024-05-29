@@ -18,7 +18,7 @@ describe(
     });
     it("1. Verify space distribution for a single widget", () => {
       // create a new section with a button widget
-      anvilLayout.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 10, 10, {
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 10, 10, {
         skipWidgetSearch: true,
       });
       anvilLayout.sections.incrementZones("Section1");

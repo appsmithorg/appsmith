@@ -18,16 +18,16 @@ describe(
       agHelper.PressDelete();
     });
     it("1. Click on widget to Select Widget", () => {
-      anvilLayout.DragDropNewAnvilWidgetNVerify(WIDGET.WDSSWITCH, 5, 20, {
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSSWITCH, 5, 20, {
         skipWidgetSearch: true,
       });
-      anvilLayout.DragDropNewAnvilWidgetNVerify(WIDGET.WDSSWITCH, 5, 20, {
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSSWITCH, 5, 20, {
         skipWidgetSearch: true,
         dropTargetDetails: {
           name: "Zone1",
         },
       });
-      anvilLayout.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 5, 20, {
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 5, 20, {
         skipWidgetSearch: true,
         dropTargetDetails: {
           name: "Zone1",
