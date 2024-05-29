@@ -155,12 +155,14 @@ export class GracefulWorkerService {
     rootSpan,
     startTime,
     webworkerTelemetry,
+    data
   }: {
     webworkerTelemetry: Record<string, WebworkerSpanData>;
     rootSpan: OtlpSpan | undefined;
     method: string;
     startTime: number;
     endTime: number;
+    data: any
   }) {
     const webworkerTelemetryResponse = webworkerTelemetry as Record<
       string,
@@ -172,6 +174,13 @@ export class GracefulWorkerService {
       if (transferDataToMainThread) {
         transferDataToMainThread.endTime = Date.now();
       }
+      console.log("***", "transfer time to main thread is ", transferDataToMainThread.endTime - transferDataToMainThread.startTime, method, "data is ", this.countKeyValuePairs([ { "c": 1, "d": 2, "e" : 3 } ]), this.countKeyValuePairs(data), JSON.parse(data.updates));
+
+      const start = performance.now()
+      const resp = JSON.parse(JSON.stringify(data))// structuredClone(data)
+      const end = performance.now()
+      console.log("***", "structured clone data with json parse is ", resp, " time taken is ", end - start)
+
       /// Add the completeWebworkerComputation span to the root span
       webworkerTelemetryResponse["completeWebworkerComputation"] = {
         startTime,
@@ -239,7 +248,9 @@ export class GracefulWorkerService {
       });
 
       // The `this._broker` method is listening to events and will pass response to us over this channel.
+      // console.log("***", "waiting for response in request method")
       const response = yield take(ch);
+      // console.log("***", "got response in request method", messageId)
       const { data, endTime, startTime } = response;
       const { webworkerTelemetry } = data;
       this.addChildSpansToRootSpan({
@@ -248,6 +259,7 @@ export class GracefulWorkerService {
         method,
         startTime,
         endTime,
+        data
       });
 
       timeTaken = endTime - startTime;
@@ -275,7 +287,38 @@ export class GracefulWorkerService {
     }
   }
 
+  countKeyValuePairs(obj : any) {
+    let count = 0;
+
+    // Iterate over each key in the object
+    for (let key in obj) {
+        if (obj.hasOwnProperty(key)) {
+            // If the value is an array, count its length and recursively count key-value pairs for each element
+            if (Array.isArray(obj[key])) {
+                count += obj[key].length;
+                obj[key].forEach((element : any) => {
+                    if (typeof element === 'object' && element !== null) {
+                        count += this.countKeyValuePairs(element);
+                    } else {
+                        count++;
+                    }
+                });
+            } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+                // If the value is another object, recursively count its key-value pairs
+                count += this.countKeyValuePairs(obj[key]);
+            } else {
+                // If the value is neither an object nor an array, increment the count
+                count++;
+            }
+        }
+    }
+
+    return count;
+}
+
   private _broker(event: MessageEvent<TMessage<any>>) {
+    // console.log("***", "broker received event", event, event.data.messageId, event.data.messageType)
+
     if (!event || !event.data) return;
     const { body, messageType } = event.data;
     if (messageType === MessageType.RESPONSE) {
@@ -283,7 +326,13 @@ export class GracefulWorkerService {
       if (!messageId) return;
       const ch = this._channels.get(messageId);
       if (ch) {
+        if (body.data.webworkerTelemetry) {
+          console.log("***", "\n\nbroker putting data in channel", messageId, "time taken is ", Date.now() - body.data.webworkerTelemetry.transferDataToMainThread.startTime)
+          // console.log("***", "broker putting data in channel", messageId, "time taken is ", body.data.webworkerTelemetry)
+        }
+        
         ch.put(body);
+        
         this._channels.delete(messageId);
       }
     } else {
