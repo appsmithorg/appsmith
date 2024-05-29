@@ -31,6 +31,9 @@ export const LightMode: Story = {
       <Checkbox defaultSelected isReadOnly>
         Readonly
       </Checkbox>
+      <Checkbox defaultSelected isRequired>
+        Is Required
+      </Checkbox>
     </StoryGrid>
   ),
 };
