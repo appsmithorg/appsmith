@@ -1,6 +1,6 @@
 import { AnvilDnDHelper } from "./AnvilDnDHelper";
 import { AnvilSectionsZonesHelper } from "./AnvilSectionsZonesHelper";
-import { anvilLocators } from "./Locators";
+import { anvilLocators } from "./locators";
 export class AnvilLayout {
   public sections = new AnvilSectionsZonesHelper();
   public dnd = new AnvilDnDHelper();

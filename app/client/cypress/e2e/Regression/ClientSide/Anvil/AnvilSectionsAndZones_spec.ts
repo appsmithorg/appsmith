@@ -1,7 +1,7 @@
 import { agHelper, anvilLayout } from "../../../../support/Objects/ObjectsCore";
 import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
-import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
+import { anvilLocators } from "./helpers/locators";
 
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Sections and Zones`,
@@ -14,7 +14,7 @@ describe(
       });
     });
     beforeEach(() => {
-      // Cleanup the canvas before each test
+      // Cleanup the canvas before all tests
       agHelper.PressEscape();
       agHelper.SelectAllWidgets();
       agHelper.PressDelete();

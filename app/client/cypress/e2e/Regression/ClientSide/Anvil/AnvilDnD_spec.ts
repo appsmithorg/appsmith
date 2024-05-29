@@ -1,7 +1,7 @@
 import { agHelper, anvilLayout } from "../../../../support/Objects/ObjectsCore";
 import { ANVIL_EDITOR_TEST, modifierKey } from "../../../../support/Constants";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
-import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
+import { anvilLocators } from "./helpers/locators";
 
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for DnD Module`,
@@ -12,7 +12,7 @@ describe(
       featureFlagIntercept({
         release_anvil_enabled: true,
       });
-      // Cleanup the canvas before each test
+      // Cleanup the canvas before executing all tests
       agHelper.SelectAllWidgets();
       agHelper.PressDelete();
     });
