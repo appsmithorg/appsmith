@@ -13,7 +13,6 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
-import com.appsmith.server.dtos.CacheableApplicationJson;
 import com.appsmith.server.dtos.CacheableApplicationTemplate;
 import com.appsmith.server.dtos.TemplateDTO;
 import com.appsmith.server.dtos.TemplateUploadDTO;
@@ -125,25 +124,11 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     public Mono<List<ApplicationTemplate>> getActiveTemplates(List<String> templateIds) {
         return cacheableTemplateHelper
                 .getTemplates(releaseNotesService.getRunningVersion(), cloudServicesConfig.getBaseUrl())
-                .flatMap(templates -> {
-                    if (Instant.now().minusSeconds(CACHE_LIFE_TIME_IN_SECONDS).isAfter(templates.getLastUpdated())) {
-                        return cacheableTemplateHelper
-                                .clearTemplateMetadataCache(releaseNotesService.getRunningVersion())
-                                .then(Mono.defer(() -> cacheableTemplateHelper.getTemplates(
-                                        releaseNotesService.getRunningVersion(), cloudServicesConfig.getBaseUrl())))
-                                .map(CacheableApplicationTemplate::getApplicationTemplateList);
-                    } else {
-                        return Mono.just(templates.getApplicationTemplateList());
-                    }
-                })
+                .map(CacheableApplicationTemplate::getApplicationTemplateList)
                 .onErrorResume(e -> {
                     log.error("Error fetching templates data from redis!", e);
                     // If there is an error fetching the template from the cache, then evict the cache and fetch from CS
-                    return cacheableTemplateHelper
-                            .clearTemplateMetadataCache(releaseNotesService.getRunningVersion())
-                            .then(Mono.defer(() -> cacheableTemplateHelper.getTemplates(
-                                    releaseNotesService.getRunningVersion(), cloudServicesConfig.getBaseUrl())))
-                            .map(CacheableApplicationTemplate::getApplicationTemplateList);
+                    return Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e));
                 });
     }
 
@@ -170,34 +155,17 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         final String baseUrl = cloudServicesConfig.getBaseUrl();
         return cacheableTemplateHelper
                 .getApplicationByTemplateId(templateId, baseUrl)
-                .flatMap(cacheableApplicationJson -> {
-                    if (Instant.now()
-                            .minusSeconds(CACHE_LIFE_TIME_IN_SECONDS)
-                            .isAfter(cacheableApplicationJson.getLastUpdated())) {
-                        return cacheableTemplateHelper
-                                .clearTemplateApplicationDataCache(templateId)
-                                .then(Mono.defer(
-                                        () -> cacheableTemplateHelper.getApplicationByTemplateId(templateId, baseUrl)))
-                                .map(CacheableApplicationJson::getApplicationJson);
-                    } else {
-                        return Mono.just(cacheableApplicationJson.getApplicationJson());
-                    }
-                })
                 .onErrorResume(e -> {
                     log.error("Error fetching template json data from redis!", e);
                     // If there is an error fetching the template from the cache, then evict the cache and fetch from CS
-                    return cacheableTemplateHelper
-                            .clearTemplateApplicationDataCache(templateId)
-                            .then(Mono.defer(
-                                    () -> cacheableTemplateHelper.getApplicationByTemplateId(templateId, baseUrl)))
-                            .map(CacheableApplicationJson::getApplicationJson);
+                    return Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e));
                 })
                 .map(cacheableApplicationJson -> {
                     Gson gson = new GsonBuilder()
                             .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
                             .create();
                     Type fileType = new TypeToken<ApplicationJson>() {}.getType();
-                    return gson.fromJson(cacheableApplicationJson, fileType);
+                    return gson.fromJson(cacheableApplicationJson.getApplicationJson(), fileType);
                 });
     }
 

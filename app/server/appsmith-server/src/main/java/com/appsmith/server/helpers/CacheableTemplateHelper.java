@@ -1,7 +1,5 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.caching.annotations.Cache;
-import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.CacheableApplicationJson;
 import com.appsmith.server.dtos.CacheableApplicationTemplate;
@@ -21,14 +19,27 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 
 @AllArgsConstructor
 @Component
 @Slf4j
 public class CacheableTemplateHelper {
     // Template metadata is used for showing the preview of the template
-    @Cache(cacheName = "templateMetadata", key = "{#releaseVersion}")
+
+    public static CacheableApplicationTemplate applicationTemplateList = new CacheableApplicationTemplate();
+
+    public static Map<String, CacheableApplicationJson> cacheableApplicationJsonMap = new HashMap<>();
+    private static final int CACHE_LIFE_TIME_IN_SECONDS = 60 * 60 * 24; // 24 hours
+
     public Mono<CacheableApplicationTemplate> getTemplates(String releaseVersion, String baseUrl) {
+
+        if (applicationTemplateList.getLastUpdated() != null
+                && isCacheValid(applicationTemplateList.getLastUpdated())) {
+            return Mono.just(applicationTemplateList);
+        }
+
         UriComponentsBuilder uriComponentsBuilder =
                 UriComponentsBuilder.newInstance().queryParam("version", releaseVersion);
 
@@ -41,9 +52,7 @@ public class CacheableTemplateHelper {
                     if (clientResponse.statusCode().equals(HttpStatus.OK)) {
                         return clientResponse.bodyToFlux(ApplicationTemplate.class);
                     } else if (clientResponse.statusCode().isError()) {
-                        log.error(
-                                "Error fetching templates from cloud services. Status code: {}",
-                                clientResponse.statusCode());
+                        log.error("Error fetching templates from cloud services. Status code: {}", clientResponse);
                         return Flux.error(
                                 new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, clientResponse.statusCode()));
                     } else {
@@ -52,15 +61,13 @@ public class CacheableTemplateHelper {
                 })
                 .collectList()
                 .map(applicationTemplates -> {
-                    CacheableApplicationTemplate cacheableApplicationTemplate = new CacheableApplicationTemplate();
-                    cacheableApplicationTemplate.setApplicationTemplateList(applicationTemplates);
-                    cacheableApplicationTemplate.setLastUpdated(Instant.now());
-                    return cacheableApplicationTemplate;
+                    applicationTemplateList.setApplicationTemplateList(applicationTemplates);
+                    applicationTemplateList.setLastUpdated(Instant.now());
+                    return applicationTemplateList;
                 });
     }
 
     // Actual JSON object of the template
-    @Cache(cacheName = "templateApplicationJSONData", key = "{#templateId}")
     public Mono<CacheableApplicationJson> getApplicationByTemplateId(String templateId, String baseUrl) {
         final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/application";
         /*
@@ -71,6 +78,12 @@ public class CacheableTemplateHelper {
          * Encoding an encoded URL will not work and end up resulting a 404 error
          */
         final int size = 4 * 1024 * 1024; // 4 MB
+
+        if (cacheableApplicationJsonMap.containsKey(templateId)
+                && isCacheValid(cacheableApplicationJsonMap.get(templateId).getLastUpdated())) {
+            return Mono.just(cacheableApplicationJsonMap.get(templateId));
+        }
+
         final ExchangeStrategies strategies = ExchangeStrategies.builder()
                 .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
                 .build();
@@ -88,19 +101,20 @@ public class CacheableTemplateHelper {
                     CacheableApplicationJson cacheableApplicationJson = new CacheableApplicationJson();
                     cacheableApplicationJson.setApplicationJson(jsonString);
                     cacheableApplicationJson.setLastUpdated(Instant.now());
+
+                    // Remove the value from cache if its outdated
+                    if (cacheableApplicationJsonMap.containsKey(templateId)) {
+                        cacheableApplicationJsonMap.replace(templateId, cacheableApplicationJson);
+                    } else {
+                        cacheableApplicationJsonMap.put(templateId, cacheableApplicationJson);
+                    }
                     return cacheableApplicationJson;
                 })
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "template", templateId)));
     }
 
-    @CacheEvict(cacheName = "templateMetadata", key = "{#releaseVersion}")
-    public Mono<Void> clearTemplateMetadataCache(String releaseVersion) {
-        return Mono.empty().then();
-    }
-
-    @CacheEvict(cacheName = "templateApplicationJSONData", key = "{#templateId}")
-    public Mono<Void> clearTemplateApplicationDataCache(String templateId) {
-        return Mono.empty().then();
+    public boolean isCacheValid(Instant lastUpdatedAt) {
+        return Instant.now().minusSeconds(CACHE_LIFE_TIME_IN_SECONDS).isAfter(lastUpdatedAt);
     }
 }
