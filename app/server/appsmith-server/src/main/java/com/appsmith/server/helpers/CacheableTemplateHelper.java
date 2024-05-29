@@ -10,7 +10,6 @@ import com.appsmith.util.WebClientUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
@@ -23,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 @AllArgsConstructor
-@Component
 @Slf4j
 public class CacheableTemplateHelper {
     // Template metadata is used for showing the preview of the template
@@ -33,7 +31,7 @@ public class CacheableTemplateHelper {
     public static Map<String, CacheableApplicationJson> cacheableApplicationJsonMap = new HashMap<>();
     private static final int CACHE_LIFE_TIME_IN_SECONDS = 60 * 60 * 24; // 24 hours
 
-    public Mono<CacheableApplicationTemplate> getTemplates(String releaseVersion, String baseUrl) {
+    public static Mono<CacheableApplicationTemplate> getTemplates(String releaseVersion, String baseUrl) {
 
         if (applicationTemplateList.getLastUpdated() != null
                 && isCacheValid(applicationTemplateList.getLastUpdated())) {
@@ -68,7 +66,7 @@ public class CacheableTemplateHelper {
     }
 
     // Actual JSON object of the template
-    public Mono<CacheableApplicationJson> getApplicationByTemplateId(String templateId, String baseUrl) {
+    public static Mono<CacheableApplicationJson> getApplicationByTemplateId(String templateId, String baseUrl) {
         final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/application";
         /*
          * using a custom url builder factory because default builder always encodes
@@ -114,7 +112,7 @@ public class CacheableTemplateHelper {
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "template", templateId)));
     }
 
-    public boolean isCacheValid(Instant lastUpdatedAt) {
+    public static boolean isCacheValid(Instant lastUpdatedAt) {
         return Instant.now().minusSeconds(CACHE_LIFE_TIME_IN_SECONDS).isAfter(lastUpdatedAt);
     }
 }

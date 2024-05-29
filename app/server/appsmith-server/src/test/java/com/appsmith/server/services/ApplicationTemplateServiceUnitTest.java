@@ -19,10 +19,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -49,11 +47,6 @@ public class ApplicationTemplateServiceUnitTest {
     @MockBean
     private CloudServicesConfig cloudServicesConfig;
 
-    @Autowired
-    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
-
-    private CacheableTemplateHelper cacheableTemplateHelper;
-
     @BeforeAll
     public static void setUp() throws IOException {
         mockCloudServices = new MockWebServer();
@@ -72,8 +65,6 @@ public class ApplicationTemplateServiceUnitTest {
         // mock the cloud services config so that it returns mock server url as cloud
         // service base url
         Mockito.when(cloudServicesConfig.getBaseUrl()).thenReturn(baseUrl);
-
-        cacheableTemplateHelper = new CacheableTemplateHelper();
     }
 
     private ApplicationTemplate create(String id, String title) {
@@ -98,7 +89,7 @@ public class ApplicationTemplateServiceUnitTest {
         cacheableApplicationTemplate.setLastUpdated(Instant.now());
 
         Mono<CacheableApplicationTemplate> templateListMono =
-                cacheableTemplateHelper.getTemplates("recently-used", cloudServicesConfig.getBaseUrl());
+                CacheableTemplateHelper.getTemplates("recently-used", cloudServicesConfig.getBaseUrl());
 
         StepVerifier.create(templateListMono)
                 .assertNext(cacheableApplicationTemplate1 -> {
@@ -134,7 +125,7 @@ public class ApplicationTemplateServiceUnitTest {
         cacheableApplicationJson.setLastUpdated(Instant.now());
 
         Mono<CacheableApplicationJson> templateListMono =
-                cacheableTemplateHelper.getApplicationByTemplateId("templatesId", cloudServicesConfig.getBaseUrl());
+                CacheableTemplateHelper.getApplicationByTemplateId("templatesId", cloudServicesConfig.getBaseUrl());
 
         // make sure we've received the response returned by the mockCloudServices
         StepVerifier.create(templateListMono)

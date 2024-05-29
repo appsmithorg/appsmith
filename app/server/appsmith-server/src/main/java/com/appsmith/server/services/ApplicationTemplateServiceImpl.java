@@ -3,7 +3,6 @@ package com.appsmith.server.services;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.exports.internal.ExportService;
-import com.appsmith.server.helpers.CacheableTemplateHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.services.ce.ApplicationTemplateServiceCEImpl;
@@ -29,8 +28,7 @@ public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCE
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             ObjectMapper objectMapper,
-            SessionUserService sessionUserService,
-            CacheableTemplateHelper cacheableTemplateHelper) {
+            SessionUserService sessionUserService) {
         super(
                 cloudServicesConfig,
                 releaseNotesService,
@@ -42,7 +40,6 @@ public class ApplicationTemplateServiceImpl extends ApplicationTemplateServiceCE
                 responseUtils,
                 applicationPermission,
                 objectMapper,
-                sessionUserService,
-                cacheableTemplateHelper);
+                sessionUserService);
     }
 }

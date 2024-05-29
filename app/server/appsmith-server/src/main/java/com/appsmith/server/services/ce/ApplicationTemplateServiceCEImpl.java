@@ -67,10 +67,6 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final ObjectMapper objectMapper;
     private final SessionUserService sessionUserService;
 
-    private final CacheableTemplateHelper cacheableTemplateHelper;
-
-    private final int CACHE_LIFE_TIME_IN_SECONDS = 60 * 60 * 24; // 24 hours
-
     public ApplicationTemplateServiceCEImpl(
             CloudServicesConfig cloudServicesConfig,
             ReleaseNotesService releaseNotesService,
@@ -82,8 +78,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             ObjectMapper objectMapper,
-            SessionUserService sessionUserService,
-            CacheableTemplateHelper cacheableTemplateHelper) {
+            SessionUserService sessionUserService) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
         this.importService = importService;
@@ -95,7 +90,6 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         this.applicationPermission = applicationPermission;
         this.objectMapper = objectMapper;
         this.sessionUserService = sessionUserService;
-        this.cacheableTemplateHelper = cacheableTemplateHelper;
     }
 
     @Override
@@ -122,8 +116,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
     @Override
     public Mono<List<ApplicationTemplate>> getActiveTemplates(List<String> templateIds) {
-        return cacheableTemplateHelper
-                .getTemplates(releaseNotesService.getRunningVersion(), cloudServicesConfig.getBaseUrl())
+        return CacheableTemplateHelper.getTemplates(
+                        releaseNotesService.getRunningVersion(), cloudServicesConfig.getBaseUrl())
                 .map(CacheableApplicationTemplate::getApplicationTemplateList)
                 .onErrorResume(e -> {
                     log.error("Error fetching templates data from redis!", e);
@@ -153,8 +147,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     @Override
     public Mono<ApplicationJson> getApplicationJsonFromTemplate(String templateId) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
-        return cacheableTemplateHelper
-                .getApplicationByTemplateId(templateId, baseUrl)
+        return CacheableTemplateHelper.getApplicationByTemplateId(templateId, baseUrl)
                 .onErrorResume(e -> {
                     log.error("Error fetching template json data from redis!", e);
                     // If there is an error fetching the template from the cache, then evict the cache and fetch from CS
