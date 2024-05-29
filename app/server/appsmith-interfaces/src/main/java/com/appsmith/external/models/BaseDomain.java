@@ -42,7 +42,7 @@ import java.util.UUID;
 @ToString
 @FieldNameConstants
 @MappedSuperclass
-@EntityListeners(EncryptionEntityListener.class)
+// @EntityListeners(EncryptionEntityListener.class) // May be not needed, but keeping as we may need to revisit _very_ soon.
 public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable, Identifiable {
 
     private static final long serialVersionUID = 7459916000501322517L;

@@ -55,7 +55,7 @@ public class OAuth2 extends AuthenticationDTO {
     @JsonView({Views.Public.class, FromRequest.class})
     String clientId;
 
-    @Encrypted @JsonView(FromRequest.class)
+    @Encrypted @JsonView({Views.Internal.class, FromRequest.class})
     String clientSecret;
 
     @JsonView({Views.Public.class, FromRequest.class})

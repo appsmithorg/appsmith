@@ -233,7 +233,7 @@ public class EncryptionHandler {
         return finalCandidateFields;
     }
 
-    synchronized boolean convertEncryption(Object source, UnaryOperator<String> transformer) {
+    public synchronized boolean convertEncryption(Object source, UnaryOperator<String> transformer) {
         if (source == null) {
             return false;
         }
