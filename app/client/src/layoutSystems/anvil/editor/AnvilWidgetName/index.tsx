@@ -19,7 +19,6 @@ import type { NameComponentStates } from "./types";
 import { generateDragStateForAnvilLayout } from "layoutSystems/anvil/utils/widgetUtils";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { isWidgetSelected } from "selectors/widgetSelectors";
 
 export function AnvilWidgetName(props: {
   widgetId: string;
@@ -43,13 +42,10 @@ export function AnvilWidgetName(props: {
     (state) => getWidgetErrorCount(state, widgetId) > 0,
   );
 
-  const isParentSelected = useSelector(isWidgetSelected(parentId));
-
   const styleProps = getWidgetNameComponentStyleProps(
     widgetType,
     nameComponentState,
     showError,
-    isParentSelected,
   );
 
   const { setDraggingState } = useWidgetDragResize();
