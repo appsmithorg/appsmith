@@ -135,7 +135,6 @@ describe(
   it("Table Widget Functionality To Verify The Visiblity mode functionality", function() {
    _.deployMode.NavigateBacktoEditor();
     _.table.SelectTableRow(1);
-    // cy.isSelectRow(1);
     cy.readTabledataPublish("1", "3").then(tabData => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");

@@ -37,7 +37,6 @@ describe(
        * @param(Index)  Provide index value to select the row.
        */
       table.SelectTableRow(1, 0, true, "v2");
-      // cy.isSelectRow(1);
       EditorNavigation.SelectEntityByName("Text4", EntityType.Widget, {}, [
         "Container1",
       ]);
