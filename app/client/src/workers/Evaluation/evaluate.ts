@@ -24,6 +24,7 @@ import {
   TypeErrorModifier,
 } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import { set } from "lodash";
 
 export interface EvalResult {
   result: any;
@@ -186,6 +187,12 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     isTriggerBased,
   });
 
+  if (context?.overrideContext) {
+    Object.entries(context?.overrideContext).forEach(([path, value]) => {
+      set(EVAL_CONTEXT, path, value);
+    });
+  }
+
   return EVAL_CONTEXT;
 };
 
@@ -208,6 +215,7 @@ export interface EvaluateContext {
   requestId?: string;
   eventType?: EventType;
   triggerMeta?: TriggerMeta;
+  overrideContext?: Record<string, unknown>;
 }
 
 export const getUserScriptToEvaluate = (
