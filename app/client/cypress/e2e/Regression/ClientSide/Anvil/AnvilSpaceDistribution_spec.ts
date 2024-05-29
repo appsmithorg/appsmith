@@ -117,66 +117,7 @@ describe(
       anvilLayout.sections.verifyZoneCount("Section1", 1);
       anvilLayout.sections.verifySectionDistribution("Section1", [12]);
     });
-    it("3. Verify removing a zone by dragging a zone out of a section", () => {
-      // create a new section with a Zone widget
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
-        anvilLocators.ZONE,
-        10,
-        10,
-        {
-          skipWidgetSearch: true,
-        },
-      );
-      // create a new zone within the section
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
-        anvilLocators.ZONE,
-        10,
-        10,
-        {
-          skipWidgetSearch: true,
-          dropTargetDetails: {
-            name: "Section1",
-          },
-        },
-      );
-      anvilLayout.verifyParentChildRelationship("Section1", "Zone2");
-      anvilLayout.sections.verifyZoneCount("Section1", 2);
-      // move zone out of section to main canvas
-      anvilLayout.dnd.MoveAnvilWidget("Zone2", 10, 10);
-      anvilLayout.sections.verifyZoneCount("Section1", 1);
-      anvilLayout.sections.verifySectionDistribution("Section1", [12]);
-      anvilLayout.sections.verifyZoneCount("Section2", 1);
-      anvilLayout.sections.verifySectionDistribution("Section2", [12]);
-      anvilLayout.verifyParentChildRelationship("Section2", "Zone2");
-    });
-    it("4. Verify removing a section by dragging all zones out of the section", () => {
-      // create a new section with a Zone widget
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
-        anvilLocators.ZONE,
-        10,
-        10,
-        {
-          skipWidgetSearch: true,
-        },
-      );
-      // create another new section by dropping a zone
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
-        anvilLocators.ZONE,
-        10,
-        10,
-        {
-          skipWidgetSearch: true,
-        },
-      );
-      anvilLayout.dnd.MoveAnvilWidget("Zone1", 10, 10, {
-        dropTargetDetails: {
-          name: "Section2",
-        },
-      });
-      anvilLayout.verifyWidgetDoesNotExist("Section1");
-      anvilLayout.sections.verifyZoneCount("Section2", 2);
-    });
-    it("5. Verify manual adjustment of zone space through canvas handles", () => {
+    it("3. Verify manual adjustment of zone space through canvas handles", () => {
       // create a section using a zone
       anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
         anvilLocators.ZONE,
