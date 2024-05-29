@@ -30,7 +30,6 @@ describe(
         },
       );
       anvilLayout.sections.verifyZoneCount("Section1", 1);
-      //   anvilLayout.sections.moveDistributionHandle("left", "Section1", 1, 2);
       anvilLayout.sections.verifySectionDistribution("Section1", [12]);
       anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
         anvilLocators.ZONE,
