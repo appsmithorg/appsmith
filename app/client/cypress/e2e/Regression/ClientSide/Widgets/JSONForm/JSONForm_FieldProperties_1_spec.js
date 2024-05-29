@@ -125,7 +125,7 @@ describe(
     it("6. disables field when disabled switched on and when autofill is disabled we should see the autofill attribute in the input field", () => {
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       cy.openFieldConfiguration("name");
-      cy.togglebar(`.t--property-control-disabled input`);
+      agHelper.CheckUncheck(".t--property-control-disabled input");
       deployMode.DeployApp();
       cy.get(`${fieldPrefix}-name input`).each(($el) => {
         cy.wrap($el).should("have.attr", "disabled");
@@ -179,7 +179,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       cy.openFieldConfiguration("check");
-      cy.togglebar(`.t--property-control-visible input`);
+      agHelper.CheckUncheck(".t--property-control-visible input");
       deployMode.DeployApp();
       cy.get(`${fieldPrefix}-check`).should("exist");
       deployMode.NavigateBacktoEditor();
@@ -187,7 +187,7 @@ describe(
       // disables field when disabled switched on
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       cy.openFieldConfiguration("check");
-      cy.togglebar(`.t--property-control-disabled input`);
+      agHelper.CheckUncheck(".t--property-control-disabled input");
       deployMode.DeployApp();
       cy.get(`${fieldPrefix}-check input`).each(($el) => {
         cy.wrap($el).should("have.attr", "disabled");

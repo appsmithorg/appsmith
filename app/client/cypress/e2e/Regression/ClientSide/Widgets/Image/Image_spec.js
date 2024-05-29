@@ -65,7 +65,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       //Image Widget Functionality To Check Visible Widget", function () {
       cy.openPropertyPane("imagewidget");
-      cy.togglebar(commonlocators.visibleCheckbox);
+      agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       deployMode.DeployApp(publish.imageWidget);
       deployMode.NavigateBacktoEditor();
     });

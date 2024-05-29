@@ -113,7 +113,7 @@ describe(
       cy.get(`.bp3-select-popover .bp3-input-group`).should("not.exist");
 
       // toggle filterable -> true in property pane
-      cy.togglebar(`.t--property-control-allowsearching input`);
+      agHelper.CheckUncheck(".t--property-control-allowsearching input");
 
       deployMode.DeployApp();
 
@@ -195,7 +195,7 @@ describe(
       cy.togglebarDisable(`.t--property-control-visible input`);
       cy.get(`${fieldPrefix}-radio`).should("not.exist");
       cy.wait(500);
-      cy.togglebar(`.t--property-control-visible input`);
+      agHelper.CheckUncheck(".t--property-control-visible input");
       cy.get(`${fieldPrefix}-radio`).should("exist");
     });
   },

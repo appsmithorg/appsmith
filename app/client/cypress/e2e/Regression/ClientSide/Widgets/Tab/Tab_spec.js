@@ -44,7 +44,7 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
     /**
      * @param{toggleButton Css} Assert to be checked
      */
-    cy.togglebar(widgetsPage.Scrollbutton);
+    agHelper.CheckUncheck(widgetsPage.Scrollbutton);
     cy.get(Layoutpage.tabContainer)
       .scrollIntoView({ easing: "linear" })
       .should("be.visible");
@@ -71,7 +71,7 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
 
   it("4. Tab Widget Functionality To Check Visible Widget", function () {
     cy.openPropertyPane("tabswidget");
-    cy.togglebar(commonlocators.visibleCheckbox);
+    agHelper.CheckUncheck(commonlocators.visibleCheckbox);
     deployMode.DeployApp();
     cy.get(publish.tabWidget).should("be.visible");
     deployMode.NavigateBacktoEditor();

@@ -115,7 +115,7 @@ describe(
       // Open property pone
       cy.openPropertyPane("formwidget");
       // Check the visible JS
-      cy.togglebar(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
       // Verify the Checked Visible JS
       cy.get(publish.formWidget).should("be.visible");

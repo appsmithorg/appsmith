@@ -1,5 +1,35 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Checkbox/CheckBox_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/CodeScanner/CodeScanner1_spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/CurrencyInput/CurrencyInput_ShowStepArrows_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Datepicker/DatePicker_With_Switch_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Dropdown/Dropdown_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Form/FormWidget_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Form/FormWithSwitch_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Form/Form_With_CheckBox_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Image/Image_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Input/Input_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Input/Inputv2_ShowStepArrows_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_ArrayField_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_FieldProperties_1_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_FieldProperties_2_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_FormBindings_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_FormProperties_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_HiddenFields_1_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_HiddenFields_2_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/ListV2/Childwigets/Listv2_Tabs_Widget_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/ListV2/ListV2_PageNo_PageSize_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/ListV2/Listv2_BasicClientSideData_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/ListV2/Listv2_Meta_Hydration_ServerSide_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Multiselect/MultiSelect2_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Multiselect/Multi_Select_Tree_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Others/Progress_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Select/Select_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Switch/Switch_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Tab/Tab_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/TreeSelect/Single_Select_Tree_spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/TreeSelect/Tree_Select_spec.ts
+
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*

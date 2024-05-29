@@ -1,4 +1,5 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
+const { agHelper } = require("../../../../../support/Objects/ObjectsCore");
 
 const widgetName = "currencyinputwidget";
 
@@ -17,7 +18,7 @@ describe(
 
     it("2. Validate that currency input widget, stepArrows should be visible when showStepArrows is set to true", () => {
       // Enable showStepArrows to true
-      cy.togglebar(widgetsPage.showStepArrowsToggleCheckBox);
+      agHelper.CheckUncheck(widgetsPage.showStepArrowsToggleCheckBox);
 
       cy.get(widgetsPage.inputStepArrows).should("exist"); // step arrows should be visible
     });

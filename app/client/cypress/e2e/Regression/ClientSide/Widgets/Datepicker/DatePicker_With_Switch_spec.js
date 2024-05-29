@@ -23,7 +23,7 @@ describe(
       );
       cy.testCodeMirror(this.dataSet.switchInputName);
       cy.get(widgetsPage.switchLabel).should("have.text", "Switch1");
-      cy.togglebar(widgetsPage.defaultcheck);
+      _.agHelper.CheckUncheck(widgetsPage.defaultcheck);
       cy.getAlert("onChange");
       cy.closePropertyPane();
     });

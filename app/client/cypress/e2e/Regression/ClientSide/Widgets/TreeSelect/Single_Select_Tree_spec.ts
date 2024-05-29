@@ -105,7 +105,7 @@ describe(
 
     it("6. To Check Visible Widget", function () {
       cy.openPropertyPane("singleselecttreewidget");
-      cy.togglebar(commonlocators.visibleCheckbox);
+      agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       deployMode.DeployApp();
       cy.get(
         publish.singleselecttreewidget + " " + ".rc-tree-select-single",
@@ -132,9 +132,10 @@ describe(
         `{{SingleSelectTree1.selectedOptionValue}}`,
       );
       cy.openPropertyPane("singleselecttreewidget");
-      cy.togglebar(
+      agHelper.CheckUncheck(
         '.t--property-control-allowclearingvalue input[type="checkbox"]',
       );
+
       cy.get(formWidgetsPage.treeSelectClearAll).last().click({ force: true });
       cy.wait(100);
       cy.get(".t--widget-textwidget").should("contain", "");

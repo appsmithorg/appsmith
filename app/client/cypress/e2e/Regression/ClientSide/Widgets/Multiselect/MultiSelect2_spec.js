@@ -69,7 +69,7 @@ describe(
 
     it("3. Clears the search field when widget is closed and serverSideFiltering is off", () => {
       // Turn on the filterable for the widget
-      cy.togglebar(
+      _.agHelper.CheckUncheck(
         '.t--property-control-allowsearching input[type="checkbox"]',
       );
       // open the widget
@@ -105,7 +105,7 @@ describe(
 
     it("4. Does not clear the search field when widget is closed and serverSideFiltering is on", () => {
       // Turn on server side filtering for the widget
-      cy.togglebar(
+      _.agHelper.CheckUncheck(
         '.t--property-control-serversidefiltering input[type="checkbox"]',
       );
       // open the widget
@@ -153,7 +153,7 @@ describe(
         .should("not.have.text", "Select all");
       // enable select all option from property pane
       cy.openPropertyPane("multiselectwidgetv2");
-      cy.togglebar(commonlocators.allowSelectAllCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.allowSelectAllCheckbox);
 
       // press select all option
       cy.get(formWidgetsPage.multiselectwidgetv2)
@@ -311,7 +311,7 @@ describe(
       _.deployMode.NavigateBacktoEditor();
       // Dropdown Functionality To Check Visible Widget", function () {
       cy.openPropertyPane("multiselectwidgetv2");
-      cy.togglebar(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
       cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
         "be.visible",

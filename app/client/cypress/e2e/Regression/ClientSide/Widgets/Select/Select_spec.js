@@ -68,8 +68,8 @@ describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
 
   it("4. Does not clear the search field when widget is closed and serverSideFiltering is on", () => {
     // toggle the serversidefiltering option on
-    cy.togglebar(
-      '.t--property-control-serversidefiltering input[type="checkbox"]',
+    agHelper.CheckUncheck(
+      ".t--property-control-serversidefiltering input[type='checkbox']",
     );
     // search for option Red in the search input
     cy.get(commonlocators.selectInputSearch).type("Red");

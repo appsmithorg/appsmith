@@ -191,7 +191,6 @@ describe(
 
       // Disable -> true
       propPane.TogglePropertyState("Disabled", "On");
-      // cy.togglebar(".t--property-control-disabled input");
       deployMode.DeployApp();
       cy.get(education)
         .first()
@@ -235,7 +234,6 @@ describe(
       // Disable -> true
       propPane.TogglePropertyState("Disabled", "On");
       deployMode.DeployApp();
-      // cy.togglebar(".t--property-control-disabled input");
       cy.get(`${education} ${addButton}`).should("have.attr", "disabled");
       cy.get(`${education} ${addButton}`).should("have.attr", "disabled");
 
@@ -339,7 +337,7 @@ describe(
       );
 
       // Enable Allow Country Code Change
-      cy.togglebar(
+      agHelper.CheckUncheck(
         ".t--property-control-allowcountrycodechange input[type='checkbox']",
       );
       // Change the label of the field to Phone Number
@@ -375,7 +373,7 @@ describe(
       );
 
       // Enable Allow Country Code Change
-      cy.togglebar(
+      agHelper.CheckUncheck(
         ".t--property-control-allowcurrencychange input[type='checkbox']",
       );
       // Change the label of the field to Phone Number

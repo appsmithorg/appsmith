@@ -23,7 +23,7 @@ describe(
     it("1. Property: isIndeterminate, Toggle infinite loading", function () {
       cy.openPropertyPane("progresswidget");
       // enable infinite loading
-      cy.togglebar(
+      agHelper.CheckUncheck(
         ".t--property-control-infiniteloading input[type='checkbox']",
       );
       // show indeterminate linear progress
@@ -49,7 +49,9 @@ describe(
     });
     it("3. Property: showResult, Toggle show result", function () {
       // enable show result
-      cy.togglebar(".t--property-control-showresult input[type='checkbox']");
+      agHelper.CheckUncheck(
+        ".t--property-control-showresult input[type='checkbox']",
+      );
       // show label
       cy.get("[data-testid='60']").first().next().should("contain.text", "60");
       // disable show result
@@ -77,7 +79,7 @@ describe(
     it("6. Property: isIndeterminate, Toggle infinite loading", function () {
       cy.openPropertyPane("progresswidget");
       // enable infinite loading
-      cy.togglebar(
+      agHelper.CheckUncheck(
         ".t--property-control-infiniteloading input[type='checkbox']",
       );
       // show indeterminate linear progress
@@ -106,7 +108,9 @@ describe(
     });
     it("8. Property: showResult, Toggle show result", function () {
       // enable show result
-      cy.togglebar(".t--property-control-showresult input[type='checkbox']");
+      agHelper.CheckUncheck(
+        ".t--property-control-showresult input[type='checkbox']",
+      );
       // show label
       cy.get("[data-testid='circular-label']").should("contain.text", "50");
       // disable show result
@@ -126,7 +130,7 @@ describe(
     });
     it("10. Property: counterClockwise,Change counterclockwise", function () {
       // enable counterclockwise
-      cy.togglebar(
+      agHelper.CheckUncheck(
         ".t--property-control-counterclockwise input[type='checkbox']",
       );
       // show the progress in a counterclockwise

@@ -18,8 +18,8 @@ describe(
     it("2. toggle on allow clear selection and clear the input", () => {
       cy.openPropertyPane("singleselecttreewidget");
       // toggle on allow clear selection
-      cy.togglebar(
-        ".t--property-control-allowclearingvalue input[type='checkbox']",
+      _.agHelper.CheckUncheck(
+        '.t--property-control-allowclearingvalue input[type="checkbox"]',
       );
       // assert if cancel icon exists on the widget input
       cy.get(formWidgetsPage.singleselecttreeWidget)
