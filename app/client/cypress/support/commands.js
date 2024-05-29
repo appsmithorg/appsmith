@@ -120,6 +120,7 @@ Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", (isOAuth2) => {
   cy.get(datasource.useCertInAuth).should("not.exist");
   cy.get(datasource.certificateDetails).should("not.exist");
   // cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
+  agHelper.CheckUncheck(datasource.useSelfSignedCert);
   cy.get(datasource.useSelfSignedCert).should("be.checked");
   if (isOAuth2) {
     cy.get(datasource.useCertInAuth).should("exist");
