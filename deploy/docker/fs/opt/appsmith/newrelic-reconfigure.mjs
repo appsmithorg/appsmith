@@ -5,7 +5,7 @@ const templatePath = `${path}/newrelic-template.yml`
 const outputPath = `${path}/newrelic.yml`
 
 function create_new_relic_config_yml_file() {
-    if (!(process.env.APPSMITH_NEW_RELIC_ENABLED == true)) {
+    if (!(process.env.APPSMITH_NEW_RELIC_ENABLED == 'true')) {
         return
     } 
     

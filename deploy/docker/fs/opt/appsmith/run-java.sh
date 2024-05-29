@@ -64,8 +64,8 @@ while ! curl --fail --silent localhost:"${APPSMITH_RTS_PORT:-8091}"/rts-api/v1/h
 done
 echo 'RTS started.'
 
-if [[ $APPSMITH_NEW_RELIC_ENABLED = true ]]; then
-  export APPSMITH_JAVA_ARGS+="-javaagent:/opt/newrelic/newrelic.jar"
+if [[ $APPSMITH_NEW_RELIC_ENABLED = 'true' ]]; then
+  export APPSMITH_JAVA_ARGS+=" -javaagent:/opt/newrelic/newrelic.jar"
 fi
 
 sh /opt/appsmith/run-starting-page-init.sh &
