@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
@@ -7,10 +8,15 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface SessionUserServiceCE {
 
     Mono<User> getCurrentUser();
+
+    Mono<Optional<AclPermission>> updateAclWithUserContext(Optional<AclPermission> permission);
+
+    Mono<AclPermission> updateAclWithUserContext(AclPermission permission);
 
     Mono<User> refreshCurrentUser(ServerWebExchange exchange);
 
