@@ -4,8 +4,8 @@ type ID = string;
 
 export enum MODULE_TYPE {
   QUERY = "QUERY_MODULE",
-  JS = "JS",
-  UI = "UI",
+  JS = "JS_MODULE",
+  UI = "UI_MODULE",
 }
 
 export interface ModuleInput {
@@ -17,7 +17,8 @@ export interface ModuleInputSection {
   children?: ModuleInput[];
 }
 
-export interface Module extends ModuleMetadata {
+export interface Module
+  extends Pick<ModuleMetadata, "pluginId" | "pluginType" | "datasourceId"> {
   id: ID;
   name: string;
   packageId: ID;

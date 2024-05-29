@@ -22,6 +22,9 @@ export default async function (request: EvalWorkerASyncRequest) {
     const { evalOrder, unEvalUpdates } = dataTreeEvaluator.setupUpdateTree(
       unEvalTree.unEvalTree,
       unEvalTree.configTree,
+      undefined,
+      //TODO: the evalTrigger can be optimised to not diff all JS actions
+      { isAllAffected: true, ids: [] },
     );
 
     dataTreeEvaluator.evalAndValidateSubTree(

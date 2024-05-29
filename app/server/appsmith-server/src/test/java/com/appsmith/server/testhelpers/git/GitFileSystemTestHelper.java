@@ -46,6 +46,10 @@ public class GitFileSystemTestHelper {
         Path gitCompletePath = gitExecutor.createRepoPath(suffix);
         String metadataFileName = CommonConstants.METADATA + CommonConstants.JSON_EXTENSION;
 
+        // Delete the repository if it already exists,
+        // this is to avoid left over repositories from older tests.
+        deleteWorkspaceDirectory(workspaceId);
+
         // create a new repository
         log.debug("Setting up Git repository at path: {}", gitCompletePath);
         gitExecutor.createNewRepository(gitCompletePath);
