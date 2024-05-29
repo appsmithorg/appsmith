@@ -1,12 +1,12 @@
-import { getWidgetSelector } from "../../../../../locators/WidgetLocators";
-import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import { getWidgetSelector } from "../../../locators/WidgetLocators";
+import { ObjectsRegistry } from "../../Objects/Registry";
 import {
   AppSidebar,
   AppSidebarButton,
   PageLeftPane,
   PagePaneSegment,
-} from "../../../../../support/Pages/EditorNavigation";
-import { anvilLocators } from "./locators";
+} from "../EditorNavigation";
+import { anvilLocators } from "./Locators";
 
 interface DropTargetDetails {
   id?: string;

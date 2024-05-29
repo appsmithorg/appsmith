@@ -10,7 +10,7 @@ import EditorNavigation, {
 } from "./EditorNavigation";
 import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
-import { anvilLocators } from "../../e2e/Regression/ClientSide/Anvil/helpers/locators";
+import { anvilLocators } from "./Anvil/Locators";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",

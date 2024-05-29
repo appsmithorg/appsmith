@@ -2,7 +2,7 @@ import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
 import { agHelper, anvilLayout } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import { WIDGET } from "../../../../locators/WidgetLocators";
-import { anvilLocators } from "./helpers/locators";
+import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
 
 describe(
   `${ANVIL_EDITOR_TEST}: validating Widget clicks in Anvil Layout Mode`,
@@ -13,7 +13,7 @@ describe(
       featureFlagIntercept({
         release_anvil_enabled: true,
       });
-      // Cleanup the canvas before all tests
+      // Cleanup the canvas before each test
       agHelper.SelectAllWidgets();
       agHelper.PressDelete();
     });

@@ -1,7 +1,7 @@
 import { agHelper, anvilLayout } from "../../../../support/Objects/ObjectsCore";
 import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
-import { anvilLocators } from "./helpers/locators";
+import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
 
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Space Distribution Module`,
