@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers.ce.autocommit;
+package com.appsmith.server.dtos;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

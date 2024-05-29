@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers.ce.autocommit;
+package com.appsmith.server.git.autocommit.helpers;
 
 import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.enums.FeatureFlagEnum;
@@ -8,6 +8,7 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.AutoCommitTriggerDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
