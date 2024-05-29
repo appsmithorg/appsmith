@@ -174,9 +174,6 @@ jobs:
             -e ENTERPRISE_USER_PASSWORD=ent_user_password \
             -e ENTERPRISE_ADMIN_NAME=ent-admin@appsmith.com \
             -e ENTERPRISE_ADMIN_PASSWORD=ent_admin_password \
-            -e FLAGSMITH_URL=http://host.docker.internal:5001/flagsmith \
-            -e FLAGSMITH_SERVER_KEY=dummykey \
-            -e FLAGSMITH_SERVER_KEY_BUSINESS_FEATURES=dummykeybusinessfeatures \
             -e LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY=$LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY \
             appsmith/cloud-services:release
           cd cicontainerlocal
@@ -186,7 +183,7 @@ jobs:
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
             -e APPSMITH_CLOUD_SERVICES_SIGNATURE_BASE_URL=http://host.docker.internal:8090 \
-            -e _APPSMITH_RATE_LIMIT=1000 \
+            -e APPSMITH_RATE_LIMIT=1000 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
             cicontainer
 

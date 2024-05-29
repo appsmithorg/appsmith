@@ -6,8 +6,7 @@ import {
   SIZES,
   Button,
   Menu,
-  MenuList,
-  Item,
+  MenuTrigger,
   TextInput,
 } from "@design-system/widgets";
 
@@ -65,14 +64,23 @@ export const PrefixAndSuffix: Story = {
       <TextInput
         placeholder="component as prefix"
         prefix={
-          <Menu disabledKeys={["cut"]} onAction={(key) => alert(key)}>
-            <Button color="neutral" icon="chevron-down" variant="ghost" />
-            <MenuList>
-              <Item key="copy">Copy</Item>
-              <Item key="cut">Cut</Item>
-              <Item key="paste">Paste</Item>
-            </MenuList>
-          </Menu>
+          <MenuTrigger>
+            <Button
+              color="neutral"
+              icon="chevron-down"
+              size="small"
+              variant="ghost"
+            />
+            <Menu
+              disabledKeys={["cut"]}
+              items={[
+                { id: "copy", label: "Copy" },
+                { id: "cut", label: "Cut" },
+                { id: "paste", label: "Paste" },
+              ]}
+              onAction={(key) => alert(key)}
+            />
+          </MenuTrigger>
         }
       />
     </Flex>

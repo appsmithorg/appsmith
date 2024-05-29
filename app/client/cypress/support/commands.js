@@ -623,13 +623,6 @@ Cypress.Commands.add("setTinyMceContent", (tinyMceId, content) => {
   });
 });
 
-Cypress.Commands.add("startRoutesForDatasource", () => {
-  //cy.server();
-  cy.intercept("POST", "/api/v1/datasources").as("saveDatasource");
-  cy.intercept("POST", "/api/v1/datasources/test").as("testDatasource");
-  cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
-});
-
 Cypress.Commands.add("startServerAndRoutes", () => {
   //To update route with intercept after working on alias wrt wait and alias
   //cy.server();

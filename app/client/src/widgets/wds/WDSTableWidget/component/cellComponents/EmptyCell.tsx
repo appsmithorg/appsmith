@@ -6,6 +6,7 @@ import type { ReactTableColumnProps } from "../Constants";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { EmptyCell, EmptyRow } from "../TableStyledWrappers";
 import { renderBodyCheckBoxCell } from "./SelectionCheckboxCell";
+import { Text } from "@design-system/widgets";
 
 const addStickyModifierClass = (
   columns: ReactTableColumnProps[],
@@ -29,6 +30,7 @@ export const renderEmptyRows = (
   borderRadius: string,
   style?: CSSProperties,
   prepareRow?: (row: Row<Record<string, unknown>>) => void,
+  isHeaderRow: boolean = false,
 ) => {
   const rows: string[] = new Array(rowCount).fill("");
 
@@ -45,7 +47,7 @@ export const renderEmptyRows = (
         },
       };
       return (
-        <div {...rowProps} className="tr" key={index}>
+        <tr {...rowProps} className="tr" key={index}>
           {multiRowSelection && renderBodyCheckBoxCell(false)}
           {row.cells.map(
             (cell: Cell<Record<string, unknown>>, cellIndex: number) => {
@@ -74,13 +76,16 @@ export const renderEmptyRows = (
                       ? "td hidden-cell"
                       : `td${addStickyModifierClass(columns, cellIndex)}`
                   }
+                  data-column-type="text"
                   key={cellProps.key}
                   style={{ ...cellProps.style, ...distanceFromEdge }}
-                />
+                >
+                  <Text>&#8203;</Text>
+                </div>
               );
             },
           )}
-        </div>
+        </tr>
       );
     });
   } else {
@@ -153,13 +158,16 @@ export const renderEmptyRows = (
                     ? "td hidden-cell"
                     : `td${addStickyModifierClass(columns, colIndex)}`
                 }
-                role="cell"
+                role={isHeaderRow ? "columnheader" : "cell"}
                 {...stickyAttributes}
+                data-column-type="text"
                 key={colIndex}
                 sticky={column?.sticky ?? StickyType.NONE}
                 style={{ ...distanceFromEdge }}
                 width={column.width}
-              />
+              >
+                <Text>&#8203;</Text>
+              </EmptyCell>
             );
           })}
         </EmptyRow>
