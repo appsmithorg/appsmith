@@ -544,6 +544,7 @@ export function getWidgetSessionValues(
 
   let widgetType = type;
   const configMap = WidgetFactory.widgetConfigMap.get(type);
+
   const widgetSessionValues: any = {};
 
   // in case we are dropping WDS_ICON_BUTTON_WIDGET, we want to reuse the values of BUTTON_WIDGET
@@ -552,7 +553,7 @@ export function getWidgetSessionValues(
   }
 
   for (const key in configMap) {
-    if (configMap[key]) {
+    if (configMap[key] != undefined) {
       let sessionStorageKey = `${widgetType}.${key}`;
 
       if (type === "ZONE_WIDGET") {

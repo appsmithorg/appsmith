@@ -55,6 +55,7 @@ import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUt
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import {
   getNewPositions,
+  handleButtonDynamicTriggerPathList,
   handleImageWidgetWhenPasting,
   handleJSONFormPropertiesListedInDynamicBindingPath,
   handleJSONFormWidgetWhenPasting,
@@ -834,6 +835,9 @@ function handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
       break;
     case "IMAGE_WIDGET":
       handleImageWidgetWhenPasting(widgetNameMap, widget);
+      break;
+    case "BUTTON_WIDGET":
+      handleButtonDynamicTriggerPathList(widgetNameMap, widget);
       break;
     default:
       widgets = handleSpecificCasesWhilePasting(

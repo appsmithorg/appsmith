@@ -1,8 +1,11 @@
 import type { AnvilConfig } from "WidgetProvider/constants";
 
 export const anvilConfig: AnvilConfig = {
-  isLargeWidget: true,
+  isLargeWidget: false,
   widgetSize: {
-    minWidth: "100%",
+    minWidth: {
+      base: "100%",
+      "180px": "sizing-30",
+    },
   },
 };

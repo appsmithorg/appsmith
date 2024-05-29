@@ -1,27 +1,28 @@
 import React from "react";
-import type { StatBoxComponentProps } from "./types";
+import type { StatsComponentProps } from "./types";
 
-import styles from "./styles.module.css";
 import { Flex, Icon, Text } from "@design-system/widgets";
 
-export const StatBoxComponent = (props: StatBoxComponentProps) => {
+export const StatsComponent = (props: StatsComponentProps) => {
   const {
+    caption,
     iconAlign,
     iconName,
     label,
-    sublabel,
+    onClick,
     value,
     valueChange,
-    valueImpact,
+    valueChangeColor,
+    valueColor,
   } = props;
 
   return (
     <Flex
       alignItems="center"
-      className={styles.statbox}
       direction={iconAlign === "end" ? "row-reverse" : "row"}
       gap="spacing-2"
       isInner
+      onClick={onClick}
     >
       {iconName && iconName !== "(none)" && (
         <Icon name={iconName} size="large" />
@@ -40,19 +41,24 @@ export const StatBoxComponent = (props: StatBoxComponentProps) => {
             isInner
             maxWidth="calc(100% - var(--sizing-1))"
           >
-            <Text fontWeight={500} lineClamp={1} size="subtitle">
+            <Text
+              color={valueColor}
+              fontWeight={500}
+              lineClamp={1}
+              size="subtitle"
+            >
               {value}
             </Text>
             {valueChange && (
-              <Text color={valueImpact} lineClamp={1} size="footnote">
+              <Text color={valueChangeColor} lineClamp={1} size="footnote">
                 {valueChange}
               </Text>
             )}
           </Flex>
         )}
-        {sublabel && (
+        {caption && (
           <Text color="neutral" lineClamp={1} size="footnote">
-            {sublabel}
+            {caption}
           </Text>
         )}
       </Flex>
