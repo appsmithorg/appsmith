@@ -1,32 +1,6 @@
 # To run only limited tests - give the spec names in below format:
-	cypress/e2e/Regression/ClientSide/Binding/Input_NavigateTo_validation_spec.js
-	cypress/e2e/Regression/ClientSide/Binding/JSObject_Postgress_Table_spec.js
-	cypress/e2e/Regression/ClientSide/Binding/NavigateToFeatureValidation_spec.js
-	cypress/e2e/Regression/ClientSide/Binding/TableV2Widgets_NavigateTo_Validation_spec.js
-	cypress/e2e/Regression/ClientSide/Binding/TableV2_DefaultSearch_Input_spec.js
-	cypress/e2e/Regression/ClientSide/Binding/TableWidgets_NavigateTo_Validation_spec.js
-	cypress/e2e/Regression/ClientSide/Binding/Table_DefaultSearch_Input_spec.js
-	cypress/e2e/Regression/ClientSide/Binding/TextTableV2_spec.js
-	cypress/e2e/Regression/ClientSide/Binding/TextTable_spec.js
-	cypress/e2e/Regression/ClientSide/Binding/Widgets_Default_data_validation_spec.js
-	cypress/e2e/Regression/ClientSide/Binding/Widgets_form_input_tableV2_default_validation_spec.js
-	cypress/e2e/Regression/ClientSide/Binding/Widgets_form_input_table_default_validation_spec.js
-	cypress/e2e/Regression/ClientSide/MobileResponsiveTests/Snipping_mode_Basic_test.js
-	cypress/e2e/Regression/ClientSide/OtherUIFeatures/TriggerErrors_spec.js
-	cypress/e2e/Regression/ClientSide/Widgets/Migration_Spec.js
-	cypress/e2e/Regression/ClientSide/Widgets/TableV1/Table_Button_Icon_validation_spec.js
-	cypress/e2e/Regression/ClientSide/Widgets/TableV1/Table_PropertyPane_2_spec.js
-	cypress/e2e/Regression/ClientSide/Widgets/TableV1/Table_Property_JsonUpdate_spec.js
-	cypress/e2e/Regression/ClientSide/Widgets/TableV1/Table_spec.js
-	cypress/e2e/Regression/ClientSide/Widgets/TableV1/table_with_text_selRowIndices_spec.js
-	cypress/e2e/Regression/ClientSide/Widgets/TableV2/Custom_column_alias_spec.js
-	cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2_Button_Icon_validation_spec.js
-	cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2_PropertyPane_1_spec.js
-    cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2_Property_JsonUpdate_spec.js
-    cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2_spec.js
-	cypress/e2e/Regression/ClientSide/Widgets/TableV2/non_ascii_column_name_spec.js
-	cypress/e2e/Regression/ServerSide/QueryPane/AddWidgetTableAndBind_spec.js
-	cypress/e2e/Regression/ServerSide/QueryPane/AddWidget_spec.js
+cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
