@@ -11,8 +11,6 @@ import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.TenantRepository;
-import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.TenantService;

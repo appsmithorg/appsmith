@@ -13,7 +13,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;

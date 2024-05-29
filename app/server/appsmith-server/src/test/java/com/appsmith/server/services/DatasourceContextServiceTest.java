@@ -454,7 +454,7 @@ public class DatasourceContextServiceTest {
                 .flatMap(datasourceService::create)
                 .block();
 
-        assert createdDatasource != null;  // `createdDatasource` has encrypted data, should be plain text, no?
+        assert createdDatasource != null; // `createdDatasource` has encrypted data, should be plain text, no?
 
         DatasourceStorageDTO datasourceStorageDTO =
                 createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);

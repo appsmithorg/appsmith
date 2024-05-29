@@ -1,6 +1,5 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.annotations.encryption.EncryptionEntityListener;
 import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.FromRequest;
@@ -9,7 +8,6 @@ import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
@@ -42,7 +40,8 @@ import java.util.UUID;
 @ToString
 @FieldNameConstants
 @MappedSuperclass
-// @EntityListeners(EncryptionEntityListener.class) // May be not needed, but keeping as we may need to revisit _very_ soon.
+// @EntityListeners(EncryptionEntityListener.class) // May be not needed, but keeping as we may need to revisit _very_
+// soon.
 public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable, Identifiable {
 
     private static final long serialVersionUID = 7459916000501322517L;

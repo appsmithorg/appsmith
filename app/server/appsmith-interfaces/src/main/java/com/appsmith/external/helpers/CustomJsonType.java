@@ -33,8 +33,8 @@ public final class CustomJsonType extends JsonBinaryType {
     public static final EncryptionHandler ENCRYPTION_HANDLER = new EncryptionHandler();
 
     private static final TextEncryptor textEncryptor = Encryptors.delux(
-        System.getenv("APPSMITH_ENCRYPTION_PASSWORD"),
-        HexFormat.of().formatHex(System.getenv("APPSMITH_ENCRYPTION_SALT").getBytes()));
+            System.getenv("APPSMITH_ENCRYPTION_PASSWORD"),
+            HexFormat.of().formatHex(System.getenv("APPSMITH_ENCRYPTION_SALT").getBytes()));
 
     private static final Converter<String, String> encConverter = new StdConverter<>() {
         @Override

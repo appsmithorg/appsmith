@@ -12,6 +12,8 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -33,6 +35,7 @@ import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
 import static com.appsmith.server.helpers.ReactorUtils.asMono;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
 @Component
@@ -184,15 +187,20 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         BridgeQuery<Tenant> defaultTenantCriteria = Bridge.equal(Tenant.Fields.slug, FieldName.DEFAULT);
         BridgeQuery<Tenant> notDeletedCriteria = notDeleted();
         BridgeQuery<Tenant> andCriteria = Bridge.and(defaultTenantCriteria, notDeletedCriteria);
-        Query query = new Query();
-        query.addCriteria(andCriteria);
 
-        return mongoOperations.findOne(query, Tenant.class).map(tenant -> {
-            if (tenant.getTenantConfiguration() == null) {
-                tenant.setTenantConfiguration(new TenantConfiguration());
-            }
-            return tenant;
-        });
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Tenant> cq = cb.createQuery(Tenant.class);
+        final Root<Tenant> root = cq.from(Tenant.class);
+
+        cq.where(andCriteria.toPredicate(root, cq, cb));
+
+        return asMono(() -> Optional.of(entityManager.createQuery(cq).getSingleResult()))
+                .map(tenant -> {
+                    if (tenant.getTenantConfiguration() == null) {
+                        tenant.setTenantConfiguration(new TenantConfiguration());
+                    }
+                    return tenant;
+                });
     }
 
     @CacheEvict(cacheName = "tenant", key = "{#tenantId}")
