@@ -796,7 +796,8 @@ export function getPageNameByPageId(state: AppState, pageId: string): string {
 }
 
 const getQueryPaneSavingMap = (state: AppState) => state.ui.queryPane.isSaving;
-const getApiPaneSavingMap = (state: AppState) => state.ui.apiPane.isSaving;
+export const getApiPaneSavingMap = (state: AppState) =>
+  state.ui.apiPane.isSaving;
 const getActionDirtyState = (state: AppState) => state.ui.apiPane.isDirty;
 
 export const isActionSaving = (id: string) =>
@@ -1499,33 +1500,30 @@ export const getQuerySegmentItems = createSelector(
   selectDatasourceIdToNameMap,
   (actions, plugins, datasourceIdToNameMap) => {
     const pluginGroups = keyBy(plugins, "id");
-    const items: EntityItem[] = actions
-      .map((action) => {
-        let group;
-        const iconUrl = getAssetUrl(
-          pluginGroups[action.config.pluginId]?.iconLocation,
-        );
-        if (action.config.pluginType === PluginType.API) {
-          group = isEmbeddedRestDatasource(action.config.datasource)
-            ? GROUP_TYPES.API
-            : datasourceIdToNameMap[action.config.datasource.id] ?? "APIs";
-        } else if (action.config.pluginType === PluginType.AI) {
-          group = isEmbeddedAIDataSource(action.config.datasource)
-            ? GROUP_TYPES.AI
-            : datasourceIdToNameMap[action.config.datasource.id] ??
-              GROUP_TYPES.AI;
-        } else {
-          group = datasourceIdToNameMap[action.config.datasource.id];
-        }
-        return {
-          icon: ActionUrlIcon(iconUrl),
-          title: action.config.name,
-          key: action.config.id,
-          type: action.config.pluginType,
-          group,
-        };
-      })
-      .filter((a) => !!a.group);
+    const items: EntityItem[] = actions.map((action) => {
+      let group;
+      const iconUrl = getAssetUrl(
+        pluginGroups[action.config.pluginId]?.iconLocation,
+      );
+      if (action.config.pluginType === PluginType.API) {
+        group = isEmbeddedRestDatasource(action.config.datasource)
+          ? "APIs"
+          : datasourceIdToNameMap[action.config.datasource.id] ?? "APIs";
+      } else if (action.config.pluginType === PluginType.AI) {
+        group = isEmbeddedAIDataSource(action.config.datasource)
+          ? "AI Queries"
+          : datasourceIdToNameMap[action.config.datasource.id] ?? "AI Queries";
+      } else {
+        group = datasourceIdToNameMap[action.config.datasource.id];
+      }
+      return {
+        icon: ActionUrlIcon(iconUrl),
+        title: action.config.name,
+        key: action.config.id,
+        type: action.config.pluginType,
+        group,
+      };
+    });
     return items;
   },
 );

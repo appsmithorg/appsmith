@@ -33,15 +33,4 @@ public interface NewActionRepositoryCE extends BaseRepository<NewAction, String>
             GROUP BY a.pluginType
         """)
     List<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
-
-    @Query(
-            """
-        SELECT count(a)
-            FROM NewAction a
-            WHERE a.deletedAt IS NULL AND (
-                :datasourceId = jsonb_extract_path_text(a.unpublishedAction, 'datasource', 'id')
-                OR :datasourceId = jsonb_extract_path_text(a.publishedAction, 'datasource', 'id')
-            )
-        """)
-    Optional<Long> countByDatasourceId(String datasourceId);
 }

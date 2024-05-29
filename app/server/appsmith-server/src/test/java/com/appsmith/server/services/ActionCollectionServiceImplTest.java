@@ -14,6 +14,7 @@ import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -117,6 +118,9 @@ public class ActionCollectionServiceImplTest {
     @MockBean
     private DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService;
 
+    @MockBean
+    private SessionUserService sessionUserService;
+
     @BeforeEach
     public void setUp() {
         applicationPermission = new ApplicationPermissionImpl();
@@ -136,7 +140,8 @@ public class ActionCollectionServiceImplTest {
                 actionCollectionDefaultResourcesService,
                 actionCollectionDtoDefaultResourcesService,
                 newActionDefaultResourcesService,
-                actionDTODefaultResourcesService);
+                actionDTODefaultResourcesService,
+                sessionUserService);
 
         layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,
@@ -149,7 +154,8 @@ public class ActionCollectionServiceImplTest {
                 responseUtils,
                 actionCollectionRepository,
                 pagePermission,
-                actionPermission);
+                actionPermission,
+                sessionUserService);
 
         Mockito.when(analyticsService.sendCreateEvent(Mockito.any()))
                 .thenAnswer(
@@ -299,7 +305,7 @@ public class ActionCollectionServiceImplTest {
             argument.setId("testActionCollectionId");
             return Mono.just(argument);
         });
-        Mockito.when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))
+        Mockito.when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any(), Mockito.any(User.class)))
                 .thenAnswer(invocation -> {
                     final ActionCollection argument =
                             (ActionCollection) invocation.getArguments()[0];
@@ -400,7 +406,7 @@ public class ActionCollectionServiceImplTest {
                     return Mono.just(argument);
                 });
 
-        Mockito.when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))
+        Mockito.when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any(), Mockito.any(User.class)))
                 .thenAnswer(invocation -> {
                     final ActionCollection argument =
                             (ActionCollection) invocation.getArguments()[0];

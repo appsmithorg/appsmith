@@ -3,19 +3,31 @@ package com.appsmith.server.helpers.ce.bridge;
 import lombok.Getter;
 import lombok.NonNull;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Getter
 public class BridgeUpdate {
-    private final List<SetOp> setOps = new ArrayList<>();
+    private final Map<String, SetOp> setOps = new LinkedHashMap<>();
+
+    private void addOp(SetOp op) {
+        if (setOps.put(op.key, op) != null) {
+            // Duplicate set operation for the same key!
+            throw new UnsupportedOperationException("Duplicate key in BridgeUpdate: " + op.key);
+        }
+    }
 
     public BridgeUpdate set(String key, Object value) {
         if (key.contains("$")) {
             throw new UnsupportedOperationException(
                     "Conditionally setting nested field values in JSON columns, is not implemented yet, and isn't a priority today");
         }
-        setOps.add(new SetOp(key, value));
+        if (key.chars().filter((i) -> i == '.').count() > 1) {
+            throw new UnsupportedOperationException(
+                    "Setting values at more than one level of nesting will not work, if first-level nested JSON field is missing in the JSONb data."
+                            + " See https://github.com/appsmithorg/appsmith/commit/c7c93b2dfdd25f44fc721e018df05efcd9cc719a");
+        }
+        addOp(new SetOp(key, value));
         return this;
     }
 
@@ -27,7 +39,7 @@ public class BridgeUpdate {
      * Set the value of the field `key`, to the current value of the field `valueKey`.
      */
     public BridgeUpdate setToValueFromField(String key, String valueKey) {
-        setOps.add(new SetOp(key, valueKey, false));
+        addOp(new SetOp(key, valueKey, false));
         return this;
     }
 

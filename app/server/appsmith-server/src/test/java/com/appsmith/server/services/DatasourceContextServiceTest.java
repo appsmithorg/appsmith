@@ -282,12 +282,18 @@ public class DatasourceContextServiceTest {
                             savedDatasource.getDatasourceConfiguration().getAuthentication();
                     assertEquals(password, authentication.getPassword());
 
+                    /* We don't assert this with Postgres.
+                    // Why? Encryption and decryption with Postgres happens in Jackson serialization/deserialization
+                    // phases. So when we save an object to the database, that has data that has to be encrypted,
+                    // Jackson will encrypt the string, just before generating the JSON. The value in the original
+                    // object, is left intact.
                     DatasourceStorageDTO savedDatasourceStorageDTO =
                             createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     DBAuth encryptedAuthentication = (DBAuth) savedDatasourceStorageDTO
                             .getDatasourceConfiguration()
                             .getAuthentication();
                     assertEquals(password, encryptionService.decryptString(encryptedAuthentication.getPassword()));
+                     */
                 })
                 .verifyComplete();
     }
@@ -448,7 +454,7 @@ public class DatasourceContextServiceTest {
                 .flatMap(datasourceService::create)
                 .block();
 
-        assert createdDatasource != null;
+        assert createdDatasource != null; // `createdDatasource` has encrypted data, should be plain text, no?
 
         DatasourceStorageDTO datasourceStorageDTO =
                 createdDatasource.getDatasourceStorages().get(defaultEnvironmentId);

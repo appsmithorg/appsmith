@@ -23,7 +23,7 @@ import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
-import com.appsmith.server.migrations.ArtifactSchemaMigration;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -423,8 +423,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         String artifactContextString = artifactSpecificConstantsMap.get(FieldName.ARTIFACT_CONTEXT);
 
         // step 1: Schema Migration
-        ArtifactExchangeJson importedDoc =
-                ArtifactSchemaMigration.migrateArtifactExchangeJsonToLatestSchema(artifactExchangeJson);
+        ArtifactExchangeJson importedDoc = JsonSchemaMigration.migrateArtifactToLatestSchema(artifactExchangeJson);
 
         // Step 2: Validation of artifact Json
         // check for validation error and raise exception if error found

@@ -204,6 +204,15 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
+    public Optional<Long> countByDatasourceId(String datasourceId) {
+        BridgeQuery<NewAction> q = Bridge.or(
+                Bridge.equal(NewAction.Fields.unpublishedAction_datasource_id, datasourceId),
+                Bridge.equal(NewAction.Fields.publishedAction_datasource_id, datasourceId));
+
+        return queryBuilder().criteria(q).count();
+    }
+
+    @Override
     public Optional<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, Boolean viewMode, AclPermission permission) {
         final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(

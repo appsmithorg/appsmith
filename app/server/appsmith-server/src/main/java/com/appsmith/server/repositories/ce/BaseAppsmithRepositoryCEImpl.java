@@ -24,11 +24,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Transient;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CompoundSelection;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.persistence.criteria.Selection;
@@ -36,6 +36,7 @@ import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import org.apache.commons.lang3.tuple.Pair;
 import org.hibernate.annotations.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
@@ -51,11 +52,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Stream;
 
 import static com.appsmith.external.helpers.ReflectionHelpers.getAllFields;
 import static com.appsmith.server.helpers.ce.ReflectionHelpers.map;
@@ -488,24 +489,43 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         cu.where(predicate);
 
-        for (BridgeUpdate.SetOp op : update.getSetOps()) {
+        // This piece of work is intended to handle multiple set operations on the same top-level field, but different
+        // JSON-nested fields.
+        // Example: Bridge.update().set("unpublishedAction.name", "new").set("unpublishedAction.something", "another");
+        // This should end up with SQL fragment like:
+        //   SET unpublished_action = jsonb_set(jsonb_set(unpublished_action, '{name}', 'new'), '{something}',
+        // 'another')
+        // And not:
+        //   SET unpublished_action = jsonb_set(unpublished_action, '{something}', 'another') and unpublished_action =
+        // jsonb_set(unpublished_action, '{name}', 'new')
+        // Which is invalid SQL since we're setting the same column twice.
+        // To solve this, we group these operations by the field name, and build that nested-looking `jsonb_set`
+        // calls expression after we're done with all the `SetOp`s.
+        // Not pretty, not simple, but hopefully will go away as we reduce our usage of nested JSON type columns.
+        final Map<Path<Object>, List<Pair<Expression<String>, Expression<String>>>> nestedFieldModifications =
+                new LinkedHashMap<>();
+
+        for (BridgeUpdate.SetOp op : update.getSetOps().values()) {
             String key = op.key();
             Object value = op.value();
 
             if (op.isRawValue()) {
                 if (key.contains(".")) {
                     // Updating a nested field in a JSONB column.
-                    final Expression<CompoundSelection<Object[]>> path = cb.literal(cb.array(
-                            Stream.of(key.split("\\.")).skip(1).map(cb::literal).toArray(Selection[]::new)));
+                    final String[] parts = key.split("\\.", 2);
+                    final Path<Object> field = root.get(parts[0]);
+
+                    // The nested field path should be a Postgres-array with strings in it. We should probably be using
+                    // `cb.array()` here, but couldn't get that to work.
+                    final Expression<String> path = cb.literal("{" + String.join(",", parts[1].split("\\.")) + "}");
+
                     try {
-                        cu.<Object>set(
-                                root.get(key),
-                                cb.function(
-                                        "jsonb_set",
-                                        Object.class,
-                                        root.get(key),
-                                        path,
-                                        cb.literal(objectMapper.writeValueAsString(value))));
+                        if (!nestedFieldModifications.containsKey(field)) {
+                            nestedFieldModifications.put(field, new ArrayList<>());
+                        }
+                        nestedFieldModifications
+                                .get(field)
+                                .add(Pair.of(path, cb.literal(objectMapper.writeValueAsString(value))));
                     } catch (JsonProcessingException e) {
                         throw new RuntimeException(e);
                     }
@@ -529,6 +549,21 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 // The type witness is necessary here to fix ambiguity regarding the method being called.
                 cu.<Object>set(root.get(key), root.get((String) value));
             }
+        }
+
+        for (Map.Entry<Path<Object>, List<Pair<Expression<String>, Expression<String>>>> entry :
+                nestedFieldModifications.entrySet()) {
+            final Path<Object> field = entry.getKey();
+            // If the existing field value is `null`, the `jsonb_set` function doesn't do anything and just returns
+            // `null`. So we have to "coalesce" it with an empty object, `{}`, which is the MongoDB behavior.
+            // This is documented behaviour in `jsonb_set`, of course!
+            // TODO(Shri): This still doesn't work for nested missing fields, also as documented. Solve when needed.
+            Expression<Object> finalExpression = cb.coalesce(field, cb.literal("{}"));
+            for (Pair<Expression<String>, Expression<String>> pair : entry.getValue()) {
+                finalExpression =
+                        cb.function("jsonb_set", Object.class, finalExpression, pair.getLeft(), pair.getRight());
+            }
+            cu.<Object>set(field, finalExpression);
         }
 
         return em.createQuery(cu).executeUpdate();
@@ -647,33 +682,39 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             CriteriaBuilder cb,
             Root<T> root,
             Predicate predicate) {
-
-        if (!permissionGroups.isEmpty()) {
-            Map<String, String> fnVars = new HashMap<>();
-            fnVars.put("p", permission.getValue());
-            final List<String> conditions = new ArrayList<>();
-            for (var i = 0; i < permissionGroups.size(); i++) {
-                fnVars.put("g" + i, permissionGroups.get(i));
-                conditions.add("@ == $g" + i);
-            }
-
-            try {
-                return cb.and(
-                        predicate,
-                        cb.isTrue(cb.function(
-                                "jsonb_path_exists",
-                                Boolean.class,
-                                root.get(PermissionGroup.Fields.policies),
-                                cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
-                                        + String.join(" || ", conditions) + ")))"),
-                                cb.literal(objectMapper.writeValueAsString(fnVars)))));
-            } catch (JsonProcessingException e) {
-                // This should never happen, were serializing a Map<String, String>, which ideally should
-                // never fail.
-                throw new RuntimeException(e);
-            }
+        if (permission == null) {
+            return predicate;
         }
-        return predicate;
+
+        if (permissionGroups.isEmpty()) {
+            // TODO(Shri): Yes, this is an "always-fail" condition. We're working on whether we need it at all, on
+            // `release` branch.
+            return cb.and(cb.literal(1).isNull());
+        }
+
+        Map<String, String> fnVars = new HashMap<>();
+        fnVars.put("p", permission.getValue());
+        final List<String> conditions = new ArrayList<>();
+        for (var i = 0; i < permissionGroups.size(); i++) {
+            fnVars.put("g" + i, permissionGroups.get(i));
+            conditions.add("@ == $g" + i);
+        }
+
+        try {
+            return cb.and(
+                    predicate,
+                    cb.isTrue(cb.function(
+                            "jsonb_path_exists",
+                            Boolean.class,
+                            root.get(PermissionGroup.Fields.policies),
+                            cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
+                                    + String.join(" || ", conditions) + ")))"),
+                            cb.literal(objectMapper.writeValueAsString(fnVars)))));
+        } catch (JsonProcessingException e) {
+            // This should never happen, were serializing a Map<String, String>, which ideally should
+            // never fail.
+            throw new RuntimeException(e);
+        }
     }
 
     /**

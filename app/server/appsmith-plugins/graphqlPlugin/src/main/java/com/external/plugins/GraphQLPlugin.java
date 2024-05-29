@@ -281,11 +281,12 @@ public class GraphQLPlugin extends BasePlugin {
                             objectMapper,
                             hintMessages,
                             errorResult,
-                            requestCaptureFilter)
+                            requestCaptureFilter,
+                            datasourceConfiguration)
                     .onErrorResume(error -> {
                         boolean isBodySentWithApiRequest = requestBodyObj == null ? false : true;
                         errorResult.setRequest(requestCaptureFilter.populateRequestFields(
-                                actionExecutionRequest, isBodySentWithApiRequest));
+                                actionExecutionRequest, isBodySentWithApiRequest, datasourceConfiguration));
                         errorResult.setIsExecutionSuccess(false);
                         if (!(error instanceof AppsmithPluginException)) {
                             error = new AppsmithPluginException(

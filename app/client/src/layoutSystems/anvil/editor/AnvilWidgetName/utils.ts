@@ -65,44 +65,49 @@ export function handleWidgetUpdate(
   widgetsEditorElement: HTMLDivElement,
   nameComponentState: NameComponentStates,
 ) {
-  return autoUpdate(widgetElement, widgetNameComponent, () => {
-    computePosition(widgetElement as HTMLDivElement, widgetNameComponent, {
-      placement: "top-start",
-      strategy: "fixed",
-      middleware: [
-        flip(),
-        shift(),
-        offset({ mainAxis: 8, crossAxis: -5 }),
-        getOverflowMiddleware(widgetsEditorElement as HTMLDivElement),
-        hide({ strategy: "referenceHidden" }),
-        hide({ strategy: "escaped" }),
-      ],
-    }).then(({ middlewareData, x, y }) => {
-      let shiftOffset = 0;
-      if (middlewareData.containWithinCanvas.overflowAmount > 0) {
-        shiftOffset = middlewareData.containWithinCanvas.overflowAmount + 5;
-      }
+  return autoUpdate(
+    widgetElement,
+    widgetNameComponent,
+    () => {
+      computePosition(widgetElement as HTMLDivElement, widgetNameComponent, {
+        placement: "top-start",
+        strategy: "fixed",
+        middleware: [
+          flip(),
+          shift(),
+          offset({ mainAxis: 0, crossAxis: -5 }),
+          getOverflowMiddleware(widgetsEditorElement as HTMLDivElement),
+          hide({ strategy: "referenceHidden" }),
+          hide({ strategy: "escaped" }),
+        ],
+      }).then(({ middlewareData, x, y }) => {
+        let shiftOffset = 0;
+        if (middlewareData.containWithinCanvas.overflowAmount > 0) {
+          shiftOffset = middlewareData.containWithinCanvas.overflowAmount + 5;
+        }
 
-      Object.assign(widgetNameComponent.style, {
-        left: `${x - shiftOffset}px`,
-        top: `${y}px`,
-        visibility:
-          nameComponentState === "none" || middlewareData.hide?.referenceHidden
+        Object.assign(widgetNameComponent.style, {
+          left: `${x - shiftOffset}px`,
+          top: `${y}px`,
+          visibility: middlewareData.hide?.referenceHidden
             ? "hidden"
             : "visible",
-        zIndex:
-          nameComponentState === "focus"
-            ? "calc(var(--on-canvas-ui-zindex) + 1)"
-            : "var(--on-canvas-ui-zindex)",
+          zIndex:
+            nameComponentState === "focus"
+              ? "calc(var(--on-canvas-ui-zindex) + 1)"
+              : "var(--on-canvas-ui-zindex)",
+        });
       });
-    });
-  });
+    },
+    { animationFrame: true },
+  );
 }
 
 export function getWidgetNameComponentStyleProps(
   widgetType: string,
   nameComponentState: NameComponentStates,
   showError: boolean,
+  isParentSelected: boolean,
 ) {
   const config = WidgetFactory.getConfig(widgetType);
   const onCanvasUI = config?.onCanvasUI || {
@@ -121,11 +126,6 @@ export function getWidgetNameComponentStyleProps(
       ? onCanvasUI.focusColorCSSVar
       : onCanvasUI.selectionColorCSSVar;
 
-  let disableParentToggle = onCanvasUI.disableParentSelection;
-  if (nameComponentState === "focus") {
-    disableParentToggle = true;
-  }
-
   // If there is an error, show the widget name in error state
   // This includes background being the error color
   // and font color being white.
@@ -134,7 +134,8 @@ export function getWidgetNameComponentStyleProps(
     colorCSSVar = "--on-canvas-ui-white";
   }
   return {
-    disableParentToggle,
+    // disable parent toggle if the parent is already selected
+    disableParentToggle: isParentSelected || onCanvasUI.disableParentSelection,
     bGCSSVar,
     colorCSSVar,
     selectionBGCSSVar: onCanvasUI.selectionBGCSSVar,
