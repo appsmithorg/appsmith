@@ -12,6 +12,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import jakarta.validation.Validator;
@@ -35,7 +36,8 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             DefaultResourcesService<ActionCollection> defaultResourcesService,
             DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService,
             DefaultResourcesService<NewAction> newActionDefaultResourcesService,
-            DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService) {
+            DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService,
+            SessionUserService sessionUserService) {
         super(
                 validator,
                 repositoryDirect,
@@ -50,6 +52,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 defaultResourcesService,
                 dtoDefaultResourcesService,
                 newActionDefaultResourcesService,
-                actionDTODefaultResourcesService);
+                actionDTODefaultResourcesService,
+                sessionUserService);
     }
 }

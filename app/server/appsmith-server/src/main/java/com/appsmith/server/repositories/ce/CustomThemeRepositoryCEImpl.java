@@ -37,17 +37,17 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     }
 
     @Override
-    public Optional<Theme> getSystemThemeByName(String themeName) {
+    public Optional<Theme> getSystemThemeByName(String themeName, AclPermission permission) {
         return queryBuilder()
                 .criteria(Bridge.equalIgnoreCase(Theme.Fields.name, themeName).isTrue(Theme.Fields.isSystemTheme))
-                .permission(AclPermission.READ_THEMES)
+                .permission(permission)
                 .one();
     }
 
-    public Optional<Boolean> archiveThemeByCriteria(BridgeQuery<Theme> criteria) {
+    public Optional<Boolean> archiveThemeByCriteria(BridgeQuery<Theme> criteria, AclPermission permission) {
         return Optional.of(queryBuilder()
                         .criteria(criteria)
-                        .permission(AclPermission.MANAGE_THEMES)
+                        .permission(permission)
                         .updateAll(Bridge.update().set(Theme.Fields.deletedAt, Instant.now()))
                 > 0);
     }
@@ -55,17 +55,18 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Modifying
     @Transactional
     @Override
-    public Optional<Boolean> archiveByApplicationId(String applicationId) {
-        return archiveThemeByCriteria(Bridge.equal(Theme.Fields.applicationId, applicationId));
+    public Optional<Boolean> archiveByApplicationId(String applicationId, AclPermission permission) {
+        return archiveThemeByCriteria(Bridge.equal(Theme.Fields.applicationId, applicationId), permission);
     }
 
     @Modifying
     @Transactional
     @Override
-    public Optional<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
+    public Optional<Boolean> archiveDraftThemesById(
+            String editModeThemeId, String publishedModeThemeId, AclPermission permission) {
         BridgeQuery<Theme> criteria = Bridge.<Theme>in(
                         Theme.Fields.id, CollectionUtils.ofNonNulls(editModeThemeId, publishedModeThemeId))
                 .isFalse(Theme.Fields.isSystemTheme);
-        return archiveThemeByCriteria(criteria);
+        return archiveThemeByCriteria(criteria, permission);
     }
 }

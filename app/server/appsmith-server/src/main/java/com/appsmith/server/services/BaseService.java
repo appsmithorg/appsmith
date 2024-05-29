@@ -3,6 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
@@ -16,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -147,13 +150,19 @@ public abstract class BaseService<
             criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
         }
 
-        Flux<T> result = asFlux(() -> repositoryDirect
-                .queryBuilder()
-                .criteria(Bridge.or(criteria))
-                .permission(permission)
-                .sort(sort)
-                .includeAnonymousUserPermissions(false)
-                .all());
+        Flux<T> result = ReactiveSecurityContextHolder.getContext()
+                .map(SecurityContext::getAuthentication)
+                .map(auth -> (User) auth.getPrincipal())
+                .flatMapMany(user -> {
+                    permission.setUser(user);
+                    return asFlux(() -> repositoryDirect
+                            .queryBuilder()
+                            .criteria(Bridge.or(criteria))
+                            .permission(permission)
+                            .sort(sort)
+                            .includeAnonymousUserPermissions(false)
+                            .all());
+                });
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }

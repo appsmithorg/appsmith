@@ -22,6 +22,7 @@ import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
@@ -61,6 +62,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
+    private final SessionUserService sessionUserService;
 
     @Autowired
     public NewPageServiceCEImpl(
@@ -72,13 +74,15 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             UserDataService userDataService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            PagePermission pagePermission) {
+            PagePermission pagePermission,
+            SessionUserService sessionUserService) {
         super(validator, repositoryDirect, repository, analyticsService);
         this.applicationService = applicationService;
         this.userDataService = userDataService;
         this.responseUtils = responseUtils;
         this.applicationPermission = applicationPermission;
         this.pagePermission = pagePermission;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -183,7 +187,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     }
                     return Mono.just(savedPage);
                 })
-                .flatMap(repository::setUserPermissionsInObject)
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(obj -> repository.setUserPermissionsInObject(obj.getT1(), obj.getT2()))
                 .flatMap(page -> getPageByViewMode(page, false));
     }
 
@@ -597,12 +602,16 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            getPageMono = asMono(() -> repositoryDirect
-                    .queryBuilder()
-                    .byId(defaultPageId)
-                    .fields(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES)
-                    .permission(pagePermission.getReadPermission())
-                    .one());
+            getPageMono = sessionUserService.getCurrentUser().flatMap(user -> {
+                AclPermission permission = pagePermission.getReadPermission();
+                permission.setUser(user);
+                return asMono(() -> repositoryDirect
+                        .queryBuilder()
+                        .byId(defaultPageId)
+                        .fields(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES)
+                        .permission(permission)
+                        .one());
+            });
         } else {
             getPageMono = repository.findPageByBranchNameAndDefaultPageId(
                     branchName, defaultPageId, pagePermission.getReadPermission());

@@ -18,6 +18,7 @@ import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.EnvManager;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +43,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
 
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
+    private final SessionUserService sessionUserService;
+
     public TenantServiceCEImpl(
             Validator validator,
             TenantRepository repositoryDirect,
@@ -49,11 +52,13 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
             AnalyticsService analyticsService,
             ConfigService configService,
             @Lazy EnvManager envManager,
-            FeatureFlagMigrationHelper featureFlagMigrationHelper) {
+            FeatureFlagMigrationHelper featureFlagMigrationHelper,
+            SessionUserService sessionUserService) {
         super(validator, repositoryDirect, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -165,7 +170,10 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
                     }
                     return tenant;
                 })
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(tuple -> repository
+                        .setUserPermissionsInObject(tuple.getT1(), tuple.getT2())
+                        .switchIfEmpty(Mono.just(tuple.getT1())));
     }
 
     @Override

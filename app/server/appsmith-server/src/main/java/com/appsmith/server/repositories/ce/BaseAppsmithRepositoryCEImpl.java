@@ -41,7 +41,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
@@ -174,11 +173,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         resource.setPolicies(null);
         resource.setUpdatedAt(Instant.now());
 
-        final User user = ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
-                .block();
+        final User user = permission != null ? permission.getUser() : null;
 
-        final Set<String> permissionGroups = permission != null ? getCurrentUserPermissionGroups(true) : Set.of();
+        final Set<String> permissionGroups = user != null ? getPermissionGroupsForUser(user, true) : Set.of();
 
         return Optional.of(findById(id, permission)
                 .map(entityFromDB -> {
@@ -234,20 +231,18 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         if (permission.isEmpty()) {
             return Set.of();
         }
-        return getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
+        User user = permission.get().getUser();
+        return getPermissionGroupsForUser(user, includeAnonymousUserPermissions);
     }
 
-    public Set<String> getCurrentUserPermissionGroups() {
-        return getCurrentUserPermissionGroups(true);
+    public Set<String> getPermissionGroupsForUser(User user) {
+        return getPermissionGroupsForUser(user, true);
     }
 
-    protected Set<String> getCurrentUserPermissionGroups(boolean includeAnonymousUserPermissions) {
-        final Set<String> permissionGroups = ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication().getPrincipal())
-                .map(principal -> includeAnonymousUserPermissions
-                        ? getAllPermissionGroupsForUser((User) principal)
-                        : getStrictPermissionGroupsForUser((User) principal))
-                .block();
+    protected Set<String> getPermissionGroupsForUser(User user, boolean includeAnonymousUserPermissions) {
+        final Set<String> permissionGroups = includeAnonymousUserPermissions
+                ? getAllPermissionGroupsForUser(user)
+                : getStrictPermissionGroupsForUser(user);
         return permissionGroups == null ? Collections.emptySet() : permissionGroups;
     }
 
@@ -583,8 +578,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return queryBuilder().criteria(query).updateFirst(resource);
     }
 
-    public T setUserPermissionsInObject(T obj) {
-        return setUserPermissionsInObject(obj, getCurrentUserPermissionGroups());
+    public T setUserPermissionsInObject(T obj, User user) {
+        return setUserPermissionsInObject(obj, getPermissionGroupsForUser(user));
     }
 
     public T setUserPermissionsInObject(T obj, Collection<String> permissionGroups) {

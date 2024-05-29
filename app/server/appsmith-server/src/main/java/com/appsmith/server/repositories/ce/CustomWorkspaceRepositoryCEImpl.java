@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -42,12 +43,11 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<Workspace> findAll(AclPermission permission) {
-        return sessionUserService
-                .getCurrentUser()
-                .flatMapMany(user -> Flux.fromIterable(queryBuilder()
+        User user = permission.getUser();
+        return Flux.fromIterable(queryBuilder()
                         .criteria(Bridge.equal(Workspace.Fields.tenantId, user.getTenantId()))
                         .permission(permission)
-                        .all()))
+                        .all())
                 .collectList()
                 .block();
     }

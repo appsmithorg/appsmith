@@ -578,6 +578,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
+        Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
+
         // For sample apps that are marked as forked, we allow forking to any workspace without any permission checks
         return isForkingEnabled(applicationMonoWithOutPermission).flatMap(isForkingEnabled -> {
             if (isForkingEnabled) {
@@ -600,7 +602,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         newPage.setPolicies(idPoliciesOnly.getPolicies());
                         return newPage;
                     })
-                    .flatMap(newPageRepository::setUserPermissionsInObject));
+                    .zipWith(currentUserMono)
+                    .flatMap(object -> newPageRepository.setUserPermissionsInObject(object.getT1(), object.getT2())));
 
             Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
                     .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
@@ -610,16 +613,20 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         newAction.setPolicies(idPoliciesOnly.getPolicies());
                         return newAction;
                     })
-                    .flatMap(newActionRepository::setUserPermissionsInObject));
+                    .zipWith(currentUserMono)
+                    .flatMap(object -> newActionRepository.setUserPermissionsInObject(object.getT1(), object.getT2())));
 
             Flux<BaseDomain> actionCollectionFlux =
                     applicationMono.flatMapMany(application -> actionCollectionRepository
                             .findByApplicationId(application.getId(), Optional.empty(), Optional.empty())
-                            .flatMap(actionCollectionRepository::setUserPermissionsInObject));
+                            .zipWith(currentUserMono)
+                            .flatMap(object -> actionCollectionRepository.setUserPermissionsInObject(
+                                    object.getT1(), object.getT2())));
 
             Flux<BaseDomain> workspaceFlux = Flux.from(workspaceRepository
                     .findById(targetWorkspaceId)
-                    .flatMap(workspaceRepository::setUserPermissionsInObject));
+                    .zipWith(currentUserMono)
+                    .flatMap(object -> workspaceRepository.setUserPermissionsInObject(object.getT1(), object.getT2())));
 
             Mono<Set<String>> permissionGroupIdsMono =
                     permissionGroupService.getSessionUserPermissionGroupIds().cache();
@@ -665,7 +672,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             workspaceValidatedForCreateApplicationPermission,
                             workspaceValidatedForCreateDatasourcePermission)
                     .thenReturn(Boolean.TRUE);
-        }); // */
+        });
     }
 
     protected Mono<Boolean> isForkingEnabled(Mono<Application> applicationMono) {

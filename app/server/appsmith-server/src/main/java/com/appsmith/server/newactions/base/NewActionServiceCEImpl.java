@@ -49,6 +49,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -130,6 +131,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final AtomicReference<Plugin> jsTypePluginReference = new AtomicReference<>();
     private final DefaultResourcesService<NewAction> defaultResourcesService;
     private final DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
+    private final SessionUserService sessionUserService;
 
     public NewActionServiceCEImpl(
             Validator validator,
@@ -154,7 +156,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             EntityValidationService entityValidationService,
             ObservationRegistry observationRegistry,
             DefaultResourcesService<NewAction> defaultResourcesService,
-            DefaultResourcesService<ActionDTO> dtoDefaultResourcesService) {
+            DefaultResourcesService<ActionDTO> dtoDefaultResourcesService,
+            SessionUserService sessionUserService) {
 
         super(validator, repositoryDirect, repository, analyticsService);
         this.repository = repository;
@@ -177,6 +180,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         this.actionPermission = actionPermission;
         this.defaultResourcesService = defaultResourcesService;
         this.dtoDefaultResourcesService = dtoDefaultResourcesService;
+        this.sessionUserService = sessionUserService;
     }
 
     protected void setCommonFieldsFromNewActionIntoAction(NewAction newAction, ActionDTO action) {
@@ -284,7 +288,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                     return Mono.just(createdAction);
                 })
-                .flatMap(repository::setUserPermissionsInObject)
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(tuple -> repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                 .flatMap(newAction1 -> setTransientFieldsInUnpublishedAction(newAction1));
     }
 

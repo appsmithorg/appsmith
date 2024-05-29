@@ -23,6 +23,7 @@ import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
@@ -58,6 +59,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     private final ActionCollectionRepositoryCake actionCollectionRepository;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
+    private final SessionUserService sessionUserService;
 
     /**
      * Called by ActionCollection controller to create ActionCollection
@@ -430,7 +432,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     });
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
-                .flatMap(actionCollectionRepository::setUserPermissionsInObject)
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(tuple -> actionCollectionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                 .flatMap(savedActionCollection ->
                         updateLayoutBasedOnContext(savedActionCollection).thenReturn(savedActionCollection))
                 .flatMap(savedActionCollection -> analyticsService.sendUpdateEvent(

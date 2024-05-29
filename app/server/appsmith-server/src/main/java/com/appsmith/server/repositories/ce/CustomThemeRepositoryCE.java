@@ -12,9 +12,10 @@ public interface CustomThemeRepositoryCE extends AppsmithRepository<Theme> {
 
     List<Theme> getSystemThemes();
 
-    Optional<Theme> getSystemThemeByName(String themeName);
+    Optional<Theme> getSystemThemeByName(String themeName, AclPermission permission);
 
-    Optional<Boolean> archiveByApplicationId(String applicationId);
+    Optional<Boolean> archiveByApplicationId(String applicationId, AclPermission permission);
 
-    Optional<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId);
+    Optional<Boolean> archiveDraftThemesById(
+            String editModeThemeId, String publishedModeThemeId, AclPermission permission);
 }

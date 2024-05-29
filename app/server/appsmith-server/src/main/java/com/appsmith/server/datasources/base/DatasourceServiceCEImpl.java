@@ -381,7 +381,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         return savedDatasource;
                     });
                 })
-                .flatMap(repository::setUserPermissionsInObject);
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(object -> repository.setUserPermissionsInObject(object.getT1(), object.getT2()));
     }
 
     @Override

@@ -22,6 +22,7 @@ import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import jakarta.validation.Validator;
@@ -64,6 +65,7 @@ public class ActionCollectionServiceCEImpl
     private final DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService;
     private final DefaultResourcesService<NewAction> newActionDefaultResourcesService;
     private final DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService;
+    private final SessionUserService sessionUserService;
 
     @Autowired
     public ActionCollectionServiceCEImpl(
@@ -80,7 +82,8 @@ public class ActionCollectionServiceCEImpl
             DefaultResourcesService<ActionCollection> defaultResourcesService,
             DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService,
             DefaultResourcesService<NewAction> newActionDefaultResourcesService,
-            DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService) {
+            DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService,
+            SessionUserService sessionUserService) {
 
         super(validator, repositoryDirect, repository, analyticsService);
         this.newActionService = newActionService;
@@ -93,6 +96,7 @@ public class ActionCollectionServiceCEImpl
         this.dtoDefaultResourcesService = dtoDefaultResourcesService;
         this.newActionDefaultResourcesService = newActionDefaultResourcesService;
         this.actionDTODefaultResourcesService = actionDTODefaultResourcesService;
+        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -337,7 +341,8 @@ public class ActionCollectionServiceCEImpl
                     return dbActionCollection;
                 })
                 .flatMap(actionCollection -> this.update(id, actionCollection))
-                .flatMap(repository::setUserPermissionsInObject)
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(tuple -> repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                 .flatMap(actionCollection -> this.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> this.populateActionCollectionByViewMode(
                                 actionCollection.getUnpublishedCollection(), false))); // */
@@ -699,7 +704,8 @@ public class ActionCollectionServiceCEImpl
                                 }
                                 return Mono.just(savedActionCollection);
                             })
-                            .flatMap(repository::setUserPermissionsInObject)
+                            .zipWith(sessionUserService.getCurrentUser())
+                            .flatMap(tuple -> repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                             .cache();
 
                     return actionCollectionMono

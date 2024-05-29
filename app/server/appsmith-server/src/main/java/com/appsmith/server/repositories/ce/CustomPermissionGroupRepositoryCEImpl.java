@@ -83,8 +83,8 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public Set<String> getCurrentUserPermissionGroups() {
-        return super.getCurrentUserPermissionGroups();
+    public Set<String> getPermissionGroupsForUser(User user) {
+        return super.getPermissionGroupsForUser(user);
     }
 
     @Override

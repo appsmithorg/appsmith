@@ -21,7 +21,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             AnalyticsService analyticsService,
             ConfigService configService,
             @Lazy EnvManager envManager,
-            FeatureFlagMigrationHelper featureFlagMigrationHelper) {
+            FeatureFlagMigrationHelper featureFlagMigrationHelper,
+            SessionUserService sessionUserService) {
         super(
                 validator,
                 repositoryDirect,
@@ -29,6 +30,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 analyticsService,
                 configService,
                 envManager,
-                featureFlagMigrationHelper);
+                featureFlagMigrationHelper,
+                sessionUserService);
     }
 }
