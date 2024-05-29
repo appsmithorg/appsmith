@@ -269,12 +269,6 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-tracing</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.google.api.grpc</groupId>
-            <artifactId>proto-google-common-protos</artifactId>
-            <version>2.20.0</version>
-            <scope>compile</scope>
-        </dependency>
 
     </dependencies>
 
