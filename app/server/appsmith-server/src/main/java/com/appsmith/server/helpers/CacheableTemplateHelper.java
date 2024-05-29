@@ -109,6 +109,6 @@ public class CacheableTemplateHelper {
     }
 
     public static boolean isCacheValid(Instant lastUpdatedAt) {
-        return Instant.now().minusSeconds(CACHE_LIFE_TIME_IN_SECONDS).isAfter(lastUpdatedAt);
+        return Instant.now().minusSeconds(CACHE_LIFE_TIME_IN_SECONDS).isBefore(lastUpdatedAt);
     }
 }
