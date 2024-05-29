@@ -28,7 +28,7 @@ export const LightMode: Story = {
           </DataAttrWrapper>
         </>
       ))}
-      <Checkbox defaultSelected isReadOnly isRequired>
+      <Checkbox defaultSelected isReadOnly>
         Readonly
       </Checkbox>
     </StoryGrid>
