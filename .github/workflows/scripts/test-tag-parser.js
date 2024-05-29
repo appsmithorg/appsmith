@@ -9,8 +9,12 @@ function parseTags({core, context}) {
 
   // "/test" matcher.
   const allTags = require(process.env.GITHUB_WORKSPACE + "/app/client/cypress/tags.js").Tag;
-  const config = body.match(/^\/test\s+(.*)$/m)?.[1] ?? "";
+  const config = body.match(/^\**\/test\s+(.+?)\**$/m)?.[1] ?? "";
   const concreteTags = [];
+
+  if (config.toLowerCase() === "all") {
+    return "@tag.All"
+  }
 
   for (const [rawTag] of config.matchAll(/\w+/g)) {
     console.log("Given: '" + rawTag + "'");
