@@ -107,7 +107,6 @@ export function getWidgetNameComponentStyleProps(
   widgetType: string,
   nameComponentState: NameComponentStates,
   showError: boolean,
-  isParentSelected: boolean,
 ) {
   const config = WidgetFactory.getConfig(widgetType);
   const onCanvasUI = config?.onCanvasUI || {
@@ -134,8 +133,7 @@ export function getWidgetNameComponentStyleProps(
     colorCSSVar = "--on-canvas-ui-white";
   }
   return {
-    // disable parent toggle if the parent is already selected
-    disableParentToggle: isParentSelected || onCanvasUI.disableParentSelection,
+    disableParentToggle: onCanvasUI.disableParentSelection,
     bGCSSVar,
     colorCSSVar,
     selectionBGCSSVar: onCanvasUI.selectionBGCSSVar,
