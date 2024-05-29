@@ -26,9 +26,9 @@ import java.util.Map;
 public class CacheableTemplateHelper {
     // Template metadata is used for showing the preview of the template
 
-    public static CacheableApplicationTemplate applicationTemplateList = new CacheableApplicationTemplate();
+    private static CacheableApplicationTemplate applicationTemplateList = new CacheableApplicationTemplate();
 
-    public static Map<String, CacheableApplicationJson> cacheableApplicationJsonMap = new HashMap<>();
+    private static Map<String, CacheableApplicationJson> cacheableApplicationJsonMap = new HashMap<>();
     private static final int CACHE_LIFE_TIME_IN_SECONDS = 60 * 60 * 24; // 24 hours
 
     public static Mono<CacheableApplicationTemplate> getTemplates(String releaseVersion, String baseUrl) {
@@ -100,12 +100,8 @@ public class CacheableTemplateHelper {
                     cacheableApplicationJson.setApplicationJson(jsonString);
                     cacheableApplicationJson.setLastUpdated(Instant.now());
 
-                    // Remove the value from cache if its outdated
-                    if (cacheableApplicationJsonMap.containsKey(templateId)) {
-                        cacheableApplicationJsonMap.replace(templateId, cacheableApplicationJson);
-                    } else {
-                        cacheableApplicationJsonMap.put(templateId, cacheableApplicationJson);
-                    }
+                    // Remove/replace the value from cache
+                    cacheableApplicationJsonMap.put(templateId, cacheableApplicationJson);
                     return cacheableApplicationJson;
                 })
                 .switchIfEmpty(
