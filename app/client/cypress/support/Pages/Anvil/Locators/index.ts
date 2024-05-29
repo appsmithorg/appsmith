@@ -1,7 +1,6 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "../../../../../src/constants/WidgetConstants";
 import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/viewer/canvas/utils";
 import { AnvilDataAttributes } from "../../../../../src/widgets/anvil/constants";
-import { locators } from "../../../Objects/ObjectsCore";
 
 // anvil widget based selectors
 const anvilWidgetSelector = "[data-testid=t--anvil-widget-wrapper]";
@@ -31,8 +30,19 @@ const anvilDnDBasedSelectors = {
   mainCanvasSelector: `#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`,
 };
 
+const anvilWidgetsLocators = {
+  WDSBUTTON: "wdsbuttonwidget",
+  WDSTABLE: "wdstablewidget",
+  WDSINPUT: "wdsinputwidget",
+  WDSSWITCH: "wdsswitchwidget",
+  WDSCHECKBOX: "wdscheckboxwidget",
+  SECTION: "sectionwidget",
+  ZONE: "zonewidget",
+};
+
 export const anvilLocators = {
   ...anvilWidgetBasedSelectors,
+  ...anvilWidgetsLocators,
   ...anvilSectionAndZonesBasedSelectors,
   ...anvilDnDBasedSelectors,
 };

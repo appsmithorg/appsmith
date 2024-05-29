@@ -13,7 +13,7 @@ export class AnvilSectionsZonesHelper {
     const sectionSelector =
       anvilLocators.anvilWidgetNameSelector(sectionOrZoneName);
 
-    const zoneWidgetsSelector = `${sectionSelector} ${anvilLocators.anvilWidgetTypeSelector(WIDGET.ZONE)}`;
+    const zoneWidgetsSelector = `${sectionSelector} ${anvilLocators.anvilWidgetTypeSelector(anvilLocators.ZONE)}`;
     // verify all zones in the section
     this.agHelper
       .GetElement(zoneWidgetsSelector)

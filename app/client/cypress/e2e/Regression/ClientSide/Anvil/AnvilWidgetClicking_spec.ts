@@ -18,21 +18,36 @@ describe(
       agHelper.PressDelete();
     });
     it("1. Click on widget to Select Widget", () => {
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSSWITCH, 5, 20, {
-        skipWidgetSearch: true,
-      });
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSSWITCH, 5, 20, {
-        skipWidgetSearch: true,
-        dropTargetDetails: {
-          name: "Zone1",
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSSWITCH,
+        5,
+        20,
+        {
+          skipWidgetSearch: true,
         },
-      });
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 5, 20, {
-        skipWidgetSearch: true,
-        dropTargetDetails: {
-          name: "Zone1",
+      );
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSSWITCH,
+        5,
+        20,
+        {
+          skipWidgetSearch: true,
+          dropTargetDetails: {
+            name: "Zone1",
+          },
         },
-      });
+      );
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSBUTTON,
+        5,
+        20,
+        {
+          skipWidgetSearch: true,
+          dropTargetDetails: {
+            name: "Zone1",
+          },
+        },
+      );
       agHelper.GetNClick(`${anvilLocators.mainCanvasSelector}`);
       agHelper.AssertElementLength(anvilLocators.anvilSelectedWidget, 0);
       agHelper.GetNClick(anvilLocators.anvilWidgetNameSelector("Button1"));

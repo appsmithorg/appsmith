@@ -1,9 +1,4 @@
-import { WIDGET } from "../../../../locators/WidgetLocators";
-import {
-  agHelper,
-  anvilLayout,
-  locators,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper, anvilLayout } from "../../../../support/Objects/ObjectsCore";
 import { ANVIL_EDITOR_TEST, modifierKey } from "../../../../support/Constants";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
@@ -22,16 +17,21 @@ describe(
       agHelper.PressDelete();
     });
     it("1. Verify dragging and dropping a widget into an empty area to create a new section", () => {
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 10, 10, {
-        skipWidgetSearch: true,
-      });
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSBUTTON,
+        10,
+        10,
+        {
+          skipWidgetSearch: true,
+        },
+      );
       // section and zone for the widget should be created
       agHelper.AssertElementLength(
-        anvilLocators.anvilWidgetTypeSelector(WIDGET.ZONE),
+        anvilLocators.anvilWidgetTypeSelector(anvilLocators.ZONE),
         1,
       );
       agHelper.AssertElementLength(
-        anvilLocators.anvilWidgetTypeSelector(WIDGET.SECTION),
+        anvilLocators.anvilWidgetTypeSelector(anvilLocators.SECTION),
         1,
       );
       anvilLayout.verifyParentChildRelationship("Zone1", "Button1");
@@ -40,43 +40,58 @@ describe(
 
     it("2. Verify dragging and dropping a widget into an existing section", () => {
       agHelper.AssertElementLength(
-        anvilLocators.anvilWidgetTypeSelector(WIDGET.ZONE),
+        anvilLocators.anvilWidgetTypeSelector(anvilLocators.ZONE),
         1,
       );
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 10, 10, {
-        skipWidgetSearch: true,
-        dropTargetDetails: {
-          name: "Section1",
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSBUTTON,
+        10,
+        10,
+        {
+          skipWidgetSearch: true,
+          dropTargetDetails: {
+            name: "Section1",
+          },
         },
-      });
+      );
       agHelper.AssertElementLength(
-        anvilLocators.anvilWidgetTypeSelector(WIDGET.SECTION),
+        anvilLocators.anvilWidgetTypeSelector(anvilLocators.SECTION),
         1,
       );
       // zone count has to increase
       agHelper.AssertElementLength(
-        anvilLocators.anvilWidgetTypeSelector(WIDGET.ZONE),
+        anvilLocators.anvilWidgetTypeSelector(anvilLocators.ZONE),
         2,
       );
       anvilLayout.verifyParentChildRelationship("Section1", "Zone2");
     });
     it("3. Verify dragging and dropping a widget into an existing zone", () => {
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 10, 10, {
-        skipWidgetSearch: true,
-        dropTargetDetails: {
-          name: "Zone1",
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSBUTTON,
+        10,
+        10,
+        {
+          skipWidgetSearch: true,
+          dropTargetDetails: {
+            name: "Zone1",
+          },
         },
-      });
+      );
       agHelper.AssertElementLength(
-        anvilLocators.anvilWidgetTypeSelector(WIDGET.ZONE),
+        anvilLocators.anvilWidgetTypeSelector(anvilLocators.ZONE),
         2,
       );
       anvilLayout.verifyParentChildRelationship("Zone1", "Button3");
     });
     it("4. Verify moving a widget from one section to another", () => {
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 50, 360, {
-        skipWidgetSearch: true,
-      });
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSBUTTON,
+        50,
+        360,
+        {
+          skipWidgetSearch: true,
+        },
+      );
       anvilLayout.verifyParentChildRelationship("Section2", "Zone3");
       anvilLayout.verifyParentChildRelationship("Zone3", "Button4");
       anvilLayout.dnd.MoveAnvilWidget("Button1", 10, 10, {

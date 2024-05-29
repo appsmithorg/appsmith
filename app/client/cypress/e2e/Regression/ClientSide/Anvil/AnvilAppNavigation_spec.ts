@@ -24,21 +24,36 @@ describe(
       agHelper.PressDelete();
     });
     it("1. Change App navigation settings and valdiate the layout settings", () => {
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSINPUT, 5, 20, {
-        skipWidgetSearch: true,
-      });
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSINPUT, 5, 20, {
-        skipWidgetSearch: true,
-        dropTargetDetails: {
-          name: "Zone1",
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSINPUT,
+        5,
+        20,
+        {
+          skipWidgetSearch: true,
         },
-      });
-      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(WIDGET.WDSBUTTON, 5, 20, {
-        skipWidgetSearch: true,
-        dropTargetDetails: {
-          name: "Zone1",
+      );
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSINPUT,
+        5,
+        20,
+        {
+          skipWidgetSearch: true,
+          dropTargetDetails: {
+            name: "Zone1",
+          },
         },
-      });
+      );
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSBUTTON,
+        5,
+        20,
+        {
+          skipWidgetSearch: true,
+          dropTargetDetails: {
+            name: "Zone1",
+          },
+        },
+      );
       propPane.NavigateToPage("Page1", "onClick");
       appSettings.OpenAppSettings();
       agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
@@ -59,10 +74,10 @@ describe(
       agHelper.AssertElementExist(appSettings.locators._sideNavbar);
       agHelper.GetNClick(locators._canvas);
       agHelper.AssertElementExist(
-        anvilLocators.anvilWidgetTypeSelector(WIDGET.WDSINPUT),
+        anvilLocators.anvilWidgetTypeSelector(anvilLocators.WDSINPUT),
       );
       agHelper.AssertElementExist(
-        anvilLocators.anvilWidgetTypeSelector(WIDGET.WDSINPUT),
+        anvilLocators.anvilWidgetTypeSelector(anvilLocators.WDSINPUT),
         1,
       );
     });
