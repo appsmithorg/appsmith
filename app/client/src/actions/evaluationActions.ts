@@ -1,7 +1,7 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { intersection } from "lodash";
-import type { DependencyMap } from "utils/DynamicBindingUtils";
+import type { DependencyMap, EvalError } from "utils/DynamicBindingUtils";
 import type { QueryActionConfig } from "entities/Action";
 import type { DatasourceConfiguration } from "entities/Datasource";
 import type { DiffWithNewTreeState } from "workers/Evaluation/helpers";
@@ -80,17 +80,20 @@ export const setInverseDependencyMap = ({
 
 export const cacheDependencyMap = ({
   dependencies,
+  errors,
   pageId,
 }: {
   dependencies: DependencyMap;
+  errors: EvalError[];
   pageId: string;
 }): ReduxAction<{
   dependencies: DependencyMap;
+  errors: EvalError[];
   pageId: string;
 }> => {
   return {
     type: ReduxActionTypes.CACHE_DEPENDENCY_MAP,
-    payload: { dependencies, pageId },
+    payload: { errors, dependencies, pageId },
   };
 };
 

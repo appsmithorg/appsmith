@@ -217,7 +217,7 @@ export function* updateDataTreeHandler(
     const pageId: string = yield select(getCurrentPageId);
     postEvalActionsToDispatch.push(executeJSUpdates(jsUpdates));
     postEvalActionsToDispatch.push(
-      cacheDependencyMap({ dependencies, pageId }),
+      cacheDependencyMap({ errors, dependencies, pageId }),
     );
 
     if (requiresLogging) {
@@ -832,14 +832,15 @@ export function* setAppVersionOnWorkerSaga(action: {
 
 export function* cacheDependencyMapSaga(action: {
   type: ReduxActionType;
-  payload: { dependencies: DependencyMap; pageId: string };
+  payload: { errors: EvalError[]; dependencies: DependencyMap; pageId: string };
 }) {
   // Debounce the sage by 500ms to avoid multiple cache calls post evaluation
   // Ref: https://redux-saga.js.org/docs/recipes/#debouncing
   yield delay(500);
-  const { dependencies, pageId } = action.payload;
+  const { dependencies, errors, pageId } = action.payload;
   const moduleInstances: Record<string, any> = yield select(getModuleInstances);
-  const shouldCache = Object.keys(moduleInstances || {}).length === 0;
+  const shouldCache =
+    Object.keys(moduleInstances || {}).length === 0 && errors.length === 0;
   const cachedDependencyMap = shouldCache ? dependencies : null;
 
   try {
@@ -848,6 +849,11 @@ export function* cacheDependencyMapSaga(action: {
       pageId,
     });
   } catch (e) {
+    // Reset dependency map to null in case of failure
+    yield call(PageApi.updateDependencyMap, {
+      dependencies: null,
+      pageId,
+    });
     log.error(e);
     Sentry.captureException(e);
   }
