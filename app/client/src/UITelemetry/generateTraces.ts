@@ -15,7 +15,7 @@ import { matchBuilderPath, matchViewerPath } from "constants/routes";
 const GENERATOR_TRACE = "generator-tracer";
 
 const getCommonTelemetryAttributes = () => {
-  const pathname = "";
+  const pathname = window.location.pathname;
   const isEditorUrl = matchBuilderPath(pathname);
   const isViewerUrl = matchViewerPath(pathname);
 
