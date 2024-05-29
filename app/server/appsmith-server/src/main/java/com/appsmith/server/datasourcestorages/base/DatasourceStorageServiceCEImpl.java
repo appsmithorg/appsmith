@@ -260,27 +260,62 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
             return Mono.just(datasourceStorage);
         }
 
-        Mono<Map<String, Plugin>> pluginsMapMono =
-                pluginService.findAllPluginsInWorkspace(datasourceStorage.getWorkspaceId());
-        return pluginsMapMono.flatMap(pluginsMap -> {
-            Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
-                    .getPluginExecutor(Mono.just(pluginsMap.get(datasourceStorage.getPluginId())))
-                    .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())));
+        Mono<Plugin> pluginMono = pluginService.findById(datasourceStorage.getPluginId());
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
+                .getPluginExecutor(pluginMono)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())));
 
-            /**
-             * Delegate the task of generating hint messages to the concerned plugin, since only the
-             * concerned plugin can correctly interpret their configuration.
+        /**
+         * Delegate the task of generating hint messages to the concerned plugin, since only the
+         * concerned plugin can correctly interpret their configuration.
+         */
+        return pluginExecutorMono
+                .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                        .getHintMessages(null, datasourceStorage.getDatasourceConfiguration()))
+                .flatMap(tuple -> {
+                    Set<String> datasourceHintMessages = tuple.getT1();
+                    datasourceStorage.getMessages().addAll(datasourceHintMessages);
+                    return Mono.just(datasourceStorage);
+                });
+    }
+
+    @Override
+    public Mono<DatasourceStorage> populateHintMessages(
+            DatasourceStorage datasourceStorage, Map<String, Plugin> pluginsMap) {
+        if (datasourceStorage == null) {
+            /*
+             * - Not throwing an exception here because we do not throw an error in case of missing datasourceStorage.
+             *   We try not to fail as much as possible during create and update actions.
              */
-            return pluginExecutorMono
-                    .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
-                            .getHintMessages(null, datasourceStorage.getDatasourceConfiguration()))
-                    .flatMap(tuple -> {
-                        Set<String> datasourceHintMessages = tuple.getT1();
-                        datasourceStorage.getMessages().addAll(datasourceHintMessages);
-                        return Mono.just(datasourceStorage);
-                    });
-        });
+            return Mono.just(new DatasourceStorage());
+        }
+
+        if (datasourceStorage.getPluginId() == null) {
+            /*
+             * - Not throwing an exception here because we try not to fail as much as possible during datasourceStorage create
+             * and update events.
+             */
+            return Mono.just(datasourceStorage);
+        }
+
+        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
+                .getPluginExecutor(Mono.just(pluginsMap.get(datasourceStorage.getPluginId())))
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())));
+
+        /**
+         * Delegate the task of generating hint messages to the concerned plugin, since only the
+         * concerned plugin can correctly interpret their configuration.
+         */
+        return pluginExecutorMono
+                .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                        .getHintMessages(null, datasourceStorage.getDatasourceConfiguration()))
+                .flatMap(tuple -> {
+                    Set<String> datasourceHintMessages = tuple.getT1();
+                    datasourceStorage.getMessages().addAll(datasourceHintMessages);
+                    return Mono.just(datasourceStorage);
+                });
     }
 
     @Override

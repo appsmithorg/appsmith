@@ -62,6 +62,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.external.constants.spans.DatasourceSpan.FETCH_ALL_DATASOURCES_WITH_STORAGES;
+import static com.appsmith.external.constants.spans.DatasourceSpan.FETCH_ALL_PLUGINS_IN_WORKSPACE;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
@@ -772,13 +773,19 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, AclPermission permission) {
-        return repository
+        Mono<Map<String, Plugin>> pluginsMapMono = pluginService
+                .findAllPluginsInWorkspace(workspaceId)
+                .name(FETCH_ALL_PLUGINS_IN_WORKSPACE)
+                .tap(Micrometer.observation(observationRegistry));
+
+        return pluginsMapMono.flatMapMany(pluginsMap -> repository
                 .findAllByWorkspaceId(workspaceId, permission)
                 .publishOn(Schedulers.boundedElastic())
                 .flatMap(datasource -> datasourceStorageService
                         .findByDatasource(datasource)
                         .publishOn(Schedulers.boundedElastic())
-                        .flatMap(datasourceStorageService::populateHintMessages)
+                        .flatMap(datasourceStorage ->
+                                datasourceStorageService.populateHintMessages(datasourceStorage, pluginsMap))
                         .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
                         .collectMap(DatasourceStorageDTO::getEnvironmentId)
                         .flatMap(datasourceStorages -> {
@@ -791,7 +798,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .flatMapMany(datasourceList -> {
                     markRecentlyUsed(datasourceList, 3);
                     return Flux.fromIterable(datasourceList);
-                });
+                }));
     }
 
     @Override

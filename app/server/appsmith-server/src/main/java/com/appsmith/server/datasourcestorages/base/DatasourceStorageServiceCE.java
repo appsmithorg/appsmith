@@ -4,6 +4,7 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.server.domains.Plugin;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -36,6 +37,8 @@ public interface DatasourceStorageServiceCE {
     Mono<DatasourceStorage> validateDatasourceConfiguration(DatasourceStorage datasourceStorage);
 
     Mono<DatasourceStorage> checkEnvironment(DatasourceStorage datasourceStorage);
+
+    Mono<DatasourceStorage> populateHintMessages(DatasourceStorage datasourceStorage, Map<String, Plugin> pluginsMap);
 
     Mono<DatasourceStorage> populateHintMessages(DatasourceStorage datasourceStorage);
 
