@@ -5,12 +5,11 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.io.Serializable;
 import java.util.Set;
 
 @Getter
 @Setter
-public class PageNameIdDTO implements Serializable {
+public class PageNameIdDTO {
     @JsonView(Views.Public.class)
     String id;
 
