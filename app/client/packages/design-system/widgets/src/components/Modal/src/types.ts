@@ -50,7 +50,7 @@ export interface ModalFooterProps {
   onSubmit?: () => void;
   excludeFromTabOrder?: boolean;
   /** Defines if the modal should close when submit button is pressed */
-  closeOnSubmit: boolean;
+  closeOnSubmit?: boolean;
 }
 
 export interface ModalBodyProps {

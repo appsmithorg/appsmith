@@ -21,7 +21,7 @@ export const ModalFooter = (props: ModalFooterProps) => {
       setIsLoading(true);
       await onSubmit();
       setIsLoading(false);
-      if (closeOnSubmit) setOpen(false);
+      if (closeOnSubmit ?? false) setOpen(false);
     }
   };
 

@@ -89,16 +89,7 @@ export const propertyPaneContentConfig = [
         isTriggerProperty: false,
         placeholderText: "Submit",
       },
-      {
-        propertyName: "closeOnSubmit",
-        label: "Close on submit",
-        helpText: "Set the modal to automatically close on submit button click",
-        controlType: "SWITCH",
-        hidden: (props: any) => !props.showFooter || !props.showSubmitButton,
-        dependencies: ["showFooter", "showSubmitButton"],
-        isBindProperty: false,
-        isTriggerProperty: false,
-      },
+
       {
         propertyName: "cancelButtonText",
         label: "Cancel Button Text",
@@ -125,10 +116,21 @@ export const propertyPaneContentConfig = [
         isTriggerProperty: true,
       },
       {
+        propertyName: "closeOnSubmit",
+        label: "Close on submit",
+        helpText:
+          "Set the modal to automatically close on submit button click. Note: If an action is configured for the onSubmit action, it would be ideal to toggle this off and configure a 'Close Modal' action in the onSuccess and/or onFailure callback of the onSubmit action",
+        controlType: "SWITCH",
+        hidden: (props: any) => !props.showFooter || !props.showSubmitButton,
+        dependencies: ["showFooter", "showSubmitButton"],
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
         helpText: "Trigger an action when the submit button is pressed",
         propertyName: "onSubmit",
-        hidden: (props: any) => !props.showSubmitButton,
-        dependencies: ["showSubmitButton"],
+        hidden: (props: any) => !props.showFooter || !props.showSubmitButton,
+        dependencies: ["showSubmitButton", "showFooter"],
         label: "onSubmit",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,
