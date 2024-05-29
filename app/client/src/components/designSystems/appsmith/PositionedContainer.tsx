@@ -168,7 +168,7 @@ export function PositionedContainer(
     <PositionedWidget
       className={containerClassName}
       data-hidden={!props.isVisible || undefined}
-      data-testid="test-widget"
+      data-testid="t--test-widget"
       data-widgetname-cy={props.widgetName}
       disabled={props.isDisabled}
       id={props.widgetId}

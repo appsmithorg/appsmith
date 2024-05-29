@@ -62,7 +62,7 @@ export function ShareModal() {
     <div className="flex flex-col gap-6">
       {embedSnippet.isSuperUser && (
         <div className="flex justify-between">
-          <div className="flex gap-1" data-testid="frame-ancestors-setting">
+          <div className="flex gap-1" data-testid="t--frame-ancestors-setting">
             <Icon
               className="icon"
               name={embedSnippet.embedSettingContent.icon}
@@ -117,7 +117,7 @@ export function ShareModal() {
       <BottomWrapper className={`flex justify-end pt-5`}>
         <Link
           className="flex gap-1 items-center self-end"
-          data-testid="preview-embed"
+          data-testid="t--preview-embed"
           endIcon="share-box-line"
           target={"_blank"}
           to={to(snippetUrl)}

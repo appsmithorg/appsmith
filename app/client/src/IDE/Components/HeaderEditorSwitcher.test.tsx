@@ -60,7 +60,7 @@ describe("HeaderEditorSwitcher", () => {
     const { container, getByTestId } = render(
       <HeaderEditorSwitcher
         {...defaultProps}
-        data-testid="root-div"
+        data-testid="t--root-div"
         ref={ref}
         title={undefined}
       />,

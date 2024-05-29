@@ -15,7 +15,7 @@ export function SelectorView(props: SelectorViewProps) {
         {props.label && (
           <label
             className="!text-gray-600 !text-xs"
-            data-testid="selector-view-label"
+            data-testid="t--selector-view-label"
           >
             {props.label}
           </label>

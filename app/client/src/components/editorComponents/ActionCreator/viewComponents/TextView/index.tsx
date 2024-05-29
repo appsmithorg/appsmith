@@ -56,7 +56,7 @@ export function TextView(props: TextViewProps) {
         {props.label && (
           <label
             className="!text-gray-600 !text-xs"
-            data-testid="text-view-label"
+            data-testid="t--text-view-label"
             htmlFor={props.label}
           >
             {props.label}

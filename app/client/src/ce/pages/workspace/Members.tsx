@@ -486,7 +486,7 @@ export default function MemberSettings(props: PageProps) {
           <Table
             columns={columns}
             data={filteredData}
-            data-testid="listing-table"
+            data-testid="t--listing-table"
             isLoading={isFetchingAllUsers && isFetchingAllRoles}
             noDataComponent={
               <NoResultsText kind="heading-s">

@@ -203,7 +203,7 @@ function ManualUpgrades(props: {
         padding: "9px 16px",
         "border-left": "1px solid #e7e7e7",
       })}
-      data-testid="update-indicator"
+      data-testid="t--update-indicator"
     >
       <Tooltip content={tooltipContent} isDisabled={!props.showTooltip}>
         <StyledTrigger

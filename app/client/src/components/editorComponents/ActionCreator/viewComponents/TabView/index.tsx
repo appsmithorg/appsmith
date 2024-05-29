@@ -26,7 +26,10 @@ export function TabView(props: TabViewProps) {
     <FieldWrapper className="tab-view">
       <ControlWrapper>
         {props.label && (
-          <label className="!text-gray-600 !text-xs" data-testid="tabs-label">
+          <label
+            className="!text-gray-600 !text-xs"
+            data-testid="t--tabs-label"
+          >
             {props.label}
           </label>
         )}
