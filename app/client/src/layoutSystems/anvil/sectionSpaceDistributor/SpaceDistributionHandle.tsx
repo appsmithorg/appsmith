@@ -150,6 +150,7 @@ export const SpaceDistributionHandle = ({
 
   return (
     <StyledSpaceDistributionHandle
+      data-testid="t--anvil-distribution-handle"
       id={getDistributionHandleId(leftZone)}
       left={leftPositionOfHandle}
       ref={ref}

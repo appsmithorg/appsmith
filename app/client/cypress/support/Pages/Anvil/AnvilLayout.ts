@@ -1,10 +1,14 @@
 import { AnvilDnDHelper } from "./AnvilDnDHelper";
 import { AnvilSectionsZonesHelper } from "./AnvilSectionsZonesHelper";
 import { anvilLocators } from "./Locators";
-
 export class AnvilLayout {
   public sections = new AnvilSectionsZonesHelper();
   public dnd = new AnvilDnDHelper();
+
+  public verifyWidgetDoesNotExist(widgetName: string) {
+    const widgetSelector = anvilLocators.anvilWidgetNameSelector(widgetName);
+    cy.get(widgetSelector).should("not.exist");
+  }
   public verifyParentChildRelationship(parentName: string, childName: string) {
     const parentWidgetSelector =
       anvilLocators.anvilWidgetNameSelector(parentName);

@@ -17,6 +17,8 @@ const anvilWidgetBasedSelectors = {
 
 // sections and zones based selectors
 const anvilSectionAndZonesBasedSelectors = {
+  anvilZoneDistributionValue: "[data-testid=t--anvil-zone-distribution-value]",
+  anvilSectionDistributionHandle: "[data-testid=t--anvil-distribution-handle]",
   anvilZoneStepperControlInputValue:
     ".t--property-control-zones .ads-v2-input__input-section-input",
   anvilZoneStepperControlSelector: (type: "add" | "remove") =>
@@ -30,6 +32,7 @@ const anvilDnDBasedSelectors = {
   mainCanvasSelector: `#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`,
 };
 
+// wds and layout based widgets
 const anvilWidgetsLocators = {
   WDSBUTTON: "wdsbuttonwidget",
   WDSTABLE: "wdstablewidget",
