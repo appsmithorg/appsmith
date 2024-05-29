@@ -349,8 +349,11 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .flatMapIterable(tuple2 -> clonedPages)
                 .flatMap(clonedPage -> updateLayoutService.updatePageLayoutsByPageId(clonedPage.getId()))
                 .onErrorResume(throwable -> {
-                    log.error("Error while parsing DSL {} ", throwable.getMessage());
-                    return Mono.just("");
+                    if (throwable.getMessage().contains("Binding path in the widget not found")) {
+                        log.error("Error while parsing DSL {} ", throwable.getMessage());
+                        return Mono.just("");
+                    }
+                    return Mono.error(throwable);
                 })
                 // Now publish all the example applications which have been cloned to ensure that there is a
                 // view mode for the newly created user.
