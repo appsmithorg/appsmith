@@ -6,6 +6,7 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { ANVIL_EDITOR_TEST, modifierKey } from "../../../../support/Constants";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import { AnvilSelectors } from "../../../../support/Pages/Anvil/AnvilSelectors";
 
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for DnD Module`,
@@ -97,9 +98,9 @@ describe(
       anvilLayout.verifyParentChildRelationship("Section2", "Zone3");
     });
     it("6. Verify dragging and dropping multiple widgets simultaneously", () => {
-      agHelper.GetNClick(anvilLayout.anvilWidgetNameSelector("Button1"));
+      agHelper.GetNClick(AnvilSelectors.anvilWidgetNameSelector("Button1"));
       agHelper.GetNClick(
-        anvilLayout.anvilWidgetNameSelector("Button4"),
+        AnvilSelectors.anvilWidgetNameSelector("Button4"),
         0,
         false,
         500,

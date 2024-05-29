@@ -18,7 +18,7 @@ interface DragDropWidgetOptions {
   dropTargetDetails?: DropTargetDetails;
 }
 
-export class AnvilDnD extends AnvilSelectors {
+export class AnvilDnD {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
   protected agHelper = ObjectsRegistry.AggregateHelper;
@@ -35,7 +35,7 @@ export class AnvilDnD extends AnvilSelectors {
         }`;
       }
     }
-    return `${this.mainCanvasSelector} > ${this.locator._anvilDnDListener}`;
+    return `${AnvilSelectors.mainCanvasSelector} > ${this.locator._anvilDnDListener}`;
   };
   private performDnDInAnvil(
     xPos: number,
@@ -104,7 +104,7 @@ export class AnvilDnD extends AnvilSelectors {
     options = {} as DragDropWidgetOptions,
   ) {
     this.agHelper
-      .AssertElementExist(this.mainCanvasSelector)
+      .AssertElementExist(AnvilSelectors.mainCanvasSelector)
       .then((mainCanvas) => {
         const mainCanvasX = mainCanvas.position().left;
         const mainCanvasY = mainCanvas.position().top;
@@ -129,11 +129,12 @@ export class AnvilDnD extends AnvilSelectors {
     options = {} as DragDropWidgetOptions,
   ) {
     this.agHelper
-      .AssertElementExist(this.mainCanvasSelector)
+      .AssertElementExist(AnvilSelectors.mainCanvasSelector)
       .then((mainCanvas) => {
         const mainCanvasX = mainCanvas.position().left;
         const mainCanvasY = mainCanvas.position().top;
-        const widgetSelector = this.anvilWidgetNameSelector(widgetName);
+        const widgetSelector =
+          AnvilSelectors.anvilWidgetNameSelector(widgetName);
         // perform mouseover to focus the widget before drag to allow dragging
         cy.get(widgetSelector).first().trigger("mouseover", { force: true });
         cy.get(widgetSelector).first().trigger("dragstart", { force: true });

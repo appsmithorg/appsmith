@@ -1,14 +1,8 @@
 import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
-import {
-  agHelper,
-  homePage,
-  assertHelper,
-  anvilLayout,
-  locators,
-  wdsWidgets,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper, anvilLayout } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import { WIDGET } from "../../../../locators/WidgetLocators";
+import { AnvilSelectors } from "../../../../support/Pages/Anvil/AnvilSelectors";
 
 describe(
   `${ANVIL_EDITOR_TEST}: validating Widget clicks in Anvil Layout Mode`,
@@ -39,34 +33,34 @@ describe(
           name: "Zone1",
         },
       });
-      agHelper.GetNClick(`${anvilLayout.mainCanvasSelector}`);
-      agHelper.AssertElementLength(anvilLayout.anvilSelectedWidget, 0);
-      agHelper.GetNClick(anvilLayout.anvilWidgetNameSelector("Button1"));
-      agHelper.AssertElementLength(anvilLayout.anvilSelectedWidget, 1);
-      agHelper.GetNClick(anvilLayout.anvilWidgetNameSelector("Switch1"));
-      agHelper.AssertElementLength(anvilLayout.anvilSelectedWidget, 1);
+      agHelper.GetNClick(`${AnvilSelectors.mainCanvasSelector}`);
+      agHelper.AssertElementLength(AnvilSelectors.anvilSelectedWidget, 0);
+      agHelper.GetNClick(AnvilSelectors.anvilWidgetNameSelector("Button1"));
+      agHelper.AssertElementLength(AnvilSelectors.anvilSelectedWidget, 1);
+      agHelper.GetNClick(AnvilSelectors.anvilWidgetNameSelector("Switch1"));
+      agHelper.AssertElementLength(AnvilSelectors.anvilSelectedWidget, 1);
     });
     it("2. Ctrl + Click to select multiple widgets", () => {
       agHelper.PressEscape();
-      agHelper.GetNClick(anvilLayout.anvilWidgetNameSelector("Switch2"));
-      agHelper.AssertElementLength(anvilLayout.anvilSelectedWidget, 1);
+      agHelper.GetNClick(AnvilSelectors.anvilWidgetNameSelector("Switch2"));
+      agHelper.AssertElementLength(AnvilSelectors.anvilSelectedWidget, 1);
       agHelper.GetNClick(
-        anvilLayout.anvilWidgetNameSelector("Button1"),
+        AnvilSelectors.anvilWidgetNameSelector("Button1"),
         0,
         false,
         500,
         true,
       );
-      agHelper.AssertElementLength(anvilLayout.anvilSelectedWidget, 2);
+      agHelper.AssertElementLength(AnvilSelectors.anvilSelectedWidget, 2);
     });
     it("3. Click on Canvas to deselect all widgets", () => {
       // Find the layout component that is the main canvas
-      cy.get(`${anvilLayout.mainCanvasSelector} > div`).click();
+      cy.get(`${AnvilSelectors.mainCanvasSelector} > div`).click();
       // Find all widgets within the main canvas
-      cy.get(`${anvilLayout.mainCanvasSelector}`).within(() => {
+      cy.get(`${AnvilSelectors.mainCanvasSelector}`).within(() => {
         // For each widget check if the border-color is transparent
         // The border-color changes if a widget is selected or focused.
-        cy.get(anvilLayout.anvilWidgetSelector).each(($widget) => {
+        cy.get(AnvilSelectors.anvilWidgetSelector).each(($widget) => {
           cy.wrap($widget).should(
             "have.css",
             "outline-color",
