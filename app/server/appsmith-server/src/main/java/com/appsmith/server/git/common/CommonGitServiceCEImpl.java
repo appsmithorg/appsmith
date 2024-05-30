@@ -3674,8 +3674,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
                                 if (Optional.ofNullable(artifactExchangeJson.getArtifact())
                                                 .isEmpty()
-                                        || gitArtifactHelper.isArtifactResourcePopulatedProperly(
-                                                artifactExchangeJson)) {
+                                        || gitArtifactHelper.isContextInArtifactEmpty(artifactExchangeJson)) {
 
                                     return deleteArtifactCreatedFromGitImport(
                                                     artifact.getId(),

@@ -64,5 +64,5 @@ public interface GitArtifactHelperCE<T extends Artifact> {
 
     Mono<T> deleteArtifact(String artifactId);
 
-    Boolean isArtifactResourcePopulatedProperly(ArtifactExchangeJson artifactExchangeJson);
+    Boolean isContextInArtifactEmpty(ArtifactExchangeJson artifactExchangeJson);
 }

@@ -11,6 +11,7 @@ import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -324,7 +325,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     }
 
     @Override
-    public Boolean isArtifactResourcePopulatedProperly(ArtifactExchangeJson artifactExchangeJson) {
-        return null;
+    public Boolean isContextInArtifactEmpty(ArtifactExchangeJson artifactExchangeJson) {
+        return CollectionUtils.isNullOrEmpty(((ApplicationJson) artifactExchangeJson).getPageList());
     }
 }
