@@ -38,10 +38,11 @@ export interface Completion<
   isHeader?: boolean;
   recencyWeight?: number;
   isEntityName?: boolean;
+  fullPath?: string;
 }
 
 export interface CommandsCompletion
-  extends Omit<Completion, "type" | "origin" | "data"> {
+  extends Omit<Completion, "type" | "origin" | "data" | "fullPath"> {
   data: unknown;
   action?: (callback?: (completion: string) => void) => void;
   shortcut?: string;
@@ -404,6 +405,25 @@ class CodeMirrorTernService {
     this.server.deleteDefs(name);
   }
 
+  getParentPath(inputQuery: string) {
+    // inputQuery is "app" then parentPath will be ""
+    // inputQuery is "app." then parentPath will be "app."
+    // if inputQuery is "app.aa" then parentPath will be "app."
+    // if inputQuery is 'app[/"' then parentPath will be "app."
+    // if inputQuery is 'app[/"mod' then parentPath will be "app."
+    // if inputQuery is 'app.bc[/"' then parentPath will be "app.bc"
+    // logic 1st first if dot or '[/"' which one is last special char and then remove the extra char after it.
+    let parentPath = "";
+    const dotIndex = inputQuery.lastIndexOf(".");
+    const bracketIndex = inputQuery.lastIndexOf('[/"');
+    const lastSpecialCharIndex = Math.max(dotIndex, bracketIndex);
+
+    if (lastSpecialCharIndex !== -1) {
+      parentPath = inputQuery.slice(0, lastSpecialCharIndex + 1);
+    }
+    return parentPath;
+  }
+
   requestCallback(
     error: any,
     data: QueryRegistry["completions"]["result"],
@@ -444,6 +464,9 @@ class CodeMirrorTernService {
     const token = cm.getTokenAt(cursor);
     const handleAutocompleteSelection = dotToBracketNotationAtToken(token);
 
+    const inputQuery = this.getQueryForAutocomplete(cm);
+    const parentPath = this.getParentPath(inputQuery.trim());
+
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       if (typeof completion === "string") continue;
@@ -470,6 +493,7 @@ class CodeMirrorTernService {
         isHeader: false,
         recencyWeight,
         isEntityName: isCompletionADataTreeEntityName,
+        fullPath: parentPath + completion.name,
       };
 
       if (isKeyword) {
@@ -526,7 +550,7 @@ class CodeMirrorTernService {
       list: completions,
       selectedHint: indexToBeSelected,
       lineValue,
-      query: this.getQueryForAutocomplete(cm),
+      query: inputQuery,
     };
     let tooltip: HTMLElement | undefined = undefined;
     const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
