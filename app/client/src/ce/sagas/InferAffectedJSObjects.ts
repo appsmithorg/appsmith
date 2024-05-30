@@ -25,7 +25,10 @@ export function getAffectedJSObjectIdsFromJSAction(
   // to empty collection
   if (
     action.type === ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR ||
-    action.type === ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR
+    action.type === ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR ||
+    // for these two actions, we need to diff all JSObjects because the reducer updates allNodes
+    action.type === ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS ||
+    action.type === ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS
   ) {
     return {
       isAllAffected: true,

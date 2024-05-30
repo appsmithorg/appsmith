@@ -112,11 +112,7 @@ import {
   parseJSActions,
   updateEvalTreeWithJSCollectionState,
 } from "workers/Evaluation/JSObject";
-import {
-  getFixedTimeDifference,
-  getOnlyAffectedJSObjects,
-  replaceThisDotParams,
-} from "./utils";
+import { getFixedTimeDifference, replaceThisDotParams } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   validateActionProperty,
@@ -137,7 +133,6 @@ import {
   profileFn,
   type WebworkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -489,7 +484,7 @@ export default class DataTreeEvaluator {
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData> = {},
-    affectedJSObjects: AffectedJSObjects = { isAllAffected: false, ids: [] },
+    affectedJSObjectIds: string[] = [],
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -509,6 +504,20 @@ export default class DataTreeEvaluator {
     //get difference in js collection body to be parsed
     const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
     const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
+    const affectedJSObjects = new Set(affectedJSObjectIds);
+    const getAffectedJSActions = (
+      jsCollections: Record<string, JSActionEntity>,
+    ) =>
+      Object.keys(jsCollections).reduce(
+        (acc, key) => {
+          const jsCollection = jsCollections[key];
+          if (affectedJSObjects.has(jsCollection.actionId)) {
+            acc[key] = jsCollection;
+          }
+          return acc;
+        },
+        {} as Record<string, JSActionEntity>,
+      );
     const jsDifferences: Diff<
       Record<string, JSActionEntity>,
       Record<string, JSActionEntity>
@@ -519,14 +528,8 @@ export default class DataTreeEvaluator {
       () =>
         convertMicroDiffToDeepDiff(
           microDiff(
-            getOnlyAffectedJSObjects(
-              oldUnEvalTreeJSCollections,
-              affectedJSObjects,
-            ),
-            getOnlyAffectedJSObjects(
-              localUnEvalTreeJSCollection,
-              affectedJSObjects,
-            ),
+            getAffectedJSActions(oldUnEvalTreeJSCollections),
+            getAffectedJSActions(localUnEvalTreeJSCollection),
           ) || [],
         ),
     );

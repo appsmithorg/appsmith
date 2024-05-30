@@ -36,6 +36,7 @@ import {
 } from "UITelemetry/generateWebWorkerTraces";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import { getJSEntities } from "../JSObject";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
@@ -44,6 +45,37 @@ export let canvasWidgetsMeta: Record<string, any>;
 export let metaWidgetsCache: MetaWidgetsReduxState;
 export let canvasWidgets: CanvasWidgetsReduxState;
 
+const mergeJSObjectsToUnevalTree = (
+  prevUevalTree: DataTree | undefined,
+  currUnevalTree: DataTree,
+  jsPatches: any,
+) => {
+  const { patches, shouldReplaceAllNodes } = jsPatches;
+  patches.reduce((acc: DataTree, patch: any) => {
+    acc[patch.path] = patch.value;
+    return acc;
+  }, currUnevalTree);
+  if (shouldReplaceAllNodes) {
+    return currUnevalTree;
+  }
+  const prevJSObjects = getJSEntities(prevUevalTree || {});
+  return { ...prevJSObjects, ...currUnevalTree };
+};
+
+const getAffectedJSObjectIds = (
+  prevUnEvalValue: DataTree,
+  currUevalTree: DataTree,
+  jsPatches: any,
+) => {
+  const { patches, shouldReplaceAllNodes } = jsPatches;
+  if (shouldReplaceAllNodes) {
+    return Object.values({
+      ...getJSEntities(currUevalTree || {}),
+      ...getJSEntities(prevUnEvalValue || {}),
+    }).map((jsObject) => jsObject.actionId);
+  }
+  return patches.map((patch: any) => patch.actionId);
+};
 export function evalTree(request: EvalWorkerSyncRequest) {
   const { data, webworkerTelemetry } = request;
   webworkerTelemetry["transferDataToWorkerThread"].endTime = Date.now();
@@ -63,10 +95,10 @@ export function evalTree(request: EvalWorkerSyncRequest) {
   let isNewWidgetAdded = false;
 
   const {
-    affectedJSObjects,
     allActionValidationConfig,
     appMode,
     forceEvaluation,
+    jsPatches,
     metaWidgets,
     shouldReplay,
     shouldRespondWithLogs,
@@ -77,7 +109,12 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     widgetTypeConfigMap,
   } = data as EvalTreeRequestData;
 
-  const unevalTree = __unevalTree__.unEvalTree;
+  const unevalTree = mergeJSObjectsToUnevalTree(
+    dataTreeEvaluator?.oldUnEvalTree,
+    __unevalTree__.unEvalTree,
+    jsPatches,
+  );
+
   configTree = __unevalTree__.configTree as ConfigTree;
   canvasWidgets = widgets;
   canvasWidgetsMeta = widgetsMeta;
@@ -183,7 +220,11 @@ export function evalTree(request: EvalWorkerSyncRequest) {
             unevalTree,
             configTree,
             webworkerTelemetry,
-            affectedJSObjects,
+            getAffectedJSObjectIds(
+              dataTreeEvaluator?.oldUnEvalTree,
+              unevalTree,
+              jsPatches,
+            ),
           ),
       );
 
