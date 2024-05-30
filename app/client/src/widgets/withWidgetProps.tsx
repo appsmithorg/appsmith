@@ -91,8 +91,15 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       getIsWidgetLoading(state, widgetName),
     );
 
+    const allowCanvasWidgetBuildingBlockSkeletonLoader =
+      type === "CANVAS_WIDGET" && renderMode === RenderModes.CANVAS;
+
     const metaWidgetChildrenStructure = useSelector(
-      getMetaWidgetChildrenStructure(widgetId, type, hasMetaWidgets),
+      getMetaWidgetChildrenStructure(
+        widgetId,
+        type,
+        hasMetaWidgets || allowCanvasWidgetBuildingBlockSkeletonLoader,
+      ),
       equal,
     );
 

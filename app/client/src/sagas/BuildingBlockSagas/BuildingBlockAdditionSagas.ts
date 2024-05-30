@@ -2,6 +2,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
+  WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -16,6 +17,7 @@ import {
   getCanvasWidth,
   getCurrentPageId,
   getIsAutoLayoutMobileBreakPoint,
+  getMetaWidget,
 } from "selectors/editorSelectors";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
@@ -65,16 +67,19 @@ import ApplicationApi, {
   type ImportBuildingBlockToApplicationResponse,
 } from "@appsmith/api/ApplicationApi";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { modifyMetaWidgets } from "actions/metaWidgetActions";
 import type { WidgetAddChild } from "actions/pageActions";
 import { runAction } from "actions/pluginActionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Template } from "api/TemplatesApi";
 import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { race } from "redux-saga/effects";
-import { removeSkeletonLoaderFromCanvas } from "sagas/WidgetDeletionSagas";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
 import {
   getCurrentApplicationId,
@@ -83,13 +88,11 @@ import {
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
 import { saveBuildingBlockWidgetsToStore } from ".";
-import { addWidgetAndMoveWidgets } from "../CanvasSagas/DraggingCanvasSagas";
+import { addWidgetAndMoveWidgetsSaga } from "../CanvasSagas/DraggingCanvasSagas";
 import { validateResponse } from "../ErrorSagas";
 import { postPageAdditionSaga } from "../TemplatesSagas";
 import { getUpdateDslAfterCreatingChild } from "../WidgetAdditionSagas";
 import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getDragDetails } from "../selectors";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
@@ -178,39 +181,56 @@ export function* addBuildingBlockSkeletonLoaderToCanvas(
     [widgetId: string]: FlattenedWidgetProps;
   } = yield call(getUpdateDslAfterCreatingChild, addSkeletonAction.payload);
 
-  yield put({
-    type: ReduxActionTypes.ADD_LOCAL_SKELETON_LOADER,
-    payload: {
-      updatedWidgets,
-    },
-  });
-}
-
-export function* addAndMoveBuildingBlockSkeletonLoaderToCanvas(
-  actionPayload: ReduxAction<{
-    newWidget: WidgetAddChild;
-    draggedBlocksToUpdate: WidgetDraggingUpdateParams[];
-    canvasId: string;
-  }>,
-) {
-  const updatedWidgetsOnAddAndMove: CanvasWidgetsReduxState = yield call(
-    addWidgetAndMoveWidgets,
-    actionPayload.payload.newWidget,
-    actionPayload.payload.draggedBlocksToUpdate,
-    actionPayload.payload.canvasId,
+  yield put(
+    modifyMetaWidgets({
+      addOrUpdate: {
+        [addSkeletonAction.payload.newWidgetId]:
+          updatedWidgets[addSkeletonAction.payload.newWidgetId],
+      },
+      creatorId: addSkeletonAction.payload.widgetId,
+      deleteIds: [],
+    }),
   );
-
-  yield put({
-    type: ReduxActionTypes.ADD_LOCAL_SKELETON_LOADER,
-    payload: {
-      updatedWidgets: updatedWidgetsOnAddAndMove,
-    },
-  });
 }
 
-export function* loadBuildingBlocksIntoApplication(
-  skeletonWidget: WidgetAddChild,
+export function* removeSkeletonLoaderFromCanvas(
+  newWidget: WidgetAddChild,
+  hasReflow: boolean,
 ) {
+  // remove skeleton loader just before pasting the building block
+  if (hasReflow) {
+    yield put({
+      type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
+      payload: {
+        widgetId: newWidget.newWidgetId,
+        parentId: newWidget.widgetId,
+        disallowUndo: true,
+        isShortcut: false,
+      },
+    });
+  } else {
+    const metaWidget: MetaWidgetsReduxState = yield select(
+      getMetaWidget(newWidget.newWidgetId),
+    );
+
+    if (metaWidget) {
+      yield put(
+        modifyMetaWidgets({
+          addOrUpdate: {
+            [newWidget.newWidgetId]: metaWidget as FlattenedWidgetProps,
+          },
+          deleteIds: [newWidget.newWidgetId],
+        }),
+      );
+    }
+  }
+}
+
+export function* loadBuildingBlocksIntoApplication(buildingBlockData: {
+  skeletonWidget: WidgetAddChild;
+  hasReflow: boolean;
+}) {
+  const { hasReflow, skeletonWidget } = buildingBlockData;
   const { leftColumn, topRow } = skeletonWidget;
   try {
     const dragDetails: DragDetails = yield select(getDragDetails);
@@ -221,6 +241,18 @@ export function* loadBuildingBlocksIntoApplication(
       getBuildingBlockDragStartTimestamp,
     );
 
+    if (hasReflow) {
+      // makes sure updateAndSaveLayout completes first for initial skeletonWidget addition in reflow only
+      const saveResult: unknown = yield race({
+        success: take(ReduxActionTypes.SAVE_PAGE_SUCCESS),
+        failure: take(ReduxActionErrorTypes.SAVE_PAGE_ERROR),
+      });
+
+      if (typeof saveResult === "object" && "failure" in saveResult!) {
+        throw new Error("Save page failed");
+      }
+    }
+
     const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
       yield call(addBuildingBlockActionsToApplication, dragDetails);
     const isValid: boolean = yield validateResponse(response);
@@ -229,7 +261,7 @@ export function* loadBuildingBlocksIntoApplication(
       yield saveBuildingBlockWidgetsToStore(response);
 
       // remove skeleton loader just before pasting the building block
-      yield call(removeSkeletonLoaderFromCanvas, skeletonWidget.newWidgetId);
+      yield call(removeSkeletonLoaderFromCanvas, skeletonWidget, hasReflow);
 
       yield pasteBuildingBlockWidgetsSaga(
         {
@@ -239,14 +271,15 @@ export function* loadBuildingBlocksIntoApplication(
         skeletonWidget.widgetId,
       );
 
-      const timeTakenToDropWidgetsInSeconds =
-        (Date.now() - buildingBlockDragStartTimestamp) / 1000;
-      yield call(postPageAdditionSaga, applicationId);
-
       // stop loading after pasting process is complete
       yield put({
         type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_SUCCESS,
       });
+
+      const timeTakenToDropWidgetsInSeconds =
+        (Date.now() - buildingBlockDragStartTimestamp) / 1000;
+      yield call(postPageAdditionSaga, applicationId);
+
       // remove selecting of recently imported widgets
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
@@ -296,7 +329,7 @@ export function* loadBuildingBlocksIntoApplication(
       }
     }
   } catch (error) {
-    yield call(removeSkeletonLoaderFromCanvas, skeletonWidget.newWidgetId);
+    yield call(removeSkeletonLoaderFromCanvas, skeletonWidget, hasReflow);
     yield put({
       type: ReduxActionErrorTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_ERROR,
     });
@@ -315,16 +348,23 @@ export function* addBuildingBlockToCanvasSaga(
     payload: {
       ...addEntityAction.payload,
       type: "SKELETON_WIDGET",
-      widgetId: MAIN_CONTAINER_WIDGET_ID,
     },
   };
+  // set loading state for dropping building blocks, this helps hide onboarding content when loading BBs
+  yield put({
+    type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_INIT,
+  });
+
   yield call(initiateBuildingBlockDropEvent, {
     applicationId,
     workspaceId,
     buildingblockName,
   });
   yield call(addBuildingBlockSkeletonLoaderToCanvas, addSkeletonWidgetAction);
-  yield call(loadBuildingBlocksIntoApplication, addEntityAction.payload);
+  yield call(loadBuildingBlocksIntoApplication, {
+    skeletonWidget: addEntityAction.payload,
+    hasReflow: false,
+  });
 }
 
 export function* addAndMoveBuildingBlockToCanvasSaga(
@@ -339,26 +379,34 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
   const dragDetails: DragDetails = yield select(getDragDetails);
   const buildingblockName = dragDetails.newWidget.displayName;
 
+  // set loading state for dropping building blocks, this helps hide onboarding content when loading BBs
+  yield put({
+    type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_INIT,
+  });
   yield call(initiateBuildingBlockDropEvent, {
     applicationId,
     workspaceId,
     buildingblockName,
   });
-  yield call(addAndMoveBuildingBlockSkeletonLoaderToCanvas, {
+
+  // drop skeleton loader manually because meta widgets does not support reflow
+  yield call(addWidgetAndMoveWidgetsSaga, {
     ...actionPayload,
     payload: {
       ...actionPayload.payload,
       newWidget: {
         ...actionPayload.payload.newWidget,
         type: "SKELETON_WIDGET",
-        widgetId: MAIN_CONTAINER_WIDGET_ID,
       },
     },
   });
-  yield call(
-    loadBuildingBlocksIntoApplication,
-    actionPayload.payload.newWidget,
-  );
+  yield call(loadBuildingBlocksIntoApplication, {
+    skeletonWidget: {
+      ...actionPayload.payload.newWidget,
+      widgetId: actionPayload.payload.canvasId,
+    },
+    hasReflow: true,
+  });
 }
 
 /**

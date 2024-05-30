@@ -57,30 +57,31 @@ export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
   };
   // ToDO(#27617): Remove sorting of children on the view, ideally the model should be sorted, coz they are less frequently happening
   // operations. leaving it as is for now, coz it multiple cypress tests are dependent on this.
-  const canvasChildren = useMemo(
-    () =>
-      renderChildren(
-        props.positioning !== Positioning.Fixed
-          ? props.children
-          : sortBy(
-              compact(props.children),
-              (child: WidgetProps) => child.topRow,
-            ),
-        props.widgetId,
-        RenderModes.CANVAS,
-        defaultWidgetProps,
-        layoutSystemProps,
-        !!props.noPad,
-      ),
-    [
-      props.children,
-      props.shouldScrollContents,
+  const canvasChildren = useMemo(() => {
+    const allChildren = [
+      ...(props.children || []),
+      ...(props.metaWidgetChildrenStructure || []),
+    ];
+
+    return renderChildren(
+      props.positioning !== Positioning.Fixed
+        ? allChildren
+        : sortBy(compact(allChildren), (child: WidgetProps) => child.topRow),
       props.widgetId,
-      props.componentHeight,
-      props.componentWidth,
-      snapColumnSpace,
-    ],
-  );
+      RenderModes.CANVAS,
+      defaultWidgetProps,
+      layoutSystemProps,
+      !!props.noPad,
+    );
+  }, [
+    props.children,
+    props.metaWidgetChildrenStructure,
+    props.shouldScrollContents,
+    props.widgetId,
+    props.componentHeight,
+    props.componentWidth,
+    snapColumnSpace,
+  ]);
   return (
     <DropTargetComponentWrapper
       dropDisabled={!!props.dropDisabled}

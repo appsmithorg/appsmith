@@ -2,7 +2,6 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import type {
   UpdateCanvasPayload,
   ReduxAction,
-  UpdateBuildingBlockSkeletonLoaderPayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -69,51 +68,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
       }
     }
     return widgets;
-  },
-  [ReduxActionTypes.ADD_LOCAL_SKELETON_LOADER]: (
-    state: CanvasWidgetsReduxState,
-    action: ReduxAction<UpdateBuildingBlockSkeletonLoaderPayload>,
-  ) => {
-    const updatedLayoutDiffs = diff(state, action.payload.updatedWidgets);
-    if (!updatedLayoutDiffs) return state;
-
-    const listOfUpdatedWidgets = getUpdatedWidgetLists(updatedLayoutDiffs);
-
-    for (const widgetId of listOfUpdatedWidgets) {
-      const updatedWidget = action.payload.updatedWidgets[widgetId];
-      if (updatedWidget) {
-        state[widgetId] = updatedWidget;
-      }
-    }
-
-    const canvasWidgetHeightsToUpdate: Record<string, number> =
-      getCanvasWidgetHeightsToUpdate(listOfUpdatedWidgets, state);
-
-    for (const widgetId in canvasWidgetHeightsToUpdate) {
-      state[widgetId] = {
-        ...state[widgetId],
-        bottomRow: canvasWidgetHeightsToUpdate[widgetId],
-      };
-    }
-  },
-
-  [ReduxActionTypes.REMOVE_LOCAL_SKELETON_LOADER]: (
-    state: CanvasWidgetsReduxState,
-    action: ReduxAction<UpdateBuildingBlockSkeletonLoaderPayload>,
-  ) => {
-    const updatedLayoutDiffs = diff(state, action.payload.updatedWidgets);
-    if (!updatedLayoutDiffs) return state;
-
-    const listOfUpdatedWidgets = getUpdatedWidgetLists(updatedLayoutDiffs);
-
-    for (const widgetId of listOfUpdatedWidgets) {
-      const updatedWidget = action.payload.updatedWidgets[widgetId];
-      if (updatedWidget) {
-        state[widgetId] = updatedWidget;
-      } else {
-        delete state[widgetId];
-      }
-    }
   },
   [ReduxActionTypes.UPDATE_LAYOUT]: (
     state: CanvasWidgetsReduxState,

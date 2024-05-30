@@ -12,32 +12,32 @@ const initialState: BuildingBlocksReduxState = {
 const buildingBlockReducer = createReducer(initialState, {
   [ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_INIT]: (
     state: BuildingBlocksReduxState,
-  ) => {
+  ): BuildingBlocksReduxState => {
     return {
       ...state,
-      isDraggingBuildingBlockToCanvas: true,
+      isDraggingBuildingBlocksToCanvas: true,
     };
   },
   [ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_SUCCESS]: (
     state: BuildingBlocksReduxState,
-  ) => {
+  ): BuildingBlocksReduxState => {
     return {
       ...state,
-      isDraggingBuildingBlockToCanvas: false,
+      isDraggingBuildingBlocksToCanvas: false,
     };
   },
   [ReduxActionErrorTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_ERROR]: (
     state: BuildingBlocksReduxState,
-  ) => {
+  ): BuildingBlocksReduxState => {
     return {
       ...state,
-      isDraggingBuildingBlockToCanvas: false,
+      isDraggingBuildingBlocksToCanvas: false,
     };
   },
   [ReduxActionTypes.SET_BUILDING_BLOCK_DRAG_START_TIME]: (
     state: BuildingBlocksReduxState,
     action: ReduxAction<{ startTime: number }>,
-  ) => {
+  ): BuildingBlocksReduxState => {
     return {
       ...state,
       buildingBlockDragStartTimestamp: action.payload.startTime,
@@ -45,10 +45,10 @@ const buildingBlockReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.RESET_BUILDING_BLOCK_DRAG_START_TIME]: (
     state: BuildingBlocksReduxState,
-  ) => {
+  ): BuildingBlocksReduxState => {
     return {
       ...state,
-      buildingBlockDragStartTimestamp: null,
+      buildingBlockDragStartTimestamp: undefined,
     };
   },
 });

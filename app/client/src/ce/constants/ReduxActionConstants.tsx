@@ -14,7 +14,7 @@ import type {
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import type { DSLWidget, FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/constants";
 import type { LayoutSystemTypeConfig } from "layoutSystems/types";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 
@@ -249,8 +249,6 @@ const ActionTypes = {
   WIDGET_DELETE: "WIDGET_DELETE",
   WIDGET_BULK_DELETE: "WIDGET_BULK_DELETE",
   WIDGET_SINGLE_DELETE: "WIDGET_SINGLE_DELETE",
-  ADD_LOCAL_SKELETON_LOADER: "ADD_LOCAL_SKELETON_LOADER",
-  REMOVE_LOCAL_SKELETON_LOADER: "REMOVE_LOCAL_SKELETON_LOADER",
   SHOW_PROPERTY_PANE: "SHOW_PROPERTY_PANE",
   UPDATE_CANVAS_LAYOUT: "UPDATE_CANVAS_LAYOUT",
   UPDATE_WIDGET_PROPERTY_REQUEST: "UPDATE_WIDGET_PROPERTY_REQUEST",
@@ -1221,12 +1219,6 @@ export interface UpdateCanvasPayload {
   pageActions: PageAction[][];
   updatedWidgetIds?: string[];
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
-}
-
-export interface UpdateBuildingBlockSkeletonLoaderPayload {
-  updatedWidgets: {
-    [widgetId: string]: FlattenedWidgetProps;
-  };
 }
 
 export interface ShowPropertyPanePayload {
