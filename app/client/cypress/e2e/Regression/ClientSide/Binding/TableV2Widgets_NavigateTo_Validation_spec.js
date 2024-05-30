@@ -11,7 +11,7 @@ import {
   agHelper,
   propPane,
   deployMode,
-  table
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
 
