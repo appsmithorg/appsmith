@@ -33,6 +33,10 @@ public class CacheableTemplateHelper {
 
     public static Mono<CacheableApplicationTemplate> getTemplates(String releaseVersion, String baseUrl) {
 
+        if (applicationTemplateList == null) {
+            applicationTemplateList = new CacheableApplicationTemplate();
+        }
+
         if (applicationTemplateList.getLastUpdated() != null
                 && isCacheValid(applicationTemplateList.getLastUpdated())) {
             return Mono.just(applicationTemplateList);
@@ -76,6 +80,10 @@ public class CacheableTemplateHelper {
          * Encoding an encoded URL will not work and end up resulting a 404 error
          */
         final int size = 4 * 1024 * 1024; // 4 MB
+
+        if (cacheableApplicationJsonMap == null) {
+            cacheableApplicationJsonMap = new HashMap<>();
+        }
 
         if (cacheableApplicationJsonMap.containsKey(templateId)
                 && isCacheValid(cacheableApplicationJsonMap.get(templateId).getLastUpdated())) {
