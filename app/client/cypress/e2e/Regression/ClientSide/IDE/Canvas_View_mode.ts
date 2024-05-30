@@ -1,8 +1,4 @@
 import {
-  CANVAS_VIEW_MODE_TOOLTIP,
-  createMessage,
-} from "../../../../../src/ce/constants/messages";
-import {
   agHelper,
   draggableWidgets,
   jsEditor,
@@ -39,7 +35,7 @@ describe("Canvas view mode", { tags: ["@tag.IDE"] }, () => {
     // check for tooltip helper text
     cy.assertTooltipPresence(
       '[role="tooltip"]',
-      createMessage(CANVAS_VIEW_MODE_TOOLTIP, shortKey),
+      Cypress.env("MESSAGES").CANVAS_VIEW_MODE_TOOLTIP(shortKey),
     );
     // check for widget name element
     cy.get(`div[data-testid="t--settings-controls-positioned-wrapper"]`)

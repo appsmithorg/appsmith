@@ -16,6 +16,7 @@ import type {
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { LayoutSystemTypeConfig } from "layoutSystems/types";
+import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -1168,7 +1169,9 @@ export interface ReduxAction<T> {
   type: ReduxActionType | ReduxActionErrorType;
   payload: T;
 }
-
+export interface BufferedReduxAction<T> extends ReduxAction<T> {
+  affectedJSObjects: AffectedJSObjects;
+}
 export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
 
 export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
@@ -1186,6 +1189,7 @@ export type AnyReduxAction = ReduxAction<unknown> | ReduxActionWithoutPayload;
 
 export interface EvaluationReduxAction<T> extends ReduxAction<T> {
   postEvalActions?: Array<AnyReduxAction>;
+  affectedJSObjects?: AffectedJSObjects;
 }
 
 export interface PromisePayload {

@@ -34,14 +34,14 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.git.autocommit.helpers.AutoCommitEligibilityHelper;
+import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
-import com.appsmith.server.helpers.ce.autocommit.AutoCommitEligibiltyHelper;
-import com.appsmith.server.helpers.ce.autocommit.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -128,7 +128,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final DatasourcePermission datasourcePermission;
     private final DSLMigrationUtils dslMigrationUtils;
     private final GitAutoCommitHelper gitAutoCommitHelper;
-    private final AutoCommitEligibiltyHelper autoCommitEligibiltyHelper;
+    private final AutoCommitEligibilityHelper autoCommitEligibilityHelper;
     private final ClonePageService<NewAction> actionClonePageService;
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
 
@@ -358,7 +358,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Mono<PageDTO> pageDTOMono = getPage(newPages.get(0), false);
 
         return pageDTOMono.flatMap(pageDTO -> {
-            return autoCommitEligibiltyHelper
+            return autoCommitEligibilityHelper
                     .isAutoCommitRequired(workspaceId, gitMetadata, pageDTO)
                     .flatMap(autoCommitTriggerDTO -> {
                         if (Boolean.TRUE.equals(autoCommitTriggerDTO.getIsAutoCommitRequired())) {

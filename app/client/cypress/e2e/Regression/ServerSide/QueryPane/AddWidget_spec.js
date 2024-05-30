@@ -11,7 +11,7 @@ describe(
   { tags: ["@tag.Datasource"] },
   function () {
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
       cy.createPostgresDatasource();
       cy.get("@saveDatasource").then((httpResponse) => {
         datasourceName = httpResponse.response.body.data.name;
