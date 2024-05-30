@@ -4,6 +4,7 @@ import com.appsmith.caching.components.CacheManager;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.FeaturesResponseDTO;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
@@ -25,7 +26,6 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -46,10 +46,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @ActiveProfiles(profiles = "test")
 public class FeatureFlagServiceCETest {
     @Autowired

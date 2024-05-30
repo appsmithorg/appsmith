@@ -2,6 +2,7 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.GitArtifactMetadata;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.services.FeatureFlagService;
@@ -16,7 +17,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -29,10 +29,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({AfterAllCleanUpExtension.class})
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class GitPrivateRepoCEImplTest {
 
     @Autowired

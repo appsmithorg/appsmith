@@ -44,6 +44,7 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
@@ -108,7 +109,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -162,10 +162,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ApplicationServiceCETest {
 
     static Plugin testPlugin = new Plugin();

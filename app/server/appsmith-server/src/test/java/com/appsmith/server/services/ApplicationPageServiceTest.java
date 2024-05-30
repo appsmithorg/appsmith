@@ -13,6 +13,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
@@ -33,7 +34,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -49,10 +49,10 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({AfterAllCleanUpExtension.class})
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ApplicationPageServiceTest {
     @Autowired
     ApplicationPageService applicationPageService;

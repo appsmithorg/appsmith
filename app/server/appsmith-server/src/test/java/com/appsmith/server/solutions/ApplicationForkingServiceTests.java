@@ -41,6 +41,7 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -79,7 +80,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -115,10 +115,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * forking the application
  */
 @Slf4j
-@ExtendWith(SpringExtension.class)
+@ExtendWith(AfterAllCleanUpExtension.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ApplicationForkingServiceTests {
 
     private static String sourceAppId;

@@ -13,6 +13,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -27,6 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -36,7 +38,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -54,12 +55,11 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({AfterAllCleanUpExtension.class})
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class MockDataServiceTest {
-
     @SpyBean
     PluginService pluginService;
 
@@ -159,6 +159,7 @@ public class MockDataServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    @Order(1)
     public void testCreateMockDataSetsMongo() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
