@@ -4,6 +4,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -46,7 +47,12 @@ public class RepositoryHelperMethods {
 
             // Convert JSON string to Set<Policy>
             String policiesJson = rs.getString("policies");
+            String tenantConfig = rs.getString("tenant_configuration");
             Set<Policy> policies = mapObject(policiesJson, new TypeReference<Set<Policy>>() {});
+            TenantConfiguration tenantConfiguration =
+                    mapObject(tenantConfig, new TypeReference<TenantConfiguration>() {});
+            tenant.setTenantConfiguration(
+                    tenantConfiguration == null ? new TenantConfiguration() : tenantConfiguration);
             tenant.setPolicies(policies == null ? new HashSet<>() : policies);
             return tenant;
         };

@@ -6,6 +6,7 @@ import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Transient;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -56,6 +57,8 @@ public class AuthenticationDTO implements AppsmithDomain {
     @JsonView(Views.Internal.class)
     AuthenticationResponse authenticationResponse;
 
+    @JsonView(Views.Public.class)
+    @Transient
     public Mono<Boolean> hasExpired() {
         return Mono.just(Boolean.FALSE);
     }

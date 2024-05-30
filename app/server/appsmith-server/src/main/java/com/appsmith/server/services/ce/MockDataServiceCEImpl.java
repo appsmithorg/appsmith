@@ -24,7 +24,7 @@ import com.appsmith.util.WebClientUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
@@ -237,14 +237,13 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                     ((DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication()).getPassword();
         }
         final String finalPassword = password;
-        return datasourceService.create(datasource).onErrorResume(DuplicateKeyException.class, error -> {
+        return datasourceService.create(datasource).onErrorResume(DataIntegrityViolationException.class, error -> {
             if (error.getMessage() != null
-                    && error.getMessage().contains("workspace_datasource_deleted_compound_index")
+                    && error.getMessage().contains("u_workspace_datasource")
                     && datasourceStorageDTO.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
                 ((DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication())
                         .setPassword(finalPassword);
-                throw new ex.Marker("DuplicateKeyException");
-                // return createSuffixedDatasource(datasource, name, environmentId, 1 + suffix);
+                return createSuffixedDatasource(datasource, name, environmentId, 1 + suffix);
             }
             throw error;
         });

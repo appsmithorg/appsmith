@@ -1,6 +1,7 @@
 package com.appsmith.server.migrations.ce;
 
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.migrations.AppsmithJavaMigration;
 import com.appsmith.server.migrations.JsonHelper;
 import com.appsmith.server.migrations.RepositoryHelperMethods;
@@ -26,7 +27,7 @@ public class V6__createAnonymousUser extends AppsmithJavaMigration {
             return;
         }
         String insertUserQuery =
-                "INSERT INTO \"user\" (id, email, name,  current_workspace_id, workspace_ids, is_anonymous, tenant_id, is_system_generated, created_at, updated_at) VALUES (gen_random_uuid(), ?, ?, ?, cast(? as jsonb), ?, ?, true, now() ,now())";
+                "INSERT INTO \"user\" (id, email, name,  current_workspace_id, workspace_ids, is_anonymous, tenant_id, source, is_system_generated, created_at, updated_at) VALUES (gen_random_uuid(), ?, ?, ?, cast(? as jsonb), ?, ?, ?, true, now() ,now())";
         jdbcTemplate.update(
                 insertUserQuery,
                 FieldName.ANONYMOUS_USER,
@@ -34,7 +35,8 @@ public class V6__createAnonymousUser extends AppsmithJavaMigration {
                 "",
                 JsonHelper.convertToString(Set.of()),
                 true,
-                defaultTenantId);
+                defaultTenantId,
+                LoginSource.FORM.toString());
     }
 
     private boolean doesAnonymousUserExist(String tenantId) {

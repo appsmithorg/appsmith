@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations;
 
+import lombok.extern.slf4j.Slf4j;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.api.migration.BaseJavaMigration;
 import org.flywaydb.core.api.migration.Context;
@@ -15,6 +16,7 @@ import org.springframework.jdbc.datasource.SingleConnectionDataSource;
  *    a. Incremental migrations should be named <code>V{version}__{description}.java</code> <br>
  *    b. Repeatable migrations should be named <code>R__{description}.java</code> <br>
  */
+@Slf4j
 public abstract class AppsmithJavaMigration extends BaseJavaMigration {
     @Override
     public ResolvedMigration getResolvedMigration(Configuration config, StatementInterceptor statementInterceptor) {
@@ -28,7 +30,6 @@ public abstract class AppsmithJavaMigration extends BaseJavaMigration {
     public final void migrate(Context context) throws Exception {
         JdbcTemplate jdbcTemplate =
                 new JdbcTemplate(new SingleConnectionDataSource(context.getConnection(), true), false);
-
         migrate(jdbcTemplate);
     }
 

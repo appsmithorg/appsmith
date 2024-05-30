@@ -32,6 +32,7 @@ public class DatasourceStructure {
 
     @Data
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class Table {
         TableType type;
         String schema;
@@ -43,6 +44,7 @@ public class DatasourceStructure {
 
     @Data
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class Column implements Comparable<Column> {
         String name;
         String type;
