@@ -27,7 +27,6 @@ export const ModalExamples = () => {
   const smallRef = useRef(null);
   const mediumRef = useRef(null);
   const largeRef = useRef(null);
-  const closeOnSubmit = true;
 
   return (
     <>
@@ -99,7 +98,7 @@ export const ModalExamples = () => {
               nulla odio, perspiciatis quam quisquam quo ratione sapiente
               voluptatem? Autem inventore quae velit.
             </ModalBody>
-            <ModalFooter closeOnSubmit={closeOnSubmit} onSubmit={fakeSubmit} />
+            <ModalFooter onSubmit={fakeSubmit} />
           </ModalContent>
         </Unstyled>
       </Modal>
@@ -117,7 +116,7 @@ export const ModalExamples = () => {
               amet animi corporis laboriosam libero voluptas! A, reiciendis,
               veniam?
             </ModalBody>
-            <ModalFooter closeOnSubmit={closeOnSubmit} onSubmit={fakeSubmit} />
+            <ModalFooter onSubmit={fakeSubmit} />
           </ModalContent>
         </Unstyled>
       </Modal>
@@ -136,7 +135,7 @@ export const ModalExamples = () => {
               amet animi corporis laboriosam libero voluptas! A, reiciendis,
               veniam?
             </ModalBody>
-            <ModalFooter closeOnSubmit={closeOnSubmit} onSubmit={fakeSubmit} />
+            <ModalFooter onSubmit={fakeSubmit} />
           </ModalContent>
         </Unstyled>
       </Modal>

@@ -36,7 +36,6 @@ export const ComplexForm = () => {
 
   const [isModalOpen, setModalOpen] = useState(false);
   const submitRef = useRef(null);
-  const closeOnSubmit = true;
 
   return (
     <Flex
@@ -128,11 +127,7 @@ export const ComplexForm = () => {
                 </ul>
               </Text>
             </ModalBody>
-            <ModalFooter
-              closeOnSubmit={closeOnSubmit}
-              onSubmit={fakeSubmit}
-              submitText="Confirm"
-            />
+            <ModalFooter onSubmit={fakeSubmit} submitText="Confirm" />
           </ModalContent>
         </Modal>
       </Flex>

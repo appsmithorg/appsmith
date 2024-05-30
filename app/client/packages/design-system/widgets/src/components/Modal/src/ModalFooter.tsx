@@ -7,7 +7,7 @@ import type { ModalFooterProps } from "./types";
 
 export const ModalFooter = (props: ModalFooterProps) => {
   const {
-    closeOnSubmit,
+    closeOnSubmit = true,
     closeText = "Close",
     excludeFromTabOrder = false,
     onSubmit,
@@ -21,7 +21,7 @@ export const ModalFooter = (props: ModalFooterProps) => {
       setIsLoading(true);
       await onSubmit();
       setIsLoading(false);
-      if (closeOnSubmit ?? false) setOpen(false);
+      if (closeOnSubmit) setOpen(false);
     }
   };
 
