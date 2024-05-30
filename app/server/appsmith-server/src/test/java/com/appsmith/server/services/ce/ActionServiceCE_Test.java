@@ -6,7 +6,6 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.AnalyticsInfo;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
@@ -1566,45 +1565,5 @@ public class ActionServiceCE_Test {
         assertThat(savedAction.getIsValid()).isTrue();
         assertThat(savedAction.getCreatedAt()).isNotNull();
         assertThat(savedAction.getUpdatedAt()).isNotNull();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void createCopyActionWithAnalyticsData_validateAnalyticsDataPersistsInResponse() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
-
-        ActionDTO action = new ActionDTO();
-        action.setName("CopyOfQuery1");
-        action.setPageId(testPage.getId());
-        action.setDatasource(datasource);
-        ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property(null, true)));
-
-        AnalyticsInfo analyticsInfo = new AnalyticsInfo();
-        Map<String, Object> analyticsData = new HashMap<>();
-        String keyOriginalActionId = "originalActionId";
-        String valueOriginalActionId = "xyz";
-        analyticsData.put(keyOriginalActionId, valueOriginalActionId);
-        analyticsInfo.setAnalyticsData(analyticsData);
-        action.setEventData(analyticsInfo);
-
-        action.setActionConfiguration(actionConfiguration);
-
-        Mono<ActionDTO> actionMono =
-                Mono.just(action).flatMap(action1 -> layoutActionService.createSingleAction(action1, Boolean.FALSE));
-        StepVerifier.create(actionMono)
-                .assertNext(createdAction -> {
-                    assertThat(createdAction.getId()).isNotEmpty();
-                    assertThat(createdAction.getName()).isEqualTo(action.getName());
-                    assertThat(createdAction.getIsValid()).isTrue();
-                    assertThat(createdAction
-                            .getEventData()
-                            .getAnalyticsData()
-                            .get(keyOriginalActionId)
-                            .toString()
-                            .equalsIgnoreCase(valueOriginalActionId));
-                })
-                .verifyComplete();
     }
 }

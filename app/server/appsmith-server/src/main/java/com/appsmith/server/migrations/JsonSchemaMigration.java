@@ -1,33 +1,88 @@
 package com.appsmith.server.migrations;
 
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
+@Slf4j
+@Component
+@RequiredArgsConstructor
 public class JsonSchemaMigration {
-    private static boolean checkCompatibility(ApplicationJson applicationJson) {
+
+    private static boolean isCompatible(ApplicationJson applicationJson) {
         return (applicationJson.getClientSchemaVersion() <= JsonSchemaVersions.clientVersion)
                 && (applicationJson.getServerSchemaVersion() <= JsonSchemaVersions.serverVersion);
     }
 
-    public static ApplicationJson migrateApplicationToLatestSchema(ApplicationJson applicationJson) {
-        // Check if the schema versions are available and set to initial version if not present
-        Integer serverSchemaVersion =
-                applicationJson.getServerSchemaVersion() == null ? 0 : applicationJson.getServerSchemaVersion();
-        Integer clientSchemaVersion =
-                applicationJson.getClientSchemaVersion() == null ? 0 : applicationJson.getClientSchemaVersion();
-
-        applicationJson.setClientSchemaVersion(clientSchemaVersion);
-        applicationJson.setServerSchemaVersion(serverSchemaVersion);
-        if (!checkCompatibility(applicationJson)) {
-            throw new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON);
-        }
-        migrateServerSchema(applicationJson);
-        migrateClientSchema(applicationJson);
-        return applicationJson;
+    private static void setSchemaVersions(ApplicationJson applicationJson) {
+        applicationJson.setServerSchemaVersion(getCorrectSchemaVersion(applicationJson.getServerSchemaVersion()));
+        applicationJson.setClientSchemaVersion(getCorrectSchemaVersion(applicationJson.getClientSchemaVersion()));
     }
 
+    private static Integer getCorrectSchemaVersion(Integer schemaVersion) {
+        return schemaVersion == null ? 0 : schemaVersion;
+    }
+
+    /**
+     * This method migrates the server schema of artifactExchangeJson after choosing the right method for migration
+     * this will likely be overridden in EE codebase for more choices
+     * @param artifactExchangeJson artifactExchangeJson which is imported
+     */
+    public Mono<? extends ArtifactExchangeJson> migrateArtifactExchangeJsonToLatestSchema(
+            ArtifactExchangeJson artifactExchangeJson) {
+
+        if (ArtifactType.APPLICATION.equals(artifactExchangeJson.getArtifactJsonType())) {
+            return migrateApplicationJsonToLatestSchema((ApplicationJson) artifactExchangeJson);
+        }
+
+        return Mono.fromCallable(() -> artifactExchangeJson);
+    }
+
+    public Mono<ApplicationJson> migrateApplicationJsonToLatestSchema(ApplicationJson applicationJson) {
+        return Mono.fromCallable(() -> {
+                    setSchemaVersions(applicationJson);
+                    if (isCompatible(applicationJson)) {
+                        return migrateServerSchema(applicationJson);
+                    }
+
+                    return null;
+                })
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON)));
+    }
+
+    /**
+     * migrate artifacts to latest schema by adding the right DTOs, or any migration.
+     * This method would be deprecated soon enough
+     * @param artifactExchangeJson : the json to be imported
+     * @return transformed artifact exchange json
+     */
+    @Deprecated
+    public static ArtifactExchangeJson migrateArtifactToLatestSchema(ArtifactExchangeJson artifactExchangeJson) {
+
+        if (!ArtifactType.APPLICATION.equals(artifactExchangeJson.getArtifactJsonType())) {
+            return artifactExchangeJson;
+        }
+
+        ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
+        setSchemaVersions(applicationJson);
+        if (!isCompatible(applicationJson)) {
+            throw new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON);
+        }
+        return migrateServerSchema(applicationJson);
+    }
+
+    /**
+     * This method may be moved to the publisher chain itself
+     * @param applicationJson : applicationJson which needs to be transformed
+     * @return : transformed applicationJson
+     */
     private static ApplicationJson migrateServerSchema(ApplicationJson applicationJson) {
         if (JsonSchemaVersions.serverVersion.equals(applicationJson.getServerSchemaVersion())) {
             // No need to run server side migration
@@ -73,16 +128,6 @@ public class JsonSchemaMigration {
             default:
                 // Unable to detect the serverSchema
         }
-        return applicationJson;
-    }
-
-    private static ApplicationJson migrateClientSchema(ApplicationJson applicationJson) {
-        if (JsonSchemaVersions.clientVersion.equals(applicationJson.getClientSchemaVersion())) {
-            // No need to run client side migration
-            return applicationJson;
-        }
-        // Today server is not responsible to run the client side DSL migration but this can be useful if we start
-        // supporting this on server side
         return applicationJson;
     }
 }

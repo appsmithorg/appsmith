@@ -10,10 +10,15 @@ ENV APPSMITH_CLOUD_SERVICES_BASE_URL=${APPSMITH_CLOUD_SERVICES_BASE_URL}
 
 ARG APPSMITH_SEGMENT_CE_KEY
 ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
-#Create the plugins directory
-RUN mkdir -p ./editor ./rts ./backend/plugins
 
 COPY deploy/docker/fs /
+
+RUN <<END
+  mkdir -p ./editor ./rts ./backend/plugins
+
+  # Ensure all *.sh scripts are executable.
+  find . -name node_modules -prune -or -type f -name '*.sh' -print -exec chmod +x '{}' ';'
+END
 
 #Add the jar to the container
 COPY ${JAR_FILE} backend/server.jar

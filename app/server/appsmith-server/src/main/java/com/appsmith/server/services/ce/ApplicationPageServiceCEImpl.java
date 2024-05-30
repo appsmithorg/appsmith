@@ -34,13 +34,14 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.git.autocommit.helpers.AutoCommitEligibilityHelper;
+import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
-import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -127,6 +128,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final DatasourcePermission datasourcePermission;
     private final DSLMigrationUtils dslMigrationUtils;
     private final GitAutoCommitHelper gitAutoCommitHelper;
+    private final AutoCommitEligibilityHelper autoCommitEligibilityHelper;
     private final ClonePageService<NewAction> actionClonePageService;
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
 
@@ -329,13 +331,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             return Mono.just(Boolean.FALSE);
         }
 
+        GitArtifactMetadata gitMetadata = application.getGitArtifactMetadata();
+
         if (application.getGitArtifactMetadata() == null) {
             return Mono.just(Boolean.FALSE);
         }
 
-        GitArtifactMetadata gitMetadata = application.getGitArtifactMetadata();
         String defaultApplicationId = gitMetadata.getDefaultArtifactId();
         String branchName = gitMetadata.getBranchName();
+        String workspaceId = application.getWorkspaceId();
 
         if (!StringUtils.hasText(branchName)) {
             log.debug(
@@ -352,29 +356,19 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         // since this method is only called when the app is in edit mode
         Mono<PageDTO> pageDTOMono = getPage(newPages.get(0), false);
-        return pageDTOMono
-                .zipWith(dslMigrationUtils.getLatestDslVersion())
-                .onErrorMap(throwable -> {
-                    log.error("Error fetching latest DSL version", throwable);
-                    return new AppsmithException(AppsmithError.RTS_SERVER_ERROR, "Error fetching latest DSL version");
-                })
-                .flatMap(tuple2 -> {
-                    PageDTO pageDTO = tuple2.getT1();
-                    Integer latestDslVersion = tuple2.getT2();
-                    // ensuring that the page has only one layout, as we don't support multiple layouts yet
-                    // when multiple layouts are supported, this code will have to be updated
-                    assert pageDTO.getLayouts().size() == 1;
-                    Layout layout = pageDTO.getLayouts().get(0);
-                    JSONObject layoutDsl = layout.getDsl();
 
-                    boolean isMigrationRequired = GitUtils.isMigrationRequired(layoutDsl, latestDslVersion);
-                    if (isMigrationRequired) {
-                        // Triggering the autocommit
-                        return gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName);
-                    }
+        return pageDTOMono.flatMap(pageDTO -> {
+            return autoCommitEligibilityHelper
+                    .isAutoCommitRequired(workspaceId, gitMetadata, pageDTO)
+                    .flatMap(autoCommitTriggerDTO -> {
+                        if (Boolean.TRUE.equals(autoCommitTriggerDTO.getIsAutoCommitRequired())) {
+                            return gitAutoCommitHelper.autoCommitApplication(
+                                    autoCommitTriggerDTO, defaultApplicationId, branchName);
+                        }
 
-                    return Mono.just(Boolean.FALSE);
-                });
+                        return Mono.just(Boolean.FALSE);
+                    });
+        });
     }
 
     @Override

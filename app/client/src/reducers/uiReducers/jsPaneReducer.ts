@@ -72,7 +72,7 @@ const jsPaneReducer = createReducer(initialState, {
     ...state,
     isCreating: false,
   }),
-  [ReduxActionTypes.UPDATE_JS_ACTION_INIT]: (
+  [ReduxActionTypes.JS_ACTION_SAVE_START]: (
     state: JsPaneReduxState,
     action: ReduxAction<{ id: string }>,
   ) => ({
@@ -82,38 +82,18 @@ const jsPaneReducer = createReducer(initialState, {
       [action.payload.id]: true,
     },
   }),
-  [ReduxActionTypes.UPDATE_JS_ACTION_BODY_INIT]: (
+  [ReduxActionTypes.JS_ACTION_SAVE_COMPLETE]: (
     state: JsPaneReduxState,
     action: ReduxAction<{ id: string }>,
   ) => ({
     ...state,
     isSaving: {
       ...state.isSaving,
-      [action.payload.id]: true,
-    },
-  }),
-  [ReduxActionTypes.UPDATE_JS_ACTION_SUCCESS]: (
-    state: JsPaneReduxState,
-    action: ReduxAction<{ data: JSCollection }>,
-  ) => ({
-    ...state,
-    isSaving: {
-      ...state.isSaving,
-      [action.payload.data.id]: false,
+      [action.payload.id]: false,
     },
     isDirty: {
       ...state.isDirty,
-      [action.payload.data.id]: false,
-    },
-  }),
-  [ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS]: (
-    state: JsPaneReduxState,
-    action: ReduxAction<{ data: JSCollection }>,
-  ) => ({
-    ...state,
-    isSaving: {
-      ...state.isSaving,
-      [action.payload.data.id]: false,
+      [action.payload.id]: false,
     },
   }),
   [ReduxActionErrorTypes.UPDATE_JS_ACTION_BODY_ERROR]: (
@@ -126,21 +106,6 @@ const jsPaneReducer = createReducer(initialState, {
       [action.payload.data.id]: false,
     },
   }),
-  [ReduxActionTypes.REFACTOR_JS_ACTION_NAME_SUCCESS]: (
-    state: JsPaneReduxState,
-    action: ReduxAction<{ collectionId: string }>,
-  ) => ({
-    ...state,
-    isSaving: {
-      ...state.isSaving,
-      [action.payload.collectionId]: false,
-    },
-    isDirty: {
-      ...state.isDirty,
-      [action.payload.collectionId]: false,
-    },
-  }),
-
   [ReduxActionErrorTypes.UPDATE_JS_ACTION_ERROR]: (
     state: JsPaneReduxState,
     action: ReduxAction<{ data: JSCollection }>,
