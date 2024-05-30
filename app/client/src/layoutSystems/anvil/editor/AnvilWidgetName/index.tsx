@@ -57,10 +57,12 @@ export function AnvilWidgetName(props: {
       e.stopPropagation();
       // If we're dragging a focused widget, we need to select it before dragging
       // Otherwise, the currently selected widget will instead be dragged.
-      selectWidget(SelectionRequestType.One, [widgetId]);
+      if (nameComponentState === "focus") {
+        selectWidget(SelectionRequestType.One, [widgetId]);
+      }
       setDraggingState(generateDragState());
     },
-    [setDraggingState],
+    [nameComponentState, setDraggingState],
   );
 
   /** Setup Floating UI logic */
