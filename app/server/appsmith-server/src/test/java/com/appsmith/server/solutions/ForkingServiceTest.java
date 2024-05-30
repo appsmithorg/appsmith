@@ -50,7 +50,7 @@ public class ForkingServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void cloneApplication_parsingDslFails_Success() {
+    public void cloneApplication_whenDslParsingFails_shouldSucceed() {
         Workspace originalWorkspace = new Workspace();
         originalWorkspace.setName("Source Org Test");
         Workspace sourceWorkspace = workspaceService.create(originalWorkspace).block();
