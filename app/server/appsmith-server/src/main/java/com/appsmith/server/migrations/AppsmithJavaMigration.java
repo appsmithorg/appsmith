@@ -30,7 +30,6 @@ public abstract class AppsmithJavaMigration extends BaseJavaMigration {
     public final void migrate(Context context) throws Exception {
         JdbcTemplate jdbcTemplate =
                 new JdbcTemplate(new SingleConnectionDataSource(context.getConnection(), true), false);
-        log.info("Running migration: {}", this.getClass().getSimpleName());
         migrate(jdbcTemplate);
     }
 

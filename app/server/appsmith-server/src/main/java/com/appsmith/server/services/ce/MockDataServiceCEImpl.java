@@ -243,9 +243,6 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
                     && datasourceStorageDTO.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
                 ((DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication())
                         .setPassword(finalPassword);
-                // in the process of save operation, datasource id is being set even if operation was failed
-                // we need to reset it
-                //                datasource.setId(null);
                 return createSuffixedDatasource(datasource, name, environmentId, 1 + suffix);
             }
             throw error;
