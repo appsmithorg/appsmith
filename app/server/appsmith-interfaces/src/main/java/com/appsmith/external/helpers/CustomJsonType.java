@@ -2,6 +2,7 @@ package com.appsmith.external.helpers;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.annotations.encryption.EncryptionHandler;
+import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
@@ -85,30 +86,29 @@ public final class CustomJsonType extends JsonBinaryType {
          */
         @Override
         public <T> T fromString(String string, Class<T> clazz) {
-            final T result = super.fromString(string, clazz);
-            ENCRYPTION_HANDLER.convertEncryption(result, textEncryptor::decrypt);
-            return result;
+            return applyDecryption(super.fromString(string, clazz));
         }
 
         @Override
         public <T> T fromString(String string, Type type) {
-            final T result = super.fromString(string, type);
-            ENCRYPTION_HANDLER.convertEncryption(result, textEncryptor::decrypt);
-            return result;
+            return applyDecryption(super.fromString(string, type));
         }
 
         @Override
         public <T> T fromBytes(byte[] value, Class<T> clazz) {
-            final T result = super.fromBytes(value, clazz);
-            ENCRYPTION_HANDLER.convertEncryption(result, textEncryptor::decrypt);
-            return result;
+            return applyDecryption(super.fromBytes(value, clazz));
         }
 
         @Override
         public <T> T fromBytes(byte[] value, Type type) {
-            final T result = super.fromBytes(value, type);
-            ENCRYPTION_HANDLER.convertEncryption(result, textEncryptor::decrypt);
-            return result;
+            return applyDecryption(super.fromBytes(value, type));
+        }
+
+        private <T> T applyDecryption(T obj) {
+            if (AppsmithDomain.class.isAssignableFrom(obj.getClass())) {
+                ENCRYPTION_HANDLER.convertEncryption(obj, textEncryptor::decrypt);
+            }
+            return obj;
         }
     }
 
