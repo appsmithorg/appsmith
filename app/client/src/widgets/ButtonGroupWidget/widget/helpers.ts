@@ -28,7 +28,7 @@ export const getStylesheetValue = (
 export const isIconNamePresent = (
   props: ButtonGroupWidgetProps,
   propertyPath: string,
-  isMenuItem: boolean = false,
+  isMenuItem = false,
 ): boolean => {
   const pathArray = propertyPath.split(".");
   const buttonKey = pathArray[pathArray.length - (isMenuItem ? 4 : 2)];
