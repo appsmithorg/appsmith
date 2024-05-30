@@ -10,6 +10,8 @@ import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -137,6 +139,15 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
             this.setCreatedAt(Instant.now());
         }
         this.setUpdatedAt(Instant.now());
+    }
+
+    @PrePersist
+    @PreUpdate
+    public void preSave() {
+        if (id == null) {
+            // TODO: Use custom generation strategy instead of this.
+            setId(UUID.randomUUID().toString());
+        }
     }
 
     public static class Fields {}
