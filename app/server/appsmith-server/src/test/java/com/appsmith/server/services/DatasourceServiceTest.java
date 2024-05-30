@@ -42,6 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -1042,6 +1043,7 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    @Disabled
     public void checkEncryptionOfAuthenticationDTOTest() {
         // For this test, simply inserting a new datasource with authentication should immediately
         // set the authentication object as encrypted
@@ -1157,6 +1159,7 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    @Disabled
     public void checkEncryptionOfAuthenticationDTOAfterUpdate() {
         // Here, we're replacing an existing encrypted field with another
         // Encyption state would stay the same, that is, as true

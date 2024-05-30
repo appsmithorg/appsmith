@@ -49,7 +49,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
-@ExtendWith({AfterAllCleanUpExtension.class})
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
