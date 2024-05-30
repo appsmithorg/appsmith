@@ -349,12 +349,10 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .flatMapIterable(tuple2 -> clonedPages)
                 .flatMap(clonedPage -> updateLayoutService.updatePageLayoutsByPageId(clonedPage.getId()))
                 .onErrorResume(throwable -> {
-                    if (throwable instanceof AppsmithException e) {
-                        if (AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.equals(e.getError())) {
-                            log.error("Error while cloning page {} ", throwable.getMessage());
-                            return Mono.just("");
-                        }
-                        return Mono.error(throwable);
+                    if (throwable instanceof AppsmithException e
+                            && AppsmithError.INVALID_DYNAMIC_BINDING_REFERENCE.equals(e.getError())) {
+                        log.error("Error while cloning page {} ", throwable.getMessage());
+                        return Mono.just("");
                     }
                     return Mono.error(throwable);
                 })

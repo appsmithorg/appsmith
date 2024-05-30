@@ -1,4 +1,4 @@
-package com.appsmith.server.solutions;
+package com.appsmith.server.fork;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
@@ -9,6 +9,7 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.solutions.EnvironmentPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
