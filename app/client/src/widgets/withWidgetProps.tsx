@@ -90,7 +90,8 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     const isLoading = useSelector((state: AppState) =>
       getIsWidgetLoading(state, widgetName),
     );
-
+    // Canvas widget does not support meta widgets at the moment
+    // and we need to show a meta widget skeleton loader on the canvas widget only for building blocks
     const allowCanvasWidgetBuildingBlockSkeletonLoader =
       type === "CANVAS_WIDGET" && renderMode === RenderModes.CANVAS;
 
