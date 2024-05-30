@@ -14,4 +14,5 @@ export interface InputComponentProps extends BaseInputComponentProps {
   autoComplete?: string;
   iconAlign?: "left" | "right";
   iconName?: IconProps["name"];
+  onPaste?: (event: React.ClipboardEvent<HTMLInputElement>) => void;
 }
