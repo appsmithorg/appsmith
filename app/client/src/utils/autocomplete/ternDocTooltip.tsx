@@ -37,7 +37,7 @@ export function TernDocToolTip(props: {
 }) {
   const { completion } = props;
   const {
-    data: { url },
+    data: { doc, url },
     displayText,
     fullPath,
   } = completion;
@@ -67,6 +67,34 @@ export function TernDocToolTip(props: {
         )}
       </div>
 
+      <pre className="px-2 p-1 text-xs whitespace-normal">
+        {(dataType === "object" || dataType === "array") && value !== null && (
+          <ReactJson src={value} {...reactJsonProps} />
+        )}
+        {dataType === "function" && <div>{value.toString()}</div>}
+        {dataType === "boolean" && <div>{value.toString()}</div>}
+        {dataType === "string" && <div>{value.toString()}</div>}
+        {dataType === "number" && <div>{value.toString()}</div>}
+        {((dataType !== "object" &&
+          dataType !== "function" &&
+          dataType !== "boolean" &&
+          dataType !== "string" &&
+          dataType !== "array" &&
+          dataType !== "number") ||
+          value === null) && (
+          <div>
+            {value?.toString() ?? value ?? value === undefined
+              ? "undefined"
+              : "null"}
+          </div>
+        )}
+      </pre>
+
+      <pre
+        className="px-2 p-1 text-xs whitespace-normal"
+        dangerouslySetInnerHTML={{ __html: doc }}
+      />
+
       {examples && (
         <div className="flex px-2 py-[2px] text-xs font-semibold">Example</div>
       )}
@@ -91,29 +119,6 @@ export function TernDocToolTip(props: {
           })}
         </div>
       )}
-
-      <pre className="px-2 p-1 text-xs whitespace-normal">
-        {(dataType === "object" || dataType === "array") && value !== null && (
-          <ReactJson src={value} {...reactJsonProps} />
-        )}
-        {dataType === "function" && <div>{value.toString()}</div>}
-        {dataType === "boolean" && <div>{value.toString()}</div>}
-        {dataType === "string" && <div>{value.toString()}</div>}
-        {dataType === "number" && <div>{value.toString()}</div>}
-        {((dataType !== "object" &&
-          dataType !== "function" &&
-          dataType !== "boolean" &&
-          dataType !== "string" &&
-          dataType !== "array" &&
-          dataType !== "number") ||
-          value === null) && (
-          <div>
-            {value?.toString() ?? value ?? value === undefined
-              ? "undefined"
-              : "null"}
-          </div>
-        )}
-      </pre>
     </div>
   );
 }
