@@ -173,7 +173,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 Layout layout =
                                         page.getUnpublishedPage().getLayouts().get(0);
                                 return refactoringService.getAllExistingEntitiesMono(
-                                        page.getId(), CreatorContextType.PAGE, layout.getId(), false);
+                                        page.getId(), CreatorContextType.PAGE, layout.getId(), true);
                             })
                             .flatMap(nameSet -> {
                                 // Fetch name of the existing resources in the page to avoid name clashing
@@ -248,6 +248,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                     return Flux.fromIterable(mappedImportableResourcesDTO
                                     .getRefactoringNameReference()
                                     .keySet())
+                            .filter(name -> !name.equals(mappedImportableResourcesDTO
+                                    .getRefactoringNameReference()
+                                    .get(name)))
                             .flatMap(name -> {
                                 String refactoredName = mappedImportableResourcesDTO
                                         .getRefactoringNameReference()

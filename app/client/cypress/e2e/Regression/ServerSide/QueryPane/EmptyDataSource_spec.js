@@ -9,7 +9,7 @@ describe(
   { tags: ["@tag.Datasource"] },
   function () {
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
 
     it("1. Create a empty datasource", function () {

@@ -22,7 +22,7 @@ describe(
     });
 
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
 
     it("1. Create a PostgresDataSource", () => {
