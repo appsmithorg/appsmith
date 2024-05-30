@@ -113,6 +113,7 @@ import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSele
 import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -246,6 +247,48 @@ export function* updateDataTreeHandler(
  * @example
  * yield call(evaluateTreeSaga, postEvalActions, shouldReplay, requiresLinting, forceEvaluation)
  */
+export const seperateOutAffectedJSactions = (
+  unevalTree: UnEvalTree,
+  affectedJSObjects: AffectedJSObjects,
+) => {
+  const { ids, isAllAffected } = affectedJSObjects;
+
+  const unevalTreeWithoutJSObjects = Object.keys(unevalTree).reduce(
+    (acc, entityId) => {
+      const entityData = unevalTree[entityId];
+      if (isJSAction(entityData)) {
+        return acc;
+      }
+      acc[entityId] = entityData;
+      return acc;
+    },
+    {} as UnEvalTree,
+  );
+  const allJSObjects = Object.keys(unevalTree)
+    .filter((entityId) => isJSAction(unevalTree[entityId]))
+    .map((key) => ({ path: key, value: unevalTree[key] }));
+
+  if (isAllAffected) {
+    return {
+      unevalTreeWithoutJSObjects,
+      jsPatches: {
+        shouldReplaceAllNodes: true,
+        patches: allJSObjects,
+      },
+    };
+  }
+  const affectedIdsSet = new Set(ids);
+  return {
+    unevalTreeWithoutJSObjects,
+    jsPatches: {
+      shouldReplaceAllNodes: false,
+      patches: allJSObjects.filter((v: any) =>
+        affectedIdsSet.has(v.value.actionId),
+      ),
+    },
+  };
+};
+
 export function* evaluateTreeSaga(
   unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree>,
   postEvalActions?: Array<AnyReduxAction>,
@@ -273,8 +316,17 @@ export function* evaluateTreeSaga(
 
   const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
 
+  const { jsPatches, unevalTreeWithoutJSObjects } =
+    seperateOutAffectedJSactions(
+      unEvalAndConfigTree.unEvalTree,
+      affectedJSObjects,
+    );
+
   const evalTreeRequestData: EvalTreeRequestData = {
-    unevalTree: unEvalAndConfigTree,
+    unevalTree: {
+      configTree: unEvalAndConfigTree.configTree,
+      unEvalTree: unevalTreeWithoutJSObjects,
+    },
     widgetTypeConfigMap,
     widgets,
     theme,
@@ -285,7 +337,7 @@ export function* evaluateTreeSaga(
     appMode,
     widgetsMeta,
     shouldRespondWithLogs,
-    affectedJSObjects,
+    jsPatches,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(

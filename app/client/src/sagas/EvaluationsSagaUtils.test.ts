@@ -3,7 +3,6 @@ import {
   copyJSCollectionSuccess,
   createJSCollectionSuccess,
   deleteJSCollectionSuccess,
-  fetchJSCollectionsForPageSuccess,
   moveJSCollectionSuccess,
 } from "actions/jsActionActions";
 import { updateJSCollectionBodySuccess } from "actions/jsPaneActions";
@@ -19,8 +18,8 @@ import {
 
 describe("getAffectedJSObjectIdsFromAction", () => {
   const jsObject1 = { id: "1234" } as JSCollection;
-  const jsObject2 = { id: "5678" } as JSCollection;
-  const jsCollection: JSCollection[] = [jsObject1, jsObject2];
+  // const jsObject2 = { id: "5678" } as JSCollection;
+  // const jsCollection: JSCollection[] = [jsObject1, jsObject2];
 
   test("should return a default response for an empty action ", () => {
     const result = getAffectedJSObjectIdsFromAction(
@@ -72,7 +71,6 @@ describe("getAffectedJSObjectIdsFromAction", () => {
     [copyJSCollectionSuccess, jsObject1, ["1234"]],
     [moveJSCollectionSuccess, jsObject1, ["1234"]],
     [updateJSCollectionBodySuccess, { data: jsObject1 }, ["1234"]],
-    [fetchJSCollectionsForPageSuccess, jsCollection, ["1234", "5678"]],
   ])(
     "should return the correct affected JSObject ids for action %p with input %p and expected to be %p",
     (action, input, expected) => {
@@ -86,6 +84,17 @@ describe("getAffectedJSObjectIdsFromAction", () => {
     [
       ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
       ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
+    ].forEach((actionType) => {
+      const result = getAffectedJSObjectIdsFromAction({
+        type: actionType,
+      } as ReduxAction<unknown>);
+      expect(result).toEqual({ isAllAffected: true, ids: [] });
+    });
+  });
+  test("should return isAllAffected to be true for all FETCH calls", () => {
+    [
+      ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS,
+      ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS,
     ].forEach((actionType) => {
       const result = getAffectedJSObjectIdsFromAction({
         type: actionType,
