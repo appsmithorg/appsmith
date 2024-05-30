@@ -37,7 +37,7 @@ public class V3__addPlugins extends AppsmithJavaMigration {
         addGoogleAIPlugin();
         addDatabricksPlugin();
         addAppsmithAIPlugin();
-        addWorkflowPlugin();
+        // addWorkflowPlugin();
         addAWSLambdaPlugin();
     }
 
