@@ -66,7 +66,7 @@ public class DatasourceStructure {
 
     /**
      * this JsonTypeInfo annotation is used to determine the type of key while deserializing the JSON.
-     * This is required because the key can be of two types - PrimaryKey and ForeignKey and Key is an interface.
+     * JsonSubTypes is required because the key can be of two types - PrimaryKey and ForeignKey and Key is an interface so jackson needs this information for deserialization.
      */
     @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
     @JsonSubTypes({
