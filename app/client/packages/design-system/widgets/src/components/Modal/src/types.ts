@@ -49,6 +49,8 @@ export interface ModalFooterProps {
   /** The event that is triggered when the submit button is clicked. */
   onSubmit?: () => void;
   excludeFromTabOrder?: boolean;
+  /** Defines if the modal should close when submit button is pressed */
+  closeOnSubmit?: boolean;
 }
 
 export interface ModalBodyProps {
