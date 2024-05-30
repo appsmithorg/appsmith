@@ -37,7 +37,6 @@ public class V3__addPlugins extends AppsmithJavaMigration {
         addGoogleAIPlugin();
         addDatabricksPlugin();
         addAppsmithAIPlugin();
-        addWorkflowPlugin();
         addAWSLambdaPlugin();
     }
 
@@ -474,23 +473,6 @@ public class V3__addPlugins extends AppsmithJavaMigration {
                 .packageName("appsmithai-plugin")
                 .iconLocation("https://assets.appsmith.com/logo/appsmith-ai.svg")
                 .documentationLink("https://docs.appsmith.com/connect-data/reference/appsmith-ai")
-                .responseType(Plugin.ResponseType.JSON)
-                .uiComponent("UQIDbEditorForm")
-                .datasourceComponent("DbEditorForm")
-                .defaultInstall(true)
-                .isRemotePlugin(false)
-                .isSupportedForAirGap(true)
-                .build();
-        insertPlugin(plugin);
-    }
-
-    private void addWorkflowPlugin() {
-        Plugin plugin = Plugin.builder()
-                .name("Workflow")
-                .type(PluginType.INTERNAL)
-                .packageName("workflow-plugin")
-                .iconLocation("https://assets.appsmith.com/workflows.svg")
-                .documentationLink("https://docs.appsmith.com/connect-data/reference/workflows")
                 .responseType(Plugin.ResponseType.JSON)
                 .uiComponent("UQIDbEditorForm")
                 .datasourceComponent("DbEditorForm")
