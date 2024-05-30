@@ -26,7 +26,7 @@ describe(
     });
 
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
 
     it("1. Create a page/moveQuery/rename/delete in explorer", function () {
