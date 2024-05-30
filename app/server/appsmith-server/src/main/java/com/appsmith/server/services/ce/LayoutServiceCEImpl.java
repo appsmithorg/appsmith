@@ -61,17 +61,6 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
     }
 
     @Override
-    public Mono<Layout> createLayout(String defaultPageId, Layout layout, String branchName) {
-        if (StringUtils.isEmpty(branchName)) {
-            return createLayout(defaultPageId, layout);
-        }
-        return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                .flatMap(branchedPage -> createLayout(branchedPage.getId(), layout))
-                .map(responseUtils::updateLayoutWithDefaultResources);
-    }
-
-    @Override
     public Mono<Layout> getLayout(String pageId, String layoutId, Boolean viewMode) {
         return newPageService
                 .findByIdAndLayoutsId(pageId, layoutId, pagePermission.getReadPermission(), viewMode)

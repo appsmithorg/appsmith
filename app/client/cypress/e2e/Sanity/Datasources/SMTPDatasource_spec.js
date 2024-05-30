@@ -10,7 +10,7 @@ describe(
   function () {
     let SMTPDatasourceName;
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
     before(() => {
       agHelper.AddDsl("SMTPTestdsl");
