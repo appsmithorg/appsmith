@@ -8,6 +8,19 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.List;
 
+/**
+ * This SpringExtension is used to clean up the database after all tests have run. It drops all tables and routines.
+ * <br>
+ * Annotate it in your test class to ensure database cleanup after all tests have run and doesn't affect state of other tests.
+ * Use it in conjunction with @DirtiesContext
+ * <br>
+ * Example:
+ * <br>
+ * @ExtendWith(AfterAllCleanUpExtension.class)
+ * <br>
+ * @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+ * <br>
+ */
 @Slf4j
 public class AfterAllCleanUpExtension extends SpringExtension {
     @Override
