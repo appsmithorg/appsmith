@@ -11,10 +11,7 @@ import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +31,6 @@ import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CacheableTemplateHelperTemplateMetadataTest {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
@@ -90,7 +86,6 @@ public class CacheableTemplateHelperTemplateMetadataTest {
      * 8. Fetch the templates again, verify the data is from the mock and not from the cache.
      */
     @Test
-    @Order(1)
     public void getTemplateData_cacheIsEmpty_VerifyDataSavedInCache() throws JsonProcessingException {
         ApplicationTemplate templateOne = create("id-one", "First template");
         ApplicationTemplate templateTwo = create("id-two", "Seconds template");
@@ -103,7 +98,7 @@ public class CacheableTemplateHelperTemplateMetadataTest {
 
         assertThat(cacheableTemplateHelper.getCacheableApplicationTemplate().getApplicationTemplateList())
                 .isNull();
-        assertThat(cacheableTemplateHelper.getCacheableApplicationTemplate().getTimeStamp())
+        assertThat(cacheableTemplateHelper.getCacheableApplicationTemplate().getCacheExpiryTime())
                 .isNull();
 
         Mono<CacheableApplicationTemplate> templateListMono =
@@ -117,7 +112,7 @@ public class CacheableTemplateHelperTemplateMetadataTest {
                     cacheableApplicationTemplate1.getApplicationTemplateList().forEach(applicationTemplate -> {
                         assertThat(applicationTemplate.getId()).isIn("id-one", "id-two", "id-three");
                     });
-                    timeFromCache[0] = cacheableApplicationTemplate1.getTimeStamp();
+                    timeFromCache[0] = cacheableApplicationTemplate1.getCacheExpiryTime();
                 })
                 .verifyComplete();
 
@@ -129,7 +124,8 @@ public class CacheableTemplateHelperTemplateMetadataTest {
                     cacheableApplicationTemplate1.getApplicationTemplateList().forEach(applicationTemplate -> {
                         assertThat(applicationTemplate.getId()).isIn("id-one", "id-two", "id-three");
                     });
-                    assertThat(cacheableApplicationTemplate1.getTimeStamp()).isEqualTo(timeFromCache[0]);
+                    assertThat(cacheableApplicationTemplate1.getCacheExpiryTime())
+                            .isEqualTo(timeFromCache[0]);
                 })
                 .verifyComplete();
     }
@@ -139,7 +135,6 @@ public class CacheableTemplateHelperTemplateMetadataTest {
      * 2. Fetch the templates again, verify the data is from the mock and not from the cache.
      */
     @Test
-    @Order(2)
     public void getTemplateData_cacheIsDirty_verifyDataIsFetchedFromSource() throws JsonProcessingException {
 
         ApplicationTemplate templateFour = create("id-four", "Fourth template");

@@ -10,5 +10,5 @@ public class CacheableApplicationTemplate {
 
     List<ApplicationTemplate> applicationTemplateList;
 
-    Instant timeStamp;
+    Instant cacheExpiryTime;
 }

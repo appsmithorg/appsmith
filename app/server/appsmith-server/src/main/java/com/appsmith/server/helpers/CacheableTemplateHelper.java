@@ -12,7 +12,6 @@ import com.appsmith.util.WebClientUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -28,15 +27,14 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-@AllArgsConstructor
 @Slf4j
 @Component
 public class CacheableTemplateHelper {
     // Template metadata is used for showing the preview of the template
 
-    private static CacheableApplicationTemplate applicationTemplateList = new CacheableApplicationTemplate();
+    CacheableApplicationTemplate applicationTemplateList = new CacheableApplicationTemplate();
 
-    private static Map<String, CacheableApplicationJson> cacheableApplicationJsonMap = new HashMap<>();
+    Map<String, CacheableApplicationJson> cacheableApplicationJsonMap = new HashMap<>();
     private static final int CACHE_LIFE_TIME_IN_SECONDS = 60 * 60 * 24; // 24 hours
 
     public Mono<CacheableApplicationTemplate> getTemplates(String releaseVersion, String baseUrl) {
@@ -45,7 +43,8 @@ public class CacheableTemplateHelper {
             applicationTemplateList = new CacheableApplicationTemplate();
         }
 
-        if (applicationTemplateList.getTimeStamp() != null && isCacheValid(applicationTemplateList.getTimeStamp())) {
+        if (applicationTemplateList.getCacheExpiryTime() != null
+                && isCacheValid(applicationTemplateList.getCacheExpiryTime())) {
             return Mono.just(applicationTemplateList);
         }
 
@@ -71,7 +70,7 @@ public class CacheableTemplateHelper {
                 .collectList()
                 .map(applicationTemplates -> {
                     applicationTemplateList.setApplicationTemplateList(applicationTemplates);
-                    applicationTemplateList.setTimeStamp(Instant.now());
+                    applicationTemplateList.setCacheExpiryTime(Instant.now());
                     return applicationTemplateList;
                 });
     }
@@ -93,7 +92,7 @@ public class CacheableTemplateHelper {
         }
 
         if (cacheableApplicationJsonMap.containsKey(templateId)
-                && isCacheValid(cacheableApplicationJsonMap.get(templateId).getTimeStamp())) {
+                && isCacheValid(cacheableApplicationJsonMap.get(templateId).getCacheExpiryTime())) {
             return Mono.just(cacheableApplicationJsonMap.get(templateId));
         }
 
@@ -118,7 +117,7 @@ public class CacheableTemplateHelper {
 
                     CacheableApplicationJson cacheableApplicationJson = new CacheableApplicationJson();
                     cacheableApplicationJson.setApplicationJson(gson.fromJson(jsonString, fileType));
-                    cacheableApplicationJson.setTimeStamp(Instant.now());
+                    cacheableApplicationJson.setCacheExpiryTime(Instant.now());
 
                     // Remove/replace the value from cache
                     cacheableApplicationJsonMap.put(templateId, cacheableApplicationJson);

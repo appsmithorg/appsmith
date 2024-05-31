@@ -9,5 +9,5 @@ public class CacheableApplicationJson {
 
     ApplicationJson applicationJson;
 
-    Instant timeStamp;
+    Instant cacheExpiryTime;
 }

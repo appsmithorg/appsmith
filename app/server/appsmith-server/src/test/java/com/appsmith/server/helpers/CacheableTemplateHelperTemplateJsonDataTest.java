@@ -15,10 +15,7 @@ import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +38,6 @@ import static org.mockito.ArgumentMatchers.any;
  */
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class CacheableTemplateHelperTemplateJsonDataTest {
     private static final ObjectMapper objectMapper = new ObjectMapper();
     private static MockWebServer mockCloudServices;
@@ -94,7 +90,6 @@ public class CacheableTemplateHelperTemplateJsonDataTest {
      * 6. Verify the cache is used and not the mock. This is done by asserting the lastUpdated time of the cache.
      */
     @Test
-    @Order(1)
     public void getApplicationJson_cacheIsEmpty_VerifyDataSavedInCache() throws JsonProcessingException {
         ApplicationJson applicationJson = new ApplicationJson();
         applicationJson.setArtifactJsonType(ArtifactType.APPLICATION);
@@ -116,7 +111,7 @@ public class CacheableTemplateHelperTemplateJsonDataTest {
         StepVerifier.create(templateListMono)
                 .assertNext(cacheableApplicationJson1 -> {
                     assertThat(cacheableApplicationJson1.getApplicationJson()).isNotNull();
-                    timeFromCache[0] = cacheableApplicationJson1.getTimeStamp();
+                    timeFromCache[0] = cacheableApplicationJson1.getCacheExpiryTime();
                 })
                 .verifyComplete();
 
@@ -125,7 +120,7 @@ public class CacheableTemplateHelperTemplateJsonDataTest {
                         "templateId", cloudServicesConfig.getBaseUrl()))
                 .assertNext(cacheableApplicationJson1 -> {
                     assertThat(cacheableApplicationJson1.getApplicationJson()).isNotNull();
-                    assertThat(cacheableApplicationJson1.getTimeStamp()).isEqualTo(timeFromCache[0]);
+                    assertThat(cacheableApplicationJson1.getCacheExpiryTime()).isEqualTo(timeFromCache[0]);
                 })
                 .verifyComplete();
         assertThat(cacheableTemplateHelper.getCacheableApplicationJsonMap().size())
@@ -137,7 +132,6 @@ public class CacheableTemplateHelperTemplateJsonDataTest {
      * 2. Fetch the templates again, verify the data is from the mock and not from the cache.
      */
     @Test
-    @Order(2)
     public void getApplicationJson_cacheIsDirty_verifyDataIsFetchedFromSource() {
         ApplicationJson applicationJson = new ApplicationJson();
         Application test = new Application();
@@ -167,7 +161,6 @@ public class CacheableTemplateHelperTemplateJsonDataTest {
     }
 
     @Test
-    @Order(3)
     public void getApplicationJson_cacheKeyIsMissing_verifyDataIsFetchedFromSource() {
         ApplicationJson applicationJson1 = new ApplicationJson();
         Application application = new Application();

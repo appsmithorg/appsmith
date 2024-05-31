@@ -152,7 +152,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .onErrorResume(e -> {
                     log.error("Error fetching template json data from cloud service ", e);
                     // If there is an error fetching the template from the cache, then evict the cache and fetch from CS
-                    return Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage()));
+                    return Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, templateId));
                 });
     }
 
