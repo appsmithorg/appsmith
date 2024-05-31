@@ -31,4 +31,21 @@ public class GitConstantsCE {
         public static final String ACTION_COLLECTION_BODY = "ActionCollectionBody";
         public static final String NEW_ACTION_BODY = "NewActionBody";
     }
+
+    public class GitCommandConstantsCE {
+        public static final String METADATA = "metadata";
+        public static final String AUTO_COMMIT = "autoCommit";
+        public static final String PULL = "pull";
+        public static final String PUSH = "push";
+        public static final String STATUS = "status";
+        public static final String FETCH_REMOTE = "fetchRemote";
+        public static final String COMMIT = "commit";
+        public static final String CREATE_BRANCH = "createBranch";
+        public static final String CHECKOUT_BRANCH = "checkoutBranch";
+        public static final String SYNC_BRANCH = "syncBranch";
+        public static final String LIST_BRANCH = "listBranch";
+        public static final String MERGE_BRANCH = "mergeBranch";
+        public static final String DELETE = "delete";
+        public static final String DISCARD = "discard";
+    }
 }

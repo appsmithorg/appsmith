@@ -2,6 +2,7 @@ package com.appsmith.server.git.autocommit.helpers;
 
 import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.enums.FeatureFlagEnum;
+import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -10,9 +11,9 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.AutoCommitTriggerDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
-import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.testhelpers.git.GitFileSystemTestHelper;
@@ -55,7 +56,7 @@ public class AutoCommitEligibilityHelperTest {
     FeatureFlagService featureFlagService;
 
     @MockBean
-    RedisUtils redisUtils;
+    GitRedisUtils gitRedisUtils;
 
     @Autowired
     GitFileSystemTestHelper gitFileSystemTestHelper;
@@ -101,8 +102,10 @@ public class AutoCommitEligibilityHelperTest {
 
         Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(RANDOM_DSL_VERSION_NUMBER));
 
-        Mockito.when(redisUtils.addFileLock(DEFAULT_APPLICATION_ID)).thenReturn(Mono.just(Boolean.TRUE));
-        Mockito.when(redisUtils.releaseFileLock(DEFAULT_APPLICATION_ID)).thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(gitRedisUtils.addFileLock(
+                        DEFAULT_APPLICATION_ID, GitConstants.GitCommandConstants.METADATA, false))
+                .thenReturn(Mono.just(Boolean.TRUE));
+        Mockito.when(gitRedisUtils.releaseFileLock(DEFAULT_APPLICATION_ID)).thenReturn(Mono.just(Boolean.TRUE));
     }
 
     @Test

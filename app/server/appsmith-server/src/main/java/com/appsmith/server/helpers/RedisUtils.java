@@ -9,6 +9,9 @@ import reactor.core.publisher.Mono;
 
 import java.time.Duration;
 
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitCommandConstantsCE.AUTO_COMMIT;
+import static org.springframework.util.StringUtils.hasText;
+
 @Component
 @RequiredArgsConstructor
 public class RedisUtils {
@@ -23,8 +26,18 @@ public class RedisUtils {
 
     private static final Duration AUTO_COMMIT_TIME_LIMIT = Duration.ofMinutes(3);
 
-    public Mono<Boolean> addFileLock(String key) {
-        return this.addFileLock(key, FILE_LOCK_TIME_LIMIT, new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
+    public Mono<Boolean> addFileLock(String key, String gitCommand) {
+        String command = hasText(gitCommand) ? gitCommand : REDIS_FILE_LOCK_VALUE;
+        return redisOperations.hasKey(key).flatMap(isKeyPresent -> {
+            if (!Boolean.TRUE.equals(isKeyPresent)) {
+                return redisOperations.opsForValue().set(key, gitCommand, FILE_LOCK_TIME_LIMIT);
+            }
+            return redisOperations
+                    .opsForValue()
+                    .get(key)
+                    .flatMap(commandName ->
+                            Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE, command, commandName)));
+        });
     }
 
     public Mono<Boolean> addFileLock(String key, Duration expirationPeriod, AppsmithException exception) {
@@ -48,7 +61,7 @@ public class RedisUtils {
         String key = String.format(AUTO_COMMIT_KEY_FORMAT, defaultApplicationId);
         return redisOperations.hasKey(key).flatMap(isKeyPresent -> {
             if (Boolean.TRUE.equals(isKeyPresent)) {
-                return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE));
+                return Mono.error(new AppsmithException(AppsmithError.GIT_FILE_IN_USE, AUTO_COMMIT, AUTO_COMMIT));
             }
             return redisOperations.opsForValue().set(key, branchName, AUTO_COMMIT_TIME_LIMIT);
         });
