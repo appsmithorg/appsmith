@@ -23,7 +23,7 @@ const evaluationDependencyReducer = createReducer(initialState, {
     ...state,
     inverseDependencyMap: action.payload.inverseDependencyMap,
   }),
-  [ReduxActionTypes.SET_DEPENDENCY_MAP_CACHE]: (
+  [ReduxActionTypes.SET_PAGE_DEPENDENCY_CACHE]: (
     state: EvaluationDependencyState,
     action: ReduxAction<{ dependencies: DependencyMap | null }>,
   ): EvaluationDependencyState => ({

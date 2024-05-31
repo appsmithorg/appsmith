@@ -893,7 +893,7 @@ export function* evaluationSagaListeners() {
 export function* evaluationsSaga() {
   yield all([
     takeLatest(ReduxActionTypes.START_EVALUATION, evaluationChangeListenerSaga),
-    takeLatest(ReduxActionTypes.CACHE_DEPENDENCY_MAP, cacheDependenciesSaga),
+    takeLatest(ReduxActionTypes.CACHE_PAGE_DEPNDENCIES, cacheDependenciesSaga),
   ]);
 }
 

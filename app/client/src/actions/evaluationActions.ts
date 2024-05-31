@@ -92,13 +92,13 @@ export const cacheDependencies = ({
   pageId: string;
 }> => {
   return {
-    type: ReduxActionTypes.CACHE_DEPENDENCY_MAP,
+    type: ReduxActionTypes.CACHE_PAGE_DEPNDENCIES,
     payload: { errors, dependencies, pageId },
   };
 };
 
 export const setDependencyCache = (dependencyMap: DependencyMap | null) => ({
-  type: ReduxActionTypes.SET_DEPENDENCY_MAP_CACHE,
+  type: ReduxActionTypes.SET_PAGE_DEPENDENCY_CACHE,
   payload: { dependencyMap: dependencyMap },
 });
 
