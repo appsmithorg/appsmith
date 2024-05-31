@@ -416,8 +416,6 @@ export function* pasteBuildingBlockWidgetsSaga(
   const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   try {
-    const isThereACollision = false;
-
     if (
       // to avoid invoking old way of copied widgets implementaion
       !Array.isArray(copiedWidgetGroups) ||
@@ -503,7 +501,7 @@ export function* pasteBuildingBlockWidgetsSaga(
             nextAvailableRow,
             newPastingPositionMap,
             true,
-            isThereACollision,
+            false,
             false,
           );
 
