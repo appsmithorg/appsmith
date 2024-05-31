@@ -9,7 +9,6 @@ import explorerLocators from "../../../../locators/explorerlocators.json";
 const MAX_BUILDING_BLOCKS_TO_DISPLAY = initialEntityCountForExplorerTag[
   "Building Blocks"
 ] as number;
-const DEFAULT_SKELETON_LOADER_NAME = "Skeleton1";
 
 describe(
   "Building blocks explorer tests",
