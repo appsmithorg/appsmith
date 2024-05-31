@@ -269,6 +269,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                             "hostname", ObjectUtils.defaultIfNull(deploymentProperties.getHostname(), ""));
                     analyticsProperties.put(
                             "deployedAt", ObjectUtils.defaultIfNull(deploymentProperties.getDeployedAt(), ""));
+                    analyticsProperties.put("adminEmailDomainHash", commonConfig.getHashedAdminEmail());
 
                     messageBuilder = messageBuilder.properties(analyticsProperties);
                     analytics.enqueue(messageBuilder);
