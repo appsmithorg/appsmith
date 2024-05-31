@@ -23,7 +23,7 @@
     text-overflow: ellipsis;
     max-inline-size: 100%;
     width: 100%;
-    box-sizing: content-box;
+    box-sizing: border-box;
     block-size: calc(
       var(--body-line-height) + var(--body-margin-start) +
         var(--body-margin-end)
