@@ -9,7 +9,7 @@
 * Create S3 bucket for Helm chart (naming as `helm.appsmith.com` \- Hosting S3 as Static web requires bucket name be the same with the domain\)
 * Clone your Helm charts (ignore if already have Appsmith repo on machine)
 
-* Build Helm chart depencies
+* Build Helm chart dependencies
 
 ```
 helm repo add bitnami https://charts.bitnami.com/bitnami
@@ -76,7 +76,7 @@ helm install appsmith appsmith/appsmith --version 1.4.1
 cd /deploy/helm
 ```
 
-* Build Helm chart depencies
+* Build Helm chart dependencies
 
 ```
 helm repo add bitnami https://charts.bitnami.com/bitnami
