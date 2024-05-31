@@ -1,7 +1,6 @@
 import React from "react";
 import { Icon, Text, Tooltip } from "design-system";
 import styled from "styled-components";
-import DatasourceStarterLayoutPrompt from "pages/Editor/Explorer/Datasources/DatasourceStarterLayoutPrompt";
 import { SidebarTopButtonTitles } from "@appsmith/entities/IDE/constants";
 
 export interface SidebarButtonProps {
@@ -55,9 +54,7 @@ const ConditionIcon = styled(Icon)`
 function SidebarButton(props: SidebarButtonProps) {
   return (
     <Container>
-      {props.title === SidebarTopButtonTitles.DATA && (
-        <DatasourceStarterLayoutPrompt />
-      )}
+      {props.title === SidebarTopButtonTitles.DATA}
       <Tooltip
         content={props.tooltip}
         isDisabled={!!props.title && !props.tooltip}
