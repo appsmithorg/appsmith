@@ -128,7 +128,7 @@ public class CacheableTemplateHelperTemplateJsonDataTest {
     }
 
     /* Scenarios covered via this test:
-     * 1. Set the cache time to 1 day before the current time.
+     * 1. Mock the cache isCacheValid to return false, so the cache is invalidated
      * 2. Fetch the templates again, verify the data is from the mock and not from the cache.
      */
     @Test
