@@ -17,6 +17,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -78,27 +80,24 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
                 }
                 usagePulse.setIsAnonymousUser(true);
                 usagePulse.setUser(usagePulseDTO.getAnonymousUserId());
-            } else {
-                usagePulse.setIsAnonymousUser(false);
-                if (user.getHashedEmail() == null || StringUtils.isEmpty(user.getHashedEmail())) {
-                    String hashedEmail = DigestUtils.sha256Hex(user.getEmail());
-                    usagePulse.setUser(hashedEmail);
-                    // Hashed user email is stored to user for future mapping of user and pulses
-                    User updateUser = new User();
-                    updateUser.setHashedEmail(hashedEmail);
-
-                    // Avoid updating the ACL fields
-                    updateUser.setGroupIds(null);
-                    updateUser.setPolicies(null);
-                    updateUser.setPermissions(null);
-
-                    return userService
-                            .updateWithoutPermission(user.getId(), updateUser)
-                            .then(save(usagePulse));
-                }
-                usagePulse.setUser(user.getHashedEmail());
+                return save(usagePulse);
             }
-            return save(usagePulse);
+            usagePulse.setIsAnonymousUser(false);
+            User updateUser = new User();
+            String hashedEmail = user.getHashedEmail();
+            if (StringUtils.isEmpty(hashedEmail)) {
+                hashedEmail = DigestUtils.sha256Hex(user.getEmail());
+                // Hashed user email is stored to user for future mapping of user and pulses
+                updateUser.setHashedEmail(hashedEmail);
+            }
+            usagePulse.setUser(hashedEmail);
+            updateUser.setLastActiveAt(Instant.now());
+            // Avoid updating the ACL fields
+            updateUser.setGroupIds(null);
+            updateUser.setPolicies(null);
+            updateUser.setPermissions(null);
+
+            return userService.updateWithoutPermission(user.getId(), updateUser).then(save(usagePulse));
         });
     }
 
