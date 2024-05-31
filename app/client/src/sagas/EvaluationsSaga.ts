@@ -879,7 +879,9 @@ export function* cacheDependenciesSaga(action: {
   }
 }
 
-export function* evaluationSagaListeners() {
+function* evaluationSagaListeners() {
+  yield take(ReduxActionTypes.START_EVALUATION);
+
   while (true) {
     try {
       yield call(evaluationChangeListenerSaga);
@@ -892,7 +894,7 @@ export function* evaluationSagaListeners() {
 
 export function* evaluationsSaga() {
   yield all([
-    takeLatest(ReduxActionTypes.START_EVALUATION, evaluationChangeListenerSaga),
+    fork(evaluationSagaListeners),
     takeLatest(ReduxActionTypes.CACHE_PAGE_DEPENDENCIES, cacheDependenciesSaga),
   ]);
 }
