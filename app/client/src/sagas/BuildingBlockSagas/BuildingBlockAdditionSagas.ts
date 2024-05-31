@@ -439,12 +439,10 @@ export function* pasteBuildingBlockWidgetsSaga(
     const {
       gridProps,
       newPastingPositionMap,
-      reflowedMovementMap,
     }: {
       canvasId: string | undefined;
       gridProps: GridProps | undefined;
       newPastingPositionMap: SpaceMap | undefined;
-      reflowedMovementMap: any;
     } = yield call(
       getNewPositions,
       copiedWidgetGroups,
@@ -683,11 +681,7 @@ export function* pasteBuildingBlockWidgetsSaga(
     );
 
     //calculate the new positions of the reflowed widgets
-    let reflowedWidgets = getReflowedPositions(
-      widgets,
-      gridProps,
-      reflowedMovementMap,
-    );
+    let reflowedWidgets = getReflowedPositions(widgets, gridProps, {});
 
     if (
       pastingIntoWidgetId &&
