@@ -1,4 +1,5 @@
 import {
+  cacheDependenciesSaga,
   defaultAffectedJSObjects,
   evalQueueBuffer,
   evaluateTreeSaga,
@@ -6,13 +7,13 @@ import {
 } from "./EvaluationsSaga";
 import { expectSaga } from "redux-saga-test-plan";
 import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import { select } from "redux-saga/effects";
+import { call, select } from "redux-saga/effects";
 import { getMetaWidgets, getWidgets, getWidgetsMeta } from "./selectors";
 import { getAllActionValidationConfig } from "@appsmith//selectors/entitiesSelector";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import * as log from "loglevel";
-
+import { throwError } from "redux-saga-test-plan/providers";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -20,6 +21,11 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { fetchPluginFormConfigsSuccess } from "actions/pluginActions";
 import { createJSCollectionSuccess } from "actions/jsActionActions";
+import { getCachedDependencies } from "selectors/evaluationSelectors";
+import { isEqual } from "lodash";
+import { getAllModuleInstances } from "@appsmith/selectors/moduleInstanceSelectors";
+import PageApi from "api/PageApi";
+import { setDependencyCache } from "actions/evaluationActions";
 jest.mock("loglevel");
 
 describe("evaluateTreeSaga", () => {
@@ -183,5 +189,99 @@ describe("evalQueueBuffer", () => {
       affectedJSObjects: defaultAffectedJSObjects,
       postEvalActions: [],
     });
+  });
+});
+
+describe("cacheDependenciesSaga", () => {
+  const action = {
+    type: "CACHE_DEPENDENCIES",
+    payload: {
+      errors: [],
+      dependencies: { dep1: ["value1"] },
+      pageId: "page1",
+    },
+  };
+
+  const currentCachedDependencies = { dep1: ["value1"] };
+  const moduleInstances = {};
+
+  it("should return if dependencies are unchanged", async () => {
+    return expectSaga(cacheDependenciesSaga, action)
+      .provide([
+        { call: ({ fn }, next) => (fn.name === "delayP" ? null : next()) },
+        [select(getCachedDependencies), currentCachedDependencies],
+        [
+          call(isEqual, action.payload.dependencies, currentCachedDependencies),
+          true,
+        ],
+      ])
+      .run();
+  });
+
+  it("should update dependency map if dependencies have changed", async () => {
+    const newDependencies = { dep1: ["newValue"] };
+    const newAction = {
+      ...action,
+      payload: {
+        ...action.payload,
+        dependencies: newDependencies,
+      },
+    };
+
+    return expectSaga(cacheDependenciesSaga, newAction)
+      .provide([
+        { call: ({ fn }, next) => (fn.name === "delayP" ? null : next()) },
+        [select(getCachedDependencies), currentCachedDependencies],
+        [call(isEqual, newDependencies, currentCachedDependencies), false],
+        [select(getAllModuleInstances), moduleInstances],
+        [
+          call(PageApi.updateDependencyMap, {
+            dependencies: newDependencies,
+            pageId: action.payload.pageId,
+          }),
+          undefined,
+        ],
+      ])
+      .put(setDependencyCache(newDependencies))
+      .run();
+  });
+
+  it("should reset dependency map to null in case of failure", async () => {
+    const error = new Error("Update failed");
+    const newDependencies = { dep1: ["newValue"] };
+    const newAction = {
+      ...action,
+      payload: {
+        ...action.payload,
+        dependencies: newDependencies,
+      },
+    };
+
+    return expectSaga(cacheDependenciesSaga, newAction)
+      .provide([
+        { call: ({ fn }, next) => (fn.name === "delayP" ? null : next()) },
+        [select(getCachedDependencies), currentCachedDependencies],
+        [
+          call(isEqual, action.payload.dependencies, currentCachedDependencies),
+          false,
+        ],
+        [select(getAllModuleInstances), moduleInstances],
+        [
+          call(PageApi.updateDependencyMap, {
+            dependencies: action.payload.dependencies,
+            pageId: action.payload.pageId,
+          }),
+          throwError(error),
+        ],
+        [
+          call(PageApi.updateDependencyMap, {
+            dependencies: null,
+            pageId: action.payload.pageId,
+          }),
+          undefined,
+        ],
+      ])
+      .put(setDependencyCache(null))
+      .run();
   });
 });
