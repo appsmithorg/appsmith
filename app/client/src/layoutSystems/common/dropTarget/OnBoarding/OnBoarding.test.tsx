@@ -1,6 +1,5 @@
 import {
   EMPTY_CANVAS_HINTS,
-  STARTER_TEMPLATE_PAGE_LAYOUTS,
   createMessage,
 } from "@appsmith/constants/messages";
 import { EditorEntityTab, EditorState } from "@appsmith/entities/IDE/constants";
@@ -52,21 +51,12 @@ describe("OnBoarding - Non-AirGap Edition", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
     render(BaseComponentRender(storeToUseWithStarterBuildingBlocksEnabled));
     const title = screen.getByText(
-      createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
     expect(title).toBeInTheDocument();
   });
 
-  it("2. renders the default onboarding component when on mobile layout", () => {
-    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
-    render(BaseComponentRender(storeToUseWithMobileCanvas));
-    const onboardingElement = screen.getByText(
-      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
-    );
-    expect(onboardingElement).toBeInTheDocument();
-  });
-
-  it("3. renders the onboarding component when drag and drop is enabled", () => {
+  it("2. renders the onboarding component when drag and drop is enabled", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
     render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
     const title = screen.getByText(
@@ -86,7 +76,7 @@ describe("OnBoarding - Non-AirGap Edition", () => {
     render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
 
     const onboardingElement = screen.getByText(
-      createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
     expect(onboardingElement).toBeInTheDocument();
   });
@@ -96,7 +86,7 @@ describe("OnBoarding - Non-AirGap Edition", () => {
     render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
 
     const onboardingElement = screen.getByText(
-      createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
     expect(onboardingElement).toBeInTheDocument();
   });
