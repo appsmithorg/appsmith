@@ -51,12 +51,12 @@ describe(
       // adding the text widget to the screen and updating its value as the table's date column field
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
       cy.openPropertyPane("textwidget");
-      cy.updateCodeInput(".t--property-control-text", `{{Table1.newRow.Date}}`);
+      cy.updateCodeInput(".t--property-control-text", "{{Table1.newRow.Date}}");
 
       // Ensure the expected value matches the actual value format
       cy.get(".t--widget-textwidget .bp3-ui-text").should(
         "contain",
-        `2024-05-15T00:00:00+05:30`,
+        "2024-05-15T00:00:00+05:30",
       );
     });
   },
