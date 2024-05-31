@@ -518,8 +518,11 @@ export const getCellProperties = (
         true,
       ),
       decimals: columnProperties.decimals,
-      thousandSeparator: !!columnProperties.thousandSeparator,
-      notation: columnProperties.notation,
+      thousandSeparator: getBooleanPropertyValue(
+        columnProperties.thousandSeparator,
+        rowIndex,
+      ),
+      notation: getPropertyValue(columnProperties.notation, rowIndex, true),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
