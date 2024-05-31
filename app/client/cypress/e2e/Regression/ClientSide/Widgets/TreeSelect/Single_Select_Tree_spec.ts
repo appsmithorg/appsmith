@@ -132,9 +132,7 @@ describe(
         `{{SingleSelectTree1.selectedOptionValue}}`,
       );
       cy.openPropertyPane("singleselecttreewidget");
-      agHelper.CheckUncheck(
-        '.t--property-control-allowclearingvalue input[type="checkbox"]',
-      );
+      agHelper.CheckUncheck(commonlocators.allowclearingValueInput);
 
       cy.get(formWidgetsPage.treeSelectClearAll).last().click({ force: true });
       cy.wait(100);

@@ -151,9 +151,7 @@ describe(
 
       // toggle serversidepagination -> true
       cy.openPropertyPane("listwidgetv2");
-      _.agHelper.CheckUncheck(
-        ".t--property-control-serversidepagination input",
-      );
+      _.agHelper.CheckUncheck(commonlocators.serverSidePaginationCheckbox);
 
       cy.get(commonlocators.bodyTextStyle)
         .first()

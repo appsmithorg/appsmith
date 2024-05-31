@@ -233,5 +233,6 @@
   "discard": "button:contains('Discard')",
   "heightProperty": ".rc-select-single input",
   "heightPropertyOption": ".rc-select-item-option-content span",
-  "filePickerMaxNoOfFiles": ".t--property-control-maxno\\.offiles .CodeMirror-code"
+  "filePickerMaxNoOfFiles": ".t--property-control-maxno\\.offiles .CodeMirror-code",
+  "allowclearingValueInput": ".t--property-control-allowclearingvalue input[type='checkbox']"
 }
