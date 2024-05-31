@@ -258,6 +258,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         analyticsProperties.put(ADMIN_EMAIL_DOMAIN_HASH, domainHash);
                     } else {
                         analyticsProperties.put(EMAIL_DOMAIN_HASH, emailDomainHash);
+                        analyticsProperties.put(ADMIN_EMAIL_DOMAIN_HASH, commonConfig.getAdminEmailDomainHash());
                     }
                     analyticsProperties.put("originService", "appsmith-server");
                     analyticsProperties.put("instanceId", instanceId);
@@ -272,7 +273,6 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                             "hostname", ObjectUtils.defaultIfNull(deploymentProperties.getHostname(), ""));
                     analyticsProperties.put(
                             "deployedAt", ObjectUtils.defaultIfNull(deploymentProperties.getDeployedAt(), ""));
-                    analyticsProperties.put(ADMIN_EMAIL_DOMAIN_HASH, commonConfig.getAdminEmailDomainHash());
 
                     messageBuilder = messageBuilder.properties(analyticsProperties);
                     analytics.enqueue(messageBuilder);
