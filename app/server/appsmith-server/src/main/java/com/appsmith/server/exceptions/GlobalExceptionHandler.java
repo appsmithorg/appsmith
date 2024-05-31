@@ -204,7 +204,18 @@ public class GlobalExceptionHandler {
             ServerWebInputException e, ServerWebExchange exchange) {
         AppsmithError appsmithError = AppsmithError.GENERIC_BAD_REQUEST;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
-        doLog(e);
+
+        StringBuilder builder = new StringBuilder();
+        Throwable t = e;
+        for (int turn = 0; t != null && turn < 10; ++turn) {
+            if (turn > 0) {
+                builder.append(";; ");
+            }
+            builder.append(t.getMessage());
+            t = t.getCause();
+        }
+        log.warn(builder.toString());
+
         String errorMessage = e.getReason();
         if (e.getMethodParameter() != null) {
             errorMessage = "Malformed parameter '" + e.getMethodParameter().getParameterName()

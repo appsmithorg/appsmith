@@ -16,7 +16,7 @@ describe(
     beforeEach(() => {
       agHelper.AddDsl("noiseDsl");
 
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
 
     it("1. Verify after killing MySQL session, app should not crash", function () {

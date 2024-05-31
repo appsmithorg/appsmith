@@ -19,7 +19,6 @@ import type { NameComponentStates } from "./types";
 import { generateDragStateForAnvilLayout } from "layoutSystems/anvil/utils/widgetUtils";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { isWidgetSelected } from "selectors/widgetSelectors";
 
 export function AnvilWidgetName(props: {
   widgetId: string;
@@ -43,13 +42,10 @@ export function AnvilWidgetName(props: {
     (state) => getWidgetErrorCount(state, widgetId) > 0,
   );
 
-  const isParentSelected = useSelector(isWidgetSelected(parentId));
-
   const styleProps = getWidgetNameComponentStyleProps(
     widgetType,
     nameComponentState,
     showError,
-    isParentSelected,
   );
 
   const { setDraggingState } = useWidgetDragResize();
@@ -60,11 +56,13 @@ export function AnvilWidgetName(props: {
       e.preventDefault();
       e.stopPropagation();
       // If we're dragging a focused widget, we need to select it before dragging
-      // Otherwise, the currently selected widget will instead be dragged.
-      selectWidget(SelectionRequestType.One, [widgetId]);
+      // Otherwise, the currently selected widget(s) will instead be dragged.
+      if (nameComponentState === "focus") {
+        selectWidget(SelectionRequestType.One, [widgetId]);
+      }
       setDraggingState(generateDragState());
     },
-    [setDraggingState],
+    [nameComponentState, setDraggingState, selectWidget, generateDragState],
   );
 
   /** Setup Floating UI logic */

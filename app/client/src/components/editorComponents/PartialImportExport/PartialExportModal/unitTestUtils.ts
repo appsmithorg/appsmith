@@ -2429,9 +2429,6 @@ export const defaultAppState = {
                   authType: "SCRAM_SHA_1",
                   username: "mockdb-admin",
                   databaseName: "movies",
-                  hasExpired: {
-                    scanAvailable: true,
-                  },
                 },
                 properties: [
                   {
@@ -2490,9 +2487,6 @@ export const defaultAppState = {
                   authenticationType: "dbAuth",
                   username: "users",
                   databaseName: "users",
-                  hasExpired: {
-                    scanAvailable: true,
-                  },
                 },
               },
               isConfigured: true,
@@ -11216,8 +11210,6 @@ export const defaultAppState = {
     templates: {
       isImportingTemplate: false,
       isImportingTemplateToApp: false,
-      isImportingStarterBuildingBlockToApp: false,
-      starterBuildingBlockDatasourcePrompt: false,
       loadingFilters: false,
       gettingAllTemplates: false,
       gettingTemplate: false,

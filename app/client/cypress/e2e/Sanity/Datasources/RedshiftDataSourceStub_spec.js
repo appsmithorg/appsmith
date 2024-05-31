@@ -8,7 +8,7 @@ describe(
   { tags: ["@tag.Datasource", "@tag.Sanity"] },
   function () {
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
 
     it("1. Create, test, save then delete a Redshift datasource", function () {
