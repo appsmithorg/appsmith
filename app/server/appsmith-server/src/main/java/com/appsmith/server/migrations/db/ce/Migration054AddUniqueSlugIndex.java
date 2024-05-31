@@ -13,7 +13,7 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExist
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 
 @Slf4j
-@ChangeUnit(order = "054", id = "create-unique-index-tenant-slug", author = " ")
+@ChangeUnit(order = "054", id = "create-unique-index-tenant-slug")
 public class Migration053AddUniqueSlugIndex {
 
     private final MongoTemplate mongoTemplate;
@@ -36,7 +36,7 @@ public class Migration053AddUniqueSlugIndex {
         dropIndexIfExists(mongoTemplate, Tenant.class, "slug_1");
 
         // Create a new unique index on the slug field
-         // Sort order: Sort.Direction.ASC ensures the slugs are sorted in ascending order (A to Z).
+        // Sort order: Sort.Direction.ASC ensures the slugs are sorted in ascending order (A to Z).
         // Uniqueness: .unique() makes sure each slug value is unique within the collection. This is useful to avoid
         // duplicate URLs or identifiers based on slugs.
         Index slugIndex =
