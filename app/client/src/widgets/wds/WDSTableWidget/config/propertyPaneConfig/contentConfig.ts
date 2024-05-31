@@ -148,6 +148,7 @@ export const contentConfig = [
         defaultValue: 10,
         isBindProperty: true,
         isTriggerProperty: false,
+        min: 1,
         validation: { type: ValidationTypes.NUMBER },
       },
       {
