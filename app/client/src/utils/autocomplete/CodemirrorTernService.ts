@@ -566,8 +566,6 @@ class CodeMirrorTernService {
       (cur: Completion<TernCompletionResult>, node: any) => {
         this.active = cur;
         this.remove(tooltip);
-        const content = cur.data.doc;
-        if (!content) return;
         const docTooltipContainer = this.elt("div", "flex flex-col pb-1");
         renderTernTooltipContent(docTooltipContainer, cur);
         tooltip = this.makeTooltip(
