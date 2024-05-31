@@ -78,7 +78,7 @@ export const setInverseDependencyMap = ({
   };
 };
 
-export const cacheDependencyMap = ({
+export const cacheDependencies = ({
   dependencies,
   errors,
   pageId,

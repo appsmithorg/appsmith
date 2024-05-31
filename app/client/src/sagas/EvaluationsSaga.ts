@@ -53,7 +53,7 @@ import {
   shouldLog,
   shouldProcessAction,
   shouldTriggerEvaluation,
-  cacheDependencyMap,
+  cacheDependencies,
   setDependencyCache,
 } from "actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
@@ -218,7 +218,7 @@ export function* updateDataTreeHandler(
     const pageId: string = yield select(getCurrentPageId);
     postEvalActionsToDispatch.push(executeJSUpdates(jsUpdates));
     postEvalActionsToDispatch.push(
-      cacheDependencyMap({ errors, dependencies, pageId }),
+      cacheDependencies({ errors, dependencies, pageId }),
     );
 
     if (requiresLogging) {
@@ -832,7 +832,7 @@ export function* setAppVersionOnWorkerSaga(action: {
   });
 }
 
-export function* cacheDependencyMapSaga(action: {
+export function* cacheDependenciesSaga(action: {
   type: ReduxActionType;
   payload: { errors: EvalError[]; dependencies: DependencyMap; pageId: string };
 }) {
@@ -893,7 +893,7 @@ export function* evaluationSagaListeners() {
 export function* evaluationsSaga() {
   yield all([
     takeLatest(ReduxActionTypes.START_EVALUATION, evaluationChangeListenerSaga),
-    takeLatest(ReduxActionTypes.CACHE_DEPENDENCY_MAP, cacheDependencyMapSaga),
+    takeLatest(ReduxActionTypes.CACHE_DEPENDENCY_MAP, cacheDependenciesSaga),
   ]);
 }
 
