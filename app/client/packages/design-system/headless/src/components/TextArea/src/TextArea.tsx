@@ -48,10 +48,20 @@ function TextArea(props: TextAreaProps, ref: TextAreaRef) {
       }
       input.style.alignSelf = "start";
       input.style.height = "auto";
-      // offsetHeight - clientHeight accounts for the border/padding.
+
       // Also, adding 1px to fix a bug in browser where there is a scrolllbar on certain heights
       input.style.height = `${
-        input.scrollHeight + (input.offsetHeight - input.clientHeight) + 1
+        // subtract comptued padding and border to get the actual content height
+        input.scrollHeight -
+        (getComputedStyle(input).paddingTop.replace(
+          "px",
+          "",
+        ) as unknown as number) -
+        (getComputedStyle(input).paddingBottom.replace(
+          "px",
+          "",
+        ) as unknown as number) +
+        1
       }px`;
       input.style.overflow = prevOverflow;
       input.style.alignSelf = prevAlignment;
