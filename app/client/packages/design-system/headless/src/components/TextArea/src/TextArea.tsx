@@ -49,18 +49,15 @@ function TextArea(props: TextAreaProps, ref: TextAreaRef) {
       input.style.alignSelf = "start";
       input.style.height = "auto";
 
-      // Also, adding 1px to fix a bug in browser where there is a scrolllbar on certain heights
+      const computedStyle = getComputedStyle(input);
+      const paddingTop = parseFloat(computedStyle.paddingTop);
+      const paddingBottom = parseFloat(computedStyle.paddingBottom);
       input.style.height = `${
         // subtract comptued padding and border to get the actual content height
         input.scrollHeight -
-        (getComputedStyle(input).paddingTop.replace(
-          "px",
-          "",
-        ) as unknown as number) -
-        (getComputedStyle(input).paddingBottom.replace(
-          "px",
-          "",
-        ) as unknown as number) +
+        paddingTop -
+        paddingBottom +
+        // Also, adding 1px to fix a bug in browser where there is a scrolllbar on certain heights
         1
       }px`;
       input.style.overflow = prevOverflow;
