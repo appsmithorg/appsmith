@@ -32,7 +32,7 @@ const locators = {
   AdminSettingsColorInputShades: ".t--color-input-shades",
   businessTag: ".business-tag",
   upgradeBanner: ".upgrade-banner",
-  upgradeButton: "[data-testid='t--branding-upgrade-button']",
+  upgradeButton: "[data-testid='t--button-upgrade']",
 };
 
 describe("Branding", { tags: ["@tag.Settings"] }, () => {
