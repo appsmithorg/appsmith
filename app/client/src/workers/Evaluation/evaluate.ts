@@ -26,6 +26,7 @@ import {
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
 import { set } from "lodash";
 import { klona } from "klona";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 export interface EvalResult {
   result: any;
@@ -214,7 +215,7 @@ const overrideEvalContext = (
     const entitiesClonedSoFar = new Set();
 
     Object.keys(overrideContext).forEach((path) => {
-      const [entityName] = path.split(".");
+      const { entityName } = getEntityNameAndPropertyPath(path);
 
       if (entityName in EVAL_CONTEXT && !entitiesClonedSoFar.has(entityName)) {
         entitiesClonedSoFar.add(entityName);
