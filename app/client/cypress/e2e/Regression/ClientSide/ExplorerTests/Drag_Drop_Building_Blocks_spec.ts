@@ -3,7 +3,6 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   entityExplorer,
   agHelper,
-  widgetLocators,
 } from "../../../../support/Objects/ObjectsCore";
 import explorerLocators from "../../../../locators/explorerlocators.json";
 
