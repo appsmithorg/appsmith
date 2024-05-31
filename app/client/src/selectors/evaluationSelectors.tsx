@@ -1,13 +1,4 @@
-import { getAppMode } from "@appsmith/selectors/entitiesSelector";
-import { APP_MODE } from "entities/App";
-import { createSelector } from "reselect";
+import type { AppState } from "@appsmith/reducers";
 
-export const getCachedDependencyMap = createSelector(
-  getAppMode,
-  (state) => state.evaluations.dependencies.cachedDependencyMap,
-  (appMode, cachedDependencyMap) => {
-    if (appMode === APP_MODE.PUBLISHED) {
-      return cachedDependencyMap;
-    }
-  },
-);
+export const getCachedDependencyMap = (state: AppState) =>
+  state.evaluations.dependencies.cachedDependencyMap;

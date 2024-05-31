@@ -54,6 +54,7 @@ import {
   shouldProcessAction,
   shouldTriggerEvaluation,
   cacheDependencyMap,
+  setDependencyCache,
 } from "actions/evaluationActions";
 import ConfigTreeActions from "utils/configTree";
 import {
@@ -67,7 +68,7 @@ import {
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
-import { get, isEmpty } from "lodash";
+import { get, isEmpty, isEqual } from "lodash";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { executeActionTriggers } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import {
@@ -88,7 +89,6 @@ import { resetWidgetsMetaState, updateMetaState } from "actions/metaActions";
 import {
   getAllActionValidationConfig,
   getAllJSActionsData,
-  getModuleInstances,
 } from "@appsmith/selectors/entitiesSelector";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import type {
@@ -123,6 +123,7 @@ import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import PageApi from "api/PageApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getCachedDependencyMap } from "selectors/evaluationSelectors";
+import { getAllModuleInstances } from "@appsmith/selectors/moduleInstanceSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -285,7 +286,7 @@ export function* evaluateTreeSaga(
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);
-  const cachedDependencyMap: DependencyMap | undefined = yield select(
+  const cachedDependencyMap: DependencyMap | null = yield select(
     getCachedDependencyMap,
   );
 
@@ -303,7 +304,8 @@ export function* evaluateTreeSaga(
     appMode,
     widgetsMeta,
     shouldRespondWithLogs,
-    cachedDependencyMap,
+    cachedDependencyMap:
+      appMode === APP_MODE.PUBLISHED ? cachedDependencyMap : null,
     affectedJSObjects,
   };
 
@@ -838,10 +840,25 @@ export function* cacheDependencyMapSaga(action: {
   // Ref: https://redux-saga.js.org/docs/recipes/#debouncing
   yield delay(500);
   const { dependencies, errors, pageId } = action.payload;
-  const moduleInstances: Record<string, any> = yield select(getModuleInstances);
+  const currentCachedDependencyMap: DependencyMap | undefined = yield select(
+    getCachedDependencyMap,
+  );
+  const areDependenciesUnchanged = isEqual(
+    dependencies,
+    currentCachedDependencyMap,
+  );
+
+  if (areDependenciesUnchanged) {
+    return;
+  }
+
+  const moduleInstances: Record<string, any> = yield select(
+    getAllModuleInstances,
+  );
+
   const shouldCache =
     Object.keys(moduleInstances || {}).length === 0 && errors.length === 0;
-  const cachedDependencyMap = shouldCache ? dependencies : null;
+  let cachedDependencyMap = shouldCache ? dependencies : null;
 
   try {
     yield call(PageApi.updateDependencyMap, {
@@ -850,12 +867,15 @@ export function* cacheDependencyMapSaga(action: {
     });
   } catch (e) {
     // Reset dependency map to null in case of failure
+    cachedDependencyMap = null;
     yield call(PageApi.updateDependencyMap, {
-      dependencies: null,
+      dependencies: cachedDependencyMap,
       pageId,
     });
     log.error(e);
     Sentry.captureException(e);
+  } finally {
+    yield put(setDependencyCache(cachedDependencyMap));
   }
 }
 

@@ -97,9 +97,9 @@ export const cacheDependencyMap = ({
   };
 };
 
-export const setDependencyCache = (dependencyMap?: DependencyMap) => ({
+export const setDependencyCache = (dependencyMap: DependencyMap | null) => ({
   type: ReduxActionTypes.SET_DEPENDENCY_MAP_CACHE,
-  payload: { dependencyMap },
+  payload: { dependencyMap: dependencyMap },
 });
 
 // Called when a form is being setup, for setting up the base condition evaluations for the form

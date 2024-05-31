@@ -372,7 +372,7 @@ export function* fetchPublishedPageSaga(
       // Update the canvas
       yield put(initCanvasLayout(canvasWidgetsPayload));
       // Set current page dependency map cache
-      yield put(setDependencyCache(response.data.dependencyMap));
+      yield put(setDependencyCache(response.data.dependencyMap || null));
       // set current page
       yield put(
         updateCurrentPage(

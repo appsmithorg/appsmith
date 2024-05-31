@@ -6,3 +6,5 @@ export const getModuleInstanceById = (
   state: AppState,
   id: string,
 ): ModuleInstance | undefined => undefined;
+
+export const getAllModuleInstances = (state: AppState) => null;

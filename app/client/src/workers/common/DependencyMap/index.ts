@@ -34,7 +34,7 @@ export function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalTree: DataTree,
   configTree: ConfigTree,
-  cachedDependencyMap?: Record<string, string[]>,
+  cachedDependencyMap?: Record<string, string[]> | null,
 ) {
   const { allKeys, dependencyMap } = dataTreeEvalRef;
   const allAppsmithInternalFunctions = convertArrayToObject(
