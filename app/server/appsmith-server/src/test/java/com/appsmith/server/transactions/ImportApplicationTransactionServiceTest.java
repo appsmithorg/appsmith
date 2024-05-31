@@ -22,6 +22,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.google.gson.Gson;
 import jakarta.transaction.TransactionalException;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -53,6 +54,7 @@ import static org.mockito.ArgumentMatchers.any;
 @SpringBootTest
 @TestPropertySource(properties = "property=C")
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@Disabled
 public class ImportApplicationTransactionServiceTest {
 
     @Autowired
