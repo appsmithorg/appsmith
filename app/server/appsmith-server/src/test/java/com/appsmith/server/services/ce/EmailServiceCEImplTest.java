@@ -4,6 +4,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.services.TenantService;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
@@ -39,7 +40,8 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class EmailServiceCEImplTest {
 
     @Autowired
