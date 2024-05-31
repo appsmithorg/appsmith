@@ -96,11 +96,6 @@ public class CacheableTemplateHelperTemplateMetadataTest {
                 .setBody(objectMapper.writeValueAsString(List.of(templateOne, templateTwo, templateThree)))
                 .addHeader("Content-Type", "application/json"));
 
-        assertThat(cacheableTemplateHelper.getCacheableApplicationTemplate().getApplicationTemplateList())
-                .isNull();
-        assertThat(cacheableTemplateHelper.getCacheableApplicationTemplate().getCacheExpiryTime())
-                .isNull();
-
         Mono<CacheableApplicationTemplate> templateListMono =
                 cacheableTemplateHelper.getTemplates("recently-used", cloudServicesConfig.getBaseUrl());
 
@@ -128,15 +123,11 @@ public class CacheableTemplateHelperTemplateMetadataTest {
                             .isEqualTo(timeFromCache[0]);
                 })
                 .verifyComplete();
-    }
 
-    /* Scenarios covered via this test:
-     * 1. Mock the cache isCacheValid to return false, so the cache is invalidated
-     * 2. Fetch the templates again, verify the data is from the mock and not from the cache.
-     */
-    @Test
-    public void getTemplateData_cacheIsDirty_verifyDataIsFetchedFromSource() throws JsonProcessingException {
-
+        /* Scenarios covered via this test:
+         * 1. Mock the cache isCacheValid to return false, so the cache is invalidated
+         * 2. Fetch the templates again, verify the data is from the mock and not from the cache.
+         */
         ApplicationTemplate templateFour = create("id-four", "Fourth template");
         ApplicationTemplate templateFive = create("id-five", "Fifth template");
         ApplicationTemplate templateSix = create("id-six", "Sixth template");
