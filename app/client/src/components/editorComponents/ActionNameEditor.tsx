@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, {memo} from "react";
 import { useSelector } from "react-redux";
 
 import { useParams } from "react-router-dom";
@@ -45,7 +45,6 @@ interface ActionNameEditorProps {
 
 function ActionNameEditor(props: ActionNameEditorProps) {
   const params = useParams<{ apiId?: string; queryId?: string }>();
-
   const currentActionConfig = useSelector((state: AppState) =>
     getAction(state, params.apiId || params.queryId || ""),
   );
@@ -115,6 +114,8 @@ function ActionNameEditor(props: ActionNameEditorProps) {
               underline
               updating={saveStatus.isSaving}
               valueTransform={removeSpecialChars}
+              maxLength={256}
+              useFullWidth
             />
           </Flex>
         </NameWrapper>

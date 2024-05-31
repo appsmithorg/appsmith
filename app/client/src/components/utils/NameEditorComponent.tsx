@@ -111,16 +111,14 @@ function NameEditor(props: NameEditorProps) {
 
   const isInvalidNameForEntity = useCallback(
     (name: string): string | boolean => {
-      if (!name || name.trim().length === 0) {
+      if (!name?.trim()) {
         return createMessage(ACTION_INVALID_NAME_ERROR);
-      } else if (name !== entityName && hasActionNameConflict(name)) {
-        return createMessage(suffixErrorMessage, name);
       }
-      return false;
+      return (name !== entityName && hasActionNameConflict(name)) ? createMessage(suffixErrorMessage, name) : false;
     },
-    [hasActionNameConflict, entityName],
+    [hasActionNameConflict, entityName, suffixErrorMessage],
   );
-
+    
   const handleNameChange = useCallback(
     (name: string) => {
       if (name !== entityName && !isInvalidNameForEntity(name)) {
