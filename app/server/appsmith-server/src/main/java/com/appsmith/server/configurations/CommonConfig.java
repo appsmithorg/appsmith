@@ -146,7 +146,7 @@ public class CommonConfig {
         return Instant.now().toEpochMilli();
     }
 
-    public String getHashedAdminEmail() {
+    public String getAdminEmailDomainHash() {
         if (StringUtils.hasLength(adminEmailDomainHash)) {
             return adminEmailDomainHash;
         }
