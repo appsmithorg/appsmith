@@ -122,7 +122,7 @@ import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import PageApi from "api/PageApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getCachedDependencyMap } from "selectors/evaluationSelectors";
+import { getCachedDependencies } from "selectors/evaluationSelectors";
 import { getAllModuleInstances } from "@appsmith/selectors/moduleInstanceSelectors";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
@@ -286,8 +286,8 @@ export function* evaluateTreeSaga(
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);
-  const cachedDependencyMap: DependencyMap | null = yield select(
-    getCachedDependencyMap,
+  const cachedDependencies: DependencyMap | null = yield select(
+    getCachedDependencies,
   );
 
   const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
@@ -304,8 +304,8 @@ export function* evaluateTreeSaga(
     appMode,
     widgetsMeta,
     shouldRespondWithLogs,
-    cachedDependencyMap:
-      appMode === APP_MODE.PUBLISHED ? cachedDependencyMap : null,
+    cachedDependencies:
+      appMode === APP_MODE.PUBLISHED ? cachedDependencies : null,
     affectedJSObjects,
   };
 
@@ -840,12 +840,12 @@ export function* cacheDependencyMapSaga(action: {
   // Ref: https://redux-saga.js.org/docs/recipes/#debouncing
   yield delay(500);
   const { dependencies, errors, pageId } = action.payload;
-  const currentCachedDependencyMap: DependencyMap | undefined = yield select(
-    getCachedDependencyMap,
+  const currentCachedDependencies: DependencyMap | undefined = yield select(
+    getCachedDependencies,
   );
   const areDependenciesUnchanged = isEqual(
     dependencies,
-    currentCachedDependencyMap,
+    currentCachedDependencies,
   );
 
   if (areDependenciesUnchanged) {
@@ -858,24 +858,24 @@ export function* cacheDependencyMapSaga(action: {
 
   const shouldCache =
     Object.keys(moduleInstances || {}).length === 0 && errors.length === 0;
-  let cachedDependencyMap = shouldCache ? dependencies : null;
+  let cachedDependencies = shouldCache ? dependencies : null;
 
   try {
     yield call(PageApi.updateDependencyMap, {
-      dependencies: cachedDependencyMap,
+      dependencies: cachedDependencies,
       pageId,
     });
   } catch (e) {
     // Reset dependency map to null in case of failure
-    cachedDependencyMap = null;
+    cachedDependencies = null;
     yield call(PageApi.updateDependencyMap, {
-      dependencies: cachedDependencyMap,
+      dependencies: cachedDependencies,
       pageId,
     });
     log.error(e);
     Sentry.captureException(e);
   } finally {
-    yield put(setDependencyCache(cachedDependencyMap));
+    yield put(setDependencyCache(cachedDependencies));
   }
 }
 

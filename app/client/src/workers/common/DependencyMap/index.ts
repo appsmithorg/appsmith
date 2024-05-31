@@ -34,7 +34,7 @@ export function createDependencyMap(
   dataTreeEvalRef: DataTreeEvaluator,
   unEvalTree: DataTree,
   configTree: ConfigTree,
-  cachedDependencyMap?: Record<string, string[]> | null,
+  cachedDependencies?: Record<string, string[]> | null,
 ) {
   const { allKeys, dependencyMap } = dataTreeEvalRef;
   const allAppsmithInternalFunctions = convertArrayToObject(
@@ -46,9 +46,9 @@ export function createDependencyMap(
     false,
   );
 
-  if (cachedDependencyMap) {
-    Object.keys(cachedDependencyMap).forEach((path) => {
-      dependencyMap.addDependency(path, cachedDependencyMap[path]);
+  if (cachedDependencies) {
+    Object.keys(cachedDependencies).forEach((path) => {
+      dependencyMap.addDependency(path, cachedDependencies[path]);
     });
   } else {
     Object.keys(configTree).forEach((entityName) => {

@@ -233,7 +233,7 @@ export default class DataTreeEvaluator {
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData> = {},
-    cachedDependencyMap?: Record<string, string[]> | null,
+    cachedDependencies?: Record<string, string[]> | null,
   ): {
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
@@ -293,7 +293,7 @@ export default class DataTreeEvaluator {
           this,
           localUnEvalTree,
           configTree,
-          cachedDependencyMap,
+          cachedDependencies,
         );
       },
     );

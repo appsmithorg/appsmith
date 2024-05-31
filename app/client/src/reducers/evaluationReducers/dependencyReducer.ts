@@ -5,12 +5,12 @@ import type { DependencyMap } from "utils/DynamicBindingUtils";
 
 export interface EvaluationDependencyState {
   inverseDependencyMap: DependencyMap;
-  cachedDependencyMap: DependencyMap | null;
+  cachedDependencies: DependencyMap | null;
 }
 
 const initialState: EvaluationDependencyState = {
   inverseDependencyMap: {},
-  cachedDependencyMap: null,
+  cachedDependencies: null,
 };
 
 const evaluationDependencyReducer = createReducer(initialState, {
@@ -25,15 +25,15 @@ const evaluationDependencyReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.SET_DEPENDENCY_MAP_CACHE]: (
     state: EvaluationDependencyState,
-    action: ReduxAction<{ dependencyMap: DependencyMap | null }>,
+    action: ReduxAction<{ dependencies: DependencyMap | null }>,
   ): EvaluationDependencyState => ({
     ...state,
-    cachedDependencyMap: action.payload.dependencyMap,
+    cachedDependencies: action.payload.dependencies,
   }),
   [ReduxActionTypes.FETCH_PUBLISHED_PAGE_INIT]: (
     state: EvaluationDependencyState,
   ) => {
-    return { ...state, cachedDependencyMap: null };
+    return { ...state, cachedDependencies: null };
   },
 });
 

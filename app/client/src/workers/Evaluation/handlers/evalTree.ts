@@ -67,7 +67,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     affectedJSObjects,
     allActionValidationConfig,
     appMode,
-    cachedDependencyMap,
+    cachedDependencies,
     forceEvaluation,
     metaWidgets,
     shouldReplay,
@@ -106,7 +106,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
             unevalTree,
             configTree,
             webworkerTelemetry,
-            cachedDependencyMap,
+            cachedDependencies,
           ),
       );
 

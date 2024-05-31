@@ -43,7 +43,7 @@ export interface EvalTreeRequestData {
   widgetsMeta: Record<string, any>;
   shouldRespondWithLogs?: boolean;
   affectedJSObjects: AffectedJSObjects;
-  cachedDependencyMap: DependencyMap | null;
+  cachedDependencies: DependencyMap | null;
 }
 
 export interface EvalTreeResponseData {
