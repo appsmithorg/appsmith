@@ -4,10 +4,10 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
-import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -29,7 +29,7 @@ public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl imp
             GitDeployKeysRepository gitDeployKeysRepository,
             GitPrivateRepoHelper gitPrivateRepoHelper,
             CommonGitFileUtils commonGitFileUtils,
-            RedisUtils redisUtils,
+            GitRedisUtils gitRedisUtils,
             SessionUserService sessionUserService,
             UserDataService userDataService,
             UserService userService,
@@ -46,7 +46,7 @@ public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl imp
                 gitDeployKeysRepository,
                 gitPrivateRepoHelper,
                 commonGitFileUtils,
-                redisUtils,
+                gitRedisUtils,
                 sessionUserService,
                 userDataService,
                 userService,
