@@ -20,7 +20,7 @@ import { watchDatasourcesSagas } from "sagas/DatasourcesSagas";
 import debuggerSagas from "sagas/DebuggerSagas";
 import editorContextSagas from "sagas/editorContextSagas";
 import errorSagas from "sagas/ErrorSagas";
-import evaluationsSaga from "sagas/EvaluationsSaga";
+import { evaluationsSaga } from "sagas/EvaluationsSaga";
 import formEvaluationChangeListener from "sagas/FormEvaluationSaga";
 import gitSyncSagas from "sagas/GitSyncSagas";
 import globalSearchSagas from "sagas/GlobalSearchSagas";
