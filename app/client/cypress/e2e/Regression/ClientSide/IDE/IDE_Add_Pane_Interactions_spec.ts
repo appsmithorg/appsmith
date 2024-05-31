@@ -5,6 +5,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import FileTabs from "../../../../support/Pages/IDE/FileTabs";
+import AddView from "../../../../support/Pages/IDE/AddView";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const commonLocators = ObjectsRegistry.CommonLocators;
@@ -66,8 +67,8 @@ describe("IDE add pane interactions", { tags: ["@tag.IDE"] }, () => {
     PageLeftPane.switchToAddNew();
     // check add pane
     PageLeftPane.assertInAddView();
-    // close add pane
-    PageLeftPane.closeAddView();
+    // close add tab
+    FileTabs.closeTab("new");
     // open add pane to add item
     PageLeftPane.switchToAddNew();
     // add item

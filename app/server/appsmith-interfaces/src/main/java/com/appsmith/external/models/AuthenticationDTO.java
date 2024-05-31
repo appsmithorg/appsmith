@@ -56,7 +56,6 @@ public class AuthenticationDTO implements AppsmithDomain {
     @JsonView(Views.Internal.class)
     AuthenticationResponse authenticationResponse;
 
-    @JsonView(Views.Public.class)
     public Mono<Boolean> hasExpired() {
         return Mono.just(Boolean.FALSE);
     }

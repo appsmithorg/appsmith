@@ -41,7 +41,7 @@
   */
   & [data-field-necessity-indicator-icon] {
     color: var(--color-fg-negative);
-    margin-left: var(--inner-spacing-1);
+    margin-inline-start: var(--inner-spacing-1);
   }
 
   /**

@@ -16,6 +16,7 @@ import type {
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { LayoutSystemTypeConfig } from "layoutSystems/types";
+import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -592,8 +593,9 @@ const ActionTypes = {
   DELETE_JS_ACTION_INIT: "DELETE_JS_ACTION_INIT",
   DELETE_JS_ACTION_SUCCESS: "DELETE_JS_ACTION_SUCCESS",
   PARSE_UPDATE_JS_ACTION: "PARSE_UPDATE_JS_ACTION",
-  UPDATE_JS_ACTION_INIT: "UPDATE_JS_ACTION_INIT",
   UPDATE_JS_ACTION_SUCCESS: "UPDATE_JS_ACTION_SUCCESS",
+  JS_ACTION_SAVE_START: "JS_ACTION_SAVE_START",
+  JS_ACTION_SAVE_COMPLETE: "JS_ACTION_SAVE_COMPLETE",
   EXECUTE_COMMAND: "EXECUTE_COMMAND",
   SAVE_JS_COLLECTION_NAME_INIT: "SAVE_JS_COLLECTION_NAME_INIT",
   FETCH_JS_ACTIONS_FOR_PAGE_INIT: "FETCH_JS_ACTIONS_FOR_PAGE_INIT",
@@ -1167,7 +1169,9 @@ export interface ReduxAction<T> {
   type: ReduxActionType | ReduxActionErrorType;
   payload: T;
 }
-
+export interface BufferedReduxAction<T> extends ReduxAction<T> {
+  affectedJSObjects: AffectedJSObjects;
+}
 export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
 
 export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
@@ -1185,6 +1189,7 @@ export type AnyReduxAction = ReduxAction<unknown> | ReduxActionWithoutPayload;
 
 export interface EvaluationReduxAction<T> extends ReduxAction<T> {
   postEvalActions?: Array<AnyReduxAction>;
+  affectedJSObjects?: AffectedJSObjects;
 }
 
 export interface PromisePayload {

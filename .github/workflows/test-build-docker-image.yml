@@ -153,7 +153,8 @@ jobs:
           rm -f ~/combined_failed_spec_ci
 
       # Download failed_spec_ci list for all CI container jobs
-      - uses: actions/download-artifact@v3
+      - name: Download failed_spec_ci list for all CI container jobs
+        uses: actions/download-artifact@v4
         if: needs.ci-test.result != 'success'
         id: download_ci
         with:
@@ -161,7 +162,7 @@ jobs:
           path: ~/failed_spec_ci
 
       # In case for any ci job failure, create combined failed spec
-      - name: "combine all specs for CI"
+      - name: Combine all specs for CI
         if: needs.ci-test.result != 'success'
         run: |
           rm -f ~/combined_failed_spec_ci
@@ -200,7 +201,7 @@ jobs:
             echo "slack_icon=:warning:" >> $GITHUB_OUTPUT
           fi
 
-      - name: Slack Notification
+      - name: Slack notification
         continue-on-error: true
         if: always()
         uses: rtCamp/action-slack-notify@v2
@@ -245,30 +246,41 @@ jobs:
       # Force save the CI failed spec list into a cache
       - name: Store the combined run result for CI
         if: needs.ci-test.result != 'success'
-        uses: martijnhols/actions-cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             ~/combined_failed_spec_ci
           key: ${{ github.run_id }}-"ci-test-result"
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}
 
       # Upload combined failed CI spec list to a file
       # This is done for debugging.
-      - name: upload combined failed spec
+      - name: Upload combined failed spec
         if: needs.ci-test.result != 'success'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
+          overwrite: true
 
       - name: Return status for ui-matrix
         run: |
-          if [[ "${{ needs.ci-test.result }}" == "success" ]]; then
-            echo "Integration tests completed successfully!";
+          if [[ "${{ needs.ci-test.result }}" == "success" && "${{ needs.client-unit-tests.result }}" == "success" && "${{ needs.server-unit-tests.result }}" == "success" ]]; then
+            echo "Integration, Client unit and Server unit tests completed successfully!";
             exit 0;
           elif [[ "${{ needs.ci-test.result }}" == "skipped" ]]; then
             echo "Integration tests were skipped";
+            exit 1;
+          elif [[ "${{ needs.client-unit-tests.result }}" == "skipped" ]]; then
+            echo "Client unit tests were skipped";
+            exit 1;
+          elif [[ "${{ needs.server-unit-tests.result }}" == "skipped" ]]; then
+            echo "Server unit tests were skipped";
+            exit 1;
+          elif [[ "${{ needs.client-unit-tests.result }}" == "failure" ]]; then
+            echo "Client unit tests have failed";
+            exit 1;
+          elif [[ "${{ needs.server-unit-tests.result }}" == "failure" ]]; then
+            echo "Server unit tests have failed";
             exit 1;
           else
             echo "Integration tests have failed";
@@ -292,7 +304,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download the react build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: client-build
           path: app/client
@@ -304,13 +316,13 @@ jobs:
           tar -xvf app/client/build.tar -C app/client/build
 
       - name: Download the server build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: rts-dist
           path: app/client/packages/rts/dist
@@ -367,7 +379,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download the react build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: client-build
           path: app/client
@@ -379,13 +391,13 @@ jobs:
           tar -xvf app/client/build.tar -C app/client/build
 
       - name: Download the server build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: rts-dist
           path: app/client/packages/rts/dist
@@ -426,7 +438,7 @@ jobs:
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:nightly
 
   notify-slack-for-promotion:
-    needs: ci-test
+    needs: ci-test-result
     runs-on: ubuntu-latest
 
     if: ( failure() && github.ref == 'refs/heads/master' )
@@ -439,15 +451,7 @@ jobs:
           set -o xtrace
 
           run_url='${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/attempts/${{ github.run_attempt }}'
-          common_parent_sha='${{ steps.merge.outputs.common_parent_sha }}'
-          common_parent_sha_short="$(echo "$common_parent_sha" | grep -o '^.\{8\}' || true)"
-          merged_upto_sha='${{ steps.merge.outputs.merged_upto_sha }}'
-          merged_upto_sha_short="$(echo "$merged_upto_sha" | grep -o '^.\{8\}' || true)"
-
-          details="🚨 TBP workflow failed in <$run_url|${{ github.run_id }}/attempts/${{ github.run_attempt }}>."
-
-          # This unwieldy horror of a sed command, converts standard Markdown links to Slack's unwieldy link syntax.
-          slack_message=$(echo "$details" | sed -E 's/\[([^]]+)\]\(([^)]+)\)/<\2|\1>/g')
+          slack_message="🚨 TBP workflow failed in <$run_url|${{ vars.EDITION }} attempt ${{ github.run_attempt }} (run ${{ github.run_id }})>."
 
           # This is the ChannelId of the tech channel.
           body="$(jq -nc \
