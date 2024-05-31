@@ -89,11 +89,12 @@ export function TernDocToolTip(props: {
           </div>
         )}
       </pre>
-
-      <pre
-        className="px-2 p-1 text-xs whitespace-normal"
-        dangerouslySetInnerHTML={{ __html: doc }}
-      />
+      {doc && (
+        <pre
+          className="px-2 p-1 text-xs whitespace-normal"
+          dangerouslySetInnerHTML={{ __html: doc }}
+        />
+      )}
 
       {examples && (
         <div className="flex px-2 py-[2px] text-xs font-semibold">Example</div>
