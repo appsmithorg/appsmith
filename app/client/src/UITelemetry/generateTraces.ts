@@ -1,24 +1,54 @@
-import type { Span, Attributes, TimeInput } from "@opentelemetry/api";
+import type {
+  Span,
+  Attributes,
+  TimeInput,
+  SpanOptions,
+} from "@opentelemetry/api";
 import { SpanKind } from "@opentelemetry/api";
 import { context } from "@opentelemetry/api";
 import { trace } from "@opentelemetry/api";
+import { deviceType } from "react-device-detect";
+
+import { APP_MODE } from "entities/App";
+import { matchBuilderPath, matchViewerPath } from "constants/routes";
 
 const GENERATOR_TRACE = "generator-tracer";
+
+const getCommonTelemetryAttributes = () => {
+  const pathname = window.location.pathname;
+  const isEditorUrl = matchBuilderPath(pathname);
+  const isViewerUrl = matchViewerPath(pathname);
+
+  const appMode = isEditorUrl
+    ? APP_MODE.EDIT
+    : isViewerUrl
+      ? APP_MODE.PUBLISHED
+      : "";
+
+  return {
+    appMode,
+    deviceType,
+  };
+};
+
 export function startRootSpan(
   spanName: string,
-  spanAttributes?: Attributes,
+  spanAttributes: Attributes = {},
   startTime?: TimeInput,
 ) {
   const tracer = trace.getTracer(GENERATOR_TRACE);
   if (!spanName) {
     return;
   }
-  const attributes = spanAttributes ?? { attributes: spanAttributes };
-  const startTimeAttr = startTime ? { startTime } : {};
+  const commonAttributes = getCommonTelemetryAttributes();
+
   return tracer?.startSpan(spanName, {
     kind: SpanKind.CLIENT,
-    ...attributes,
-    ...startTimeAttr,
+    attributes: {
+      ...commonAttributes,
+      ...spanAttributes,
+    },
+    startTime,
   });
 }
 export const generateContext = (span: Span) => {
@@ -27,7 +57,7 @@ export const generateContext = (span: Span) => {
 export function startNestedSpan(
   spanName: string,
   parentSpan?: Span,
-  spanAttributes?: Attributes,
+  spanAttributes: Attributes = {},
   startTime?: TimeInput,
 ) {
   if (!spanName || !parentSpan) {
@@ -38,13 +68,17 @@ export function startNestedSpan(
   const parentContext = generateContext(parentSpan);
 
   const generatorTrace = trace.getTracer(GENERATOR_TRACE);
+  const commonAttributes = getCommonTelemetryAttributes();
 
-  const attributes = {
+  const spanOptions: SpanOptions = {
     kind: SpanKind.CLIENT,
-    ...(startTime ? { startTime } : {}),
-    ...(spanAttributes ? { attributes: spanAttributes } : {}),
+    attributes: {
+      ...commonAttributes,
+      ...spanAttributes,
+    },
+    startTime,
   };
-  return generatorTrace.startSpan(spanName, attributes, parentContext);
+  return generatorTrace.startSpan(spanName, spanOptions, parentContext);
 }
 
 export function endSpan(span?: Span) {
