@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.ArtifactType;
@@ -13,6 +12,7 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
+import com.appsmith.server.dtos.CacheableApplicationJson;
 import com.appsmith.server.dtos.CacheableApplicationTemplate;
 import com.appsmith.server.dtos.TemplateDTO;
 import com.appsmith.server.dtos.TemplateUploadDTO;
@@ -30,9 +30,6 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
@@ -47,8 +44,6 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.lang.reflect.Type;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 
@@ -67,6 +62,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final ObjectMapper objectMapper;
     private final SessionUserService sessionUserService;
 
+    private final CacheableTemplateHelper cacheableTemplateHelper;
+
     public ApplicationTemplateServiceCEImpl(
             CloudServicesConfig cloudServicesConfig,
             ReleaseNotesService releaseNotesService,
@@ -78,7 +75,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             ObjectMapper objectMapper,
-            SessionUserService sessionUserService) {
+            SessionUserService sessionUserService,
+            CacheableTemplateHelper cacheableTemplateHelper) {
         this.cloudServicesConfig = cloudServicesConfig;
         this.releaseNotesService = releaseNotesService;
         this.importService = importService;
@@ -90,6 +88,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         this.applicationPermission = applicationPermission;
         this.objectMapper = objectMapper;
         this.sessionUserService = sessionUserService;
+        this.cacheableTemplateHelper = cacheableTemplateHelper;
     }
 
     @Override
@@ -116,13 +115,13 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
     @Override
     public Mono<List<ApplicationTemplate>> getActiveTemplates(List<String> templateIds) {
-        return CacheableTemplateHelper.getTemplates(
-                        releaseNotesService.getRunningVersion(), cloudServicesConfig.getBaseUrl())
+        return cacheableTemplateHelper
+                .getTemplates(releaseNotesService.getRunningVersion(), cloudServicesConfig.getBaseUrl())
                 .map(CacheableApplicationTemplate::getApplicationTemplateList)
                 .onErrorResume(e -> {
-                    log.error("Error fetching templates data from redis!", e);
+                    log.error("Error fetching templates data from cloud service ", e);
                     // If there is an error fetching the template from the cache, then evict the cache and fetch from CS
-                    return Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e));
+                    return Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage()));
                 });
     }
 
@@ -147,18 +146,13 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     @Override
     public Mono<ApplicationJson> getApplicationJsonFromTemplate(String templateId) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
-        return CacheableTemplateHelper.getApplicationByTemplateId(templateId, baseUrl)
+        return cacheableTemplateHelper
+                .getApplicationByTemplateId(templateId, baseUrl)
+                .map(CacheableApplicationJson::getApplicationJson)
                 .onErrorResume(e -> {
-                    log.error("Error fetching template json data from redis!", e);
+                    log.error("Error fetching template json data from cloud service ", e);
                     // If there is an error fetching the template from the cache, then evict the cache and fetch from CS
-                    return Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e));
-                })
-                .map(cacheableApplicationJson -> {
-                    Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
-                            .create();
-                    Type fileType = new TypeToken<ApplicationJson>() {}.getType();
-                    return gson.fromJson(cacheableApplicationJson.getApplicationJson(), fileType);
+                    return Mono.error(new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, e.getMessage()));
                 });
     }
 

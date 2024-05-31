@@ -7,7 +7,7 @@ import java.time.Instant;
 @Data
 public class CacheableApplicationJson {
 
-    String applicationJson;
+    ApplicationJson applicationJson;
 
-    Instant lastUpdated;
+    Instant timeStamp;
 }

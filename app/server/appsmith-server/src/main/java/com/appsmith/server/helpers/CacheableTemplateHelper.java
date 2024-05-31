@@ -1,5 +1,7 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.external.converters.ISOStringToInstantConverter;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.CacheableApplicationJson;
 import com.appsmith.server.dtos.CacheableApplicationTemplate;
@@ -7,9 +9,13 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.services.ce.ApplicationTemplateServiceCEImpl;
 import com.appsmith.util.WebClientUtils;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
@@ -17,12 +23,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Type;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 @AllArgsConstructor
 @Slf4j
+@Component
 public class CacheableTemplateHelper {
     // Template metadata is used for showing the preview of the template
 
@@ -31,14 +39,13 @@ public class CacheableTemplateHelper {
     private static Map<String, CacheableApplicationJson> cacheableApplicationJsonMap = new HashMap<>();
     private static final int CACHE_LIFE_TIME_IN_SECONDS = 60 * 60 * 24; // 24 hours
 
-    public static Mono<CacheableApplicationTemplate> getTemplates(String releaseVersion, String baseUrl) {
+    public Mono<CacheableApplicationTemplate> getTemplates(String releaseVersion, String baseUrl) {
 
         if (applicationTemplateList == null) {
             applicationTemplateList = new CacheableApplicationTemplate();
         }
 
-        if (applicationTemplateList.getLastUpdated() != null
-                && isCacheValid(applicationTemplateList.getLastUpdated())) {
+        if (applicationTemplateList.getTimeStamp() != null && isCacheValid(applicationTemplateList.getTimeStamp())) {
             return Mono.just(applicationTemplateList);
         }
 
@@ -64,13 +71,13 @@ public class CacheableTemplateHelper {
                 .collectList()
                 .map(applicationTemplates -> {
                     applicationTemplateList.setApplicationTemplateList(applicationTemplates);
-                    applicationTemplateList.setLastUpdated(Instant.now());
+                    applicationTemplateList.setTimeStamp(Instant.now());
                     return applicationTemplateList;
                 });
     }
 
     // Actual JSON object of the template
-    public static Mono<CacheableApplicationJson> getApplicationByTemplateId(String templateId, String baseUrl) {
+    public Mono<CacheableApplicationJson> getApplicationByTemplateId(String templateId, String baseUrl) {
         final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/application";
         /*
          * using a custom url builder factory because default builder always encodes
@@ -86,7 +93,7 @@ public class CacheableTemplateHelper {
         }
 
         if (cacheableApplicationJsonMap.containsKey(templateId)
-                && isCacheValid(cacheableApplicationJsonMap.get(templateId).getLastUpdated())) {
+                && isCacheValid(cacheableApplicationJsonMap.get(templateId).getTimeStamp())) {
             return Mono.just(cacheableApplicationJsonMap.get(templateId));
         }
 
@@ -104,9 +111,14 @@ public class CacheableTemplateHelper {
                 .retrieve()
                 .bodyToMono(String.class)
                 .map(jsonString -> {
+                    Gson gson = new GsonBuilder()
+                            .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
+                            .create();
+                    Type fileType = new TypeToken<ApplicationJson>() {}.getType();
+
                     CacheableApplicationJson cacheableApplicationJson = new CacheableApplicationJson();
-                    cacheableApplicationJson.setApplicationJson(jsonString);
-                    cacheableApplicationJson.setLastUpdated(Instant.now());
+                    cacheableApplicationJson.setApplicationJson(gson.fromJson(jsonString, fileType));
+                    cacheableApplicationJson.setTimeStamp(Instant.now());
 
                     // Remove/replace the value from cache
                     cacheableApplicationJsonMap.put(templateId, cacheableApplicationJson);
@@ -116,7 +128,15 @@ public class CacheableTemplateHelper {
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "template", templateId)));
     }
 
-    public static boolean isCacheValid(Instant lastUpdatedAt) {
+    public boolean isCacheValid(Instant lastUpdatedAt) {
         return Instant.now().minusSeconds(CACHE_LIFE_TIME_IN_SECONDS).isBefore(lastUpdatedAt);
+    }
+
+    public CacheableApplicationTemplate getCacheableApplicationTemplate() {
+        return applicationTemplateList;
+    }
+
+    public Map<String, CacheableApplicationJson> getCacheableApplicationJsonMap() {
+        return cacheableApplicationJsonMap;
     }
 }
