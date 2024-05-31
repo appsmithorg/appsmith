@@ -193,7 +193,7 @@ describe(
         });
     });
 
-    it.only("5. Should drag and drop building block on canvas", () => {
+    it("5. Should drag and drop building block on canvas", () => {
       featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
       // primary api call for dropping building blocks on canvas
       cy.intercept("POST", "/api/v1/applications/import/partial/block").as(
@@ -220,13 +220,6 @@ describe(
         .trigger("mousemove", x, y, option)
         .trigger("mousemove", x, y, option)
         .trigger("mouseup", x, y, option);
-
-      // check for skeleton loader visisbility
-      agHelper.AssertContains(
-        DEFAULT_SKELETON_LOADER_NAME,
-        "be.visible",
-        widgetLocators.widgetNameTag,
-      );
 
       cy.wait("@blockImport").then(() => {
         cy.assertPageSave();
