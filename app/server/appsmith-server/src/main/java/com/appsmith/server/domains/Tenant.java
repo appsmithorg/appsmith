@@ -10,13 +10,15 @@ import org.checkerframework.common.aliasing.qual.Unique;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.io.Serializable;
+
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @Document
 @FieldNameConstants
-public class Tenant extends BaseDomain {
+public class Tenant extends BaseDomain implements Serializable {
 
     @Unique String slug;
 
@@ -24,6 +26,9 @@ public class Tenant extends BaseDomain {
 
     @Transient
     String instanceId;
+
+    @Transient
+    String adminEmailDomainHash;
 
     PricingPlan pricingPlan;
 

@@ -71,6 +71,7 @@ export const PropertyPaneSectionSpaceDistributor = ({
           // Render mocked zone and distribution handle for each zone
           <>
             <MockedZone
+              data-testid={"t--anvil-zone-distribution-value"}
               flexBasis={flexBasisValue}
               id={propPaneZoneId}
               key={propPaneZoneId}

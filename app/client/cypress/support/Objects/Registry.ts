@@ -28,7 +28,7 @@ import { AssertHelper } from "../Pages/AssertHelper";
 import { Tabs } from "../Pages/Tabs";
 import { GsheetHelper } from "../Pages/GSheetHelper";
 import { CommunityTemplates } from "../Pages/CommunityTemplates";
-import { AnvilLayout } from "../Pages/AnvilLayout";
+import { AnvilLayout } from "../Pages/Anvil/AnvilLayout";
 import PartialImportExport from "../Pages/PartialImportExport";
 import { WDSWidgets } from "../Pages/WDSWidgets";
 

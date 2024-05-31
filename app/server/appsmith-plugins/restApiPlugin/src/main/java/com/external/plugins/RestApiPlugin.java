@@ -202,11 +202,12 @@ public class RestApiPlugin extends BasePlugin {
                             objectMapper,
                             hintMessages,
                             errorResult,
-                            requestCaptureFilter)
+                            requestCaptureFilter,
+                            datasourceConfiguration)
                     .onErrorResume(error -> {
                         boolean isBodySentWithApiRequest = requestBodyObj == null ? false : true;
                         errorResult.setRequest(requestCaptureFilter.populateRequestFields(
-                                actionExecutionRequest, isBodySentWithApiRequest));
+                                actionExecutionRequest, isBodySentWithApiRequest, datasourceConfiguration));
                         errorResult.setIsExecutionSuccess(false);
                         log.debug(
                                 "An error has occurred while trying to run the API query for url: {}, path : {}",

@@ -11,7 +11,7 @@ export const propertyPaneContentConfig = [
       {
         helpText: "Group Buttons",
         propertyName: "buttonsList",
-        controlType: "GROUP_BUTTONS",
+        controlType: "TOOLBAR_BUTTONS",
         label: "Buttons",
         allowSeparators: true,
         dependencies: ["childStylesheet", "orientation"],
@@ -94,7 +94,7 @@ export const propertyPaneContentConfig = [
               sectionName: "Icon",
               children: [
                 {
-                  propertyName: "iconName",
+                  propertyName: "icon",
                   label: "Icon",
                   helpText: "Sets the icon to be used for a button",
                   controlType: "ICON_SELECT_V2",
@@ -104,11 +104,12 @@ export const propertyPaneContentConfig = [
                   validation: { type: ValidationTypes.TEXT },
                 },
                 {
-                  propertyName: "iconAlign",
+                  propertyName: "iconPosition",
                   label: "Position",
                   helpText: "Sets the icon alignment of the button",
                   controlType: "ICON_TABS",
                   fullWidth: false,
+                  defaultValue: "start",
                   options: [
                     {
                       startIcon: "skip-left-line",

@@ -22,6 +22,10 @@ import {
 import { validateResponse } from "../ErrorSagas";
 import { createWidgetCopy } from "../WidgetOperationUtils";
 import { getWidgets } from "../selectors";
+import {
+  createMessage,
+  ERROR_IN_EXPORTING_APP,
+} from "@appsmith/constants/messages";
 
 export interface PartialExportParams {
   jsObjects: string[];
@@ -75,7 +79,7 @@ export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {
       });
     }
   } catch (e) {
-    toast.show(`Error exporting application. Please try again.`, {
+    toast.show(createMessage(ERROR_IN_EXPORTING_APP), {
       kind: "error",
     });
     yield put({

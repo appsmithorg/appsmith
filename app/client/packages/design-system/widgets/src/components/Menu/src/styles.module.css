@@ -1,92 +1,12 @@
-@import "../../../shared/colors/colors.module.css";
-
 .menu {
-  background-color: var(--color-bg-elevation-3);
-  border-radius: var(--border-radius-elevation-3);
-  z-index: var(--z-index-99);
-  box-shadow: var(--box-shadow-1);
-  min-inline-size: var(--sizing-30);
-  max-inline-size: var(--sizing-80);
-}
+  max-height: inherit;
+  overflow-y: auto;
 
-.menuList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.menuList li {
-  display: flex;
-  align-items: center;
-  padding-inline: var(--inner-spacing-3);
-  padding-block: var(--inner-spacing-3);
-}
-
-.menuList li [data-text] {
-  overflow: hidden;
-  -webkit-line-clamp: 1;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  display: flex;
-  align-items: center;
-}
-
-.menuList li:first-of-type {
-  border-top-left-radius: var(--border-radius-elevation-3);
-  border-top-right-radius: var(--border-radius-elevation-3);
-}
-
-.menuList li:last-of-type {
-  border-bottom-left-radius: var(--border-radius-elevation-3);
-  border-bottom-right-radius: var(--border-radius-elevation-3);
-}
-
-.menuList li:focus {
-  outline: none;
-}
-
-.menuList li:not([data-disabled]) {
-  cursor: pointer;
-}
-
-.menuList [data-hovered] {
-  background-color: var(--color-bg-accent-subtle-hover);
-}
-
-.menuList [data-active] {
-  background-color: var(--color-bg-accent-subtle-active);
-}
-
-.menuList li:not([data-disabled]) {
-  @each $color in colors {
-    &[data-color="$(color)"] {
-      color: var(--color-fg-$(color));
-    }
+  /** If at least one menu item has an icon, we need to add extra padding for items that doesn't have an icon. */
+  &:has([data-icon]:not([data-chevron]))
+    [role="menuitem"]:not(:has([data-icon])) {
+    padding-inline-start: calc(
+      var(--icon-size-2) + var(--inner-spacing-3) + var(--inner-spacing-2)
+    );
   }
-}
-
-.menuList [data-disabled] {
-  opacity: var(--opacity-disabled);
-  cursor: not-allowed;
-}
-
-.menuList [data-focused]:focus-visible {
-  box-shadow:
-    0 0 0 2px var(--color-bg),
-    0 0 0 4px var(--color-bd-focus);
-}
-
-.menuList li[data-separator] {
-  border-top: var(--border-width-1) solid var(--color-bd);
-  padding: 0;
-}
-
-/* this is required so that separator ( <Item isSeprator /> ) if passed with a text as children, the text is hidden */
-.menuList li[data-separator] > * {
-  display: none;
-}
-
-/* making sure the first and last child are not displayed when they have the data-separator attribute */
-.menuList li:is(:first-child, :last-child):is([data-separator]) {
-  display: none;
 }

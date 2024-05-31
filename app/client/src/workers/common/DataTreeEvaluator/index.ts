@@ -112,7 +112,11 @@ import {
   parseJSActions,
   updateEvalTreeWithJSCollectionState,
 } from "workers/Evaluation/JSObject";
-import { getFixedTimeDifference, replaceThisDotParams } from "./utils";
+import {
+  getFixedTimeDifference,
+  getOnlyAffectedJSObjects,
+  replaceThisDotParams,
+} from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   validateActionProperty,
@@ -133,6 +137,8 @@ import {
   profileFn,
   type WebworkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
+import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
+import generateOverrideContext from "@appsmith/workers/Evaluation/generateOverrideContext";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -484,6 +490,7 @@ export default class DataTreeEvaluator {
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData> = {},
+    affectedJSObjects: AffectedJSObjects = { isAllAffected: false, ids: [] },
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -512,8 +519,16 @@ export default class DataTreeEvaluator {
       webworkerTelemetry,
       () =>
         convertMicroDiffToDeepDiff(
-          microDiff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) ||
-            [],
+          microDiff(
+            getOnlyAffectedJSObjects(
+              oldUnEvalTreeJSCollections,
+              affectedJSObjects,
+            ),
+            getOnlyAffectedJSObjects(
+              localUnEvalTreeJSCollection,
+              affectedJSObjects,
+            ),
+          ) || [],
         ),
     );
 
@@ -583,6 +598,7 @@ export default class DataTreeEvaluator {
         isNewWidgetAdded: false,
       };
     }
+
     DataStore.update(differences);
     let isNewWidgetAdded = false;
 
@@ -1699,11 +1715,13 @@ export default class DataTreeEvaluator {
     bindings: string[],
     executionParams?: Record<string, unknown> | string,
   ) {
+    const dataTree = klona(this.evalTree);
     // We might get execution params as an object or as a string.
     // If the user has added a proper object (valid case) it will be an object
     // If they have not added any execution params or not an object
     // it would be a string (invalid case)
     let evaluatedExecutionParams: Record<string, any> = {};
+    let overrideContext: Record<string, unknown>;
     if (executionParams && isObject(executionParams)) {
       evaluatedExecutionParams = this.getDynamicValue(
         `{{${JSON.stringify(executionParams)}}}`,
@@ -1711,9 +1729,13 @@ export default class DataTreeEvaluator {
         this.oldConfigTree,
         EvaluationSubstitutionType.TEMPLATE,
       );
-    }
 
-    const dataTree = klona(this.evalTree);
+      overrideContext = generateOverrideContext({
+        bindings,
+        executionParams,
+        dataTree,
+      });
+    }
 
     return bindings.map((binding) => {
       // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
@@ -1736,6 +1758,7 @@ export default class DataTreeEvaluator {
           globalContext: {
             [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
           },
+          overrideContext,
         },
       );
     });

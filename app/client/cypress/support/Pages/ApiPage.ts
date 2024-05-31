@@ -105,7 +105,10 @@ export class ApiPage {
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       this.agHelper.GetHoverNClick(this.locator._createNew);
       this.agHelper.GetNClick(this._blankAPI, 0, true);
-      this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
+      this.agHelper.RemoveUIElement(
+        "Tooltip",
+        Cypress.env("MESSAGES").ADD_QUERY_JS_TOOLTIP(),
+      );
     }
     this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 
@@ -138,7 +141,7 @@ export class ApiPage {
   ) {
     this.CreateApi(apiName, apiVerb, aftDSSaved);
     this.EnterURL(url, "", toVerifySave);
-    this.agHelper.Sleep(); //Is needed for the entered url value to be registered, else failing locally & CI
+    this.assertHelper.AssertNetworkStatus("@saveAction", 200);
     this.AssertRunButtonDisability();
     if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout, toVerifySave);
   }

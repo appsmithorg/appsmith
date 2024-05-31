@@ -2,7 +2,7 @@ const { MongoClient, MongoServerError} = require("mongodb");
 const { preprocessMongoDBURI } = require("./utils");
 
 async function exec() {
-  const client = new MongoClient(preprocessMongoDBURI(process.env.APPSMITH_MONGODB_URI), {
+  const client = new MongoClient(preprocessMongoDBURI(process.env.APPSMITH_DB_URL), {
     useNewUrlParser: true,
     useUnifiedTopology: true,
   });

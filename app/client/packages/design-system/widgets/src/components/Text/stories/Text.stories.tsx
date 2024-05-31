@@ -35,7 +35,7 @@ export const LineClamp: Story = {
   },
 };
 
-export const Variant: Story = {
+export const Size: Story = {
   render: () => (
     <Flex
       alignItems="center"
@@ -45,7 +45,7 @@ export const Variant: Story = {
       justifyContent="start"
     >
       {Object.values(TYPOGRAPHY_VARIANTS).map((variant) => (
-        <Text key={variant} variant={variant}>
+        <Text key={variant} size={variant}>
           {variant}
         </Text>
       ))}

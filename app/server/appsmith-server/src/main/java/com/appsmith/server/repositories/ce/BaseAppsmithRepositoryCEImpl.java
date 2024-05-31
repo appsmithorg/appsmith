@@ -9,6 +9,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.mongodb.BasicDBObject;
@@ -145,6 +146,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return queryBuilder().byId(id).permission(permission).updateFirstAndFind(updateObj);
     }
 
+    public Mono<Integer> updateByIdWithoutPermissionCheck(@NonNull String id, BridgeUpdate update) {
+        return queryBuilder().byId(id).updateFirst(update);
+    }
+
     public Mono<Integer> updateFieldByDefaultIdAndBranchName(
             String defaultId,
             String defaultIdPath,
@@ -222,6 +227,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Flux<T> queryAllExecute(QueryAllParams<T> params) {
+        return queryAllExecute(params, this.genericDomain)
+                .flatMap(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()));
+    }
+
+    public <P> Flux<P> queryAllExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return ensurePermissionGroupsInParams(params).thenMany(Flux.defer(() -> {
             final Query query = createQueryWithPermission(
                     params.getCriteria(), params.getFields(), params.getPermissionGroups(), params.getPermission());
@@ -240,23 +250,28 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
             return mongoOperations
                     .query(this.genericDomain)
+                    .as(projectionClass)
                     .matching(query.cursorBatchSize(10_000))
-                    .all()
-                    .flatMap(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()));
+                    .all();
         }));
     }
 
     public Mono<T> queryOneExecute(QueryAllParams<T> params) {
+        return queryOneExecute(params, this.genericDomain)
+                .flatMap(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()));
+    }
+
+    public <P> Mono<P> queryOneExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> mongoOperations
-                .query(this.genericDomain)
+                .query(genericDomain)
+                .as(projectionClass)
                 .matching(createQueryWithPermission(
                                 params.getCriteria(),
                                 params.getFields(),
                                 params.getPermissionGroups(),
                                 params.getPermission())
                         .cursorBatchSize(10_000))
-                .one()
-                .flatMap(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()))));
+                .one()));
     }
 
     public Mono<T> queryFirstExecute(QueryAllParams<T> params) {
@@ -445,7 +460,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
      *
      * @see FindAndModifyOptions
      */
-    public Mono<T> updateAndReturn(String id, UpdateDefinition updateObj, Optional<AclPermission> permission) {
+    public Mono<T> updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission) {
         Query query = new Query(Criteria.where("id").is(id));
 
         FindAndModifyOptions findAndModifyOptions =

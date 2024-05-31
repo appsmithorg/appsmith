@@ -44,7 +44,7 @@ export const propertyPaneContentConfig = [
         isBindProperty: false,
         isTriggerProperty: false,
         updateHook: inputTypeUpdateHook,
-        dependencies: ["dynamicHeight"],
+        dependencies: ["defaultText"],
       },
       {
         helpText:
@@ -76,6 +76,9 @@ export const propertyPaneContentConfig = [
   },
   {
     sectionName: "Validation",
+    hidden: (props: InputWidgetProps) => {
+      return Boolean(props.isReadOnly);
+    },
     children: [
       {
         propertyName: "isRequired",

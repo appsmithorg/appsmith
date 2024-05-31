@@ -1,18 +1,8 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
-import { get } from "lodash";
-import {
-  getBasePropertyPath,
-  hideByColumnType,
-  updateColumnLevelEditability,
-  updateColumnOrderWhenFrozen,
-  updateInlineEditingOptionDropdownVisibilityHook,
-} from "../../../widget/propertyUtils";
-import { isColumnTypeEditable } from "../../../widget/utilities";
-import { composePropertyUpdateHook } from "widgets/WidgetUtils";
-import { ButtonVariantTypes } from "components/constants";
-import { StickyType } from "widgets/wds/WDSTableWidget/component/Constants";
+import { hideByColumnType } from "../../../widget/propertyUtils";
+import { BUTTON_VARIANTS, objectKeys } from "@design-system/widgets";
 
 export default {
   sectionName: "General",
@@ -24,7 +14,6 @@ export default {
       helpText: "Controls the visibility of the cell in the column",
       defaultValue: true,
       controlType: "SWITCH",
-      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -41,7 +30,6 @@ export default {
       helpText: "Controls the disabled state of the button",
       defaultValue: false,
       controlType: "SWITCH",
-      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -65,7 +53,6 @@ export default {
       helpText: "Decides if menu items will consume lesser space",
       label: "Compact",
       controlType: "SWITCH",
-      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       validation: {
@@ -79,92 +66,6 @@ export default {
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
       },
-    },
-    {
-      propertyName: "allowCellWrapping",
-      dependencies: ["primaryColumns", "columnType"],
-      label: "Cell wrapping",
-      helpText: "Allows content of the cell to be wrapped",
-      defaultValue: false,
-      controlType: "SWITCH",
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.TEXT,
-          ColumnTypes.NUMBER,
-          ColumnTypes.URL,
-        ]);
-      },
-    },
-    {
-      propertyName: "isCellEditable",
-      dependencies: [
-        "primaryColumns",
-        "columnOrder",
-        "columnType",
-        "childStylesheet",
-        "inlineEditingSaveOption",
-      ],
-      label: "Editable",
-      helpText: "Controls the cell's editablity",
-      defaultValue: false,
-      controlType: "SWITCH",
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      updateHook: composePropertyUpdateHook([
-        updateColumnLevelEditability,
-        updateInlineEditingOptionDropdownVisibilityHook,
-      ]),
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        const baseProperty = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${baseProperty}.columnType`, "");
-        const isDerived = get(props, `${baseProperty}.isDerived`, false);
-        return !isColumnTypeEditable(columnType) || isDerived;
-      },
-    },
-    {
-      propertyName: "sticky",
-      helpText:
-        "Choose column that needs to be frozen left or right of the table",
-      controlType: "ICON_TABS",
-      defaultValue: StickyType.NONE,
-      label: "Column freeze",
-      fullWidth: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      dependencies: ["primaryColumns", "columnOrder"],
-      options: [
-        {
-          startIcon: "contract-left-line",
-          value: StickyType.LEFT,
-        },
-        {
-          startIcon: "column-freeze",
-          value: StickyType.NONE,
-        },
-        {
-          startIcon: "contract-right-line",
-          value: StickyType.RIGHT,
-        },
-      ],
-      updateHook: updateColumnOrderWhenFrozen,
     },
   ],
 };
@@ -175,11 +76,27 @@ export const GeneralStyle = {
     {
       propertyName: "buttonVariant",
       label: "Button variant",
-      controlType: "ICON_TABS",
+      controlType: "DROP_DOWN",
       fullWidth: true,
-      customJSControl: "TABLE_COMPUTE_VALUE",
+      helpText: "Sets the variant of the button",
+      options: objectKeys(BUTTON_VARIANTS).map((variant) => ({
+        label: BUTTON_VARIANTS[variant],
+        value: variant,
+      })),
+      defaultValue: objectKeys(BUTTON_VARIANTS)[0],
       isJSConvertible: true,
-      helpText: "Sets the variant",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+        params: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: objectKeys(BUTTON_VARIANTS),
+            default: objectKeys(BUTTON_VARIANTS)[0],
+          },
+        },
+      },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
           ColumnTypes.ICON_BUTTON,
@@ -187,109 +104,6 @@ export const GeneralStyle = {
         ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
-      options: [
-        {
-          label: "Primary",
-          value: ButtonVariantTypes.PRIMARY,
-        },
-        {
-          label: "Secondary",
-          value: ButtonVariantTypes.SECONDARY,
-        },
-        {
-          label: "Tertiary",
-          value: ButtonVariantTypes.TERTIARY,
-        },
-      ],
-      defaultValue: ButtonVariantTypes.PRIMARY,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            default: ButtonVariantTypes.PRIMARY,
-            allowedValues: [
-              ButtonVariantTypes.PRIMARY,
-              ButtonVariantTypes.SECONDARY,
-              ButtonVariantTypes.TERTIARY,
-            ],
-          },
-        },
-      },
-    },
-    {
-      propertyName: "menuVariant",
-      label: "Button variant",
-      controlType: "ICON_TABS",
-      fullWidth: true,
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      helpText: "Sets the variant of the menu button",
-      options: [
-        {
-          label: "Primary",
-          value: ButtonVariantTypes.PRIMARY,
-        },
-        {
-          label: "Secondary",
-          value: ButtonVariantTypes.SECONDARY,
-        },
-        {
-          label: "Tertiary",
-          value: ButtonVariantTypes.TERTIARY,
-        },
-      ],
-      isJSConvertible: true,
-      dependencies: ["primaryColumns", "columnOrder"],
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
-      },
-      isBindProperty: true,
-      isTriggerProperty: false,
-      defaultValue: ButtonVariantTypes.PRIMARY,
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            default: ButtonVariantTypes.PRIMARY,
-            allowedValues: [
-              ButtonVariantTypes.PRIMARY,
-              ButtonVariantTypes.SECONDARY,
-              ButtonVariantTypes.TERTIARY,
-            ],
-          },
-        },
-      },
-    },
-    {
-      propertyName: "imageSize",
-      dependencies: ["primaryColumns", "columnType"],
-      label: "Image Size",
-      helpText: "Sets the size of the image",
-      defaultValue: "DEFAULT",
-      controlType: "ICON_TABS",
-      fullWidth: true,
-      options: [
-        {
-          label: "Default",
-          value: "DEFAULT",
-        },
-        {
-          label: "Medium",
-          value: "MEDIUM",
-        },
-        {
-          label: "Large",
-          value: "LARGE",
-        },
-      ],
-      isBindProperty: false,
-      isTriggerProperty: false,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.IMAGE]);
-      },
     },
   ],
 };

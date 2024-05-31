@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationCreationDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -19,8 +20,6 @@ import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
 import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.exports.internal.partial.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
@@ -77,14 +76,10 @@ public class ApplicationControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Application>> create(
-            @Valid @RequestBody Application resource, @RequestParam String workspaceId) {
-        if (workspaceId == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspace id"));
-        }
-        log.debug("Going to create application in workspace {}", workspaceId);
+    public Mono<ResponseDTO<Application>> create(@Valid @RequestBody ApplicationCreationDTO resource) {
+        log.debug("Going to create application in workspace {}", resource.workspaceId());
         return applicationPageService
-                .createApplication(resource, workspaceId)
+                .createApplication(resource.toApplication())
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 

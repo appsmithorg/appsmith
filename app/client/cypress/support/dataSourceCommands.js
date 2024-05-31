@@ -25,39 +25,8 @@ export const initLocalstorage = () => {
   });
 };
 
-Cypress.Commands.add("testSaveDeleteDatasource", () => {
-  // Instead of deleting the last datasource on the active datasources list,
-  // we delete the datasource that was just created (identified by its title)
-  cy.get(datasourceEditor.datasourceTitle)
-    .invoke("text")
-    .then((datasourceTitle) => {
-      // test datasource
-      cy.get(".t--test-datasource").click();
-      cy.wait("@testDatasource");
-      // .should("have.nested.property", "response.body.data.success", true)
-      //  .debug();
-
-      // save datasource
-      cy.get(".t--save-datasource").click();
-      cy.wait("@saveDatasource").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        201,
-      );
-      // select datasource to be deleted by datasource title
-      cy.get(".t--edit-datasource").click({ force: true });
-
-      // delete datasource
-      dataSources.DeleteDSDirectly(200);
-    });
-});
-
 Cypress.Commands.add("NavigateToDatasourceEditor", () => {
   dataSources.NavigateToDSCreateNew();
-});
-
-Cypress.Commands.add("NavigateToActiveDatasources", () => {
-  AppSidebar.navigate(AppSidebarButton.Data);
 });
 
 Cypress.Commands.add("testDatasource", (expectedRes = true) => {
@@ -244,34 +213,6 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add(
-  "fillUsersMockDatasourceForm",
-  (shouldAddTrailingSpaces = false) => {
-    const userMockDatabaseName = shouldAddTrailingSpaces
-      ? `${datasourceFormData["mockDatabaseName"] + "    "}`
-      : datasourceFormData["mockDatabaseName"];
-
-    const userMockHostAddress = shouldAddTrailingSpaces
-      ? `${datasourceFormData["mockHostAddress"] + "    "}`
-      : datasourceFormData["mockHostAddress"];
-
-    const userMockDatabaseUsername = shouldAddTrailingSpaces
-      ? `${datasourceFormData["mockDatabaseUsername"] + "    "}`
-      : datasourceFormData["mockDatabaseUsername"];
-
-    agHelper.ClearNType(datasourceEditor["host"], userMockHostAddress);
-    agHelper.ClearNType(datasourceEditor["databaseName"], userMockDatabaseName);
-
-    cy.get(datasourceEditor["sectionAuthentication"]).click();
-
-    agHelper.ClearNType(
-      datasourceEditor["password"],
-      datasourceFormData["mockDatabasePassword"],
-    );
-    agHelper.ClearNType(datasourceEditor["username"], userMockDatabaseUsername);
-  },
-);
-
-Cypress.Commands.add(
   "fillSMTPDatasourceForm",
   (shouldAddTrailingSpaces = false) => {
     const hostAddress = shouldAddTrailingSpaces
@@ -325,13 +266,6 @@ Cypress.Commands.add("fillAmazonS3DatasourceForm", () => {
   );
 });
 
-Cypress.Commands.add("createAmazonS3Datasource", () => {
-  cy.NavigateToDatasourceEditor();
-  cy.get(datasourceEditor.AmazonS3).click();
-  cy.fillAmazonS3DatasourceForm();
-  cy.testSaveDatasource();
-});
-
 Cypress.Commands.add("ReconnectDatasource", (datasource) => {
   cy.xpath(`//span[text()='${datasource}']`).click();
 });
@@ -358,46 +292,6 @@ Cypress.Commands.add("createNewAuthApiDatasource", (renameVal) => {
   // reflect in api sidebar after the call passes.
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
-});
-
-Cypress.Commands.add("deleteAuthApiDatasource", (renameVal) => {
-  //Navigate to active datasources panel.
-  dataSources.DeleteDatasourceFromWithinDS(renameVal);
-});
-
-Cypress.Commands.add("createGraphqlDatasource", (datasourceName) => {
-  cy.NavigateToDatasourceEditor();
-  //Click on Authenticated Graphql API
-  cy.get(apiEditorLocators.createGraphQLDatasource).click({ force: true });
-  //Verify weather Authenticated Graphql Datasource is successfully created.
-  cy.wait("@saveDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
-
-  // Change the Graphql Datasource name
-  cy.get(".t--edit-datasource-name").click();
-  cy.get(".t--edit-datasource-name input")
-    .clear()
-    .type(datasourceName, { force: true })
-    .should("have.value", datasourceName)
-    .blur();
-
-  // Adding Graphql Url
-  cy.get("input[name='url']").type(datasourceFormData.graphqlApiUrl);
-
-  // save datasource
-  cy.get(".t--save-datasource").click({ force: true });
-  cy.wait("@saveDatasource").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
-});
-
-Cypress.Commands.add("createMockDatasource", (datasourceName) => {
-  cy.get(".t--mock-datasource").contains(datasourceName).click();
 });
 
 Cypress.Commands.add("datasourceCardContainerStyle", (tag) => {

@@ -17,12 +17,9 @@ import {
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { redoAction, undoAction } from "actions/pageActions";
-import { redoShortCut, undoShortCut } from "utils/helpers";
 import { toast } from "design-system";
 import type { ThemeProp } from "WidgetProvider/constants";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getCurrentUser } from "selectors/usersSelectors";
 
@@ -43,8 +40,6 @@ export const GetNavigationMenuData = ({
   const applicationId = useSelector(getCurrentApplicationId);
 
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
-
-  const isSideBySideFlagEnabled = useSelector(getIsSideBySideEnabled);
 
   const user = useSelector(getCurrentUser);
 
@@ -140,27 +135,6 @@ export const GetNavigationMenuData = ({
       text: "divider_2",
       type: MenuTypes.MENU_DIVIDER,
       isVisible: true,
-    },
-    !isSideBySideFlagEnabled && {
-      text: "Edit",
-      type: MenuTypes.PARENT,
-      isVisible: true,
-      children: [
-        {
-          text: "Undo",
-          labelElement: undoShortCut(),
-          onClick: () => dispatch(undoAction()),
-          type: MenuTypes.MENU,
-          isVisible: true,
-        },
-        {
-          text: "Redo",
-          labelElement: redoShortCut(),
-          onClick: () => dispatch(redoAction()),
-          type: MenuTypes.MENU,
-          isVisible: true,
-        },
-      ],
     },
     {
       text: "Help",
