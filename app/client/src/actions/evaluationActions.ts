@@ -92,7 +92,7 @@ export const cacheDependencies = ({
   pageId: string;
 }> => {
   return {
-    type: ReduxActionTypes.CACHE_PAGE_DEPNDENCIES,
+    type: ReduxActionTypes.CACHE_PAGE_DEPENDENCIES,
     payload: { errors, dependencies, pageId },
   };
 };
