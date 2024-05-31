@@ -34,9 +34,9 @@ describe(
       );
 
       //Select the 1st, 2nd and 3rd row
-      cy.isSelectRow("0");
-      cy.isSelectRow("1");
-      cy.isSelectRow("2");
+      _.table.SelectTableRow(0);
+      _.table.SelectTableRow(1);
+      _.table.SelectTableRow(2);
 
       //Check the value present in the textfield which is selectedRowIndices is [0,1,2]
       cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).should(

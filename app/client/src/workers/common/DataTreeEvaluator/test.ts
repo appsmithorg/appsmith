@@ -16,7 +16,16 @@ import { replaceThisDotParams } from "./utils";
 import { isDataField } from "./utils";
 import widgets from "widgets";
 import type { WidgetConfiguration } from "WidgetProvider/constants";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import {
+  EvaluationSubstitutionType,
+  type WidgetEntity,
+} from "@appsmith/entities/DataTree/types";
+import {
+  EXECUTION_PARAM_KEY,
+  EXECUTION_PARAM_REFERENCE_REGEX,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import generateOverrideContext from "@appsmith/workers/Evaluation/generateOverrideContext";
+import { klona } from "klona";
 
 const widgetConfigMap: Record<
   string,
@@ -35,6 +44,8 @@ widgets.map((widget) => {
     };
   }
 });
+
+jest.mock("@appsmith/workers/Evaluation/generateOverrideContext"); // mock the generateOverrideContext function
 
 const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
 
@@ -138,6 +149,117 @@ describe("DataTreeEvaluator", () => {
         "my value",
         "default value",
       ]);
+    });
+
+    // The test should verify that generateOverrideContext is called and passed as context to getDynamicValue
+    it("should call generateOverrideContext and pass as context to getDynamicValue", () => {
+      const overrideContextValue = { "ModuleInstance1.inputs.input1": "200" };
+
+      let generateOverrideContextParams;
+      // Mock generateOverrideContext only for this test
+      const originalGenerateOverrideContext = generateOverrideContext;
+      (generateOverrideContext as jest.Mock).mockImplementation((params) => {
+        // The dataTree gets mutated in evaluateActionBindings thus modifying the
+        // original params passed to this function. This helps preserving the params
+        // actually passed.
+        generateOverrideContextParams = klona(params);
+        return overrideContextValue;
+      });
+
+      const widgetConfigMap = {};
+      const dataTreeEvaluator = new DataTreeEvaluator(widgetConfigMap);
+      const dataTree = {
+        Text1: {
+          text: "Hello",
+        },
+        ModuleInstance1: {
+          inputs: {
+            input1: "10",
+          },
+        },
+      } as unknown as DataTree;
+      const bindings = [
+        "(function() { return this.params.property })()",
+        "(() => { return this.params.property })()",
+        'this.params.property || "default value"',
+        'this.params.property1 || "default value"',
+        "ModuleInstance1.inputs.input1",
+      ];
+      const executionParams = {
+        property: "my value",
+        input1: "200",
+      };
+      dataTreeEvaluator.evalTree = klona(dataTree);
+
+      const originalGetDynamicValue =
+        dataTreeEvaluator.getDynamicValue.bind(dataTreeEvaluator);
+      const getDynamicValueCapturedParams: any[] = [];
+      jest.spyOn(dataTreeEvaluator, "getDynamicValue");
+      (dataTreeEvaluator.getDynamicValue as jest.Mock).mockImplementation(
+        (...args) => {
+          getDynamicValueCapturedParams.push(args);
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          return originalGetDynamicValue(...args);
+        },
+      );
+
+      // Call the method under test
+      const result = dataTreeEvaluator.evaluateActionBindings(
+        bindings,
+        executionParams,
+      );
+
+      expect(generateOverrideContext).toHaveBeenCalled();
+      expect(generateOverrideContextParams).toEqual({
+        bindings,
+        executionParams,
+        dataTree,
+      });
+
+      // Check results
+      expect(result).toEqual([
+        "my value",
+        "my value",
+        "my value",
+        "default value",
+        "200",
+      ]);
+
+      // Verify getDynamicValue receives the correct parameters
+      // The first call is always with executionParams
+      [`${JSON.stringify(executionParams)}`, ...bindings].forEach(
+        (binding, index) => {
+          const replacedBinding = binding.replace(
+            EXECUTION_PARAM_REFERENCE_REGEX,
+            EXECUTION_PARAM_KEY,
+          );
+
+          let defaultExpectedValue = [
+            `{{${replacedBinding}}}`,
+            klona(dataTree),
+            dataTreeEvaluator.oldConfigTree,
+            EvaluationSubstitutionType.TEMPLATE,
+          ];
+
+          if (index !== 0) {
+            defaultExpectedValue = [
+              ...defaultExpectedValue,
+              expect.objectContaining({
+                overrideContext: overrideContextValue,
+              }),
+            ];
+          }
+          expect(getDynamicValueCapturedParams[index]).toEqual(
+            defaultExpectedValue,
+          );
+        },
+      );
+
+      // Restore the original function after the test
+      (generateOverrideContext as jest.Mock).mockImplementation(
+        originalGenerateOverrideContext,
+      );
     });
   });
 

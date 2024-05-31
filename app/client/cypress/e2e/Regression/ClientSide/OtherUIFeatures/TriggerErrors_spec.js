@@ -12,13 +12,12 @@ describe("Trigger errors in the debugger", function () {
     cy.EnableAllCodeEditors();
     cy.testJsontext("onrowselected", "{{console.logs('test')}}");
     // Click on a row of the table widget
-    cy.isSelectRow(1);
-    cy.wait(5000);
+    _.table.SelectTableRow(1);
     //should be 2 if we decide to show trigger errors in the debugger.
     _.debuggerHelper.AssertErrorCount(1);
     // Fix code
     cy.testJsontext("onrowselected", "{{console.log('test')}}");
-    cy.isSelectRow(1);
+    _.table.SelectTableRow(1);
     _.debuggerHelper.AssertErrorCount(1);
   });
 });

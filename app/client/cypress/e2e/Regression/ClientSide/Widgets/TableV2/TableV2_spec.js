@@ -40,7 +40,7 @@ describe(
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("image");
       cy.changeColumnType("Image");
-      cy.isSelectRow(1);
+      _.table.SelectTableRow(1, 0, true, "v2");
 
       const index = 1;
       const imageVal = this.dataSet.TableInput[index].image;
