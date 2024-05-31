@@ -21,9 +21,9 @@ describe(
         widgetsPage.widgetNameSpan,
       );
       cy.createModal("Modal", "onRowSelected");
-      cy.isSelectRow(1);
+      _.table.SelectTableRow(1);
       cy.get(".bp3-overlay-backdrop").click({ force: true });
-      cy.isSelectRow(2);
+      _.table.SelectTableRow(2);
       cy.get(".bp3-overlay-backdrop").click({ force: true });
     });
 
