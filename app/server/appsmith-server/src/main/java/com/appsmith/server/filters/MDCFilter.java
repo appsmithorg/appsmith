@@ -5,10 +5,7 @@ import com.appsmith.server.helpers.LogHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
-import org.springframework.http.HttpCookie;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -18,10 +15,7 @@ import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
 import java.util.Map;
-import java.util.UUID;
 
-import static com.appsmith.external.constants.MDCConstants.SESSION_ID_LOG;
-import static com.appsmith.external.constants.MDCConstants.THREAD;
 import static com.appsmith.external.constants.MDCConstants.USER_EMAIL;
 import static java.util.stream.Collectors.toMap;
 
@@ -44,15 +38,9 @@ public class MDCFilter implements WebFilter {
 
     public static final String REQUEST_ID_HEADER = "X-Request-Id";
 
-    private static final String REQUEST_ID_LOG = "requestId";
-    private static final String SESSION = "SESSION";
-
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         try {
-            // Using beforeCommit here ensures that the function `addContextToHttpResponse` isn't run immediately
-            // It is only run when the response object is being created
-            exchange.getResponse().beforeCommit(() -> addContextToHttpResponse(exchange.getResponse()));
             return ReactiveSecurityContextHolder.getContext()
                     .map(ctx -> ctx.getAuthentication().getPrincipal())
                     .flatMap(principal -> {
@@ -76,55 +64,17 @@ public class MDCFilter implements WebFilter {
         }
 
         final String internalRequestId = request.getHeaders().getFirst(INTERNAL_REQUEST_ID_HEADER);
-        if (!StringUtils.isEmpty(internalRequestId)) {
-            contextMap.put(INTERNAL_REQUEST_ID_HEADER, internalRequestId);
-            contextMap.put(REQUEST_ID_LOG, internalRequestId);
-        }
+        contextMap.put(INTERNAL_REQUEST_ID_HEADER, internalRequestId);
 
         final String requestId = request.getHeaders().getFirst(REQUEST_ID_HEADER);
         if (!StringUtils.isEmpty(requestId)) {
             contextMap.put(REQUEST_ID_HEADER, requestId);
         }
 
-        contextMap.put(SESSION_ID_LOG, getSessionId(request));
-
-        // This is for the initial thread that started the request,
-        // any reactive forking will generate a new thread
-        contextMap.put(THREAD, Thread.currentThread().getName());
-
         // Set the MDC context here for regular non-reactive logs
         MDC.setContextMap(contextMap);
 
         // Setting the context map to the reactive context. This will be used in the reactive logger to print the MDC
         return context.put(LogHelper.CONTEXT_MAP, contextMap);
-    }
-
-    private Mono<Void> addContextToHttpResponse(final ServerHttpResponse response) {
-        return Mono.deferContextual(Mono::just)
-                .doOnNext(ctx -> {
-                    if (!ctx.hasKey(LogHelper.CONTEXT_MAP)) {
-                        return;
-                    }
-
-                    final Map<String, String> contextMap = ctx.get(LogHelper.CONTEXT_MAP);
-
-                    final HttpHeaders httpHeaders = response.getHeaders();
-                    httpHeaders.set(MDC_HEADER_PREFIX + THREAD, contextMap.get(THREAD));
-                })
-                .then();
-    }
-
-    private String getSessionId(final ServerHttpRequest request) {
-        final HttpCookie cookie = request.getCookies().getFirst(SESSION);
-        return cookie != null ? cookie.getValue() : "";
-    }
-
-    private String getOrCreateInternalRequestId(final ServerHttpRequest request) {
-        final String header = request.getHeaders().getFirst(INTERNAL_REQUEST_ID_HEADER);
-        if (!StringUtils.isEmpty(header)) {
-            return header;
-        }
-
-        return UUID.randomUUID().toString();
     }
 }
