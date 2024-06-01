@@ -61,7 +61,7 @@ export const getOriginalRowIndex = (
     prevTableData &&
     prevTableData[selectedRowIndex]
   ) {
-    primaryKey = prevTableData[selectedRowIndex][primaryColumnId] as string;
+    primaryKey = tableData[selectedRowIndex][primaryColumnId] as string;
   }
 
   if (!!primaryKey && tableData) {
