@@ -39,7 +39,7 @@ export class Table {
   private _tableWrap = "//div[contains(@class,'tableWrap')]";
   private _tableHeader =
     this._tableWrap +
-    "//div[contains(@class,'thead')]//div[contains(@class,'tr')][1]";
+    "//div[contains(@class,'thead')]//div[contains(@class,'tr')]//div[contains(@class,'th')]";
   private _columnHeader = (columnName: string) =>
     this._tableWrap +
     "//div[contains(@class,'thead')]//div[contains(@class,'tr')][1]//div[@role='columnheader']//div[contains(text(),'" +
