@@ -1238,7 +1238,10 @@ export default new CodeMirrorTernService({
 function dotToBracketNotationAtToken(token: CodeMirror.Token) {
   return (cm: CodeMirror.Editor, hints: Hints, curr: Hint) => {
     let completion = curr.text;
-    if (token.type === "string") {
+    if (
+      token.type === "string" ||
+      ("type" in curr && curr.type === AutocompleteDataType.FUNCTION)
+    ) {
       // | represents the cursor
       // Cases like JSObject1["myV|"]
       cm.replaceRange(completion, hints.from, hints.to);
