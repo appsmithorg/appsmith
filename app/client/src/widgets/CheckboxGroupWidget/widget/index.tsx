@@ -9,7 +9,7 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { compact, xor, findIndex } from "lodash";
+import { compact, xor } from "lodash";
 import { default as React } from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
@@ -615,23 +615,15 @@ class CheckboxGroupWidget extends BaseWidget<
 
   componentDidUpdate(prevProps: CheckboxGroupWidgetProps) {
     //search props.selectedValues in the options if not found set selectedValues to []
-    if (
-      prevProps.selectedValues &&
-      prevProps.selectedValues.length > 0 &&
-      prevProps.options &&
-      prevProps.options.length > 0
-    ) {
-      for (const i of prevProps.selectedValues) {
-        if (
-          findIndex(
-            prevProps.options,
-            (option: OptionProps) => option.value === i,
-          ) === -1
-        ) {
-          this.props.updateWidgetMetaProperty("selectedValues", []);
-          break;
-        }
-      }
+    const validSelectedValues = prevProps.selectedValues.filter(
+      (value: string) =>
+        prevProps.options.some((option) => option.value === value),
+    );
+    if (validSelectedValues.length !== prevProps.selectedValues.length) {
+      this.props.updateWidgetMetaProperty(
+        "selectedValues",
+        validSelectedValues,
+      );
     }
 
     // Reset isDirty to false whenever defaultSelectedValues changes
