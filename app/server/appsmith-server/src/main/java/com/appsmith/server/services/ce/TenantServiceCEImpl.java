@@ -129,7 +129,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> getTenantConfiguration(Mono<Tenant> dbTenantMono) {
-        String adminEmailDomainHash = commonConfig.getHashedAdminEmail();
+        String adminEmailDomainHash = commonConfig.getAdminEmailDomainHash();
         Mono<Tenant> clientTenantMono = configService.getInstanceId().map(instanceId -> {
             final Tenant tenant = new Tenant();
             tenant.setInstanceId(instanceId);
