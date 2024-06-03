@@ -237,14 +237,6 @@ create table email_verification_token
     token_hash varchar(255)
 );
 
-create table git_config
-(
-    id varchar(255) not null
-        primary key,
-    author_email varchar(255),
-    author_name varchar(255)
-);
-
 create table git_deploy_keys
 (
     id varchar(255) not null
@@ -259,15 +251,6 @@ create table git_deploy_keys
     updated_at timestamp(6) with time zone,
     email varchar(255),
     git_auth jsonb
-);
-
-create table git_profile
-(
-    id varchar(255) not null
-        primary key,
-    author_email varchar(255),
-    author_name varchar(255),
-    use_global_profile boolean
 );
 
 create table new_action
