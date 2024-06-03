@@ -1,12 +1,14 @@
-import type { AxiosPromise } from "axios";
-import Api from "api/Api";
-import type { ApiResponse } from "./ApiResponses";
-import type { WidgetType } from "constants/WidgetConstants";
 import type {
-  ApplicationResponsePayload,
   ApplicationPagePayload,
+  ApplicationResponsePayload,
 } from "@appsmith/api/ApplicationApi";
+import Api from "api/Api";
+import type { AxiosPromise } from "axios";
+import type { WidgetType } from "constants/WidgetConstants";
 import type { Datasource } from "entities/Datasource";
+import { getTemplatesSelector } from "selectors/templatesSelectors";
+import store from "store";
+import type { ApiResponse } from "./ApiResponses";
 
 export interface Template {
   id: string;
@@ -27,6 +29,8 @@ export interface Template {
 }
 
 export type FetchTemplatesResponse = ApiResponse<Template[]>;
+export type TemplatesResponse = Template;
+
 export type FilterKeys = "widgets" | "datasources";
 
 export type FetchTemplateResponse = ApiResponse<Template>;
@@ -62,6 +66,17 @@ export type PublishCommunityTemplateResponse = ApiResponse<{
   modifiedAt: string;
 }>;
 
+const createTemplateResponse = (data: Template) => {
+  return {
+    responseMeta: {
+      status: 200,
+      success: true,
+    },
+    data: data,
+    errorDisplay: "",
+  };
+};
+
 class TemplatesAPI extends Api {
   static baseUrl = "v1";
 
@@ -72,9 +87,18 @@ class TemplatesAPI extends Api {
   }
   static async getTemplateInformation(
     templateId: string,
-  ): Promise<AxiosPromise<FetchTemplatesResponse>> {
+  ): Promise<AxiosPromise<TemplatesResponse>> {
+    const state = store.getState();
+    const templates = getTemplatesSelector(state);
+    const template = templates.find((template) => template.id === templateId);
+    if (template) {
+      console.log(">>>>>>>>>> Found template in store:");
+      return createTemplateResponse(template) as any;
+    }
+    console.log(">>>>>>>>>>>>> template not found in store , need to fetch  : ");
     return Api.get(TemplatesAPI.baseUrl + `/app-templates/${templateId}`);
   }
+
   static async getSimilarTemplates(
     templateId: string,
   ): Promise<AxiosPromise<FetchTemplatesResponse>> {

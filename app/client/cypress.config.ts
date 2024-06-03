@@ -7,6 +7,8 @@ export default defineConfig({
   responseTimeout: 60000,
   pageLoadTimeout: 60000,
   video: true,
+  videosFolder: "cypress/videos",
+  videoCompression: 32,
   numTestsKeptInMemory: 5,
   experimentalMemoryManagement: true,
   reporterOptions: {
