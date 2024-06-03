@@ -22,6 +22,6 @@ public class Migration056AddUniqueIndexForSlugInTenant {
 
     @Execution
     public void executeMigration() {
-        ensureIndexes(mongoTemplate, Tenant.class, makeIndex(Tenant.Fields.slug));
+        ensureIndexes(mongoTemplate, Tenant.class, makeIndex(Tenant.Fields.slug).unique());
     }
 }
