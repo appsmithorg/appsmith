@@ -15,6 +15,7 @@ public class AutoCommitEventHandlerImpl extends AutoCommitEventHandlerCEImpl imp
 
     public AutoCommitEventHandlerImpl(
             ApplicationEventPublisher applicationEventPublisher,
+            GitRedisUtils gitRedisUtils,
             RedisUtils redisUtils,
             DSLMigrationUtils dslMigrationUtils,
             GitFileUtils fileUtils,
@@ -24,6 +25,7 @@ public class AutoCommitEventHandlerImpl extends AutoCommitEventHandlerCEImpl imp
             AnalyticsService analyticsService) {
         super(
                 applicationEventPublisher,
+                gitRedisUtils,
                 redisUtils,
                 dslMigrationUtils,
                 fileUtils,
