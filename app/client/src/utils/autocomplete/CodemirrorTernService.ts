@@ -126,8 +126,8 @@ const FinalObjectPathRegex = /(?:\w+\.)*\w+$/;
  *   Input: '\tconst k = PageQuery.run'
  *   Output: 'PageQuery.run'
  */
-function extractFinalObjectPath(input: string) {
-  const match = input.match(FinalObjectPathRegex);
+export function extractFinalObjectPath(input: string) {
+  const match = (input || "")?.trim().match(FinalObjectPathRegex);
   return match ? match[0] : null;
 }
 

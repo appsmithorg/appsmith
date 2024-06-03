@@ -4,6 +4,7 @@ import type {
 } from "../CodemirrorTernService";
 import CodemirrorTernService, {
   createCompletionHeader,
+  extractFinalObjectPath,
 } from "../CodemirrorTernService";
 import { AutocompleteDataType } from "../AutocompleteDataType";
 import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
@@ -686,5 +687,41 @@ describe("Tern server completion", () => {
       (item) => expect.objectContaining(item),
     );
     expect(_.sortBy(result.list, "text")).toEqual(expectedContainingItems);
+  });
+});
+
+describe("extractFinalObjectPath", () => {
+  it("should extract the last dot-separated path from a string", () => {
+    expect(extractFinalObjectPath("user.profile.name")).toEqual(
+      "user.profile.name",
+    );
+    expect(extractFinalObjectPath("app.data")).toEqual("app.data");
+  });
+
+  it("should return the last path in a code line", () => {
+    expect(extractFinalObjectPath("const users = GetUsers.run")).toEqual(
+      "GetUsers.run",
+    );
+  });
+
+  it("should return the input if there are no dots", () => {
+    expect(extractFinalObjectPath("username")).toEqual("username");
+  });
+
+  it("should return null for empty or whitespace-only strings", () => {
+    expect(extractFinalObjectPath("")).toBeNull();
+    expect(extractFinalObjectPath("   ")).toBeNull();
+  });
+
+  it("should handle strings with leading and trailing whitespace", () => {
+    expect(extractFinalObjectPath("  user.profile.name  ")).toEqual(
+      "user.profile.name",
+    );
+  });
+
+  it("should return null if no valid path is found", () => {
+    expect(extractFinalObjectPath("This is a valid code string path")).toEqual(
+      "path",
+    );
   });
 });
