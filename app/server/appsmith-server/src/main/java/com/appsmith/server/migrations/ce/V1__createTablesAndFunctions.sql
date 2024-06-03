@@ -68,16 +68,6 @@ create table application
     workspace_id varchar(255)
 );
 
-create table application_page
-(
-    id varchar(255) not null
-        primary key,
-    custom_slug varchar(255),
-    default_page_id varchar(255),
-    is_default boolean,
-    slug varchar(255)
-);
-
 create table application_snapshot
 (
     id varchar(255) not null

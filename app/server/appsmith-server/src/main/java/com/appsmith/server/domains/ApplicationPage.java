@@ -19,8 +19,6 @@ import org.springframework.data.annotation.Transient;
 @Setter
 @ToString
 @NoArgsConstructor
-@Entity
-@Where(clause = "deleted_at IS NULL")
 @EqualsAndHashCode
 public class ApplicationPage {
 
