@@ -171,7 +171,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return queryBuilder().criteria(q).permission(permission).one();
     }
 
-    public Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission) {
+    public Optional<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission) {
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
                 Bridge.equal(NewPage.Fields.defaultResources_pageId, defaultPageId);
@@ -246,11 +246,11 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Mono<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap) {
+    public Optional<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap) {
         final BridgeQuery<NewPage> q = Bridge.equal(NewPage.Fields.id, pageId);
 
         BridgeUpdate update = Bridge.update();
         update.set(NewPage.Fields.unpublishedPage_dependencyMap, dependencyMap);
-        return queryBuilder().criteria(q).updateFirst(update);
+        return Optional.of(queryBuilder().criteria(q).updateFirst(update));
     }
 }

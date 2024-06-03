@@ -1822,7 +1822,13 @@ public class ExportServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithCustomJSLibTest() {
-        CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string".getBytes(StandardCharsets.UTF_8));
+        CustomJSLib jsLib = new CustomJSLib(
+                "TestLib",
+                Set.of("accessor1"),
+                "url",
+                "docsUrl",
+                "1.0",
+                "defs_string".getBytes(StandardCharsets.UTF_8));
         Mono<Boolean> addJSLibMonoCached = customJSLibService
                 .addJSLibsToContext(testAppId, CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
                 .flatMap(isJSLibAdded ->

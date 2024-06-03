@@ -28,7 +28,8 @@ public class V1_1__loadMongoData extends AppsmithJavaMigration {
     final ObjectMapper objectMapper = new ObjectMapper();
     final ObjectReader objectReader = objectMapper.readerForMapOf(Object.class);
 
-    final Path MONGO_DATA_ROOT = Path.of("/Users/shri/work/appsmith-ce-pg/deploy/docker/fs/opt/appsmith/utils/bin/mongo-data");
+    final Path MONGO_DATA_ROOT =
+            Path.of("/Users/shri/work/appsmith-ce-pg/deploy/docker/fs/opt/appsmith/utils/bin/mongo-data");
 
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
@@ -96,14 +97,15 @@ public class V1_1__loadMongoData extends AppsmithJavaMigration {
 
                 // Build the INSERT query to only have the columns that are present in the JSON document. This allows
                 // the rest of the columns to take on their default value, if configured, instead of `null`.
-                final String sql = String.join("",
-                    "INSERT INTO \"",
-                    tableName,
-                    "\" (\"",
-                    String.join("\", \"", data.keySet()),
-                    "\") VALUES (",
-                    String.join(", ", data.keySet().stream().map(i -> "?").toList()),
-                    ")");
+                final String sql = String.join(
+                        "",
+                        "INSERT INTO \"",
+                        tableName,
+                        "\" (\"",
+                        String.join("\", \"", data.keySet()),
+                        "\") VALUES (",
+                        String.join(", ", data.keySet().stream().map(i -> "?").toList()),
+                        ")");
 
                 try {
                     jdbcTemplate.update(sql, ps -> {
@@ -111,7 +113,8 @@ public class V1_1__loadMongoData extends AppsmithJavaMigration {
                         for (String columnName : data.keySet()) {
                             final Integer type = columnTypes.get(columnName);
                             if (type == null) {
-                                // There's no corresponding column in our table for this field, likely we just don't care
+                                // There's no corresponding column in our table for this field, likely we just don't
+                                // care
                                 // for its value anymore.
                                 continue;
                             }
@@ -136,7 +139,11 @@ public class V1_1__loadMongoData extends AppsmithJavaMigration {
                             }
 
                             if (value instanceof String stringValue && stringValue.contains("\u0000")) {
-                                log.warn("Removing NUL characters from {}.{} for id {}", tableName, columnName, data.get("id"));
+                                log.warn(
+                                        "Removing NUL characters from {}.{} for id {}",
+                                        tableName,
+                                        columnName,
+                                        data.get("id"));
                                 // If it's a string we're inserting, just nuke NUL characters.
                                 value = stringValue.replaceAll("\u0000", "");
                             }
