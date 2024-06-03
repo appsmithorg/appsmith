@@ -19,7 +19,7 @@ import {
   getCodeMirrorNamespaceFromEditor,
 } from "../getCodeMirrorNamespace";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { findIndex, isString } from "lodash";
+import { debounce, findIndex, isString } from "lodash";
 import { renderTernTooltipContent } from "./ternDocTooltip";
 
 const bigDoc = 250;
@@ -179,6 +179,8 @@ class CodeMirrorTernService {
   >();
   options: { async: boolean };
   recentEntities: string[] = [];
+  cm?: CodeMirror.Editor = undefined;
+  tooltipContainerClicked: boolean = false;
 
   constructor(options: { async: boolean }) {
     this.options = options;
@@ -209,6 +211,7 @@ class CodeMirrorTernService {
           }
         },
       },
+      closeOnUnfocus: false,
     });
   }
 
@@ -404,12 +407,53 @@ class CodeMirrorTernService {
     this.server.deleteDefs(name);
   }
 
+  tooltipClickHandler = debounce((event: MouseEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+    if (!this.cm) return;
+    if ((event.target as HTMLElement).closest(".CodeMirror-Tern-tooltip")) {
+      this.cm.focus();
+      this.tooltipContainerClicked = true;
+    } else {
+      // @ts-expect-error: Types are not available
+      this.cm.closeHint();
+      this.removeTooltipClickFunction();
+    }
+  }, 200);
+
+  closeHintHandler = debounce(() => {
+    if (!this.cm) return;
+    if (this.tooltipContainerClicked) {
+      this.tooltipContainerClicked = false;
+      return;
+    }
+    // @ts-expect-error: Types are not available
+    this.cm.closeHint();
+    this.removeTooltipClickFunction();
+  }, 200);
+
+  addTooltipClickFunction = () => {
+    document.addEventListener("click", this.tooltipClickHandler.bind(this));
+    document.addEventListener("close-hint", this.closeHintHandler.bind(this));
+  };
+
+  removeTooltipClickFunction = () => {
+    document.removeEventListener("click", this.tooltipClickHandler.bind(this));
+    document.removeEventListener(
+      "close-hint",
+      this.closeHintHandler.bind(this),
+    );
+  };
+
   requestCallback(
     error: any,
     data: QueryRegistry["completions"]["result"],
     cm: CodeMirror.Editor,
     resolve: any,
   ) {
+    this.cm = cm;
+    this.addTooltipClickFunction();
+
     if (error) return this.showError(cm, error);
     if (data.completions.length === 0) return;
     const doc = this.findDoc(cm.getDoc());

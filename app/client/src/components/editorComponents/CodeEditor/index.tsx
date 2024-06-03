@@ -21,7 +21,6 @@ import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
 import "codemirror/addon/comment/comment";
 import "codemirror/mode/sql/sql.js";
-import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/show-hint.css";
 import "codemirror/addon/hint/sql-hint";
 import "codemirror/mode/css/css";
@@ -1194,6 +1193,11 @@ class CodeEditor extends Component<Props, State> {
     if (this.props.onEditorBlur) {
       this.props.onEditorBlur();
     }
+
+    setTimeout(() => {
+      const closeHint = new CustomEvent("close-hint");
+      document.dispatchEvent(closeHint);
+    }, 200);
   };
 
   handleBeforeChange = (
