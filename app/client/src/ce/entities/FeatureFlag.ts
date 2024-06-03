@@ -42,6 +42,8 @@ export const FEATURE_FLAG = {
   ab_learnability_discoverability_collapse_all_except_data_enabled:
     "ab_learnability_discoverability_collapse_all_except_data_enabled",
   release_layout_conversion_enabled: "release_layout_conversion_enabled",
+  release_dependency_caching_published_mode_enabled:
+    "release_dependency_caching_published_mode_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -77,6 +79,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_learnability_ease_of_initial_use_enabled: true,
   ab_learnability_discoverability_collapse_all_except_data_enabled: true,
   release_layout_conversion_enabled: false,
+  release_dependency_caching_published_mode_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

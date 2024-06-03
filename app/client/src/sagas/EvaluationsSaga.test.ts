@@ -13,7 +13,6 @@ import { getAllActionValidationConfig } from "@appsmith//selectors/entitiesSelec
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import * as log from "loglevel";
-import { throwError } from "redux-saga-test-plan/providers";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -239,7 +238,7 @@ describe("cacheDependenciesSaga", () => {
             dependencies: newDependencies,
             pageId: action.payload.pageId,
           }),
-          undefined,
+          { responseMeta: { success: true } },
         ],
       ])
       .put(setDependencyCache(newDependencies))
@@ -247,7 +246,6 @@ describe("cacheDependenciesSaga", () => {
   });
 
   it("should reset dependency map to null in case of failure", async () => {
-    const error = new Error("Update failed");
     const newDependencies = { dep1: ["newValue"] };
     const newAction = {
       ...action,
@@ -271,7 +269,7 @@ describe("cacheDependenciesSaga", () => {
             dependencies: action.payload.dependencies,
             pageId: action.payload.pageId,
           }),
-          throwError(error),
+          { responseMeta: { success: false } },
         ],
         [
           call(PageApi.updateDependencyMap, {

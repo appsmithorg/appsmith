@@ -122,7 +122,10 @@ import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import PageApi from "api/PageApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import { getCachedDependencies } from "selectors/evaluationSelectors";
+import {
+  getCachedDependencies,
+  getIsDependencyCacheEnabled,
+} from "selectors/evaluationSelectors";
 import { getAllModuleInstances } from "@appsmith/selectors/moduleInstanceSelectors";
 import { validateResponse } from "./ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
@@ -293,6 +296,9 @@ export function* evaluateTreeSaga(
   );
 
   const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
+  const isDependencyCacheEnabled: boolean = yield select(
+    getIsDependencyCacheEnabled,
+  );
 
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree: unEvalAndConfigTree,
@@ -306,8 +312,7 @@ export function* evaluateTreeSaga(
     appMode,
     widgetsMeta,
     shouldRespondWithLogs,
-    cachedDependencies:
-      appMode === APP_MODE.PUBLISHED ? cachedDependencies : null,
+    cachedDependencies: isDependencyCacheEnabled ? cachedDependencies : null,
     affectedJSObjects,
   };
 
@@ -837,12 +842,12 @@ export function* setAppVersionOnWorkerSaga(action: {
 export function* cacheDependenciesSaga(action: {
   type: ReduxActionType;
   payload: { errors: EvalError[]; dependencies: DependencyMap; pageId: string };
-}) {
+}): Generator<any, void, any> {
   // Debounce the sage by 500ms to avoid multiple cache calls post evaluation
   // Ref: https://redux-saga.js.org/docs/recipes/#debouncing
   yield delay(500);
   const { dependencies, errors, pageId } = action.payload;
-  const currentCachedDependencies: DependencyMap | undefined = yield select(
+  const currentCachedDependencies: DependencyMap | null = yield select(
     getCachedDependencies,
   );
   const areDependenciesUnchanged = isEqual(
@@ -868,22 +873,16 @@ export function* cacheDependenciesSaga(action: {
       pageId,
     });
 
-    const isResponseValid: boolean = yield validateResponse(response);
-
-    if (!isResponseValid) {
-      // Reset dependency map to null in case of failure
-      cachedDependencies = null;
-      yield call(PageApi.updateDependencyMap, {
-        dependencies: cachedDependencies,
-        pageId,
-      });
-    }
+    yield validateResponse(response, false);
   } catch (e) {
-    log.error(e);
-    Sentry.captureException(e);
-  } finally {
-    yield put(setDependencyCache(cachedDependencies));
+    // Reset dependency map to null in case of failure
+    cachedDependencies = null;
+    yield call(PageApi.updateDependencyMap, {
+      dependencies: cachedDependencies,
+      pageId,
+    });
   }
+  yield put(setDependencyCache(cachedDependencies));
 }
 
 function* evaluationSagaListeners() {
