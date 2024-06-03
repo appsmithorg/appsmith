@@ -6,7 +6,7 @@
 if docker ps --format '{{.Names}}' | grep -w "appsmith" > /dev/null; then
   echo "Container 'appsmith' is running."
 else
-  read -p  "Container 'appsmith' is not running. Do you still want to continue " user_input
+  read -rp  "Container 'appsmith' is not running. Do you still want to continue " user_input
   # Convert user input to lowercase
   user_input=$(echo "$user_input" | tr '[:upper:]' '[:lower:]')
   case "$user_input" in
