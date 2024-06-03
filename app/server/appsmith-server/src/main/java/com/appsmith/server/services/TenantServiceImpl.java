@@ -23,8 +23,7 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             ConfigService configService,
             @Lazy EnvManager envManager,
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
-            CacheableRepositoryHelper cacheableRepositoryHelper,
-            SessionUserService sessionUserService) {
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(
                 validator,
                 repositoryDirect,
@@ -33,7 +32,6 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 configService,
                 envManager,
                 featureFlagMigrationHelper,
-                cacheableRepositoryHelper,
-                sessionUserService);
+                cacheableRepositoryHelper);
     }
 }

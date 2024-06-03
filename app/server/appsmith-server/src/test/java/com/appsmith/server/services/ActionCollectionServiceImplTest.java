@@ -140,8 +140,7 @@ public class ActionCollectionServiceImplTest {
                 actionCollectionDefaultResourcesService,
                 actionCollectionDtoDefaultResourcesService,
                 newActionDefaultResourcesService,
-                actionDTODefaultResourcesService,
-                sessionUserService);
+                actionDTODefaultResourcesService);
 
         layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,
@@ -154,8 +153,7 @@ public class ActionCollectionServiceImplTest {
                 responseUtils,
                 actionCollectionRepository,
                 pagePermission,
-                actionPermission,
-                sessionUserService);
+                actionPermission);
 
         Mockito.when(analyticsService.sendCreateEvent(Mockito.any()))
                 .thenAnswer(

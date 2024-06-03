@@ -28,8 +28,7 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
             ResponseUtils responseUtils,
             ActionCollectionRepositoryCake actionCollectionRepository,
             PagePermission pagePermission,
-            ActionPermission actionPermission,
-            SessionUserService sessionUserService) {
+            ActionPermission actionPermission) {
         super(
                 newPageService,
                 layoutActionService,
@@ -41,7 +40,6 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
                 responseUtils,
                 actionCollectionRepository,
                 pagePermission,
-                actionPermission,
-                sessionUserService);
+                actionPermission);
     }
 }

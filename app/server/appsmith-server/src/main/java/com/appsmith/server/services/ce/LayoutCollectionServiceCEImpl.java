@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ContextTypeUtils;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
@@ -23,7 +24,6 @@ import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.LayoutActionService;
-import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
@@ -59,7 +59,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     private final ActionCollectionRepositoryCake actionCollectionRepository;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
-    private final SessionUserService sessionUserService;
 
     /**
      * Called by ActionCollection controller to create ActionCollection
@@ -432,7 +431,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     });
                 })
                 .flatMap(actionCollection -> actionCollectionService.update(actionCollection.getId(), actionCollection))
-                .zipWith(sessionUserService.getCurrentUser())
+                .zipWith(ReactiveContextUtils.getCurrentUser())
                 .flatMap(tuple -> actionCollectionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                 .flatMap(savedActionCollection ->
                         updateLayoutBasedOnContext(savedActionCollection).thenReturn(savedActionCollection))

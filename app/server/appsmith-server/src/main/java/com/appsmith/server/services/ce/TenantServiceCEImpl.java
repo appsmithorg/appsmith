@@ -13,13 +13,13 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.EnvManager;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
@@ -46,8 +46,6 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
-    private final SessionUserService sessionUserService;
-
     public TenantServiceCEImpl(
             Validator validator,
             TenantRepository repositoryDirect,
@@ -56,14 +54,12 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
             ConfigService configService,
             @Lazy EnvManager envManager,
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
-            CacheableRepositoryHelper cacheableRepositoryHelper,
-            SessionUserService sessionUserService) {
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(validator, repositoryDirect, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
-        this.sessionUserService = sessionUserService;
     }
 
     @Override
@@ -174,7 +170,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
 
     @Override
     public Mono<Tenant> getDefaultTenant() {
-        Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
+        Mono<User> currentUserMono = ReactiveContextUtils.getCurrentUser().cache();
         // Fetching Tenant from redis cache
         return getDefaultTenantId()
                 .flatMap(tenantId -> cacheableRepositoryHelper.fetchDefaultTenant(tenantId))

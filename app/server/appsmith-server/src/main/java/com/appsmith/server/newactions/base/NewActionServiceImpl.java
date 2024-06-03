@@ -16,7 +16,6 @@ import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -55,8 +54,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             EntityValidationService entityValidationService,
             ObservationRegistry observationRegistry,
             DefaultResourcesService<NewAction> defaultResourcesService,
-            DefaultResourcesService<ActionDTO> dtoDefaultResourcesService,
-            SessionUserService sessionUserService) {
+            DefaultResourcesService<ActionDTO> dtoDefaultResourcesService) {
         super(
                 validator,
                 repositoryDirect,
@@ -80,7 +78,6 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                 entityValidationService,
                 observationRegistry,
                 defaultResourcesService,
-                dtoDefaultResourcesService,
-                sessionUserService);
+                dtoDefaultResourcesService);
     }
 }

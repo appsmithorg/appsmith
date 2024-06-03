@@ -19,6 +19,8 @@ public class ReactorUtils {
     }
 
     public static <T> Flux<T> asFlux(Supplier<? extends Iterable<T>> supplier) {
-        return Mono.fromSupplier(supplier).flatMapMany(Flux::fromIterable).subscribeOn(Schedulers.boundedElastic());
+        return Mono.fromCallable(supplier::get)
+                .flatMapMany(Flux::fromIterable)
+                .subscribeOn(Schedulers.boundedElastic());
     }
 }

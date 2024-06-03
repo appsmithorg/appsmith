@@ -14,7 +14,7 @@ while not (root / ".git").exists() and root != Path("/"):
 server_root = root / "app/server"
 FILE_CONTENTS_CACHE = {}
 
-PERMISSION_ARG = "userAclPermission"
+# PERMISSION_ARG = "userAclPermission"
 
 SUBSCRIBE_WRAPPER = (
     "%s.subscribeOn(Schedulers.boundedElastic())"
@@ -24,8 +24,8 @@ MONO_WRAPPER_NON_OPTIONAL = (
     SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s)"
 )
 FLUX_WRAPPER = "asFlux(() -> %s)"
-FLUX_WRAPPER_WITH_USER_CONTEXT = "sessionUserService.updateAclWithUserContext(%s).flatMapMany(%s -> %s)"
-MONO_WRAPPER_WITH_USER_CONTEXT = "sessionUserService.updateAclWithUserContext(%s).flatMap(%s -> %s)"
+FLUX_WRAPPER_WITH_USER_CONTEXT = "PermissionUtils.updateAclWithUserContext(%s).thenMany(%s)"
+MONO_WRAPPER_WITH_USER_CONTEXT = "PermissionUtils.updateAclWithUserContext(%s).then(%s)"
 
 def apply(p, tx):
     update_file(p, tx(read_file(p)))
@@ -184,29 +184,30 @@ def generate_cake_class(domain):
 
     for method in sorted(methods, key=lambda m: m.signature):
         ret_type, signature, *_ = method
-        repo_signature = signature
+        #repo_signature = signature
         match = re.search(r'(Optional<AclPermission>|AclPermission) (\w+)', signature)
+        permission_token = None
         if match:
-            permissionToken = match.group(2)
-            repo_signature = replace_exact_word(repo_signature, permissionToken, PERMISSION_ARG)
-            #repo_signature = repo_signature.replace(permissionToken, PERMISSION_ARG)
+            permission_token = match.group(2)
+            #repo_signature = replace_exact_word(repo_signature, permission_token, PERMISSION_ARG)
+            #repo_signature = repo_signature.replace(permission_token, PERMISSION_ARG)
             # print(f"Replacing with {PERMISSION_ARG} in repo_signature: {repo_signature}, signature: {signature}")
 
         if ret_type.startswith("Optional"):
             ret_type = ret_type.replace("Optional", "Mono")
-            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % (permissionToken, PERMISSION_ARG, MONO_WRAPPER) if "AclPermission" in signature else MONO_WRAPPER
+            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % (permission_token, MONO_WRAPPER) if "AclPermission" in signature else MONO_WRAPPER
         elif ret_type.startswith(("List", "Iterable")):
             ret_type = ret_type.replace("List", "Flux").replace("Iterable", "Flux")
-            wrapper = FLUX_WRAPPER_WITH_USER_CONTEXT % (permissionToken, PERMISSION_ARG, FLUX_WRAPPER) if "AclPermission" in signature else FLUX_WRAPPER
+            wrapper = FLUX_WRAPPER_WITH_USER_CONTEXT % (permission_token, FLUX_WRAPPER) if "AclPermission" in signature else FLUX_WRAPPER
         elif ret_type.startswith("Mono<"):
             wrapper = SUBSCRIBE_WRAPPER
         elif not ret_type.islower():
             ret_type = ("Mono<" + ret_type + ">")
-            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % (permissionToken, PERMISSION_ARG, MONO_WRAPPER_NON_OPTIONAL) if "AclPermission" in signature else MONO_WRAPPER_NON_OPTIONAL
+            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % (permission_token, MONO_WRAPPER_NON_OPTIONAL) if "AclPermission" in signature else MONO_WRAPPER_NON_OPTIONAL
             #wrapper = MONO_WRAPPER_NON_OPTIONAL
         elif ret_type == "int":
             ret_type = "Mono<Integer>"
-            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % (permissionToken, PERMISSION_ARG, MONO_WRAPPER_NON_OPTIONAL) if "AclPermission" in signature else MONO_WRAPPER_NON_OPTIONAL
+            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % (permission_token, MONO_WRAPPER_NON_OPTIONAL) if "AclPermission" in signature else MONO_WRAPPER_NON_OPTIONAL
             # wrapper = MONO_WRAPPER_NON_OPTIONAL
         else:
             wrapper = "%s"
@@ -214,7 +215,7 @@ def generate_cake_class(domain):
         signature = signature.replace(f"BaseRepository<{domain}, String>", f"{domain}RepositoryCake")
 
         call = re.sub(
-            r"[A-Za-z.]+?(<[^<>]+?>|<[^\s]+?>)?\s(\w+)([,)])", r"\2\3", repo_signature
+            r"[A-Za-z.]+?(<[^<>]+?>|<[^\s]+?>)?\s(\w+)([,)])", r"\2\3", signature
         ).replace("baseRepository", "repository")
         reactor_methods.append(
             f"/** @see {method.ref} */\n"
@@ -250,7 +251,7 @@ def generate_cake_class(domain):
     import com.appsmith.server.newactions.projections.*;
     import com.appsmith.server.projections.*;
     import com.appsmith.server.repositories.*;
-    import com.appsmith.server.services.SessionUserService;
+    import com.appsmith.server.helpers.PermissionUtils;
     import org.springframework.stereotype.Component;
     import org.springframework.data.domain.Sort;
     import reactor.core.publisher.Flux;
@@ -269,12 +270,10 @@ def generate_cake_class(domain):
     @Component
     public class {domain}RepositoryCake extends BaseCake<{domain}, {domain}Repository> {{
         private final {domain}Repository repository;
-        private final SessionUserService sessionUserService;
 
-        public {domain}RepositoryCake({domain}Repository repository, SessionUserService sessionUserService) {{
+        public {domain}RepositoryCake({domain}Repository repository) {{
             super(repository);
             this.repository = repository;
-            this.sessionUserService = sessionUserService;
         }}
 
         // From CrudRepository

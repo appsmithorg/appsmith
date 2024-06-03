@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -22,7 +21,6 @@ import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
@@ -41,26 +39,6 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
         return ReactiveSecurityContextHolder.getContext()
                 .map(SecurityContext::getAuthentication)
                 .map(auth -> (User) auth.getPrincipal());
-    }
-
-    @Override
-    public Mono<Optional<AclPermission>> updateAclWithUserContext(Optional<AclPermission> permission) {
-        return getCurrentUser()
-                .map(user -> {
-                    permission.ifPresent(aclPermission -> aclPermission.setUser(user));
-                    return permission;
-                })
-                .switchIfEmpty(Mono.just(permission));
-    }
-
-    @Override
-    public Mono<AclPermission> updateAclWithUserContext(AclPermission permission) {
-        return getCurrentUser()
-                .map(user -> {
-                    permission.setUser(user);
-                    return permission;
-                })
-                .switchIfEmpty(Mono.just(permission));
     }
 
     @Override
