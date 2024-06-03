@@ -270,7 +270,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
         if (pluginsMap == null) {
             pluginMono = pluginService.findById(datasourceStorage.getPluginId());
         } else {
-            pluginMono = Mono.just(pluginsMap.get(datasourceStorage.getPluginId()));
+            pluginMono = Mono.justOrEmpty(pluginsMap.get(datasourceStorage.getPluginId()));
         }
 
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
