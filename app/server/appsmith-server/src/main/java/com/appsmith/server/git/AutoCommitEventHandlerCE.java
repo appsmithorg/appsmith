@@ -1,4 +1,4 @@
-package com.appsmith.server.solutions.ce;
+package com.appsmith.server.git;
 
 import com.appsmith.server.events.AutoCommitEvent;
 import reactor.core.publisher.Mono;

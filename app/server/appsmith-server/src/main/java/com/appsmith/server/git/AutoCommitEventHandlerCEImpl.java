@@ -1,8 +1,9 @@
-package com.appsmith.server.solutions.ce;
+package com.appsmith.server.git;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.constants.GitConstants.GitCommandConstants;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
@@ -27,7 +28,6 @@ import org.springframework.scheduling.annotation.Async;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
-import reactor.util.retry.Retry;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -38,14 +38,13 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.git.constants.GitConstants.PAGE_LIST;
-import static com.appsmith.server.helpers.GitUtils.MAX_RETRIES;
-import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
 import static java.lang.Boolean.TRUE;
 
 @RequiredArgsConstructor
 @Slf4j
 public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final GitRedisUtils gitRedisUtils;
     private final RedisUtils redisUtils;
     private final DSLMigrationUtils dslMigrationUtils;
     private final GitFileUtils fileUtils;
@@ -84,19 +83,6 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                                 "Error during auto-commit for application: {}", event.getApplicationId(), error));
     }
 
-    private Mono<Boolean> addFileLock(String defaultApplicationId) {
-        return redisUtils
-                .addFileLock(defaultApplicationId)
-                .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
-                        .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
-                            throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
-                        }));
-    }
-
-    private Mono<Boolean> releaseFileLock(String defaultApplicationId) {
-        return redisUtils.releaseFileLock(defaultApplicationId);
-    }
-
     private <T> Mono<T> setProgress(T result, String applicationId, int progress) {
         return redisUtils.setAutoCommitProgress(applicationId, progress).thenReturn(result);
     }
@@ -133,7 +119,8 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     }
 
     public Mono<Boolean> autoCommitDSLMigration(AutoCommitEvent autoCommitEvent) {
-        return addFileLock(autoCommitEvent.getApplicationId())
+        return gitRedisUtils
+                .addFileLock(autoCommitEvent.getApplicationId(), GitCommandConstants.AUTO_COMMIT)
                 .flatMap(fileLocked ->
                         redisUtils.startAutoCommit(autoCommitEvent.getApplicationId(), autoCommitEvent.getBranchName()))
                 .flatMap(autoCommitLocked -> dslMigrationUtils.getLatestDslVersion())
@@ -175,7 +162,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         return redisUtils
                 .finishAutoCommit(autoCommitEvent.getApplicationId())
                 .flatMap(r -> setProgress(r, autoCommitEvent.getApplicationId(), 100))
-                .flatMap(r -> releaseFileLock(autoCommitEvent.getApplicationId()))
+                .flatMap(r -> gitRedisUtils.releaseFileLock(autoCommitEvent.getApplicationId()))
                 .thenReturn(isCommitMade);
     }
 
@@ -298,7 +285,8 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         // push to remote
         // release file lock
 
-        return addFileLock(defaultApplicationId)
+        return gitRedisUtils
+                .addFileLock(defaultApplicationId, GitCommandConstants.AUTO_COMMIT)
                 .flatMap(isFileLocked -> redisUtils.startAutoCommit(defaultApplicationId, branchName))
                 .flatMap(r -> setProgress(r, defaultApplicationId, 10))
                 .flatMap(autoCommitLocked -> resetUncommittedChanges(autoCommitEvent))

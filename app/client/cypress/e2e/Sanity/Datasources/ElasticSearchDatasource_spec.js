@@ -9,7 +9,7 @@ describe(
   { tags: ["@tag.Datasource", "@tag.Sanity"] },
   function () {
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
 
     it("1. Create elastic search datasource", function () {
