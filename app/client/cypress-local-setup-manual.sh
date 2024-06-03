@@ -30,7 +30,7 @@ echo "Installing Cypress 2>&1 > /dev/null"
 yarn install
 
 # Please verify base url in cypress.config.ts
-baseurl=`grep "baseUrl" cypress.config.ts|cut -d '"' -f2`
+baseurl=$(grep "baseUrl" cypress.config.ts|cut -d '"' -f2)
 echo "Base url is $baseurl. Please verify if it is correct. If not, please update it in cypress.config.ts file."
 
 echo "Please update username and password in cypress.env.json file ex: \"env\": {
@@ -45,7 +45,7 @@ echo "Please update username and password in cypress.env.json file ex: \"env\": 
 echo "Please add APPSMITH_GIT_ROOT=./container-volumes/git-storage into server-side .env for running Git cases locally along with the server."
 
 # Prompt the user for input
-read -p "Do you want install TED continue? (yes/no): " user_input
+read -rp "Do you want install TED continue? (yes/no): " user_input
 
 # Convert user input to lowercase
 user_input=$(echo "$user_input" | tr '[:upper:]' '[:lower:]')
