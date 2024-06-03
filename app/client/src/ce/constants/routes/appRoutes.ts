@@ -8,12 +8,13 @@ import { matchPath } from "react-router";
 const { match } = require("path-to-regexp");
 
 // Regex to extract the id from the URL path which supports both the formats:
-// 1. With UUID
-// 2. With Mongo ObjectIds
-const MONGO_OBJECT_ID_REGEX = "[0-9a-fA-F]{24}";
+// 1. With Mongo ObjectIds
+// 2. With UUID
+const MONGO_OBJECT_ID_REGEX = "[0-9a-f]{24}";
 const UUID_REGEX =
-  "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
+  "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
 const ID_EXTRACTION_REGEX = `(${MONGO_OBJECT_ID_REGEX}|${UUID_REGEX})`;
+
 export const BUILDER_BASE_PATH_DEPRECATED = "/applications";
 export const BUILDER_VIEWER_PATH_PREFIX = "/app/";
 export const BUILDER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId${ID_EXTRACTION_REGEX}/edit`;
