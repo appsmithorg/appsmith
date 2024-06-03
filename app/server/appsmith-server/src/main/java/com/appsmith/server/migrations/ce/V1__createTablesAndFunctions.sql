@@ -63,7 +63,6 @@ create table application
     unpublished_app_layout jsonb,
     unpublished_application_detail jsonb,
     unpublished_customjslibs jsonb,
-    unread_comment_threads bigint not null,
     view_mode boolean,
     workspace_id varchar(255)
 );
@@ -236,14 +235,6 @@ create table email_verification_token
     email varchar(255),
     token_generated_at timestamp(6) with time zone,
     token_hash varchar(255)
-);
-
-create table endpoint
-(
-    id varchar(255) not null
-        primary key,
-    host varchar(255),
-    port bigint
 );
 
 create table git_config
@@ -478,18 +469,18 @@ create table "user"
     policy_map jsonb,
     updated_at timestamp(6) with time zone,
     current_workspace_id varchar(255),
-    email varchar(255),
+    email text,
     email_verification_required boolean,
     email_verified boolean,
     examples_workspace_id varchar(255),
     group_ids jsonb,
-    hashed_email varchar(255),
+    hashed_email text,
     invite_token varchar(255),
     is_anonymous boolean,
     is_enabled boolean,
     is_system_generated boolean,
-    name varchar(255),
-    password varchar(255),
+    name text,
+    password text,
     password_reset_initiated boolean,
     permissions jsonb,
     source varchar(255),
