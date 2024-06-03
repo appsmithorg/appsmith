@@ -48,19 +48,18 @@ describe(
       cy.enterTableCellValue(3, 0);
       const now = new Date();
 
-      cy.get(`.DayPicker-Day--today > .bp3-datepicker-day-wrapper`).click();
+      cy.get(".DayPicker-Day--today > .bp3-datepicker-day-wrapper").click();
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
       cy.openPropertyPane("textwidget");
-      cy.updateCodeInput(".t--property-control-text", `{{Table1.newRow.Date}}`);
+      cy.updateCodeInput(".t--property-control-text", "{{Table1.newRow.Date}}");
 
       // checking the date selected and the date in the text widget matches correctly
       now.setHours(0, 0, 0, 0); // Reset time to 00:00:00
       const offset = now.getTimezoneOffset() * 60000; // offset in milliseconds
-      const localISOTime =
-        new Date(now.getTime() - offset).toISOString().slice(0, 19) + "+05:30"; // adjust to the desired timezone
+      const localISOTime = `${new Date(now.getTime() - offset).toISOString().slice(0, 19)}+05:30`; // adjust to the desired timezone// adjust to the desired timezone
       cy.get(".t--widget-textwidget .bp3-ui-text").should(
         "contain",
-        localISOTime.split("T")[0] + "T00:00:00+05:30",
+        `${localISOTime.split("T")[0]}T00:00:00+05:30`,
       );
     });
   },
