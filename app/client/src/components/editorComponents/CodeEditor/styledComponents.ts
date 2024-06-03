@@ -60,6 +60,7 @@ export const EditorWrapper = styled.div<{
   removeHoverAndFocusStyle?: boolean;
   AIEnabled?: boolean;
   mode: string;
+  maxHeight?: string | number;
 }>`
   // Bottom border was getting clipped
   .CodeMirror.cm-s-duotone-light.CodeMirror-wrap {
@@ -78,6 +79,7 @@ export const EditorWrapper = styled.div<{
   `
       : `position: relative;`}
   min-height: 36px;
+  max-height: ${(props) => props.maxHeight || "auto"};
   height: ${(props) => props.height || "auto"};
   background-color: ${(props) =>
     props.disabled ? "var(--ads-v2-color-bg-muted)" : "var(--ads-v2-color-bg)"};

@@ -15,6 +15,7 @@ import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/c
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
     const {
+      controlConfig,
       dataTreePath,
       evaluatedValue,
       expected,
@@ -33,6 +34,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         additionalDynamicData={this.props.additionalAutoComplete}
         hinting={[bindingHintHelper, slashCommandHintHelper]}
         input={{ value: propertyValue, onChange: this.onChange }}
+        maxHeight={controlConfig?.maxHeight as string | number | undefined}
         mode={EditorModes.TEXT_WITH_BINDING}
         positionCursorInsideBinding
         size={EditorSize.EXTENDED}
