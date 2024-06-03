@@ -87,7 +87,9 @@ class FilePickerWidget extends BaseWidget<
       getEditorCallouts(): WidgetCallout[] {
         return [
           {
-            message: buildDeprecationWidgetMessage("File Picker Widget V2"),
+            message: buildDeprecationWidgetMessage(
+              FilePickerWidget.getConfig().name,
+            ),
           },
         ];
       },

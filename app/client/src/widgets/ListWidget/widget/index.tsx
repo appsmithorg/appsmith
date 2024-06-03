@@ -508,7 +508,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       getEditorCallouts(): WidgetCallout[] {
         return [
           {
-            message: buildDeprecationWidgetMessage("List Widget V2"),
+            message: buildDeprecationWidgetMessage(ListWidget.getConfig().name),
           },
         ];
       },

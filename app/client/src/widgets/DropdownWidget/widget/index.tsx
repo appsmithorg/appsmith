@@ -100,7 +100,9 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       getEditorCallouts(): WidgetCallout[] {
         return [
           {
-            message: buildDeprecationWidgetMessage("Select Widget"),
+            message: buildDeprecationWidgetMessage(
+              DropdownWidget.getConfig().name,
+            ),
           },
         ];
       },

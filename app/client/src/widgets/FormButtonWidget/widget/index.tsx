@@ -79,7 +79,9 @@ class FormButtonWidget extends ButtonWidget {
       getEditorCallouts(): WidgetCallout[] {
         return [
           {
-            message: buildDeprecationWidgetMessage("Button Widget"),
+            message: buildDeprecationWidgetMessage(
+              FormButtonWidget.getConfig().name,
+            ),
           },
         ];
       },

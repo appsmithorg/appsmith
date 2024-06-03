@@ -59,7 +59,9 @@ class ProgressBarWidget extends BaseWidget<
       getEditorCallouts(): WidgetCallout[] {
         return [
           {
-            message: buildDeprecationWidgetMessage("Progress Widget"),
+            message: buildDeprecationWidgetMessage(
+              ProgressBarWidget.getConfig().name,
+            ),
           },
         ];
       },

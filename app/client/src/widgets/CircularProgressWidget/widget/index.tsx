@@ -152,7 +152,9 @@ class CircularProgressWidget extends BaseWidget<
       getEditorCallouts(): WidgetCallout[] {
         return [
           {
-            message: buildDeprecationWidgetMessage("Progress Widget"),
+            message: buildDeprecationWidgetMessage(
+              CircularProgressWidget.getConfig().name,
+            ),
           },
         ];
       },

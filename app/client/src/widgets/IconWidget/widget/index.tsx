@@ -44,7 +44,7 @@ class IconWidget extends BaseWidget<IconWidgetProps, WidgetState> {
       getEditorCallouts(): WidgetCallout[] {
         return [
           {
-            message: buildDeprecationWidgetMessage("Icon Button Widget"),
+            message: buildDeprecationWidgetMessage(IconWidget.getConfig().name),
           },
         ];
       },

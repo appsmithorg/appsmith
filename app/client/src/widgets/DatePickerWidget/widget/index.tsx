@@ -408,7 +408,9 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
       getEditorCallouts(): WidgetCallout[] {
         return [
           {
-            message: buildDeprecationWidgetMessage("Date Picker Widget 2"),
+            message: buildDeprecationWidgetMessage(
+              DatePickerWidget.getConfig().name,
+            ),
           },
         ];
       },

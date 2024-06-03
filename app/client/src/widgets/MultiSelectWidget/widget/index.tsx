@@ -103,7 +103,9 @@ class MultiSelectWidget extends BaseWidget<
       getEditorCallouts(): WidgetCallout[] {
         return [
           {
-            message: buildDeprecationWidgetMessage("MultiSelect Widget V2"),
+            message: buildDeprecationWidgetMessage(
+              MultiSelectWidget.getConfig().name,
+            ),
           },
         ];
       },

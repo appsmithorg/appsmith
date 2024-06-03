@@ -193,7 +193,9 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       getEditorCallouts(): WidgetCallout[] {
         return [
           {
-            message: buildDeprecationWidgetMessage("Input Widget"),
+            message: buildDeprecationWidgetMessage(
+              InputWidget.getConfig().name,
+            ),
           },
         ];
       },
