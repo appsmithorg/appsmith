@@ -124,6 +124,8 @@ import PageApi from "api/PageApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getCachedDependencies } from "selectors/evaluationSelectors";
 import { getAllModuleInstances } from "@appsmith/selectors/moduleInstanceSelectors";
+import { validateResponse } from "./ErrorSagas";
+import type { ApiResponse } from "api/ApiResponses";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -861,17 +863,22 @@ export function* cacheDependenciesSaga(action: {
   let cachedDependencies = shouldCache ? dependencies : null;
 
   try {
-    yield call(PageApi.updateDependencyMap, {
+    const response: ApiResponse = yield call(PageApi.updateDependencyMap, {
       dependencies: cachedDependencies,
       pageId,
     });
+
+    const isResponseValid: boolean = yield validateResponse(response);
+
+    if (!isResponseValid) {
+      // Reset dependency map to null in case of failure
+      cachedDependencies = null;
+      yield call(PageApi.updateDependencyMap, {
+        dependencies: cachedDependencies,
+        pageId,
+      });
+    }
   } catch (e) {
-    // Reset dependency map to null in case of failure
-    cachedDependencies = null;
-    yield call(PageApi.updateDependencyMap, {
-      dependencies: cachedDependencies,
-      pageId,
-    });
     log.error(e);
     Sentry.captureException(e);
   } finally {

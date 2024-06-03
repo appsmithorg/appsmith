@@ -287,7 +287,7 @@ export default class DataTreeEvaluator {
 
     const { dependencies, inverseDependencies } = profileFn(
       "createDependencyMap",
-      undefined,
+      { hasCachedDependencies: !!cachedDependencies },
       webworkerTelemetry,
       () => {
         return createDependencyMap(

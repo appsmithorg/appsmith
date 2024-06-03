@@ -99,7 +99,10 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
       const setupFirstTreeResponse = profileFn(
         "setupFirstTree",
-        { description: "during initialisation" },
+        {
+          description: "during initialisation",
+          hasCachedDependencies: !!cachedDependencies,
+        },
         webworkerTelemetry,
         () =>
           dataTreeEvaluator?.setupFirstTree(
