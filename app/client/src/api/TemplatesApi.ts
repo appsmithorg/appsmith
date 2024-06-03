@@ -92,10 +92,8 @@ class TemplatesAPI extends Api {
     const templates = getTemplatesSelector(state);
     const template = templates.find((template) => template.id === templateId);
     if (template) {
-      console.log(">>>>>>>>>> Found template in store:");
       return createTemplateResponse(template) as any;
     }
-    console.log(">>>>>>>>>>>>> template not found in store , need to fetch  : ");
     return Api.get(TemplatesAPI.baseUrl + `/app-templates/${templateId}`);
   }
 
