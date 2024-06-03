@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.MigrationStatus;
@@ -12,6 +13,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -39,17 +41,25 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    private final CommonConfig commonConfig;
+
     public TenantServiceCEImpl(
             Validator validator,
             TenantRepository repository,
             AnalyticsService analyticsService,
             ConfigService configService,
             @Lazy EnvManager envManager,
-            FeatureFlagMigrationHelper featureFlagMigrationHelper) {
+            FeatureFlagMigrationHelper featureFlagMigrationHelper,
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            CommonConfig commonConfig) {
         super(validator, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
+        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
+        this.commonConfig = commonConfig;
     }
 
     @Override
@@ -59,7 +69,6 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         if (StringUtils.hasLength(tenantId)) {
             return Mono.just(tenantId);
         }
-
         return repository.findBySlug(FieldName.DEFAULT).map(Tenant::getId).map(tenantId -> {
             // Set the cache value before returning.
             this.tenantId = tenantId;
@@ -69,6 +78,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
+        Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedTenant(tenantId);
         return repository
                 .findById(tenantId, MANAGE_TENANT)
                 .switchIfEmpty(Mono.error(
@@ -89,6 +99,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                             return Mono.empty();
                         });
                     }
+
                     return envMono.then(Mono.zip(Mono.just(oldtenantConfiguration), Mono.just(tenant)));
                 })
                 .flatMap(tuple2 -> {
@@ -96,7 +107,15 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     TenantConfiguration oldConfig = tuple2.getT1();
                     AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldConfig);
                     tenant.setTenantConfiguration(oldConfig);
-                    return repository.updateById(tenantId, tenant, MANAGE_TENANT);
+                    Mono<Tenant> updatedTenantMono = repository
+                            .updateById(tenantId, tenant, MANAGE_TENANT)
+                            .cache();
+                    // Firstly updating the Tenant object in the database and then evicting the cache.
+                    // returning the updatedTenant, notice the updatedTenantMono is cached using .cache()
+                    // hence it will not be evaluated again
+                    return updatedTenantMono
+                            .then(Mono.defer(() -> evictTenantCache))
+                            .then(updatedTenantMono);
                 });
     }
 
@@ -110,9 +129,11 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> getTenantConfiguration(Mono<Tenant> dbTenantMono) {
+        String adminEmailDomainHash = commonConfig.getAdminEmailDomainHash();
         Mono<Tenant> clientTenantMono = configService.getInstanceId().map(instanceId -> {
             final Tenant tenant = new Tenant();
             tenant.setInstanceId(instanceId);
+            tenant.setAdminEmailDomainHash(adminEmailDomainHash);
 
             final TenantConfiguration config = new TenantConfiguration();
             tenant.setTenantConfiguration(config);
@@ -151,17 +172,29 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> getDefaultTenant() {
-        // Get the default tenant object from the DB and then populate the relevant user permissions in that
-        // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
-        return repository
-                .findBySlug(FieldName.DEFAULT)
-                .map(tenant -> {
-                    if (tenant.getTenantConfiguration() == null) {
-                        tenant.setTenantConfiguration(new TenantConfiguration());
-                    }
-                    return tenant;
-                })
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
+        // Fetching Tenant from redis cache
+        return getDefaultTenantId()
+                .flatMap(tenantId -> cacheableRepositoryHelper.fetchDefaultTenant(tenantId))
+                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)))
+                .onErrorResume(e -> {
+                    log.error("Error fetching default tenant from redis!", e);
+                    // If there is an error fetching the tenant from the cache, then evict the cache and fetching from
+                    // the db. This handles the case for deserialization errors. This prevents the entire instance to
+                    // go down if tenant cache is corrupted.
+                    // More info - https://github.com/appsmithorg/appsmith/issues/33504
+                    log.info("Evicting the default tenant from cache and fetching from the database!");
+                    return cacheableRepositoryHelper
+                            .evictCachedTenant(tenantId)
+                            .then(repository.findBySlug(FieldName.DEFAULT).map(tenant -> {
+                                if (tenant.getTenantConfiguration() == null) {
+                                    tenant.setTenantConfiguration(new TenantConfiguration());
+                                }
+                                return tenant;
+                            }))
+                            .flatMap(tenant -> repository
+                                    .setUserPermissionsInObject(tenant)
+                                    .switchIfEmpty(Mono.just(tenant)));
+                });
     }
 
     @Override
@@ -192,9 +225,12 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         return Mono.just(clientTenant);
     }
 
+    // This function is used to save the tenant object in the database and evict the cache
     @Override
     public Mono<Tenant> save(Tenant tenant) {
-        return repository.save(tenant);
+        Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedTenant(tenantId);
+        Mono<Tenant> savedTenantMono = repository.save(tenant).cache();
+        return savedTenantMono.then(Mono.defer(() -> evictTenantCache)).then(savedTenantMono);
     }
 
     /**
@@ -240,6 +276,19 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
         return repository.findById(id);
+    }
+
+    /**
+     * This function updates the tenant object in the database and evicts the cache
+     * @param tenantId
+     * @param tenant
+     * @return
+     */
+    @Override
+    public Mono<Tenant> update(String tenantId, Tenant tenant) {
+        Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedTenant(tenantId);
+        Mono<Tenant> updatedTenantMono = super.update(tenantId, tenant).cache();
+        return updatedTenantMono.then(Mono.defer(() -> evictTenantCache)).then(updatedTenantMono);
     }
 
     /**

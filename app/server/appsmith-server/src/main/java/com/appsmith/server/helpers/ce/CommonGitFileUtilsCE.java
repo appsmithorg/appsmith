@@ -312,18 +312,18 @@ public class CommonGitFileUtilsCE {
     /**
      * Provides the server schema version in the application json for the given branch
      *
-     * @param workspaceId : workspaceId of the artifact
+     * @param workspaceId       : workspaceId of the artifact
      * @param defaultArtifactId : default branch id of the artifact
-     * @param branchName : current branch name of the artifact
-     * @param repoName : repository name
-     * @param artifactType : artifact type of this operation
+     * @param repoName          : repository name
+     * @param branchName        : current branch name of the artifact
+     * @param artifactType      : artifact type of this operation
      * @return the server schema migration version number
      */
     public Mono<Integer> getMetadataServerSchemaMigrationVersion(
             String workspaceId,
             String defaultArtifactId,
-            String branchName,
             String repoName,
+            String branchName,
             ArtifactType artifactType) {
 
         if (!hasText(workspaceId)) {
@@ -342,7 +342,7 @@ public class CommonGitFileUtilsCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.REPO_NAME));
         }
 
-        return reconstructMetadataFromRepo(workspaceId, defaultArtifactId, branchName, repoName, artifactType)
+        return reconstructMetadataFromRepo(workspaceId, defaultArtifactId, repoName, branchName, artifactType)
                 .map(metadataMap -> {
                     return metadataMap.getOrDefault(
                             CommonConstants.SERVER_SCHEMA_VERSION, JsonSchemaVersions.serverVersion);

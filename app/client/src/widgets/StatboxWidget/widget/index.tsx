@@ -82,7 +82,6 @@ class StatboxWidget extends ContainerWidget {
       backgroundColor: "white",
       borderWidth: "1",
       borderColor: Colors.GREY_5,
-      minDynamicHeight: 14,
       children: [],
       positioning: Positioning.Fixed,
       responsiveBehavior: ResponsiveBehavior.Fill,

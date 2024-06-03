@@ -4,10 +4,6 @@ import {
   dataSources,
   agHelper,
 } from "../../../support/Objects/ObjectsCore";
-import {
-  createMessage,
-  IMPORT_APP_SUCCESSFUL,
-} from "../../../../src/ce/constants/messages";
 
 describe(
   "Reconnect Datasource Modal validation while importing application",
@@ -52,7 +48,7 @@ describe(
             } else {
               cy.get(homePageLocators.toastMessage).should(
                 "contain",
-                createMessage(IMPORT_APP_SUCCESSFUL),
+                Cypress.env("MESSAGES").IMPORT_APP_SUCCESSFUL(),
               );
             }
             // check datasource configured success modal

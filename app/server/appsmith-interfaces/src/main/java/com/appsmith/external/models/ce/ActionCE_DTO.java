@@ -6,7 +6,6 @@ import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.models.ActionConfiguration;
-import com.appsmith.external.models.AnalyticsInfo;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
@@ -156,11 +155,6 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Internal.class)
     DefaultResources defaultResources;
 
-    // This field will be used to store analytics data related to this specific domain object. It's been introduced in
-    // order to track success metrics of modules. Learn more on GitHub issue#24734
-    @JsonView({Views.Public.class, FromRequest.class})
-    AnalyticsInfo eventData;
-
     @JsonView(Views.Internal.class)
     protected Instant createdAt;
 
@@ -211,7 +205,6 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     public void sanitiseToExportDBObject() {
         this.resetTransientFields();
-        this.setEventData(null);
         this.setDefaultResources(null);
         this.setUpdatedAt(null);
         this.setCacheResponse(null);

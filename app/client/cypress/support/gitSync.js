@@ -8,37 +8,12 @@ require("cypress-file-upload");
 import gitSyncLocators from "../locators/gitSyncLocators";
 import homePage from "../locators/HomePage";
 import { ObjectsRegistry } from "./Objects/Registry";
-import {
-  createMessage,
-  UNABLE_TO_IMPORT_APP,
-} from "../../src/ce/constants/messages";
 const gitSync = ObjectsRegistry.GitSync;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const dataManager = ObjectsRegistry.DataManager;
 const assertHelper = ObjectsRegistry.AssertHelper;
 
 const commonLocators = require("../locators/commonlocators.json");
-
-Cypress.Commands.add("revokeAccessGit", (appName) => {
-  cy.xpath("//span[text()= `${appName}`]").parent().next().click();
-  cy.get(gitSyncLocators.disconnectAppNameInput).type(appName);
-  cy.get(gitSyncLocators.disconnectButton).click();
-  cy.intercept("POST", "api/v1/git/disconnect/app/*").as("disconnect");
-  cy.get(gitSyncLocators.disconnectButton).click();
-  cy.wait("@disconnect").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    200,
-  );
-  cy.window()
-    .its("store")
-    .invoke("getState")
-    .then((state) => {
-      const { id, name } = state.ui.gitSync.disconnectingGitApp;
-      expect(name).to.eq("");
-      expect(id).to.eq("");
-    });
-});
 
 Cypress.Commands.add("latestDeployPreview", () => {
   cy.intercept("POST", "/api/v1/applications/publish/*").as("publishApp");
@@ -234,7 +209,10 @@ Cypress.Commands.add("gitDiscardChanges", () => {
   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
   cy.validateToastMessage("Discarded changes successfully.");
   cy.wait(2000);
-  assertHelper.AssertContains(createMessage(UNABLE_TO_IMPORT_APP), "not.exist");
+  assertHelper.AssertContains(
+    Cypress.env("MESSAGES").UNABLE_TO_IMPORT_APP(),
+    "not.exist",
+  );
 });
 
 Cypress.Commands.add(

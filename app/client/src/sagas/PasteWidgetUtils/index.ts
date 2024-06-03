@@ -443,3 +443,14 @@ export function accessNestedObjectValue(
     ),
   );
 }
+
+export function handleButtonDynamicTriggerPathList(
+  widgetNameMap: Record<string, string>,
+  widget: FlattenedWidgetProps,
+) {
+  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
+    widget.dynamicTriggerPathList?.forEach((path: { key: string }) => {
+      accessNestedObjectValue(widget, path.key, oldWidgetName, newWidgetName);
+    });
+  });
+}

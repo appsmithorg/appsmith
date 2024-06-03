@@ -5,6 +5,7 @@ import {
   handleJSONFormWidgetWhenPasting,
   handleTextWidgetWhenPasting,
   handleJSONFormPropertiesListedInDynamicBindingPath,
+  handleButtonDynamicTriggerPathList,
 } from ".";
 import {
   widget,
@@ -17,6 +18,7 @@ import {
 const widgetNameMap = {
   table1: "table1Copy",
 };
+import { klona } from "klona";
 
 function testIndividualWidgetPasting(
   widgetNameMap: Record<string, string>,
@@ -227,5 +229,29 @@ describe("handleJSONFormPropertiesListedInDynamicBindingPath", () => {
       { key: "defaultValue" },
       { key: "property3" },
     ]);
+  });
+});
+
+describe("handleButtonDynamicTriggerPathList", () => {
+  const widget = {
+    dynamicTriggerPathList: [{ key: "onClick" }],
+    onClick: "{{oldName.val}}",
+  } as any as FlattenedWidgetProps;
+  it("1. should replace old widget names with new widget names in dynamic trigger paths", () => {
+    const widgetNameMap = {
+      oldName: "newName",
+    };
+    const button = klona(widget);
+    handleButtonDynamicTriggerPathList(widgetNameMap, button);
+    expect(button.onClick).toEqual("{{newName.val}}");
+  });
+
+  it("2. should do nothing if the widgetNameMap does not contain names in dynamic trigger paths", () => {
+    const widgetNameMap = {
+      oldWidget1: "newWidget1",
+    };
+    const button = klona(widget);
+    handleButtonDynamicTriggerPathList(widgetNameMap, button);
+    expect(button.onClick).toEqual("{{oldName.val}}");
   });
 });

@@ -1,3 +1,4 @@
+import type React from "react";
 import type { HttpMethod } from "api/Api";
 import API from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
@@ -7,38 +8,13 @@ import axios from "axios";
 import type { Action, ActionViewMode } from "entities/Action";
 import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
 import type { WidgetType } from "constants/WidgetConstants";
-import { omit } from "lodash";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
 import { wrapFnWithParentTraceContext } from "UITelemetry/generateTraces";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
-export interface CreateActionRequest<T> extends APIRequest {
-  datasourceId: string;
-  pageId: string;
-  name: string;
-  actionConfiguration: T;
-}
-
-export interface UpdateActionRequest<T> extends CreateActionRequest<T> {
-  actionId: string;
-}
-
 export interface Property {
   key: string;
   value?: string;
-}
-
-export interface BodyFormData {
-  editable: boolean;
-  mandatory: boolean;
-  description: string;
-  key: string;
-  value?: string;
-  type: string;
-}
-
-export interface QueryConfig {
-  queryString: string;
 }
 
 export type ActionCreateUpdateResponse = ApiResponse & {
@@ -65,10 +41,6 @@ export interface ExecuteActionRequest extends APIRequest {
   >;
   analyticsProperties?: Record<string, boolean>;
 }
-
-export type ExecuteActionResponse = ApiResponse & {
-  actionId: string;
-};
 
 export interface ActionApiResponseReq {
   headers: Record<string, string[]>;
@@ -136,11 +108,6 @@ export interface MoveActionRequest {
   destinationPageId: string;
 }
 
-export interface CopyActionRequest {
-  action: Action;
-  pageId: string;
-}
-
 export interface UpdateActionNameRequest {
   pageId?: string;
   actionId: string;
@@ -165,7 +132,7 @@ class ActionAPI extends API {
   static async createAction(
     apiConfig: Partial<Action>,
   ): Promise<AxiosPromise<ActionCreateUpdateResponse>> {
-    return API.post(ActionAPI.url, apiConfig);
+    return API.post(ActionAPI.url, { ...apiConfig, eventData: undefined });
   }
 
   static async fetchActions(
@@ -193,11 +160,18 @@ class ActionAPI extends API {
       ActionAPI.apiUpdateCancelTokenSource.cancel();
     }
     ActionAPI.apiUpdateCancelTokenSource = axios.CancelToken.source();
-    let action = Object.assign({}, apiConfig);
-    // While this line is not required, name can not be changed from this endpoint
-    delete action.name;
-    // Removing datasource storages from the action object since embedded datasources don't have storages
-    action = omit(action, ["datasource.datasourceStorages"]);
+    const action: Partial<Action & { entityReferenceType: unknown }> = {
+      ...apiConfig,
+      name: undefined,
+      entityReferenceType: undefined,
+    };
+    if (action.datasource != null) {
+      action.datasource = {
+        ...(action as any).datasource,
+        datasourceStorages: undefined,
+        isValid: undefined,
+      };
+    }
     return API.put(`${ActionAPI.url}/${action.id}`, action, undefined, {
       cancelToken: ActionAPI.apiUpdateCancelTokenSource.token,
     });

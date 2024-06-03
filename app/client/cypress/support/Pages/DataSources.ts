@@ -10,6 +10,7 @@ import EditorNavigation, {
 } from "./EditorNavigation";
 import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
+import { anvilLocators } from "./Anvil/Locators";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -1673,7 +1674,7 @@ export class DataSources {
           force,
         );
         this.agHelper.AssertElementVisibility(
-          this.locator._anvilWidgetInCanvas(WIDGET.WDSTABLE),
+          anvilLocators.anvilWidgetTypeSelector(anvilLocators.WDSTABLE),
         );
         break;
       case Widgets.Chart:

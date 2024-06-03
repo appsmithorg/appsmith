@@ -6,10 +6,6 @@ import {
   dataSources,
   entityItems,
 } from "../../../../support/Objects/ObjectsCore";
-import {
-  ACTION_EXECUTION_CANCELLED,
-  createMessage,
-} from "../../../../support/Objects/CommonErrorMessages";
 
 describe("Abort Action Execution", { tags: ["@tag.Datasource"] }, function () {
   it("1. Bug #14006, #16093 - Cancel request button should abort API action execution", function () {
@@ -21,7 +17,7 @@ describe("Abort Action Execution", { tags: ["@tag.Datasource"] }, function () {
     apiPage.RunAPI(false, 0);
     agHelper.GetNClick(locators._cancelActionExecution, 0, true);
     agHelper.AssertContains(
-      createMessage(ACTION_EXECUTION_CANCELLED, "AbortApi"),
+      Cypress.env("MESSAGES").ACTION_EXECUTION_CANCELLED("AbortApi"),
     );
     agHelper.AssertElementAbsence(locators._specificToast("{}")); //Assert that empty toast does not appear - Bug #16093
     agHelper.ActionContextMenuWithInPane({
@@ -44,7 +40,7 @@ describe("Abort Action Execution", { tags: ["@tag.Datasource"] }, function () {
       agHelper.GetNClick(dataSources._runQueryBtn, 0, true, 0);
       agHelper.GetNClick(locators._cancelActionExecution, 0, true);
       agHelper.AssertContains(
-        createMessage(ACTION_EXECUTION_CANCELLED, "AbortQuery"),
+        Cypress.env("MESSAGES").ACTION_EXECUTION_CANCELLED("AbortQuery"),
       );
       agHelper.AssertElementAbsence(locators._specificToast("{}")); //Assert that empty toast does not appear - Bug #16093
       agHelper.ActionContextMenuWithInPane({
