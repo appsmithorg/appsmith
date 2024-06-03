@@ -193,8 +193,14 @@ def generate_cake_class(domain):
 
         signature = signature.replace(f"BaseRepository<{domain}, String>", f"{domain}RepositoryCake")
 
+        call = signature
+        while "<" in call:
+            # Remove all generics in type definitions.
+            call = re.sub(r"<[^<>]+?>", "", call)
+
         call = re.sub(
-            r"[A-Za-z.]+?(<[^<>]+?>|<[^\s]+?>)?\s(\w+)([,)])", r"\2\3", signature
+            # Replace type declarations, and leave the argument names.
+            r"[A-Za-z.]+?\s(\w+)([,)])", r"\1\2", call
         ).replace("baseRepository", "repository")
         reactor_methods.append(
             f"/** @see {method.ref} */\n"
@@ -237,6 +243,7 @@ def generate_cake_class(domain):
     import reactor.core.scheduler.Schedulers;
     {imports_code}
 
+    import java.time.Instant;
     import java.util.List;
     import java.util.Map;
     import java.util.Optional;
