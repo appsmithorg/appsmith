@@ -43,20 +43,24 @@ describe(
       // entering the values in the table
       cy.enterTableCellValue(0, 0, "22");
       cy.enterTableCellValue(1, 0, "21");
-      cy.enterTableCellValue(3, 0);
-      cy.get(
-        '[aria-label="Wed May 15 2024"] > .bp3-datepicker-day-wrapper',
-      ).click();
 
-      // adding the text widget to the screen and updating its value as the table's date column field
+      // Click on the date input to open the date picker
+      cy.enterTableCellValue(3, 0);
+      const now = new Date();
+
+      cy.get(`.DayPicker-Day--today > .bp3-datepicker-day-wrapper`).click();
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
       cy.openPropertyPane("textwidget");
-      cy.updateCodeInput(".t--property-control-text", "{{Table1.newRow.Date}}");
+      cy.updateCodeInput(".t--property-control-text", `{{Table1.newRow.Date}}`);
 
-      // Ensure the expected value matches the actual value format
+      // checking the date selected and the date in the text widget matches correctly
+      now.setHours(0, 0, 0, 0); // Reset time to 00:00:00
+      const offset = now.getTimezoneOffset() * 60000; // offset in milliseconds
+      const localISOTime =
+        new Date(now.getTime() - offset).toISOString().slice(0, 19) + "+05:30"; // adjust to the desired timezone
       cy.get(".t--widget-textwidget .bp3-ui-text").should(
         "contain",
-        "2024-05-15T00:00:00+05:30",
+        localISOTime.split("T")[0] + "T00:00:00+05:30",
       );
     });
   },
