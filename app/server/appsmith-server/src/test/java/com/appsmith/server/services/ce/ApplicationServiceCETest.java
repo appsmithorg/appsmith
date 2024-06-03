@@ -3107,8 +3107,13 @@ public class ApplicationServiceCETest {
         Mono<Application> applicationMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
-                    CustomJSLib jsLib =
-                            new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs".getBytes(StandardCharsets.UTF_8));
+                    CustomJSLib jsLib = new CustomJSLib(
+                            "name1",
+                            Set.of("accessor"),
+                            "url",
+                            "docsUrl",
+                            "version",
+                            "defs".getBytes(StandardCharsets.UTF_8));
                     return customJSLibService
                             .addJSLibsToContext(
                                     application.getId(), CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
@@ -3158,8 +3163,13 @@ public class ApplicationServiceCETest {
                     assertThat(isFound).isTrue();
 
                     assertEquals(1, viewApplication.getPublishedCustomJSLibs().size());
-                    CustomJSLib jsLib =
-                            new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs".getBytes(StandardCharsets.UTF_8));
+                    CustomJSLib jsLib = new CustomJSLib(
+                            "name1",
+                            Set.of("accessor"),
+                            "url",
+                            "docsUrl",
+                            "version",
+                            "defs".getBytes(StandardCharsets.UTF_8));
                     assertEquals(
                             getDTOFromCustomJSLib(jsLib),
                             viewApplication.getPublishedCustomJSLibs().toArray()[0]);
