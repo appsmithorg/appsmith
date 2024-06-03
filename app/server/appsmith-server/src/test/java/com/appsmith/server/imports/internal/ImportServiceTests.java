@@ -111,6 +111,7 @@ import reactor.util.function.Tuple4;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -990,7 +991,7 @@ public class ImportServiceTests {
                     assertEquals(2, importedJSLibList.size());
                     CustomJSLib importedJSLib = (CustomJSLib) importedJSLibList.toArray()[0];
                     CustomJSLib expectedJSLib = new CustomJSLib(
-                            "TestLib", Set.of("accessor1"), "url", "docsUrl", "1" + ".0", "defs_string");
+                            "TestLib", Set.of("accessor1"), "url", "docsUrl", "1" + ".0", "defs_string".getBytes(StandardCharsets.UTF_8));
                     assertEquals(expectedJSLib.getName(), importedJSLib.getName());
                     assertEquals(expectedJSLib.getAccessor(), importedJSLib.getAccessor());
                     assertEquals(expectedJSLib.getUrl(), importedJSLib.getUrl());
@@ -4826,7 +4827,7 @@ public class ImportServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithCustomJSLibTest() {
-        CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
+        CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string".getBytes(StandardCharsets.UTF_8));
         Mono<Boolean> addJSLibMonoCached = customJSLibService
                 .addJSLibsToContext(testAppId, CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
                 .flatMap(isJSLibAdded ->

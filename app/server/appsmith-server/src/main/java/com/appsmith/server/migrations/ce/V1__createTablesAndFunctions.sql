@@ -63,19 +63,8 @@ create table application
     unpublished_app_layout jsonb,
     unpublished_application_detail jsonb,
     unpublished_customjslibs jsonb,
-    unread_comment_threads bigint not null,
     view_mode boolean,
     workspace_id varchar(255)
-);
-
-create table application_page
-(
-    id varchar(255) not null
-        primary key,
-    custom_slug varchar(255),
-    default_page_id varchar(255),
-    is_default boolean,
-    slug varchar(255)
 );
 
 create table application_snapshot
@@ -162,7 +151,9 @@ create table customjslib
     updated_at timestamp(6) with time zone,
     default_resources jsonb,
     accessor jsonb,
-    defs text,
+    -- This was `String` in MongoDB, but since we need to store `NUL` (\u0000) character in it (for libraries like
+    -- xlsx), which Postgres doesn't allow in text/varchar, we have to use a byte array (`bytea`) here.
+    defs bytea,
     docs_url varchar(255),
     name varchar(255),
     uid_string varchar(255),
@@ -248,22 +239,6 @@ create table email_verification_token
     token_hash varchar(255)
 );
 
-create table endpoint
-(
-    id varchar(255) not null
-        primary key,
-    host varchar(255),
-    port bigint
-);
-
-create table git_config
-(
-    id varchar(255) not null
-        primary key,
-    author_email varchar(255),
-    author_name varchar(255)
-);
-
 create table git_deploy_keys
 (
     id varchar(255) not null
@@ -278,15 +253,6 @@ create table git_deploy_keys
     updated_at timestamp(6) with time zone,
     email varchar(255),
     git_auth jsonb
-);
-
-create table git_profile
-(
-    id varchar(255) not null
-        primary key,
-    author_email varchar(255),
-    author_name varchar(255),
-    use_global_profile boolean
 );
 
 create table new_action
@@ -488,18 +454,18 @@ create table "user"
     policy_map jsonb,
     updated_at timestamp(6) with time zone,
     current_workspace_id varchar(255),
-    email varchar(255),
+    email text,
     email_verification_required boolean,
     email_verified boolean,
     examples_workspace_id varchar(255),
     group_ids jsonb,
-    hashed_email varchar(255),
+    hashed_email text,
     invite_token varchar(255),
     is_anonymous boolean,
     is_enabled boolean,
     is_system_generated boolean,
-    name varchar(255),
-    password varchar(255),
+    name text,
+    password text,
     password_reset_initiated boolean,
     permissions jsonb,
     source varchar(255),
@@ -559,3 +525,6 @@ create table workspace
     website varchar(255)
 );
 
+create function jsonb_minus(l jsonb, r text) returns jsonb
+  language sql
+RETURN (l - r);

@@ -37,14 +37,16 @@ public class V3__addPlugins extends AppsmithJavaMigration {
         addGoogleAIPlugin();
         addDatabricksPlugin();
         addAppsmithAIPlugin();
-        addWorkflowPlugin();
         addAWSLambdaPlugin();
     }
 
     private void insertPlugin(Plugin plugin) {
         try {
-            String sql =
-                    "INSERT INTO plugin (id, name, type, package_name, icon_location, documentation_link, response_type, ui_component, datasource_component, generatecrudpage_component, default_install, is_remote_plugin, is_supported_for_air_gap, is_dependent_oncs, created_at, updated_at) VALUES (gen_random_uuid(),?,?,?,?,?,?,?,?,?,?,?,?,?, now(), now())";
+            String sql = """
+                INSERT INTO plugin (id, name, type, package_name, icon_location, documentation_link, response_type, ui_component, datasource_component, generatecrudpage_component, default_install, is_remote_plugin, is_supported_for_air_gap, is_dependent_oncs, created_at, updated_at)
+                VALUES (gen_random_uuid(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, now(), now())
+                ON CONFLICT DO NOTHING
+                """;
             jdbcTemplate.update(
                     sql,
                     plugin.getName(),
@@ -474,23 +476,6 @@ public class V3__addPlugins extends AppsmithJavaMigration {
                 .packageName("appsmithai-plugin")
                 .iconLocation("https://assets.appsmith.com/logo/appsmith-ai.svg")
                 .documentationLink("https://docs.appsmith.com/connect-data/reference/appsmith-ai")
-                .responseType(Plugin.ResponseType.JSON)
-                .uiComponent("UQIDbEditorForm")
-                .datasourceComponent("DbEditorForm")
-                .defaultInstall(true)
-                .isRemotePlugin(false)
-                .isSupportedForAirGap(true)
-                .build();
-        insertPlugin(plugin);
-    }
-
-    private void addWorkflowPlugin() {
-        Plugin plugin = Plugin.builder()
-                .name("Workflow")
-                .type(PluginType.INTERNAL)
-                .packageName("workflow-plugin")
-                .iconLocation("https://assets.appsmith.com/workflows.svg")
-                .documentationLink("https://docs.appsmith.com/connect-data/reference/workflows")
                 .responseType(Plugin.ResponseType.JSON)
                 .uiComponent("UQIDbEditorForm")
                 .datasourceComponent("DbEditorForm")
