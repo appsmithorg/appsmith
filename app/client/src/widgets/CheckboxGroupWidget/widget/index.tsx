@@ -9,7 +9,7 @@ import type { ValidationResponse } from "constants/WidgetValidation";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { compact, xor } from "lodash";
+import { compact, xor, findIndex } from "lodash";
 import { default as React } from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
@@ -32,7 +32,6 @@ import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
-import _ from "lodash";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -624,7 +623,7 @@ class CheckboxGroupWidget extends BaseWidget<
     ) {
       for (const i of prevProps.selectedValues) {
         if (
-          _.findIndex(
+          findIndex(
             prevProps.options,
             (option: OptionProps) => option.value === i,
           ) === -1
