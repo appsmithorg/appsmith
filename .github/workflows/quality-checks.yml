@@ -83,6 +83,15 @@ jobs:
     with:
       pr: ${{ github.event.pull_request.number }}
 
+  client-check-cyclic-deps:
+    name: client-check-cyclic-deps
+    needs: path-filter
+    if: needs.path-filter.outputs.client == 'true'
+    uses: ./.github/workflows/ci-client-cyclic-deps-check.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.pull_request.number }}
+
   qc-result:
     name: qc-result
     needs:

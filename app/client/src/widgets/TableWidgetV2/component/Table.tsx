@@ -297,15 +297,9 @@ export function Table(props: TableProps) {
 
   const scrollContainerStyles = useMemo(() => {
     return {
-      height:
-        props.data.length < props.pageSize
-          ? "100%"
-          : isHeaderVisible
-            ? props.height -
-              tableSizes.TABLE_HEADER_HEIGHT -
-              TABLE_SCROLLBAR_HEIGHT +
-              SCROLL_BAR_OFFSET
-            : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET,
+      height: isHeaderVisible
+        ? props.height - tableSizes.TABLE_HEADER_HEIGHT - TABLE_SCROLLBAR_HEIGHT
+        : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET,
       width: props.width,
     };
   }, [
@@ -313,8 +307,6 @@ export function Table(props: TableProps) {
     props.height,
     tableSizes.TABLE_HEADER_HEIGHT,
     props.width,
-    props.data.length,
-    props.pageSize,
   ]);
 
   const shouldUseVirtual =

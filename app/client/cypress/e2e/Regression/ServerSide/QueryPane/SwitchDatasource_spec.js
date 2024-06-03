@@ -2,7 +2,7 @@ import { dataSources, agHelper } from "../../../../support/Objects/ObjectsCore";
 describe("Switch datasource", { tags: ["@tag.Datasource"] }, function () {
   let dsName_1, dsName_2, MongoDB;
   beforeEach(() => {
-    cy.startRoutesForDatasource();
+    dataSources.StartDataSourceRoutes();
   });
 
   it("1. Create postgres datasource", function () {

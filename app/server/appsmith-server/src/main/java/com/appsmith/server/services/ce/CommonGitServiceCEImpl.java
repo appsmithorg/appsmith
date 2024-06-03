@@ -8,6 +8,7 @@ import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.git.constants.GitConstants;
+import com.appsmith.external.git.constants.GitConstants.GitCommandConstants;
 import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.EmailConfig;
@@ -35,13 +36,13 @@ import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.git.GitRedisUtils;
+import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
-import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.helpers.ce.autocommit.GitAutoCommitHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -70,7 +71,6 @@ import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple3;
-import reactor.util.retry.Retry;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -97,8 +97,6 @@ import static com.appsmith.external.git.constants.ce.GitSpanCE.OPS_STATUS;
 import static com.appsmith.git.constants.AppsmithBotAsset.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
-import static com.appsmith.server.helpers.GitUtils.MAX_RETRIES;
-import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
@@ -112,7 +110,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
     private final GitDeployKeysRepository gitDeployKeysRepository;
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
     private final CommonGitFileUtils commonGitFileUtils;
-    private final RedisUtils redisUtils;
+    private final GitRedisUtils gitRedisUtils;
     protected final SessionUserService sessionUserService;
     private final UserDataService userDataService;
     protected final UserService userService;
@@ -132,23 +130,16 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
     private static final String ORIGIN = "origin/";
     private static final String REMOTE_NAME_REPLACEMENT = "";
 
-    private Mono<Boolean> addFileLock(String defaultArtifactId, boolean isLockRequired) {
+    private Mono<Boolean> addFileLock(String defaultArtifactId, String commandName, boolean isLockRequired) {
         if (!Boolean.TRUE.equals(isLockRequired)) {
             return Mono.just(Boolean.TRUE);
         }
 
-        return Mono.defer(() -> addFileLock(defaultArtifactId));
+        return Mono.defer(() -> addFileLock(defaultArtifactId, commandName));
     }
 
-    private Mono<Boolean> addFileLock(String defaultArtifactId) {
-        return redisUtils
-                .addFileLock(defaultArtifactId)
-                .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
-                        .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
-                            throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
-                        }))
-                .name(GitSpan.ADD_FILE_LOCK)
-                .tap(Micrometer.observation(observationRegistry));
+    private Mono<Boolean> addFileLock(String defaultArtifactId, String commandName) {
+        return gitRedisUtils.addFileLock(defaultArtifactId, commandName);
     }
 
     private Mono<Boolean> releaseFileLock(String defaultArtifactId, boolean isLockRequired) {
@@ -160,7 +151,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
     }
 
     private Mono<Boolean> releaseFileLock(String defaultArtifactId) {
-        return redisUtils
+        return gitRedisUtils
                 .releaseFileLock(defaultArtifactId)
                 .name(GitSpan.RELEASE_FILE_LOCK)
                 .tap(Micrometer.observation(observationRegistry));
@@ -304,7 +295,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
         Mono<GitStatusDTO> statusMono = Mono.zip(
                         Mono.just(defaultGitMetadata), Mono.just(branchedArtifact), exportedArtifactJsonMono)
-                .flatMap(artifactAndJsonTuple3 -> addFileLock(defaultArtifactId, isFileLock)
+                .flatMap(artifactAndJsonTuple3 -> addFileLock(defaultArtifactId, GitCommandConstants.STATUS, isFileLock)
                         .elapsed()
                         .map(elapsedTuple -> {
                             log.debug("file lock took: {}", elapsedTuple.getT1());
@@ -479,7 +470,8 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                         return Mono.just(artifactAndJsonTuple3);
                     }
 
-                    Mono<Boolean> fileLockMono = Mono.defer(() -> addFileLock(defaultArtifactId));
+                    Mono<Boolean> fileLockMono =
+                            Mono.defer(() -> addFileLock(defaultArtifactId, GitCommandConstants.STATUS));
                     return fileLockMono.elapsed().map(elapsedTuple -> {
                         log.debug("file lock took: {}", elapsedTuple.getT1());
                         return artifactAndJsonTuple3;
@@ -624,7 +616,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
         Mono<Boolean> addFileLockMono = Mono.just(Boolean.TRUE);
         if (Boolean.TRUE.equals(isFileLock)) {
-            addFileLockMono = addFileLock(defaultArtifactId);
+            addFileLockMono = addFileLock(defaultArtifactId, GitCommandConstants.FETCH_REMOTE);
         }
         /*
            1. Copy resources from DB to local repo
@@ -744,7 +736,8 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                         return Mono.just(tuple3);
                     }
 
-                    return addFileLock(tuple3.getT1().getDefaultArtifactId()).then(Mono.just(tuple3));
+                    return addFileLock(tuple3.getT1().getDefaultArtifactId(), GitCommandConstants.FETCH_REMOTE)
+                            .then(Mono.just(tuple3));
                 })
                 .flatMap(tuple3 -> {
                     GitArtifactMetadata defaultArtifactMetadata = tuple3.getT1();
@@ -1226,7 +1219,8 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                 .flatMap(artifact -> {
                     GitArtifactMetadata gitData = artifact.getGitArtifactMetadata();
                     if (Boolean.TRUE.equals(isFileLock)) {
-                        return addFileLock(gitData.getDefaultArtifactId()).then(Mono.just(artifact));
+                        return addFileLock(gitData.getDefaultArtifactId(), GitCommandConstants.COMMIT)
+                                .then(Mono.just(artifact));
                     }
                     return Mono.just(artifact);
                 })
@@ -1481,7 +1475,8 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                         return Mono.just(artifact);
                     }
 
-                    return addFileLock(artifact.getGitArtifactMetadata().getDefaultArtifactId())
+                    return addFileLock(
+                                    artifact.getGitArtifactMetadata().getDefaultArtifactId(), GitCommandConstants.PUSH)
                             .map(status -> artifact);
                 })
                 .flatMap(artifact -> {
@@ -1642,7 +1637,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                     gitArtifactMetadata.getDefaultArtifactId(),
                     gitArtifactMetadata.getRepoName());
 
-            sourceAritfactMono = addFileLock(defaultArtifactId)
+            sourceAritfactMono = addFileLock(defaultArtifactId, GitCommandConstants.CHECKOUT_BRANCH)
                     .then(gitExecutor.listBranches(repoPath))
                     .flatMap(branchList -> releaseFileLock(defaultArtifactId).thenReturn(branchList))
                     .flatMap(gitBranchDTOList -> {
@@ -1694,7 +1689,8 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
         Mono<? extends Artifact> defaultArtifactMono =
                 gitArtifactHelper.getArtifactById(defaultArtifactId, artifactEditPermission);
-        Mono<? extends Artifact> checkoutRemoteBranchMono = addFileLock(defaultArtifactId)
+        Mono<? extends Artifact> checkoutRemoteBranchMono = addFileLock(
+                        defaultArtifactId, GitCommandConstants.CHECKOUT_BRANCH)
                 .zipWith(defaultArtifactMono)
                 .flatMap(tuple2 -> {
                     Artifact artifact = tuple2.getT2();
@@ -1924,7 +1920,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                             srcBranchGitData.getRepoName());
 
                     // Create a new branch from the parent checked out branch
-                    return addFileLock(srcBranchGitData.getDefaultArtifactId())
+                    return addFileLock(srcBranchGitData.getDefaultArtifactId(), GitCommandConstants.CREATE_BRANCH)
                             .flatMap(status -> gitExecutor.checkoutToBranch(repoSuffix, srcBranch))
                             .onErrorResume(error -> Mono.error(new AppsmithException(
                                     AppsmithError.GIT_ACTION_FAILED, "checkout", "Unable to find " + srcBranch)))
@@ -2053,7 +2049,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                     GitArtifactMetadata gitMetadata = defaultArtifact.getGitArtifactMetadata();
                     Mono<GitStatusDTO> statusMono =
                             getStatus(defaultArtifact, branchedArtifact, finalBranchName, false, true);
-                    return addFileLock(gitMetadata.getDefaultArtifactId())
+                    return addFileLock(gitMetadata.getDefaultArtifactId(), GitCommandConstants.PULL)
                             .then(Mono.zip(statusMono, Mono.just(defaultArtifact), Mono.just(branchedArtifact)));
                 })
                 .flatMap(tuple -> {
@@ -2462,7 +2458,8 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                     }
                     return objects.getT1();
                 })
-                .flatMap(defaultArtifact -> addFileLock(defaultArtifactId).map(status -> defaultArtifact))
+                .flatMap(defaultArtifact -> addFileLock(defaultArtifactId, GitCommandConstants.DELETE)
+                        .map(status -> defaultArtifact))
                 .flatMap(defaultArtifact -> {
                     GitArtifactMetadata gitArtifactMetadata = defaultArtifact.getGitArtifactMetadata();
                     Path repoPath = gitArtifactHelper.getRepoSuffixPath(
@@ -2550,7 +2547,8 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         // Rehydrate the artifact from local file system
         discardChangeMono = branchedArtifactMonoCached
                 // Add file lock before proceeding with the git operation
-                .flatMap(branchedArtifact -> addFileLock(defaultArtifactId).thenReturn(branchedArtifact))
+                .flatMap(branchedArtifact -> addFileLock(defaultArtifactId, GitCommandConstants.DISCARD)
+                        .thenReturn(branchedArtifact))
                 .flatMap(branchedArtifact -> {
                     GitArtifactMetadata gitData = branchedArtifact.getGitArtifactMetadata();
                     if (gitData == null || StringUtils.isEmptyOrNull(gitData.getDefaultArtifactId())) {
@@ -2633,7 +2631,8 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         Mono<MergeStatusDTO> mergeMono = defaultArtifactMono
                 .flatMap(defaultArtifact -> {
                     GitArtifactMetadata gitData = defaultArtifact.getGitArtifactMetadata();
-                    return addFileLock(gitData.getDefaultArtifactId()).then(Mono.just(defaultArtifact));
+                    return addFileLock(gitData.getDefaultArtifactId(), GitCommandConstants.MERGE_BRANCH)
+                            .then(Mono.just(defaultArtifact));
                 })
                 .flatMap(defaultArtifact -> {
                     GitArtifactMetadata gitArtifactMetadata = defaultArtifact.getGitArtifactMetadata();
@@ -2805,7 +2804,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
             // 1. Hydrate from db to file system for both branch Applications
             // Update function call
-            return addFileLock(defaultArtifactId)
+            return addFileLock(defaultArtifactId, GitCommandConstants.STATUS)
                     .flatMap(status -> this.getStatus(defaultArtifactId, sourceBranch, false, artifactType))
                     .flatMap(srcBranchStatus -> {
                         if (!Integer.valueOf(0).equals(srcBranchStatus.getBehindCount())) {
@@ -3165,7 +3164,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
     private Mono<String> syncDefaultBranchNameFromRemote(Artifact defaultArtifact, Path repoPath) {
         GitArtifactMetadata metadata = defaultArtifact.getGitArtifactMetadata();
         GitAuth gitAuth = metadata.getGitAuth();
-        return addFileLock(metadata.getDefaultArtifactId())
+        return addFileLock(metadata.getDefaultArtifactId(), GitCommandConstants.SYNC_BRANCH)
                 .then(gitExecutor.getRemoteDefaultBranch(
                         repoPath, metadata.getRemoteUrl(), gitAuth.getPrivateKey(), gitAuth.getPublicKey()))
                 .flatMap(defaultBranchNameInRemote -> {
@@ -3298,7 +3297,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
             String defaultBranchName,
             String currentBranch,
             boolean pruneBranches) {
-        return addFileLock(defaultArtifact.getId())
+        return addFileLock(defaultArtifact.getId(), GitCommandConstants.LIST_BRANCH)
                 .flatMap(objects -> {
                     GitArtifactMetadata gitArtifactMetadata = defaultArtifact.getGitArtifactMetadata();
 

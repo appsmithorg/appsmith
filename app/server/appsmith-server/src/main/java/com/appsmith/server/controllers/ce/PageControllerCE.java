@@ -32,6 +32,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.Map;
+
 @RequestMapping(Url.PAGE_URL)
 @RequiredArgsConstructor
 @Slf4j
@@ -195,5 +198,16 @@ public class PageControllerCE {
         return newPageService
                 .findApplicationPages(applicationId, pageId, branchName, mode)
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PutMapping("/{defaultPageId}/dependencyMap")
+    public Mono<ResponseDTO<String>> updateDependencyMap(
+            @PathVariable String defaultPageId,
+            @RequestBody(required = false) Map<String, List<String>> dependencyMap,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return newPageService
+                .updateDependencyMap(defaultPageId, dependencyMap, branchName)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 }

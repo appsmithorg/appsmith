@@ -17,7 +17,7 @@ export class LeftPane {
     activeItemSelector: "",
     selector: "",
   };
-  private listView: ListView;
+  public listView: ListView;
 
   constructor(
     listItemSelector: (name: string) => string,

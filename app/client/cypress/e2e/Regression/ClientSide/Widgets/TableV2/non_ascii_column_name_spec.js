@@ -38,7 +38,7 @@ describe(
         "contain",
         `{  "普通话 [普通話] ": "",  "français": "",  "español": "",  "日本語": "",  "हिन्दी": ""}`,
       );
-      cy.isSelectRow(0);
+      _.table.SelectTableRow(0, 0, true, "v2");
       cy.get(".t--widget-textwidget .bp3-ui-text").should(
         "contain",
         `{  "普通话 [普通話] ": "mandarin",  "français": "french",  "español": "spanish",  "日本語": "japnese",  "हिन्दी": "hindi"}`,

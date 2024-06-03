@@ -6,7 +6,16 @@ export const anvilWidgets = {
 export enum Elevations {
   SECTION_ELEVATION = 1,
   ZONE_ELEVATION = 2,
+  CARD_ELEVATION = 3,
 }
+
+/**
+ * The data attribute that will be used to identify the anvil widget name in the DOM.
+ */
+export const AnvilDataAttributes = {
+  WIDGET_NAME: "data-widget-name",
+  IS_SELECTED_WIDGET: "data-selected",
+};
 
 /**
  * The default values that will be applied to all widgets.

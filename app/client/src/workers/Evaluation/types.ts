@@ -16,6 +16,7 @@ import type { WorkerRequest } from "@appsmith/workers/common/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { APP_MODE } from "entities/App";
 import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
+import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 
 export type EvalWorkerSyncRequest<T = any> = WorkerRequest<
   T,
@@ -41,6 +42,7 @@ export interface EvalTreeRequestData {
   appMode?: APP_MODE;
   widgetsMeta: Record<string, any>;
   shouldRespondWithLogs?: boolean;
+  affectedJSObjects: AffectedJSObjects;
 }
 
 export interface EvalTreeResponseData {
