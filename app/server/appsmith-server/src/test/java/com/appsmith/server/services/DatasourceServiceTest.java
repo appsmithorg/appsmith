@@ -330,10 +330,6 @@ public class DatasourceServiceTest {
                 defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
         datasource.setDatasourceStorages(storages);
 
-        Mockito.doReturn(Mono.just(new DatasourceStorage()))
-                .when(datasourceStorageService)
-                .populateHintMessages(Mockito.any());
-
         Mono<Datasource> datasourceMono = pluginMono
                 .map(plugin -> {
                     datasource.setPluginId(plugin.getId());

@@ -150,7 +150,6 @@ public class DatasourceStorageServiceTest {
         datasourceStorage.setEnvironmentId(environmentIdOne);
         datasourceStorage.setPluginId(pluginId);
         datasourceStorage.setDatasourceConfiguration(datasourceConfiguration);
-        datasourceStorage.setWorkspaceId(workspace.getId());
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
@@ -187,7 +186,6 @@ public class DatasourceStorageServiceTest {
         datasourceStorage.setEnvironmentId(environmentIdOne);
         datasourceStorage.setPluginId(pluginId);
         datasourceStorage.setDatasourceConfiguration(datasourceConfiguration);
-        datasourceStorage.setWorkspaceId(workspace.getId());
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
@@ -216,7 +214,6 @@ public class DatasourceStorageServiceTest {
         datasourceStorage.setDatasourceId(datasourceId);
         datasourceStorage.setEnvironmentId(environmentIdOne);
         datasourceStorage.setPluginId(pluginId);
-        datasourceStorage.setWorkspaceId(workspace.getId());
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
