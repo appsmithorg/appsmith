@@ -9,6 +9,7 @@ import {
   agHelper,
   deployMode,
   propPane,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -31,7 +32,7 @@ describe(
       /**
        * @param(Index)  Provide index value to select the row.
        */
-      cy.isSelectRow(1);
+      table.SelectTableRow(1);
       EditorNavigation.SelectEntityByName("Text4", EntityType.Widget, {}, [
         "Container1",
       ]);
@@ -47,7 +48,7 @@ describe(
         cy.EvaluateDataType("string");
         cy.validateEvaluatedValue(tabValue);
         deployMode.DeployApp();
-        cy.isSelectRow(1);
+        table.SelectTableRow(1);
         cy.readTabledataPublish("1", "0").then((tabDataP) => {
           const tabValueP = tabDataP;
           cy.get(commonlocators.TextInside).should("have.text", tabValueP);
@@ -57,7 +58,7 @@ describe(
     });
 
     it("2. Text-Table Binding Functionality For Email", function () {
-      cy.isSelectRow(2);
+      table.SelectTableRow(2);
       EditorNavigation.SelectEntityByName("Text4", EntityType.Widget, {}, [
         "Container1",
       ]);
@@ -73,7 +74,7 @@ describe(
         cy.EvaluateDataType("string");
         cy.validateEvaluatedValue(tabValue);
         deployMode.DeployApp();
-        cy.isSelectRow(2);
+        table.SelectTableRow(2);
         cy.readTabledataPublish("2", "1").then((tabDataP) => {
           const tabValueP = tabDataP;
           cy.get(commonlocators.TextInside).should("have.text", tabValueP);
@@ -134,7 +135,7 @@ describe(
       /**
        * @param(Index)  Provide index value to select the row.
        */
-      cy.isSelectRow(1);
+      table.SelectTableRow(1);
       EditorNavigation.SelectEntityByName("Text4", EntityType.Widget, {}, [
         "Container1",
       ]);
@@ -154,7 +155,7 @@ describe(
         cy.EvaluateDataType("string");
         cy.validateEvaluatedValue(tabValue);
         deployMode.DeployApp();
-        cy.isSelectRow(1);
+        table.SelectTableRow(1);
         cy.readTabledataPublish("1", "2").then((tabDataP) => {
           const tabValueP = `\"${tabDataP}\"`;
           cy.get(commonlocators.TextInside).contains(tabValueP);

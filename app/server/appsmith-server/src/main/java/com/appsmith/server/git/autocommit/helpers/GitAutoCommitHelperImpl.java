@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers.ce.autocommit;
+package com.appsmith.server.git.autocommit.helpers;
 
 import com.appsmith.external.annotations.FeatureFlagged;
 import com.appsmith.external.enums.FeatureFlagEnum;
@@ -7,14 +7,15 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.AutoCommitProgressDTO;
+import com.appsmith.server.dtos.AutoCommitTriggerDTO;
 import com.appsmith.server.events.AutoCommitEvent;
+import com.appsmith.server.git.AutoCommitEventHandler;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.CommonGitService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.AutoCommitEventHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Primary;

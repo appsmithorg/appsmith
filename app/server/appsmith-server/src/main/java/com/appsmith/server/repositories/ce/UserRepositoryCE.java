@@ -6,6 +6,7 @@ import com.appsmith.server.repositories.CustomUserRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
 import java.util.Set;
 
 public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUserRepository {
@@ -24,6 +25,9 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
      * @return  The count of all users that are not deleted and are not system generated.
      */
     Mono<Long> countByDeletedAtIsNullAndIsSystemGeneratedIsNot(Boolean excludeSystemGenerated);
+
+    Mono<Long> countByDeletedAtIsNullAndLastActiveAtGreaterThanAndIsSystemGeneratedIsNot(
+            Instant lastActiveAt, Boolean excludeSystemGenerated);
 
     Mono<User> findByEmailAndTenantId(String email, String tenantId);
 }
