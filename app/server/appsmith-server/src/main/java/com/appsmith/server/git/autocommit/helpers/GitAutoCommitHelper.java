@@ -1,6 +1,7 @@
-package com.appsmith.server.helpers.ce.autocommit;
+package com.appsmith.server.git.autocommit.helpers;
 
 import com.appsmith.server.dtos.AutoCommitProgressDTO;
+import com.appsmith.server.dtos.AutoCommitTriggerDTO;
 import reactor.core.publisher.Mono;
 
 public interface GitAutoCommitHelper {

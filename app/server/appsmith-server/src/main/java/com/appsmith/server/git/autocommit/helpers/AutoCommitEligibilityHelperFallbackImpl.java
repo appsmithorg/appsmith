@@ -1,6 +1,7 @@
-package com.appsmith.server.helpers.ce.autocommit;
+package com.appsmith.server.git.autocommit.helpers;
 
 import com.appsmith.server.domains.GitArtifactMetadata;
+import com.appsmith.server.dtos.AutoCommitTriggerDTO;
 import com.appsmith.server.dtos.PageDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

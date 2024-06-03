@@ -105,6 +105,7 @@ function InputComponent(props: InputComponentProps) {
       onChange={props.onValueChange}
       onFocusChange={props.onFocusChange}
       onKeyDown={props.onKeyDown}
+      onPaste={props.onPaste}
       placeholder={props.placeholder}
       prefix={startIcon}
       spellCheck={props.spellCheck}
