@@ -116,6 +116,7 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple4;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -3107,7 +3108,7 @@ public class ApplicationServiceCETest {
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     CustomJSLib jsLib =
-                            new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs");
+                            new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs".getBytes(StandardCharsets.UTF_8));
                     return customJSLibService
                             .addJSLibsToContext(
                                     application.getId(), CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
@@ -3158,7 +3159,7 @@ public class ApplicationServiceCETest {
 
                     assertEquals(1, viewApplication.getPublishedCustomJSLibs().size());
                     CustomJSLib jsLib =
-                            new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs");
+                            new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs".getBytes(StandardCharsets.UTF_8));
                     assertEquals(
                             getDTOFromCustomJSLib(jsLib),
                             viewApplication.getPublishedCustomJSLibs().toArray()[0]);

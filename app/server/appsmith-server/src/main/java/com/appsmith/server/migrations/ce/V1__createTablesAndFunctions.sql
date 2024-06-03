@@ -151,7 +151,9 @@ create table customjslib
     updated_at timestamp(6) with time zone,
     default_resources jsonb,
     accessor jsonb,
-    defs text,
+    -- This was `String` in MongoDB, but since we need to store `NUL` (\u0000) character in it (for libraries like
+    -- xlsx), which Postgres doesn't allow in text/varchar, we have to use a byte array (`bytea`) here.
+    defs bytea,
     docs_url varchar(255),
     name varchar(255),
     uid_string varchar(255),

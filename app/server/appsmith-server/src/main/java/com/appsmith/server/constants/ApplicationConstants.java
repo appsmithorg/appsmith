@@ -2,6 +2,7 @@ package com.appsmith.server.constants;
 
 import com.appsmith.server.domains.CustomJSLib;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 
 public class ApplicationConstants {
@@ -17,7 +18,8 @@ public class ApplicationConstants {
         customJSLib.setAccessor(Set.of("xmlParser"));
         customJSLib.setUrl("https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.17.5/parser.min.js");
         customJSLib.setDefs(
-                "{\"!name\":\"LIB/xmlParser\",\"xmlParser\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertTonimn\":{\"!type\":\"fn()\",\"prototype\":{}},\"getTraversalObj\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJson\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJsonString\":{\"!type\":\"fn()\",\"prototype\":{}},\"validate\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2xParser\":{\"!type\":\"fn()\",\"prototype\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2x\":{\"!type\":\"fn()\",\"prototype\":{}}}},\"parseToNimn\":{\"!type\":\"fn()\",\"prototype\":{}}}}");
+                "{\"!name\":\"LIB/xmlParser\",\"xmlParser\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertTonimn\":{\"!type\":\"fn()\",\"prototype\":{}},\"getTraversalObj\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJson\":{\"!type\":\"fn()\",\"prototype\":{}},\"convertToJsonString\":{\"!type\":\"fn()\",\"prototype\":{}},\"validate\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2xParser\":{\"!type\":\"fn()\",\"prototype\":{\"parse\":{\"!type\":\"fn()\",\"prototype\":{}},\"j2x\":{\"!type\":\"fn()\",\"prototype\":{}}}},\"parseToNimn\":{\"!type\":\"fn()\",\"prototype\":{}}}}"
+                    .getBytes(StandardCharsets.UTF_8));
         customJSLib.setUidString(XML_PARSER_LIBRARY_UID);
         return customJSLib;
     }
