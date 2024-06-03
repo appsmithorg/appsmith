@@ -32,6 +32,7 @@ import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
+import _ from "lodash";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
@@ -614,6 +615,26 @@ class CheckboxGroupWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: CheckboxGroupWidgetProps) {
+    //search props.selectedValues in the options if not found set selectedValues to []
+    if (
+      prevProps.selectedValues &&
+      prevProps.selectedValues.length > 0 &&
+      prevProps.options &&
+      prevProps.options.length > 0
+    ) {
+      for (const i of prevProps.selectedValues) {
+        if (
+          _.findIndex(
+            prevProps.options,
+            (option: OptionProps) => option.value === i,
+          ) === -1
+        ) {
+          this.props.updateWidgetMetaProperty("selectedValues", []);
+          break;
+        }
+      }
+    }
+
     // Reset isDirty to false whenever defaultSelectedValues changes
     if (
       xor(this.props.defaultSelectedValues, prevProps.defaultSelectedValues)
