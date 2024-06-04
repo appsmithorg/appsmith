@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import static com.appsmith.server.constants.Appsmith.DEFAULT_INSTANCE_NAME;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
 
-public class V5__createDefaultTenant extends AppsmithJavaMigration {
+public class V006__createDefaultTenant extends AppsmithJavaMigration {
 
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {

@@ -11,7 +11,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @Slf4j
-public class V12__addXmlParserCustomJsLib extends AppsmithJavaMigration {
+public class V013__addXmlParserCustomJsLib extends AppsmithJavaMigration {
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
         CustomJSLib customJSLib = generateXmlParserJSLibObject();

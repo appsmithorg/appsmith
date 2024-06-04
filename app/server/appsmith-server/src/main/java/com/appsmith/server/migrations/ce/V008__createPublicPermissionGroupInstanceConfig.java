@@ -23,7 +23,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBER
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
 
-public class V7__createPublicPermissionGroupInstanceConfig extends AppsmithJavaMigration {
+public class V008__createPublicPermissionGroupInstanceConfig extends AppsmithJavaMigration {
     private JdbcTemplate jdbcTemplate;
     private RepositoryHelperMethods helperMethods;
 

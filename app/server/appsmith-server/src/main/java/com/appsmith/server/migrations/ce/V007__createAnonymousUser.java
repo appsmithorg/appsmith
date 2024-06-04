@@ -10,7 +10,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Set;
 
-public class V6__createAnonymousUser extends AppsmithJavaMigration {
+public class V007__createAnonymousUser extends AppsmithJavaMigration {
     private JdbcTemplate jdbcTemplate;
     private RepositoryHelperMethods helperMethods;
 

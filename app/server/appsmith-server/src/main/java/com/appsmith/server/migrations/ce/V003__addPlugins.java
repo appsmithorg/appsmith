@@ -8,7 +8,7 @@ import org.springframework.dao.DuplicateKeyException;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 @Slf4j
-public class V3__addPlugins extends AppsmithJavaMigration {
+public class V003__addPlugins extends AppsmithJavaMigration {
     private JdbcTemplate jdbcTemplate;
 
     @Override

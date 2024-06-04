@@ -24,7 +24,7 @@ import java.util.Map;
 import java.util.stream.Stream;
 
 @Slf4j
-public class V1_1__loadMongoData extends AppsmithJavaMigration {
+public class V002__loadMongoData extends AppsmithJavaMigration {
     final ObjectMapper objectMapper = new ObjectMapper();
     final ObjectReader objectReader = objectMapper.readerForMapOf(Object.class);
 

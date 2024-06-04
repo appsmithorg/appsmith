@@ -9,7 +9,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.Map;
 import java.util.UUID;
 
-public class V4__configureInstanceId extends AppsmithJavaMigration {
+public class V005__configureInstanceId extends AppsmithJavaMigration {
 
     public static final String INSTANCE_ID = "instance-id";
 

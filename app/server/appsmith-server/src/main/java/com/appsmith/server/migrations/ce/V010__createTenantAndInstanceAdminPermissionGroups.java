@@ -21,7 +21,7 @@ import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
 
-public class V9__createTenantAndInstanceAdminPermissionGroups extends AppsmithJavaMigration {
+public class V010__createTenantAndInstanceAdminPermissionGroups extends AppsmithJavaMigration {
     private RepositoryHelperMethods helperMethods;
 
     @Override
