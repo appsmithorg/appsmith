@@ -14,6 +14,7 @@ import { AutocompleteSorter, ScoredCompletion } from "../AutocompleteSortRules";
 import type CodeMirror from "codemirror";
 import type { Def } from "tern";
 import type { Doc } from "codemirror";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 
 jest.mock("utils/getCodeMirrorNamespace", () => {
   const actual = jest.requireActual("utils/getCodeMirrorNamespace");
@@ -445,8 +446,10 @@ describe("Tern server completion", () => {
           "!type": "?",
         },
         run: {
-          "!type": "fn(inputs: {gender: any, limit: any}) -> +Promise",
-          "!fnParams": '{ gender: "male", limit: "5" }',
+          "!type":
+            "fn(inputs: {gender: any, limit: any, name: any }) -> +Promise",
+          "!fnParams":
+            '{ gender: "male", limit: "5", name: "Mr. " + appsmith.user.name }',
           "!url":
             "https://docs.appsmith.com/reference/appsmith-framework/query-object#queryrun",
           "!doc": "Executes the query with the given input values.",
@@ -461,7 +464,8 @@ describe("Tern server completion", () => {
       },
       "QueryModule11.run": {
         "!type": "fn(inputs: {gender: any, limit: any}) -> +Promise",
-        "!fnParams": '{ gender: "male", limit: "5" }',
+        "!fnParams":
+          '{ gender: "male", limit: "5", name: "Mr. " + appsmith.user.name }',
         "!url":
           "https://docs.appsmith.com/reference/appsmith-framework/query-object#queryrun",
         "!doc": "Executes the query with the given input values.",
@@ -496,7 +500,7 @@ describe("Tern server completion", () => {
         },
         {
           name: "QueryModule11.run",
-          type: "fn(inputs: {gender: ?, limit: ?}) -> Promise",
+          type: "fn(inputs: {gender: ?, limit: ?, name: ?}) -> Promise",
           doc: "Executes the query with the given input values.",
           url: "https://docs.appsmith.com/reference/appsmith-framework/query-object#queryrun",
           origin: "DATA_TREE",
@@ -542,12 +546,12 @@ describe("Tern server completion", () => {
         isEntityName: true,
       },
       {
-        text: 'QueryModule11.run({ gender: "male", limit: "5" })',
+        text: 'QueryModule11.run({ gender: "male", limit: "5", name: "Mr. " + appsmith.user.name })',
         displayText: "QueryModule11.run",
         className: "CodeMirror-Tern-completion CodeMirror-Tern-completion-fn",
         data: {
           name: "QueryModule11.run",
-          type: "fn(inputs: {gender: ?, limit: ?}) -> Promise",
+          type: "fn(inputs: {gender: ?, limit: ?, name: ?}) -> Promise",
           doc: "Executes the query with the given input values.",
           url: "https://docs.appsmith.com/reference/appsmith-framework/query-object#queryrun",
           origin: "DATA_TREE",
@@ -560,13 +564,7 @@ describe("Tern server completion", () => {
       },
     ];
 
-    // The current cursor location that is being written in the code mirror editor
-    MockCodemirrorEditor.getCursor.mockResolvedValue({
-      line: 10,
-      ch: 30,
-      sticky: null,
-    });
-    MockCodemirrorEditor.getTokenAt.mockResolvedValue({
+    const mockToken = {
       start: 22,
       end: 30,
       string: "QueryMod",
@@ -639,8 +637,35 @@ describe("Tern server completion", () => {
         },
         indented: 4,
       },
-    });
+    };
 
+    const fieldEntityInformation = {
+      mode: "javascript",
+      isTriggerPath: true,
+      entityName: "JSObject1",
+      propertyPath: "body",
+      entityType: "JSACTION",
+      blockCompletions: [
+        {
+          parentPath: "this",
+          subPath: "myFun2()",
+        },
+        {
+          parentPath: "JSObject1",
+          subPath: "myFun2()",
+        },
+      ],
+      token: mockToken,
+    } as FieldEntityInformation;
+
+    // The current cursor location that is being written in the code mirror editor
+    MockCodemirrorEditor.getCursor.mockResolvedValue({
+      line: 10,
+      ch: 30,
+      sticky: null,
+    });
+    MockCodemirrorEditor.getTokenAt.mockResolvedValue(mockToken);
+    CodemirrorTernService.fieldEntityInformation = fieldEntityInformation;
     CodemirrorTernService.entityDef = entityDef;
 
     // The current line that is being written in the code mirror editor
@@ -662,9 +687,6 @@ describe("Tern server completion", () => {
       name: "",
       changed: null,
     });
-    jest
-      .spyOn(AutocompleteSorter, "sort")
-      .mockImplementation((completions) => completions);
 
     CodemirrorTernService.defEntityInformation = new Map([
       [
