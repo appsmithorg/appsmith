@@ -68,7 +68,7 @@ else
   cd "$(dirname "$0")"/..
   git fetch origin $BRANCH
   git checkout $BRANCH
-  git pull origin $BRANCH || true
+  git pull origin $BRANCH
   pretty_print "Local branch is now up to date. Starting server build ..."
 fi
 
