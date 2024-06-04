@@ -23,17 +23,13 @@ describe(
     it("1. Property: isIndeterminate, Toggle infinite loading", function () {
       cy.openPropertyPane("progresswidget");
       // enable infinite loading
-      agHelper.CheckUncheck(
-        ".t--property-control-infiniteloading input[type='checkbox']",
-      );
+      agHelper.CheckUncheck(widgets.infiniteLoading);
       // show indeterminate linear progress
       cy.get("[data-testid='indeterminate-linear-progress']")
         .should("exist")
         .should("have.css", "animation");
       // disable infinite loading
-      cy.togglebarDisable(
-        ".t--property-control-infiniteloading input[type='checkbox']",
-      );
+      cy.togglebarDisable(widgets.infiniteLoading);
       // show determinate linear progress
       cy.get("[data-testid='50']").should("exist");
     });
@@ -49,15 +45,11 @@ describe(
     });
     it("3. Property: showResult, Toggle show result", function () {
       // enable show result
-      agHelper.CheckUncheck(
-        ".t--property-control-showresult input[type='checkbox']",
-      );
+      agHelper.CheckUncheck(widgets.showResult);
       // show label
       cy.get("[data-testid='60']").first().next().should("contain.text", "60");
       // disable show result
-      cy.togglebarDisable(
-        ".t--property-control-showresult input[type='checkbox']",
-      );
+      cy.togglebarDisable(widgets.showResult);
       // does not show any label
       cy.get("[data-testid='60']").first().next().should("not.exist");
     });
@@ -79,17 +71,13 @@ describe(
     it("6. Property: isIndeterminate, Toggle infinite loading", function () {
       cy.openPropertyPane("progresswidget");
       // enable infinite loading
-      agHelper.CheckUncheck(
-        ".t--property-control-infiniteloading input[type='checkbox']",
-      );
+      agHelper.CheckUncheck(widgets.infiniteLoading);
       // show indeterminate linear progress
       cy.get("[data-testid='circular']")
         .should("exist")
         .should("have.css", "animation");
       // disable infinite loading
-      cy.togglebarDisable(
-        ".t--property-control-infiniteloading input[type='checkbox']",
-      );
+      cy.togglebarDisable(widgets.infiniteLoading);
       cy.wait("@updateLayout").should(
         "have.nested.property",
         "response.body.responseMeta.status",
@@ -108,15 +96,11 @@ describe(
     });
     it("8. Property: showResult, Toggle show result", function () {
       // enable show result
-      agHelper.CheckUncheck(
-        ".t--property-control-showresult input[type='checkbox']",
-      );
+      agHelper.CheckUncheck(widgets.showResult);
       // show label
       cy.get("[data-testid='circular-label']").should("contain.text", "50");
       // disable show result
-      cy.togglebarDisable(
-        ".t--property-control-showresult input[type='checkbox']",
-      );
+      cy.togglebarDisable(widgets.showResult);
       // does not show any label
       cy.get("[data-testid='circular-label']").should("not.exist");
     });
@@ -130,17 +114,13 @@ describe(
     });
     it("10. Property: counterClockwise,Change counterclockwise", function () {
       // enable counterclockwise
-      agHelper.CheckUncheck(
-        ".t--property-control-counterclockwise input[type='checkbox']",
-      );
+      agHelper.CheckUncheck(widgets.counterclockwise);
       // show the progress in a counterclockwise
       cy.get("[data-testvalue='50']")
         .invoke("css", "stroke-dashoffset")
         .and("match", /-/);
       // disable counterclockwise
-      cy.togglebarDisable(
-        ".t--property-control-counterclockwise input[type='checkbox']",
-      );
+      cy.togglebarDisable(widgets.counterclockwise);
       // show the progress in a clockwise
       cy.get("[data-testvalue='50']")
         .invoke("css", "stroke-dashoffset")

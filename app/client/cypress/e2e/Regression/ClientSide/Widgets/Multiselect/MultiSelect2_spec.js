@@ -69,9 +69,7 @@ describe(
 
     it("3. Clears the search field when widget is closed and serverSideFiltering is off", () => {
       // Turn on the filterable for the widget
-      _.agHelper.CheckUncheck(
-        '.t--property-control-allowsearching input[type="checkbox"]',
-      );
+      _.agHelper.CheckUncheck(commonlocators.allowsearchingInputTypeCheckbox);
       // open the widget
       cy.get(formWidgetsPage.multiselectwidgetv2)
         .find(".rc-select-selection-search-input")
@@ -133,9 +131,7 @@ describe(
         .invoke("val")
         .should("not.be.empty");
       // Turn off the filterable property for the widget
-      cy.togglebarDisable(
-        '.t--property-control-allowsearching input[type="checkbox"]',
-      );
+      cy.togglebarDisable(commonlocators.allowsearchingInputTypeCheckbox);
       // Turn off server side filtering for the widget
       cy.togglebarDisable(
         '.t--property-control-serversidefiltering input[type="checkbox"]',

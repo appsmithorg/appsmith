@@ -45,7 +45,7 @@ function hideAndVerifyProperties(fieldName, fieldValue, resolveFieldValue) {
   });
 
   // Show field
-  agHelper.CheckUncheck(".t--property-control-visible input");
+  agHelper.CheckUncheck(widgetsPage.visible);
 
   // Check if visible
   cy.get(`${fieldPrefix}-${fieldName}`).should("exist");

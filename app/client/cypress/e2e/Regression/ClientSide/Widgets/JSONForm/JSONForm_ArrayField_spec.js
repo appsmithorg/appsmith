@@ -206,7 +206,6 @@ describe(
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       cy.openFieldConfiguration("education");
       propPane.TogglePropertyState("Disabled", "Off");
-      // cy.togglebarDisable(".t--property-control-disabled input");
       cy.get(education).should("exist");
       cy.get(education)
         .first()
@@ -337,9 +336,7 @@ describe(
       );
 
       // Enable Allow Country Code Change
-      agHelper.CheckUncheck(
-        ".t--property-control-allowcountrycodechange input[type='checkbox']",
-      );
+      agHelper.CheckUncheck(commonlocators.allowcountrycodechangeInput);
       // Change the label of the field to Phone Number
       cy.testJsontext("text", "Phone Number");
 
