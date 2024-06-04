@@ -23,13 +23,15 @@ import { updateCurrentPage } from "actions/pageActions";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { Button } from "design-system";
 
+const pageId = "01234567890abcdef00000000";
+
 describe("URL slug names", () => {
   beforeEach(async () => {
     setMockApplication();
     setMockPageList();
     store.dispatch({
       type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
-      payload: { id: "605c435a91dea93f0eaf91ba", slug: "page-1" },
+      payload: { id: pageId, slug: "page-1" },
     });
   });
 
@@ -44,31 +46,27 @@ describe("URL slug names", () => {
     const newAppSlug = "modified-app-slug";
     const newPageSlug = "modified-page-slug";
     const customSlug = "custom-slug";
-    const pathname = "/app/my-app/pages-605c435a91dea93f0eaf91ba";
+    const pathname = `/app/my-app/pages-${pageId}`;
     const url1 = getUpdatedRoute(pathname, {
       applicationSlug: newAppSlug,
       pageSlug: newPageSlug,
     });
-    expect(url1).toBe(
-      `/app/${newAppSlug}/${newPageSlug}-605c435a91dea93f0eaf91ba`,
-    );
+    expect(url1).toBe(`/app/${newAppSlug}/${newPageSlug}-${pageId}`);
     const url2 = getUpdatedRoute(pathname, {
       applicationSlug: newAppSlug,
       pageSlug: newPageSlug,
       customSlug,
     });
-    expect(url2).toBe(`/app/${customSlug}-605c435a91dea93f0eaf91ba`);
+    expect(url2).toBe(`/app/${customSlug}-${pageId}`);
   });
 
   it("checks the isDeprecatedURL method", () => {
-    const pathname1 =
-      "/applications/605c435a91dea93f0eaf91ba/pages/605c435a91dea93f0eaf91ba/edit";
-    const pathname2 =
-      "/applications/605c435a91dea93f0eaf91ba/pages/605c435a91dea93f0eaf91ba";
+    const pathname1 = `/applications/605c435a91dea93f0eaf91ba/pages/${pageId}/edit`;
+    const pathname2 = `/applications/605c435a91dea93f0eaf91ba/pages/${pageId}`;
     expect(isURLDeprecated(pathname1)).toBe(true);
     expect(isURLDeprecated(pathname2)).toBe(true);
 
-    const pathname3 = "/app/apSlug/pages-605c435a91dea93f0eaf91ba";
+    const pathname3 = `/app/apSlug/pages-${pageId}`;
 
     expect(isURLDeprecated(pathname3)).toBe(false);
 
@@ -80,7 +78,7 @@ describe("URL slug names", () => {
     const params = {
       applicationId: "appId",
       applicationSlug: "appSlug",
-      pageId: "pageId",
+      pageId: pageId,
       pageSlug: "pageSlug",
       customSlug: "customSlug",
     };
@@ -112,10 +110,10 @@ describe("URL slug names", () => {
       payload: { applicationVersion: ApplicationVersion.SLUG_URL },
     });
     const url4 = builderURL({ pageId: params.pageId });
-    expect(url1).toBe("/applications/appId/pages/pageId/edit");
-    expect(url2).toBe("/app/appSlug/pageSlug-pageId/edit");
-    expect(url3).toBe("/applications/appId/pages/pageId/edit");
-    expect(url4).toBe("/app/appSlug/pageSlug-pageId/edit");
+    expect(url1).toBe(`/applications/appId/pages/${pageId}/edit`);
+    expect(url2).toBe(`/app/appSlug/pageSlug-${pageId}/edit`);
+    expect(url3).toBe(`/applications/appId/pages/${pageId}/edit`);
+    expect(url4).toBe(`/app/appSlug/pageSlug-${pageId}/edit`);
   });
 
   it("tests the manual upgrade option", () => {
