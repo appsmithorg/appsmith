@@ -5,9 +5,12 @@ const templatePath = `${path}/newrelic-template.yml`
 const outputPath = `${path}/newrelic.yml`
 
 function create_new_relic_config_yml_file() {
-    if (!(process.env.APPSMITH_NEW_RELIC_ENABLED == 'true')) {
+    if (!process.env.APPSMITH_NEW_RELIC_APM_LICENSE_KEY || !process.env.APPSMITH_NEW_RELIC_APM_NAME) {
+        console.log("both license and name present in appsmith apm license key is not set in newrelic reconfigure mjs")
         return
-    } 
+    } else {
+        console.log("appsmith apm license key is set in newrelic reconfigure mjs")
+    }
     
     const values = {
         $APPSMITH_NEW_RELIC_APM_LICENSE_KEY: process.env.APPSMITH_NEW_RELIC_APM_LICENSE_KEY,
