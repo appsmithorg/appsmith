@@ -171,16 +171,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return builder.permission(permission).updateFirst(update);
     }
 
-    protected Mono<Set<String>> getCurrentUserPermissionGroupsIfRequired(Optional<AclPermission> permission) {
+    protected Mono<Set<String>> getCurrentUserPermissionGroupsIfRequired(AclPermission permission) {
         return getCurrentUserPermissionGroupsIfRequired(permission, true);
     }
 
     protected Mono<Set<String>> getCurrentUserPermissionGroupsIfRequired(
-            Optional<AclPermission> permission, boolean includeAnonymousUserPermissions) {
-        if (permission.isEmpty()) {
-            return Mono.just(Set.of());
-        }
-        return getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
+            AclPermission permission, boolean includeAnonymousUserPermissions) {
+        return permission == null
+                ? Mono.just(Set.of())
+                : getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
     }
 
     public Mono<Set<String>> getCurrentUserPermissionGroups() {
@@ -357,7 +356,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         }
 
         return getCurrentUserPermissionGroupsIfRequired(
-                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())
+                        params.getPermission(), params.isIncludeAnonymousUserPermissions())
                 .defaultIfEmpty(Collections.emptySet())
                 .map(params::permissionGroups)
                 .then();
@@ -460,18 +459,18 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
      *
      * @see FindAndModifyOptions
      */
-    public Mono<T> updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission) {
+    public Mono<T> updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission) {
         Query query = new Query(Criteria.where("id").is(id));
 
         FindAndModifyOptions findAndModifyOptions =
                 FindAndModifyOptions.options().returnNew(Boolean.TRUE);
 
-        if (permission.isEmpty()) {
+        if (permission == null) {
             return mongoOperations.findAndModify(query, updateObj, findAndModifyOptions, this.genericDomain);
         }
 
         return getCurrentUserPermissionGroupsIfRequired(permission, true).flatMap(permissionGroups -> {
-            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission.get())));
+            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
             return mongoOperations.findAndModify(query, updateObj, findAndModifyOptions, this.genericDomain);
         });
     }
