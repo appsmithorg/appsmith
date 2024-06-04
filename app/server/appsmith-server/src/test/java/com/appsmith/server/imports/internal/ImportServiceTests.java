@@ -49,6 +49,7 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
@@ -100,7 +101,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -110,6 +110,7 @@ import reactor.util.function.Tuple4;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -142,9 +143,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-@ExtendWith(SpringExtension.class)
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestMethodOrder(MethodOrderer.MethodName.class)
 public class ImportServiceTests {
     private static final Map<String, Datasource> datasourceMap = new HashMap<>();
@@ -988,7 +989,12 @@ public class ImportServiceTests {
                     assertEquals(2, importedJSLibList.size());
                     CustomJSLib importedJSLib = (CustomJSLib) importedJSLibList.toArray()[0];
                     CustomJSLib expectedJSLib = new CustomJSLib(
-                            "TestLib", Set.of("accessor1"), "url", "docsUrl", "1" + ".0", "defs_string");
+                            "TestLib",
+                            Set.of("accessor1"),
+                            "url",
+                            "docsUrl",
+                            "1" + ".0",
+                            "defs_string".getBytes(StandardCharsets.UTF_8));
                     assertEquals(expectedJSLib.getName(), importedJSLib.getName());
                     assertEquals(expectedJSLib.getAccessor(), importedJSLib.getAccessor());
                     assertEquals(expectedJSLib.getUrl(), importedJSLib.getUrl());
@@ -4824,7 +4830,13 @@ public class ImportServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithCustomJSLibTest() {
-        CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
+        CustomJSLib jsLib = new CustomJSLib(
+                "TestLib",
+                Set.of("accessor1"),
+                "url",
+                "docsUrl",
+                "1.0",
+                "defs_string".getBytes(StandardCharsets.UTF_8));
         Mono<Boolean> addJSLibMonoCached = customJSLibService
                 .addJSLibsToContext(testAppId, CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
                 .flatMap(isJSLibAdded ->

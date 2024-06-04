@@ -13,7 +13,11 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.events.AutoCommitEvent;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.featureflags.CachedFeatures;
+import com.appsmith.server.git.AutoCommitEventHandler;
+import com.appsmith.server.git.AutoCommitEventHandlerImpl;
+import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -22,8 +26,6 @@ import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.FeatureFlagService;
-import com.appsmith.server.solutions.AutoCommitEventHandler;
-import com.appsmith.server.solutions.AutoCommitEventHandlerImpl;
 import com.appsmith.server.testhelpers.git.GitFileSystemTestHelper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -40,7 +42,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -54,7 +55,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.solutions.ce.AutoCommitEventHandlerCEImpl.AUTO_COMMIT_MSG_FORMAT;
+import static com.appsmith.server.git.AutoCommitEventHandlerCEImpl.AUTO_COMMIT_MSG_FORMAT;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -62,16 +63,19 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class AutoCommitEventHandlerImplTest {
     @MockBean
     ApplicationEventPublisher applicationEventPublisher;
 
     @SpyBean
     RedisUtils redisUtils;
+
+    @SpyBean
+    GitRedisUtils gitRedisUtils;
 
     @Autowired
     AnalyticsService analyticsService;
@@ -113,6 +117,7 @@ public class AutoCommitEventHandlerImplTest {
     public void beforeTest() {
         autoCommitEventHandler = new AutoCommitEventHandlerImpl(
                 applicationEventPublisher,
+                gitRedisUtils,
                 redisUtils,
                 dslMigrationUtils,
                 gitFileUtils,

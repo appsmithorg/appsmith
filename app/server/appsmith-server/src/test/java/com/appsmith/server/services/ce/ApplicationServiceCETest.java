@@ -44,6 +44,7 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
@@ -108,7 +109,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -116,6 +116,7 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuple4;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -162,10 +163,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ApplicationServiceCETest {
 
     static Plugin testPlugin = new Plugin();
@@ -3106,8 +3107,13 @@ public class ApplicationServiceCETest {
         Mono<Application> applicationMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
-                    CustomJSLib jsLib =
-                            new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs");
+                    CustomJSLib jsLib = new CustomJSLib(
+                            "name1",
+                            Set.of("accessor"),
+                            "url",
+                            "docsUrl",
+                            "version",
+                            "defs".getBytes(StandardCharsets.UTF_8));
                     return customJSLibService
                             .addJSLibsToContext(
                                     application.getId(), CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
@@ -3157,8 +3163,13 @@ public class ApplicationServiceCETest {
                     assertThat(isFound).isTrue();
 
                     assertEquals(1, viewApplication.getPublishedCustomJSLibs().size());
-                    CustomJSLib jsLib =
-                            new CustomJSLib("name1", Set.of("accessor"), "url", "docsUrl", "version", "defs");
+                    CustomJSLib jsLib = new CustomJSLib(
+                            "name1",
+                            Set.of("accessor"),
+                            "url",
+                            "docsUrl",
+                            "version",
+                            "defs".getBytes(StandardCharsets.UTF_8));
                     assertEquals(
                             getDTOFromCustomJSLib(jsLib),
                             viewApplication.getPublishedCustomJSLibs().toArray()[0]);

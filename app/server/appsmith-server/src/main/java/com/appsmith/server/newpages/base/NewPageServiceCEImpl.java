@@ -586,10 +586,9 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             return Mono.just(defaultPageId);
         }
         return repository
-                .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+                .findBranchedPageId(branchName, defaultPageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName)))
-                .map(NewPage::getId); // */
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName)));
     }
 
     @Override
@@ -675,5 +674,23 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     @Override
     public Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission) {
         return repository.publishPages(pageIds, permission);
+    }
+
+    @Override
+    public Mono<String> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap, String branchName) {
+        Mono<Integer> updateResult;
+        if (branchName != null) {
+            updateResult = findBranchedPageId(branchName, pageId, AclPermission.MANAGE_PAGES)
+                    .flatMap(branchPageId -> repository.updateDependencyMap(branchPageId, dependencyMap));
+        } else {
+            updateResult = repository.updateDependencyMap(pageId, dependencyMap);
+        }
+
+        return updateResult.flatMap(count -> {
+            if (count == 0) {
+                return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId));
+            }
+            return Mono.just(count.toString());
+        });
     }
 }

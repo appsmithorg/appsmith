@@ -145,8 +145,7 @@ public class NewActionServiceUnitTest {
                 entityValidationService,
                 observationRegistry,
                 defaultResourcesService,
-                dtoDefaultResourcesService,
-                sessionUserService);
+                dtoDefaultResourcesService);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);

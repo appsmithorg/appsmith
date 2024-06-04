@@ -3,7 +3,6 @@ package com.appsmith.server.domains;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -12,15 +11,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.Transient;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-@Entity
-@Where(clause = "deleted_at IS NULL")
 @EqualsAndHashCode
 public class ApplicationPage {
 

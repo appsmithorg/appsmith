@@ -5,6 +5,7 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomUserRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -27,6 +28,9 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
      * @return  The count of all users that are not deleted and are not system generated.
      */
     Optional<Long> countByDeletedAtIsNullAndIsSystemGeneratedIsNot(Boolean excludeSystemGenerated);
+
+    Optional<Long> countByDeletedAtIsNullAndLastActiveAtGreaterThanAndIsSystemGeneratedIsNot(
+            Instant lastActiveAt, Boolean excludeSystemGenerated);
 
     Optional<User> findByEmailAndTenantId(String email, String tenantId);
 

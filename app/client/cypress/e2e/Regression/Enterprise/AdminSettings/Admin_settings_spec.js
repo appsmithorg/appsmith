@@ -99,7 +99,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       cy.get(adminsSettings.branding).click();
       cy.url().should("contain", adminSettingsHelper.routes.BRANDING);
       cy.get(adminsSettings.brandingSubmitButton).should("be.disabled");
-      cy.xpath(adminsSettings.upgrade).click();
+      agHelper.GetNClick(adminsSettings.upgrade);
       cy.get("@customerPortalPage").should("be.called");
       cy.wait(2000);
       cy.go(-1);
@@ -120,7 +120,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       cy.get(adminsSettings.accessControl).click();
       cy.url().should("contain", adminSettingsHelper.routes.ACCESS_CONTROL);
       cy.stubCustomerPortalPage();
-      cy.xpath(adminsSettings.upgrade).click();
+      agHelper.GetNClick(adminsSettings.upgrade);
       cy.get("@customerPortalPage").should("be.called");
       cy.wait(2000);
       agHelper.VisitNAssert(
@@ -135,7 +135,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       cy.get(adminsSettings.auditLogs).click();
       cy.url().should("contain", adminSettingsHelper.routes.AUDIT_LOGS);
       cy.stubCustomerPortalPage();
-      cy.xpath(adminsSettings.upgrade).click();
+      agHelper.GetNClick(adminsSettings.upgrade);
       cy.get("@customerPortalPage").should("be.called");
       cy.wait(2000);
       agHelper.VisitNAssert(
@@ -150,7 +150,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       cy.get(adminsSettings.provisioning).click();
       cy.url().should("contain", adminSettingsHelper.routes.PROVISIONING);
       cy.stubPricingPage();
-      cy.xpath(adminsSettings.upgrade).click();
+      agHelper.GetNClick(adminsSettings.upgrade);
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
       cy.go(-1);

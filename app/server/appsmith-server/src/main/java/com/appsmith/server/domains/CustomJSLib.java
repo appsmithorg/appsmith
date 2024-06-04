@@ -27,7 +27,7 @@ public class CustomJSLib extends CustomJSLibCE {
             @JsonProperty("url") String url,
             @JsonProperty("docsUrl") String docsUrl,
             @JsonProperty("version") String version,
-            @JsonProperty("defs") String defs) {
+            @JsonProperty("defs") byte[] defs) {
         super(name, accessor, url, docsUrl, version, defs);
     }
 

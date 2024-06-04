@@ -51,8 +51,7 @@ public class RepositoryHelperMethods {
             tenant.setPolicies(policies == null ? new HashSet<>() : policies);
 
             String tenantConfig = rs.getString("tenant_configuration");
-            TenantConfiguration tenantConfiguration =
-                    mapObject(tenantConfig, new TypeReference<TenantConfiguration>() {});
+            TenantConfiguration tenantConfiguration = mapObject(tenantConfig, new TypeReference<>() {});
             tenant.setTenantConfiguration(
                     tenantConfiguration == null ? new TenantConfiguration() : tenantConfiguration);
             return tenant;

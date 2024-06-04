@@ -17,6 +17,7 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import reactor.core.publisher.Flux;
@@ -30,6 +31,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T, String>> {
@@ -61,9 +63,30 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     // ---------------------------------------------------
     // Wrappers for methods from CRUDRepository
     // ---------------------------------------------------
-
+    @Transactional
+    @Modifying
     public Mono<T> save(T entity) {
-        return Mono.fromSupplier(() -> repository.save(entity)).subscribeOn(Schedulers.boundedElastic());
+        return Mono.fromSupplier(() -> {
+                    final boolean isNew = entity.getId() == null;
+                    if (isNew) {
+                        entity.setId(generateId());
+                    }
+                    try {
+                        repository.save(entity);
+                        return entity;
+                    } catch (DataIntegrityViolationException e) {
+                        // save wasn't successful, reset the id if it was generated
+                        if (isNew) {
+                            entity.setId(null);
+                        }
+                        throw e;
+                    }
+                })
+                .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    private String generateId() {
+        return UUID.randomUUID().toString();
     }
 
     public Flux<T> findAll() {

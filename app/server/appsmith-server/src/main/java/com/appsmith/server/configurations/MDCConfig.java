@@ -18,7 +18,6 @@ import java.util.Optional;
 
 import static com.appsmith.external.constants.MDCConstants.OBSERVATION;
 import static com.appsmith.external.constants.MDCConstants.SPAN_ID;
-import static com.appsmith.external.constants.MDCConstants.THREAD;
 import static com.appsmith.external.constants.MDCConstants.TRACE_ID;
 
 @Configuration
@@ -84,7 +83,6 @@ public class MDCConfig {
             if (!context.isEmpty() && context.hasKey(LogHelper.CONTEXT_MAP)) {
                 Map<String, String> map = context.get(LogHelper.CONTEXT_MAP);
 
-                map.put(THREAD, Thread.currentThread().getName());
                 Optional<Observation> observationOptional = context.getOrEmpty(OBSERVATION);
                 observationOptional.ifPresent(observation -> {
                     TracingObservationHandler.TracingContext tracingContext =

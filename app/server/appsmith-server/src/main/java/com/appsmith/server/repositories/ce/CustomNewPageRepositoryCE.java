@@ -6,6 +6,7 @@ import com.appsmith.server.repositories.AppsmithRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
@@ -40,4 +41,8 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
     Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission);
 
     List<NewPage> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
+
+    Optional<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission);
+
+    Optional<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap);
 }

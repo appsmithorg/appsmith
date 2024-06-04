@@ -66,7 +66,7 @@ public class CustomJSLibCE extends BranchAwareDomain {
     feature i.e. the function name showing up as suggestion when user has partially typed it. */
     @Column(columnDefinition = "text")
     @JsonView({Views.Public.class, Git.class})
-    String defs;
+    byte[] defs;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public CustomJSLibCE(
@@ -75,7 +75,7 @@ public class CustomJSLibCE extends BranchAwareDomain {
             @JsonProperty("url") String url,
             @JsonProperty("docsUrl") String docsUrl,
             @JsonProperty("version") String version,
-            @JsonProperty("defs") String defs) {
+            @JsonProperty("defs") byte[] defs) {
         this.name = name;
         this.accessor = accessor;
         this.url = url;

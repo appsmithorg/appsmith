@@ -6,11 +6,11 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.git.GitRedisUtils;
+import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
-import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.helpers.ce.autocommit.GitAutoCommitHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -55,7 +55,7 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
             ApplicationPermission applicationPermission,
             WorkspacePermission workspacePermission,
             WorkspaceService workspaceService,
-            RedisUtils redisUtils,
+            GitRedisUtils gitRedisUtils,
             ObservationRegistry observationRegistry,
             GitPrivateRepoHelper gitPrivateRepoHelper,
             GitAutoCommitHelper gitAutoCommitHelper) {
@@ -82,7 +82,7 @@ public class GitServiceCECompatibleImpl extends GitServiceCEImpl implements GitS
                 applicationPermission,
                 workspacePermission,
                 workspaceService,
-                redisUtils,
+                gitRedisUtils,
                 observationRegistry,
                 gitPrivateRepoHelper,
                 gitAutoCommitHelper);

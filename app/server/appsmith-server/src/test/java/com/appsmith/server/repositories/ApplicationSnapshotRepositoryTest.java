@@ -1,12 +1,15 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.repositories.cakes.ApplicationSnapshotRepositoryCake;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -16,7 +19,9 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ApplicationSnapshotRepositoryTest {
     @Autowired
     private ApplicationSnapshotRepositoryCake applicationSnapshotRepository;

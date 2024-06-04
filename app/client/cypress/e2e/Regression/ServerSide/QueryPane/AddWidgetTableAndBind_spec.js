@@ -10,6 +10,7 @@ import {
   entityExplorer,
   agHelper,
   dataSources,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 
@@ -22,7 +23,7 @@ describe(
     });
 
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
 
     it("1. Create a PostgresDataSource", () => {
@@ -42,7 +43,7 @@ describe(
           const tableRowTxt = text;
           dataSources.AddSuggestedWidget(Widgets.Table);
           EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-          cy.isSelectRow(1);
+          table.SelectTableRow(1, 0, true, "v2");
           cy.readTableV2dataPublish("1", "0").then((tabData) => {
             const tabValue = tabData;
             cy.log("the value is" + tabValue);
@@ -61,12 +62,12 @@ describe(
         200,
       );
       //validation of data displayed in input widget based on row data selected
-      cy.isSelectRow(1);
+      table.SelectTableRow(1, 0, true, "v2");
       cy.readTableV2dataPublish("1", "0").then((tabData) => {
         const tabValue = tabData;
         cy.log("the value is" + tabValue);
         expect(tabValue).to.be.equal("5");
-        cy.isSelectRow(1);
+        table.SelectTableRow(1, 0, true, "v2");
         cy.get(publish.inputWidget + " " + "input")
           .first()
           .invoke("attr", "value")

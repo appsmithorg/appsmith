@@ -34,6 +34,9 @@ public class Tenant extends BaseDomain implements Serializable {
     @Transient
     String instanceId;
 
+    @Transient
+    String adminEmailDomainHash;
+
     @Enumerated(EnumType.STRING)
     PricingPlan pricingPlan;
 

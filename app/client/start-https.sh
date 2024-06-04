@@ -7,14 +7,6 @@ if [[ -n ${TRACE-} ]]; then
     set -o xtrace
 fi
 
-{
-  echo
-  echo "-----------------------------------"
-  echo " ⚠️ This script is deprecated. Please 'brew install caddy' and use start-caddy.sh instead."
-  echo "-----------------------------------"
-  echo
-} >&2
-
 cd "$(dirname "$0")"
 
 if [[ ${1-} =~ ^-*h(elp)?$ ]]; then

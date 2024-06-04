@@ -7,6 +7,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.importable.ImportableService;
@@ -22,6 +23,7 @@ import com.google.gson.Gson;
 import jakarta.transaction.TransactionalException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
@@ -46,10 +48,11 @@ import static org.mockito.ArgumentMatchers.any;
 // All the test case are for failure or exception. Test cases for valid json file is already present in
 // ImportExportApplicationServiceTest class
 
+@ExtendWith(AfterAllCleanUpExtension.class)
 @AutoConfigureDataMongo
 @SpringBootTest
 @TestPropertySource(properties = "property=C")
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ImportApplicationTransactionServiceTest {
 
     @Autowired
