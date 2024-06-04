@@ -71,7 +71,6 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -115,7 +114,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestMethodOrder(MethodOrderer.MethodName.class)
-@Disabled
 public class ExportServiceTests {
 
     private static final String INVALID_JSON_FILE = "invalid json file";
