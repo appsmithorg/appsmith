@@ -1,15 +1,15 @@
 package com.appsmith.server.migrations.ce;
 
+import com.appsmith.external.helpers.JsonForDatabase;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.migrations.AppsmithJavaMigration;
-import com.appsmith.server.migrations.JsonHelper;
 import net.minidev.json.JSONObject;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.util.Map;
 import java.util.UUID;
 
-public class V4__configureInstanceId extends AppsmithJavaMigration {
+public class V005__configureInstanceId extends AppsmithJavaMigration {
 
     public static final String INSTANCE_ID = "instance-id";
 
@@ -23,7 +23,7 @@ public class V4__configureInstanceId extends AppsmithJavaMigration {
         final String valueStr = UUID.randomUUID().toString();
 
         Config instanceIdConfig = new Config(new JSONObject(Map.of("value", valueStr)), INSTANCE_ID);
-        String jsonConfig = JsonHelper.convertToString(instanceIdConfig.getConfig());
+        String jsonConfig = JsonForDatabase.writeValueAsString(instanceIdConfig.getConfig());
         String insertInstanceConfigurationQuery =
                 "INSERT INTO config (id, name,  config, created_at, updated_at) VALUES (gen_random_uuid(), ?, cast(? as jsonb), now(), now())";
         jdbcTemplate.update(insertInstanceConfigurationQuery, INSTANCE_ID, jsonConfig);

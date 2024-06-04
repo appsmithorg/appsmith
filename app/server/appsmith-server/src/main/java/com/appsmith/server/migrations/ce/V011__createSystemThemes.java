@@ -24,7 +24,7 @@ import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.ce.FieldNameCE.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.PUBLIC_PERMISSION_GROUP;
 
-public class V10__createSystemThemes extends AppsmithJavaMigration {
+public class V011__createSystemThemes extends AppsmithJavaMigration {
     private RepositoryHelperMethods repositoryHelperMethods;
 
     @Override

@@ -14,7 +14,7 @@ import java.util.Set;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.PERMISSION_GROUP_ID;
 
-public class V8__anonymousUserPermissionGroup extends AppsmithJavaMigration {
+public class V009__anonymousUserPermissionGroup extends AppsmithJavaMigration {
     private JdbcTemplate jdbcTemplate;
     private RepositoryHelperMethods helperMethods;
 
