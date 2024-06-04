@@ -1,9 +1,9 @@
 package com.appsmith.server.migrations.ce;
 
+import com.appsmith.external.helpers.JsonForDatabase;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.migrations.AppsmithJavaMigration;
-import com.appsmith.server.migrations.JsonHelper;
 import com.appsmith.server.migrations.RepositoryHelperMethods;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -33,7 +33,7 @@ public class V6__createAnonymousUser extends AppsmithJavaMigration {
                 FieldName.ANONYMOUS_USER,
                 FieldName.ANONYMOUS_USER,
                 "",
-                JsonHelper.convertToString(Set.of()),
+                JsonForDatabase.writeValueAsString(Set.of()),
                 true,
                 defaultTenantId,
                 LoginSource.FORM.toString());
