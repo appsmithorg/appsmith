@@ -1026,11 +1026,11 @@ class CodeEditor extends Component<Props, State> {
         if (documentName in entitiesForNavigation) {
           let navigationData = entitiesForNavigation[documentName];
 
-          navigationTargets.forEach((navigationTarget) => {
+          for (const navigationTarget of navigationTargets) {
             if (navigationTarget in navigationData.children) {
               navigationData = navigationData.children[navigationTarget];
             }
-          });
+          }
 
           if (navigationData.url) {
             if (navigationData.type === ENTITY_TYPE.ACTION) {
