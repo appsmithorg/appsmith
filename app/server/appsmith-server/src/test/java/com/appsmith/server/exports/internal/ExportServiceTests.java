@@ -71,7 +71,6 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -90,6 +89,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,7 +116,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestMethodOrder(MethodOrderer.MethodName.class)
-@Disabled
 public class ExportServiceTests {
 
     private static final String INVALID_JSON_FILE = "invalid json file";
@@ -1816,6 +1815,9 @@ public class ExportServiceTests {
                 .assertNext(applicationJson -> {
                     List<NewPage> pages = applicationJson.getPageList();
                     assertThat(pages).hasSize(2);
+                    // sort based on page name so that first page is the default created page
+                    pages.sort(Comparator.comparing(
+                            page -> page.getUnpublishedPage().getName()));
                     assertThat(pages.get(1).getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
                     assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");
                 })
