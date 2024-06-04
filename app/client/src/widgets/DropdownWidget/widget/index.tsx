@@ -1,29 +1,31 @@
-import React from "react";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
-import BaseWidget from "../../BaseWidget";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import DropDownComponent from "../component";
-import _ from "lodash";
-import type { DropdownOption } from "../constants";
-import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
-import { LabelPosition } from "components/constants";
 import { Alignment } from "@blueprintjs/core";
-import type { Stylesheet } from "entities/AppTheming";
-import {
-  DefaultAutocompleteDefinitions,
-  isCompactMode,
-} from "widgets/WidgetUtils";
 import type {
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
+  WidgetCallout,
 } from "WidgetProvider/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
+import { LabelPosition } from "components/constants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { Stylesheet } from "entities/AppTheming";
+import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import _ from "lodash";
+import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
+import React from "react";
+import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import {
+  DefaultAutocompleteDefinitions,
+  isCompactMode,
+} from "widgets/WidgetUtils";
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import DropDownComponent from "../component";
+import type { DropdownOption } from "../constants";
 import IconSVG from "../icon.svg";
-import { layoutConfigurations } from "constants/WidgetConstants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };
@@ -52,6 +54,7 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
       hideCard: true,
       isDeprecated: true,
       replacement: "SELECT_WIDGET",
+      tags: [WIDGET_TAGS.SELECT],
     };
   }
 
@@ -91,6 +94,15 @@ class DropdownWidget extends BaseWidget<DropdownWidgetProps, WidgetState> {
             propertyPath: "options",
             propertyValue: propValueMap.data,
             isDynamicPropertyPath: true,
+          },
+        ];
+      },
+      getEditorCallouts(): WidgetCallout[] {
+        return [
+          {
+            message: buildDeprecationWidgetMessage(
+              DropdownWidget.getConfig().name,
+            ),
           },
         ];
       },
