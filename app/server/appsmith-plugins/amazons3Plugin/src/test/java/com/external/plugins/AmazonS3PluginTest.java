@@ -70,10 +70,7 @@ import static com.external.plugins.constants.FieldName.PATH;
 import static com.external.plugins.constants.FieldName.READ_DATATYPE;
 import static com.external.plugins.constants.FieldName.READ_EXPIRY;
 import static com.external.plugins.constants.FieldName.SMART_SUBSTITUTION;
-import static com.external.plugins.constants.S3PluginConstants.DEFAULT_FILE_NAME;
-import static com.external.plugins.constants.S3PluginConstants.DEFAULT_URL_EXPIRY_IN_MINUTES;
-import static com.external.plugins.constants.S3PluginConstants.NO;
-import static com.external.plugins.constants.S3PluginConstants.YES;
+import static com.external.plugins.constants.S3PluginConstants.*;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
 import static com.external.utils.TemplateUtils.CREATE_FILE_TEMPLATE_NAME;
 import static com.external.utils.TemplateUtils.CREATE_MULTIPLE_FILES_TEMPLATE_NAME;
@@ -198,6 +195,28 @@ public class AmazonS3PluginTest {
                 .assertNext(executor -> {
                     Set<String> res = executor.validateDatasource(datasourceConfiguration);
                     assertEquals(0, res.size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testValidateDatasourceWithMissingRegionWithNonAmazonProvider() {
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
+
+        datasourceConfiguration.getProperties().get(1).setValue(GOOGLE_CLOUD_SERVICE_PROVIDER);
+
+        Property defaultBucketProperty = new Property("default bucket", "");
+        datasourceConfiguration.getProperties().add(defaultBucketProperty);
+
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        Mono<AmazonS3Plugin.S3PluginExecutor> pluginExecutorMono = Mono.just(pluginExecutor);
+
+        StepVerifier.create(pluginExecutorMono)
+                .assertNext(executor -> {
+                    Set<String> res = executor.validateDatasource(datasourceConfiguration);
+                    // There should be no errors related to the region for GCS, but it should validate the default
+                    // bucket
+                    assertTrue(res.contains(S3ErrorMessages.DS_MANDATORY_PARAMETER_DEFAULT_BUCKET_MISSING_ERROR_MSG));
                 })
                 .verifyComplete();
     }

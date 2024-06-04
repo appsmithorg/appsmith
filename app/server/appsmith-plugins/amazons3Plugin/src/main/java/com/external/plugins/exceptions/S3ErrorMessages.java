@@ -18,6 +18,9 @@ public class S3ErrorMessages extends BasePluginErrorMessages {
             "Appsmith has encountered an unexpected error when getting bucket name. Please reach out to "
                     + "Appsmith customer support to resolve this.";
 
+    public static final String NON_EXITED_BUCKET_ERROR_MSG =
+            "Appsmith has encountered an unexpected error when getting bucket name. The specified bucket does not exist in Google Cloud Storage. ";
+
     public static final String EMPTY_PREFIX_ERROR_MSG =
             "Appsmith has encountered an unexpected error when getting path prefix. Please reach out to "
                     + "Appsmith customer support to resolve this.";
@@ -126,4 +129,9 @@ public class S3ErrorMessages extends BasePluginErrorMessages {
             "Required parameter 'Endpoint URL' is empty. Did you forget to edit the 'Endpoint"
                     + " URL' field in the datasource creation form ? You need to fill it with "
                     + "the endpoint URL of your S3 instance.";
+
+    public static final String DS_MANDATORY_PARAMETER_DEFAULT_BUCKET_MISSING_ERROR_MSG =
+            "Required parameter 'Default Bucket' is empty. Did you forget to edit the 'Default Bucket' "
+                    + "field in the datasource creation form? You need to fill it with the default bucket name "
+                    + "for your Google Cloud Storage instance.";
 }
