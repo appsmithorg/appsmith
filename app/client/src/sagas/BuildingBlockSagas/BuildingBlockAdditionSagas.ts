@@ -90,6 +90,8 @@ import { postPageAdditionSaga } from "../TemplatesSagas";
 import { addChildSaga } from "../WidgetAdditionSagas";
 import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
 import { getDragDetails, getWidgetByName } from "../selectors";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -233,6 +235,8 @@ export function* loadBuildingBlocksIntoApplication(
       yield put({
         type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_SUCCESS,
       });
+      // remove selecting of recently imported widgets
+      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
       if (
         response.data.onPageLoadActions &&
