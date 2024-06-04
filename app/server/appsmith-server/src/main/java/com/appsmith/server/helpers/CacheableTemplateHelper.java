@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
@@ -93,7 +94,7 @@ public class CacheableTemplateHelper {
 
         if (cacheableApplicationJsonMap.containsKey(templateId)
                 && isCacheValid(cacheableApplicationJsonMap.get(templateId).getCacheExpiryTime())) {
-            return Mono.just(cacheableApplicationJsonMap.get(templateId));
+            return Mono.just(getCacheableApplicationJsonCopy(cacheableApplicationJsonMap.get(templateId)));
         }
 
         final ExchangeStrategies strategies = ExchangeStrategies.builder()
@@ -110,9 +111,7 @@ public class CacheableTemplateHelper {
                 .retrieve()
                 .bodyToMono(String.class)
                 .map(jsonString -> {
-                    Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
-                            .create();
+                    Gson gson = getGson();
                     Type fileType = new TypeToken<ApplicationJson>() {}.getType();
 
                     CacheableApplicationJson cacheableApplicationJson = new CacheableApplicationJson();
@@ -121,18 +120,25 @@ public class CacheableTemplateHelper {
 
                     // Remove/replace the value from cache
                     cacheableApplicationJsonMap.put(templateId, cacheableApplicationJson);
-                    return cacheableApplicationJson;
+                    return getCacheableApplicationJsonCopy(cacheableApplicationJson);
                 })
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "template", templateId)));
     }
 
-    public boolean isCacheValid(Instant lastUpdatedAt) {
-        return Instant.now().minusSeconds(CACHE_LIFE_TIME_IN_SECONDS).isBefore(lastUpdatedAt);
+    private CacheableApplicationJson getCacheableApplicationJsonCopy(CacheableApplicationJson src) {
+        Gson gson = getGson();
+        return gson.fromJson(gson.toJson(src), CacheableApplicationJson.class);
     }
 
-    public CacheableApplicationTemplate getCacheableApplicationTemplate() {
-        return applicationTemplateList;
+    @NotNull private Gson getGson() {
+        return new GsonBuilder()
+                .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
+                .create();
+    }
+
+    public boolean isCacheValid(Instant lastUpdatedAt) {
+        return Instant.now().minusSeconds(CACHE_LIFE_TIME_IN_SECONDS).isBefore(lastUpdatedAt);
     }
 
     public Map<String, CacheableApplicationJson> getCacheableApplicationJsonMap() {
