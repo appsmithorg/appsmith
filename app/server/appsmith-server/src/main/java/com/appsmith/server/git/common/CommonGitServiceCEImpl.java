@@ -1369,15 +1369,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                         .then(Mono.error(new AppsmithException(
                                                 AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage())));
                             });
-                    return Mono.zip(gitCommitMono, Mono.just(branchedArtifact));
-                })
-                .flatMap(tuple -> {
-                    String commitStatus = tuple.getT1();
-                    Artifact branchedArtifact = tuple.getT2();
-                    GitArtifactHelper<?> artifactGitService = getArtifactGitService(branchedArtifact.getArtifactType());
-                    return Mono.zip(
-                            Mono.just(commitStatus),
-                            artifactGitService.getArtifactById(branchedArtifact.getId(), null));
+                    return Mono.zip(gitCommitMono, gitArtifactHelper.getArtifactById(branchedArtifact.getId(), null));
                 })
                 .flatMap(tuple -> {
                     String commitStatus = tuple.getT1();
