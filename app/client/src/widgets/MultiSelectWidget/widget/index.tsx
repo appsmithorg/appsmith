@@ -7,23 +7,27 @@ import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 
 import { Alignment } from "@blueprintjs/core";
+import type {
+  AutocompletionDefinitions,
+  WidgetCallout,
+} from "WidgetProvider/constants";
+import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import { LabelPosition } from "components/constants";
 import { Layers } from "constants/Layers";
+import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
 import type { DraftValueType } from "rc-select/lib/Select";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
-import MultiSelectComponent from "../component";
 import {
   DefaultAutocompleteDefinitions,
   isCompactMode,
 } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import MultiSelectComponent from "../component";
 import IconSVG from "../icon.svg";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import { layoutConfigurations } from "constants/WidgetConstants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   let values: string[] = [];
@@ -64,6 +68,7 @@ class MultiSelectWidget extends BaseWidget<
       hideCard: true,
       isDeprecated: true,
       replacement: "MULTI_SELECT_WIDGET_V2",
+      tags: [WIDGET_TAGS.SELECT],
     };
   }
 
@@ -90,6 +95,20 @@ class MultiSelectWidget extends BaseWidget<
       placeholderText: "Select option(s)",
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getEditorCallouts(): WidgetCallout[] {
+        return [
+          {
+            message: buildDeprecationWidgetMessage(
+              MultiSelectWidget.getConfig().name,
+            ),
+          },
+        ];
+      },
     };
   }
 

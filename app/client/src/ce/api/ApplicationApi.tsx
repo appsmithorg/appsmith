@@ -204,6 +204,7 @@ export interface UpdateApplicationResponse {
   isPublic: boolean;
   pages: PageDefaultMeta[];
   appIsExample: boolean;
+  unreadCommentThreads: number;
   color: string;
   icon: IconNames;
   slug: string;
