@@ -101,6 +101,7 @@ import type { SlashCommandPayload } from "entities/Action";
 import type { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
+  CURSOR_CLASS_NAME,
   LINT_TOOLTIP_CLASS,
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
   LintTooltipDirection,
@@ -725,9 +726,10 @@ class CodeEditor extends Component<Props, State> {
     const delayedWork = () => {
       if (!this.state.isFocused) return;
 
-      const cursorElement = cm
+      const [cursorElement] = cm
         .getScrollerElement()
-        .getElementsByClassName("CodeMirror-cursor")[0];
+        .getElementsByClassName(CURSOR_CLASS_NAME);
+
       if (cursorElement) {
         scrollIntoView(cursorElement, {
           block: "nearest",
@@ -912,6 +914,7 @@ class CodeEditor extends Component<Props, State> {
     this.editor.off("cursorActivity", this.handleCursorMovement);
     this.editor.off("cursorActivity", this.debouncedArgHints);
     this.editor.off("blur", this.handleEditorBlur);
+    this.editor.off("scrollCursorIntoView", this.handleScrollCursorIntoView);
     CodeMirror.off(
       this.editor.getWrapperElement(),
       "mousemove",
@@ -1002,8 +1005,8 @@ class CodeEditor extends Component<Props, State> {
         const navigationAttribute = event.target.attributes.getNamedItem(
           NAVIGATE_TO_ATTRIBUTE,
         );
+
         if (!navigationAttribute) return;
-        const entityToNavigate = navigationAttribute.value.split(".");
 
         if (
           document.activeElement &&
@@ -1012,39 +1015,46 @@ class CodeEditor extends Component<Props, State> {
           document.activeElement.blur();
         }
 
-        this.setState(
-          {
-            isFocused: false,
-          },
-          () => {
-            if (entityToNavigate[0] in this.props.entitiesForNavigation) {
-              let navigationData =
-                this.props.entitiesForNavigation[entityToNavigate[0]];
-              for (let i = 1; i < entityToNavigate.length; i += 1) {
-                if (entityToNavigate[i] in navigationData.children) {
-                  navigationData = navigationData.children[entityToNavigate[i]];
-                }
-              }
+        this.setState({
+          isFocused: false,
+        });
 
-              if (navigationData.url) {
-                if (navigationData.type === ENTITY_TYPE.ACTION) {
-                  AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", {
-                    actionId: navigationData?.id,
-                    datasourceId: navigationData?.datasourceId,
-                    pluginName: navigationData?.pluginName,
-                    actionType: navigationData?.actionType,
-                    isMock: !!navigationData?.isMock,
-                    from: NavigationMethod.CommandClick,
-                  });
-                }
-                history.push(navigationData.url, {
-                  invokedBy: NavigationMethod.CommandClick,
-                });
-                this.hidePeekOverlay();
-              }
+        const { entitiesForNavigation } = this.props;
+        const [documentName, ...navigationTargets] =
+          navigationAttribute.value.split(".");
+
+        if (documentName in entitiesForNavigation) {
+          let navigationData = entitiesForNavigation[documentName];
+
+          for (const navigationTarget of navigationTargets) {
+            if (navigationTarget in navigationData.children) {
+              navigationData = navigationData.children[navigationTarget];
             }
-          },
-        );
+          }
+
+          if (navigationData.url) {
+            if (navigationData.type === ENTITY_TYPE.ACTION) {
+              AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", {
+                actionId: navigationData?.id,
+                datasourceId: navigationData?.datasourceId,
+                pluginName: navigationData?.pluginName,
+                actionType: navigationData?.actionType,
+                isMock: !!navigationData?.isMock,
+                from: NavigationMethod.CommandClick,
+              });
+            }
+
+            history.push(navigationData.url, {
+              invokedBy: NavigationMethod.CommandClick,
+            });
+
+            this.hidePeekOverlay();
+
+            setTimeout(() => {
+              cm.scrollIntoView(cm.getCursor());
+            }, 0);
+          }
+        }
       }
     }
   };
