@@ -69,7 +69,7 @@ public final class JsonForDatabase {
     }
 
     public static String writeValueAsString(Object object) throws JsonProcessingException {
-        return objectMapper.writeValueAsString(object);
+        return object == null ? null : objectMapper.writeValueAsString(object);
     }
 
     private static final class CustomAnnotationIntrospector extends JacksonAnnotationIntrospector {
