@@ -138,19 +138,29 @@ function* getNewPositionsBasedOnMousePositions(
   whereToPasteWidget: EitherMouseLocationORGridPosition,
   pastingIntoWidgetId?: string,
 ) {
-  let { canvasDOM, canvasId, containerWidget } =
-    getDefaultCanvas(canvasWidgets);
+  let {
+    canvasDOM,
+    canvasId,
+    containerWidget,
+  }: {
+    canvasDOM: Element | null | undefined;
+    canvasId: string | undefined;
+    containerWidget: FlattenedWidgetProps | undefined;
+  } = getDefaultCanvas(canvasWidgets);
 
   //if the selected widget is a layout widget then change the pasting canvas.
   if (selectedWidgets.length === 1 && isDropTarget(selectedWidgets[0].type)) {
     containerWidget = selectedWidgets[0];
     ({ canvasDOM, canvasId } = getCanvasIdForContainer(containerWidget));
   } else if (pastingIntoWidgetId) {
-    const containerWidget: FlattenedWidgetProps = yield select(
-      getWidget,
-      pastingIntoWidgetId,
-    );
-    ({ canvasDOM, canvasId } = getCanvasIdForContainer(containerWidget));
+    // For building block we already know the widget where we want to paste the new widgets
+    // no need to calculate it
+    const containerWidgetId = getContainerIdForCanvas(pastingIntoWidgetId);
+    if (!containerWidgetId) return {};
+    containerWidget = yield select(getWidget, containerWidgetId);
+    ({ canvasDOM, canvasId } = getCanvasIdForContainer(
+      containerWidget as WidgetProps,
+    ));
   }
 
   if (!canvasDOM || !containerWidget || !canvasId) return {};
