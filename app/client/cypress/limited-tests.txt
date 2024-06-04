@@ -1,5 +1,13 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_ArrayField_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_FieldProperties_1_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_FieldProperties_2_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_HiddenFields_1_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/JSONForm/JSONForm_HiddenFields_2_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Multiselect/MultiSelect2_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Others/Progress_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Select/Select_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2_Widget_Add_button_spec.js
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
