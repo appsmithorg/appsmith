@@ -101,6 +101,7 @@ import type { SlashCommandPayload } from "entities/Action";
 import type { Indices } from "constants/Layers";
 import { replayHighlightClass } from "globalStyles/portals";
 import {
+  CURSOR_CLASS_NAME,
   LINT_TOOLTIP_CLASS,
   LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
   LintTooltipDirection,
@@ -725,9 +726,10 @@ class CodeEditor extends Component<Props, State> {
     const delayedWork = () => {
       if (!this.state.isFocused) return;
 
-      const cursorElement = cm
+      const [cursorElement] = cm
         .getScrollerElement()
-        .getElementsByClassName("CodeMirror-cursor")[0];
+        .getElementsByClassName(CURSOR_CLASS_NAME);
+
       if (cursorElement) {
         scrollIntoView(cursorElement, {
           block: "nearest",

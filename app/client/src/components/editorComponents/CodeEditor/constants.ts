@@ -19,3 +19,5 @@ export const SlashCommandMenuOnFocusWidgetProps: { [key: string]: string[] } = {
   TABLE_WIDGET_V2: ["tableData"],
   JSON_FORM_WIDGET: ["sourceData"],
 };
+
+export const CURSOR_CLASS_NAME = "CodeMirror-cursor";
