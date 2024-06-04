@@ -6,7 +6,7 @@
 if docker ps --format '{{.Names}}' | grep -w "appsmith" > /dev/null; then
   echo "Container 'appsmith' is running."
 else
-  read -rp  "Container 'appsmith' is not running. Do you still want to continue " user_input
+  read -rp  "Container 'appsmith' is not running. Do you still want to continue? (yes/no): " user_input
   # Convert user input to lowercase
   user_input=$(echo "$user_input" | tr '[:upper:]' '[:lower:]')
   case "$user_input" in
@@ -26,8 +26,8 @@ else
 fi
 
 # Install cypress
-echo "Installing Cypress 2>&1 > /dev/null"
-yarn install
+echo "Installing Cypress.."
+yarn install 2>&1 > /dev/null
 
 # Please verify base url in cypress.config.ts
 baseurl=$(grep "baseUrl" cypress.config.ts|cut -d '"' -f2)
@@ -53,11 +53,11 @@ user_input=$(echo "$user_input" | tr '[:upper:]' '[:lower:]')
 case "$user_input" in
     yes|y)
         echo "Installing TED"
-        docker run --name ted -d --pull always -p 22:22 -p 5001:5001 -p 3306:3306 -p 28017:27017 -p 5432:5432 -p 25:25 -p 4200:4200 appsmith/test-event-driver
-        echo "Please check https://github.com/appsmithorg/Testeventdriver"
+        docker run --name ted -d --pull always -p 2022:22 -p 5001:5001 -p 3306:3306 -p 28017:27017 -p 5432:5432 -p 25:25 -p 4200:4200 appsmith/test-event-driver
+        echo "Please check https://github.com/appsmithorg/TestEventDriver"
         ;;
     no|n)
-        echo "Proceeding wihtout TED"
+        echo "Proceeding without TED"
         ;;
     *)
         echo "Invalid input. Please enter yes or no."
@@ -66,6 +66,6 @@ case "$user_input" in
 
 esac
 
-echo "Please start cypress using npx cypress open"
-echo "Inorder to run single spec please user npx cypress run --spec <specpath>"
-echo "for details check https://www.notion.so/appsmith/Run-Cypress-locally-23033565651344f78ea2c8be768004bf"
+echo "Please start cypress using the command: npx cypress open"
+echo "In order to run single spec, please use the command: npx cypress run --spec <specpath>"
+echo "For more details check https://www.notion.so/appsmith/Run-Cypress-locally-23033565651344f78ea2c8be768004bf"
