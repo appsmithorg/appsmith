@@ -48,6 +48,7 @@ const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
+const table = ObjectsRegistry.Table;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -572,13 +573,6 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("isSelectRow", (index) => {
-  cy.get('.tbody .td[data-rowindex="' + index + '"][data-colindex="' + 0 + '"]')
-    .first()
-    .click({ force: true });
-  cy.wait(500); //for selection to show!
-});
-
 Cypress.Commands.add("getDate", (date, dateFormate) => {
   const eDate = dayjs().add(date, "days").format(dateFormate);
   return eDate;
@@ -873,7 +867,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-      cy.isSelectRow(0);
+      table.SelectTableRow(0);
       cy.readTabledata("0", "5").then((tabData) => {
         const tableData = tabData;
         expect(valueToTest).contains(tableData);
@@ -899,7 +893,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.wait(2000);
-      cy.isSelectRow(0);
+      table.SelectTableRow(0, 0, true, "v2");
       cy.readTableV2data("0", "5").then((tabData) => {
         const tableData = tabData;
         cy.log(valueToTest);

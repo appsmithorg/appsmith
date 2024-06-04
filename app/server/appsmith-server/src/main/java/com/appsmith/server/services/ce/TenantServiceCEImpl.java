@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.MigrationStatus;
@@ -42,6 +43,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
+    private final CommonConfig commonConfig;
+
     public TenantServiceCEImpl(
             Validator validator,
             TenantRepository repository,
@@ -49,12 +52,14 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             ConfigService configService,
             @Lazy EnvManager envManager,
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            CommonConfig commonConfig) {
         super(validator, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
+        this.commonConfig = commonConfig;
     }
 
     @Override
@@ -124,9 +129,11 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> getTenantConfiguration(Mono<Tenant> dbTenantMono) {
+        String adminEmailDomainHash = commonConfig.getAdminEmailDomainHash();
         Mono<Tenant> clientTenantMono = configService.getInstanceId().map(instanceId -> {
             final Tenant tenant = new Tenant();
             tenant.setInstanceId(instanceId);
+            tenant.setAdminEmailDomainHash(adminEmailDomainHash);
 
             final TenantConfiguration config = new TenantConfiguration();
             tenant.setTenantConfiguration(config);

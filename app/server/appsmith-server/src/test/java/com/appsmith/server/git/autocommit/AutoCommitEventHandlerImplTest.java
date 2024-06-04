@@ -16,6 +16,7 @@ import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.git.AutoCommitEventHandler;
 import com.appsmith.server.git.AutoCommitEventHandlerImpl;
+import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
@@ -73,6 +74,9 @@ public class AutoCommitEventHandlerImplTest {
     @SpyBean
     RedisUtils redisUtils;
 
+    @SpyBean
+    GitRedisUtils gitRedisUtils;
+
     @Autowired
     AnalyticsService analyticsService;
 
@@ -113,6 +117,7 @@ public class AutoCommitEventHandlerImplTest {
     public void beforeTest() {
         autoCommitEventHandler = new AutoCommitEventHandlerImpl(
                 applicationEventPublisher,
+                gitRedisUtils,
                 redisUtils,
                 dslMigrationUtils,
                 gitFileUtils,
