@@ -485,7 +485,7 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousemove", x, y, option)
     .trigger("mousemove", x, y, option)
     .trigger("mouseup", x, y, option);
-  cy.assertPageSave();
+  agHelper.AssertAutoSave();
 });
 
 Cypress.Commands.add(
