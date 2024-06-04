@@ -2,6 +2,7 @@ package com.appsmith.server.git.common;
 
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.configurations.EmailConfig;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.git.GitRedisUtils;

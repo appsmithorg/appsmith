@@ -49,7 +49,7 @@ import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIds
 @RequiredArgsConstructor
 public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Application> {
 
-    private final CommonGitFileUtils gitFileUtils;
+    private final CommonGitFileUtils commonGitFileUtils;
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
 
     private final ApplicationService applicationService;
@@ -208,7 +208,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
         String editModeUrl = Paths.get(viewModeUrl, "edit").toString();
         // Initialize the repo with readme file
 
-        return gitFileUtils
+        return commonGitFileUtils
                 .initializeReadme(readMePath, originHeader + viewModeUrl, originHeader + editModeUrl)
                 .onErrorMap(throwable -> {
                     log.error("Error while initialising git repo, {0}", throwable);

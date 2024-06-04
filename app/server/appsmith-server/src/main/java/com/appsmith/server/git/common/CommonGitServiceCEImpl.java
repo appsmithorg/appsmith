@@ -915,7 +915,12 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_PROFILE_ERROR)));
 
-        final String browserSupportedUrl = GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl());
+        String browserSupportedUrl;
+        try {
+            browserSupportedUrl = GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl());
+        } catch (AppsmithException error) {
+            return Mono.error(error);
+        }
         Mono<Boolean> isPrivateRepoMono =
                 GitUtils.isRepoPrivate(browserSupportedUrl).cache();
 
@@ -1033,7 +1038,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                                         new AppsmithException(AppsmithError.INVALID_GIT_REPO)));
                                     } else {
                                         GitArtifactMetadata gitArtifactMetadata = artifact.getGitArtifactMetadata();
-                                        gitArtifactMetadata.setDefaultArtifactId(artifactId);
+                                        gitArtifactMetadata.setDefaultApplicationId(artifactId);
                                         gitArtifactMetadata.setBranchName(defaultBranch);
                                         gitArtifactMetadata.setDefaultBranchName(defaultBranch);
                                         gitArtifactMetadata.setRemoteUrl(gitConnectDTO.getRemoteUrl());
@@ -1249,7 +1254,6 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
                     // Check if the repo is public for current artifact and if the user have changed the access after
                     // the connection
-                    final String workspaceId = defaultArtifact.getWorkspaceId();
                     return GitUtils.isRepoPrivate(defaultGitMetadata.getBrowserSupportedRemoteUrl())
                             .flatMap(isPrivate -> {
                                 // Check the repo limit if the visibility status is updated, or it is private
@@ -1268,8 +1272,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                                 gitArtifactHelper.isPrivateRepoLimitReached(savedArtifact, false));
                             });
                 })
-                .then(gitArtifactHelper.getArtifactByDefaultIdAndBranchName(
-                        defaultArtifactId, branchName, artifactEditPermission))
+                .flatMap(artifact -> gitArtifactHelper.getArtifactById(artifact.getId(), artifactEditPermission))
                 .flatMap((branchedArtifact) -> {
                     GitArtifactMetadata gitArtifactMetadata = branchedArtifact.getGitArtifactMetadata();
                     if (gitArtifactMetadata == null) {
@@ -1302,14 +1305,8 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                     GitArtifactMetadata gitData = branchedArtifact.getGitArtifactMetadata();
                     Path baseRepoSuffix = gitArtifactHelper.getRepoSuffixPath(
                             branchedArtifact.getWorkspaceId(), gitData.getDefaultArtifactId(), gitData.getRepoName());
-                    Mono<Path> repoPathMono;
-
-                    try {
-                        repoPathMono = commonGitFileUtils.saveArtifactToLocalRepoWithAnalytics(
-                                baseRepoSuffix, artifactExchangeJson, gitData.getBranchName());
-                    } catch (IOException | GitAPIException e) {
-                        return Mono.error(e);
-                    }
+                    Mono<Path> repoPathMono = commonGitFileUtils.saveArtifactToLocalRepoWithAnalytics(
+                            baseRepoSuffix, artifactExchangeJson, gitData.getBranchName());
 
                     gitData.setLastCommittedAt(Instant.now());
                     // We don't require to check for permission from this point because, permission is already
@@ -1372,6 +1369,14 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                                 AppsmithError.GIT_ACTION_FAILED, "commit", error.getMessage())));
                             });
                     return Mono.zip(gitCommitMono, Mono.just(branchedArtifact));
+                })
+                .flatMap(tuple -> {
+                    String commitStatus = tuple.getT1();
+                    Artifact branchedArtifact = tuple.getT2();
+                    GitArtifactHelper<?> artifactGitService = getArtifactGitService(branchedArtifact.getArtifactType());
+                    return Mono.zip(
+                            Mono.just(commitStatus),
+                            artifactGitService.getArtifactById(branchedArtifact.getId(), null));
                 })
                 .flatMap(tuple -> {
                     String commitStatus = tuple.getT1();
@@ -1515,14 +1520,14 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                             .checkoutToBranch(
                                     baseRepoSuffix,
                                     artifact.getGitArtifactMetadata().getBranchName())
-                            .then(gitExecutor
+                            .then(Mono.defer(() -> gitExecutor
                                     .pushApplication(
                                             baseRepoSuffix,
                                             gitData.getRemoteUrl(),
                                             gitAuth.getPublicKey(),
                                             gitAuth.getPrivateKey(),
                                             gitData.getBranchName())
-                                    .zipWith(Mono.just(artifact)))
+                                    .zipWith(Mono.just(artifact))))
                             .onErrorResume(error -> addAnalyticsForGitOperation(
                                             AnalyticsEvents.GIT_PUSH,
                                             artifact,
@@ -1628,8 +1633,8 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         GitArtifactHelper<?> gitArtifactHelper = getArtifactGitService(artifactType);
         AclPermission artifactEditPermission = gitArtifactHelper.getArtifactEditPermission();
 
-        Mono<? extends Artifact> sourceArtifactMono = gitArtifactHelper.getArtifactByDefaultIdAndBranchName(
-                defaultArtifactId, branchName, artifactEditPermission);
+        Mono<? extends Artifact> sourceArtifactMono =
+                gitArtifactHelper.getArtifactById(defaultArtifactId, artifactEditPermission);
         return sourceArtifactMono.flatMap(sourceArtifact -> checkoutBranch(sourceArtifact, branchName, addFileLock));
     }
 
@@ -2973,16 +2978,11 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                             branchedGitArtifactMetadata.getDefaultArtifactId(),
                             branchedGitArtifactMetadata.getRepoName());
 
-                    try {
-                        return Mono.zip(
-                                commonGitFileUtils.saveArtifactToLocalRepoWithAnalytics(
-                                        repoSuffix, artifactExchangeJson, branchName),
-                                Mono.just(branchedGitArtifactMetadata),
-                                Mono.just(repoSuffix));
-                    } catch (IOException | GitAPIException e) {
-                        return Mono.error(
-                                new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", e.getMessage()));
-                    }
+                    return Mono.zip(
+                            commonGitFileUtils.saveArtifactToLocalRepoWithAnalytics(
+                                    repoSuffix, artifactExchangeJson, branchName),
+                            Mono.just(branchedGitArtifactMetadata),
+                            Mono.just(repoSuffix));
                 })
                 .flatMap(tuple -> {
                     GitArtifactMetadata gitData = tuple.getT2();
