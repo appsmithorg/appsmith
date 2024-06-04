@@ -908,7 +908,7 @@ export const GIT_UPSTREAM_CHANGES = () =>
 export const GIT_CONFLICTING_INFO = () =>
   "Please resolve the merge conflicts manually on your repository.";
 export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
-  "You have uncommitted changes. Please commit before pulling the remote changes.";
+  "You have uncommitted changes. Please commit or discard before pulling the remote changes.";
 export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
   "Your current branch has uncommitted changes. Please commit them before proceeding to merge.";
 
