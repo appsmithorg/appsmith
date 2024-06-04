@@ -188,7 +188,7 @@ const baseStoreForSpec = {
       protectedBranch: false,
     },
     editor: {
-      isPreviewModel: false,
+      isPreviewMode: false,
     },
     users: {
       featureFlag: {
