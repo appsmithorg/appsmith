@@ -179,7 +179,7 @@ async function setupCypress() {
   );
   console.log(
     "INFO",
-    "For more details check https://www.notion.so/appsmith/Run-Cypress-locally-23033565651344f78ea2c8be768004bf",
+    "For more details check https://github.com/appsmithorg/appsmith/blob/master/contributions/ClientSetup.md#integration-tests",
   );
 }
 
