@@ -98,7 +98,7 @@ describe("OnBoarding - Non-AirGap Edition", () => {
       ui: {
         ...storeToUseWithDragDropBuildingBlocksEnabled.ui,
         gitSync: {
-          protectedBranches: true,
+          protectedBranches: false,
         },
         editor: {
           isPreviewMode: true,
@@ -107,10 +107,14 @@ describe("OnBoarding - Non-AirGap Edition", () => {
     };
     render(BaseComponentRender(previewModeStore));
 
-    const onboardingElement = screen.queryByText(
+    const buildingBlockOnboardingElement = screen.queryByText(
       createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
     );
-    expect(onboardingElement).not.toBeInTheDocument();
+    const onboardingElement = screen.queryByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
+    );
+    expect(buildingBlockOnboardingElement).not.toBeInTheDocument();
+    expect(onboardingElement).toBeInTheDocument();
   });
 });
 
@@ -170,10 +174,14 @@ describe("OnBoarding - AirGap Edition", () => {
     };
     render(BaseComponentRender(previewModeStore));
 
-    const onboardingElement = screen.queryByText(
+    const buildingBlockOnboardingElement = screen.queryByText(
       createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
     );
-    expect(onboardingElement).not.toBeInTheDocument();
+    const onboardingElement = screen.queryByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
+    );
+    expect(buildingBlockOnboardingElement).not.toBeInTheDocument();
+    expect(onboardingElement).toBeInTheDocument();
   });
 });
 
@@ -185,7 +193,7 @@ const baseStoreForSpec = {
       isDraggingBuildingBlocksToCanvas: false,
     },
     gitSync: {
-      protectedBranch: false,
+      protectedBranches: false,
     },
     editor: {
       isPreviewMode: false,
