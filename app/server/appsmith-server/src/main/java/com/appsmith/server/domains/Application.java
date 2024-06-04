@@ -489,6 +489,9 @@ public class Application extends BaseDomain implements Artifact {
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.gitAuth);
         public static final String gitApplicationMetadata_defaultApplicationId =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultApplicationId);
+
+        public static final String gitApplicationMetadata_defaultArtifactId =
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultArtifactId);
         public static final String gitApplicationMetadata_isAutoDeploymentEnabled =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isAutoDeploymentEnabled);
         public static final String gitApplicationMetadata_branchName =
