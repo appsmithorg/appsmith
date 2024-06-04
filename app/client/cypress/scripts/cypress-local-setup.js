@@ -1,5 +1,5 @@
 const { execSync } = require("child_process");
-const { readFileSync, existsSync, writeFileSync } = require("fs");
+const { existsSync, readFileSync, writeFileSync } = require("fs");
 const path = require("path");
 const prompt = require("prompt-sync")();
 
