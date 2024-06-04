@@ -64,37 +64,35 @@ function ensureTEDIsRunning() {
 
 async function checkIfAppsmithIsRunning(baseUrl) {
   // Check if appsmith is running. If it's not running, check if we want the user to continue without it.
+  let isDevAppsmithAccessible;
   try {
-    const isDevAppsmithAccessible = await fetch(baseUrl)
-      .then((response) => response.ok)
-      .catch((error) => {
-        console.error(
-          "ERROR",
-          `Error checking availability of dev.appsmith.com: ${error.message}`,
-        );
-        return false;
-      });
-
-    if (!isDevAppsmithAccessible) {
-      let user_input = prompt(
-        `https://dev.appsmith.com is not accessible. Do you wish to continue without setting it up? (yes/no): `,
-      );
-      user_input = user_input.trim().toLowerCase();
-      switch (user_input) {
-        case "yes":
-        case "y":
-          console.log("INFO", "Continuing without setting up dev.appsmith.com");
-          break;
-        case "no":
-        case "n":
-          process.exit(1);
-        default:
-          console.log("ERROR", "Invalid input. Please enter yes or no.");
-          process.exit(1);
-      }
-    }
+    const response = await fetch(baseUrl);
+    isDevAppsmithAccessible = response.ok;
   } catch (error) {
-    console.error("ERROR", `Exception caught: ${error.message}`);
+    console.error(
+      "ERROR",
+      `Error checking availability of dev.appsmith.com: ${error.message}`,
+    );
+    isDevAppsmithAccessible = false;
+  }
+
+  if (!isDevAppsmithAccessible) {
+    let user_input = prompt(
+      `https://dev.appsmith.com is not accessible. Do you wish to continue without setting it up? (yes/no): `,
+    );
+    user_input = user_input.trim().toLowerCase();
+    switch (user_input) {
+      case "yes":
+      case "y":
+        console.log("INFO", "Continuing without setting up dev.appsmith.com");
+        break;
+      case "no":
+      case "n":
+        process.exit(1);
+      default:
+        console.log("ERROR", "Invalid input. Please enter yes or no.");
+        process.exit(1);
+    }
   }
 }
 
