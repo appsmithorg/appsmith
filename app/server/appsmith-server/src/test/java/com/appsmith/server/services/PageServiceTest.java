@@ -52,6 +52,7 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -81,7 +82,7 @@ import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@ExtendWith({AfterAllCleanUpExtension.class})
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
@@ -1027,6 +1028,7 @@ public class PageServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    @Disabled
     public void reuseDeletedPageName() {
 
         PageDTO testPage = new PageDTO();

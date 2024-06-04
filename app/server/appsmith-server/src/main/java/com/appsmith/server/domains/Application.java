@@ -10,6 +10,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,7 +21,6 @@ import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
-import org.springframework.data.annotation.Transient;
 
 import java.io.Serializable;
 import java.time.Instant;

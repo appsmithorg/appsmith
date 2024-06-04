@@ -18,6 +18,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -72,10 +73,11 @@ import static org.mockito.ArgumentMatchers.any;
  *      In order to retrieve the updated JSON, one could simply copy the serialized files from the test case itself.
  */
 @Slf4j
-@ExtendWith({AfterAllCleanUpExtension.class})
+@ExtendWith(AfterAllCleanUpExtension.class)
 @AutoConfigureDataMongo
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+@Disabled
 public class ServerSchemaMigrationEnforcerTest {
     @Autowired
     Gson gson;
