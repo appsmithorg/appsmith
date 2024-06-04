@@ -1188,7 +1188,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
     /**
      * @param commitDTO            information required for making a commit
-     * @param defaultArtifactId application branch on which the commit needs to be done
+     * @param defaultArtifactId    application branch on which the commit needs to be done
      * @param branchName           branch name for the commit flow
      * @param doAmend              if we want to amend the commit with the earlier one, used in connect flow
      * @param isFileLock           boolean value indicates whether the file lock is needed to complete the operation
@@ -1272,8 +1272,9 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                                 gitArtifactHelper.isPrivateRepoLimitReached(savedArtifact, false));
                             });
                 })
-                .flatMap(artifact -> gitArtifactHelper.getArtifactById(artifact.getId(), artifactEditPermission))
-                .flatMap((branchedArtifact) -> {
+                .flatMap(artifact -> gitArtifactHelper.getArtifactByDefaultIdAndBranchName(
+                        defaultArtifactId, branchName, artifactEditPermission))
+                .flatMap(branchedArtifact -> {
                     GitArtifactMetadata gitArtifactMetadata = branchedArtifact.getGitArtifactMetadata();
                     if (gitArtifactMetadata == null) {
                         return Mono.error(
@@ -1994,8 +1995,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                     branchDTO.getBranchName())
                             .flatMap(newBranchArtifact -> {
                                 // Commit and push for new branch created this is to avoid issues when user tries to
-                                // create a
-                                // new branch from uncommitted branch
+                                // create a new branch from uncommitted branch
                                 GitArtifactMetadata gitData = newBranchArtifact.getGitArtifactMetadata();
                                 GitCommitDTO commitDTO = new GitCommitDTO();
                                 commitDTO.setCommitMessage(DEFAULT_COMMIT_MESSAGE
