@@ -6,7 +6,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.WorkspaceService;
