@@ -21,7 +21,7 @@ public class V013__addXmlParserCustomJsLib extends AppsmithJavaMigration {
                     "INSERT INTO customjslib (id, uid_string, name, accessor, url, version, defs, created_at, updated_at) VALUES (gen_random_uuid(), ?, ?, cast(? as jsonb), ?, ?, ?, now(), now())",
                     customJSLib.getUidString(),
                     customJSLib.getName(),
-                JsonForDatabase.writeValueAsString(customJSLib.getAccessor()),
+                    JsonForDatabase.writeValueAsString(customJSLib.getAccessor()),
                     customJSLib.getUrl(),
                     customJSLib.getVersion(),
                     customJSLib.getDefs());
