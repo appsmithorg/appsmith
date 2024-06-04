@@ -79,7 +79,7 @@ export const AnvilFlexComponent = forwardRef(
         flexShrink: isFillWidget ? 1 : 0,
         flexBasis,
         alignItems: "center",
-        width: "max-content",
+        width: "fit-content",
       };
       if (widgetSize) {
         const {
