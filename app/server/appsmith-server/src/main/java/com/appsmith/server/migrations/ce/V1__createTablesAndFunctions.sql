@@ -464,6 +464,7 @@ create table "user"
     is_anonymous boolean,
     is_enabled boolean,
     is_system_generated boolean,
+    last_active_at timestamp(6) with time zone,
     name text,
     password text,
     password_reset_initiated boolean,
