@@ -170,7 +170,7 @@ public class CommonGitServiceCETest {
     @Autowired
     ApplicationPageService applicationPageService;
 
-    @Autowired
+    @SpyBean
     ApplicationService applicationService;
 
     @Autowired
@@ -1586,7 +1586,7 @@ public class CommonGitServiceCETest {
 
         Mono<Application> applicationUpdatedMono = commonGitServiceCE
                 .listBranchForArtifact(application1.getId(), true, "defaultBranch", ArtifactType.APPLICATION)
-                .then(applicationService.findById(application1.getId()));
+                .then(Mono.defer(() -> applicationService.findById(application1.getId())));
 
         StepVerifier.create(applicationUpdatedMono)
                 .assertNext(application -> {

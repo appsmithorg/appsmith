@@ -1710,11 +1710,8 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
         Mono<? extends Artifact> defaultArtifactMono =
                 gitArtifactHelper.getArtifactById(defaultArtifactId, artifactEditPermission);
-        Mono<? extends Artifact> checkoutRemoteBranchMono = addFileLock(
-                        defaultArtifactId, GitCommandConstants.CHECKOUT_BRANCH)
-                .zipWith(defaultArtifactMono)
-                .flatMap(tuple2 -> {
-                    Artifact artifact = tuple2.getT2();
+        Mono<? extends Artifact> checkoutRemoteBranchMono = defaultArtifactMono
+                .flatMap(artifact -> {
                     GitArtifactMetadata gitArtifactMetadata = artifact.getGitArtifactMetadata();
                     String repoName = gitArtifactMetadata.getRepoName();
 
@@ -1797,9 +1794,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                                     artifact1,
                                     Boolean.TRUE.equals(
                                             artifact1.getGitArtifactMetadata().getIsRepoPrivate())))
-                            .map(gitArtifactHelper::updateArtifactWithDefaultReponseUtils)
-                            .flatMap(artifact1 ->
-                                    releaseFileLock(defaultArtifactId).then(Mono.just(artifact1)));
+                            .map(gitArtifactHelper::updateArtifactWithDefaultReponseUtils);
                 })
                 .tag(GitConstants.GitMetricConstants.CHECKOUT_REMOTE, TRUE.toString())
                 .name(GitSpan.OPS_CHECKOUT_BRANCH)

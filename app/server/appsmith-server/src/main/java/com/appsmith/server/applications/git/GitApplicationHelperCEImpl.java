@@ -182,9 +182,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     @Override
     public Mono<Application> publishArtifact(Artifact artifact, Boolean isPublishedManually) {
         Application application = (Application) artifact;
-        return applicationPageService
-                .publish(application.getId(), isPublishedManually)
-                .then(Mono.just(application));
+        return applicationPageService.publish(application.getId(), isPublishedManually);
     }
 
     // TODO: scope for improvement
