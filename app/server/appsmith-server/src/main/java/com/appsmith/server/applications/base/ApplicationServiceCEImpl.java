@@ -225,7 +225,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         new AppsmithException(AppsmithError.INVALID_PARAMETER, Application.Fields.applicationVersion));
             }
         }
-        return repository.save(application).thenReturn(application).flatMap(this::setTransientFields);
+        return repository.save(application).flatMap(this::setTransientFields);
     }
 
     @Override
