@@ -4,7 +4,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { call, select } from "redux-saga/effects";
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getWidgets } from "../selectors";
+import { getWidget, getWidgets } from "../selectors";
 
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { WidgetSpace } from "constants/CanvasEditorConstants";
@@ -56,6 +56,7 @@ const getNewPositions = function* (
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
   whereToPasteWidget: EitherMouseLocationORGridPosition,
+  pastingIntoWidgetId?: string,
 ) {
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -107,6 +108,7 @@ const getNewPositions = function* (
     copiedTopMostRow,
     copiedLeftMostColumn,
     whereToPasteWidget,
+    pastingIntoWidgetId,
   );
   return newPastingPositionDetails;
 };
@@ -134,6 +136,7 @@ function* getNewPositionsBasedOnMousePositions(
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
   whereToPasteWidget: EitherMouseLocationORGridPosition,
+  pastingIntoWidgetId?: string,
 ) {
   let { canvasDOM, canvasId, containerWidget } =
     getDefaultCanvas(canvasWidgets);
@@ -141,6 +144,12 @@ function* getNewPositionsBasedOnMousePositions(
   //if the selected widget is a layout widget then change the pasting canvas.
   if (selectedWidgets.length === 1 && isDropTarget(selectedWidgets[0].type)) {
     containerWidget = selectedWidgets[0];
+    ({ canvasDOM, canvasId } = getCanvasIdForContainer(containerWidget));
+  } else if (pastingIntoWidgetId) {
+    const containerWidget: FlattenedWidgetProps = yield select(
+      getWidget,
+      pastingIntoWidgetId,
+    );
     ({ canvasDOM, canvasId } = getCanvasIdForContainer(containerWidget));
   }
 
