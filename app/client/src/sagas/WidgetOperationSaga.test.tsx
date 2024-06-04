@@ -1,10 +1,11 @@
 const updateAndSaveLayoutMock = jest.fn();
-
+const updateAndSaveAnvilLayoutMock = jest.fn();
 import {
   setWidgetDynamicPropertySaga,
   removeDynamicBindingProperties,
   handleUpdateWidgetDynamicProperty,
   batchUpdateWidgetDynamicPropertySaga,
+  duplicateTabChildrensSaga,
 } from "./WidgetOperationSagas";
 
 const widget = {
@@ -27,6 +28,91 @@ const widget1 = {
   ],
 };
 
+const mockCanversWidgets = {
+  tabs1234: {
+    widgetName: "Tabs1",
+    widgetId: "tabs1234",
+    parentId: "canvas1234",
+    children: ["tab1234", "tab1235"],
+    tabsObj: {
+      Tab1: {
+        label: "Tab1",
+        widgetId: "tab1234",
+        isVisible: true,
+        index: 0,
+        parentId: "tabs1234",
+        id: "Tab1",
+      },
+      Tab2: {
+        label: "Tab2",
+        widgetId: "tab1235",
+        isVisible: true,
+        index: 1,
+        parentId: "tabs1234",
+        id: "Tab2",
+      },
+    },
+    id: "Tabs1",
+  },
+  tab1234: {
+    widgetName: "Tab1",
+    widgetId: "tab1234",
+    widgetType: "TAB_WIDGET",
+    children: ["button1234"],
+    parentId: "tabs1234",
+    id: "Tab1",
+  },
+  tab1235: {
+    widgetName: "Tab2",
+    widgetType: "TAB_WIDGET",
+    widgetId: "tab1235",
+    children: [],
+    parentId: "tabs1234",
+    id: "Tab2",
+  },
+  button1234: {
+    widgetName: "Button",
+    widgetId: "button1234",
+    parentId: "tab1234",
+    widgetType: "BUTTON_WIDGET",
+    id: "Button1",
+  },
+};
+const evalMockTree = {
+  Tabs1: {
+    widgetName: "Tabs1",
+    widgetId: "tabs1234",
+    parentId: "canvas1234",
+    children: ["tab1234", "tab1235"],
+    tabsObj: {
+      Tab1: {
+        label: "Tab1",
+        widgetId: "tab1234",
+        isVisible: true,
+        index: 0,
+        parentId: "tabs1234",
+        id: "Tab1",
+      },
+      Tab2: {
+        label: "Tab2",
+        widgetId: "tab1235",
+        isVisible: true,
+        index: 1,
+        parentId: "tabs1234",
+        id: "Tab2",
+      },
+    },
+    id: "Tabs1",
+  },
+  Button1: {
+    widgetName: "Button",
+    widgetId: "button1234",
+    parentId: "tab1234",
+    widgetType: "BUTTON_WIDGET",
+    id: "Button1",
+  },
+};
+
 jest.mock("redux-saga/effects", () => {
   const originalModule = jest.requireActual("redux-saga/effects");
 
@@ -46,6 +132,7 @@ jest.mock("actions/pageActions", () => {
     __esModule: true,
     ...originalModule,
     updateAndSaveLayout: updateAndSaveLayoutMock,
+    updateAndSaveAnvilLayout: updateAndSaveAnvilLayoutMock,
   };
 });
 
@@ -293,5 +380,24 @@ describe("test removeDynamicBindingList", () => {
         }),
       ]),
     );
+  });
+});
+
+describe("Testing duplicateTabChildrensSaga", () => {
+  it("should duplicate tab children", () => {
+    const gen = duplicateTabChildrensSaga({
+      type: "DUPLICATE_TAB_CHILDREN",
+      payload: {
+        tabsWidgetId: "tabs1234",
+        duplicatedTabIndex: 0,
+      },
+    });
+
+    gen.next(); // yield select(getWidgets)
+    gen.next(mockCanversWidgets as any); // yield select(getWidget, "tabs1234")
+    gen.next(mockCanversWidgets.tabs1234 as any); // yield call(duplicateTabChildren, mockCanversWidgets, "tabs1234", 0)
+    gen.next(evalMockTree as any); // yield select(getDataTree)
+    gen.next(); // yield put(updateAndSaveAnvilLayout())
+    expect(updateAndSaveLayoutMock).toBeCalled();
   });
 });

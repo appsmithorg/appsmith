@@ -526,8 +526,8 @@ export class PropertyPane {
     this.agHelper.AssertAutoSave(); //Allowing time for Evaluate value to capture value
   }
 
-  public OpenTableColumnSettings(column: string) {
-    this.agHelper.GetNClick(this._tableColumnSettings(column));
+  public OpenTableColumnSettings(column: string, index: number = 0) {
+    this.agHelper.GetNClick(this._tableColumnSettings(column), (index = index));
   }
 
   public Search(query: string) {

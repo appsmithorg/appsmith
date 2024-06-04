@@ -2,6 +2,7 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const Layoutpage = require("../../../../../locators/Layout.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
+
 import {
   agHelper,
   deployMode,
@@ -79,8 +80,9 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
 
   it("5. Tab Widget Functionality To Check tab invisiblity", function () {
     cy.openPropertyPane("tabswidget");
-    cy.xpath(Layoutpage.tabEdit.replace("tabName", "Tab 1")).click({
-      force: true,
+    console.log(Layoutpage.tabEdit);
+    cy.xpath(Layoutpage.tabEdit.replace("tabName", "Tab 1")).last().click({
+      force: true
     });
     cy.get(Layoutpage.tabVisibility).first().click({ force: true });
     cy.get(Layoutpage.tabWidget).contains("Tab 1").should("not.exist");
@@ -91,8 +93,8 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
 
   it("6. Tab Widget Functionality To Check tab visibility", function () {
     cy.openPropertyPane("tabswidget");
-    cy.xpath(Layoutpage.tabEdit.replace("tabName", "Tab 1")).click({
-      force: true,
+    cy.xpath(Layoutpage.tabEdit.replace("tabName", "Tab 1")).last().click({
+      force: true
     });
     cy.get(Layoutpage.tabVisibility).first().click({ force: true });
     cy.get(Layoutpage.tabWidget).contains("Tab 1").should("be.visible");
@@ -162,20 +164,33 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
   });
 
   it("9. Tab Widget Functionality To Check First Tab Selected After Selected Tab(Default one) Delete", function () {
+    cy.openPropertyPane("tabswidget");
     cy.get(Layoutpage.tabDelete).eq(1).click({ force: true });
     cy.wait(1000);
     cy.get(Layoutpage.tabWidget)
-      .contains("Aditya")
+      .contains("Tab 1")
       .should("have.class", "is-selected");
     // Validates Total Number Of Tabs Displayed In The Property Pane
-    cy.get(Layoutpage.tabNumber).should("have.text", "2");
+    cy.get(Layoutpage.tabNumber).should("have.text", "1");
     // Validates Total Number Of Tabs Displayed In The Property Pane After Adding A Tab
     agHelper.ClickButton("Add tab");
-    cy.get(Layoutpage.tabNumber).should("have.text", "3");
+    cy.get(Layoutpage.tabNumber).should("have.text", "2");
     //Validates Total Number Of Tabs Displayed In The Property Pane After Deleting A Tab
     cy.get(Layoutpage.tabDelete).eq(1).click({ force: true });
-    cy.get(Layoutpage.tabNumber).should("have.text", "2");
+    cy.get(Layoutpage.tabNumber).should("have.text", "1");
   });
+
+  it("10. Tab Widget Functionality To Check the duplication of a tab", function () {
+    cy.openPropertyPane("tabswidget");
+    cy.get(Layoutpage.tabNumber).should("have.text", "2");
+    cy.xpath(Layoutpage.tabEdit.replace(
+      "tabName",
+      "Tab 1",
+    )).first().click({ force: true });
+
+    cy.openPropertyPane("tabswidget");
+    cy.get(Layoutpage.tabNumber).should("have.text", "3");
+  })
 });
 
 afterEach(() => {

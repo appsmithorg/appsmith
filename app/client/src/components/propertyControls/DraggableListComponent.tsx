@@ -23,6 +23,7 @@ export interface RenderComponentProps<TItem extends BaseItemProps> {
   updateFocus?: (index: number, isFocused: boolean) => void;
   isDragging: boolean;
   isDelete?: boolean;
+  selectedWidgetId?: string;
 }
 
 export interface DroppableComponentProps<TItem extends BaseItemProps> {
@@ -40,15 +41,12 @@ export interface DroppableComponentProps<TItem extends BaseItemProps> {
   onEdit?: (index: number) => void;
   updateFocus?: (index: number, isFocused: boolean) => void;
   keyAccessor?: string;
+  selectedWidgetId?: string;
 }
 
 export class DroppableComponent<
   TItem extends BaseItemProps,
 > extends React.Component<DroppableComponentProps<TItem>> {
-  constructor(props: DroppableComponentProps<TItem>) {
-    super(props);
-  }
-
   public readonly state = {
     isDragging: false,
   };
@@ -105,6 +103,7 @@ export class DroppableComponent<
       toggleVisibility,
       updateFocus,
       updateOption,
+      selectedWidgetId,
     } = this.props;
 
     return renderComponent({
@@ -118,6 +117,7 @@ export class DroppableComponent<
       item,
       index,
       isDragging: this.state.isDragging,
+      selectedWidgetId,
     });
   };
 

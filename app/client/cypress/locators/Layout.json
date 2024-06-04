@@ -9,5 +9,6 @@
   "tabEdit": "//input[@value ='tabName']//parent::div//parent::div//parent::div//parent::div//following-sibling::div//button[contains(@class,'t--edit-column-btn')]",
   "tabVisibility": ".t--property-control-visible .ads-v2-switch",
   "tabNumber": ".t--number-of-tabs",
-  "deleteTab": "//input[@value ='tabName']//parent::div//parent::div//parent::div//parent::div//following-sibling::div//button[contains(@class,'t--delete-column-btn')]"
+  "deleteTab": "//input[@value ='tabName']//parent::div//parent::div//parent::div//parent::div//following-sibling::div//button[contains(@class,'t--delete-column-btn')]",
+  "allTabWidgets": ".t--tab-Tab"
 }

@@ -130,11 +130,11 @@ describe(
       agHelper.AssertElementVisibility(propPane._tabId2);
     });
 
-    it("5. Verify settings, delete and add button associated with tabs", () => {
-      agHelper.AssertElementLength(propPane._tableEditColumnButton, 2);
+    it("5. Verify duplicate,settings, delete and add button associated with tabs", () => {
+      agHelper.AssertElementLength(propPane._tableEditColumnButton, 4);
       agHelper.AssertElementLength(table._deleteColumn, 2);
 
-      propPane.OpenTableColumnSettings("tab1");
+      propPane.OpenTableColumnSettings("tab1", 1);
       agHelper.AssertElementVisibility(
         propPane._propertyPanePropertyControl("general", "visible"),
       );
@@ -154,18 +154,18 @@ describe(
 
       EditorNavigation.SelectEntityByName("NewTabs", EntityType.Widget);
 
-      propPane.OpenTableColumnSettings("tab1");
+      propPane.OpenTableColumnSettings("tab1", 1);
       propPane.TogglePropertyState("visible", "On");
-      agHelper.AssertElementVisibility(propPane._tabId1);
+      agHelper.AssertElementVisibility(propPane._tabId1, true, 1);
 
       // Preview mode
       agHelper.GetNClick(locators._enterPreviewMode);
-      agHelper.AssertElementVisibility(propPane._tabId1);
+      agHelper.AssertElementVisibility(propPane._tabId1, true, 1);
       agHelper.GetNClick(locators._exitPreviewMode);
 
       // Deploy mode
       deployMode.DeployApp();
-      agHelper.AssertElementVisibility(propPane._tabId1);
+      agHelper.AssertElementVisibility(propPane._tabId1, true, 1);
       deployMode.NavigateBacktoEditor();
 
       EditorNavigation.SelectEntityByName("NewTabs", EntityType.Widget);

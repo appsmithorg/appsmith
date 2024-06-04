@@ -40,6 +40,29 @@ function AddTabButtonComponent({ widgetId }: any) {
   );
 }
 
+function DuplicateTabWidget(widgetId: string | undefined) {
+  const dispatch = useDispatch();
+  if (!widgetId) {
+    return (index: number) => {};
+  }
+  const addOption = (index: number) => {
+    dispatch({
+      type: ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD,
+      payload: {
+        widgetId,
+      },
+    });
+    dispatch({
+      type: ReduxActionTypes.DUPLICATE_WIDGET_TAB,
+      payload: {
+        tabsWidgetId: widgetId,
+        duplicatedTabIndex: index,
+      },
+    });
+  };
+  return addOption;
+}
+
 function TabControlComponent(props: RenderComponentProps<DroppableItem>) {
   const { index, item } = props;
   const dispatch = useDispatch();
@@ -50,13 +73,14 @@ function TabControlComponent(props: RenderComponentProps<DroppableItem>) {
     });
     if (props.deleteOption) props.deleteOption(index);
   };
-
   return (
     <DraggableListCard
       {...props}
       deleteOption={deleteOption}
       isDelete
       placeholder="Tab title"
+      isDuplicate={true}
+      onDuplicate={DuplicateTabWidget(props.selectedWidgetId)}
     />
   );
 }
@@ -175,6 +199,7 @@ class TabControl extends BaseControl<ControlProps, State> {
   };
   render() {
     const tabs = this.getTabItems();
+
     return (
       <div className="flex flex-col">
         <div className="t--number-of-tabs mb-1 ml-auto">
@@ -193,6 +218,7 @@ class TabControl extends BaseControl<ControlProps, State> {
           updateFocus={this.updateFocus}
           updateItems={this.updateItems}
           updateOption={this.updateOption}
+          selectedWidgetId={this.props.widgetProperties.widgetId}
         />
         <AddTabButtonComponent
           widgetId={this.props.widgetProperties.widgetId}

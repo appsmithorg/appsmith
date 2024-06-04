@@ -15,6 +15,7 @@ export type DraggableListControlProps<TItem extends BaseItemProps> =
     defaultPanelIndex?: number;
     propertyPath: string | undefined;
     keyAccessor?: string;
+    selectedWidgetId?: string;
   };
 export const DraggableListControl = <TItem extends BaseItemProps>(
   props: DraggableListControlProps<TItem>,
@@ -51,6 +52,5 @@ export const DraggableListControl = <TItem extends BaseItemProps>(
       debouncedEditLeading(index);
     }
   };
-
   return <DroppableComponent {...props} onEdit={onPanelEdit} />;
 };

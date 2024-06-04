@@ -1845,6 +1845,295 @@ function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
   }
 }
 
+interface WidgetDuplicateTab {
+  tabsWidgetId: string;
+  duplicatedTabIndex: number;
+}
+
+export function* duplicateTabChildrensSaga(
+  action: ReduxAction<WidgetDuplicateTab>,
+) {
+  try {
+    const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const parentTabsWidget: WidgetProps = yield select(
+      getWidget,
+      action.payload.tabsWidgetId,
+    );
+    const duplicatedTab: WidgetProps =
+      widgets[parentTabsWidget.children[action.payload.duplicatedTabIndex]];
+    const evalTree: DataTree = yield select(getDataTree);
+    const widgetNameMap: Record<string, string> = {};
+    const allOldchildrenWidgets: WidgetProps[] = [];
+    const parentTabWidgetId: string =
+      parentTabsWidget.children[parentTabsWidget.children.length - 1];
+    const newAllChildrenWidgets: WidgetProps[] = [];
+    const oldWidgetToNewIds: Record<string, string> = {};
+    const newWidgetToOldIds: Record<string, string> = {};
+    const newWidgetsIdList: string[] = [];
+    for (let childWidgetIdsIterator of duplicatedTab.children) {
+      getSameLayerWidgets(
+        childWidgetIdsIterator,
+        allOldchildrenWidgets,
+        widgets,
+      );
+    }
+    generateNewWidgetsAndIds(
+      allOldchildrenWidgets,
+      oldWidgetToNewIds,
+      newWidgetToOldIds,
+      newAllChildrenWidgets,
+      newWidgetsIdList,
+    );
+    yield call(
+      updateTabChildrens,
+      newAllChildrenWidgets,
+      oldWidgetToNewIds,
+      widgets,
+      evalTree,
+      parentTabWidgetId,
+      widgetNameMap,
+      newWidgetsIdList,
+    );
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: ReduxActionTypes.DUPLICATE_WIDGET_TAB,
+        error,
+      },
+    });
+  }
+}
+
+function getSameLayerWidgets(
+  widget: string,
+  allOldchildrenWidgets: WidgetProps[],
+  widgets: CanvasWidgetsReduxState,
+): any {
+  const widgetQueue: WidgetProps[] = [];
+  let widgetQueueLength = 0;
+  if (widget) {
+    allOldchildrenWidgets.push(widgets[widget]);
+    widgetQueue.push(widgets[widget]);
+    widgetQueueLength = widgetQueue.length;
+  }
+  while (widgetQueueLength > 0) {
+    const presentWidget = widgetQueue.shift()!;
+    if (presentWidget.children) {
+      for (const childWidgetIdsIterator of presentWidget.children) {
+        allOldchildrenWidgets.push(widgets[childWidgetIdsIterator]);
+        widgetQueue.push(widgets[childWidgetIdsIterator]);
+      }
+    }
+    widgetQueueLength = widgetQueue.length;
+  }
+}
+
+function generateNewWidgetsAndIds(
+  allOldchildrenWidgets: WidgetProps[],
+  oldWidgetToNewIds: Record<string, string>,
+  newWidgetToOldIds: Record<string, string>,
+  newAllChildrenWidgets: WidgetProps[],
+  newWidgetsIdList: string[],
+) {
+  for (const widget of allOldchildrenWidgets) {
+    const newWidget = cloneDeep(widget);
+    newWidget.widgetId = generateReactKey();
+    oldWidgetToNewIds[widget.widgetId] = newWidget.widgetId;
+    newWidgetToOldIds[newWidget.widgetId] = widget.widgetId;
+    newAllChildrenWidgets.push(newWidget);
+    newWidgetsIdList.push(newWidget.widgetId);
+  }
+}
+
+function generateNewWidgetName(
+  widget: WidgetProps,
+  widgetNameMap: Record<string, string>,
+  widgets: CanvasWidgetsReduxState,
+  evalTree: DataTree,
+) {
+  const oldWidgetName = widget.widgetName;
+  let newWidgetName = getNextWidgetName(widgets, widget.type, evalTree, {
+    prefix: oldWidgetName,
+    startWithoutIndex: true,
+  });
+  widgetNameMap[oldWidgetName] = newWidgetName;
+  return newWidgetName;
+}
+
+function updateWidgetChildrenIds(
+  widget: WidgetProps,
+  oldWidgetToNewIds: Record<string, string>,
+) {
+  if (widget.children && widget.children.length > 0) {
+    widget.children.forEach((childWidgetId: string, index: number) => {
+      if (widget.children) {
+        widget.children[index] = oldWidgetToNewIds[childWidgetId];
+      }
+    });
+  }
+}
+
+function updateChildWidgetParentProperties(
+  widget: WidgetProps,
+  widgets: CanvasWidgetsReduxState,
+  pastingIntoWidgetId: string,
+  oldWidgetToNewIds: Record<string, string>,
+) {
+  if (widget.parentId && widget.parentId in oldWidgetToNewIds) {
+    widget.parentId = oldWidgetToNewIds[widget.parentId];
+  } else if (widget.parentId && !(widget.parentId in oldWidgetToNewIds)) {
+    widget.parentId = pastingIntoWidgetId;
+    let parentChildren: string[] = widgets[pastingIntoWidgetId].children
+      ? [...widgets[pastingIntoWidgetId].children!]
+      : [];
+    parentChildren.push(widget.widgetId);
+    widgets = {
+      ...widgets,
+      [pastingIntoWidgetId]: {
+        ...widgets[pastingIntoWidgetId],
+        children: parentChildren,
+      },
+    };
+  }
+  return widgets;
+}
+
+function updateTabChildrenWidgetProperties(
+  widget: WidgetProps,
+  oldWidgetToNewIds: Record<string, string>,
+  widgets: CanvasWidgetsReduxState,
+  pastingIntoWidgetId: string,
+  newWidgetName: string,
+  oldWidgetName: string,
+) {
+  if (widget.tabsObj && widget.type === "TABS_WIDGET") {
+    try {
+      const tabs = Object.values(widget.tabsObj);
+      if (Array.isArray(tabs)) {
+        widget.tabsObj = tabs.reduce((obj: any, tab) => {
+          tab.widgetId = oldWidgetToNewIds[tab.widgetId];
+          obj[tab.id] = tab;
+          return obj;
+        }, {});
+      }
+    } catch (error) {
+      log.debug("Error updating tabs", error);
+    }
+  }
+
+  if (widget.type === "TABLE_WIDGET_V2" || widget.type === "TABLE_WIDGET") {
+    try {
+      // If the primaryColumns of the table exist
+      if (widget.primaryColumns) {
+        // For each column
+        for (const [columnId, column] of Object.entries(
+          widget.primaryColumns,
+        )) {
+          // For each property in the column
+          for (const [key, value] of Object.entries(
+            column as ColumnProperties,
+          )) {
+            // Replace reference of previous widget with the new widgetName
+            // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
+            widget.primaryColumns[columnId][key] = isString(value)
+              ? value.replace(`${oldWidgetName}.`, `${newWidgetName}.`)
+              : value;
+          }
+        }
+      }
+      // Use the new widget name we used to replace the column properties above.
+      widget.widgetName = newWidgetName;
+    } catch (error) {
+      log.debug("Error updating table widget properties", error);
+    }
+  }
+
+  if (
+    widget.type === "MULTI_SELECT_WIDGET_V2" ||
+    widget.type === "SELECT_WIDGET"
+  ) {
+    try {
+      // If the defaultOptionValue exist
+      if (widget.defaultOptionValue) {
+        const value = widget.defaultOptionValue;
+        // replace All occurrence of old widget name
+        widget.defaultOptionValue = isString(value)
+          ? value.replaceAll(`${oldWidgetName}.`, `${newWidgetName}.`)
+          : value;
+      }
+      // Use the new widget name we used to replace the defaultValue properties above.
+      widget.widgetName = newWidgetName;
+    } catch (error) {
+      log.debug("Error updating widget properties", error);
+    }
+  }
+  return updateChildWidgetParentProperties(
+    widget,
+    widgets,
+    pastingIntoWidgetId,
+    oldWidgetToNewIds,
+  );
+}
+
+function* updateTabChildrens(
+  newAllChildrenWidgets: WidgetProps[],
+  oldWidgetToNewIds: Record<string, string>,
+  widgets: CanvasWidgetsReduxState,
+  evalTree: DataTree,
+  pastingIntoWidgetId: string,
+  widgetNameMap: Record<string, string>,
+  newWidgetIdList: string[],
+) {
+  for (let i = 0; i < newAllChildrenWidgets.length; i++) {
+    const widget = newAllChildrenWidgets[i];
+    const oldWidgetName = widget.widgetName;
+    let newWidgetName = generateNewWidgetName(
+      widget,
+      widgetNameMap,
+      widgets,
+      evalTree,
+    );
+    updateWidgetChildrenIds(widget, oldWidgetToNewIds);
+
+    widgets = updateTabChildrenWidgetProperties(
+      widget,
+      oldWidgetToNewIds,
+      widgets,
+      pastingIntoWidgetId,
+      newWidgetName,
+      oldWidgetName,
+    );
+    widget.widgetName = newWidgetName;
+    widgets[widget.widgetId] = widget;
+    newAllChildrenWidgets[i] = widget;
+  }
+  for (const newChildrenWidget of newAllChildrenWidgets) {
+    const widget = newChildrenWidget;
+    widgets = handleSpecificCasesWhilePasting(
+      widget,
+      widgets,
+      widgetNameMap,
+      newAllChildrenWidgets,
+    );
+  }
+
+  yield call(updateAndSaveAnvilLayout, widgets);
+
+  const pageId: string = yield select(getCurrentPageId);
+
+  history.push(builderURL({ pageId }));
+
+  yield put({
+    type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
+    payload: newWidgetIdList,
+  });
+  yield put(generateAutoHeightLayoutTreeAction(true, true));
+
+  yield put(
+    selectWidgetInitAction(SelectionRequestType.Multiple, newWidgetIdList),
+  );
+}
 export default function* widgetOperationSagas() {
   yield fork(widgetAdditionSagas);
   yield fork(widgetDeletionSagas);
@@ -1892,5 +2181,6 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
     takeEvery(ReduxActionTypes.PARTIAL_IMPORT_INIT, partialImportSaga),
     takeEvery(ReduxActionTypes.PARTIAL_EXPORT_INIT, partialExportSaga),
+    takeEvery(ReduxActionTypes.DUPLICATE_WIDGET_TAB, duplicateTabChildrensSaga),
   ]);
 }
