@@ -67,7 +67,7 @@ export class LightModeTheme implements ColorModeTheme {
       bgNegative: this.bgNegative.to("sRGB").toString(),
       bgNegativeHover: this.bgNegativeHover.to("sRGB").toString(),
       bgNegativeActive: this.bgNegativeActive.to("sRGB").toString(),
-      bgNegativeSubtle: this.bgNegativeActive.to("sRGB").toString(),
+      bgNegativeSubtle: this.bgNegativeSubtle.to("sRGB").toString(),
       bgNegativeSubtleHover: this.bgNegativeSubtleHover.to("sRGB").toString(),
       bgNegativeSubtleActive: this.bgNegativeSubtleActive.to("sRGB").toString(),
       bgWarning: this.bgWarning.to("sRGB").toString(),
@@ -137,14 +137,7 @@ export class LightModeTheme implements ColorModeTheme {
     // This ensures harmonious combination with main accents and neutrals.
     const color = this.seedColor.clone();
 
-    // For very light seeds set bg darker than usually, so that accent surfaces are clearly visible against it.
-    if (this.seedIsVeryLight) {
-      color.oklch.l = 0.9;
-    }
-
-    if (!this.seedIsVeryLight) {
-      color.oklch.l = 0.97;
-    }
+    color.oklch.l = 0.97;
 
     // Cold colors can have a bit more chroma while staying perceptually neutral
     if (this.seedIsCold) {
@@ -167,9 +160,16 @@ export class LightModeTheme implements ColorModeTheme {
     // Main accent color. Largely is the same as user-set seed color.
     const color = this.seedColor.clone();
 
-    // If seed is very light, make bg darker than usual (see above). Make sure then, that the accent is bright enough.
-    if (this.seedIsVeryLight) {
-      color.oklch.l = 0.975;
+    // If seed is very light, make sure that the accent is visible and saturated enough.
+    if (this.seedIsVeryLight && this.seedColor.oklch.c >= 0.02) {
+      color.oklch.l = 0.75;
+      color.oklch.c = 0.1;
+    }
+
+    // If seed is achromatic make sure we don't produce parasitic coloring and make accent really dark. Our standard achromatic cut-off is set too high for the very light seeds, so using chroma value checks instead.
+    if (this.seedIsVeryLight && this.seedColor.oklch.c < 0.02) {
+      color.oklch.l = 0.3;
+      color.oklch.c = 0;
     }
 
     return color;
@@ -217,18 +217,6 @@ export class LightModeTheme implements ColorModeTheme {
       color.oklch.l += 0.03;
     }
 
-    // For very light seeds it's impossible to produce hover state that is sufficiently perceptibly lighter, therefore switching to darker hovers.
-    // Yellow has largest amount of chroma available at the top (by lightness) of OKLCh space, compensating by slightly decreasing chroma and decreasing lightness.
-    if (this.seedIsVeryLight && this.seedIsYellow) {
-      color.oklch.l = 0.945;
-      color.oklch.c *= 0.93;
-    }
-
-    if (this.seedIsVeryLight && !this.seedIsYellow) {
-      color.oklch.l = 0.95;
-      color.oklch.c *= 1.15;
-    }
-
     return color;
   }
 
@@ -247,12 +235,6 @@ export class LightModeTheme implements ColorModeTheme {
 
     if (this.seedLightness >= 0.7) {
       color.oklch.l -= 0.01;
-    }
-
-    // For very light seeds complement the effect with increased chroma.
-    if (this.seedIsVeryLight) {
-      color.oklch.l = 0.935;
-      color.oklch.c *= 1.15;
     }
 
     return color;
@@ -316,21 +298,13 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
-  private get bgNeutralOpacity() {
-    const color = this.bgNeutral.clone();
-
-    color.alpha = 0.5;
-
-    return color;
-  }
-
   private get bgNeutral() {
     // Low chroma, but not 0, if possible, to produce harmony with accents in the UI
     const color = this.bgAccent.clone();
 
     // For bright accents it helps to make neutral a bit darker to differentiate with bgAccent
     if (this.bgAccent.oklch.l >= 0.85) {
-      color.oklch.l -= 0.02;
+      color.oklch.l -= 0.2;
     }
 
     if (this.bgAccent.oklch.l > 0.25 && this.bgAccent.oklch.l < 0.85) {
@@ -347,6 +321,19 @@ export class LightModeTheme implements ColorModeTheme {
 
     if (!this.seedIsCold && !this.seedIsAchromatic) {
       color.oklch.c = 0.001;
+    }
+
+    return color;
+  }
+
+  private get bgNeutralOpacity() {
+    // Overlay behind modal dialogue
+    const color = this.bgNeutral.clone();
+
+    color.alpha = 0.6;
+
+    if (color.oklch.l > 0.15) {
+      color.oklch.l = 0.15;
     }
 
     return color;

@@ -74,7 +74,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                 .findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplicationId ->
                         applicationSnapshotRepository.findByApplicationIdAndChunkOrder(branchedApplicationId, 1))
-                .defaultIfEmpty(new ApplicationSnapshotResponseDTO());
+                .defaultIfEmpty(new ApplicationSnapshotResponseDTO(null));
     }
 
     @Override

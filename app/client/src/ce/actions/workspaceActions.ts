@@ -118,11 +118,6 @@ export const resetSearchEntity = () => ({
   type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_RESET,
 });
 
-export const searchWorkspaceEntitiesLoader = (payload: boolean) => ({
-  type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_LOADER,
-  payload,
-});
-
 export const fetchEntitiesOfWorkspace = (payload: { workspaceId?: string }) => {
   return {
     type: ReduxActionTypes.FETCH_ENTITIES_OF_WORKSPACE_INIT,

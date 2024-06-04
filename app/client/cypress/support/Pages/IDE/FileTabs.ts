@@ -4,7 +4,8 @@ class FileTabs {
     container: "[data-testid='t--editor-tabs']",
     tabName: (name: string) => `[data-testid='t--ide-tab-${name}']`,
     tabs: ".editor-tab",
-    addItem: "[data-testid='t--ide-split-screen-add-button']",
+    addItem: "[data-testid='t--ide-tabs-add-button']",
+    closeTab: "[data-testid='t--tab-close-btn']",
   };
 
   assertVisibility() {
@@ -31,6 +32,17 @@ class FileTabs {
         );
       }
     });
+  }
+
+  closeTab(name: string) {
+    const tab = this.locators.tabName(name);
+    ObjectsRegistry.AggregateHelper.HoverElement(tab);
+    ObjectsRegistry.AggregateHelper.GetChildrenNClick(
+      tab,
+      this.locators.closeTab,
+      0,
+      true,
+    );
   }
 }
 

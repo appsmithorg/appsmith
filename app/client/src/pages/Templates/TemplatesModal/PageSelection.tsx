@@ -10,7 +10,6 @@ import {
 import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { importTemplateIntoApplication } from "actions/templateActions";
 import type { Template } from "api/TemplatesApi";
-import { STARTER_BUILDING_BLOCK_TEMPLATE_NAME } from "constants/TemplatesConstants";
 import { Button, Checkbox, Divider, Icon, Text } from "design-system";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -121,7 +120,7 @@ function PageSelection(props: PageSelectionProps) {
         workspaceId: currentWorkSpace.id,
         source: "canvas",
         eventData: {
-          templateAppName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
+          templateAppName: props.template.title,
           selectedPages,
         },
       });

@@ -42,6 +42,7 @@ export const STORAGE_KEYS: {
   IDE_VIEW_MODE: "IDE_VIEW_MODE",
   CODE_WIDGET_NAVIGATION_USED: "CODE_WIDGET_NAVIGATION_USED",
   OVERRIDDEN_FEATURE_FLAGS: "OVERRIDDEN_FEATURE_FLAGS",
+  ACTION_TEST_PAYLOAD: "ACTION_TEST_PAYLOAD",
 };
 
 const store = localforage.createInstance({
@@ -945,5 +946,39 @@ export const setFeatureFlagOverrideValues = async (
 ) => {
   for (const [flag, value] of Object.entries(featureFlagValues)) {
     await store.setItem(flag, value);
+  }
+};
+
+export const getAllActionTestPayloads = async () => {
+  try {
+    const storedPayload: Record<string, unknown> | null = await store.getItem(
+      STORAGE_KEYS.ACTION_TEST_PAYLOAD,
+    );
+    return storedPayload;
+  } catch (error) {
+    log.error("An error occurred while fetching ACTION_TEST_PAYLOAD");
+    log.error(error);
+    return null;
+  }
+};
+
+export const storeActionTestPayload = async (payload: {
+  actionId: string;
+  testData: any;
+}) => {
+  try {
+    const storedPayload: Record<string, unknown> | null = await store.getItem(
+      STORAGE_KEYS.ACTION_TEST_PAYLOAD,
+    );
+    const newPayload = {
+      ...storedPayload,
+      [payload.actionId]: payload.testData,
+    };
+    await store.setItem(STORAGE_KEYS.ACTION_TEST_PAYLOAD, newPayload);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting ACTION_TEST_PAYLOAD");
+    log.error(error);
+    return false;
   }
 };

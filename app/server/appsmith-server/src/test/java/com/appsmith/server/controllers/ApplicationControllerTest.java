@@ -20,7 +20,7 @@ import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
-import com.appsmith.server.solutions.ApplicationFetcher;
+import com.appsmith.server.solutions.UserReleaseNotes;
 import com.appsmith.server.themes.base.ThemeService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -59,7 +59,7 @@ public class ApplicationControllerTest {
     ApplicationPageService applicationPageService;
 
     @MockBean
-    ApplicationFetcher applicationFetcher;
+    UserReleaseNotes applicationFetcher;
 
     @MockBean
     ApplicationForkingService applicationForkingService;

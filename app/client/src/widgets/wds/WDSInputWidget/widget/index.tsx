@@ -1,6 +1,5 @@
 import React from "react";
 import { isNumber, merge, toString } from "lodash";
-
 import * as config from "../config";
 import InputComponent from "../component";
 import { INPUT_TYPES } from "../constants";
@@ -75,6 +74,12 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
 
   static getStylesheetConfig() {
     return {};
+  }
+
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      defaultText: ["inputType"],
+    };
   }
 
   onFocusChange = (focusState: boolean) => {
@@ -197,6 +202,16 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     );
   };
 
+  onPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    if (this.props.inputType === INPUT_TYPES.NUMBER) {
+      const pastedValue = e.clipboardData.getData("text");
+
+      if (isNaN(Number(pastedValue))) {
+        e.preventDefault();
+      }
+    }
+  };
+
   getWidgetView() {
     const { inputType, rawText } = this.props;
 
@@ -222,6 +237,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         minNum={this.props.minNum}
         onFocusChange={this.onFocusChange}
         onKeyDown={this.onKeyDown}
+        onPaste={this.onPaste}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         spellCheck={this.props.isSpellCheck}

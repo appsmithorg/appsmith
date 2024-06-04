@@ -10,6 +10,7 @@ import EditorNavigation, {
 } from "./EditorNavigation";
 import datasource from "../../locators/DatasourcesEditor.json";
 import PageList from "./PageList";
+import { anvilLocators } from "./Anvil/Locators";
 
 export const DataSourceKVP = {
   Postgres: "PostgreSQL",
@@ -496,18 +497,22 @@ export class DataSources {
       ? this.dataManager.dsValues[environment].postgres_databaseName + "  "
       : this.dataManager.dsValues[environment].postgres_databaseName;
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].postgres_port.toString(),
     );
-    this.agHelper.UpdateInputValue(this._host(), hostAddress);
+    this.agHelper.ClearNType(this._host(), hostAddress);
     this.agHelper.ClearNType(this._databaseName, databaseName);
-    cy.get(this._username).type(
+
+    this.agHelper.ClearNType(
+      this._username,
       username == ""
         ? this.dataManager.dsValues[environment].postgres_username
         : username,
     );
-    cy.get(this._password).type(
+
+    this.agHelper.ClearNType(
+      this._password,
       password == ""
         ? this.dataManager.dsValues[environment].postgres_password
         : password,
@@ -541,18 +546,20 @@ export class DataSources {
     const databaseName = shouldAddTrailingSpaces
       ? this.dataManager.dsValues[environment].oracle_service + "  "
       : this.dataManager.dsValues[environment].oracle_service;
-    this.agHelper.UpdateInputValue(this._host(), hostAddress);
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(this._host(), hostAddress);
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].oracle_port.toString(),
     );
-    cy.get(this._databaseName).type(databaseName);
-    cy.get(this._username).type(
+    this.agHelper.ClearNType(this._databaseName, databaseName);
+    this.agHelper.ClearNType(
+      this._username,
       username == ""
         ? this.dataManager.dsValues[environment].oracle_username
         : username,
     );
-    cy.get(this._password).type(
+    this.agHelper.ClearNType(
+      this._password,
       password == ""
         ? this.dataManager.dsValues[environment].oracle_password
         : password,
@@ -567,8 +574,8 @@ export class DataSources {
       ? this.dataManager.dsValues[environment].mongo_host + "  "
       : this.dataManager.dsValues[environment].mongo_host;
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
-    this.agHelper.UpdateInputValue(this._host(), hostAddress);
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(this._host(), hostAddress);
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].mongo_port.toString(),
     );
@@ -590,17 +597,18 @@ export class DataSources {
       ? this.dataManager.dsValues[environment].mysql_databaseName + "  "
       : this.dataManager.dsValues[environment].mysql_databaseName;
 
-    this.agHelper.UpdateInputValue(this._host(), hostAddress);
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(this._host(), hostAddress);
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].mysql_port.toString(),
     );
     this.agHelper.ClearNType(this._databaseName, databaseName);
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._username,
       this.dataManager.dsValues[environment].mysql_username,
     );
-    cy.get(this._password).type(
+    this.agHelper.ClearNType(
+      this._password,
       this.dataManager.dsValues[environment].mysql_password,
     );
   }
@@ -609,11 +617,11 @@ export class DataSources {
     environment = this.dataManager.defaultEnviorment,
     leaveDBNameEmpty = true,
   ) {
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._host(),
       this.dataManager.dsValues[environment].mssql_host,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].mssql_port.toString(),
     );
@@ -625,15 +633,11 @@ export class DataSources {
         this.dataManager.dsValues[environment].mssql_databaseName;
       this.agHelper.ClearNType(this._databaseName, databaseName);
     }
-    // this.agHelper.UpdateInputValue(
-    //   this._databaseName,
-    //   datasourceFormData["mssql-databaseName"],
-    // ); //Commenting until MsSQL is init loaded into container
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._username,
       this.dataManager.dsValues[environment].mssql_username,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._password,
       this.dataManager.dsValues[environment].mssql_password,
     );
@@ -655,11 +659,11 @@ export class DataSources {
   }
 
   public FillArangoDSForm(environment = this.dataManager.defaultEnviorment) {
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._host(),
       this.dataManager.dsValues[environment].arango_host,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].arango_port.toString(),
     );
@@ -667,11 +671,11 @@ export class DataSources {
     this.agHelper
       .GetText(this._databaseName, "val")
       .then(($dbName) => expect($dbName).to.eq("_system"));
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._username,
       this.dataManager.dsValues[environment].arango_username,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._password,
       this.dataManager.dsValues[environment].arango_password,
     );
@@ -714,19 +718,19 @@ export class DataSources {
   public FillElasticSearchDSForm(
     environment = this.dataManager.defaultEnviorment,
   ) {
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._host(),
       this.dataManager.dsValues[environment].elastic_host,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].elastic_port.toString(),
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._username,
       this.dataManager.dsValues[environment].elastic_username,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._password,
       this.dataManager.dsValues[environment].elastic_password,
     );
@@ -772,8 +776,8 @@ export class DataSources {
   ) {
     this.FillAuthenticatedGrapgQLURL(environment);
 
-    this.agHelper.UpdateInputValue(this._graphQLHeaderKey, hKey);
-    this.agHelper.UpdateInputValue(this._graphQLHeaderValue, hValue);
+    this.agHelper.ClearNType(this._graphQLHeaderKey, hKey);
+    this.agHelper.ClearNType(this._graphQLHeaderValue, hValue);
     cy.get("@guid").then((uid: any) => {
       dataSourceName = dataSourceName + " " + uid;
       this.agHelper.RenameWithInPane(dataSourceName, false);
@@ -783,34 +787,28 @@ export class DataSources {
   }
 
   public FillRedisDSForm(environment = this.dataManager.defaultEnviorment) {
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._host(),
       this.dataManager.dsValues[environment].redis_host,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].redis_port.toString(),
     );
   }
 
   public FillS3DSForm() {
-    this.agHelper.UpdateInputValue(
-      this._username,
-      Cypress.env("S3_ACCESS_KEY"),
-    );
-    this.agHelper.UpdateInputValue(
-      this._password,
-      Cypress.env("S3_SECRET_KEY"),
-    );
+    this.agHelper.ClearNType(this._username, Cypress.env("S3_ACCESS_KEY"));
+    this.agHelper.ClearNType(this._password, Cypress.env("S3_SECRET_KEY"));
   }
 
   public FillTwilioDSForm(environment = this.dataManager.defaultEnviorment) {
     this.ValidateNSelectDropdown("Authentication type", "", "Basic auth");
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._username,
       this.dataManager.dsValues[environment].twilio_username.toString(),
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._password,
       this.dataManager.dsValues[environment].twilio_password.toString(),
     );
@@ -1502,7 +1500,7 @@ export class DataSources {
       "No",
       "Yes",
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this.locator._inputFieldByName("Connection string URI") + "//input",
       this.dataManager.mongo_uri(environment),
     );
@@ -1676,7 +1674,7 @@ export class DataSources {
           force,
         );
         this.agHelper.AssertElementVisibility(
-          this.locator._anvilWidgetInCanvas(WIDGET.WDSTABLE),
+          anvilLocators.anvilWidgetTypeSelector(anvilLocators.WDSTABLE),
         );
         break;
       case Widgets.Chart:

@@ -75,7 +75,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
             boolean isSuccess,
             Throwable error,
             CreatorContextType creatorType) {
-        return Mono.zip(sessionUserService.getCurrentUser(), newPageService.getById(creatorId))
+        return Mono.zip(sessionUserService.getCurrentUser(), newPageService.getByIdWithoutPermissionCheck(creatorId))
                 .flatMap(tuple -> {
                     User t1 = tuple.getT1();
                     NewPage t2 = tuple.getT2();

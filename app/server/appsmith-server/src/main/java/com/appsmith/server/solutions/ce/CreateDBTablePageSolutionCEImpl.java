@@ -571,7 +571,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                 new DefaultResourceLoader().getResource(filePath).getInputStream(), Charset.defaultCharset());
 
         ApplicationJson applicationJson = gson.fromJson(jsonContent, ApplicationJson.class);
-        return JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
+        return (ApplicationJson) JsonSchemaMigration.migrateArtifactToLatestSchema(applicationJson);
     }
 
     /**

@@ -50,6 +50,10 @@ class WDSIconButtonWidget extends BaseWidget<
     return config.settersConfig;
   }
 
+  static getMethods() {
+    return config.methodsConfig;
+  }
+
   hasOnClickAction = () => {
     const { isDisabled, onClick } = this.props;
 

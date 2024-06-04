@@ -69,7 +69,7 @@
               {
                 "boxShadow": "none",
                 "widgetName": "IconButton1Copy",
-                "onClick": "{{closeModal('UpdateModal')}}",
+                "onClick": "{{closeModal(UpdateModal.name)}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
@@ -345,7 +345,7 @@
                 "resetFormOnClick": false,
                 "boxShadow": "none",
                 "widgetName": "runUpdateQuery",
-                "onClick": "{{updateRecord.run(() => {closeModal('UpdateModal'), () => {};selectRecords.run() })}}",
+                "onClick": "{{updateRecord.run(() => {closeModal(UpdateModal.name), () => {};selectRecords.run() })}}",
                 "buttonColor": "#c084fc",
                 "dynamicPropertyPathList": [
                   {
@@ -730,7 +730,7 @@
       {
         "boxShadow": "none",
         "widgetName": "InsertButton",
-        "onClick": "{{showModal('InsertModal')}}",
+        "onClick": "{{showModal(InsertModal.name)}}",
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "dynamicPropertyPathList": [
           {
@@ -780,7 +780,7 @@
       {
         "boxShadow": "none",
         "widgetName": "UpdateButton",
-        "onClick": "{{showModal('UpdateModal')}}",
+        "onClick": "{{showModal(UpdateModal.name)}}",
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "dynamicPropertyPathList": [],
         "displayName": "Button",
@@ -872,7 +872,7 @@
               {
                 "boxShadow": "none",
                 "widgetName": "IconButton1",
-                "onClick": "{{closeModal('InsertModal')}}",
+                "onClick": "{{closeModal(InsertModal.name)}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
@@ -947,7 +947,7 @@
               {
                 "boxShadow": "none",
                 "widgetName": "runInsertQuery",
-                "onClick": "{{insertRecord.run(() => {selectRecords.run();resetWidget('InsertModal', true);closeModal('InsertModal'), () => {};})}}",
+                "onClick": "{{insertRecord.run(() => {selectRecords.run();resetWidget('InsertModal', true);closeModal(InsertModal.name), () => {};})}}",
                 "buttonColor": "#c084fc",
                 "dynamicPropertyPathList": [
                   {

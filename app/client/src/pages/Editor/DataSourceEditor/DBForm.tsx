@@ -16,6 +16,7 @@ import { JSONtoForm } from "./JSONtoForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { Callout } from "design-system";
+import store from "store";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -40,8 +41,7 @@ export const Form = styled.form<{
 }>`
   display: flex;
   flex-direction: column;
-  ${(props) =>
-    !props.viewMode && `height: ${`calc(100% - ${props?.theme.backBanner})`};`}
+  ${(props) => !props.viewMode && `height: 100%`}
   padding-bottom: var(--ads-v2-spaces-6);
   overflow-y: auto;
   margin-left: ${(props) => (props.viewMode ? "0px" : "24px")};
@@ -49,16 +49,22 @@ export const Form = styled.form<{
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
   openDocumentation = () => {
-    openDoc(DocsLink.WHITELIST_IP);
+    const appState: AppState = store.getState();
+    const plugin = appState.entities.plugins.list.find(
+      (plugin) => plugin.id === this.props.datasource?.pluginId,
+    );
+    if (!!plugin)
+      openDoc(DocsLink.WHITELIST_IP, plugin?.documentationLink, plugin?.name);
+    else openDoc(DocsLink.WHITELIST_IP);
   };
 
   render() {
-    const { formConfig, viewMode } = this.props;
+    const { formConfig, initialized, viewMode } = this.props;
 
     // make sure this redux form has been initialized before rendering anything.
     // the initialized prop below comes from redux-form.
     // The viewMode condition is added to allow the conditons only run on the editMode
-    if (!this.props.initialized && !viewMode) {
+    if (!initialized && !viewMode) {
       return null;
     }
 
@@ -66,7 +72,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   }
 
   renderDataSourceConfigForm = (sections: any) => {
-    const { datasourceId, messages, pluginType, viewMode } = this.props;
+    const { datasourceId, hiddenHeader, messages, pluginType, viewMode } =
+      this.props;
 
     return (
       <Form
@@ -83,12 +90,12 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               </Callout>
             );
           })}
-        {!this.props.hiddenHeader &&
+        {!hiddenHeader &&
           cloudHosting &&
           pluginType === PluginType.DB &&
           !viewMode && (
             <Callout
-              className="mt-4"
+              className="mt-4 select-text"
               kind="info"
               links={[
                 {

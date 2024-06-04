@@ -6,15 +6,12 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.plugins.solutions.PluginTriggerSolution;
 import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
@@ -24,8 +21,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -33,31 +30,21 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @RequestMapping(Url.PLUGIN_URL)
+@RequiredArgsConstructor
 @Slf4j
-public class PluginControllerCE extends BaseController<PluginService, Plugin, String> {
+public class PluginControllerCE {
+
+    protected final PluginService service;
 
     private final PluginTriggerSolution pluginTriggerSolution;
 
-    @Autowired
-    public PluginControllerCE(PluginService service, PluginTriggerSolution pluginTriggerSolution) {
-        super(service);
-        this.pluginTriggerSolution = pluginTriggerSolution;
-    }
-
     @JsonView(Views.Public.class)
-    @PostMapping("/install")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Workspace>> install(@Valid @RequestBody PluginWorkspaceDTO plugin) {
-        return service.installPlugin(plugin)
-                .map(workspace -> new ResponseDTO<>(HttpStatus.CREATED.value(), workspace, null));
-    }
-
-    @JsonView(Views.Public.class)
-    @PostMapping("/uninstall")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Workspace>> uninstall(@Valid @RequestBody PluginWorkspaceDTO plugin) {
-        return service.uninstallPlugin(plugin)
-                .map(workspace -> new ResponseDTO<>(HttpStatus.CREATED.value(), workspace, null));
+    @GetMapping
+    public Mono<ResponseDTO<List<Plugin>>> getAll(@RequestParam String workspaceId) {
+        log.debug("Getting all plugins in workspace {}", workspaceId);
+        return service.getInWorkspace(workspaceId)
+                .collectList()
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 
     @JsonView(Views.Public.class)

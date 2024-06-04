@@ -70,7 +70,7 @@ export const FIELD_GROUP_CONFIG: FieldGroupConfig = {
   [AppsmithFunction.showModal]: {
     label: createMessage(SHOW_MODAL),
     fields: [FieldType.SHOW_MODAL_FIELD],
-    defaultParams: `''`,
+    defaultParams: ``,
     icon: "show-modal",
   },
   [AppsmithFunction.closeModal]: {

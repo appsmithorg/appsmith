@@ -258,16 +258,16 @@ const Selected = styled.div<{
     props.hasError
       ? `border: 1px solid var(--ads-danger-main)`
       : props.isOpen
-      ? `border: 1px solid ${
-          !!props.bgColor
-            ? props.bgColor
-            : "var(--appsmith-input-focus-border-color)"
-        }`
-      : props.disabled
-      ? `border: 1px solid var(--ads-dropdown-disabled-header-background-color)`
-      : `border: 1px solid ${
-          !!props.bgColor ? props.bgColor : "var(--ads-color-black-250)"
-        }`};
+        ? `border: 1px solid ${
+            !!props.bgColor
+              ? props.bgColor
+              : "var(--appsmith-input-focus-border-color)"
+          }`
+        : props.disabled
+          ? `border: 1px solid var(--ads-dropdown-disabled-header-background-color)`
+          : `border: 1px solid ${
+              !!props.bgColor ? props.bgColor : "var(--ads-color-black-250)"
+            }`};
   .${Classes.TEXT} {
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -280,8 +280,8 @@ const Selected = styled.div<{
             !!props.bgColor
               ? "var(--ads-color-black-0)"
               : props.selected
-              ? "var(--ads-dropdown-selected-header-text-color)"
-              : "var(--ads-dropdown-default-header-text-color)"
+                ? "var(--ads-dropdown-selected-header-text-color)"
+                : "var(--ads-dropdown-default-header-text-color)"
           }`};
   }
   &:hover {
@@ -463,8 +463,8 @@ const OptionWrapper = styled.div<{
       props.disabled
         ? "var(--ads-color-black-470)"
         : props.selected
-        ? "var(--ads-dropdown-default-menu-hover-text-color)"
-        : "var(--ads-dropdown-default-menu-text-color)"};
+          ? "var(--ads-dropdown-default-menu-hover-text-color)"
+          : "var(--ads-dropdown-default-menu-text-color)"};
   }
   .${Classes.ICON} {
     margin-right: var(--ads-spaces-5);
@@ -706,8 +706,8 @@ function DefaultDropDownValueNode({
         ? selected.label
         : selected.value
       : placeholder
-      ? placeholder
-      : "Please select an option.";
+        ? placeholder
+        : "Please select an option.";
 
   function Label() {
     if (isMultiSelect && Array.isArray(selected) && selected.length) {
@@ -1123,8 +1123,9 @@ export default function Dropdown(props: DropdownProps) {
 
   const handleKeydown = useCallback(
     (e: React.KeyboardEvent) => {
-      const elementList = document.getElementById("ds--dropdown-options")
-        ?.children;
+      const elementList = document.getElementById(
+        "ds--dropdown-options",
+      )?.children;
       if (!elementList || elementList?.length === 0) {
         setHighlight(-1);
       }

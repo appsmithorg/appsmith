@@ -10,6 +10,7 @@ import {
   table,
   entityItems,
   apiPage,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import EditorNavigation, {
@@ -30,14 +31,13 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
     });
   });
 
-  it("1. Tc #2354, #2204 - Oracle placeholder & mandatory mark verification", () => {
+  it("1. Tc #2354, #2204 - Oracle placeholder, port default value & mandatory mark verification", () => {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Oracle");
     agHelper.GetNAssertContains(locators._dsName, "Untitled datasource");
     agHelper.GetNClick(locators._dsName);
     agHelper.ClearTextField(locators._dsNameTxt); //removing ds name
-    agHelper.AssertTooltip("Please enter a valid name");
-    //agHelper.ValidateToastMessage("Invalid name");
+    agHelper.AssertTooltip(Cypress.env("MESSAGES").ACTION_INVALID_NAME_ERROR());
     agHelper.TypeText(locators._dsNameTxt, dataSourceName);
     agHelper.PressEnter();
     agHelper.AssertAttribute(
@@ -45,6 +45,7 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
       "placeholder",
       "myapp.abcde.oracle.net",
     );
+    agHelper.AssertAttribute(dataSources._port, "value", "1521");
     agHelper.AssertAttribute(
       dataSources._databaseName,
       "placeholder",
@@ -54,7 +55,7 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
     agHelper.AssertAttribute(dataSources._password, "placeholder", "password");
     agHelper.AssertElementLength(dataSources._mandatoryMark, 4); //verifyng all 4 fields are mandatory
     agHelper.AssertText(dataSources._host(), "val", "");
-    agHelper.UpdateInputValue(
+    agHelper.ClearNType(
       dataSources._host(),
       dataManager.dsValues[dataManager.environments[1]].oracle_host,
     );
@@ -81,11 +82,11 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
     agHelper.ValidateToastMessage("Missing authentication details");
     agHelper.WaitUntilAllToastsDisappear();
 
-    agHelper.UpdateInputValue(
+    agHelper.ClearNType(
       dataSources._host(),
       dataManager.dsValues[dataManager.defaultEnviorment].oracle_host,
     );
-    agHelper.UpdateInputValue(
+    agHelper.ClearNType(
       dataSources._databaseName,
       dataManager.dsValues[dataManager.defaultEnviorment].oracle_service,
     );
@@ -93,11 +94,11 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
     agHelper.ValidateToastMessage("Missing username for authentication");
     agHelper.ValidateToastMessage("Missing password for authentication");
 
-    agHelper.UpdateInputValue(
+    agHelper.ClearNType(
       dataSources._username,
       dataManager.dsValues[dataManager.defaultEnviorment].oracle_username,
     );
-    agHelper.UpdateInputValue(
+    agHelper.ClearNType(
       dataSources._password,
       dataManager.dsValues[dataManager.defaultEnviorment].oracle_password,
     );
@@ -445,6 +446,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
     propPane.EnterJSContext("onClick", `{{Query1.run()}}`);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     agHelper.ClickButton("Submit");
+    jsEditor.ConfirmationClick("No"); //Handling both No & Yes from confirmation dialog
 
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();

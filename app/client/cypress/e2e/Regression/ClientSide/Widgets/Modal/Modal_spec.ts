@@ -26,7 +26,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL, 300, 300);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      propPane.EnterJSContext("onClick", "{{showModal('Modal1');}}");
+      propPane.EnterJSContext("onClick", "{{showModal(Modal1.name);}}");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
       agHelper.WaitUntilEleAppear(
         locators._widgetInDeployed(draggableWidgets.BUTTON),

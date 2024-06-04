@@ -265,7 +265,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
         agHelper.GetNClick(gitSync.gitConnectNextBtn);
         agHelper.TypeText(
           gitSync.remoteUrlInput,
-          `${dataManager.GITEA_API_URL_TED}/${repoName}.git`,
+          `${dataManager.GIT_CLONE_URL}/${repoName}.git`,
         );
         agHelper.GetNClick(gitSync.gitConnectNextBtn);
 

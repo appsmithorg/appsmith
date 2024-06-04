@@ -1,11 +1,7 @@
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import {
-  getIsTabsRevampEnabled,
-  getJSTabs,
-  getQueryTabs,
-} from "selectors/ideSelectors";
+import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
 import {
   setIdeEditorViewMode,
   setJSTabs,
@@ -33,14 +29,15 @@ import {
 } from "@appsmith/selectors/appIDESelectors";
 
 export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
-  const { entity, id } = entityInfo;
+  const { entity, id, params } = entityInfo;
+  if (!params.pageId) return;
   if (
     entity === FocusEntity.JS_OBJECT ||
     entity === FocusEntity.JS_MODULE_INSTANCE
   ) {
     const jsTabs: string[] = yield select(getJSTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, jsTabs);
-    yield put(setJSTabs(newTabs));
+    yield put(setJSTabs(newTabs, params.pageId));
   }
   if (
     entity === FocusEntity.QUERY ||
@@ -48,19 +45,13 @@ export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
   ) {
     const queryTabs: string[] = yield select(getQueryTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, queryTabs);
-    yield put(setQueryTabs(newTabs));
+    yield put(setQueryTabs(newTabs, params.pageId));
   }
 }
 
 function* getUpdatedTabs(newId: string, currentTabs: string[]) {
   if (currentTabs.includes(newId)) return currentTabs;
-  const isTabsRevampEnabled: boolean = yield select(getIsTabsRevampEnabled);
-  let newTabs = isTabsRevampEnabled
-    ? [...currentTabs, newId]
-    : [newId, ...currentTabs];
-  if (!isTabsRevampEnabled && newTabs.length > 5) {
-    newTabs = newTabs.slice(0, 5);
-  }
+  const newTabs = [...currentTabs, newId];
   return newTabs;
 }
 

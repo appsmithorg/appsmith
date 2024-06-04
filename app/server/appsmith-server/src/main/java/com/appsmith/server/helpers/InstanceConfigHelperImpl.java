@@ -22,7 +22,8 @@ public class InstanceConfigHelperImpl extends InstanceConfigHelperCEImpl impleme
             FeatureFlagService featureFlagService,
             AnalyticsService analyticsService,
             NetworkUtils networkUtils,
-            ReleaseNotesService releaseNotesService) {
+            ReleaseNotesService releaseNotesService,
+            RTSCaller rtsCaller) {
         super(
                 configService,
                 cloudServicesConfig,
@@ -32,6 +33,7 @@ public class InstanceConfigHelperImpl extends InstanceConfigHelperCEImpl impleme
                 featureFlagService,
                 analyticsService,
                 networkUtils,
-                releaseNotesService);
+                releaseNotesService,
+                rtsCaller);
     }
 }

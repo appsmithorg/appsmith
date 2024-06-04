@@ -4,6 +4,9 @@ import { ObjectsRegistry } from "../Objects/Registry";
 import type CodeMirror from "codemirror";
 import type { EntityItemsType } from "./AssertHelper";
 import { EntityItems } from "./AssertHelper";
+import EditorNavigator from "./EditorNavigation";
+import { EntityType } from "./EditorNavigation";
+import ClickOptions = Cypress.ClickOptions;
 
 type ElementType = string | JQuery<HTMLElement>;
 
@@ -18,6 +21,15 @@ interface SubActionParams {
   index?: number;
   force?: boolean;
   toastToValidate?: string;
+}
+interface SelectAndValidateParams {
+  clickOptions?: Partial<ClickOptions>;
+  widgetName: string;
+  widgetType?: EntityType;
+  hierarchy?: string[];
+  propFieldName: string;
+  valueToValidate: string;
+  toggleEle?: string | null;
 }
 
 let LOCAL_STORAGE_MEMORY: any = {};
@@ -276,6 +288,7 @@ export class AggregateHelper {
     timeout = Cypress.config("pageLoadTimeout"),
   ) {
     let locator;
+    expect(selector).to.not.be.undefined;
     if (typeof selector == "string") {
       locator =
         selector.startsWith("//") || selector.startsWith("(//")
@@ -289,8 +302,8 @@ export class AggregateHelper {
     return exists === "noVerify"
       ? locator // Return the locator without verification if exists is "noVerify"
       : exists === "exist"
-      ? locator.should("have.length.at.least", 1)
-      : locator.should("have.length", 0);
+        ? locator.should("have.length.at.least", 1)
+        : locator.should("have.length", 0);
   }
 
   public GetNAssertElementText(
@@ -885,7 +898,11 @@ export class AggregateHelper {
   }
 
   public ClearTextField(selector: string, force = false, index = 0) {
-    this.GetElement(selector).eq(index).clear({ force });
+    this.GetElement(selector)
+      .eq(index)
+      .scrollIntoView({ easing: "linear" })
+      .click()
+      .clear({ force });
     this.Sleep(500); //for text to clear for CI runs
   }
 
@@ -933,6 +950,8 @@ export class AggregateHelper {
     if (shouldFocus) {
       element.focus();
     }
+
+    if (value === "") return element;
 
     return element.wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
@@ -1326,18 +1345,6 @@ export class AggregateHelper {
       .first()
       .type(value, { delay: 0, force: true, parseSpecialCharSequences: false });
     this.Sleep(500); //for value set to register
-  }
-
-  public UpdateInputValue(selector: string, value: string, force = false) {
-    this.GetElement(selector)
-      .closest("input")
-      .scrollIntoView({ easing: "linear" })
-      .clear({ force })
-      .then(($input: any) => {
-        if (value !== "") {
-          cy.wrap($input).type(value, { delay: 3 });
-        }
-      });
   }
 
   public BlurCodeInput(selector: string) {
@@ -1811,4 +1818,54 @@ export class AggregateHelper {
   //     }
   //     return items;
   //   }, { timeout: 5000 });
+
+  public GetChildrenNClick(
+    selector: string,
+    childSelector: string,
+    index = 0,
+    force = false,
+    waitTimeInterval = 500,
+    ctrlKey = false,
+  ) {
+    return this.ScrollIntoView(selector, index)
+      .children(childSelector)
+      .click({ force: force, ctrlKey: ctrlKey })
+      .wait(waitTimeInterval);
+  }
+
+  public selectAndValidateWidgetNameAndProperty({
+    clickOptions = {},
+    hierarchy = [],
+    propFieldName,
+    toggleEle = null,
+    valueToValidate,
+    widgetName,
+    widgetType = EntityType.Widget,
+  }: SelectAndValidateParams) {
+    // Select the widget by name, type, and hierarchy with optional click options
+    EditorNavigator.SelectEntityByName(
+      widgetName,
+      widgetType,
+      clickOptions,
+      hierarchy,
+    );
+
+    // Assert that the Property Pane title matches the widget name
+    this.AssertText(
+      ObjectsRegistry.PropertyPane._paneTitle,
+      "text",
+      widgetName,
+    );
+
+    // If a toggle element is provided, toggle its JavaScript mode
+    if (toggleEle) {
+      ObjectsRegistry.PropertyPane.ToggleJSMode(toggleEle);
+    }
+
+    // Validate that the property field value matches the expected value
+    ObjectsRegistry.PropertyPane.ValidatePropertyFieldValue(
+      propFieldName,
+      valueToValidate,
+    );
+  }
 }

@@ -1,8 +1,3 @@
-import type {
-  ImportBuildingBlockToApplicationRequest,
-  ImportBuildingBlockToApplicationResponse,
-} from "@appsmith/api/ApplicationApi";
-import ApplicationApi from "@appsmith/api/ApplicationApi";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
@@ -10,12 +5,6 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
-import {
-  getActions,
-  getCanvasWidgets,
-} from "@appsmith/selectors/entitiesSelector";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { flattenDSL } from "@shared/dsl";
 import type { WidgetBlueprint } from "WidgetProvider/constants";
 import {
   BlueprintOperationTypes,
@@ -25,21 +14,14 @@ import WidgetFactory from "WidgetProvider/factory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
-import { runAction } from "actions/pluginActionActions";
-import { pasteWidget } from "actions/widgetActions";
-import type { ApiResponse } from "api/ApiResponses";
-import type { Template } from "api/TemplatesApi";
 import {
   BUILDING_BLOCK_EXPLORER_TYPE,
-  MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
 } from "constants/WidgetConstants";
 import { toast } from "design-system";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import produce from "immer";
 import { klona as clone } from "klona/full";
-import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
-import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { isFunction } from "lodash";
@@ -49,26 +31,19 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
+import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   getCanvasWidth,
-  getCurrentApplicationId,
-  getCurrentPageId,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
-import { getTemplatesSelector } from "selectors/templatesSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import { generateReactKey } from "utils/generators";
-import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { isStack } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
-import { validateResponse } from "./ErrorSagas";
-import { postPageAdditionSaga } from "./TemplatesSagas";
 import {
   buildWidgetBlueprint,
   executeWidgetBlueprintBeforeOperations,
@@ -76,21 +51,9 @@ import {
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
-import {
-  getDefaultCanvas,
-  getMousePositionFromCanvasGridPosition,
-  getSnappedGrid,
-} from "./WidgetOperationUtils";
-import {
-  getDragDetails,
-  getWidget,
-  getWidgetByName,
-  getWidgets,
-} from "./selectors";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "./WidgetSelectUtils";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
+import { getWidget, getWidgets } from "./selectors";
+import { addBuildingBlockToCanvasSaga } from "./BuildingBlockSagas/BuildingBlockAdditionSagas";
+import { getCurrentlyOpenAnvilDetachedWidgets } from "layoutSystems/anvil/integrations/modalSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -124,8 +87,13 @@ function* getChildWidgetProps(
   ]);
   const themeDefaultConfig =
     WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
+  const widgetSessionValues = getWidgetSessionValues(type, parent);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+  const detachedWidgets: string[] = yield select(
+    getCurrentlyOpenAnvilDetachedWidgets,
+  );
+  const isModalOpen = detachedWidgets && detachedWidgets.length > 0;
 
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
@@ -154,6 +122,12 @@ function* getChildWidgetProps(
     }
   }
 
+  // in case we are creating zone inside zone, we want to use the parent's column space, we want
+  // to make sure the elevateBackground is set to false
+  if (type === "ZONE_WIDGET" && isModalOpen) {
+    props = { ...props, elevatedBackground: false };
+  }
+
   const isAutoLayout = isStack(widgets, parent);
   const isFillWidget =
     restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
@@ -168,6 +142,7 @@ function* getChildWidgetProps(
     widgetId: newWidgetId,
     renderMode: RenderModes.CANVAS,
     ...themeDefaultConfig,
+    ...widgetSessionValues,
   };
 
   const { minWidth } = getWidgetMinMaxDimensionsInPixel(
@@ -527,239 +502,13 @@ function* addNewTabChildSaga(
   yield put(updateAndSaveLayout(updatedWidgets));
 }
 
-function* addBuildingBlockActionsToApp(dragDetails: DragDetails) {
-  const applicationId: string = yield select(getCurrentApplicationId);
-  const buildingblockName = dragDetails.newWidget.displayName;
-  const buildingBlocks: Template[] = yield select(getTemplatesSelector);
-  const currentPageId: string = yield select(getCurrentPageId);
-  const workspaceId: string = yield select(getCurrentWorkspaceId);
-  const selectedBuildingBlock = buildingBlocks.find(
-    (buildingBlock) => buildingBlock.title === buildingblockName,
-  ) as Template;
-
-  const body: ImportBuildingBlockToApplicationRequest = {
-    pageId: currentPageId,
-    applicationId,
-    workspaceId,
-    templateId: selectedBuildingBlock.id,
-  };
-
-  // api call adds DS, queries and JS to page and returns new page dsl with building block
-  const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
-    yield call(ApplicationApi.importBuildingBlockToApplication, body);
-
-  return response;
-}
-
-function* saveBuildingBlockWidgetsToStore(
-  response: ApiResponse<ImportBuildingBlockToApplicationResponse>,
-) {
-  const buildingBlockDsl = JSON.parse(response.data.widgetDsl);
-  const buildingBlockWidgets = buildingBlockDsl.children;
-  const flattenedBlockWidgets = buildingBlockWidgets.map(
-    (widget: WidgetProps) => flattenDSL(widget),
-  );
-
-  const widgetsToPasteInCanvas: CopiedWidgetData[] = yield all(
-    flattenedBlockWidgets.map((widget: FlattenedWidgetProps, index: number) => {
-      const widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
-      return {
-        hierarchy: getWidgetHierarchy(
-          buildingBlockWidgets[index].type,
-          buildingBlockWidgets[index].widgetId,
-        ),
-        list: Object.values(widget)
-          .map((obj) => ({ ...obj }))
-          .reverse(),
-        parentId: MAIN_CONTAINER_WIDGET_ID,
-        widgetId: buildingBlockWidgets[index].widgetId,
-        widgetPositionInfo,
-      };
-    }),
-  );
-
-  yield saveCopiedWidgets(
-    JSON.stringify({
-      widgets: widgetsToPasteInCanvas,
-      flexLayers: [],
-    }),
-  );
-}
-
-function* getBuildingBlocksDropMousePosition(
-  topRow: number,
-  leftColumn: number,
-) {
-  const canvasWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
-  let mousePosition = { x: 0, y: 0 };
-
-  // convert grid position to mouse position for paste functionality
-  const { canvasDOM, canvasId, containerWidget } =
-    getDefaultCanvas(canvasWidgets);
-  if (!canvasDOM || !containerWidget || !canvasId) {
-    mousePosition = { x: 0, y: 0 };
-  } else {
-    const canvasRect = canvasDOM.getBoundingClientRect();
-    const { padding, snapGrid } = getSnappedGrid(
-      containerWidget,
-      canvasRect.width,
-    );
-    mousePosition = getMousePositionFromCanvasGridPosition(
-      topRow,
-      leftColumn,
-      snapGrid,
-      padding,
-      canvasId as string,
-    );
-  }
-
-  return mousePosition;
-}
-
-function* runNewlyCreatedActions(
-  actionsBeforeAddingBuildingBlock: ActionDataState,
-  actionsAfterAddingBuildingBlocks: ActionDataState,
-) {
-  // Extract unique ids from the actionsBeforeAddingBuildingBlocks array
-  const actionIdsBeforeAddingBB = actionsBeforeAddingBuildingBlock.map(
-    (obj) => obj.config.id,
-  );
-
-  // Filter the after array to find new actions not present in actionsBeforeAddingBuildingBlocks array
-  const newlyAddedActions = actionsAfterAddingBuildingBlocks.filter(
-    (obj) => !actionIdsBeforeAddingBB.includes(obj.config.id),
-  );
-
-  // run all newly created actions
-  if (newlyAddedActions && newlyAddedActions.length > 0) {
-    yield all(
-      newlyAddedActions.map(function* (action) {
-        yield put(runAction(action.config.id));
-      }),
-    );
-  }
-}
-
-export function* addBuildingBlockToApplication(
-  buildingBlockWidget: WidgetAddChild,
-  skeletonLoaderId: string,
-) {
-  const { leftColumn, topRow } = buildingBlockWidget;
-  try {
-    const dragDetails: DragDetails = yield select(getDragDetails);
-    const applicationId: string = yield select(getCurrentApplicationId);
-    const actionsBeforeAddingBuildingBlock: ActionDataState =
-      yield select(getActions);
-    const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
-
-    // start loading for dragging building blocks
-    yield put({
-      type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_INIT,
-    });
-
-    // makes sure updateAndSaveLayout completes first for skeletonWidget addition
-    yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
-
-    const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
-      yield call(addBuildingBlockActionsToApp, dragDetails);
-    const isValid: boolean = yield validateResponse(response);
-
-    if (isValid) {
-      yield saveBuildingBlockWidgetsToStore(response);
-
-      const mousePosition: { x: number; y: number } = yield call(
-        getBuildingBlocksDropMousePosition,
-        topRow,
-        leftColumn,
-      );
-
-      // remove skeleton loader just before pasting the building block
-      yield put({
-        type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
-        payload: {
-          widgetId: skeletonLoaderId,
-          parentId: MAIN_CONTAINER_WIDGET_ID,
-          disallowUndo: true,
-          isShortcut: false,
-        },
-      });
-
-      yield put(pasteWidget(false, mousePosition));
-      yield call(postPageAdditionSaga, applicationId);
-      // remove selecting of recently imported widgets
-      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-
-      // stop loading after pasting process is complete
-      yield put({
-        type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_SUCCESS,
-      });
-
-      const actionsAfterAddingBuildingBlocks: ActionDataState =
-        yield select(getActions);
-
-      yield runNewlyCreatedActions(
-        actionsBeforeAddingBuildingBlock,
-        actionsAfterAddingBuildingBlocks,
-      );
-
-      if (existingCopiedWidgets) {
-        yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
-      }
-    }
-  } catch (error) {
-    yield put({
-      type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
-      payload: {
-        widgetId: skeletonLoaderId,
-        parentId: MAIN_CONTAINER_WIDGET_ID,
-        disallowUndo: true,
-        isShortcut: false,
-      },
-    });
-    yield put({
-      type: ReduxActionErrorTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_ERROR,
-    });
-  }
-}
-
-function* addBuildingBlockSaga(addEntityAction: ReduxAction<WidgetAddChild>) {
-  const dragDetails: DragDetails = yield select(getDragDetails);
-  const buildingblockName = dragDetails.newWidget.displayName;
-  const skeletonWidgetName = `loading_${buildingblockName
-    .toLowerCase()
-    .replace(/ /g, "_")}`;
-  const addSkeletonWidgetAction: ReduxAction<
-    WidgetAddChild & { shouldReplay: boolean }
-  > = {
-    ...addEntityAction,
-    payload: {
-      ...addEntityAction.payload,
-      type: "SKELETON_WIDGET",
-      widgetName: skeletonWidgetName,
-      widgetId: MAIN_CONTAINER_WIDGET_ID,
-      // so that the skeleton loader does not get included when the users uses the undo/redo
-      shouldReplay: false,
-    },
-  };
-  yield call(addChildSaga, addSkeletonWidgetAction);
-  const skeletonWidget: FlattenedWidgetProps = yield select(
-    getWidgetByName,
-    skeletonWidgetName,
-  );
-  yield call(
-    addBuildingBlockToApplication,
-    addEntityAction.payload,
-    skeletonWidget.widgetId,
-  );
-}
-
 function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
   try {
     const { payload } = addEntityAction;
     const { type } = payload;
 
     if (type === BUILDING_BLOCK_EXPLORER_TYPE) {
-      yield call(addBuildingBlockSaga, addEntityAction);
+      yield call(addBuildingBlockToCanvasSaga, addEntityAction);
     } else {
       yield call(addChildSaga, addEntityAction);
     }
@@ -779,4 +528,52 @@ export default function* widgetAdditionSagas() {
     takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILD, addUIEntitySaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD, addNewTabChildSaga),
   ]);
+}
+
+/**
+ * retrieves the values from session storage for the widget properties
+ * for hydration of the widget when we create widget on drop
+ */
+export function getWidgetSessionValues(
+  type: string,
+  parent: FlattenedWidgetProps,
+) {
+  // For WDS_INLINE_BUTTONS_WIDGET, we want to hydation only to work when we add more items to the inline button group.
+  // So we don't want to hydrate the values when we drop the widget on the canvas.
+  if (["WDS_INLINE_BUTTONS_WIDGET"].includes(type)) return;
+
+  let widgetType = type;
+  const configMap = WidgetFactory.widgetConfigMap.get(type);
+
+  const widgetSessionValues: any = {};
+
+  // in case we are dropping WDS_ICON_BUTTON_WIDGET, we want to reuse the values of BUTTON_WIDGET
+  if (type === "WDS_ICON_BUTTON_WIDGET") {
+    widgetType = "WDS_BUTTON_WIDGET";
+  }
+
+  for (const key in configMap) {
+    if (configMap[key] != undefined) {
+      let sessionStorageKey = `${widgetType}.${key}`;
+
+      if (type === "ZONE_WIDGET") {
+        sessionStorageKey = `${widgetType}.${parent.widgetId}.${key}`;
+      }
+
+      let valueFromSession: any = sessionStorage.getItem(sessionStorageKey);
+
+      // parse "true" as true and "false" as false
+      if (valueFromSession === "true") {
+        valueFromSession = true;
+      } else if (valueFromSession === "false") {
+        valueFromSession = false;
+      }
+
+      if (valueFromSession !== undefined && valueFromSession !== null) {
+        widgetSessionValues[key] = valueFromSession;
+      }
+    }
+  }
+
+  return widgetSessionValues;
 }

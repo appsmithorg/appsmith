@@ -204,7 +204,7 @@ export function DraggableListCard(props: RenderComponentProps) {
             startIcon="settings-2-line"
           />
         )}
-        {showDelete && !isSeparator && (
+        {showDelete && (
           <Button
             className="t--delete-column-btn"
             isIconButton

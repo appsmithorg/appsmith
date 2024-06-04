@@ -1,31 +1,32 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router";
-import { useSelector } from "react-redux";
 import clsx from "classnames";
-import type { FlexProps } from "design-system";
-import { Flex, Icon, Tooltip } from "design-system";
+import { Flex, Icon, ScrollArea } from "design-system";
 
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import {
+  EditorEntityTab,
+  EditorEntityTabState,
+  type EntityItem,
+} from "@appsmith/entities/IDE/constants";
 import {
   StyledTab,
   TabIconContainer,
   TabTextContainer,
 } from "./StyledComponents";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-import { getIsTabsRevampEnabled } from "selectors/ideSelectors";
+import { useCurrentEditorState } from "../hooks";
 
 interface Props {
   tabs: EntityItem[];
   navigateToTab: (tab: EntityItem) => void;
-  onClose: (actionId: string) => void;
+  onClose: (actionId?: string) => void;
 }
+
+const FILE_TABS_CONTAINER_ID = "file-tabs-container";
 
 const FileTabs = (props: Props) => {
   const { navigateToTab, onClose, tabs } = props;
-  const isTabsRevampEnabled = useSelector(getIsTabsRevampEnabled);
-  const containerProps: FlexProps = isTabsRevampEnabled
-    ? { overflowX: "auto", overflowY: "hidden" }
-    : {};
+  const { segment, segmentMode } = useCurrentEditorState();
 
   const location = useLocation();
 
@@ -38,47 +39,76 @@ const FileTabs = (props: Props) => {
         inline: "nearest",
       });
     }
+  }, [tabs, segmentMode]);
+
+  useEffect(() => {
+    const ele = document.getElementById(FILE_TABS_CONTAINER_ID)?.parentElement;
+    if (ele && ele.scrollWidth > ele.clientWidth) {
+      ele.style.borderRight = "1px solid var(--ads-v2-color-border)";
+    } else if (ele) {
+      ele.style.borderRight = "unset";
+    }
   }, [tabs]);
 
-  const onCloseClick = (e: React.MouseEvent, id: string) => {
+  const onCloseClick = (e: React.MouseEvent, id?: string) => {
     e.stopPropagation();
     onClose(id);
   };
 
   return (
-    <Flex
+    <ScrollArea
+      className="h-[32px] top-[0.5px]"
       data-testid="t--editor-tabs"
-      gap="spaces-2"
-      height="100%"
-      {...containerProps}
+      options={{
+        overflow: {
+          x: "scroll",
+          y: "hidden",
+        },
+      }}
+      size={"sm"}
     >
-      {tabs.map((tab: EntityItem) => (
-        <StyledTab
-          className={clsx(
-            "editor-tab",
-            currentEntity.id === tab.key && "active",
-          )}
-          data-testid={`t--ide-tab-${tab.title}`}
-          key={tab.key}
-          onClick={() => navigateToTab(tab)}
-          showOverflow={isTabsRevampEnabled}
-        >
-          <TabIconContainer>{tab.icon}</TabIconContainer>
-          <Tooltip content={tab.title} mouseEnterDelay={1}>
+      <Flex gap="spaces-2" height="100%" id={FILE_TABS_CONTAINER_ID}>
+        {tabs.map((tab: EntityItem) => (
+          <StyledTab
+            className={clsx(
+              "editor-tab",
+              currentEntity.id === tab.key && "active",
+            )}
+            data-testid={`t--ide-tab-${tab.title}`}
+            key={tab.key}
+            onClick={() => navigateToTab(tab)}
+          >
+            <TabIconContainer>{tab.icon}</TabIconContainer>
             <TabTextContainer>{tab.title}</TabTextContainer>
-          </Tooltip>
-          {/* not using button component because of the size not matching design */}
-          {isTabsRevampEnabled ? (
+            {/* not using button component because of the size not matching design */}
             <Icon
               className="tab-close rounded-[4px] hover:bg-[var(--ads-v2-colors-action-tertiary-surface-hover-bg)] cursor-pointer p-[2px]"
               data-testid="t--tab-close-btn"
               name="close-line"
               onClick={(e) => onCloseClick(e, tab.key)}
             />
-          ) : null}
-        </StyledTab>
-      ))}
-    </Flex>
+          </StyledTab>
+        ))}
+        {/* New Tab */}
+        {segmentMode === EditorEntityTabState.Add ? (
+          <StyledTab
+            className={clsx("editor-tab", "active")}
+            data-testid={`t--ide-tab-new`}
+          >
+            <TabTextContainer>
+              New {segment === EditorEntityTab.JS ? "JS" : "Query"}
+            </TabTextContainer>
+            {/* not using button component because of the size not matching design */}
+            <Icon
+              className="tab-close rounded-[4px] hover:bg-[var(--ads-v2-colors-action-tertiary-surface-hover-bg)] cursor-pointer p-[2px]"
+              data-testid="t--tab-close-btn"
+              name="close-line"
+              onClick={(e) => onCloseClick(e)}
+            />
+          </StyledTab>
+        ) : null}
+      </Flex>
+    </ScrollArea>
   );
 };
 

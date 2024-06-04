@@ -84,10 +84,6 @@ public class JsActionRefactoringServiceCEImpl implements EntityRefactoringServic
 
             actionCollectionDTO.setName(
                     dbActionCollection.getUnpublishedCollection().getName());
-            actionCollectionDTO.setDefaultToBranchedActionIdsMap(
-                    dbActionCollection.getUnpublishedCollection().getDefaultToBranchedActionIdsMap());
-            actionCollectionDTO.setDefaultToBranchedArchivedActionIdsMap(
-                    dbActionCollection.getUnpublishedCollection().getDefaultToBranchedArchivedActionIdsMap());
             copyNewFieldValuesIntoOldObject(actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
 
             // First perform refactor of the action itself

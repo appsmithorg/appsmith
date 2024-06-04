@@ -1,22 +1,23 @@
 package com.appsmith.server.helpers.ce;
 
+import com.appsmith.server.configurations.CloudServicesConfig;
+import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.util.WebClientUtils;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
 
-import java.net.URI;
 import java.time.Duration;
 
 @Slf4j
+@RequiredArgsConstructor
 public class NetworkUtilsCE {
 
-    private static final URI GET_IP_URI = URI.create("https://api64.ipify.org");
+    private final CloudServicesConfig cloudServicesConfig;
 
     protected static String cachedAddress = null;
 
     protected static final String FALLBACK_IP = "unknown";
-
-    protected NetworkUtilsCE() {}
 
     /**
      * This method hits an API endpoint that returns the external IP address of this server instance.
@@ -30,12 +31,12 @@ public class NetworkUtilsCE {
 
         return WebClientUtils.create()
                 .get()
-                .uri(GET_IP_URI)
+                .uri(cloudServicesConfig.getBaseUrl() + "/api/v1/ip")
                 .retrieve()
-                .bodyToMono(String.class)
+                .bodyToMono(ResponseDTO.class)
                 .map(address -> {
-                    cachedAddress = address;
-                    return address;
+                    cachedAddress = (String) address.getData();
+                    return cachedAddress;
                 })
                 .timeout(Duration.ofSeconds(60))
                 .onErrorResume(throwable -> {

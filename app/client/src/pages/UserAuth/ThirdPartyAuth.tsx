@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import type { SocialLoginType } from "@appsmith/constants/SocialLogin";
-import { getSocialLoginButtonProps } from "@appsmith/constants/SocialLogin";
+import { getSocialLoginButtonProps } from "@appsmith/utils/signupHelpers";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useLocation } from "react-router-dom";
@@ -9,6 +9,9 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { Button } from "design-system";
+import { isTenantConfig } from "@appsmith/utils/adminSettingsHelpers";
+import { useSelector } from "react-redux";
+import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 
 const ThirdPartyAuthWrapper = styled.div`
   display: flex;
@@ -34,9 +37,9 @@ function SocialLoginButton(props: {
   logo: string;
   name: string;
   url: string;
-  label?: string;
   type: SignInType;
 }) {
+  const tenantConfiguration = useSelector(getTenantConfig);
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   let url = props.url;
@@ -44,6 +47,13 @@ function SocialLoginButton(props: {
   if (redirectUrl != null) {
     url += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
   }
+
+  let buttonLabel = props.name;
+
+  if (props.name && isTenantConfig(props.name)) {
+    buttonLabel = tenantConfiguration[props.name];
+  }
+
   return (
     <StyledButton
       href={url}
@@ -72,7 +82,7 @@ function SocialLoginButton(props: {
       }
     >
       <div className="login-method" data-testid={`login-with-${props.name}`}>
-        {props.label ?? `${props.name}`}
+        {buttonLabel}
       </div>
     </StyledButton>
   );

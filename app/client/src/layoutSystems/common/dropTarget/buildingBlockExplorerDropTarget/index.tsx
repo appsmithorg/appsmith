@@ -1,4 +1,8 @@
 import { importSvg } from "@design-system/widgets-old/src/utils/icon-loadables";
+import {
+  EMPTY_CANVAS_HINTS,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { Text } from "design-system";
 import React from "react";
 import styled from "styled-components";
@@ -41,11 +45,15 @@ const BuildingBlockExplorerDropTarget = () => {
 
         <TextContainer>
           <Text kind="heading-s" style={{ marginBottom: "4px" }}>
-            Drag & drop a building block
+            {createMessage(
+              EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE,
+            )}
           </Text>
 
           <Text kind="body-m" style={{ textAlign: "left" }}>
-            Make a working app in seconds using functional blocks
+            {createMessage(
+              EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.DESCRIPTION,
+            )}
           </Text>
         </TextContainer>
       </MainContainer>

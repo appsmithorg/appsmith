@@ -24,7 +24,7 @@ import type {
   ModifyMetaWidgetPayload,
   UpdateMetaWidgetPropertyPayload,
 } from "reducers/entityReducers/metaWidgetsReducer";
-import type { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import shallowequal from "shallowequal";
 import AppsmithConsole from "utils/AppsmithConsole";
 import type {
@@ -370,6 +370,9 @@ abstract class BaseWidget<
 
   updateOneClickBindingOptionsVisibility(visibility: boolean) {
     const { updateOneClickBindingOptionsVisibility } = this.context;
+    if (visibility) {
+      this.selectWidgetRequest(SelectionRequestType.One, [this.props.widgetId]);
+    }
 
     updateOneClickBindingOptionsVisibility?.(visibility);
   }
@@ -561,6 +564,8 @@ export interface WidgetCardProps {
   isBeta?: boolean;
   tags?: WidgetTags[];
   isSearchWildcard?: boolean;
+  IconCmp?: () => JSX.Element;
+  ThumbnailCmp?: () => JSX.Element;
 }
 
 export const WidgetOperations = {

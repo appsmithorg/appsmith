@@ -15,6 +15,7 @@ import {
   defaultConfig,
   propertyPaneContent,
   propertyPaneStyle,
+  methodsConfig,
 } from "./config";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
@@ -91,6 +92,10 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
 
   static getAnvilConfig(): AnvilConfig | null {
     return anvilConfig;
+  }
+
+  static getMethods() {
+    return methodsConfig;
   }
 
   static getStylesheetConfig(): Stylesheet {

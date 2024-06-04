@@ -174,47 +174,49 @@ public class FirestorePluginTest {
 
         final CollectionReference paginationCol = firestoreConnection.collection("pagination");
         paginationCol
-                .add(Map.of("n", 1, "name", "Michele Cole", "firm", "Appsmith"))
+                .add(Map.of("n", 1, "name", "Michele Cole", "firm", "Appsmith", "age", 42))
                 .get();
         paginationCol
-                .add(Map.of("n", 2, "name", "Meghan Steele", "firm", "Google"))
+                .add(Map.of("n", 2, "name", "Meghan Steele", "firm", "Google", "age", 26))
                 .get();
         paginationCol
-                .add(Map.of("n", 3, "name", "Della Moore", "firm", "Facebook"))
+                .add(Map.of("n", 3, "name", "Della Moore", "firm", "Facebook", "age", 19))
                 .get();
         paginationCol
-                .add(Map.of("n", 4, "name", "Eunice Hines", "firm", "Microsoft"))
+                .add(Map.of("n", 4, "name", "Eunice Hines", "firm", "Microsoft", "age", 28))
                 .get();
         paginationCol
-                .add(Map.of("n", 5, "name", "Harriet Myers", "firm", "Netflix"))
+                .add(Map.of("n", 5, "name", "Harriet Myers", "firm", "Netflix", "age", 33))
                 .get();
         paginationCol
-                .add(Map.of("n", 6, "name", "Lowell Reese", "firm", "Apple"))
+                .add(Map.of("n", 6, "name", "Lowell Reese", "firm", "Apple", "age", 36))
                 .get();
         paginationCol
-                .add(Map.of("n", 7, "name", "Gerard Neal", "firm", "Oracle"))
-                .get();
-        paginationCol.add(Map.of("n", 8, "name", "Allen Arnold", "firm", "IBM")).get();
-        paginationCol
-                .add(Map.of("n", 9, "name", "Josefina Perkins", "firm", "Google"))
+                .add(Map.of("n", 7, "name", "Gerard Neal", "firm", "Oracle", "age", 41))
                 .get();
         paginationCol
-                .add(Map.of("n", 10, "name", "Alvin Zimmerman", "firm", "Facebook"))
+                .add(Map.of("n", 8, "name", "Allen Arnold", "firm", "IBM", "age", 29))
                 .get();
         paginationCol
-                .add(Map.of("n", 11, "name", "Israel Broc", "firm", "Microsoft"))
+                .add(Map.of("n", 9, "name", "Josefina Perkins", "firm", "Google", "age", 22))
                 .get();
         paginationCol
-                .add(Map.of("n", 12, "name", "Larry Frazie", "firm", "Netflix"))
+                .add(Map.of("n", 10, "name", "Alvin Zimmerman", "firm", "Facebook", "age", 24))
                 .get();
         paginationCol
-                .add(Map.of("n", 13, "name", "Rufus Green", "firm", "Apple"))
+                .add(Map.of("n", 11, "name", "Israel Broc", "firm", "Microsoft", "age", 27))
                 .get();
         paginationCol
-                .add(Map.of("n", 14, "name", "Marco Murray", "firm", "Oracle"))
+                .add(Map.of("n", 12, "name", "Larry Frazie", "firm", "Netflix", "age", 30))
                 .get();
         paginationCol
-                .add(Map.of("n", 15, "name", "Jeremy Mille", "firm", "IBM"))
+                .add(Map.of("n", 13, "name", "Rufus Green", "firm", "Apple", "age", 35))
+                .get();
+        paginationCol
+                .add(Map.of("n", 14, "name", "Marco Murray", "firm", "Oracle", "age", 38))
+                .get();
+        paginationCol
+                .add(Map.of("n", 15, "name", "Jeremy Mille", "firm", "IBM", "age", 31))
                 .get();
 
         dsConfig.setUrl(emulator.getEmulatorEndpoint());
@@ -613,14 +615,15 @@ public class FirestorePluginTest {
                 .verifyComplete();
     }
 
-    private ActionConfiguration constructActionConfiguration(Map<String, Object> first, Map<String, Object> last) {
+    private ActionConfiguration constructActionConfiguration(
+            Map<String, Object> first, Map<String, Object> last, String limit) {
         final ObjectMapper objectMapper = new ObjectMapper();
         ActionConfiguration actionConfiguration = new ActionConfiguration();
 
         Map<String, Object> configMap = new HashMap<>();
         setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
         setDataValueSafelyInFormData(configMap, ORDER_BY, "[\"n\"]");
-        setDataValueSafelyInFormData(configMap, LIMIT_DOCUMENTS, "5");
+        setDataValueSafelyInFormData(configMap, LIMIT_DOCUMENTS, limit);
         setDataValueSafelyInFormData(configMap, PATH, "pagination");
 
         if (first != null && last != null) {
@@ -637,7 +640,7 @@ public class FirestorePluginTest {
     }
 
     private Mono<ActionExecutionResult> getNextOrPrevPage(
-            ActionExecutionResult currentPage, PaginationField paginationField) {
+            ActionExecutionResult currentPage, PaginationField paginationField, String limit) {
         List<Map<String, Object>> results = (List) currentPage.getBody();
         final Map<String, Object> first = results.get(0);
         final Map<String, Object> last = results.get(results.size() - 1);
@@ -645,13 +648,13 @@ public class FirestorePluginTest {
         final ExecuteActionDTO execDetails = new ExecuteActionDTO();
         execDetails.setPaginationField(paginationField);
 
-        final ActionConfiguration actionConfiguration1 = constructActionConfiguration(first, last);
+        final ActionConfiguration actionConfiguration1 = constructActionConfiguration(first, last, limit);
         return pluginExecutor.executeParameterized(firestoreConnection, execDetails, dsConfig, actionConfiguration1);
     }
 
     @Test
     public void testPagination() {
-        final ActionConfiguration actionConfiguration = constructActionConfiguration(null, null);
+        final ActionConfiguration actionConfiguration = constructActionConfiguration(null, null, "5");
         // Fetch data for page 1
         Mono<ActionExecutionResult> page1Mono = pluginExecutor
                 .executeParameterized(firestoreConnection, new ExecuteActionDTO(), dsConfig, actionConfiguration)
@@ -659,17 +662,17 @@ public class FirestorePluginTest {
 
         // Fetch data for page 2 by clicking on the next button
         Mono<ActionExecutionResult> page2Mono = page1Mono
-                .flatMap(page1 -> getNextOrPrevPage(page1, PaginationField.NEXT))
+                .flatMap(page1 -> getNextOrPrevPage(page1, PaginationField.NEXT, "5"))
                 .cache();
 
         // Fetch data for page 3 by clicking on the next button
         Mono<ActionExecutionResult> page3Mono = page2Mono
-                .flatMap(page2 -> getNextOrPrevPage(page2, PaginationField.NEXT))
+                .flatMap(page2 -> getNextOrPrevPage(page2, PaginationField.NEXT, "5"))
                 .cache();
 
         // Fetch data for page 2 by clicking on the previous button
         Mono<ActionExecutionResult> prevPage2Mono = page3Mono
-                .flatMap(page3 -> getNextOrPrevPage(page3, PaginationField.PREV))
+                .flatMap(page3 -> getNextOrPrevPage(page3, PaginationField.PREV, "5"))
                 .cache();
 
         var pagesMono = Mono.zip(page1Mono, page2Mono, page3Mono, prevPage2Mono);
@@ -1342,6 +1345,68 @@ public class FirestorePluginTest {
                     assertTrue(result.getIsExecutionSuccess());
                     List<Map<String, Object>> results = (List) result.getBody();
                     assertEquals(2, results.size());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testPaginationWithWhereConditional() {
+        /** */
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
+
+        List<Object> children = new ArrayList<>();
+        children.add(Map.of(
+                "key", "age",
+                "condition", "GTE",
+                "value", "24"));
+
+        Map<String, Object> whereMap = new HashMap<>();
+        whereMap.put(CHILDREN, children);
+        setDataValueSafelyInFormData(configMap, WHERE, whereMap);
+        setDataValueSafelyInFormData(configMap, PATH, "pagination");
+        setDataValueSafelyInFormData(configMap, ORDER_BY, "[\"age\"]");
+        setDataValueSafelyInFormData(configMap, LIMIT_DOCUMENTS, "4");
+
+        final ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setFormData(configMap);
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+
+        // Fetch data for page 1
+        Mono<ActionExecutionResult> page1Mono = pluginExecutor
+                .executeParameterized(firestoreConnection, executeActionDTO, dsConfig, actionConfiguration)
+                .cache();
+
+        // Fetch data for page 2 by clicking on the next button
+        Mono<ActionExecutionResult> page2Mono = page1Mono
+                .flatMap(page1 -> getNextOrPrevPage(page1, PaginationField.NEXT, "4"))
+                .cache();
+
+        var pagesMono = Mono.zip(page1Mono, page2Mono);
+
+        StepVerifier.create(pagesMono)
+                .assertNext(resultPages -> {
+                    final ActionExecutionResult firstPageResult = resultPages.getT1();
+                    final ActionExecutionResult secondPageResult = resultPages.getT2();
+
+                    assertTrue(firstPageResult.getIsExecutionSuccess());
+
+                    List<Map<String, Object>> firstResults = (List) firstPageResult.getBody();
+                    assertEquals(4, firstResults.size());
+
+                    // assert the where clause result
+                    final List<Object> names =
+                            firstResults.stream().map(d -> d.get("name")).collect(Collectors.toList());
+                    assertEquals(List.of("Alvin Zimmerman", "Meghan Steele", "Israel Broc", "Eunice Hines"), names);
+
+                    List<Map<String, Object>> secondResults = (List) secondPageResult.getBody();
+                    assertEquals(4, secondResults.size());
+
+                    // assert the where clause result
+                    final List<Object> secondNames =
+                            secondResults.stream().map(d -> d.get("name")).collect(Collectors.toList());
+                    assertEquals(List.of("Harriet Myers", "Lowell Reese", "Gerard Neal", "Allen Arnold"), secondNames);
                 })
                 .verifyComplete();
     }

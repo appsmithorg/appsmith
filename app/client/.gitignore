@@ -46,9 +46,6 @@ results/
 /docker/nginx.conf
 /docker/nginx-root.conf
 
-storybook-static/*
-build-storybook.log
-
 .eslintcache
 .vscode
 TODO

@@ -295,8 +295,8 @@ export default {
                     ? 1
                     : -1
                   : Number(b[sortedColumn]) > Number(a[sortedColumn])
-                  ? 1
-                  : -1;
+                    ? 1
+                    : -1;
               case "date":
                 try {
                   return sortOrder
@@ -306,10 +306,10 @@ export default {
                       ? 1
                       : -1
                     : moment(b[sortedColumn], inputFormat).isAfter(
-                        moment(a[sortedColumn], inputFormat),
-                      )
-                    ? 1
-                    : -1;
+                          moment(a[sortedColumn], inputFormat),
+                        )
+                      ? 1
+                      : -1;
                 } catch (e) {
                   return -1;
                 }
@@ -320,9 +320,9 @@ export default {
                     ? 1
                     : -1
                   : b[sortedColumn].toString().toUpperCase() >
-                    a[sortedColumn].toString().toUpperCase()
-                  ? 1
-                  : -1;
+                      a[sortedColumn].toString().toUpperCase()
+                    ? 1
+                    : -1;
             }
           }
         } else {

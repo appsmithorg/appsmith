@@ -1,5 +1,7 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
+import { PagePaneSegment } from "../EditorNavigation";
 import AddView from "./AddView";
+import FileTabs from "./FileTabs";
 import ListView from "./ListView";
 
 export class LeftPane {
@@ -15,9 +17,7 @@ export class LeftPane {
     activeItemSelector: "",
     selector: "",
   };
-
-  private addView: AddView;
-  private listView: ListView;
+  public listView: ListView;
 
   constructor(
     listItemSelector: (name: string) => string,
@@ -29,7 +29,6 @@ export class LeftPane {
     this.segments = segments;
     this.locators.selector = selector;
     this.locators.activeItemSelector = activeItemSelector;
-    this.addView = new AddView();
     this.listView = new ListView();
   }
 
@@ -109,15 +108,15 @@ export class LeftPane {
   }
 
   public assertInAddView() {
-    this.addView.assertInAddView();
+    AddView.assertInAddView();
   }
 
   public closeAddView() {
-    this.addView.closeAddView();
+    AddView.closeAddView();
   }
 
-  public getCreateOptions() {
-    return this.addView.getCreateOptions();
+  public clickCreateOption(name: string) {
+    return AddView.clickCreateOption(name);
   }
 
   public assertInListView() {
@@ -132,5 +131,11 @@ export class LeftPane {
     ObjectsRegistry.AggregateHelper.GetElement(
       this.locators.segment(name),
     ).should("have.attr", "data-selected", "true");
+  }
+
+  public assertAbsenceOfAddNew() {
+    ObjectsRegistry.AggregateHelper.AssertElementAbsence(
+      this.listView.locators.addItem,
+    );
   }
 }

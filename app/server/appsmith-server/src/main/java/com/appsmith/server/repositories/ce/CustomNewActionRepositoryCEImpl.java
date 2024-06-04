@@ -346,8 +346,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     protected Mono<Void> copyUnpublishedActionToPublishedAction(
             BridgeQuery<NewAction> criteria, AclPermission permission) {
-        Mono<Set<String>> permissionGroupsMono =
-                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
+        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
 
         return permissionGroupsMono
                 .flatMapMany(permissionGroups -> {
@@ -402,6 +401,19 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(Bridge.in(NewAction.Fields.applicationId, applicationIds))
                 .fields(includeFields)
                 .all();
+    }
+
+    @Override
+    public Flux<NewAction> findAllByCollectionIds(
+            List<String> collectionIds, boolean viewMode, AclPermission aclPermission) {
+        String collectionIdPath;
+        if (viewMode) {
+            collectionIdPath = NewAction.Fields.publishedAction_collectionId;
+        } else {
+            collectionIdPath = NewAction.Fields.unpublishedAction_collectionId;
+        }
+        BridgeQuery<NewAction> q = Bridge.in(collectionIdPath, collectionIds);
+        return queryBuilder().criteria(q).permission(aclPermission).all();
     }
 
     @Override

@@ -166,10 +166,10 @@ export const resetCSSOnZones = (spaceDistributed: {
     const zonePropDom = document.getElementById(getPropertyPaneZoneId(zoneId));
     if (zoneDom) {
       zoneDom.style.flexBasis = "";
-      zoneDom.style.transition = "all 0.3s ease";
+      zoneDom.style.transition = "flex-basis 0.3s ease";
       if (zonePropDom) {
         zonePropDom.style.flexBasis = "";
-        zonePropDom.style.transition = "all 0.3s ease";
+        zonePropDom.style.transition = "flex-basis 0.3s ease";
       }
       setTimeout(() => {
         zoneDom.style.transition = "";

@@ -4,10 +4,6 @@ import FileTabs from "./FileTabs";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import { PluginType } from "entities/Action";
 
-const featureFlags = {
-  release_ide_tabs_revamp_enabled: true,
-};
-
 describe("FileTabs", () => {
   const mockTabs: EntityItem[] = [
     { key: "1", title: "File 1", type: PluginType.JS },
@@ -26,9 +22,6 @@ describe("FileTabs", () => {
         onClose={mockOnClose}
         tabs={mockTabs}
       />,
-      {
-        featureFlags: featureFlags,
-      },
     );
 
     const editorTabsContainer = getByTestId("t--editor-tabs");
@@ -44,38 +37,13 @@ describe("FileTabs", () => {
     });
   });
 
-  it("do not render close button if feature flag is off", () => {
-    featureFlags.release_ide_tabs_revamp_enabled = false;
-    const { getByTestId, queryByTestId } = render(
-      <FileTabs
-        navigateToTab={mockNavigateToTab}
-        onClose={mockOnClose}
-        tabs={mockTabs}
-      />,
-      {
-        featureFlags: featureFlags,
-      },
-    );
-
-    mockTabs.forEach((tab) => {
-      const tabElement = getByTestId(`t--ide-tab-${tab.title}`);
-      expect(tabElement).not.toBeNull();
-
-      expect(queryByTestId("t--tab-close-btn")).toBeFalsy();
-    });
-  });
-
   it("check tab click", () => {
-    featureFlags.release_ide_tabs_revamp_enabled = false;
     const { getByTestId } = render(
       <FileTabs
         navigateToTab={mockNavigateToTab}
         onClose={mockOnClose}
         tabs={mockTabs}
       />,
-      {
-        featureFlags: featureFlags,
-      },
     );
     const tabElement = getByTestId(`t--ide-tab-${mockTabs[0].title}`);
     fireEvent.click(tabElement);
@@ -84,16 +52,12 @@ describe("FileTabs", () => {
   });
 
   it("check for close click", () => {
-    featureFlags.release_ide_tabs_revamp_enabled = true;
     const { getByTestId } = render(
       <FileTabs
         navigateToTab={mockNavigateToTab}
         onClose={mockOnClose}
         tabs={mockTabs}
       />,
-      {
-        featureFlags: featureFlags,
-      },
     );
     const tabElement = getByTestId(`t--ide-tab-${mockTabs[1].title}`);
     const closeElement = tabElement.querySelector(

@@ -570,8 +570,8 @@ export default function* executePluginActionTriggerSaga(
     eventType === EventType.ON_NEXT_PAGE
       ? "NEXT"
       : eventType === EventType.ON_PREV_PAGE
-      ? "PREV"
-      : undefined;
+        ? "PREV"
+        : undefined;
   AppsmithConsole.info({
     text: "Execution started from widget request",
     source: {

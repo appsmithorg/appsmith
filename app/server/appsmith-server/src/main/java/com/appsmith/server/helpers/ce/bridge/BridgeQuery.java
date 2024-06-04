@@ -63,6 +63,15 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
+    public BridgeQuery<T> searchIgnoreCase(@NonNull String key, @NonNull String needle) {
+        if (key.contains(".")) {
+            throw new UnsupportedOperationException("Search-ignore-case is not supported for nested fields");
+        }
+
+        checks.add(Criteria.where(key).regex(".*" + Pattern.quote(needle) + ".*", "i"));
+        return this;
+    }
+
     public BridgeQuery<T> in(@NonNull String key, @NonNull Collection<String> value) {
         checks.add(Criteria.where(key).in(value));
         return this;

@@ -82,12 +82,6 @@ describe(
 
       agHelper.GetNClick(oneClickBindingLocator.datasourceQuerySelector(), 0);
 
-      agHelper.AssertElementExist(
-        oneClickBindingLocator.dropdownOptionSelector("Query1"),
-      );
-
-      propPane.ToggleJSMode("Table data");
-
       propPane.ValidatePropertyFieldValue("Table data", "{{Query1.data}}");
 
       propPane.AssertJSToggleState("Table data", "enabled");
@@ -117,8 +111,8 @@ describe(
       dataSources.CreatePlugIn("Mongo");
       agHelper.RenameWithInPane("myinvalidds", false);
 
-      agHelper.UpdateInputValue(dataSources._host(), "127.0.0.1");
-      agHelper.UpdateInputValue(dataSources._port, "8000");
+      agHelper.ClearNType(dataSources._host(), "127.0.0.1");
+      agHelper.ClearNType(dataSources._port, "8000");
 
       dataSources.SaveDatasource();
 
@@ -144,8 +138,8 @@ describe(
         dataSources.CreatePlugIn("Mongo");
         agHelper.RenameWithInPane(`dummy${I}`, false);
 
-        agHelper.UpdateInputValue(dataSources._host(), "127.0.0.1");
-        agHelper.UpdateInputValue(dataSources._port, "8000");
+        agHelper.ClearNType(dataSources._host(), "127.0.0.1");
+        agHelper.ClearNType(dataSources._port, "8000");
 
         dataSources.SaveDatasource();
       });

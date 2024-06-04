@@ -9,7 +9,7 @@ describe(
   { tags: ["@tag.Datasource"] },
   function () {
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
 
     it("1. Create a empty datasource", function () {
@@ -23,7 +23,7 @@ describe(
       dataSources.RunQuery({ toValidateResponse: false });
       cy.wait(500);
       cy.get("[data-testid=t--query-error]").contains(
-        "[Missing endpoint., Missing username for authentication.]",
+        "[Missing username for authentication., Missing hostname.]",
       );
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",

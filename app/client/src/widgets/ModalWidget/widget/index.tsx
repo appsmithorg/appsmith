@@ -3,7 +3,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { RenderMode } from "constants/WidgetConstants";
 import { GridDefaults } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
-import type { Stylesheet } from "entities/AppTheming";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
   FlexLayerAlignment,
@@ -178,7 +178,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
                           {
                             widgetId: iconChild.widgetId,
                             propertyName: "onClick",
-                            propertyValue: `{{closeModal('${parent.widgetName}')}}`,
+                            propertyValue: `{{closeModal(${parent.widgetName}.name);}}`,
                           },
                         ];
                       }
@@ -204,7 +204,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
                           {
                             widgetId: cancelBtnChild.widgetId,
                             propertyName: "onClick",
-                            propertyValue: `{{closeModal('${parent.widgetName}')}}`,
+                            propertyValue: `{{closeModal(${parent.widgetName}.name);}}`,
                           },
                         ];
                       }
@@ -359,6 +359,22 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       isVisible: DefaultAutocompleteDefinitions.isVisible,
+      name: {
+        "!type": "string",
+        "!doc": "Returns the modal name",
+      },
+    };
+  }
+
+  static getDerivedPropertiesMap() {
+    return {
+      name: "{{this.widgetName}}",
+    };
+  }
+
+  static getSetterConfig(): SetterConfig {
+    return {
+      __setters: {},
     };
   }
 

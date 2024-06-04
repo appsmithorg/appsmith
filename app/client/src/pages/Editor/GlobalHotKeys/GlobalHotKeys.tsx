@@ -360,7 +360,12 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     copySelectedWidget: () => dispatch(copyWidget(true)),
     pasteCopiedWidget: (mouseLocation: { x: number; y: number }) =>
-      dispatch(pasteWidget(false, mouseLocation)),
+      dispatch(
+        pasteWidget({
+          groupWidgets: false,
+          mouseLocation,
+        }),
+      ),
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
     groupSelectedWidget: () => dispatch(groupWidgets()),

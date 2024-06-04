@@ -122,6 +122,7 @@ This exports the widget configuration as an object usually named `CONFIG`. The d
 - `name` (required): The display name of this widget. This can contain spaces.
 - `iconSVG` (required): `IconSVG`, where `IconSVG` is the import from the `./icon.svg`
 - `needsMeta` (optional): `true`, if this widget stores temporary values. For example, a user input value or state.
+- `isDeprecated` (optional): This property indicates whether the widget is deprecated. If set to `true`, it means the widget is no longer recommended for use, and developers should consider using the specified replacement widget.
 - `isCanvas` (optional): `true`, if this widget contains a Canvas within itself, to allow for widgets to be placed within.
 - `properties` (required):
 
@@ -149,6 +150,8 @@ The widget code must be all available in the `widget` folder. `index.tsx` should
 ### Static methods:
 
 - `getPropertyPaneConfig` (required, `[PropertyPaneConfig[]](#property-pane-configuration)`): returns the [property pane](#property-pane-configuration) configuration
+- `getPropertyPaneContentConfig` (required, `[PropertyPaneConfig[]](#property-pane-content-configuration)`): returns the [property pane content](#property-pane-content-configuration) configuration
+- `getPropertyPaneStyleConfig` (required, `[PropertyPaneConfig[]](#property-pane-style-configuration)`): returns the [property pane style](#property-pane-style-configuration) configuration
 - `getDerivedPropertiesMap` (optional, [DerivedPropertiesMap](#derived-properties-configuration)): returns the map of properties which can be derived from other properties. We can see more details [here](#derived-properties-configuration)
 - `getDefaultPropertiesMap` (optional, object): returns the list of properties which by default takes the value of a [default property](#default-properties-configuration)
 - `getMetaPropertiesMap` (optional, object): returns the properties which will be considered and stored as [meta properties](#meta-properties-configuration).
@@ -229,6 +232,30 @@ Example:
 
 <p>
 <img src="assets/propertyConfig.png" width="320px">
+</p>
+
+## Property pane content configuration
+
+Property pane content configuration defines the settings related to the content and functionality of the widget, including the order of property controls, their validations, grouping, types, etc.
+
+The type is `[Array<PropertyPaneConfig>](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/constants/PropertyControlConstants.tsx#L100)``.
+
+Example:
+
+<p>
+<img src="assets/propertyContentConfig.png" width="320px">
+</p>
+
+## Property pane style configuration
+
+Property pane style configuration defines the settings related to the appearance and styling of the widget, including the order of property controls, their validations, grouping, types, etc.
+
+The type is `[Array<PropertyPaneConfig>](https://github.com/appsmithorg/appsmith/blob/e772fd4ff96accfb94818fa9f0b58dc6851a1cf0/app/client/src/constants/PropertyControlConstants.tsx#L100)``.
+
+Example:
+
+<p>
+<img src="assets/propertyStyleConfig.png" width="320px">
 </p>
 
 ### PropertyPaneSectionConfig

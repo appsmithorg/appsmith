@@ -97,11 +97,11 @@ public class Plugin extends BaseDomain {
 
     // Stores the equivalent of editor.json for remote plugins
     @JsonView(Views.Public.class)
-    Map actionUiConfig;
+    Map<?, ?> actionUiConfig;
 
     // Stores the equivalent of form.json for remote plugins
     @JsonView(Views.Public.class)
-    Map datasourceUiConfig;
+    Map<?, ?> datasourceUiConfig;
 
     @Transient
     @JsonView(Views.Public.class)

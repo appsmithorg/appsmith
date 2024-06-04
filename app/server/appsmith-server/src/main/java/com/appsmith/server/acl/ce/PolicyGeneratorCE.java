@@ -24,6 +24,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
+import static com.appsmith.server.acl.AclPermission.APPLICATION_DELETE_PAGES;
 import static com.appsmith.server.acl.AclPermission.COMMENT_ON_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.CONNECT_TO_GIT;
 import static com.appsmith.server.acl.AclPermission.DELETE_ACTIONS;
@@ -210,7 +211,8 @@ public class PolicyGeneratorCE {
 
         // If the user is being given MANAGE_APPLICATION permission, they must also be given READ_APPLICATION perm
         lateralGraph.addEdge(MANAGE_APPLICATIONS, READ_APPLICATIONS);
-
+        // If the user has permission to delete application, they must have permission to delete application-pages,
+        lateralGraph.addEdge(DELETE_APPLICATIONS, APPLICATION_DELETE_PAGES);
         // If the user can read an application, the should be able to comment on it.
         lateralGraph.addEdge(READ_APPLICATIONS, COMMENT_ON_APPLICATIONS);
     }
@@ -229,6 +231,7 @@ public class PolicyGeneratorCE {
         hierarchyGraph.addEdge(MANAGE_APPLICATIONS, MANAGE_PAGES);
         hierarchyGraph.addEdge(READ_APPLICATIONS, READ_PAGES);
         hierarchyGraph.addEdge(DELETE_APPLICATIONS, DELETE_PAGES);
+        hierarchyGraph.addEdge(APPLICATION_DELETE_PAGES, DELETE_PAGES);
         hierarchyGraph.addEdge(APPLICATION_CREATE_PAGES, PAGE_CREATE_PAGE_ACTIONS);
 
         lateralGraph.addEdge(MANAGE_PAGES, READ_PAGES);

@@ -3,6 +3,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
@@ -25,24 +26,15 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import {
-  addBuildingBlockToApplication,
-  getUpdateDslAfterCreatingChild,
-} from "sagas/WidgetAdditionSagas";
+import { addAndMoveBuildingBlockToCanvasSaga } from "sagas/BuildingBlockSagas/BuildingBlockAdditionSagas";
+import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   executeWidgetBlueprintBeforeOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "sagas/WidgetBlueprintSagas";
-import {
-  getDragDetails,
-  getWidget,
-  getWidgetByName,
-  getWidgets,
-  getWidgetsMeta,
-} from "sagas/selectors";
+import { getWidget, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import {
   getCanvasWidth,
   getIsAutoLayoutMobileBreakPoint,
@@ -50,7 +42,6 @@ import {
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 
@@ -150,45 +141,6 @@ const getBottomMostRowAfterMove = (
   return widgetBottomRow;
 };
 
-function* addBuildingBlockAndMoveWidgetsSaga(
-  actionPayload: ReduxAction<{
-    newWidget: WidgetAddChild;
-    draggedBlocksToUpdate: WidgetDraggingUpdateParams[];
-    canvasId: string;
-  }>,
-) {
-  const dragDetails: DragDetails = yield select(getDragDetails);
-  const buildingblockName = dragDetails.newWidget.displayName;
-  const skeletonWidgetName = `loading_${buildingblockName
-    .toLowerCase()
-    .replace(/ /g, "_")}`;
-
-  yield call(addWidgetAndMoveWidgetsSaga, {
-    ...actionPayload,
-    payload: {
-      ...actionPayload.payload,
-      // so that the skeleton loader does not get included when the users uses the undo/redo
-      shouldReplay: false,
-      newWidget: {
-        ...actionPayload.payload.newWidget,
-        type: "SKELETON_WIDGET",
-        widgetName: skeletonWidgetName,
-        widgetId: MAIN_CONTAINER_WIDGET_ID,
-      },
-    },
-  });
-
-  const skeletonWidget: FlattenedWidgetProps = yield select(
-    getWidgetByName,
-    skeletonWidgetName,
-  );
-  yield call(
-    addBuildingBlockToApplication,
-    actionPayload.payload.newWidget,
-    skeletonWidget.widgetId,
-  );
-}
-
 function* addAndMoveUIEntitySaga(
   actionPayload: ReduxAction<{
     newWidget: WidgetAddChild;
@@ -197,7 +149,7 @@ function* addAndMoveUIEntitySaga(
   }>,
 ) {
   if (actionPayload.payload.newWidget.type === BUILDING_BLOCK_EXPLORER_TYPE) {
-    yield call(addBuildingBlockAndMoveWidgetsSaga, actionPayload);
+    yield call(addAndMoveBuildingBlockToCanvasSaga, actionPayload);
   } else {
     yield call(addWidgetAndMoveWidgetsSaga, actionPayload);
   }

@@ -17,6 +17,7 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -63,9 +64,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     private Boolean emailVerified;
 
     @JsonView(Views.Public.class)
-    private String currentWorkspaceId;
-
-    @JsonView(Views.Public.class)
     private Set<String> workspaceIds;
 
     @JsonView(Views.Public.class)
@@ -99,6 +97,9 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     // e.g. AnonymousUser is created by the system migration during the first time startup.
     @JsonView(Views.Internal.class)
     Boolean isSystemGenerated;
+
+    @JsonView(Views.Internal.class)
+    Instant lastActiveAt;
 
     // TODO: Populate these attributes for a user. Generally required for OAuth2 logins
     @Override

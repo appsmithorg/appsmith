@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationCreationDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -19,9 +20,6 @@ import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
 import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.UserHomepageDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.exports.internal.partial.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
@@ -30,7 +28,7 @@ import com.appsmith.server.imports.internal.partial.PartialImportService;
 import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationSnapshotService;
-import com.appsmith.server.solutions.ApplicationFetcher;
+import com.appsmith.server.solutions.UserReleaseNotes;
 import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
@@ -66,7 +64,7 @@ public class ApplicationControllerCE {
 
     protected final ApplicationService service;
     private final ApplicationPageService applicationPageService;
-    private final ApplicationFetcher applicationFetcher;
+    private final UserReleaseNotes userReleaseNotes;
     private final ApplicationForkingService applicationForkingService;
     private final ThemeService themeService;
     private final ApplicationSnapshotService applicationSnapshotService;
@@ -78,14 +76,10 @@ public class ApplicationControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Application>> create(
-            @Valid @RequestBody Application resource, @RequestParam String workspaceId) {
-        if (workspaceId == null) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspace id"));
-        }
-        log.debug("Going to create application in workspace {}", workspaceId);
+    public Mono<ResponseDTO<Application>> create(@Valid @RequestBody ApplicationCreationDTO resource) {
+        log.debug("Going to create application in workspace {}", resource.workspaceId());
         return applicationPageService
-                .createApplication(resource, workspaceId)
+                .createApplication(resource.toApplication())
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -131,16 +125,6 @@ public class ApplicationControllerCE {
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
-    @Deprecated
-    @JsonView(Views.Public.class)
-    @GetMapping("/new")
-    public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
-        log.debug("Going to get all applications grouped by workspace");
-        return applicationFetcher
-                .getAllApplications()
-                .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
-    }
-
     @JsonView(Views.Public.class)
     @GetMapping("/home")
     public Mono<ResponseDTO<List<Application>>> findByWorkspaceIdAndRecentlyUsedOrder(
@@ -155,7 +139,7 @@ public class ApplicationControllerCE {
     @GetMapping(Url.RELEASE_ITEMS)
     public Mono<ResponseDTO<ReleaseItemsDTO>> getReleaseItemsInformation() {
         log.debug("Going to get version release items");
-        return applicationFetcher
+        return userReleaseNotes
                 .getReleaseItems()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }

@@ -683,32 +683,9 @@ public class FirestorePlugin extends BasePlugin {
             }
 
             return Mono.just(query)
-                    // Apply ordering, if provided.
-                    .map(query1 -> {
-                        Query q = query1;
-                        final List<Object> startAfterValues = new ArrayList<>();
-                        final List<Object> endBeforeValues = new ArrayList<>();
-                        for (final String field : orderings) {
-                            q = q.orderBy(
-                                    field.replaceAll("^-", ""),
-                                    field.startsWith("-") ? Query.Direction.DESCENDING : Query.Direction.ASCENDING);
-                            if (startAfter != null) {
-                                startAfterValues.add(startAfter.get(field));
-                            }
-                            if (endBefore != null) {
-                                endBeforeValues.add(endBefore.get(field));
-                            }
-                        }
-                        if (PaginationField.NEXT.equals(paginationField) && !CollectionUtils.isEmpty(startAfter)) {
-                            q = q.startAfter(startAfterValues.toArray());
-                        } else if (PaginationField.PREV.equals(paginationField)
-                                && !CollectionUtils.isEmpty(endBefore)) {
-                            q = q.endBefore(endBeforeValues.toArray());
-                        }
-                        return q;
-                    })
                     // Apply where condition, if provided.
-                    .flatMap(query1 -> {
+                    .flatMap(q -> {
+                        Query query1 = q;
                         if (!isWhereMethodUsed(formData)) {
                             return Mono.just(query1);
                         }
@@ -741,6 +718,30 @@ public class FirestorePlugin extends BasePlugin {
                         }
 
                         return Mono.just(query1);
+                    })
+                    // Apply ordering, if provided.
+                    .map(query1 -> {
+                        Query q = query1;
+                        final List<Object> startAfterValues = new ArrayList<>();
+                        final List<Object> endBeforeValues = new ArrayList<>();
+                        for (final String field : orderings) {
+                            q = q.orderBy(
+                                    field.replaceAll("^-", ""),
+                                    field.startsWith("-") ? Query.Direction.DESCENDING : Query.Direction.ASCENDING);
+                            if (startAfter != null) {
+                                startAfterValues.add(startAfter.get(field));
+                            }
+                            if (endBefore != null) {
+                                endBeforeValues.add(endBefore.get(field));
+                            }
+                        }
+                        if (PaginationField.NEXT.equals(paginationField) && !CollectionUtils.isEmpty(startAfter)) {
+                            q = q.startAfter(startAfterValues.toArray());
+                        } else if (PaginationField.PREV.equals(paginationField)
+                                && !CollectionUtils.isEmpty(endBefore)) {
+                            q = q.endBefore(endBeforeValues.toArray());
+                        }
+                        return q;
                     })
                     // Apply limit, always provided, since without it, we can inadvertently end up processing too much
                     // data.

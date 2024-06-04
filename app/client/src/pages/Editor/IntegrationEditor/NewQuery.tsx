@@ -29,6 +29,7 @@ interface QueryHomeScreenProps {
   };
   showMostPopularPlugins?: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
+  isAirgappedInstance?: boolean;
 }
 
 class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
@@ -37,6 +38,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
       editorId,
       editorType,
       history,
+      isAirgappedInstance,
       isCreating,
       location,
       parentEntityId,
@@ -51,6 +53,7 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
           editorId={editorId}
           editorType={editorType}
           history={history}
+          isAirgappedInstance={isAirgappedInstance}
           isCreating={isCreating}
           location={location}
           parentEntityId={parentEntityId}

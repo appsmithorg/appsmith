@@ -21,7 +21,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -119,17 +118,10 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
 
         return branchedActionCollectionDTOMono
                 .flatMap(branchedActionCollection -> {
-                    final HashMap<String, String> actionIds = new HashMap<>();
-                    if (branchedActionCollection.getDefaultToBranchedActionIdsMap() != null) {
-                        actionIds.putAll(branchedActionCollection.getDefaultToBranchedActionIdsMap());
-                    }
-                    if (branchedActionCollection.getDefaultToBranchedArchivedActionIdsMap() != null) {
-                        actionIds.putAll(branchedActionCollection.getDefaultToBranchedArchivedActionIdsMap());
-                    }
-
-                    Flux<ActionDTO> actionUpdatesFlux = Flux.fromIterable(actionIds.values())
-                            .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(
-                                    actionId, false, actionPermission.getEditPermission()))
+                    Flux<ActionDTO> actionUpdatesFlux = newActionService
+                            .findByCollectionIdAndViewMode(
+                                    branchedActionCollection.getId(), false, actionPermission.getEditPermission())
+                            .map(action -> newActionService.generateActionByViewMode(action, false))
                             .flatMap(actionDTO -> {
                                 actionDTO.setFullyQualifiedName(newName + "." + actionDTO.getName());
                                 return newActionService

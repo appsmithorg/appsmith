@@ -10,8 +10,6 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -134,16 +132,6 @@ public class DefaultResourcesUtils {
             collectionDTODefaultResources.setBranchName(null);
             collectionDTODefaultResources.setCollectionId(null);
 
-            if (updateActionIds) {
-                Map<String, String> updatedActionIds = new HashMap<>();
-                if (!CollectionUtils.isNullOrEmpty(collectionDTO.getDefaultToBranchedActionIdsMap())) {
-                    collectionDTO
-                            .getDefaultToBranchedActionIdsMap()
-                            .values()
-                            .forEach(val -> updatedActionIds.put(val, val));
-                    collectionDTO.setDefaultToBranchedActionIdsMap(updatedActionIds);
-                }
-            }
             collectionDTO.setDefaultResources(collectionDTODefaultResources);
         }
         return resource;

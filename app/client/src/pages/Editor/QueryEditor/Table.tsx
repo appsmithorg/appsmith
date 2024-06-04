@@ -195,7 +195,11 @@ const renderCell = (props: any) => {
   }
 
   return (
-    <AutoToolTipComponent title={displayValue}>
+    <AutoToolTipComponent
+      boundary="viewport"
+      position="left"
+      title={displayValue}
+    >
       {displayValue}
     </AutoToolTipComponent>
   );
@@ -351,7 +355,11 @@ function Table(props: TableProps) {
                               : "hidden-header"
                           }
                         >
-                          <AutoToolTipComponent title={column.render("Header")}>
+                          <AutoToolTipComponent
+                            boundary="viewport"
+                            position="left"
+                            title={column.render("Header")}
+                          >
                             {column.render("Header")}
                             {shouldResize && (
                               <div

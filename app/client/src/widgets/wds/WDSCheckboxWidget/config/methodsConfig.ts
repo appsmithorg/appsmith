@@ -2,6 +2,7 @@ import type {
   PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/constants";
+import { CheckboxIcon, CheckboxThumbnail } from "appsmith-icons";
 
 export const methodsConfig = {
   getSnipingModeUpdates: (
@@ -15,4 +16,6 @@ export const methodsConfig = {
       },
     ];
   },
+  IconCmp: CheckboxIcon,
+  ThumbnailCmp: CheckboxThumbnail,
 };

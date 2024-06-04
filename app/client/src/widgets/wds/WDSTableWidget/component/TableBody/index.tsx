@@ -1,53 +1,13 @@
 import React from "react";
-import type {
-  Row as ReactTableRowType,
-  TableBodyPropGetter,
-  TableBodyProps,
-} from "react-table";
-import type { ReactTableColumnProps } from "../Constants";
-import type { HeaderComponentProps } from "../Table";
+
+import { TableBodyContext } from "./context";
 import { StaticTableBody } from "./StaticTableBody";
+import type { TableBodyContextType } from "./context";
+import type { VirtualTableBodyProps } from "./VirtualTableBody";
 import { VirtualTableBody } from "./VirtualTableBody";
-import type { VirtualTableBodyProps } from "./types";
-
-export type BodyContextType = {
-  accentColor: string;
-  borderRadius: string;
-  multiRowSelection: boolean;
-  prepareRow?(row: ReactTableRowType<Record<string, unknown>>): void;
-  selectTableRow?: (row: {
-    original: Record<string, unknown>;
-    index: number;
-  }) => void;
-  selectedRowIndex: number;
-  selectedRowIndices: number[];
-  columns: ReactTableColumnProps[];
-  width: number;
-  rows: ReactTableRowType<Record<string, unknown>>[];
-  primaryColumnId?: string;
-  isAddRowInProgress: boolean;
-  getTableBodyProps?(
-    propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
-  ): TableBodyProps;
-  totalColumnsWidth?: number;
-} & Partial<HeaderComponentProps>;
-
-export const BodyContext = React.createContext<BodyContextType>({
-  accentColor: "",
-  borderRadius: "",
-  multiRowSelection: false,
-  selectedRowIndex: -1,
-  selectedRowIndices: [],
-  columns: [],
-  width: 0,
-  rows: [],
-  primaryColumnId: "",
-  isAddRowInProgress: false,
-  totalColumnsWidth: 0,
-});
 
 export const TableBody = (
-  props: VirtualTableBodyProps & BodyContextType & { useVirtual: boolean },
+  props: VirtualTableBodyProps & TableBodyContextType & { useVirtual: boolean },
 ) => {
   const {
     accentColor,
@@ -81,7 +41,7 @@ export const TableBody = (
   } = props;
 
   return (
-    <BodyContext.Provider
+    <TableBodyContext.Provider
       value={{
         accentColor,
         canFreezeColumn,
@@ -107,17 +67,19 @@ export const TableBody = (
         selectedRowIndices,
         selectTableRow,
         columns,
-        width,
         rows,
+        width,
         getTableBodyProps: props.getTableBodyProps,
         totalColumnsWidth: props.totalColumnsWidth,
       }}
     >
       {useVirtual ? (
-        <VirtualTableBody rows={rows} width={width} {...restOfProps} />
+        <VirtualTableBody rows={rows} {...restOfProps} />
       ) : (
         <StaticTableBody rows={rows} {...restOfProps} />
       )}
-    </BodyContext.Provider>
+    </TableBodyContext.Provider>
   );
 };
+
+export { TableBodyContext };

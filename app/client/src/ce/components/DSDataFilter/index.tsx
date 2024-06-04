@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Link, Tag, Text, Tooltip } from "design-system";
-import {
-  BUSINESS_EDITION_TEXT,
-  BUSINESS_TAG,
-  SWITCH_ENV_DISABLED_TOOLTIP_TEXT,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { BUSINESS_TAG, createMessage } from "@appsmith/constants/messages";
 import { capitalizeFirstLetter } from "utils/helpers";
 import {
   getRampLink,
@@ -18,8 +13,11 @@ import {
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
 import { useSelector } from "react-redux";
+import type { EnvironmentType } from "constants/EnvironmentContants";
+import { environmentList } from "constants/EnvironmentContants";
+import { DisabledTooltipContent } from "@appsmith/components/SwitchEnvironment";
 
-const Container = styled.div`
+export const Container = styled.div`
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--ads-v2-color-border);
@@ -27,7 +25,7 @@ const Container = styled.div`
   height: 100%;
 `;
 
-const FilterComponentContainer = styled.div<{
+export const FilterComponentContainer = styled.div<{
   isSelected: boolean;
   disabled: boolean;
 }>`
@@ -37,6 +35,7 @@ const FilterComponentContainer = styled.div<{
   align-items: center;
   justify-content: flex-start;
   border-radius: var(--ads-v2-border-radius);
+  width: 159px;
 
   ${(props) =>
     props.isSelected && `background: var(--ads-color-background-secondary);`}
@@ -44,15 +43,17 @@ const FilterComponentContainer = styled.div<{
   ${(props) => (props.disabled ? ` cursor: not-allowed;` : `cursor: pointer;`)}
 `;
 
-const FilterComponentLabel = styled(Text)<{ disabled: boolean }>`
+export const FilterComponentLabel = styled(Text)<{ disabled: boolean }>`
   opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  text-overflow: ellipsis;
+  overflow: hidden;
 `;
 
-const TooltipLink = styled(Link)`
+export const TooltipLink = styled(Link)`
   display: inline;
 `;
 
-interface DSDataFilterProps {
+export interface DSDataFilterProps {
   updateFilter: (
     id: string,
     name: string,
@@ -65,29 +66,10 @@ interface DSDataFilterProps {
   filterId: string; // id of the selected environment, used to keep the parent and child in sync
 }
 
-interface EnvironmentType {
-  id: string;
-  name: string;
-  selected: boolean;
-  userPermissions: string[];
-}
-
-const environments: Array<EnvironmentType> = [
-  {
-    id: "unused_env",
-    name: "production",
-    selected: true,
-    userPermissions: [],
-  },
-  {
-    id: "unused_env",
-    name: "staging",
-    selected: false,
-    userPermissions: [],
-  },
-];
-
-function DSDataFilter({ isInsideReconnectModal, viewMode }: DSDataFilterProps) {
+export function DSDataFilter({
+  isInsideReconnectModal,
+  viewMode,
+}: DSDataFilterProps) {
   const [showFilterPane, setShowFilterPane] = useState(false);
   const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV, true);
   const canShowRamp = useSelector(showRampSelector);
@@ -101,15 +83,15 @@ function DSDataFilter({ isInsideReconnectModal, viewMode }: DSDataFilterProps) {
   // update the selected environment if the list of environments changes
   useEffect(() => {
     const isRenderAllowed =
-      environments.length > 0 &&
+      environmentList.length > 0 &&
       canShowRamp &&
       !viewMode &&
       !isInsideReconnectModal;
 
     if (showFilterPane !== isRenderAllowed) setShowFilterPane(isRenderAllowed);
     // If there are no environments, do nothing
-    if (!environments.length) return;
-  }, [environments.length, viewMode, isInsideReconnectModal]);
+    if (!environmentList.length) return;
+  }, [environmentList.length, viewMode, isInsideReconnectModal]);
 
   if (!showFilterPane) return null;
 
@@ -140,23 +122,12 @@ function DSDataFilter({ isInsideReconnectModal, viewMode }: DSDataFilterProps) {
     );
   };
 
-  const DisabledTooltipContent = () => {
-    return (
-      <Text color="var(--ads-v2-color-white)" kind="action-m">
-        {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
-        <TooltipLink kind="primary" target="_blank" to={rampLink}>
-          {createMessage(BUSINESS_EDITION_TEXT)}
-        </TooltipLink>
-      </Text>
-    );
-  };
-
   return (
     <Container>
-      {environments.map((env: EnvironmentType) => {
+      {environmentList.map((env: EnvironmentType) => {
         const isDisabled = !env.selected;
         return isDisabled ? (
-          <Tooltip content={DisabledTooltipContent()} placement="right">
+          <Tooltip content={DisabledTooltipContent(rampLink)} placement="right">
             {renderOption(env, isDisabled)}
           </Tooltip>
         ) : (

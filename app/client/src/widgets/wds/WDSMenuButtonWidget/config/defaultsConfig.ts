@@ -1,9 +1,9 @@
-import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
+import { BUTTON_VARIANTS, COLORS, objectKeys } from "@design-system/widgets";
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export const defaultsConfig = {
   label: "Open The Menu…",
-  triggerButtonVariant: BUTTON_VARIANTS.filled,
+  triggerButtonVariant: objectKeys(BUTTON_VARIANTS)[0],
   triggerButtonColor: COLORS.accent,
   isCompact: false,
   isDisabled: false,

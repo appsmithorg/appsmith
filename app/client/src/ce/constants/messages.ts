@@ -160,6 +160,7 @@ export const ERROR_403 = (entity: string, userEmail: string) =>
 export const PAGE_NOT_FOUND_ERROR = () =>
   `The page you’re looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;
+export const INVALID_NAME_ERROR = () => `Invalid name`;
 export const MAKE_APPLICATION_PUBLIC = () => "Make application public";
 export const MAKE_APPLICATION_PUBLIC_TOOLTIP = () =>
   "A public app is accessible to anyone who can access your instance of appsmith";
@@ -191,6 +192,7 @@ export const INVITE_USER_RAMP_TEXT = () =>
   "Users will have access to all applications in the workspace. For application-level access, try out our ";
 export const CUSTOM_ROLES_RAMP_TEXT = () =>
   "To build and assign custom roles, try out our ";
+export const ASSIGN_CUSTOM_ROLE = () => "Assign Custom Role";
 export const CUSTOM_ROLE_TEXT = () => "Custom role";
 export const CUSTOM_ROLE_DISABLED_OPTION_TEXT = () =>
   "Can access specific applications or only certain pages and queries within an application";
@@ -199,7 +201,7 @@ export const USERS_HAVE_ACCESS_TO_ALL_APPS = () =>
 export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
   "Users will only have access to this application";
 export const NO_USERS_INVITED = () => "You haven't invited any users yet";
-export const BUSINESS_EDITION_TEXT = () => "business edition";
+export const BUSINESS_EDITION_TEXT = () => "business plan";
 export const PARTNER_PROGRAM_CALLOUT = (
   email: string,
 ) => `${email} is outside your organisation. If you’re building this app
@@ -378,7 +380,7 @@ export const INVALID_FORM_CONFIGURATION = () => "Invalid form configuration";
 export const ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF = () => "🙌 Click on";
 export const ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF = () =>
   "after adding your query";
-export const CREATE_NEW_DATASOURCE = () => "Create new datasource";
+export const CREATE_NEW_DATASOURCE = () => "Create datasource";
 export const CREATE_NEW_DATASOURCE_DATABASE_HEADER = () => "Databases";
 export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
@@ -458,6 +460,10 @@ export const PAGE_CLIENT_ERROR_DESCRIPTION = () =>
   "This is embarrassing, please contact Appsmith support for help";
 
 export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
+
+// Modules
+export const CONVERT_MODULE_CTA_TEXT = () => "Create module";
+export const CONVERT_MODULE_TO_NEW_PKG_OPTION = () => "Add to a new package";
 
 // cloudHosting used in EE
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -539,6 +545,7 @@ export const LOGS_FILTER_OPTION_SYSTEM = () => "System logs";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
+export const DEBUGGER_RESPONSE = () => "Response";
 export const DEBUGGER_LOGS = () => "Logs";
 export const INSPECT_ENTITY = () => "Inspect entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
@@ -690,6 +697,14 @@ export const JS_ACTION_EXECUTION_ERROR = (jsFunctionName: string) =>
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
 
+//Import Application Succesful
+export const IMPORT_APP_SUCCESSFUL = () => "Application imported successfully";
+//Unable to import application in workspace
+export const UNABLE_TO_IMPORT_APP = () =>
+  "Unable to import application in workspace";
+//
+export const ERROR_IN_EXPORTING_APP = () =>
+  "Error exporting application. Please try again.";
 //undo redo
 export const WIDGET_REMOVED = (widgetName: string) =>
   `${widgetName} is removed`;
@@ -768,7 +783,7 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = (name: string) =>
-  `Search for tables in ${name}`;
+  `Tables in ${name}`;
 export const SCHEMA_LABEL = () => "Schema";
 export const STRUCTURE_NOT_FETCHED = () =>
   "We could not fetch the schema of the database.";
@@ -893,7 +908,7 @@ export const GIT_UPSTREAM_CHANGES = () =>
 export const GIT_CONFLICTING_INFO = () =>
   "Please resolve the merge conflicts manually on your repository.";
 export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
-  "You have uncommitted changes. Please commit before pulling the remote changes.";
+  "You have uncommitted changes. Please commit or discard before pulling the remote changes.";
 export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
   "Your current branch has uncommitted changes. Please commit them before proceeding to merge.";
 
@@ -1135,7 +1150,7 @@ export const BRANCH = () => "Branch";
 export const CONTINUOUS_DELIVERY = () => "Continuous delivery";
 export const CONFIGURE_CD_TITLE = () => "Configure continuous delivery";
 export const CONFIGURE_CD_DESC = () =>
-  "To automatically trigger a pull when changes occur on the remote branch, consider upgrading to our enterprise edition for enhanced functionality";
+  "To automatically trigger a pull when changes occur on the remote branch, consider upgrading to our enterprise plan for enhanced functionality";
 export const TRY_APPSMITH_ENTERPRISE = () => "Try Appsmith Enterprise";
 
 export const NAV_DESCRIPTION = () =>
@@ -1440,7 +1455,7 @@ export const ENTERPRISE_TAG = () => "Enterprise";
 // Upgrade pages begin
 export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
 export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
-  `The ${featureName} feature is exclusive to workspaces on the Business Edition`;
+  `The ${featureName} feature is exclusive to workspaces on the business plan`;
 export const AVAILABLE_ON_ENTERPRISE = () => "Available on Appsmith Enterprise";
 // Upgrade pages end
 
@@ -1485,7 +1500,7 @@ export const RESTRICT_PUBLIC_EXPOSURE = () =>
 export const RESTRICT_PUBLIC_EXPOSURE_DETAIL1 = () =>
   "Proactively disallow groups of non-admin or non-super-admin users from publicly sharing your app or exporting app data out of your environment, domain, and security perimeters.";
 export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
-  "Unlock granular access controls along with audit logs and SSO for enhanced security and reliability with an upgrade to our Business edition.";
+  "Unlock granular access controls along with audit logs and SSO for enhanced security and reliability with an upgrade to our Business plan.";
 // Access control upgrade page end
 
 // Provisioning upgrade page begin
@@ -1535,6 +1550,7 @@ export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
+export const WIDGET_MULTI_SELECT = () => "Multiple selected";
 export const WIDGET_DEPRECATION_MESSAGE = (widgetName: string) =>
   `Drag the latest ${widgetName} to unlock new features and prevent end-of-life headaches for this widget.`;
 
@@ -1600,7 +1616,7 @@ export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 export const ADMIN_BRANDING_SETTINGS_TITLE_UPGRADE = () =>
   "Custom Branding for your workspaces";
 export const ADMIN_BRANDING_SETTINGS_SUBTITLE_UPGRADE = () =>
-  "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business Edition.";
+  "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business plan.";
 export const ADMIN_BRANDING_COLOR_TOOLTIP = () =>
   `When you choose a primary color, we auto-magically fill in the secondary and accent colors. You can change them to get the look you want.`;
 export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () =>
@@ -1824,8 +1840,7 @@ export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
 export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General settings";
-export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
-  "App name, icon and share";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () => "App name and icon";
 export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App name";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
@@ -1908,23 +1923,23 @@ export const IN_APP_EMBED_SETTING = {
   forkLabelTooltip: () =>
     "Forking allows developers to copy your app to their workspace",
   upgradeHeading: () =>
-    "Embedding in public mode is supported in the community edition. To make your app public, please contact your administrator.",
+    "Embedding in public mode is supported in the free plan. To make your app public, please contact your administrator.",
   upgradeHeadingForInviteModal: () => "Public apps",
   upgradeSubheadingForInviteModal: () =>
     "Make your app public by visiting the share settings, and easily embed your Appsmith app into legacy applications",
   privateAppsText: () => "Private apps",
   rampSubtextModal: () =>
-    "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Business Edition",
+    "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Enterprise Plan",
   rampSubtextSidebar: () =>
     "To embed private Appsmith apps and seamlessly authenticate users through SSO, try our ",
-  rampLinktext: () => "Try Business",
-  rampLinktextvariant2: () => "Business Edition",
+  rampLinktext: () => "Try Enterprise",
+  rampLinktextvariant2: () => "Enterprise Plan",
   upgradeContent: () => "Private embedding is now available in",
-  appsmithBusinessEdition: () => "Appsmith Business Edition.",
+  appsmithEnterpriseEdition: () => "Appsmith Enterprise Plan.",
   secondaryHeadingForAppSettings: () =>
     "Make your app public to embed your Appsmith app into legacy applications",
   secondaryHeading: () =>
-    "Embedding in public mode is supported in the community edition. To make your app public, please contact your administrator.",
+    "Embedding in public mode is supported in the free plan. To make your app public, please contact your administrator.",
 };
 
 export const APP_NAVIGATION_SETTING = {
@@ -2092,9 +2107,9 @@ export const customJSLibraryMessages = {
     `Name collision detected: ${accessors}`,
 };
 
-// Business Edition upgrade page
+// Business Plan upgrade page
 export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
-  `Move to Business edition${trailingChar ? trailingChar : ""}`;
+  `Move to Business plan${trailingChar ? trailingChar : ""}`;
 
 //Datasource environment
 export const START_SWITCH_ENVIRONMENT = (environment: string) =>
@@ -2252,36 +2267,6 @@ export const DATASOURCE_LIST_BLANK_DESCRIPTION = () =>
   "Connect a datasource to write your first query";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () => "No datasources to display";
 
-export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
-  header: () => "Choose a template",
-  layouts: {
-    sortFilterTable: {
-      name: () => "Filter your data",
-      description: () => "Use to filter and sort your data",
-    },
-    form: {
-      name: () => "Form",
-      description: () => "Add records to a database with a form",
-    },
-    recordEdit: {
-      name: () => "Change your data",
-      description: () => "Use to add or edit records via forms",
-    },
-    recordDetails: {
-      name: () => "View your data",
-      description: () => "Use to view fields for your records",
-    },
-  },
-  datasourceConnectPrompt: {
-    header: () => "Bring your data in!",
-    buttonText: () => "Connect your datasource",
-  },
-  or: () => "or",
-  dragAndDrop: () => "Drag and Drop Widgets",
-  importLoadingText: () => "Importing template",
-  seeMoreText: () => "See more",
-};
-
 // Create New Apps Intermediary step
 export const CREATE_NEW_APPS_STEP_TITLE = () => "How would you like to start?";
 export const CREATE_NEW_APPS_STEP_SUBTITLE = () =>
@@ -2313,14 +2298,14 @@ export const EDITOR_PANE_TEXTS = {
   js_blank_state_description: () =>
     "Use JS to transform your data or write business logic",
   widget_blank_state_description: () =>
-    "Drag & drop widgets to create your app",
+    "Drag & drop UI elements to create your app",
   query_add_button: () => "New query / API",
   js_add_button: () => "New JS object",
   js_blank_object_item: () => "Blank JS object",
-  widget_add_button: () => "New widget",
-  query_create_tab_title: () => "Create new query / API",
-  widgets_create_tab_title: () => "Drag & drop a widget",
-  js_create_tab_title: () => "Create JS object",
+  widget_add_button: () => "New UI element",
+  query_create_tab_title: () => "Create new query from",
+  widgets_create_tab_title: () => "Drag & drop UI elements",
+  js_create_tab_title: () => "Create JS object from",
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
   loading_building_blocks: () => "Loading building blocks",
@@ -2452,7 +2437,9 @@ export const CUSTOM_WIDGET_FEATURE = {
 };
 
 export const WIDGET_PANEL_EMPTY_MESSAGE = () =>
-  "We couldn’t find any widgets called";
+  "We couldn’t find any UI elements called";
+
+export const UI_ELEMENT_PANEL_SEARCH_TEXT = () => "Search UI elements";
 
 export const HTTP_PROTOCOL_INPUT_PLACEHOLDER = () => `Select HTTP Protocol`;
 
@@ -2484,10 +2471,19 @@ export const SPLITPANE_ANNOUNCEMENT = {
 export const CANVAS_VIEW_MODE_TOOLTIP = (shortcutKey: string) =>
   `💡 ${shortcutKey} click a widget to navigate to UI mode.`;
 
-// searchable files list
-export const SEARCHABLE_FILES_LIST = {
-  GROUP_LABEL: (type: string) => `Open a ${type}`,
-  OPENED_GROUP_LABEL: () => `Opened`,
-  QUERY_TEXT: `query`,
-  JS_OBJECT_TEXT: `JS object`,
+export const EMPTY_CANVAS_HINTS = {
+  DRAG_DROP_WIDGET_HINT: () => "Drag and drop a widget here",
+  DRAG_DROP_BUILDING_BLOCK_HINT: {
+    TITLE: () => "Drag & drop a building block",
+    DESCRIPTION: () => "Make a working app in seconds using functional blocks",
+  },
 };
+
+export const BETA_TAG = () => `Beta`;
+
+export const BUTTON_WIDGET_DEFAULT_LABEL = () => "Do something";
+
+export const PAGE_ENTITY_NAME = "Page";
+
+export const EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON = () =>
+  "Create a datasource to power your app with data.";

@@ -18,6 +18,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
+import com.appsmith.server.dtos.ActionCollectionMoveDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -279,6 +280,52 @@ public class ActionCollectionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void testMoveActionCollection_whenMovedAcrossPages_thenContainsNewPageId() {
+        Application application = new Application();
+        application.setName(UUID.randomUUID().toString());
+
+        Application createdApplication = applicationPageService
+                .createApplication(application, workspaceId)
+                .block();
+
+        PageDTO newPageDTO = new PageDTO();
+        newPageDTO.setName("newPage");
+        newPageDTO.setApplicationId(createdApplication.getId());
+        newPageDTO.setLayouts(List.of(new Layout()));
+        PageDTO newPageRes = applicationPageService.createPage(newPageDTO).block();
+
+        assert createdApplication != null;
+        final String pageId = createdApplication.getPages().get(0).getId();
+
+        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
+        actionCollectionDTO.setName("testActionCollectionSoftDeleted");
+        actionCollectionDTO.setApplicationId(createdApplication.getId());
+        actionCollectionDTO.setWorkspaceId(createdApplication.getWorkspaceId());
+        actionCollectionDTO.setPageId(pageId);
+        actionCollectionDTO.setPluginId(datasource.getPluginId());
+        actionCollectionDTO.setPluginType(PluginType.JS);
+        actionCollectionDTO.setDeletedAt(Instant.now());
+        layoutCollectionService.createCollection(actionCollectionDTO, null).block();
+        ActionCollection createdActionCollection = actionCollectionRepository
+                .findByApplicationId(createdApplication.getId(), READ_ACTIONS, null)
+                .blockFirst();
+
+        final ActionCollectionMoveDTO actionCollectionMoveDTO = new ActionCollectionMoveDTO();
+        actionCollectionMoveDTO.setCollectionId(createdActionCollection.getId());
+        actionCollectionMoveDTO.setDestinationPageId(newPageRes.getId());
+
+        final Mono<ActionCollectionDTO> actionCollectionDTOMono =
+                layoutCollectionService.moveCollection(actionCollectionMoveDTO);
+
+        StepVerifier.create(actionCollectionDTOMono)
+                .assertNext(res -> {
+                    assertThat(res.getPageId()).isEqualTo(newPageRes.getId());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void createValidActionCollectionAndCheckPermissions() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
@@ -420,7 +467,7 @@ public class ActionCollectionServiceTest {
 
         assert createdActionCollectionDTO2 != null;
         final Mono<ActionCollection> actionCollectionMono =
-                actionCollectionService.getById(createdActionCollectionDTO2.getId());
+                actionCollectionService.getByIdWithoutPermissionCheck(createdActionCollectionDTO2.getId());
 
         StepVerifier.create(actionCollectionMono)
                 .assertNext(actionCollection -> {
@@ -430,10 +477,11 @@ public class ActionCollectionServiceTest {
                 })
                 .verifyComplete();
 
-        final Mono<NewAction> actionMono = newActionService.getById(createdActionCollectionDTO2.getActions().stream()
-                .findFirst()
-                .get()
-                .getId());
+        final Mono<NewAction> actionMono =
+                newActionService.getByIdWithoutPermissionCheck(createdActionCollectionDTO2.getActions().stream()
+                        .findFirst()
+                        .get()
+                        .getId());
 
         StepVerifier.create(actionMono)
                 .assertNext(action -> {
@@ -514,7 +562,7 @@ public class ActionCollectionServiceTest {
 
         assert createdActionCollectionDTO2 != null;
         final Mono<ActionCollection> actionCollectionMono =
-                actionCollectionService.getById(createdActionCollectionDTO2.getId());
+                actionCollectionService.getByIdWithoutPermissionCheck(createdActionCollectionDTO2.getId());
 
         StepVerifier.create(actionCollectionMono)
                 .assertNext(actionCollection -> {
@@ -524,10 +572,11 @@ public class ActionCollectionServiceTest {
                 })
                 .verifyComplete();
 
-        final Mono<NewAction> actionMono = newActionService.getById(createdActionCollectionDTO2.getActions().stream()
-                .findFirst()
-                .get()
-                .getId());
+        final Mono<NewAction> actionMono =
+                newActionService.getByIdWithoutPermissionCheck(createdActionCollectionDTO2.getActions().stream()
+                        .findFirst()
+                        .get()
+                        .getId());
 
         StepVerifier.create(actionMono)
                 .assertNext(action -> {

@@ -2,12 +2,13 @@ import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPosition } from "layoutSystems/common/types";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { previewModeSelector } from "selectors/editorSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import type { WidgetLayoutProps } from "../utils/anvilTypes";
 import { getWidgetByID } from "sagas/selectors";
 import { getDefaultSpaceDistributed } from "./utils/spaceRedistributionSagaUtils";
 import { SpaceDistributionHandle } from "./SpaceDistributionHandle";
 import { getAnvilZoneBoundaryOffset } from "./utils/spaceDistributionEditorUtils";
+import { getWidgetSelectionBlock } from "selectors/ui";
 
 interface SectionSpaceDistributorProps {
   sectionWidgetId: string;
@@ -110,7 +111,8 @@ export const SectionSpaceDistributor = (
   props: SectionSpaceDistributorProps,
 ) => {
   const { zones } = props;
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isWidgetSelectionBlocked = useSelector(getWidgetSelectionBlock);
   const isDragging = useSelector(
     (state) => state.ui.widgetDragResize.isDragging,
   );
@@ -123,6 +125,7 @@ export const SectionSpaceDistributor = (
   const canRedistributeSpace =
     !isPreviewMode &&
     !isDragging &&
+    !isWidgetSelectionBlocked &&
     allZonePositionsAreAvailable &&
     zones.length > 1;
   return canRedistributeSpace ? (

@@ -26,7 +26,10 @@ function WidgetInfo({ widgetType }: WidgetInfoProps) {
   return (
     <Wrapper>
       <IconWrapper>
-        <img className="w-5 h-5" src={getAssetUrl(widgetInfo?.icon)} />
+        <img
+          className="w-5 h-5"
+          src={getAssetUrl(widgetInfo?.icon as string)}
+        />
       </IconWrapper>
       <Text kind="body-m">{widgetInfo?.displayName}</Text>
     </Wrapper>

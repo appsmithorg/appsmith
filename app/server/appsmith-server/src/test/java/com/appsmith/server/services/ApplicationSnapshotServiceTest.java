@@ -106,7 +106,6 @@ public class ApplicationSnapshotServiceTest {
         StepVerifier.create(snapshotMono)
                 .assertNext(snapshot -> {
                     assertThat(snapshot.updatedAt()).isNotNull();
-                    assertThat(snapshot.createdAt()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -133,7 +132,6 @@ public class ApplicationSnapshotServiceTest {
         StepVerifier.create(snapshotMono)
                 .assertNext(snapshot -> {
                     assertThat(snapshot.updatedAt()).isNotNull();
-                    assertThat(snapshot.createdAt()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -165,7 +163,6 @@ public class ApplicationSnapshotServiceTest {
                 .assertNext(objects -> {
                     ApplicationSnapshotResponseDTO applicationSnapshot = objects.getT1();
                     assertThat(applicationSnapshot.updatedAt()).isNotNull();
-                    assertThat(applicationSnapshot.createdAt()).isNotNull();
                 })
                 .verifyComplete();
     }

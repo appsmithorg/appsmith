@@ -6,6 +6,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
+import com.appsmith.server.dtos.LayoutUpdateDTO;
 import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
@@ -19,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -43,16 +43,6 @@ public class LayoutControllerCE {
         this.service = layoutService;
         this.updateLayoutService = updateLayoutService;
         this.refactoringService = refactoringService;
-    }
-
-    @JsonView(Views.Public.class)
-    @PostMapping("/pages/{defaultPageId}")
-    public Mono<ResponseDTO<Layout>> createLayout(
-            @PathVariable String defaultPageId,
-            @Valid @RequestBody Layout layout,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return service.createLayout(defaultPageId, layout, branchName)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
     @JsonView(Views.Public.class)
@@ -83,11 +73,11 @@ public class LayoutControllerCE {
             @PathVariable String pageId,
             @RequestParam String applicationId,
             @PathVariable String layoutId,
-            @RequestBody Layout layout,
+            @RequestBody LayoutUpdateDTO dto,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("update layout received for page {}", pageId);
         return updateLayoutService
-                .updateLayout(pageId, applicationId, layoutId, layout, branchName)
+                .updateLayout(pageId, applicationId, layoutId, dto.toLayout(), branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.OK.value(), created, null));
     }
 

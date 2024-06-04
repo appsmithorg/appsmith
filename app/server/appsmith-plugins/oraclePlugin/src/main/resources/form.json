@@ -20,6 +20,7 @@
               "label": "Port",
               "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
+              "initialValue": ["1521"],
               "controlType": "KEYVALUE_ARRAY",
               "placeholderText": "1521"
             }

@@ -1,17 +1,22 @@
-import React from "react";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
-import BaseWidget from "../../BaseWidget";
+import type {
+  AutocompletionDefinitions,
+  WidgetCallout,
+} from "WidgetProvider/constants";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import DatePickerComponent from "../component";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
 import { ISO_DATE_FORMAT, ValidationTypes } from "constants/WidgetValidation";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import type { SetterConfig } from "entities/AppTheming";
 import moment from "moment";
-import type { DatePickerType } from "../constants";
+import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
+import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import type { SetterConfig } from "entities/AppTheming";
+import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import BaseWidget from "../../BaseWidget";
+import DatePickerComponent from "../component";
+import type { DatePickerType } from "../constants";
 import IconSVG from "../icon.svg";
 
 function defaultDateValidation(
@@ -189,6 +194,7 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
       isDeprecated: true,
       replacement: "DATE_PICKER_WIDGET2",
       needsMeta: true,
+      tags: [WIDGET_TAGS.INPUTS],
     };
   }
 
@@ -394,6 +400,20 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedDate: undefined,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getEditorCallouts(): WidgetCallout[] {
+        return [
+          {
+            message: buildDeprecationWidgetMessage(
+              DatePickerWidget.getConfig().name,
+            ),
+          },
+        ];
+      },
     };
   }
 

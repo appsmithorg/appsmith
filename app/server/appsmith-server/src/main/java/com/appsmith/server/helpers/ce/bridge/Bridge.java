@@ -30,6 +30,13 @@ public final class Bridge {
         return q;
     }
 
+    public static <T extends BaseDomain> BridgeQuery<T> or(Collection<BridgeQuery<T>> items) {
+        final BridgeQuery<T> q = new BridgeQuery<>();
+        q.checks.add(
+                new Criteria().orOperator(items.stream().map(c -> (Criteria) c).toList()));
+        return q;
+    }
+
     @SafeVarargs
     public static <T extends BaseDomain> BridgeQuery<T> and(BridgeQuery<T>... items) {
         final BridgeQuery<T> q = new BridgeQuery<>();
@@ -72,8 +79,13 @@ public final class Bridge {
         return Bridge.<T>query().equal(key, value);
     }
 
+    @Deprecated
     public static <T extends BaseDomain> BridgeQuery<T> regexMatchIgnoreCase(@NonNull String key, String regexPattern) {
         return Bridge.<T>query().regexMatchIgnoreCase(key, regexPattern);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> searchIgnoreCase(@NonNull String key, @NonNull String needle) {
+        return Bridge.<T>query().searchIgnoreCase(key, needle);
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> in(@NonNull String key, @NonNull Collection<String> value) {

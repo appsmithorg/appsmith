@@ -259,15 +259,15 @@ describe(
         agHelper.ClearTextField(dataSources._databaseName);
         dataSources.TestDatasource(false);
         agHelper.WaitUntilAllToastsDisappear();
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._host(),
           dataManager.dsValues[dataManager.defaultEnviorment].mssql_host,
         );
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._username,
           dataManager.dsValues[dataManager.defaultEnviorment].mssql_username,
         );
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._password,
           dataManager.dsValues[dataManager.defaultEnviorment].mssql_password,
         );
@@ -341,6 +341,13 @@ describe(
 
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad();
+    });
+
+    it("7. Verify the default port for the datasource", function () {
+      dataSources.NavigateToDSCreateNew();
+      dataSources.CreatePlugIn("Microsoft SQL Server");
+
+      agHelper.AssertAttribute(dataSources._port, "value", "1433");
     });
 
     after("Verify Deletion of the datasource", () => {

@@ -108,7 +108,7 @@ export const ThemeSettings = ({
 
         {setFontFamily && (
           <Flex direction="column" gap="4px">
-            <Text variant="footnote">Font Family</Text>
+            <Text size="footnote">Font Family</Text>
             <StyledSelect
               defaultValue={fontFamily}
               id="font-family"

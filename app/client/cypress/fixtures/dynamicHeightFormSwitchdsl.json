@@ -145,7 +145,7 @@
                     "key": "accentColor"
                   }
                 ],
-                "onSelectionChange": "{{showModal('Modal1')}}",
+                "onSelectionChange": "{{showModal(Modal1.name)}}",
                 "dynamicTriggerPathList": [
                   {
                     "key": "onSelectionChange"
@@ -269,7 +269,7 @@
                     "key": "borderRadius"
                   }
                 ],
-                "onClick": "{{closeModal('Modal1')}}"
+                "onClick": "{{closeModal(Modal1.name)}}"
               },
               {
                 "isVisible": true,
@@ -356,7 +356,7 @@
                     "key": "borderRadius"
                   }
                 ],
-                "onClick": "{{closeModal('Modal1')}}"
+                "onClick": "{{closeModal(Modal1.name)}}"
               },
               {
                 "isVisible": true,

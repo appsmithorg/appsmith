@@ -123,7 +123,10 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
       false,
       EntityItems.Page,
     );
-    agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
+    agHelper.RemoveUIElement(
+      "Tooltip",
+      Cypress.env("MESSAGES").ADD_QUERY_JS_TOOLTIP(),
+    );
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     entityExplorer.RenameEntityFromExplorer("ParentApi1", "ParentApiRenamed");
 
@@ -187,7 +190,8 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     // cy.get("@gitbranchName").then((branName) => {
     //   tempBranch = branName;
     // });
-    cy.renameBranchViaGithubApi(repoName, tempBranch, tempBranchRenamed);
+    // rename branch API missing in TED.
+    // cy.renameBranchViaGithubApi(repoName, tempBranch, tempBranchRenamed);
     cy.get(gitSyncLocators.branchButton).click();
     cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${tempBranch}`);
     const tempBranchRegex = new RegExp(`^${tempBranch}$`);

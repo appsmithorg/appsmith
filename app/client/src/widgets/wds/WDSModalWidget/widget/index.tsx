@@ -24,6 +24,7 @@ import { call } from "redux-saga/effects";
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
 import { ModalLayoutProvider } from "layoutSystems/anvil/layoutComponents/ModalLayoutProvider";
 import styles from "./styles.module.css";
+
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";
 
@@ -53,6 +54,16 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return config.propertyPaneStyleConfig;
+  }
+
+  static getMethods() {
+    return config.methodsConfig;
+  }
+
+  static getDerivedPropertiesMap() {
+    return {
+      name: "{{this.widgetName}}",
+    };
   }
 
   static *performPasteOperation(
@@ -89,7 +100,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   onSubmitClick = () => {
-    if (this.props.onSubmit) {
+    if (this.props.onSubmit && this.props.showSubmitButton) {
       super.executeAction({
         triggerPropertyName: "onSubmit",
         dynamicString: this.props.onSubmit,
@@ -117,7 +128,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       ? this.props.submitButtonText || "Submit"
       : undefined;
     const contentClassName = `${this.props.className} ${
-      this.props.allowWidgetInteraction ? styles.disableModalInteraction : ""
+      this.props.allowWidgetInteraction ? "" : styles.disableModalInteraction
     }`;
     return (
       <Modal
@@ -126,19 +137,28 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         setOpen={(val) => this.setState({ isVisible: val })}
         size={this.props.size}
       >
-        <ModalContent className={contentClassName}>
-          {this.props.showHeader && <ModalHeader title={this.props.title} />}
-          <ModalBody className={WDS_MODAL_WIDGET_CLASSNAME}>
-            <ModalLayoutProvider {...this.props} />
-          </ModalBody>
-          {this.props.showFooter && (
-            <ModalFooter
-              closeText={closeText}
-              onSubmit={submitText ? this.onSubmitClick : undefined}
-              submitText={submitText}
-            />
-          )}
-        </ModalContent>
+        {this.state.isVisible && (
+          <ModalContent className={contentClassName.trim()}>
+            {this.props.showHeader && (
+              <ModalHeader
+                excludeFromTabOrder={!this.props.allowWidgetInteraction}
+                title={this.props.title}
+              />
+            )}
+            <ModalBody className={WDS_MODAL_WIDGET_CLASSNAME}>
+              <ModalLayoutProvider {...this.props} />
+            </ModalBody>
+            {this.props.showFooter && (
+              <ModalFooter
+                closeOnSubmit={this.props.closeOnSubmit}
+                closeText={closeText}
+                excludeFromTabOrder={!this.props.allowWidgetInteraction}
+                onSubmit={submitText ? this.onSubmitClick : undefined}
+                submitText={submitText}
+              />
+            )}
+          </ModalContent>
+        )}
       </Modal>
     );
   }

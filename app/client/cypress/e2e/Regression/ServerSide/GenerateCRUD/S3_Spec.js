@@ -21,7 +21,7 @@ describe(
     let datasourceName;
 
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
       cy.startInterceptRoutesForS3();
     });
 

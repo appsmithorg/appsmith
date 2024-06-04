@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import Fuse from "fuse.js";
 
-import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import {
   Button,
@@ -10,21 +9,14 @@ import {
   Menu,
   MenuContent,
   MenuGroup,
-  MenuGroupName,
   MenuItem,
   MenuTrigger,
   SearchInput,
 } from "design-system";
 import { ListIconContainer, TabTextContainer } from "./StyledComponents";
-import {
-  SEARCHABLE_FILES_LIST,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { useCurrentEditorState } from "../hooks";
 
 interface Props {
   allItems: EntityItem[];
-  openTabs: EntityItem[];
   navigateToTab: (item: EntityItem) => void;
 }
 
@@ -45,16 +37,13 @@ const FUSE_OPTIONS = {
 };
 
 const SearchableFilesList = (props: Props) => {
-  const { allItems, navigateToTab, openTabs } = props;
+  const { allItems, navigateToTab } = props;
   const [files, setFiles] = useState(allItems);
-  const [tabs, setTabs] = useState(openTabs);
   const [isOpen, setOpen] = useState(false);
-  const { segment } = useCurrentEditorState();
 
   useEffect(() => {
     // reset filter
     setFiles(allItems);
-    setTabs(openTabs);
   }, [isOpen]);
 
   if (allItems.length === 0) {
@@ -64,7 +53,6 @@ const SearchableFilesList = (props: Props) => {
   const filterHandler = (value: string) => {
     const fuse = new Fuse(allItems, FUSE_OPTIONS);
     setFiles(value.length > 0 ? fuse.search(value) : allItems);
-    setTabs(value.length > 0 ? [] : openTabs);
   };
 
   const renderMenuItems = (items: EntityItem[]) =>
@@ -104,27 +92,12 @@ const SearchableFilesList = (props: Props) => {
       >
         <SearchInput
           autoFocus
+          className="pb-[4px]"
           data-testid={"t--files-list-search-input"}
           onChange={filterHandler}
           onKeyDown={(e: KeyboardEvent) => e.stopPropagation()}
         />
-        {tabs.length > 0 ? (
-          <MenuGroup>
-            <MenuGroupName className="!pt-[8px]">
-              {createMessage(SEARCHABLE_FILES_LIST.OPENED_GROUP_LABEL)}
-            </MenuGroupName>
-            {renderMenuItems(tabs)}
-          </MenuGroup>
-        ) : null}
-        <MenuGroup>
-          <MenuGroupName className="!pt-[8px]">
-            {createMessage(
-              SEARCHABLE_FILES_LIST.GROUP_LABEL,
-              segment === EditorEntityTab.QUERIES
-                ? SEARCHABLE_FILES_LIST.QUERY_TEXT
-                : SEARCHABLE_FILES_LIST.JS_OBJECT_TEXT,
-            )}
-          </MenuGroupName>
+        <MenuGroup className="h-[214px] overflow-scroll">
           {renderMenuItems(files)}
         </MenuGroup>
       </MenuContent>

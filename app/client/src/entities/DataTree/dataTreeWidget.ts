@@ -88,9 +88,8 @@ export function getSetterConfig(
         }
 
         if (staticConfigSetter.accessor) {
-          modifiedSetterConfig.__setters[
-            setterMethodName
-          ].accessor = `${widget.widgetName}.${staticConfigSetter.accessor}`;
+          modifiedSetterConfig.__setters[setterMethodName].accessor =
+            `${widget.widgetName}.${staticConfigSetter.accessor}`;
         }
       }
     }

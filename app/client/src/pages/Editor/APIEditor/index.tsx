@@ -39,6 +39,8 @@ import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotif
 import { Icon } from "design-system";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
@@ -66,6 +68,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   const isConverting = useSelector((state) =>
     getIsActionConverting(state, action?.id || ""),
   );
+  const editorMode = useSelector(getIDEViewMode);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon = resolveIcon({
     iconLocation: pluginGroups[pluginId]?.iconLocation || "",
@@ -93,8 +96,14 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     pagePermissions,
   );
 
-  const moreActionsMenu = useMemo(
-    () => (
+  const moreActionsMenu = useMemo(() => {
+    const convertToModuleProps = {
+      canCreateModuleInstance: isCreatePermitted,
+      canDeleteEntity: isDeletePermitted,
+      entityId: action?.id || "",
+      moduleType: MODULE_TYPE.QUERY,
+    };
+    return (
       <>
         <MoreActionsMenu
           className="t--more-action-menu"
@@ -103,24 +112,26 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
           isDeletePermitted={isDeletePermitted}
           name={action?.name || ""}
           pageId={pageId}
+          prefixAdditionalMenus={
+            editorMode === EditorViewMode.SplitScreen && (
+              <ConvertToModuleInstanceCTA {...convertToModuleProps} />
+            )
+          }
         />
-        <ConvertToModuleInstanceCTA
-          canCreateModuleInstance={isCreatePermitted}
-          canDeleteEntity={isDeletePermitted}
-          entityId={action?.id || ""}
-          moduleType={MODULE_TYPE.QUERY}
-        />
+        {editorMode !== EditorViewMode.SplitScreen && (
+          <ConvertToModuleInstanceCTA {...convertToModuleProps} />
+        )}
       </>
-    ),
-    [
-      action?.id,
-      action?.name,
-      isChangePermitted,
-      isDeletePermitted,
-      pageId,
-      isCreatePermitted,
-    ],
-  );
+    );
+  }, [
+    action?.id,
+    action?.name,
+    isChangePermitted,
+    isDeletePermitted,
+    pageId,
+    isCreatePermitted,
+    editorMode,
+  ]);
 
   const handleRunClick = useCallback(
     (paginationField?: PaginationField) => {

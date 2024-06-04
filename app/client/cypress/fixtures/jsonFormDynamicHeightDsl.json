@@ -69,7 +69,7 @@
               {
                 "boxShadow": "none",
                 "widgetName": "IconButton1",
-                "onClick": "{{closeModal('Modal1')}}",
+                "onClick": "{{closeModal(Modal1.name)}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
@@ -152,7 +152,7 @@
                 "resetFormOnClick": false,
                 "boxShadow": "none",
                 "widgetName": "Button1",
-                "onClick": "{{closeModal('Modal1')}}",
+                "onClick": "{{closeModal(Modal1.name)}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca026338f1c8eb6df8ba03d084c2fca.svg",

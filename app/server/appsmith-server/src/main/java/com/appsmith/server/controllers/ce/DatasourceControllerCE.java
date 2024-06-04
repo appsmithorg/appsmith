@@ -8,6 +8,7 @@ import com.appsmith.external.models.DatasourceStructure.Template;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.TriggerRequestDTO;
 import com.appsmith.external.models.TriggerResultDTO;
+import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -16,16 +17,15 @@ import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.MockDataSet;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.MockDataService;
 import com.appsmith.server.solutions.AuthenticationService;
 import com.appsmith.server.solutions.DatasourceStructureSolution;
 import com.appsmith.server.solutions.DatasourceTriggerSolution;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.BooleanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -46,33 +46,17 @@ import java.util.List;
 
 @Slf4j
 @RequestMapping(Url.DATASOURCE_URL)
+@RequiredArgsConstructor
 public class DatasourceControllerCE {
 
+    private final DatasourceService datasourceService;
     private final DatasourceStructureSolution datasourceStructureSolution;
     private final AuthenticationService authenticationService;
     private final MockDataService mockDataService;
     private final DatasourceTriggerSolution datasourceTriggerSolution;
-    private final DatasourceService datasourceService;
-    private final RateLimitService rateLimitService;
-
-    @Autowired
-    public DatasourceControllerCE(
-            DatasourceService service,
-            DatasourceStructureSolution datasourceStructureSolution,
-            AuthenticationService authenticationService,
-            MockDataService datasourceService,
-            DatasourceTriggerSolution datasourceTriggerSolution,
-            RateLimitService rateLimitService) {
-        this.datasourceService = service;
-        this.datasourceStructureSolution = datasourceStructureSolution;
-        this.authenticationService = authenticationService;
-        this.mockDataService = datasourceService;
-        this.datasourceTriggerSolution = datasourceTriggerSolution;
-        this.rateLimitService = rateLimitService;
-    }
 
     @JsonView(Views.Public.class)
-    @GetMapping("")
+    @GetMapping
     public Mono<ResponseDTO<List<Datasource>>> getAll(@RequestParam MultiValueMap<String, String> params) {
         log.debug("Going to get all resources from datasource controller {}", params);
         return datasourceService
@@ -84,9 +68,7 @@ public class DatasourceControllerCE {
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<Datasource>> create(
-            @Valid @RequestBody Datasource resource,
-            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String activeEnvironmentId) {
+    public Mono<ResponseDTO<Datasource>> create(@Valid @RequestBody @JsonView(FromRequest.class) Datasource resource) {
         log.debug("Going to create resource from datasource controller");
         return datasourceService
                 .create(resource)
@@ -97,7 +79,7 @@ public class DatasourceControllerCE {
     @PutMapping("/{id}")
     public Mono<ResponseDTO<Datasource>> update(
             @PathVariable String id,
-            @RequestBody Datasource datasource,
+            @RequestBody @JsonView(FromRequest.class) Datasource datasource,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to update resource from datasource controller with id: {}", id);
         return datasourceService

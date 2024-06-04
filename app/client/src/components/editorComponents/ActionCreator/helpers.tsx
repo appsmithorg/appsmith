@@ -378,7 +378,7 @@ export function useModalDropdownList(handleClose: () => void) {
         const modalName = nextModalName;
         if (setter) {
           setter({
-            value: `${modalName}`,
+            value: `${modalName}.name`,
           });
           dispatch(createModalAction(modalName));
           handleClose();

@@ -1,5 +1,6 @@
 package com.appsmith.git.service.ce;
 
+import com.appsmith.external.configurations.git.GitConfig;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
 import com.appsmith.external.dtos.GitBranchDTO;
@@ -80,6 +81,7 @@ public class GitExecutorCEImpl implements GitExecutor {
     private final RepositoryHelper repositoryHelper = new RepositoryHelper();
 
     private final GitServiceConfig gitServiceConfig;
+    private final GitConfig gitConfig;
 
     protected final ObservationRegistry observationRegistry;
 
@@ -113,37 +115,40 @@ public class GitExecutorCEImpl implements GitExecutor {
                 StringUtils.isEmptyOrNull(authorName) ? AppsmithBotAsset.APPSMITH_BOT_USERNAME : authorName;
         final String finalAuthorEmail =
                 StringUtils.isEmptyOrNull(authorEmail) ? AppsmithBotAsset.APPSMITH_BOT_EMAIL : authorEmail;
-        return Mono.fromCallable(() -> {
-                    log.debug("Trying to commit to local repo path, {}", path);
-                    Path repoPath = path;
-                    if (TRUE.equals(isSuffixedPath)) {
-                        repoPath = createRepoPath(repoPath);
-                    }
-                    Stopwatch processStopwatch =
-                            StopwatchHelpers.startStopwatch(repoPath, AnalyticsEvents.GIT_COMMIT.getEventName());
-                    // Just need to open a repository here and make a commit
-                    try (Git git = Git.open(repoPath.toFile())) {
-                        // Stage all the files added and modified
-                        git.add().addFilepattern(".").call();
-                        // Stage modified and deleted files
-                        git.add().setUpdate(true).addFilepattern(".").call();
+        final Path repoPath = TRUE.equals(isSuffixedPath) ? createRepoPath(path) : path;
 
-                        // Commit the changes
-                        git.commit()
-                                .setMessage(commitMessage)
-                                // Only make a commit if there are any updates
-                                .setAllowEmpty(false)
-                                .setAuthor(finalAuthorName, finalAuthorEmail)
-                                .setCommitter(finalAuthorName, finalAuthorEmail)
-                                .setAmend(doAmend)
-                                .call();
-                        processStopwatch.stopAndLogTimeInMillis();
-                        return "Committed successfully!";
-                    }
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpan.FS_COMMIT)
-                .tap(Micrometer.observation(observationRegistry))
+        return Mono.using(
+                        () -> Git.open(repoPath.toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    log.debug("Trying to commit to local repo path, {}", path);
+
+                                    Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
+                                            repoPath, AnalyticsEvents.GIT_COMMIT.getEventName());
+                                    // Just need to open a repository here and make a commit
+                                    // Stage all the files added and modified
+                                    git.add().addFilepattern(".").call();
+                                    // Stage modified and deleted files
+                                    git.add()
+                                            .setUpdate(true)
+                                            .addFilepattern(".")
+                                            .call();
+
+                                    // Commit the changes
+                                    git.commit()
+                                            .setMessage(commitMessage)
+                                            // Only make a commit if there are any updates
+                                            .setAllowEmpty(false)
+                                            .setAuthor(finalAuthorName, finalAuthorEmail)
+                                            .setCommitter(finalAuthorName, finalAuthorEmail)
+                                            .setAmend(doAmend)
+                                            .call();
+                                    processStopwatch.stopAndLogTimeInMillis();
+                                    return "Committed successfully!";
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .name(GitSpan.FS_COMMIT)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
                 .subscribeOn(scheduler);
     }
 
@@ -156,8 +161,9 @@ public class GitExecutorCEImpl implements GitExecutor {
     public boolean createNewRepository(Path repoPath) throws GitAPIException {
         // create new repo to the mentioned path
         log.debug("Trying to create new repository: {}", repoPath);
-        Git.init().setDirectory(repoPath.toFile()).call();
-        return true;
+        try (Git ignored = Git.init().setDirectory(repoPath.toFile()).call()) {
+            return true;
+        }
     }
 
     /**
@@ -167,31 +173,34 @@ public class GitExecutorCEImpl implements GitExecutor {
      */
     @Override
     public Mono<List<GitLogDTO>> getCommitHistory(Path repoSuffix) {
-        return Mono.fromCallable(() -> {
-                    log.debug(Thread.currentThread().getName() + ": get commit history for  " + repoSuffix);
-                    List<GitLogDTO> commitLogs = new ArrayList<>();
-                    Path repoPath = createRepoPath(repoSuffix);
-                    Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
-                            repoPath, AnalyticsEvents.GIT_COMMIT_HISTORY.getEventName());
-                    try (Git git = Git.open(repoPath.toFile())) {
-                        Iterable<RevCommit> gitLogs = git.log()
-                                .setMaxCount(Constraint.MAX_COMMIT_LOGS)
-                                .call();
-                        gitLogs.forEach(revCommit -> {
-                            PersonIdent author = revCommit.getAuthorIdent();
-                            GitLogDTO gitLog = new GitLogDTO(
-                                    revCommit.getName(),
-                                    author.getName(),
-                                    author.getEmailAddress(),
-                                    revCommit.getFullMessage(),
-                                    ISO_FORMATTER.format(new Date(revCommit.getCommitTime() * 1000L).toInstant()));
-                            processStopwatch.stopAndLogTimeInMillis();
-                            commitLogs.add(gitLog);
-                        });
-                        return commitLogs;
-                    }
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+        Path repoPath = createRepoPath(repoSuffix);
+        return Mono.using(
+                        () -> Git.open(repoPath.toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    log.debug(Thread.currentThread().getName() + ": get commit history for  "
+                                            + repoSuffix);
+                                    List<GitLogDTO> commitLogs = new ArrayList<>();
+                                    Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
+                                            repoPath, AnalyticsEvents.GIT_COMMIT_HISTORY.getEventName());
+                                    Iterable<RevCommit> gitLogs = git.log()
+                                            .setMaxCount(Constraint.MAX_COMMIT_LOGS)
+                                            .call();
+                                    gitLogs.forEach(revCommit -> {
+                                        PersonIdent author = revCommit.getAuthorIdent();
+                                        GitLogDTO gitLog = new GitLogDTO(
+                                                revCommit.getName(),
+                                                author.getName(),
+                                                author.getEmailAddress(),
+                                                revCommit.getFullMessage(),
+                                                ISO_FORMATTER.format(
+                                                        new Date(revCommit.getCommitTime() * 1000L).toInstant()));
+                                        processStopwatch.stopAndLogTimeInMillis();
+                                        commitLogs.add(gitLog);
+                                    });
+                                    return commitLogs;
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS)),
+                        Git::close)
                 .subscribeOn(scheduler);
     }
 
@@ -213,42 +222,51 @@ public class GitExecutorCEImpl implements GitExecutor {
             Path repoSuffix, String remoteUrl, String publicKey, String privateKey, String branchName) {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
-        return Mono.fromCallable(() -> {
-                    log.debug(Thread.currentThread().getName() + ": pushing changes to remote " + remoteUrl);
-                    // open the repo
-                    Path baseRepoPath = createRepoPath(repoSuffix);
-                    Stopwatch processStopwatch =
-                            StopwatchHelpers.startStopwatch(baseRepoPath, AnalyticsEvents.GIT_PUSH.getEventName());
-                    try (Git git = Git.open(baseRepoPath.toFile())) {
-                        TransportConfigCallback transportConfigCallback =
-                                new SshTransportConfigCallback(privateKey, publicKey);
+        Path baseRepoPath = createRepoPath(repoSuffix);
 
-                        StringBuilder result = new StringBuilder("Pushed successfully with status : ");
-                        git.push()
-                                .setAtomic(true)
-                                .setTransportConfigCallback(transportConfigCallback)
-                                .setRemote(remoteUrl)
-                                .call()
-                                .forEach(pushResult -> pushResult
-                                        .getRemoteUpdates()
-                                        .forEach(remoteRefUpdate -> {
-                                            result.append(remoteRefUpdate.getStatus())
-                                                    .append(",");
-                                            if (!StringUtils.isEmptyOrNull(remoteRefUpdate.getMessage())) {
-                                                result.append(remoteRefUpdate.getMessage())
-                                                        .append(",");
-                                            }
-                                        }));
-                        // We can support username and password in future if needed
-                        // pushCommand.setCredentialsProvider(new UsernamePasswordCredentialsProvider("username",
-                        // "password"));
-                        processStopwatch.stopAndLogTimeInMillis();
-                        return result.substring(0, result.length() - 1);
-                    }
+        return gitConfig
+                .getIsAtomicPushAllowed()
+                .flatMap(isAtomicPushAllowed -> {
+                    return Mono.using(
+                            () -> Git.open(baseRepoPath.toFile()),
+                            git -> Mono.fromCallable(() -> {
+                                        log.debug(Thread.currentThread().getName() + ": pushing changes to remote "
+                                                + remoteUrl);
+                                        // open the repo
+                                        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
+                                                baseRepoPath, AnalyticsEvents.GIT_PUSH.getEventName());
+                                        TransportConfigCallback transportConfigCallback =
+                                                new SshTransportConfigCallback(privateKey, publicKey);
+
+                                        StringBuilder result = new StringBuilder("Pushed successfully with status : ");
+                                        git.push()
+                                                .setAtomic(isAtomicPushAllowed)
+                                                .setTransportConfigCallback(transportConfigCallback)
+                                                .setRemote(remoteUrl)
+                                                .call()
+                                                .forEach(pushResult -> pushResult
+                                                        .getRemoteUpdates()
+                                                        .forEach(remoteRefUpdate -> {
+                                                            result.append(remoteRefUpdate.getStatus())
+                                                                    .append(",");
+                                                            if (!StringUtils.isEmptyOrNull(
+                                                                    remoteRefUpdate.getMessage())) {
+                                                                result.append(remoteRefUpdate.getMessage())
+                                                                        .append(",");
+                                                            }
+                                                        }));
+                                        // We can support username and password in future if needed
+                                        // pushCommand.setCredentialsProvider(new
+                                        // UsernamePasswordCredentialsProvider("username",
+                                        // "password"));
+                                        processStopwatch.stopAndLogTimeInMillis();
+                                        return result.substring(0, result.length() - 1);
+                                    })
+                                    .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                    .name(GitSpan.FS_PUSH)
+                                    .tap(Micrometer.observation(observationRegistry)),
+                            Git::close);
                 })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpan.FS_PUSH)
-                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -276,15 +294,16 @@ public class GitExecutorCEImpl implements GitExecutor {
                     while (file.exists()) {
                         FileSystemUtils.deleteRecursively(file);
                     }
-                    Git git = Git.cloneRepository()
+                    String branchName;
+                    try (Git git = Git.cloneRepository()
                             .setURI(remoteUrl)
                             .setTransportConfigCallback(transportConfigCallback)
                             .setDirectory(file)
-                            .call();
-                    String branchName = git.getRepository().getBranch();
+                            .call()) {
+                        branchName = git.getRepository().getBranch();
 
-                    repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
-                    git.close();
+                        repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
+                    }
                     processStopwatch.stopAndLogTimeInMillis();
                     return branchName;
                 })
@@ -300,27 +319,27 @@ public class GitExecutorCEImpl implements GitExecutor {
         // open the repo
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CREATE_BRANCH.getEventName());
-        return Mono.fromCallable(() -> {
-                    log.debug(Thread.currentThread().getName() + ": Creating branch  " + branchName + "for the repo "
-                            + repoSuffix);
-                    // open the repo
-                    Path baseRepoPath = createRepoPath(repoSuffix);
-                    try (Git git = Git.open(baseRepoPath.toFile())) {
-                        // Create and checkout to new branch
-                        git.checkout()
-                                .setCreateBranch(TRUE)
-                                .setName(branchName)
-                                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                                .call();
+        return Mono.using(
+                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    log.debug(Thread.currentThread().getName() + ": Creating branch  " + branchName
+                                            + "for the repo " + repoSuffix);
+                                    // open the repo
+                                    // Create and checkout to new branch
+                                    git.checkout()
+                                            .setCreateBranch(TRUE)
+                                            .setName(branchName)
+                                            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                                            .call();
 
-                        repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
-                        processStopwatch.stopAndLogTimeInMillis();
-                        return git.getRepository().getBranch();
-                    }
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpan.FS_CREATE_BRANCH)
-                .tap(Micrometer.observation(observationRegistry))
+                                    repositoryHelper.updateRemoteBranchTrackingConfig(branchName, git);
+                                    processStopwatch.stopAndLogTimeInMillis();
+                                    return git.getRepository().getBranch();
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .name(GitSpan.FS_CREATE_BRANCH)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
                 .subscribeOn(scheduler);
     }
 
@@ -330,27 +349,27 @@ public class GitExecutorCEImpl implements GitExecutor {
         // open the repo
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_DELETE_BRANCH.getEventName());
-        return Mono.fromCallable(() -> {
-                    log.debug(Thread.currentThread().getName() + ": Deleting branch  " + branchName + "for the repo "
-                            + repoSuffix);
-                    // open the repo
-                    Path baseRepoPath = createRepoPath(repoSuffix);
-                    try (Git git = Git.open(baseRepoPath.toFile())) {
-                        // Create and checkout to new branch
-                        List<String> deleteBranchList = git.branchDelete()
-                                .setBranchNames(branchName)
-                                .setForce(TRUE)
-                                .call();
-                        processStopwatch.stopAndLogTimeInMillis();
-                        if (deleteBranchList.isEmpty()) {
-                            return Boolean.FALSE;
-                        }
-                        return TRUE;
-                    }
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpan.FS_DELETE_BRANCH)
-                .tap(Micrometer.observation(observationRegistry))
+        return Mono.using(
+                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    log.debug(Thread.currentThread().getName() + ": Deleting branch  " + branchName
+                                            + "for the repo " + repoSuffix);
+                                    // open the repo
+                                    // Create and checkout to new branch
+                                    List<String> deleteBranchList = git.branchDelete()
+                                            .setBranchNames(branchName)
+                                            .setForce(TRUE)
+                                            .call();
+                                    processStopwatch.stopAndLogTimeInMillis();
+                                    if (deleteBranchList.isEmpty()) {
+                                        return Boolean.FALSE;
+                                    }
+                                    return TRUE;
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .name(GitSpan.FS_DELETE_BRANCH)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
                 .subscribeOn(scheduler);
     }
 
@@ -359,34 +378,34 @@ public class GitExecutorCEImpl implements GitExecutor {
 
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CHECKOUT.getEventName());
-        return Mono.fromCallable(() -> {
-                    log.debug(Thread.currentThread().getName() + ": Switching to the branch " + branchName);
-                    // We can safely assume that repo has been already initialised either in commit or clone flow and
-                    // can directly
-                    // open the repo
-                    Path baseRepoPath = createRepoPath(repoSuffix);
-                    try (Git git = Git.open(baseRepoPath.toFile())) {
-                        if (StringUtils.equalsIgnoreCase(
-                                branchName, git.getRepository().getBranch())) {
-                            return TRUE;
-                        }
-                        // Create and checkout to new branch
-                        String checkedOutBranch = git.checkout()
-                                .setCreateBranch(Boolean.FALSE)
-                                .setName(branchName)
-                                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
-                                .call()
-                                .getName();
-                        processStopwatch.stopAndLogTimeInMillis();
-                        return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/" + branchName);
-                    } catch (Exception e) {
-                        throw new Exception(e);
-                    }
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .tag(CHECKOUT_REMOTE, FALSE.toString())
-                .name(GitSpan.FS_CHECKOUT_BRANCH)
-                .tap(Micrometer.observation(observationRegistry))
+        return Mono.using(
+                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    log.debug(Thread.currentThread().getName() + ": Switching to the branch "
+                                            + branchName);
+                                    // We can safely assume that repo has been already initialised either in commit or
+                                    // clone flow and
+                                    // can directly
+                                    // open the repo
+                                    if (StringUtils.equalsIgnoreCase(
+                                            branchName, git.getRepository().getBranch())) {
+                                        return TRUE;
+                                    }
+                                    // Create and checkout to new branch
+                                    String checkedOutBranch = git.checkout()
+                                            .setCreateBranch(Boolean.FALSE)
+                                            .setName(branchName)
+                                            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.SET_UPSTREAM)
+                                            .call()
+                                            .getName();
+                                    processStopwatch.stopAndLogTimeInMillis();
+                                    return StringUtils.equalsIgnoreCase(checkedOutBranch, "refs/heads/" + branchName);
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .tag(CHECKOUT_REMOTE, FALSE.toString())
+                                .name(GitSpan.FS_CHECKOUT_BRANCH)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
                 .subscribeOn(scheduler);
     }
 
@@ -399,111 +418,127 @@ public class GitExecutorCEImpl implements GitExecutor {
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_PULL.getEventName());
         TransportConfigCallback transportConfigCallback = new SshTransportConfigCallback(privateKey, publicKey);
 
-        try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
-            return Mono.fromCallable(() -> {
-                        log.debug(Thread.currentThread().getName() + ": Pull changes from remote  " + remoteUrl
-                                + " for the branch " + branchName);
-                        // checkout the branch on which the merge command is run
-                        git.checkout()
-                                .setName(branchName)
-                                .setCreateBranch(false)
-                                .call();
-                        MergeResult mergeResult = git.pull()
-                                .setRemoteBranchName(branchName)
-                                .setTransportConfigCallback(transportConfigCallback)
-                                .setFastForward(MergeCommand.FastForwardMode.FF)
-                                .call()
-                                .getMergeResult();
-                        MergeStatusDTO mergeStatus = new MergeStatusDTO();
-                        Long count =
-                                Arrays.stream(mergeResult.getMergedCommits()).count();
-                        if (mergeResult.getMergeStatus().isSuccessful()) {
-                            mergeStatus.setMergeAble(true);
-                            mergeStatus.setStatus(count + " commits merged from origin/" + branchName);
-                        } else {
-                            // If there are conflicts add the conflicting file names to the response structure
-                            mergeStatus.setMergeAble(false);
-                            List<String> mergeConflictFiles = new ArrayList<>();
-                            if (!Optional.ofNullable(mergeResult.getConflicts()).isEmpty()) {
-                                mergeConflictFiles.addAll(
-                                        mergeResult.getConflicts().keySet());
-                            }
-                            mergeStatus.setConflictingFiles(mergeConflictFiles);
-                            // On merge conflicts abort the merge => git merge --abort
-                            git.getRepository().writeMergeCommitMsg(null);
-                            git.getRepository().writeMergeHeads(null);
-                            processStopwatch.stopAndLogTimeInMillis();
-                            throw new org.eclipse.jgit.errors.CheckoutConflictException(mergeConflictFiles.toString());
-                        }
-                        processStopwatch.stopAndLogTimeInMillis();
-                        return mergeStatus;
-                    })
-                    .onErrorResume(error -> {
-                        try {
-                            return resetToLastCommit(git).flatMap(ignore -> Mono.error(error));
-                        } catch (GitAPIException e) {
-                            log.error("Error for hard resetting to latest commit {0}", e);
-                            return Mono.error(e);
-                        }
-                    })
-                    .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                    .name(GitSpan.FS_PULL)
-                    .tap(Micrometer.observation(observationRegistry))
-                    .subscribeOn(scheduler);
-        }
+        return Mono.using(
+                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    log.debug(Thread.currentThread().getName() + ": Pull changes from remote  "
+                                            + remoteUrl + " for the branch " + branchName);
+                                    // checkout the branch on which the merge command is run
+                                    MergeResult mergeResult;
+                                    try {
+                                        git.checkout()
+                                                .setName(branchName)
+                                                .setCreateBranch(false)
+                                                .call();
+                                        mergeResult = git.pull()
+                                                .setRemoteBranchName(branchName)
+                                                .setTransportConfigCallback(transportConfigCallback)
+                                                .setFastForward(MergeCommand.FastForwardMode.FF)
+                                                .call()
+                                                .getMergeResult();
+                                    } catch (GitAPIException e) {
+                                        throw e;
+                                    }
+                                    MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                                    Long count = Arrays.stream(mergeResult.getMergedCommits())
+                                            .count();
+                                    if (mergeResult.getMergeStatus().isSuccessful()) {
+                                        mergeStatus.setMergeAble(true);
+                                        mergeStatus.setStatus(count + " commits merged from origin/" + branchName);
+                                        processStopwatch.stopAndLogTimeInMillis();
+                                        return mergeStatus;
+                                    } else {
+                                        // If there are conflicts add the conflicting file names to the response
+                                        // structure
+                                        mergeStatus.setMergeAble(false);
+                                        List<String> mergeConflictFiles = new ArrayList<>();
+                                        if (!Optional.ofNullable(mergeResult.getConflicts())
+                                                .isEmpty()) {
+                                            mergeConflictFiles.addAll(
+                                                    mergeResult.getConflicts().keySet());
+                                        }
+                                        mergeStatus.setConflictingFiles(mergeConflictFiles);
+                                        try {
+                                            // On merge conflicts abort the merge => git merge --abort
+                                            git.getRepository().writeMergeCommitMsg(null);
+                                            git.getRepository().writeMergeHeads(null);
+                                            throw new org.eclipse.jgit.errors.CheckoutConflictException(
+                                                    mergeConflictFiles.toString());
+                                        } catch (IOException e) {
+                                            log.debug("Encountered error while aborting merge", e);
+                                            throw new org.eclipse.jgit.errors.CheckoutConflictException(
+                                                    mergeConflictFiles.toString());
+                                        } finally {
+                                            processStopwatch.stopAndLogTimeInMillis();
+                                        }
+                                    }
+                                })
+                                .onErrorResume(error -> resetToLastCommit(git).flatMap(ignore -> Mono.error(error)))
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .name(GitSpan.FS_PULL)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
+                .subscribeOn(scheduler);
     }
 
     @Override
     public Mono<List<GitBranchDTO>> listBranches(Path repoSuffix) {
         Path baseRepoPath = createRepoPath(repoSuffix);
-        return Mono.fromCallable(() -> {
-                    log.debug(Thread.currentThread().getName() + ": Get branches for the application " + repoSuffix);
-                    Git git = Git.open(baseRepoPath.toFile());
-                    List<Ref> refList = git.branchList()
-                            .setListMode(ListBranchCommand.ListMode.ALL)
-                            .call();
 
-                    List<GitBranchDTO> branchList = new ArrayList<>();
-                    GitBranchDTO gitBranchDTO = new GitBranchDTO();
-                    if (refList.isEmpty()) {
-                        gitBranchDTO.setBranchName(git.getRepository().getBranch());
-                        branchList.add(gitBranchDTO);
-                    } else {
-                        for (Ref ref : refList) {
-                            // if (!ref.getName().equals(defaultBranch)) {
-                            gitBranchDTO = new GitBranchDTO();
-                            gitBranchDTO.setBranchName(ref.getName()
-                                    .replace("refs/", "")
-                                    .replace("heads/", "")
-                                    .replace("remotes/", ""));
-                            branchList.add(gitBranchDTO);
-                        }
-                    }
-                    git.close();
-                    return branchList;
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+        return Mono.using(
+                        () -> Git.open(baseRepoPath.toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    log.debug(Thread.currentThread().getName() + ": Get branches for the application "
+                                            + repoSuffix);
+
+                                    List<Ref> refList = git.branchList()
+                                            .setListMode(ListBranchCommand.ListMode.ALL)
+                                            .call();
+
+                                    List<GitBranchDTO> branchList = new ArrayList<>();
+                                    GitBranchDTO gitBranchDTO = new GitBranchDTO();
+                                    if (refList.isEmpty()) {
+                                        gitBranchDTO.setBranchName(
+                                                git.getRepository().getBranch());
+                                        branchList.add(gitBranchDTO);
+                                    } else {
+                                        for (Ref ref : refList) {
+                                            // if (!ref.getName().equals(defaultBranch)) {
+                                            gitBranchDTO = new GitBranchDTO();
+                                            gitBranchDTO.setBranchName(ref.getName()
+                                                    .replace("refs/", "")
+                                                    .replace("heads/", "")
+                                                    .replace("remotes/", ""));
+                                            branchList.add(gitBranchDTO);
+                                        }
+                                    }
+                                    return branchList;
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS)),
+                        Git::close)
                 .subscribeOn(scheduler);
     }
 
     @Override
     public Mono<String> getRemoteDefaultBranch(Path repoSuffix, String remoteUrl, String privateKey, String publicKey) {
         Path baseRepoPath = createRepoPath(repoSuffix);
-        return Mono.fromCallable(() -> {
-                    TransportConfigCallback transportConfigCallback =
-                            new SshTransportConfigCallback(privateKey, publicKey);
-                    Git git = Git.open(baseRepoPath.toFile());
+        return Mono.using(
+                        () -> Git.open(baseRepoPath.toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    TransportConfigCallback transportConfigCallback =
+                                            new SshTransportConfigCallback(privateKey, publicKey);
 
-                    return git.lsRemote()
-                            .setRemote(remoteUrl)
-                            .setTransportConfigCallback(transportConfigCallback)
-                            .callAsMap()
-                            .get("HEAD")
-                            .getTarget()
-                            .getName()
-                            .replace("refs/heads/", "");
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                    return git.lsRemote()
+                                            .setRemote(remoteUrl)
+                                            .setTransportConfigCallback(transportConfigCallback)
+                                            .callAsMap()
+                                            .get("HEAD")
+                                            .getTarget()
+                                            .getName()
+                                            .replace("refs/heads/", "");
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS)),
+                        Git::close)
                 .subscribeOn(scheduler);
     }
 
@@ -518,64 +553,69 @@ public class GitExecutorCEImpl implements GitExecutor {
     public Mono<GitStatusDTO> getStatus(Path repoPath, String branchName) {
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoPath, AnalyticsEvents.GIT_STATUS.getEventName());
-        return Mono.fromCallable(() -> {
-                    try (Git git = Git.open(repoPath.toFile())) {
-                        log.debug(Thread.currentThread().getName() + ": Get status for repo  " + repoPath + ", branch "
-                                + branchName);
-                        Status status = git.status().call();
-                        GitStatusDTO response = new GitStatusDTO();
+        return Mono.using(
+                        () -> Git.open(repoPath.toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    log.debug(Thread.currentThread().getName() + ": Get status for repo  " + repoPath
+                                            + ", branch " + branchName);
+                                    Status status = git.status().call();
+                                    GitStatusDTO response = new GitStatusDTO();
 
-                        // resource changes
-                        Set<String> modified = Stream.concat(
-                                        status.getChanged().stream(), status.getModified().stream())
-                                .collect(Collectors.toSet());
-                        Set<String> added = Stream.concat(status.getAdded().stream(), status.getUntracked().stream())
-                                .collect(Collectors.toSet());
-                        Set<String> removed = Stream.concat(status.getRemoved().stream(), status.getMissing().stream())
-                                .collect(Collectors.toSet());
+                                    // resource changes
+                                    Set<String> modified = Stream.concat(
+                                                    status.getChanged().stream(), status.getModified().stream())
+                                            .collect(Collectors.toSet());
+                                    Set<String> added = Stream.concat(
+                                                    status.getAdded().stream(), status.getUntracked().stream())
+                                            .collect(Collectors.toSet());
+                                    Set<String> removed = Stream.concat(
+                                                    status.getRemoved().stream(), status.getMissing().stream())
+                                            .collect(Collectors.toSet());
 
-                        response.setModified(modified);
-                        response.setAdded(added);
-                        response.setRemoved(removed);
+                                    response.setModified(modified);
+                                    response.setAdded(added);
+                                    response.setRemoved(removed);
 
-                        populateModifiedEntities(response);
+                                    populateModifiedEntities(response);
 
-                        // conflicts changes
-                        response.setConflicting(status.getConflicting());
-                        response.setIsClean(status.isClean());
+                                    // conflicts changes
+                                    response.setConflicting(status.getConflicting());
+                                    response.setIsClean(status.isClean());
 
-                        // remote status changes
-                        BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
-                        if (trackingStatus != null) {
-                            response.setAheadCount(trackingStatus.getAheadCount());
-                            response.setBehindCount(trackingStatus.getBehindCount());
-                            response.setRemoteBranch(trackingStatus.getRemoteTrackingBranch());
-                        } else {
-                            log.debug(
-                                    "Remote tracking details not present for branch: {}, repo: {}",
-                                    branchName,
-                                    repoPath);
-                            response.setAheadCount(0);
-                            response.setBehindCount(0);
-                            response.setRemoteBranch("untracked");
-                        }
+                                    // remote status changes
+                                    BranchTrackingStatus trackingStatus =
+                                            BranchTrackingStatus.of(git.getRepository(), branchName);
+                                    if (trackingStatus != null) {
+                                        response.setAheadCount(trackingStatus.getAheadCount());
+                                        response.setBehindCount(trackingStatus.getBehindCount());
+                                        response.setRemoteBranch(trackingStatus.getRemoteTrackingBranch());
+                                    } else {
+                                        log.debug(
+                                                "Remote tracking details not present for branch: {}, repo: {}",
+                                                branchName,
+                                                repoPath);
+                                        response.setAheadCount(0);
+                                        response.setBehindCount(0);
+                                        response.setRemoteBranch("untracked");
+                                    }
 
-                        // Remove modified changes from current branch so that checkout to other branches will be
-                        // possible
-                        if (!status.isClean()) {
-                            return resetToLastCommit(git).map(ref -> {
-                                processStopwatch.stopAndLogTimeInMillis();
-                                return response;
-                            });
-                        }
-                        processStopwatch.stopAndLogTimeInMillis();
-                        return Mono.just(response);
-                    }
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .flatMap(response -> response)
-                .name(GitSpan.FS_STATUS)
-                .tap(Micrometer.observation(observationRegistry))
+                                    // Remove modified changes from current branch so that checkout to other branches
+                                    // will be
+                                    // possible
+                                    if (!status.isClean()) {
+                                        return resetToLastCommit(git).map(ref -> {
+                                            processStopwatch.stopAndLogTimeInMillis();
+                                            return response;
+                                        });
+                                    }
+                                    processStopwatch.stopAndLogTimeInMillis();
+                                    return Mono.just(response);
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .flatMap(response -> response)
+                                .name(GitSpan.FS_STATUS)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
                 .subscribeOn(scheduler);
     }
 
@@ -753,45 +793,47 @@ public class GitExecutorCEImpl implements GitExecutor {
 
     @Override
     public Mono<String> mergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
-        return Mono.fromCallable(() -> {
-                    Stopwatch processStopwatch =
-                            StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_MERGE.getEventName());
-                    log.debug(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch + " on "
-                            + destinationBranch);
-                    try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
-                        try {
-                            // checkout the branch on which the merge command is run
-                            git.checkout()
-                                    .setName(destinationBranch)
-                                    .setCreateBranch(false)
-                                    .call();
+        return Mono.using(
+                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
+                                            repoSuffix, AnalyticsEvents.GIT_MERGE.getEventName());
+                                    log.debug(Thread.currentThread().getName() + ": Merge branch  " + sourceBranch
+                                            + " on " + destinationBranch);
+                                    try {
+                                        // checkout the branch on which the merge command is run
+                                        git.checkout()
+                                                .setName(destinationBranch)
+                                                .setCreateBranch(false)
+                                                .call();
 
-                            MergeResult mergeResult = git.merge()
-                                    .include(git.getRepository().findRef(sourceBranch))
-                                    .setStrategy(MergeStrategy.RECURSIVE)
-                                    .call();
-                            processStopwatch.stopAndLogTimeInMillis();
-                            return mergeResult.getMergeStatus().name();
-                        } catch (GitAPIException e) {
-                            // On merge conflicts abort the merge => git merge --abort
-                            git.getRepository().writeMergeCommitMsg(null);
-                            git.getRepository().writeMergeHeads(null);
-                            processStopwatch.stopAndLogTimeInMillis();
-                            throw new Exception(e);
-                        }
-                    }
-                })
-                .onErrorResume(error -> {
-                    try {
-                        return resetToLastCommit(repoSuffix, destinationBranch).thenReturn(error.getMessage());
-                    } catch (GitAPIException | IOException e) {
-                        log.error("Error while hard resetting to latest commit {0}", e);
-                        return Mono.error(e);
-                    }
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpan.FS_MERGE)
-                .tap(Micrometer.observation(observationRegistry))
+                                        MergeResult mergeResult = git.merge()
+                                                .include(git.getRepository().findRef(sourceBranch))
+                                                .setStrategy(MergeStrategy.RECURSIVE)
+                                                .call();
+                                        processStopwatch.stopAndLogTimeInMillis();
+                                        return mergeResult.getMergeStatus().name();
+                                    } catch (GitAPIException e) {
+                                        // On merge conflicts abort the merge => git merge --abort
+                                        git.getRepository().writeMergeCommitMsg(null);
+                                        git.getRepository().writeMergeHeads(null);
+                                        processStopwatch.stopAndLogTimeInMillis();
+                                        throw new Exception(e);
+                                    }
+                                })
+                                .onErrorResume(error -> {
+                                    try {
+                                        return resetToLastCommit(repoSuffix, destinationBranch)
+                                                .thenReturn(error.getMessage());
+                                    } catch (GitAPIException | IOException e) {
+                                        log.error("Error while hard resetting to latest commit {0}", e);
+                                        return Mono.error(e);
+                                    }
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .name(GitSpan.FS_MERGE)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
                 .subscribeOn(scheduler);
     }
 
@@ -806,37 +848,39 @@ public class GitExecutorCEImpl implements GitExecutor {
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_FETCH.getEventName());
         Path repoPath = TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
-        return Mono.fromCallable(() -> {
-                    TransportConfigCallback config = new SshTransportConfigCallback(privateKey, publicKey);
-                    try (Git git = Git.open(repoPath.toFile())) {
-                        String fetchMessages;
-                        if (TRUE.equals(isFetchAll)) {
-                            fetchMessages = git.fetch()
-                                    .setRemoveDeletedRefs(true)
-                                    .setTransportConfigCallback(config)
-                                    .call()
-                                    .getMessages();
-                        } else {
-                            RefSpec ref =
-                                    new RefSpec("refs/heads/" + branchName + ":refs/remotes/origin/" + branchName);
-                            fetchMessages = git.fetch()
-                                    .setRefSpecs(ref)
-                                    .setRemoveDeletedRefs(true)
-                                    .setTransportConfigCallback(config)
-                                    .call()
-                                    .getMessages();
-                        }
-                        processStopwatch.stopAndLogTimeInMillis();
-                        return fetchMessages;
-                    }
-                })
-                .onErrorResume(error -> {
-                    log.error(error.getMessage());
-                    return Mono.error(error);
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpan.FS_FETCH_REMOTE)
-                .tap(Micrometer.observation(observationRegistry))
+        return Mono.using(
+                        () -> Git.open(repoPath.toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    TransportConfigCallback config =
+                                            new SshTransportConfigCallback(privateKey, publicKey);
+                                    String fetchMessages;
+                                    if (TRUE.equals(isFetchAll)) {
+                                        fetchMessages = git.fetch()
+                                                .setRemoveDeletedRefs(true)
+                                                .setTransportConfigCallback(config)
+                                                .call()
+                                                .getMessages();
+                                    } else {
+                                        RefSpec ref = new RefSpec(
+                                                "refs/heads/" + branchName + ":refs/remotes/origin/" + branchName);
+                                        fetchMessages = git.fetch()
+                                                .setRefSpecs(ref)
+                                                .setRemoveDeletedRefs(true)
+                                                .setTransportConfigCallback(config)
+                                                .call()
+                                                .getMessages();
+                                    }
+                                    processStopwatch.stopAndLogTimeInMillis();
+                                    return fetchMessages;
+                                })
+                                .onErrorResume(error -> {
+                                    log.error(error.getMessage());
+                                    return Mono.error(error);
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .name(GitSpan.FS_FETCH_REMOTE)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
                 .subscribeOn(scheduler);
     }
 
@@ -844,110 +888,117 @@ public class GitExecutorCEImpl implements GitExecutor {
     public Mono<MergeStatusDTO> isMergeBranch(Path repoSuffix, String sourceBranch, String destinationBranch) {
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_MERGE_CHECK.getEventName());
-        return Mono.fromCallable(() -> {
-                    log.debug(
-                            Thread.currentThread().getName()
-                                    + ": Check mergeability for repo {} with src: {}, dest: {}",
-                            repoSuffix,
-                            sourceBranch,
-                            destinationBranch);
+        return Mono.using(
+                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    log.debug(
+                                            Thread.currentThread().getName()
+                                                    + ": Check mergeability for repo {} with src: {}, dest: {}",
+                                            repoSuffix,
+                                            sourceBranch,
+                                            destinationBranch);
 
-                    try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
+                                    // checkout the branch on which the merge command is run
+                                    try {
+                                        git.checkout()
+                                                .setName(destinationBranch)
+                                                .setCreateBranch(false)
+                                                .call();
+                                    } catch (GitAPIException e) {
+                                        if (e instanceof CheckoutConflictException) {
+                                            MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                                            mergeStatus.setMergeAble(false);
+                                            mergeStatus.setConflictingFiles(
+                                                    ((CheckoutConflictException) e).getConflictingPaths());
+                                            processStopwatch.stopAndLogTimeInMillis();
+                                            return mergeStatus;
+                                        }
+                                    }
 
-                        // checkout the branch on which the merge command is run
-                        try {
-                            git.checkout()
-                                    .setName(destinationBranch)
-                                    .setCreateBranch(false)
-                                    .call();
-                        } catch (GitAPIException e) {
-                            if (e instanceof CheckoutConflictException) {
-                                MergeStatusDTO mergeStatus = new MergeStatusDTO();
-                                mergeStatus.setMergeAble(false);
-                                mergeStatus.setConflictingFiles(((CheckoutConflictException) e).getConflictingPaths());
-                                processStopwatch.stopAndLogTimeInMillis();
-                                return mergeStatus;
-                            }
-                        }
+                                    MergeResult mergeResult = git.merge()
+                                            .include(git.getRepository().findRef(sourceBranch))
+                                            .setFastForward(MergeCommand.FastForwardMode.NO_FF)
+                                            .setCommit(false)
+                                            .call();
 
-                        MergeResult mergeResult = git.merge()
-                                .include(git.getRepository().findRef(sourceBranch))
-                                .setFastForward(MergeCommand.FastForwardMode.NO_FF)
-                                .setCommit(false)
-                                .call();
-
-                        MergeStatusDTO mergeStatus = new MergeStatusDTO();
-                        if (mergeResult.getMergeStatus().isSuccessful()) {
-                            mergeStatus.setMergeAble(true);
-                            mergeStatus.setMessage(SUCCESS_MERGE_STATUS);
-                        } else {
-                            // If there aer conflicts add the conflicting file names to the response structure
-                            mergeStatus.setMergeAble(false);
-                            List<String> mergeConflictFiles =
-                                    new ArrayList<>(mergeResult.getConflicts().keySet());
-                            mergeStatus.setConflictingFiles(mergeConflictFiles);
-                            StringBuilder errorMessage = new StringBuilder();
-                            if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)) {
-                                errorMessage.append("Conflicts");
-                            } else {
-                                errorMessage.append(mergeResult.getMergeStatus().toString());
-                            }
-                            errorMessage
-                                    .append(" while merging branch: ")
-                                    .append(destinationBranch)
-                                    .append(" <= ")
-                                    .append(sourceBranch);
-                            mergeStatus.setMessage(errorMessage.toString());
-                            mergeStatus.setReferenceDoc(ErrorReferenceDocUrl.GIT_MERGE_CONFLICT.getDocUrl());
-                        }
-                        mergeStatus.setStatus(mergeResult.getMergeStatus().name());
-                        return mergeStatus;
-                    }
-                })
-                .flatMap(status -> {
-                    try {
-                        // Revert uncommitted changes if any
-                        return resetToLastCommit(repoSuffix, destinationBranch).map(ignore -> {
-                            processStopwatch.stopAndLogTimeInMillis();
-                            return status;
-                        });
-                    } catch (GitAPIException | IOException e) {
-                        log.error("Error for hard resetting to latest commit {0}", e);
-                        return Mono.error(e);
-                    }
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                    MergeStatusDTO mergeStatus = new MergeStatusDTO();
+                                    if (mergeResult.getMergeStatus().isSuccessful()) {
+                                        mergeStatus.setMergeAble(true);
+                                        mergeStatus.setMessage(SUCCESS_MERGE_STATUS);
+                                    } else {
+                                        // If there aer conflicts add the conflicting file names to the response
+                                        // structure
+                                        mergeStatus.setMergeAble(false);
+                                        List<String> mergeConflictFiles = new ArrayList<>(
+                                                mergeResult.getConflicts().keySet());
+                                        mergeStatus.setConflictingFiles(mergeConflictFiles);
+                                        StringBuilder errorMessage = new StringBuilder();
+                                        if (mergeResult.getMergeStatus().equals(MergeResult.MergeStatus.CONFLICTING)) {
+                                            errorMessage.append("Conflicts");
+                                        } else {
+                                            errorMessage.append(
+                                                    mergeResult.getMergeStatus().toString());
+                                        }
+                                        errorMessage
+                                                .append(" while merging branch: ")
+                                                .append(destinationBranch)
+                                                .append(" <= ")
+                                                .append(sourceBranch);
+                                        mergeStatus.setMessage(errorMessage.toString());
+                                        mergeStatus.setReferenceDoc(
+                                                ErrorReferenceDocUrl.GIT_MERGE_CONFLICT.getDocUrl());
+                                    }
+                                    mergeStatus.setStatus(
+                                            mergeResult.getMergeStatus().name());
+                                    return mergeStatus;
+                                })
+                                .flatMap(status -> {
+                                    try {
+                                        // Revert uncommitted changes if any
+                                        return resetToLastCommit(repoSuffix, destinationBranch)
+                                                .map(ignore -> {
+                                                    processStopwatch.stopAndLogTimeInMillis();
+                                                    return status;
+                                                });
+                                    } catch (GitAPIException | IOException e) {
+                                        log.error("Error for hard resetting to latest commit {0}", e);
+                                        return Mono.error(e);
+                                    }
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS)),
+                        Git::close)
                 .subscribeOn(scheduler);
     }
 
     public Mono<String> checkoutRemoteBranch(Path repoSuffix, String branchName) {
         // We can safely assume that repo has been already initialised either in commit or clone flow and can directly
         // open the repo
-        return Mono.fromCallable(() -> {
-                    log.debug(Thread.currentThread().getName() + ": Checking out remote branch origin/" + branchName
-                            + " for the repo " + repoSuffix);
-                    // open the repo
-                    Path baseRepoPath = createRepoPath(repoSuffix);
-                    try (Git git = Git.open(baseRepoPath.toFile())) {
-                        // Create and checkout to new branch
-                        git.checkout()
-                                .setCreateBranch(TRUE)
-                                .setName(branchName)
-                                .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
-                                .setStartPoint("origin/" + branchName)
-                                .call();
+        return Mono.using(
+                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    log.debug(Thread.currentThread().getName() + ": Checking out remote branch origin/"
+                                            + branchName + " for the repo " + repoSuffix);
+                                    // open the repo
+                                    Path baseRepoPath = createRepoPath(repoSuffix);
+                                    // Create and checkout to new branch
+                                    git.checkout()
+                                            .setCreateBranch(TRUE)
+                                            .setName(branchName)
+                                            .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
+                                            .setStartPoint("origin/" + branchName)
+                                            .call();
 
-                        StoredConfig config = git.getRepository().getConfig();
-                        config.setString("branch", branchName, "remote", "origin");
-                        config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
-                        config.save();
-                        return git.getRepository().getBranch();
-                    }
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .tag(CHECKOUT_REMOTE, TRUE.toString())
-                .name(GitSpan.FS_CHECKOUT_BRANCH)
-                .tap(Micrometer.observation(observationRegistry))
+                                    StoredConfig config = git.getRepository().getConfig();
+                                    config.setString("branch", branchName, "remote", "origin");
+                                    config.setString("branch", branchName, "merge", "refs/heads/" + branchName);
+                                    config.save();
+                                    return git.getRepository().getBranch();
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .tag(CHECKOUT_REMOTE, TRUE.toString())
+                                .name(GitSpan.FS_CHECKOUT_BRANCH)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
                 .subscribeOn(scheduler);
     }
 
@@ -968,7 +1019,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                 .subscribeOn(scheduler);
     }
 
-    private Mono<Ref> resetToLastCommit(Git git) throws GitAPIException {
+    private Mono<Ref> resetToLastCommit(Git git) {
         Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
                 git.getRepository().getDirectory().toPath().getParent(), AnalyticsEvents.GIT_RESET.getEventName());
         return Mono.fromCallable(() -> {
@@ -987,82 +1038,79 @@ public class GitExecutorCEImpl implements GitExecutor {
     }
 
     public Mono<Boolean> resetToLastCommit(Path repoSuffix, String branchName) throws GitAPIException, IOException {
-        try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
-            return this.resetToLastCommit(git)
-                    .flatMap(ref -> checkoutToBranch(repoSuffix, branchName))
-                    .flatMap(checkedOut -> {
-                        try {
-                            return resetToLastCommit(git).thenReturn(true);
-                        } catch (GitAPIException e) {
-                            log.error(e.getMessage());
-                            return Mono.error(e);
-                        }
-                    });
-        }
+        return Mono.using(
+                () -> Git.open(createRepoPath(repoSuffix).toFile()),
+                git -> this.resetToLastCommit(git)
+                        .flatMap(ref -> checkoutToBranch(repoSuffix, branchName))
+                        .flatMap(checkedOut -> resetToLastCommit(git).thenReturn(true)),
+                Git::close);
     }
 
     public Mono<Boolean> resetHard(Path repoSuffix, String branchName) {
         return this.checkoutToBranch(repoSuffix, branchName)
-                .flatMap(aBoolean -> {
-                    try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
-                        Ref ref = git.reset()
-                                .setMode(ResetCommand.ResetType.HARD)
-                                .setRef("HEAD~1")
-                                .call();
-                        return Mono.just(true);
-                    } catch (GitAPIException | IOException e) {
-                        log.error("Error while resetting the commit, {}", e.getMessage());
-                    }
-                    return Mono.just(false);
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .tag(HARD_RESET, TRUE.toString())
-                .name(GitSpan.FS_RESET)
-                .tap(Micrometer.observation(observationRegistry))
+                .flatMap(aBoolean -> Mono.using(
+                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    git.reset()
+                                            .setMode(ResetCommand.ResetType.HARD)
+                                            .setRef("HEAD~1")
+                                            .call();
+                                    return true;
+                                })
+                                .onErrorResume(e -> {
+                                    log.error("Error while resetting the commit, {}", e.getMessage());
+                                    return Mono.just(false);
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .tag(HARD_RESET, TRUE.toString())
+                                .name(GitSpan.FS_RESET)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close))
                 .subscribeOn(scheduler);
     }
 
     public Mono<Boolean> rebaseBranch(Path repoSuffix, String branchName) {
-        return this.checkoutToBranch(repoSuffix, branchName)
-                .flatMap(isCheckedOut -> {
-                    try (Git git = Git.open(createRepoPath(repoSuffix).toFile())) {
-                        RebaseResult result =
-                                git.rebase().setUpstream("origin/" + branchName).call();
-                        if (result.getStatus().isSuccessful()) {
-                            return Mono.just(true);
-                        } else {
-                            log.error(
-                                    "Error while rebasing the branch, {}, {}",
-                                    result.getStatus().name(),
-                                    result.getConflicts());
-                            git.rebase()
-                                    .setUpstream("origin/" + branchName)
-                                    .setOperation(RebaseCommand.Operation.ABORT)
-                                    .call();
-                            return Mono.error(new Exception("Error while rebasing the branch, "
-                                    + result.getStatus().name()));
-                        }
-                    } catch (GitAPIException | IOException e) {
-                        log.error("Error while rebasing the branch, {}", e.getMessage());
-                        return Mono.error(e);
-                    }
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpan.FS_REBASE)
-                .tap(Micrometer.observation(observationRegistry))
-                .subscribeOn(scheduler);
+        return this.checkoutToBranch(repoSuffix, branchName).flatMap(isCheckedOut -> Mono.using(
+                        () -> Git.open(createRepoPath(repoSuffix).toFile()),
+                        git -> Mono.fromCallable(() -> {
+                                    RebaseResult result = git.rebase()
+                                            .setUpstream("origin/" + branchName)
+                                            .call();
+                                    if (result.getStatus().isSuccessful()) {
+                                        return true;
+                                    } else {
+                                        log.error(
+                                                "Error while rebasing the branch, {}, {}",
+                                                result.getStatus().name(),
+                                                result.getConflicts());
+                                        git.rebase()
+                                                .setUpstream("origin/" + branchName)
+                                                .setOperation(RebaseCommand.Operation.ABORT)
+                                                .call();
+                                        throw new Exception("Error while rebasing the branch, "
+                                                + result.getStatus().name());
+                                    }
+                                })
+                                .onErrorMap(e -> {
+                                    log.error("Error while rebasing the branch, {}", e.getMessage());
+                                    return e;
+                                })
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .name(GitSpan.FS_REBASE)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
+                .subscribeOn(scheduler));
     }
 
     @Override
     public Mono<BranchTrackingStatus> getBranchTrackingStatus(Path repoPath, String branchName) {
-        return Mono.fromCallable(() -> {
-                    try (Git git = Git.open(repoPath.toFile())) {
-                        return BranchTrackingStatus.of(git.getRepository(), branchName);
-                    }
-                })
-                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpan.FS_BRANCH_TRACK)
-                .tap(Micrometer.observation(observationRegistry))
+        return Mono.using(
+                        () -> Git.open(repoPath.toFile()),
+                        git -> Mono.fromCallable(() -> BranchTrackingStatus.of(git.getRepository(), branchName))
+                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                .name(GitSpan.FS_BRANCH_TRACK)
+                                .tap(Micrometer.observation(observationRegistry)),
+                        Git::close)
                 .subscribeOn(scheduler);
     }
 }

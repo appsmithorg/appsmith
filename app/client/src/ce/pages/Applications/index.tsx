@@ -465,7 +465,12 @@ export const ApplicationsWrapper = styled.div<{
   margin-left: ${(props) => props.theme.homePage.leftPane.width}px;
   width: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   scroll-behavior: smooth;
-  ${({ isBannerVisible }) => (isBannerVisible ? "margin-top: 48px;" : "")}
+  ${({ isBannerVisible, isMobile }) =>
+    isBannerVisible
+      ? isMobile
+        ? "margin-top: 78px;"
+        : "margin-top: 48px;"
+      : ""}
   ${({ isMobile }) =>
     isMobile
       ? `padding: ${CONTAINER_WRAPPER_PADDING} 0;`

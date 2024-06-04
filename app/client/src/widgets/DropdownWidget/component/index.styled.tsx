@@ -58,8 +58,8 @@ export const StyledLabel = styled(Label)<{
     props.$labelTextColor
       ? props.$labelTextColor
       : props.$disabled
-      ? Colors.GREY_8
-      : "inherit"};
+        ? Colors.GREY_8
+        : "inherit"};
   font-size: ${(props) =>
     props.$labelTextSize ? TEXT_SIZES[props.$labelTextSize] : "14px"};
   font-weight: ${(props) =>

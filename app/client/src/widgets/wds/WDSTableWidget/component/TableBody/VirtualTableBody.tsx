@@ -1,11 +1,16 @@
 import React, { useCallback } from "react";
 import { useLayoutEffect, useRef } from "react";
-import type { VirtualTableBodyProps } from "./types";
-
+import type { ReactElementType } from "react-window";
+import { useResizeObserver } from "@react-aria/utils";
 import { FixedSizeList, areEqual } from "react-window";
 import type { ListChildComponentProps } from "react-window";
+
 import { Row, EmptyRow } from "./Row";
-import { useResizeObserver } from "@react-aria/utils";
+import type { StaticTableProps } from "./StaticTableBody";
+
+export interface VirtualTableBodyProps extends StaticTableProps {
+  innerElementType?: ReactElementType;
+}
 
 export const VirtualTableBody = (props: VirtualTableBodyProps) => {
   const ref = useRef<HTMLDivElement>(null);

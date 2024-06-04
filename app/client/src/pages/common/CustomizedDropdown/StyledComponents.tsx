@@ -24,8 +24,8 @@ export const DropdownTrigger = styled.div<{ skin: Skin }>`
         props.skin === Skin.DARK
           ? props.theme.colors.textOnDarkBG
           : props.skin === Skin.LIGHT
-          ? props.theme.colors.defaultText
-          : "initial"};
+            ? props.theme.colors.defaultText
+            : "initial"};
     }
     &:hover {
       background: inherit;

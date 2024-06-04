@@ -5,8 +5,13 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { Text } from "design-system";
+import { BUILDING_BLOCK_EXPLORER_TYPE } from "constants/WidgetConstants";
+import { useSelector } from "react-redux";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { noop } from "utils/AppsmithUtils";
 
-interface CardProps {
+export interface CardProps {
   details: WidgetCardProps;
 }
 
@@ -71,26 +76,16 @@ export const BetaLabel = styled.div`
 const THUMBNAIL_HEIGHT = 76;
 const THUMBNAIL_WIDTH = 72;
 
-function WidgetCard(props: CardProps) {
-  const { setDraggingNewWidget } = useWidgetDragResize();
-
-  const onDragStart = (e: any) => {
-    e.preventDefault();
-    e.stopPropagation();
-    AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
-      widgetType: props.details.type,
-      widgetName: props.details.displayName,
-    });
-    setDraggingNewWidget &&
-      setDraggingNewWidget(true, {
-        ...props.details,
-        widgetId: generateReactKey(),
-      });
-  };
-
-  const type = `${props.details.type.split("_").join("").toLowerCase()}`;
-  const className = `t--widget-card-draggable t--widget-card-draggable-${type}
-  }`;
+function WidgetCardComponent({
+  details,
+  onDragStart = noop,
+}: {
+  details: WidgetCardProps;
+  onDragStart?: (e: any) => void;
+}) {
+  const type = `${details.type.split("_").join("").toLowerCase()}`;
+  const className = `t--widget-card-draggable t--widget-card-draggable-${type}`;
+  const { ThumbnailCmp } = details;
 
   return (
     <Wrapper
@@ -101,11 +96,47 @@ function WidgetCard(props: CardProps) {
       onDragStart={onDragStart}
     >
       <ThumbnailWrapper height={THUMBNAIL_HEIGHT} width={THUMBNAIL_WIDTH}>
-        <img src={props.details.thumbnail} />
+        {details.thumbnail && <img src={details.thumbnail} />}
+        {ThumbnailCmp && <ThumbnailCmp />}
       </ThumbnailWrapper>
-      <Text kind="body-s">{props.details.displayName}</Text>
-      {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
+      <Text kind="body-s">{details.displayName}</Text>
+      {details.isBeta && <BetaLabel>Beta</BetaLabel>}
     </Wrapper>
+  );
+}
+
+function WidgetCard(props: CardProps) {
+  const applicationId = useSelector(getCurrentApplicationId);
+  const workspaceId = useSelector(getCurrentWorkspaceId);
+  const { setDraggingNewWidget } = useWidgetDragResize();
+
+  const onDragStart = (e: any) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (props.details.type === BUILDING_BLOCK_EXPLORER_TYPE) {
+      AnalyticsUtil.logEvent("DRAG_BUILDING_BLOCK_INITIATED", {
+        applicationId,
+        workspaceId,
+        source: "explorer",
+        eventData: {
+          buildingBlockName: props.details.displayName,
+        },
+      });
+    } else {
+      AnalyticsUtil.logEvent("WIDGET_CARD_DRAG", {
+        widgetType: props.details.type,
+        widgetName: props.details.displayName,
+      });
+    }
+    setDraggingNewWidget &&
+      setDraggingNewWidget(true, {
+        ...props.details,
+        widgetId: generateReactKey(),
+      });
+  };
+
+  return (
+    <WidgetCardComponent details={props.details} onDragStart={onDragStart} />
   );
 }
 

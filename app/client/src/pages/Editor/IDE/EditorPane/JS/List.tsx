@@ -46,7 +46,7 @@ const ListJSObjects = () => {
     pagePermissions,
   );
 
-  const addButtonClickHandler = useJSAdd();
+  const { openAddJS } = useJSAdd();
 
   return (
     <JSContainer
@@ -61,7 +61,7 @@ const ListJSObjects = () => {
           <Button
             className="t--add-item"
             kind={"secondary"}
-            onClick={addButtonClickHandler}
+            onClick={openAddJS}
             size={"sm"}
             startIcon={"add-line"}
           >

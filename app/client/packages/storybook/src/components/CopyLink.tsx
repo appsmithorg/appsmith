@@ -14,7 +14,7 @@ export const StyledCopyLink = styled.a`
   &[data-hint="true"]:after {
     content: "copied";
     position: absolute;
-    right: calc(-1 * var(--sizing-11));
+    right: calc(-1 * var(--sizing-13));
     color: var(--color-fg-positive);
   }
 `;

@@ -1,33 +1,23 @@
 import type {
-  ButtonGroupProps,
-  ButtonProps,
-  IconProps,
+  ToolbarButtonsProps,
+  ToolbarButtonsItem,
 } from "@design-system/widgets";
-import type { ButtonsList } from "../widget/types";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import type { ButtonsList } from "../widget/types";
 
-export interface ToolbarButtonsComponentProps {
-  color?: ButtonGroupProps<object>["color"];
-  variant?: ButtonGroupProps<object>["variant"];
-  orientation: ButtonGroupProps<object>["orientation"];
+export interface ToolbarButtonsComponentProps
+  extends ToolbarButtonsProps<ToolbarButtonsItem> {
   buttonsList: ButtonsList;
   onButtonClick: (
     onClick?: string,
     callback?: (result: ExecutionResult) => void,
   ) => void;
-  density?: ButtonGroupProps<object>["density"];
 }
 
-export interface ToolbarButtonsItemComponentProps {
-  label?: string;
+export interface ToolbarButtonsItemComponentProps extends ToolbarButtonsItem {
   isVisible?: boolean;
-  isLoading?: boolean;
-  isDisabled?: boolean;
   widgetId: string;
-  id: string;
   index: number;
-  iconName?: IconProps["name"];
-  iconAlign?: ButtonProps["iconPosition"];
   onClick?: string;
   itemType: "SEPARATOR" | "BUTTON";
 }

@@ -39,19 +39,28 @@ class Section extends WidgetRow {
       />
     );
   }
-  renderDraggingArena(): React.ReactNode {
+
+  renderEditMode(): JSX.Element {
     return (
       <>
-        {super.renderDraggingArena()}
-        {this.renderSectionSpaceDistributor()}
+        {this.renderDraggingArena()}
+        {this.renderSpaceDistributedSection()}
       </>
     );
   }
-
-  render(): JSX.Element {
+  renderSpaceDistributedSection(): JSX.Element {
     return (
       <SectionRow {...this.getFlexLayoutProps()}>
-        {this.renderContent()}
+        {this.renderSectionSpaceDistributor()}
+        {super.renderChildren()}
+      </SectionRow>
+    );
+  }
+
+  renderViewMode(): JSX.Element {
+    return (
+      <SectionRow {...this.getFlexLayoutProps()}>
+        {super.renderChildren()}
       </SectionRow>
     );
   }

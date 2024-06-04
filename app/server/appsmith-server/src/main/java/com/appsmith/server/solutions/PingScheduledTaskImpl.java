@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.DeploymentProperties;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.helpers.NetworkUtils;
@@ -38,9 +39,9 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             DatasourceRepository datasourceRepository,
             UserRepository userRepository,
             ProjectProperties projectProperties,
+            DeploymentProperties deploymentProperties,
             NetworkUtils networkUtils,
             PermissionGroupService permissionGroupService) {
-
         super(
                 configService,
                 segmentConfig,
@@ -52,6 +53,7 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
                 datasourceRepository,
                 userRepository,
                 projectProperties,
+                deploymentProperties,
                 networkUtils,
                 permissionGroupService);
     }

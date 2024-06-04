@@ -1,7 +1,6 @@
 package com.appsmith.server.searchentities;
 
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.SearchEntityDTO;
@@ -65,7 +64,7 @@ public class SearchEntitySolutionCEImpl implements SearchEntitySolutionCE {
         if (shouldSearchEntity(Workspace.class, entities)) {
             workspacesMono = workspaceService
                     .filterByEntityFieldsWithoutPublicAccess(
-                            List.of(FieldName.NAME),
+                            List.of(Workspace.Fields.name),
                             searchString,
                             pageable,
                             sort,
@@ -77,7 +76,7 @@ public class SearchEntitySolutionCEImpl implements SearchEntitySolutionCE {
         if (shouldSearchEntity(Application.class, entities)) {
             applicationsMono = applicationService
                     .filterByEntityFieldsWithoutPublicAccess(
-                            List.of(FieldName.NAME),
+                            List.of(Application.Fields.name),
                             searchString,
                             pageable,
                             sort,

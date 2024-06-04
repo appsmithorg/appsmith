@@ -367,12 +367,12 @@ describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
                 isMarkedAsync ? "async" : ""
               } ()=>"${functionName}",`
             : i === functionsLength - 1
-            ? `
+              ? `
             ${functionName}: ${
               isMarkedAsync ? "async" : ""
             } ()=>"${functionName}",
           }`
-            : `
+              : `
             ${functionName}: ${
               isMarkedAsync ? "async" : ""
             } ()=> "${functionName}",`;

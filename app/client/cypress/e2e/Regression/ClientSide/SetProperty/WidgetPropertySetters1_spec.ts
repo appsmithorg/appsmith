@@ -189,7 +189,7 @@ describe(
       );
 
       agHelper.AssertElementVisibility(locators._lintErrorElement);
-      agHelper.HoverElement(locators._lintErrorElement);
+      agHelper.GetElement(locators._lintErrorElement).realHover();
       agHelper.AssertContains(
         "Direct mutation of widget properties is not supported. Use Button1.setVisibility(value) instead.",
       );

@@ -173,7 +173,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 Layout layout =
                                         page.getUnpublishedPage().getLayouts().get(0);
                                 return refactoringService.getAllExistingEntitiesMono(
-                                        page.getId(), CreatorContextType.PAGE, layout.getId(), false);
+                                        page.getId(), CreatorContextType.PAGE, layout.getId(), true);
                             })
                             .flatMap(nameSet -> {
                                 // Fetch name of the existing resources in the page to avoid name clashing
@@ -248,6 +248,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                     return Flux.fromIterable(mappedImportableResourcesDTO
                                     .getRefactoringNameReference()
                                     .keySet())
+                            .filter(name -> !name.equals(mappedImportableResourcesDTO
+                                    .getRefactoringNameReference()
+                                    .get(name)))
                             .flatMap(name -> {
                                 String refactoredName = mappedImportableResourcesDTO
                                         .getRefactoringNameReference()
@@ -446,7 +449,11 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                                         .getRefactoredEntityNameMap()
                                                         .get(dslExecutableDTO.getName()));
                                             }
-                                            newOnPageLoadActionNames.add(dslExecutableDTO.getName());
+                                            newOnPageLoadActionNames.add(
+                                                    dslExecutableDTO.getName().contains(".")
+                                                            ? dslExecutableDTO.getName()
+                                                                    .split("\\.")[0]
+                                                            : dslExecutableDTO.getName());
                                             buildingBlockResponseDTO
                                                     .getOnPageLoadActions()
                                                     .add(dslExecutableDTO);
@@ -472,12 +479,16 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                             buildingBlockResponseDTO
                                                     .getOnPageLoadActions()
                                                     .forEach(dslExecutableDTO -> {
-                                                        if (dslExecutableDTO
-                                                                .getName()
-                                                                .equals(actionCollection
-                                                                        .getUnpublishedCollection()
-                                                                        .getName())) {
-                                                            dslExecutableDTO.setId(actionCollection.getId());
+                                                        if (dslExecutableDTO.getCollectionId() != null) {
+                                                            String name = dslExecutableDTO.getCollectionId()
+                                                                    .split("_")[1];
+                                                            if (name.equals(actionCollection
+                                                                    .getUnpublishedCollection()
+                                                                    .getName())) {
+                                                                dslExecutableDTO.setId(actionCollection.getId());
+                                                                dslExecutableDTO.setCollectionId(
+                                                                        actionCollection.getId());
+                                                            }
                                                         }
                                                     });
                                         }

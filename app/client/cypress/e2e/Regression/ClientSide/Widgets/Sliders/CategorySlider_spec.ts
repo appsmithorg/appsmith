@@ -286,7 +286,10 @@ describe(
         .GetWidgetCSSFrAttribute(locators._sliderThumb, "background-color")
         .then((sliderColor) => {
           agHelper
-            .GetWidgetCSSFrAttribute(propPane._fillColor, "background-color")
+            .GetWidgetCSSFrAttribute(
+              `${propPane._propertyControlSelectedColorButton("fillcolor")}`,
+              "background-color",
+            )
             .then((newColor) => {
               expect(sliderColor).to.eq(newColor);
             });

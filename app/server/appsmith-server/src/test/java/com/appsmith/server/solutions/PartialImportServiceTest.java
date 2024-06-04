@@ -496,12 +496,23 @@ public class PartialImportServiceTest {
         buildingBlockDTO1.setWorkspaceId(workspaceId);
         buildingBlockDTO1.setTemplateId("templatedId1");
 
-        Mono<BuildingBlockResponseDTO> result = partialImportService
+        Mono<Tuple3<BuildingBlockResponseDTO, List<ActionCollection>, List<NewAction>>> result = partialImportService
                 .importBuildingBlock(buildingBlockDTO, null)
-                .flatMap(s -> partialImportService.importBuildingBlock(buildingBlockDTO1, null));
+                .flatMap(s -> partialImportService.importBuildingBlock(buildingBlockDTO1, null))
+                .flatMap(buildingBlockResponseDTO -> {
+                    return Mono.zip(
+                            Mono.just(buildingBlockResponseDTO),
+                            actionCollectionService.findByPageId(pageId).collectList(),
+                            newActionService
+                                    .findByPageId(pageId, Optional.empty())
+                                    .collectList());
+                });
 
         StepVerifier.create(result)
-                .assertNext(BuildingBlockResponseDTO1 -> {
+                .assertNext(tuple -> {
+                    BuildingBlockResponseDTO BuildingBlockResponseDTO1 = tuple.getT1();
+                    List<ActionCollection> actionCollectionList = tuple.getT2();
+                    List<NewAction> actionList = tuple.getT3();
                     assertThat(BuildingBlockResponseDTO1.getWidgetDsl()).isNotNull();
                     // Compare the json string of widget DSL,
                     // the binding names will be updated, and hence the json will be different
@@ -513,6 +524,13 @@ public class PartialImportServiceTest {
                                     .getLayouts()
                                     .get(0)
                                     .getDsl());
+                    List<String> actionIds =
+                            actionList.stream().map(action -> action.getId()).toList();
+
+                    BuildingBlockResponseDTO1.getOnPageLoadActions().forEach(action -> {
+                        assertThat(action.getName()).isIn("updateProductVariant1", "getProducts1", "updateProduct1");
+                        assertThat(actionIds).contains(action.getId());
+                    });
                 })
                 .verifyComplete();
     }

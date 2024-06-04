@@ -22,6 +22,7 @@ export default [
         configProperty: "actionConfiguration.timeoutInMillisecond",
         controlType: "INPUT_TEXT",
         dataType: "NUMBER",
+        width: "270px",
       },
     ],
   },

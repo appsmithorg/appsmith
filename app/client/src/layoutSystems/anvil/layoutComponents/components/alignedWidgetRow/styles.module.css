@@ -1,0 +1,14 @@
+.alignedWidgetRow {
+  /**
+  Conditional vertical margin applied to widgets.
+   If in a row of widgets (.aligned-widget-row), one of the widgets has a label ([data-field-label-wrapper]), then
+   all widgets (.anvil-widget-wrapper) in the row other than the widget with the label, will shift down using the
+   margin-block-start property. This is to ensure that the widgets are aligned vertically.
+
+   The value of the margin-block-start property is calculated based on the spacing tokens used by the labels in input like components
+*/
+  &:has([data-widget-wrapper] [data-field-label-wrapper])
+    [data-widget-wrapper]:not(:has([data-field-label-wrapper])) {
+    margin-block-start: calc(var(--inner-spacing-3) + var(--sizing-3));
+  }
+}

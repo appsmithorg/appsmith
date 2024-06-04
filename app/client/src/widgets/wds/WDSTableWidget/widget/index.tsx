@@ -1,16 +1,13 @@
-import React, { lazy, Suspense } from "react";
 import log from "loglevel";
+import React, { lazy, Suspense } from "react";
 import memoizeOne from "memoize-one";
 
 import _, {
   filter,
-  isArray,
   isEmpty,
   isNil,
   isNumber,
-  isObject,
   isString,
-  orderBy,
   pickBy,
   union,
   without,
@@ -20,9 +17,8 @@ import _, {
 
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { RenderModes } from "constants/WidgetConstants";
+import { FontStyleTypes, RenderModes } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 import type {
   ColumnProperties,
@@ -30,30 +26,19 @@ import type {
   ReactTableFilter,
 } from "../component/Constants";
 import {
-  AddNewRowActions,
-  CompactModeTypes,
   DEFAULT_FILTER,
   SORT_ORDER,
   SortOrderTypes,
   StickyType,
 } from "../component/Constants";
 import type {
-  EditableCell,
   OnColumnEventArgs,
   TableWidgetProps,
   TransientDataPayload,
 } from "../constants";
 import {
-  ActionColumnTypes,
   ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-  ColumnTypes,
-  DEFAULT_BUTTON_LABEL,
-  DEFAULT_COLUMN_WIDTH,
-  DEFAULT_MENU_BUTTON_LABEL,
-  DEFAULT_MENU_VARIANT,
   defaultEditableCell,
-  EditableCellActions,
-  InlineEditingSaveOptions,
   ORIGINAL_INDEX_KEY,
   PaginationDirection,
   TABLE_COLUMN_ORDER_KEY,
@@ -65,7 +50,6 @@ import {
   generateNewColumnOrderFromStickyValue,
   getAllStickyColumnsCount,
   getAllTableColumnKeys,
-  getBooleanPropertyValue,
   getCellProperties,
   getColumnOrderByWidgetIdFromLS,
   getColumnType,
@@ -73,34 +57,20 @@ import {
   getDerivedColumns,
   getSelectRowIndex,
   getSelectRowIndices,
-  getTableStyles,
-  isColumnTypeEditable,
   updateAndSyncTableLocalColumnOrders,
 } from "./utilities";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import type { IconName } from "@blueprintjs/icons";
-import { IconNames } from "@blueprintjs/icons";
-import { Colors } from "constants/Colors";
 import equal from "fast-deep-equal/es6";
 import { sanitizeKey } from "widgets/WidgetUtils";
-import PlainTextCell from "../component/cellComponents/PlainTextCell";
-import { ButtonCell } from "../component/cellComponents/ButtonCell";
-import { MenuButtonCell } from "../component/cellComponents/MenuButtonCell";
-import { ImageCell } from "../component/cellComponents/ImageCell";
-import { VideoCell } from "../component/cellComponents/VideoCell";
-import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
-import { EditActionCell } from "../component/cellComponents/EditActionsCell";
+import {
+  PlainTextCell,
+  URLCell,
+  ButtonCell,
+} from "../component/cellComponents";
+
 import { klona as clone } from "klona";
-import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
-import { SwitchCell } from "../component/cellComponents/SwitchCell";
-import { SelectCell } from "../component/cellComponents/SelectCell";
-import { CellWrapper } from "../component/TableStyledWrappers";
 import localStorage from "utils/localStorage";
 import type { Stylesheet } from "entities/AppTheming";
-import { DateCell } from "../component/cellComponents/DateCell";
-import type { MenuItem } from "widgets/MenuButtonWidget/constants";
-import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
-import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import type { getColumns } from "./reactTableUtils/getColumnsPureFn";
 import { getMemoiseGetColumnsWithLocalStorageFn } from "./reactTableUtils/getColumnsPureFn";
 import type {
@@ -346,16 +316,15 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       return;
     }
 
-    const existingColumnIds = Object.keys(primaryColumns);
+    const existingColumnsKeys = Object.keys(primaryColumns);
     const newTableColumns: Record<string, ColumnProperties> = {};
-    const tableStyles = getTableStyles(this.props);
-    const columnKeys: string[] = getAllTableColumnKeys(tableData);
+    const allPosibleColumnsKeys: string[] = getAllTableColumnKeys(tableData);
 
     /*
      * Generate default column properties for all columns
      * But do not replace existing columns with the same id
      */
-    columnKeys.forEach((columnKey, index) => {
+    allPosibleColumnsKeys.forEach((columnKey, index) => {
       const existingColumn = this.getColumnByOriginalId(columnKey);
 
       if (!!existingColumn) {
@@ -363,7 +332,10 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         newTableColumns[existingColumn.id] = existingColumn;
       } else {
         const hashedColumnKey = sanitizeKey(columnKey, {
-          existingKeys: union(existingColumnIds, Object.keys(newTableColumns)),
+          existingKeys: union(
+            existingColumnsKeys,
+            Object.keys(newTableColumns),
+          ),
         });
         // Create column properties for the new column
         const columnType = getColumnType(tableData, columnKey);
@@ -378,7 +350,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
         newTableColumns[columnProperties.id] = {
           ...columnProperties,
-          ...tableStyles,
         };
       }
     });
@@ -399,7 +370,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const newColumnIds = Object.keys(newTableColumns);
 
     // check if the columns ids differ
-    if (_.xor(existingColumnIds, newColumnIds).length > 0) {
+    if (_.xor(existingColumnsKeys, newColumnIds).length > 0) {
       return newTableColumns;
     } else {
       return;
@@ -610,11 +581,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.updateColumnProperties(newPrimaryColumns);
       }
     }
-
-    if (canFreezeColumn && renderMode === RenderModes.PAGE) {
-      //dont neet to batch this since single action
-      this.hydrateStickyColumns();
-    }
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
@@ -697,7 +663,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       // reset updatedRowIndex whenever transientTableData is flushed.
       pushBatchMetaUpdates("updatedRowIndex", -1);
 
-      this.pushClearEditableCellsUpdates();
       pushBatchMetaUpdates("selectColumnFilterText", {});
     }
 
@@ -944,7 +909,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     );
 
     return (
-      <Suspense fallback={<Skeleton />}>
+      <Suspense fallback={<>Loading...</>}>
         <ReactTableComponent
           accentColor={this.props.accentColor}
           allowAddNewRow={this.props.allowAddNewRow}
@@ -958,14 +923,8 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           canFreezeColumn={this.props.canFreezeColumn}
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
-          compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           delimiter={delimiter}
           disableDrag={this.toggleDrag}
-          disabledAddNewRowSave={this.hasInvalidColumnCell()}
-          editMode={this.props.renderMode === RenderModes.CANVAS}
-          editableCell={this.props.editableCell}
-          filters={this.props.filters}
-          handleColumnFreeze={this.handleColumnFreeze}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
@@ -981,10 +940,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             this.props.multiRowSelection && !this.props.isAddRowInProgress
           }
           nextPageClick={this.handleNextPageClick}
-          onAddNewRow={this.handleAddNewRowClick}
-          onAddNewRowAction={this.handleAddNewRowAction}
-          onBulkEditDiscard={this.onBulkEditDiscard}
-          onBulkEditSave={this.onBulkEditSave}
           onConnectData={this.onConnectData}
           onRowClick={this.handleRowClick}
           onSearch={this.handleSearchTable}
@@ -1568,34 +1523,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return -1;
   };
 
-  onBulkEditSave = () => {
-    this.props.updateWidgetMetaProperty(
-      "transientTableData",
-      this.props.transientTableData,
-      {
-        triggerPropertyName: "onBulkSave",
-        dynamicString: this.props.onBulkSave,
-        event: {
-          type: EventType.ON_BULK_SAVE,
-        },
-      },
-    );
-  };
-
-  onBulkEditDiscard = () => {
-    this.props.updateWidgetMetaProperty(
-      "transientTableData",
-      {},
-      {
-        triggerPropertyName: "onBulkDiscard",
-        dynamicString: this.props.onBulkDiscard,
-        event: {
-          type: EventType.ON_BULK_DISCARD,
-        },
-      },
-    );
-  };
-
   renderCell = (props: any) => {
     const column =
       this.getColumnByOriginalId(
@@ -1603,1018 +1530,65 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       ) || props.cell.column.columnProperties;
     const rowIndex = props.cell.row.index;
 
-    /*
-     * We don't need to render cells that don't display data (button, iconButton, etc)
-     */
-    if (
-      this.props.isAddRowInProgress &&
-      rowIndex === 0 &&
-      ActionColumnTypes.includes(column.columnType)
-    ) {
-      return <CellWrapper />;
-    }
-
     const isHidden = !column.isVisible;
-    const {
-      compactMode = CompactModeTypes.DEFAULT,
-      filteredTableData = [],
-      multiRowSelection,
-      selectedRowIndex,
-      selectedRowIndices,
-    } = this.props;
-    let row;
-    let originalIndex: number;
-
-    /*
-     * In add new row flow, a temporary row is injected at the top of the tableData, which doesn't
-     * have original row index value. so we are using -1 as the value
-     */
-    if (this.props.isAddRowInProgress) {
-      row = filteredTableData[rowIndex - 1];
-      originalIndex = rowIndex === 0 ? -1 : row[ORIGINAL_INDEX_KEY] ?? rowIndex;
-    } else {
-      row = filteredTableData[rowIndex];
-      originalIndex = row[ORIGINAL_INDEX_KEY] ?? rowIndex;
-    }
-
-    const isNewRow = this.props.isAddRowInProgress && rowIndex === 0;
+    const { filteredTableData = [] } = this.props;
+    const row = filteredTableData[rowIndex];
+    const originalIndex = row[ORIGINAL_INDEX_KEY] ?? rowIndex;
 
     /*
      * cellProperties order or size does not change when filter/sorting/grouping is applied
      * on the data thus original index is needed to identify the column's cell property.
      */
-    const cellProperties = getCellProperties(column, originalIndex, isNewRow);
-    let isSelected = false;
-
-    if (this.props.transientTableData) {
-      cellProperties.hasUnsavedChanges =
-        this.props.transientTableData.hasOwnProperty(originalIndex) &&
-        this.props.transientTableData[originalIndex].hasOwnProperty(
-          props.cell.column.columnProperties.alias,
-        );
-    }
-
-    if (multiRowSelection) {
-      isSelected =
-        _.isArray(selectedRowIndices) && selectedRowIndices.includes(rowIndex);
-    } else {
-      isSelected = selectedRowIndex === rowIndex;
-    }
-
-    const isColumnEditable =
-      column.isEditable && isColumnTypeEditable(column.columnType);
-    const alias = props.cell.column.columnProperties.alias;
-
-    const isCellEditable = isColumnEditable && cellProperties.isCellEditable;
-
-    const isCellEditMode =
-      (props.cell.column.alias === this.props.editableCell?.column &&
-        rowIndex === this.props.editableCell?.index) ||
-      (isNewRow && isColumnEditable);
-
-    const shouldDisableEdit =
-      (this.props.inlineEditingSaveOption ===
-        InlineEditingSaveOptions.ROW_LEVEL &&
-        this.props.updatedRowIndices.length &&
-        this.props.updatedRowIndices.indexOf(originalIndex) === -1) ||
-      (this.hasInvalidColumnCell() && !isNewRow);
-
-    const disabledEditMessage = `Save or discard the ${
-      this.props.isAddRowInProgress ? "newly added" : "unsaved"
-    } row to start editing here`;
-
-    if (this.props.isAddRowInProgress) {
-      cellProperties.isCellDisabled = rowIndex !== 0;
-
-      if (rowIndex === 0) {
-        cellProperties.cellBackground = "";
-      }
-    }
+    const cellProperties = getCellProperties(column, originalIndex);
 
     switch (column.columnType) {
-      case ColumnTypes.BUTTON:
+      case "url":
+        return (
+          <URLCell
+            href={props.cell.value}
+            isBold={cellProperties.fontStyle?.includes(FontStyleTypes.BOLD)}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isHidden={isHidden}
+            isItalic={cellProperties.fontStyle?.includes(FontStyleTypes.ITALIC)}
+            text={cellProperties.displayText}
+          />
+        );
+      case "button":
         return (
           <ButtonCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            cellBackground={cellProperties.cellBackground}
-            columnActions={[
-              {
-                backgroundColor:
-                  cellProperties.buttonColor || this.props.accentColor,
-                eventType: EventType.ON_CLICK,
-                id: column.id,
-                isVisible: true,
-                label: cellProperties.buttonLabel || DEFAULT_BUTTON_LABEL,
-                dynamicTrigger: column.onClick || "",
-                variant: cellProperties.buttonVariant,
-                borderRadius:
-                  cellProperties.borderRadius || this.props.borderRadius,
-                boxShadow: cellProperties.boxShadow,
-              },
-            ]}
-            compactMode={compactMode}
-            fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
+            buttonColor={cellProperties.buttonColor}
+            buttonLabel={cellProperties.buttonLabel || "Action"}
+            buttonVariant={cellProperties.buttonVariant}
             isCellVisible={cellProperties.isCellVisible ?? true}
-            isDisabled={!!cellProperties.isDisabled}
+            isDisabled={cellProperties.isDisabled}
             isHidden={isHidden}
-            isSelected={isSelected}
-            onCommandClick={(action: string, onComplete: () => void) =>
-              this.onColumnEvent({
-                rowIndex,
-                action,
-                onComplete,
-                triggerPropertyName: "onClick",
-                eventType: EventType.ON_CLICK,
-              })
-            }
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.EDIT_ACTIONS:
-        return (
-          <EditActionCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            cellBackground={cellProperties.cellBackground}
-            columnActions={[
-              {
-                id: EditableCellActions.SAVE,
-                label: cellProperties.saveActionLabel,
-                dynamicTrigger: column.onSave || "",
-                eventType: EventType.ON_ROW_SAVE,
-                iconName: cellProperties.saveActionIconName,
-                variant: cellProperties.saveButtonVariant,
-                backgroundColor:
-                  cellProperties.saveButtonColor || this.props.accentColor,
-                iconAlign: cellProperties.saveIconAlign,
-                borderRadius:
-                  cellProperties.saveBorderRadius || this.props.borderRadius,
-                isVisible: cellProperties.isSaveVisible,
-                isDisabled:
-                  cellProperties.isSaveDisabled || this.hasInvalidColumnCell(),
-                boxShadow: cellProperties.boxShadow,
-              },
-              {
-                id: EditableCellActions.DISCARD,
-                label: cellProperties.discardActionLabel,
-                dynamicTrigger: column.onDiscard || "",
-                eventType: EventType.ON_ROW_DISCARD,
-                iconName: cellProperties.discardActionIconName,
-                variant: cellProperties.discardButtonVariant,
-                backgroundColor:
-                  cellProperties.discardButtonColor || this.props.accentColor,
-                iconAlign: cellProperties.discardIconAlign,
-                borderRadius:
-                  cellProperties.discardBorderRadius || this.props.borderRadius,
-                isVisible: cellProperties.isDiscardVisible,
-                isDisabled:
-                  cellProperties.isDiscardDisabled ||
-                  this.hasInvalidColumnCell(),
-                boxShadow: cellProperties.boxShadow,
-              },
-            ]}
-            compactMode={compactMode}
-            fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellVisible={cellProperties.isCellVisible}
-            isHidden={isHidden}
-            isSelected={isSelected}
-            onCommandClick={(
-              action: string,
-              onComplete: () => void,
-              eventType: EventType,
-            ) =>
-              this.onColumnEvent({
-                rowIndex,
-                action,
-                onComplete,
-                triggerPropertyName: "onClick",
-                eventType: eventType,
-              })
-            }
-            onDiscard={() =>
-              this.removeRowFromTransientTableData(originalIndex)
-            }
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.SELECT:
-        return (
-          <SelectCell
-            accentColor={this.props.accentColor}
-            alias={props.cell.column.columnProperties.alias}
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            autoOpen={!this.props.isAddRowInProgress}
-            borderRadius={cellProperties.borderRadius}
-            cellBackground={cellProperties.cellBackground}
-            columnType={column.columnType}
-            compactMode={compactMode}
-            disabledEditIcon={
-              shouldDisableEdit || this.props.isAddRowInProgress
-            }
-            disabledEditIconMessage={disabledEditMessage}
-            filterText={
-              this.props.selectColumnFilterText?.[
-                this.props.editableCell?.column || column.alias
-              ]
-            }
-            fontStyle={cellProperties.fontStyle}
-            hasUnsavedChanges={cellProperties.hasUnsavedChanges}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellEditMode={isCellEditMode}
-            isCellEditable={isCellEditable}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isEditable={isColumnEditable}
-            isFilterable={cellProperties.isFilterable}
-            isHidden={isHidden}
-            isNewRow={isNewRow}
-            key={props.key}
-            onFilterChange={this.onSelectFilterChange}
-            onFilterChangeActionString={column.onFilterUpdate}
-            onItemSelect={this.onOptionSelect}
-            onOptionSelectActionString={column.onOptionChange}
-            options={cellProperties.selectOptions}
-            placeholderText={cellProperties.placeholderText}
-            resetFilterTextOnClose={cellProperties.resetFilterTextOnClose}
-            rowIndex={rowIndex}
-            serverSideFiltering={cellProperties.serverSideFiltering}
-            tableWidth={this.props.componentWidth}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            toggleCellEditMode={this.toggleCellEditMode}
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-            width={
-              this.props.columnWidthMap?.[column.id] || DEFAULT_COLUMN_WIDTH
-            }
-          />
-        );
-
-      case ColumnTypes.IMAGE:
-        const onClick = column.onClick
-          ? () =>
+            onClick={(onComplete: () => void) =>
               this.onColumnEvent({
                 rowIndex,
                 action: column.onClick,
-                triggerPropertyName: "onClick",
-                eventType: EventType.ON_CLICK,
-              })
-          : noop;
-
-        return (
-          <ImageCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            cellBackground={cellProperties.cellBackground}
-            compactMode={compactMode}
-            fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            imageSize={cellProperties.imageSize}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isHidden={isHidden}
-            isSelected={isSelected}
-            onClick={onClick}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.MENU_BUTTON:
-        const getVisibleItems = (rowIndex: number) => {
-          const { configureMenuItems, menuItems, menuItemsSource, sourceData } =
-            cellProperties;
-
-          if (menuItemsSource === MenuItemsSource.STATIC && menuItems) {
-            const visibleItems = Object.values(menuItems)?.filter((item) =>
-              getBooleanPropertyValue(item.isVisible, rowIndex),
-            );
-
-            return visibleItems?.length
-              ? orderBy(visibleItems, ["index"], ["asc"])
-              : [];
-          } else if (
-            menuItemsSource === MenuItemsSource.DYNAMIC &&
-            isArray(sourceData) &&
-            sourceData?.length &&
-            configureMenuItems?.config
-          ) {
-            const { config } = configureMenuItems;
-
-            const getValue = (
-              propertyName: keyof MenuItem,
-              index: number,
-              rowIndex: number,
-            ) => {
-              const value = config[propertyName];
-
-              if (isArray(value) && isArray(value[rowIndex])) {
-                return value[rowIndex][index];
-              } else if (isArray(value)) {
-                return value[index];
-              }
-
-              return value ?? null;
-            };
-
-            const visibleItems = sourceData
-              .map((item, index) => ({
-                ...item,
-                id: index.toString(),
-                isVisible: getValue("isVisible", index, rowIndex),
-                isDisabled: getValue("isDisabled", index, rowIndex),
-                index: index,
-                widgetId: "",
-                label: getValue("label", index, rowIndex),
-                onClick: config?.onClick,
-                textColor: getValue("textColor", index, rowIndex),
-                backgroundColor: getValue("backgroundColor", index, rowIndex),
-                iconAlign: getValue("iconAlign", index, rowIndex),
-                iconColor: getValue("iconColor", index, rowIndex),
-                iconName: getValue("iconName", index, rowIndex),
-              }))
-              .filter((item) => item.isVisible === true);
-
-            return visibleItems;
-          }
-
-          return [];
-        };
-
-        return (
-          <MenuButtonCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            borderRadius={
-              cellProperties.borderRadius || this.props.borderRadius
-            }
-            boxShadow={cellProperties.boxShadow}
-            cellBackground={cellProperties.cellBackground}
-            compactMode={compactMode}
-            configureMenuItems={cellProperties.configureMenuItems}
-            fontStyle={cellProperties.fontStyle}
-            getVisibleItems={getVisibleItems}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            iconAlign={cellProperties.iconAlign}
-            iconName={cellProperties.menuButtoniconName || undefined}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isCompact={!!cellProperties.isCompact}
-            isDisabled={!!cellProperties.isDisabled}
-            isHidden={isHidden}
-            isSelected={isSelected}
-            label={cellProperties.menuButtonLabel ?? DEFAULT_MENU_BUTTON_LABEL}
-            menuColor={
-              cellProperties.menuColor || this.props.accentColor || Colors.GREEN
-            }
-            menuItems={cellProperties.menuItems}
-            menuItemsSource={cellProperties.menuItemsSource}
-            menuVariant={cellProperties.menuVariant ?? DEFAULT_MENU_VARIANT}
-            onCommandClick={(
-              action: string,
-              index?: number,
-              onComplete?: () => void,
-            ) => {
-              const additionalData: Record<
-                string,
-                string | number | Record<string, unknown>
-              > = {};
-
-              if (cellProperties?.sourceData && _.isNumber(index)) {
-                additionalData.currentItem = cellProperties.sourceData[index];
-                additionalData.currentIndex = index;
-              }
-
-              return this.onColumnEvent({
-                rowIndex,
-                action,
-                onComplete,
-                triggerPropertyName: "onClick",
-                eventType: EventType.ON_CLICK,
-                additionalData,
-              });
-            }}
-            rowIndex={originalIndex}
-            sourceData={cellProperties.sourceData}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.ICON_BUTTON:
-        return (
-          <IconButtonCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            borderRadius={
-              cellProperties.borderRadius || this.props.borderRadius
-            }
-            boxShadow={cellProperties.boxShadow || "NONE"}
-            buttonColor={
-              cellProperties.buttonColor ||
-              this.props.accentColor ||
-              Colors.GREEN
-            }
-            buttonVariant={cellProperties.buttonVariant || "PRIMARY"}
-            cellBackground={cellProperties.cellBackground}
-            columnActions={[
-              {
-                id: column.id,
-                dynamicTrigger: column.onClick || "",
-              },
-            ]}
-            compactMode={compactMode}
-            disabled={!!cellProperties.isDisabled}
-            fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            iconName={(cellProperties.iconName || IconNames.ADD) as IconName}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isHidden={isHidden}
-            isSelected={isSelected}
-            onCommandClick={(action: string, onComplete: () => void) =>
-              this.onColumnEvent({
-                rowIndex,
-                action,
                 onComplete,
                 triggerPropertyName: "onClick",
                 eventType: EventType.ON_CLICK,
               })
             }
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            verticalAlignment={cellProperties.verticalAlignment}
           />
         );
-
-      case ColumnTypes.VIDEO:
-        return (
-          <VideoCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            cellBackground={cellProperties.cellBackground}
-            compactMode={compactMode}
-            fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isHidden={isHidden}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.CHECKBOX:
-        return (
-          <CheckboxCell
-            accentColor={this.props.accentColor}
-            borderRadius={
-              cellProperties.borderRadius || this.props.borderRadius
-            }
-            cellBackground={cellProperties.cellBackground}
-            compactMode={compactMode}
-            disabledCheckbox={
-              shouldDisableEdit || (this.props.isAddRowInProgress && !isNewRow)
-            }
-            disabledCheckboxMessage={disabledEditMessage}
-            hasUnSavedChanges={cellProperties.hasUnsavedChanges}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellEditable={isCellEditable}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isHidden={isHidden}
-            onChange={() =>
-              this.onCheckChange(
-                column,
-                props.cell.row.values,
-                !props.cell.value,
-                alias,
-                originalIndex,
-                rowIndex,
-              )
-            }
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.SWITCH:
-        return (
-          <SwitchCell
-            accentColor={this.props.accentColor}
-            cellBackground={cellProperties.cellBackground}
-            compactMode={compactMode}
-            disabledSwitch={
-              shouldDisableEdit || (this.props.isAddRowInProgress && !isNewRow)
-            }
-            disabledSwitchMessage={disabledEditMessage}
-            hasUnSavedChanges={cellProperties.hasUnsavedChanges}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellEditable={isCellEditable}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isHidden={isHidden}
-            onChange={() =>
-              this.onCheckChange(
-                column,
-                props.cell.row.values,
-                !props.cell.value,
-                alias,
-                originalIndex,
-                rowIndex,
-              )
-            }
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.DATE:
-        return (
-          <DateCell
-            accentColor={this.props.accentColor}
-            alias={props.cell.column.columnProperties.alias}
-            borderRadius={this.props.borderRadius}
-            cellBackground={cellProperties.cellBackground}
-            closeOnSelection
-            columnType={column.columnType}
-            compactMode={compactMode}
-            disabledEditIcon={
-              shouldDisableEdit || this.props.isAddRowInProgress
-            }
-            disabledEditIconMessage={disabledEditMessage}
-            firstDayOfWeek={props.cell.column.columnProperties.firstDayOfWeek}
-            fontStyle={cellProperties.fontStyle}
-            hasUnsavedChanges={cellProperties.hasUnsavedChanges}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            inputFormat={cellProperties.inputFormat}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellEditMode={isCellEditMode}
-            isCellEditable={isCellEditable}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isEditableCellValid={this.isColumnCellValid(alias)}
-            isHidden={isHidden}
-            isNewRow={isNewRow}
-            isRequired={
-              props.cell.column.columnProperties.validation
-                .isColumnEditableCellRequired
-            }
-            maxDate={props.cell.column.columnProperties.validation.maxDate}
-            minDate={props.cell.column.columnProperties.validation.minDate}
-            onCellTextChange={this.onCellTextChange}
-            onDateSave={this.onDateSave}
-            onDateSelectedString={
-              props.cell.column.columnProperties.onDateSelected
-            }
-            outputFormat={cellProperties.outputFormat}
-            rowIndex={rowIndex}
-            shortcuts={cellProperties.shortcuts}
-            tableWidth={this.props.componentWidth}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            timePrecision={cellProperties.timePrecision || TimePrecision.NONE}
-            toggleCellEditMode={this.toggleCellEditMode}
-            updateNewRowValues={this.updateNewRowValues}
-            validationErrorMessage="This field is required"
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-            widgetId={this.props.widgetId}
-          />
-        );
-
       default:
-        let validationErrorMessage;
-
-        if (isCellEditMode) {
-          validationErrorMessage =
-            column.validation.isColumnEditableCellRequired &&
-            (isNil(props.cell.value) || props.cell.value === "")
-              ? "This field is required"
-              : column.validation?.errorMessage;
-        }
-
         return (
           <PlainTextCell
-            accentColor={this.props.accentColor}
-            alias={props.cell.column.columnProperties.alias}
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            cellBackground={cellProperties.cellBackground}
-            columnType={column.columnType}
-            compactMode={compactMode}
-            currencyCode={cellProperties.currencyCode}
-            decimals={cellProperties.decimals}
-            disabledEditIcon={
-              shouldDisableEdit || this.props.isAddRowInProgress
-            }
-            disabledEditIconMessage={disabledEditMessage}
-            displayText={cellProperties.displayText}
+            cellColor={cellProperties.cellColor}
             fontStyle={cellProperties.fontStyle}
-            hasUnsavedChanges={cellProperties.hasUnsavedChanges}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellEditMode={isCellEditMode}
-            isCellEditable={isCellEditable}
+            isBold={cellProperties.fontStyle?.includes(FontStyleTypes.BOLD)}
             isCellVisible={cellProperties.isCellVisible ?? true}
-            isEditableCellValid={this.isColumnCellValid(alias)}
             isHidden={isHidden}
-            isNewRow={isNewRow}
-            notation={cellProperties.notation}
-            onCellTextChange={this.onCellTextChange}
-            onSubmitString={props.cell.column.columnProperties.onSubmit}
-            rowIndex={rowIndex}
-            tableWidth={this.props.componentWidth}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            thousandSeparator={cellProperties.thousandSeparator}
-            toggleCellEditMode={this.toggleCellEditMode}
-            validationErrorMessage={validationErrorMessage}
+            isItalic={cellProperties.fontStyle?.includes(FontStyleTypes.ITALIC)}
+            isUnderline={cellProperties.fontStyle?.includes(
+              FontStyleTypes.UNDERLINE,
+            )}
             value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-            widgetId={this.props.widgetId}
           />
         );
     }
-  };
-
-  onCellTextChange = (
-    value: EditableCell["value"],
-    inputValue: string,
-    alias: string,
-  ) => {
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    if (this.props.isAddRowInProgress) {
-      this.updateNewRowValues(alias, inputValue, value);
-    } else {
-      pushBatchMetaUpdates("editableCell", {
-        ...this.props.editableCell,
-        value: value,
-        inputValue,
-      });
-
-      if (this.props.editableCell?.column) {
-        pushBatchMetaUpdates("columnEditableCellValue", {
-          ...this.props.columnEditableCellValue,
-          [this.props.editableCell?.column]: value,
-        });
-      }
-      commitBatchMetaUpdates();
-    }
-  };
-
-  toggleCellEditMode = (
-    enable: boolean,
-    rowIndex: number,
-    alias: string,
-    value: string | number,
-    onSubmit?: string,
-    action?: EditableCellActions,
-  ) => {
-    if (this.props.isAddRowInProgress) {
-      return;
-    }
-
-    if (enable) {
-      if (this.inlineEditTimer) {
-        clearTimeout(this.inlineEditTimer);
-      }
-      const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-      pushBatchMetaUpdates("editableCell", {
-        column: alias,
-        index: rowIndex,
-        value: value,
-        // To revert back to previous on discard
-        initialValue: value,
-        inputValue: value,
-      });
-      pushBatchMetaUpdates("columnEditableCellValue", {
-        ...this.props.columnEditableCellValue,
-        [alias]: value,
-      });
-
-      /*
-       * We need to clear the selectedRowIndex and selectedRowIndices
-       * if the rows are sorted, to avoid selectedRow jumping to
-       * different page.
-       */
-      if (this.props.sortOrder.column) {
-        if (this.props.multiRowSelection) {
-          pushBatchMetaUpdates("selectedRowIndices", []);
-        } else {
-          pushBatchMetaUpdates("selectedRowIndex", -1);
-        }
-      }
-      commitBatchMetaUpdates();
-    } else {
-      if (
-        this.isColumnCellValid(alias) &&
-        action === EditableCellActions.SAVE &&
-        value !== this.props.editableCell?.initialValue
-      ) {
-        const { commitBatchMetaUpdates } = this.props;
-
-        this.pushTransientTableDataActionsUpdates({
-          [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
-          [alias]: this.props.editableCell?.value,
-        });
-
-        if (onSubmit && this.props.editableCell?.column) {
-          //since onSubmit is truthy that makes action truthy as well, so we can push this event
-          this.pushOnColumnEvent({
-            rowIndex: rowIndex,
-            action: onSubmit,
-            triggerPropertyName: "onSubmit",
-            eventType: EventType.ON_SUBMIT,
-            row: {
-              ...this.props.filteredTableData[rowIndex],
-              [this.props.editableCell.column]: this.props.editableCell.value,
-            },
-          });
-        }
-        commitBatchMetaUpdates();
-
-        this.clearEditableCell();
-      } else if (
-        action === EditableCellActions.DISCARD ||
-        value === this.props.editableCell?.initialValue
-      ) {
-        this.clearEditableCell();
-      }
-    }
-  };
-
-  onDateSave = (
-    rowIndex: number,
-    alias: string,
-    value: string,
-    onSubmit?: string,
-  ) => {
-    if (this.isColumnCellValid(alias)) {
-      const { commitBatchMetaUpdates } = this.props;
-
-      this.pushTransientTableDataActionsUpdates({
-        [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
-        [alias]: value,
-      });
-
-      if (onSubmit && this.props.editableCell?.column) {
-        //since onSubmit is truthy this makes action truthy as well, so we can push this event
-        this.pushOnColumnEvent({
-          rowIndex: rowIndex,
-          action: onSubmit,
-          triggerPropertyName: "onSubmit",
-          eventType: EventType.ON_SUBMIT,
-          row: {
-            ...this.props.filteredTableData[rowIndex],
-            [this.props.editableCell.column]: value,
-          },
-        });
-      }
-
-      commitBatchMetaUpdates();
-      this.clearEditableCell();
-    }
-  };
-  pushClearEditableCellsUpdates = () => {
-    const { pushBatchMetaUpdates } = this.props;
-
-    pushBatchMetaUpdates("editableCell", defaultEditableCell);
-    pushBatchMetaUpdates("columnEditableCellValue", {});
-  };
-
-  clearEditableCell = (skipTimeout?: boolean) => {
-    const clear = () => {
-      const { commitBatchMetaUpdates } = this.props;
-
-      this.pushClearEditableCellsUpdates();
-      commitBatchMetaUpdates();
-    };
-
-    if (skipTimeout) {
-      clear();
-    } else {
-      /*
-       * We need to let the evaulations compute derived property (filteredTableData)
-       * before we clear the editableCell to avoid the text flickering
-       */
-      this.inlineEditTimer = setTimeout(clear, 100);
-    }
-  };
-
-  isColumnCellEditable = (column: ColumnProperties, rowIndex: number) => {
-    return (
-      column.alias === this.props.editableCell?.column &&
-      rowIndex === this.props.editableCell?.index
-    );
-  };
-
-  onOptionSelect = (
-    value: string | number,
-    rowIndex: number,
-    column: string,
-    action?: string,
-  ) => {
-    if (this.props.isAddRowInProgress) {
-      this.updateNewRowValues(column, value, value);
-    } else {
-      const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-      this.pushTransientTableDataActionsUpdates({
-        [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
-        [column]: value,
-      });
-      pushBatchMetaUpdates("editableCell", defaultEditableCell);
-
-      if (action && this.props.editableCell?.column) {
-        //since action is truthy we can push this event
-        this.pushOnColumnEvent({
-          rowIndex,
-          action,
-          triggerPropertyName: "onOptionChange",
-          eventType: EventType.ON_OPTION_CHANGE,
-          row: {
-            ...this.props.filteredTableData[rowIndex],
-            [this.props.editableCell.column]: value,
-          },
-        });
-      }
-      commitBatchMetaUpdates();
-    }
-  };
-
-  onSelectFilterChange = (
-    text: string,
-    rowIndex: number,
-    serverSideFiltering: boolean,
-    alias: string,
-    action?: string,
-  ) => {
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    pushBatchMetaUpdates("selectColumnFilterText", {
-      ...this.props.selectColumnFilterText,
-      [alias]: text,
-    });
-
-    if (action && serverSideFiltering) {
-      //since action is truthy we can push this event
-      this.pushOnColumnEvent({
-        rowIndex,
-        action,
-        triggerPropertyName: "onFilterUpdate",
-        eventType: EventType.ON_FILTER_UPDATE,
-        row: {
-          ...this.props.filteredTableData[rowIndex],
-        },
-        additionalData: {
-          filterText: text,
-        },
-      });
-    }
-    commitBatchMetaUpdates();
-  };
-
-  onCheckChange = (
-    column: any,
-    row: Record<string, unknown>,
-    value: boolean,
-    alias: string,
-    originalIndex: number,
-    rowIndex: number,
-  ) => {
-    if (this.props.isAddRowInProgress) {
-      this.updateNewRowValues(alias, value, value);
-    } else {
-      const { commitBatchMetaUpdates } = this.props;
-
-      this.pushTransientTableDataActionsUpdates({
-        [ORIGINAL_INDEX_KEY]: originalIndex,
-        [alias]: value,
-      });
-      commitBatchMetaUpdates();
-      //cannot batch this update because we are not sure if it action is truthy or not
-      this.onColumnEvent({
-        rowIndex,
-        action: column.onCheckChange,
-        triggerPropertyName: "onCheckChange",
-        eventType: EventType.ON_CHECK_CHANGE,
-        row: {
-          ...row,
-          [alias]: value,
-        },
-      });
-    }
-  };
-
-  handleAddNewRowClick = () => {
-    const defaultNewRow = this.props.defaultNewRow || {};
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    pushBatchMetaUpdates("isAddRowInProgress", true);
-    pushBatchMetaUpdates("newRowContent", defaultNewRow);
-    pushBatchMetaUpdates("newRow", defaultNewRow);
-
-    // New row gets added at the top of page 1 when client side pagination enabled
-    if (!this.props.serverSidePaginationEnabled) {
-      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
-    }
-
-    //Since we're adding a newRowContent thats not part of tableData, the index changes
-    // so we're resetting the row selection
-    pushBatchMetaUpdates("selectedRowIndex", -1);
-    pushBatchMetaUpdates("selectedRowIndices", []);
-    commitBatchMetaUpdates();
-  };
-
-  handleAddNewRowAction = (
-    type: AddNewRowActions,
-    onActionComplete: () => void,
-  ) => {
-    let triggerPropertyName, action, eventType;
-
-    const onComplete = () => {
-      const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-      pushBatchMetaUpdates("isAddRowInProgress", false);
-      pushBatchMetaUpdates("newRowContent", undefined);
-      pushBatchMetaUpdates("newRow", undefined);
-      commitBatchMetaUpdates();
-
-      onActionComplete();
-    };
-
-    if (type === AddNewRowActions.SAVE) {
-      triggerPropertyName = "onAddNewRowSave";
-      action = this.props.onAddNewRowSave;
-      eventType = EventType.ON_ADD_NEW_ROW_SAVE;
-    } else {
-      triggerPropertyName = "onAddNewRowDiscard";
-      action = this.props.onAddNewRowDiscard;
-      eventType = EventType.ON_ADD_NEW_ROW_DISCARD;
-    }
-
-    if (action) {
-      super.executeAction({
-        triggerPropertyName: triggerPropertyName,
-        dynamicString: action,
-        event: {
-          type: eventType,
-          callback: onComplete,
-        },
-      });
-    } else {
-      onComplete();
-    }
-  };
-
-  isColumnCellValid = (columnsAlias: string) => {
-    if (this.props.isEditableCellsValid?.hasOwnProperty(columnsAlias)) {
-      return this.props.isEditableCellsValid[columnsAlias];
-    }
-
-    return true;
-  };
-
-  hasInvalidColumnCell = () => {
-    if (isObject(this.props.isEditableCellsValid)) {
-      return Object.values(this.props.isEditableCellsValid).some((d) => !d);
-    } else {
-      return false;
-    }
-  };
-
-  updateNewRowValues = (
-    alias: string,
-    value: unknown,
-    parsedValue: unknown,
-  ) => {
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    /*
-     * newRowContent holds whatever the user types while newRow holds the parsed value
-     * newRowContent is being used to populate the cell while newRow is being used
-     * for validations.
-     */
-    pushBatchMetaUpdates("newRowContent", {
-      ...this.props.newRowContent,
-      [alias]: value,
-    });
-    pushBatchMetaUpdates("newRow", {
-      ...this.props.newRow,
-      [alias]: parsedValue,
-    });
-    commitBatchMetaUpdates();
   };
 
   onConnectData = () => {

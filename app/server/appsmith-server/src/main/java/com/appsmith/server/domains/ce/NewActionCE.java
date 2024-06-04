@@ -78,8 +78,15 @@ public class NewActionCE extends BranchAwareDomain {
         public static final String unpublishedAction_actionConfiguration_httpMethod =
                 dotted(unpublishedAction, ActionDTO.Fields.actionConfiguration, ActionConfiguration.Fields.httpMethod);
 
+        public static final String publishedAction_datasource_id =
+                dotted(publishedAction, ActionDTO.Fields.datasource, Datasource.Fields.id);
         public static final String publishedAction_name = dotted(publishedAction, ActionDTO.Fields.name);
         public static final String publishedAction_pageId = dotted(publishedAction, ActionDTO.Fields.pageId);
         public static final String publishedAction_contextType = dotted(publishedAction, ActionDTO.Fields.contextType);
+
+        public static final String unpublishedAction_collectionId =
+                dotted(unpublishedAction, ActionDTO.Fields.collectionId);
+        public static final String publishedAction_collectionId =
+                dotted(publishedAction, ActionDTO.Fields.collectionId);
     }
 }

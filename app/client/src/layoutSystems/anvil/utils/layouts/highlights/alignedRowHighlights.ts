@@ -66,6 +66,12 @@ export const deriveAlignedRowHighlights =
       posY: HIGHLIGHT_SIZE / 2,
       rowIndex: 0,
       width: HIGHLIGHT_SIZE,
+      edgeDetails: {
+        bottom: false,
+        left: false,
+        right: false,
+        top: false,
+      },
     };
 
     /**
@@ -376,15 +382,24 @@ function generateHighlight(
       layoutDimension.left,
     );
   }
-
+  const posY = tallestWidget ? tallestWidget.top : layoutDimension.top;
+  const edgeDetails = {
+    top: posY === layoutDimension.top,
+    bottom:
+      posY + HIGHLIGHT_SIZE === layoutDimension.top + layoutDimension.height,
+    left: posX === layoutDimension.left,
+    right:
+      posX + HIGHLIGHT_SIZE === layoutDimension.left + layoutDimension.width,
+  };
   return {
     ...baseHighlight,
     layoutId,
     alignment,
     height: tallestWidget?.height ?? layoutDimension.height,
     posX,
-    posY: tallestWidget ? tallestWidget?.top : layoutDimension.top,
+    posY,
     rowIndex: childCount,
+    edgeDetails,
   };
 }
 

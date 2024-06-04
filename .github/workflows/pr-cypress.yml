@@ -27,7 +27,6 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.number }}
-      check-test-files: "true"
 
   rts-build:
     if: success()
@@ -104,7 +103,7 @@ jobs:
           DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
           RUN_ID: ${{ github.run_id }}
           ATTEMPT_NUMBER: ${{ github.run_attempt }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const { Pool } = require("pg");
@@ -151,12 +150,13 @@ jobs:
       # This is done for debugging
       - name: Upload combined failed spec
         if: needs.ci-test.result != 'success'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
+          overwrite: true
 
-      - name: Get Latest flaky Tests
+      - name: Get latest flaky tests
         shell: bash
         run: |
           curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures

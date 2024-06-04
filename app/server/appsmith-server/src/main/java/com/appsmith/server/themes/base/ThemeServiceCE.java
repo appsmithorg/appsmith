@@ -15,6 +15,8 @@ public interface ThemeServiceCE extends CrudService<Theme, String> {
 
     Flux<Theme> getSystemThemes();
 
+    Mono<Theme> archiveById(String themeId);
+
     Mono<Theme> getSystemTheme(String themeName);
 
     Mono<Theme> updateTheme(String applicationId, String branchName, Theme resource);

@@ -174,7 +174,7 @@
               {
                 "boxShadow": "none",
                 "widgetName": "IconButton1Copy",
-                "onClick": "{{closeModal('InsertModal')}}",
+                "onClick": "{{closeModal(InsertModal.name)}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
@@ -252,7 +252,7 @@
               {
                 "boxShadow": "none",
                 "widgetName": "Button5Copy",
-                "onClick": "{{closeModal('UpdateModal')}}",
+                "onClick": "{{closeModal(UpdateModal.name)}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",
@@ -291,7 +291,7 @@
               {
                 "boxShadow": "none",
                 "widgetName": "runUpdateQuery",
-                "onClick": "{{updateRecord.run(() => {closeModal('UpdateModal'), () => {};\nselectRecords.run()\t\t\t\t\t\t\t\t\t\t\t\t })}}",
+                "onClick": "{{updateRecord.run(() => {closeModal(UpdateModal.name), () => {};\nselectRecords.run()\t\t\t\t\t\t\t\t\t\t\t\t })}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "dynamicPropertyPathList": [
                   {
@@ -817,7 +817,7 @@
       {
         "boxShadow": "none",
         "widgetName": "InsertButton",
-        "onClick": "{{showModal('InsertModal')}}",
+        "onClick": "{{showModal(InsertModal.name)}}",
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "dynamicPropertyPathList": [
           {
@@ -867,7 +867,7 @@
       {
         "boxShadow": "none",
         "widgetName": "UpdateButton",
-        "onClick": "{{showModal('UpdateModal')}}",
+        "onClick": "{{showModal(UpdateModal.name)}}",
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "dynamicPropertyPathList": [],
         "displayName": "Button",
@@ -1059,7 +1059,7 @@
               {
                 "boxShadow": "none",
                 "widgetName": "IconButton1",
-                "onClick": "{{closeModal('InsertModal')}}",
+                "onClick": "{{closeModal(InsertModal.name)}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
@@ -1134,7 +1134,7 @@
               {
                 "boxShadow": "none",
                 "widgetName": "Button5",
-                "onClick": "{{closeModal('InsertModal')}}",
+                "onClick": "{{closeModal(InsertModal.name)}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",
@@ -1173,7 +1173,7 @@
               {
                 "boxShadow": "none",
                 "widgetName": "runInsertQuery",
-                "onClick": "{{insertRecord.run(() => {\nselectRecords.run();\t\t\t\tresetWidget('InsertModal', true);\ncloseModal('InsertModal'), () => {};})}}",
+                "onClick": "{{insertRecord.run(() => {\nselectRecords.run();\t\t\t\tresetWidget('InsertModal', true);\ncloseModal(InsertModal.name), () => {};})}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "dynamicPropertyPathList": [
                   {

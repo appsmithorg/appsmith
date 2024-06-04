@@ -7,6 +7,7 @@ import {
   apiPage,
   dataSources,
   draggableWidgets,
+  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -245,19 +246,34 @@ describe(
       propPane.ToggleJSMode("onOptionChange", true);
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
-        "{{navigateTo('www.google.com', {}, 'SAME_WINDOW');}}",
+        "{{navigateTo('www.google.com', {}, 'NEW_WINDOW');}}",
       );
       deployMode.DeployApp();
       agHelper.GetNClick(
         `${locators._widgetInDeployed("singleselecttreewidget")}`,
       );
-      agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
-      agHelper.AssertURL("google.com");
-      agHelper.BrowserNavigation(-1);
+
+      cy.window().then((win) => {
+        // Stub `window.open` to prevent new tabs
+        cy.stub(win, "open").as("windowOpenStub");
+        agHelper
+          .GetElement(locators._dropDownMultiTreeValue("Red"))
+          .then(($link) => {
+            cy.wrap($link).click();
+            cy.get("@windowOpenStub").should("have.been.called");
+          });
+      });
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+      EditorNavigation.SelectEntityByName(
+        "TreeSelect1",
+        EntityType.Widget,
+        {},
+        ["Form1"],
+      );
     });
 
     it("8. Verify onOptionChange with Alert", () => {
-      deployMode.NavigateBacktoEditor();
       // Alert
       EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
       EditorNavigation.SelectEntityByName(
@@ -266,6 +282,7 @@ describe(
         {},
         ["Form1"],
       );
+      propPane.ToggleJSMode("onOptionChange", true);
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
         "{{showAlert('Option Changed', '');}}",
@@ -288,6 +305,7 @@ describe(
         {},
         ["Form1"],
       );
+      propPane.ToggleJSMode("onOptionChange", true);
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
         `{{download('https://assets.codepen.io/3/kiwi.svg', 'kiwi.svg', 'image/svg+xml').then(() => {
@@ -310,6 +328,7 @@ describe(
         {},
         ["Form1"],
       );
+      propPane.ToggleJSMode("onOptionChange", true);
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
         '{{resetWidget("Checkbox1", true);}}',

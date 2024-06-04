@@ -26,7 +26,7 @@ describe(
     });
 
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
 
     it("1. Create a page/moveQuery/rename/delete in explorer", function () {
@@ -43,7 +43,10 @@ describe(
         .clear()
         .type("download", { force: true })
         .blur();
-      cy.get(".Toastify").should("contain", "Invalid name");
+      cy.get(".Toastify").should(
+        "contain",
+        Cypress.env("MESSAGES").INVALID_NAME_ERROR(),
+      );
 
       // checking a valid name
       cy.get(".t--edit-datasource-name").click();

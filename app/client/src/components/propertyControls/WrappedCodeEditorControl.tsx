@@ -101,8 +101,8 @@ class WrappedCodeEditorControl extends BaseControl<WrappedCodeEditorControlProps
       propertyValue && isDynamicValue(propertyValue)
         ? this.getInputComputedValue(propertyValue)
         : propertyValue
-        ? propertyValue
-        : defaultValue;
+          ? propertyValue
+          : defaultValue;
 
     // Load default value in evaluated value
     if (value && !propertyValue) {

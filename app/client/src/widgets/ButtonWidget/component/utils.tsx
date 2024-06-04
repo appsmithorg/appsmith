@@ -19,10 +19,10 @@ export const buttonHoverActiveStyles = css<ButtonContainerProps>`
           getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
             ? getCustomHoverColor(theme, buttonVariant, buttonColor)
             : buttonVariant === ButtonVariantTypes.SECONDARY
-            ? theme.colors.button.primary.secondary.hoverColor
-            : buttonVariant === ButtonVariantTypes.TERTIARY
-            ? theme.colors.button.primary.tertiary.hoverColor
-            : theme.colors.button.primary.primary.hoverColor
+              ? theme.colors.button.primary.secondary.hoverColor
+              : buttonVariant === ButtonVariantTypes.TERTIARY
+                ? theme.colors.button.primary.tertiary.hoverColor
+                : theme.colors.button.primary.primary.hoverColor
         } !important;
       `;
     }

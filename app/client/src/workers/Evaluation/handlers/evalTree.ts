@@ -63,11 +63,13 @@ export function evalTree(request: EvalWorkerSyncRequest) {
   let isNewWidgetAdded = false;
 
   const {
+    affectedJSObjects,
     allActionValidationConfig,
     appMode,
     forceEvaluation,
     metaWidgets,
     shouldReplay,
+    shouldRespondWithLogs,
     theme,
     unevalTree: __unevalTree__,
     widgets,
@@ -181,6 +183,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
             unevalTree,
             configTree,
             webworkerTelemetry,
+            affectedJSObjects,
           ),
       );
 
@@ -292,10 +295,11 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     evaluationOrder: evalOrder,
     jsUpdates,
     webworkerTelemetry,
-    logs,
+    // be weary of the payload size of logs it can be huge and contribute to transmission overhead
+    // we are only sending logs in local debug mode
+    logs: shouldRespondWithLogs ? logs : [],
     unEvalUpdates,
     isCreateFirstTree,
-    configTree,
     staleMetaIds,
     removedPaths,
     isNewWidgetAdded,
@@ -313,14 +317,15 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
 export const evalTreeTransmissionErrorHandler: TransmissionErrorHandler = (
   messageId: string,
-  timeTaken: number,
+  startTime: number,
+  endTime: number,
   responseData: unknown,
 ) => {
   const sanitizedData = JSON.parse(JSON.stringify(responseData));
   sendMessage.call(self, {
     messageId,
     messageType: MessageType.RESPONSE,
-    body: { data: sanitizedData, timeTaken },
+    body: { data: sanitizedData, startTime, endTime },
   });
 };
 

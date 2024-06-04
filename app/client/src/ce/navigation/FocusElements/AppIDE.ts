@@ -76,23 +76,21 @@ import {
 import { getDebuggerContext } from "selectors/debuggerSelectors";
 import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
-import { NavigationMethod } from "../../../utils/history";
+import { NavigationMethod } from "utils/history";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import {
   getSelectedDatasourceId,
-  getSelectedSegment,
+  getSelectedEntityUrl,
 } from "@appsmith/navigation/FocusSelectors";
 import {
   setSelectedDatasource,
+  setSelectedEntityUrl,
   setSelectedJSObject,
   setSelectedQuery,
-  setSelectedSegment,
 } from "@appsmith/navigation/FocusSetters";
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
-import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
-import { setJSTabs, setQueryTabs } from "actions/ideActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
@@ -249,13 +247,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
   ],
   [FocusEntity.QUERY_LIST]: [
     {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.IDETabs,
-      selector: getQueryTabs,
-      setter: setQueryTabs,
-      defaultValue: [],
-    },
-    {
       type: FocusElementConfigType.URL,
       name: FocusElement.SelectedQuery,
       selector: identifyEntityFromPath,
@@ -270,13 +261,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       selector: identifyEntityFromPath,
       setter: setSelectedJSObject,
       defaultValue: getLastJSTab,
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.IDETabs,
-      selector: getJSTabs,
-      setter: setJSTabs,
-      defaultValue: [],
     },
   ],
   [FocusEntity.WIDGET_LIST]: [
@@ -296,9 +280,9 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.EDITOR]: [
     {
       type: FocusElementConfigType.URL,
-      name: FocusElement.SelectedSegment,
-      selector: getSelectedSegment,
-      setter: setSelectedSegment,
+      name: FocusElement.SelectedEntity,
+      selector: getSelectedEntityUrl,
+      setter: setSelectedEntityUrl,
     },
     {
       type: FocusElementConfigType.Redux,

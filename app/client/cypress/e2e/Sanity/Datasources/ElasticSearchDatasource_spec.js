@@ -1,6 +1,6 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
 
-import { dataSources } from "../../../support/Objects/ObjectsCore";
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 let elasticSearchName;
 
@@ -9,7 +9,7 @@ describe(
   { tags: ["@tag.Datasource", "@tag.Sanity"] },
   function () {
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
 
     it("1. Create elastic search datasource", function () {
@@ -30,6 +30,13 @@ describe(
       // cy.testSaveDatasource();
 
       dataSources.SaveDSFromDialog(false);
+    });
+
+    it("2. Verify the default port for the datasource", function () {
+      dataSources.NavigateToDSCreateNew();
+      dataSources.CreatePlugIn("Elasticsearch");
+
+      agHelper.AssertAttribute(dataSources._port, "value", "9200");
     });
   },
 );

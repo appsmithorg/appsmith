@@ -58,8 +58,8 @@ export const selectRowIndices = (
     Array.isArray(selectedRowIndicesProp) && primaryColumnId
       ? selectedRowIndicesProp
       : Array.isArray(defaultSelectedRow)
-      ? defaultSelectedRow
-      : [];
+        ? defaultSelectedRow
+        : [];
   const selectedRowIndices = rowIndices
     .map((index: number) => {
       const rowIndex = getOriginalRowIndex(oldTableData, newTableData, index);

@@ -18,10 +18,10 @@ const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
     isBold = false,
     isItalic = false,
     lineClamp,
+    size = "body",
     style,
-    textAlign = "left",
+    textAlign = "start",
     title,
-    variant = "body",
     ...rest
   } = props;
 
@@ -36,7 +36,7 @@ const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
 
   return (
     <div
-      className={clsx(className, styles.text, getTypographyClassName(variant))}
+      className={clsx(className, styles.text, getTypographyClassName(size))}
       data-color={color ? color : undefined}
       ref={ref}
       style={{

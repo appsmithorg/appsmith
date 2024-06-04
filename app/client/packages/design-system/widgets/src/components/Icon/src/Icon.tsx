@@ -14,7 +14,7 @@ const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
   const filled = theme.iconStyle === "filled" || filledProp;
 
   const Icon = useMemo(() => {
-    let Icon: React.ComponentType | null = null;
+    let Icon: React.ComponentType | null;
 
     if (icon !== undefined) {
       Icon = icon as React.ComponentType;
@@ -64,7 +64,7 @@ const _Icon = (props: IconProps, ref: Ref<SVGSVGElement>) => {
         ref={ref}
         {...rest}
       >
-        <Icon {...props} />
+        <Icon />
       </HeadlessIcon>
     </Suspense>
   );

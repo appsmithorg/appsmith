@@ -40,6 +40,8 @@ import { PluginType } from "entities/Action";
 import { Icon } from "design-system";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
@@ -61,6 +63,7 @@ function QueryEditor(props: QueryEditorProps) {
     getIsActionConverting(state, actionId || ""),
   );
   const pluginImages = useSelector(getPluginImages);
+  const editorMode = useSelector(getIDEViewMode);
   const icon = resolveIcon({
     iconLocation: pluginImages[pluginId] || "",
     pluginType: action?.pluginType || "",
@@ -89,8 +92,14 @@ function QueryEditor(props: QueryEditorProps) {
     pagePermissions,
   );
 
-  const moreActionsMenu = useMemo(
-    () => (
+  const moreActionsMenu = useMemo(() => {
+    const convertToModuleProps = {
+      canCreateModuleInstance: isCreatePermitted,
+      canDeleteEntity: isDeletePermitted,
+      entityId: action?.id || "",
+      moduleType: MODULE_TYPE.QUERY,
+    };
+    return (
       <>
         <MoreActionsMenu
           className="t--more-action-menu"
@@ -99,27 +108,28 @@ function QueryEditor(props: QueryEditorProps) {
           isDeletePermitted={isDeletePermitted}
           name={action?.name || ""}
           pageId={pageId}
+          prefixAdditionalMenus={
+            editorMode === EditorViewMode.SplitScreen && (
+              <ConvertToModuleInstanceCTA {...convertToModuleProps} />
+            )
+          }
         />
-        {action?.pluginType !== PluginType.INTERNAL && (
-          // Need to remove this check once workflow query is supported in module
-          <ConvertToModuleInstanceCTA
-            canCreateModuleInstance={isCreatePermitted}
-            canDeleteEntity={isDeletePermitted}
-            entityId={action?.id || ""}
-            moduleType={MODULE_TYPE.QUERY}
-          />
-        )}
+        {action?.pluginType !== PluginType.INTERNAL &&
+          editorMode !== EditorViewMode.SplitScreen && (
+            // Need to remove this check once workflow query is supported in module
+            <ConvertToModuleInstanceCTA {...convertToModuleProps} />
+          )}
       </>
-    ),
-    [
-      action?.id,
-      action?.name,
-      isChangePermitted,
-      isDeletePermitted,
-      pageId,
-      isCreatePermitted,
-    ],
-  );
+    );
+  }, [
+    action?.id,
+    action?.name,
+    isChangePermitted,
+    isDeletePermitted,
+    pageId,
+    isCreatePermitted,
+    editorMode,
+  ]);
 
   const actionRightPaneBackLink = useMemo(() => {
     return <BackToCanvas pageId={pageId} />;

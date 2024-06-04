@@ -24,22 +24,16 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
@@ -292,51 +286,6 @@ public class EnvManagerTest {
                         "",
                         "APPSMITH_INSTANCE_NAME='third value'",
                         "APPSMITH_DISABLE_TELEMETRY='some quotes '\"'\"'inside'\"'\"' it'");
-    }
-
-    @Test
-    public void download_UserIsNotSuperUser_ThrowsAccessDenied() {
-        User user = new User();
-        user.setEmail("sample-super-user");
-        Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
-        Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
-        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(false));
-
-        ServerWebExchange exchange = Mockito.mock(ServerWebExchange.class);
-        ServerHttpResponse response = Mockito.mock(ServerHttpResponse.class);
-        HttpHeaders headers = new HttpHeaders();
-
-        StepVerifier.create(envManager.download(exchange))
-                .expectErrorMessage(AppsmithError.UNAUTHORIZED_ACCESS.getMessage())
-                .verify();
-    }
-
-    @Test
-    public void download_UserIsSuperUser_ReturnsZip() throws IOException {
-        User user = new User();
-        user.setEmail("sample-super-user");
-        Mockito.when(sessionUserService.getCurrentUser()).thenReturn(Mono.just(user));
-        Mockito.when(userService.findByEmail(user.getEmail())).thenReturn(Mono.just(user));
-        Mockito.when(userUtils.isCurrentUserSuperUser()).thenReturn(Mono.just(true));
-
-        // create a temp file for docker env
-        File file = File.createTempFile("envmanager-test-docker-file", "env");
-        file.deleteOnExit();
-
-        Mockito.when(commonConfig.getEnvFilePath()).thenReturn(file.getAbsolutePath());
-        Mockito.when(fileUtils.createZip(any())).thenReturn(new byte[1024]);
-
-        ServerWebExchange exchange = Mockito.mock(ServerWebExchange.class);
-        ServerHttpResponse response = Mockito.mock(ServerHttpResponse.class);
-        HttpHeaders headers = new HttpHeaders();
-        Mockito.when(response.getHeaders()).thenReturn(headers);
-        Mockito.when(exchange.getResponse()).thenReturn(response);
-        Mockito.when(response.writeWith(any())).thenReturn(Mono.empty());
-
-        StepVerifier.create(envManager.download(exchange)).verifyComplete();
-
-        assertThat(headers.getContentType().toString()).isEqualTo("application/zip");
-        assertThat(headers.getContentDisposition().toString()).containsIgnoringCase("appsmith-config.zip");
     }
 
     @Test

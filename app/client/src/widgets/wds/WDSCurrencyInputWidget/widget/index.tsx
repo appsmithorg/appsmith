@@ -58,6 +58,10 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     return config.settersConfig;
   }
 
+  static getMethods() {
+    return config.methodsConfig;
+  }
+
   static getPropertyPaneContentConfig() {
     const parentConfig = clone(super.getPropertyPaneContentConfig());
     const labelSectionIndex = parentConfig.findIndex(
@@ -106,7 +110,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   static getDerivedPropertiesMap() {
     return {
       isValid: `{{(()=>{${derivedProperties.isValid}})()}}`,
-      value: `{{(()=>{${derivedProperties.value}})()}}`,
+      rawText: `{{(()=>{${derivedProperties.value}})()}}`,
     };
   }
 
@@ -133,9 +137,9 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
 
   componentDidUpdate(prevProps: CurrencyInputWidgetProps) {
     if (
-      prevProps.text !== this.props.text &&
+      prevProps.text !== this.props.parsedText &&
       !this.props.isFocused &&
-      this.props.text === String(this.props.defaultText)
+      this.props.parsedText === String(this.props.defaultText)
     ) {
       this.formatText();
     }
@@ -171,7 +175,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
       Sentry.captureException(e);
     }
 
-    this.props.updateWidgetMetaProperty("text", String(formattedValue), {
+    this.props.updateWidgetMetaProperty("parsedText", String(formattedValue), {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
@@ -185,14 +189,18 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   };
 
   onFocusChange = (isFocused?: boolean) => {
+    // We don't want to deformat or the text or trigger
+    // any event on focus if the widget is read only
+    if (Boolean(this.props.isReadOnly)) return;
+
     try {
       if (isFocused) {
-        const text = this.props.text || "";
+        const text = this.props.parsedText || "";
         const deFormattedValue = text.replace(
           new RegExp("\\" + getLocaleThousandSeparator(), "g"),
           "",
         );
-        this.props.updateWidgetMetaProperty("text", deFormattedValue);
+        this.props.updateWidgetMetaProperty("parsedText", deFormattedValue);
         this.props.updateWidgetMetaProperty("isFocused", isFocused, {
           triggerPropertyName: "onFocus",
           dynamicString: this.props.onFocus,
@@ -201,12 +209,12 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
           },
         });
       } else {
-        if (this.props.text) {
+        if (this.props.parsedText) {
           const formattedValue = formatCurrencyNumber(
             this.props.decimals,
-            this.props.text,
+            this.props.parsedText,
           );
-          this.props.updateWidgetMetaProperty("text", formattedValue);
+          this.props.updateWidgetMetaProperty("parsedText", formattedValue);
         }
         this.props.updateWidgetMetaProperty("isFocused", isFocused, {
           triggerPropertyName: "onBlur",
@@ -219,7 +227,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     } catch (e) {
       log.error(e);
       Sentry.captureException(e);
-      this.props.updateWidgetMetaProperty("text", this.props.text);
+      this.props.updateWidgetMetaProperty("parsedText", this.props.parsedText);
     }
 
     super.onFocusChange(!!isFocused);
@@ -264,13 +272,13 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   };
 
   isTextFormatted = () => {
-    return this.props.text.includes(getLocaleThousandSeparator());
+    return this.props.parsedText.includes(getLocaleThousandSeparator());
   };
 
   formatText() {
-    if (!!this.props.text && !this.isTextFormatted()) {
+    if (!!this.props.parsedText && !this.isTextFormatted()) {
       try {
-        const floatVal = parseFloat(this.props.text);
+        const floatVal = parseFloat(this.props.parsedText);
 
         const formattedValue = Intl.NumberFormat(getLocale(), {
           style: "decimal",
@@ -278,7 +286,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
           maximumFractionDigits: this.props.decimals,
         }).format(floatVal);
 
-        this.props.updateWidgetMetaProperty("text", formattedValue);
+        this.props.updateWidgetMetaProperty("parsedText", formattedValue);
       } catch (e) {
         log.error(e);
         Sentry.captureException(e);
@@ -287,7 +295,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   }
 
   getWidgetView() {
-    const value = this.props.text ?? "";
+    const value = this.props.parsedText ?? "";
 
     const validation = validateInput(this.props);
 

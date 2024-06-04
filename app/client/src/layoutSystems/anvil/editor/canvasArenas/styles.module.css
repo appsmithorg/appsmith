@@ -1,4 +1,5 @@
 .detachedWidgetsDropOverlay {
+  z-index: var(--z-index-99);
   background-color: var(--modal-overlay-color);
   position: fixed;
   padding: 40px;

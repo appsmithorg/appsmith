@@ -10,7 +10,7 @@ describe(
   function () {
     let SMTPDatasourceName;
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
     before(() => {
       agHelper.AddDsl("SMTPTestdsl");
@@ -122,6 +122,13 @@ describe(
         expect(thisTestEmail.headers.to).equal("qwerty@appsmith.com");
         expect(thisTestEmail.attachments.length).equal(1);
       });
+    });
+
+    it("4. Verify the default port for the datasource", function () {
+      dataSources.NavigateToDSCreateNew();
+      dataSources.CreatePlugIn("SMTP");
+
+      agHelper.AssertAttribute(dataSources._port, "value", "25");
     });
   },
 );

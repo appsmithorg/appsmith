@@ -1,6 +1,7 @@
 package com.appsmith.server.newpages.base;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
@@ -13,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface NewPageServiceCE extends CrudService<NewPage, String> {
@@ -28,6 +30,8 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
     Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view);
 
     Flux<NewPage> findNewPagesByApplicationId(String applicationId, AclPermission permission);
+
+    Mono<NewPage> findByIdAndBranchName(String id, String branchName);
 
     Mono<PageDTO> saveUnpublishedPage(PageDTO page);
 
@@ -49,8 +53,6 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
             String applicationId, Boolean view, boolean markApplicationAsRecentlyAccessed);
 
     Layout createDefaultLayout();
-
-    Mono<ApplicationPagesDTO> findNamesByApplicationNameAndViewMode(String applicationName, Boolean view);
 
     Mono<PageDTO> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission permission, Boolean view);
@@ -92,4 +94,11 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
     Flux<NewPage> findPageSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission);
 
     Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission);
+
+    ApplicationPagesDTO getApplicationPagesDTO(Application application, List<NewPage> newPages, boolean viewMode);
+
+    Mono<ApplicationPagesDTO> createApplicationPagesDTO(
+            Application branchedApplication, List<NewPage> newPages, boolean viewMode, boolean isRecentlyAccessed);
+
+    Mono<String> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap, String branchName);
 }

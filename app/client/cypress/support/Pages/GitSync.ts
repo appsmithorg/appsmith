@@ -1,7 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 const GITHUB_API_BASE = "https://api.github.com";
 //const GITEA_API_BASE = "http://35.154.225.218";
-
 export class GitSync {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
@@ -35,12 +34,13 @@ export class GitSync {
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
   public _branchListItem = "[data-testid=t--branch-list-item]";
   public _bottomBarMergeButton = ".t--bottom-bar-merge";
+  private mergeCTA = "[data-testid=t--git-merge-button]";
   public _mergeBranchDropdownDestination =
     ".t--merge-branch-dropdown-destination";
   public _dropdownmenu = ".rc-select-item-option-content";
   private _openRepoButton = "[data-testid=t--git-repo-button]";
   public _commitButton = ".t--commit-button";
-  private _commitCommentInput = ".t--commit-comment-input textarea";
+  public _commitCommentInput = ".t--commit-comment-input textarea";
 
   public _discardChanges = ".t--discard-button";
   public _discardCallout = "[data-testid='t--discard-callout']";
@@ -96,10 +96,7 @@ export class GitSync {
   public CreateTestGiteaRepo(repo: string, privateFlag = false) {
     cy.request({
       method: "POST",
-      url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/org/Cypress/repos`,
-      headers: {
-        Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
-      },
+      url: `${this.dataManager.GIT_API_BASE}/api/v1/git/repos`,
       body: {
         name: repo,
         private: privateFlag,
@@ -152,7 +149,7 @@ export class GitSync {
       );
       this.agHelper.TypeText(
         this.remoteUrlInput,
-        `${this.dataManager.GITEA_API_URL_TED}/${repoName}.git`,
+        `${this.dataManager.GIT_CLONE_URL}/${repoName}.git`,
       );
       this.agHelper.GetNClick(this.gitConnectNextBtn);
 
@@ -160,14 +157,10 @@ export class GitSync {
       cy.get("@guid").then((uid) => {
         cy.wait(`@generateKey-${repoName}`).then((result: any) => {
           let generatedKey = result.response.body.data.publicKey;
-          generatedKey = generatedKey.slice(0, generatedKey.length - 1);
           // fetch the generated key and post to the github repo
           cy.request({
             method: "POST",
-            url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repoName}/keys`,
-            headers: {
-              Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
-            },
+            url: `${this.dataManager.GIT_API_BASE}/api/v1/git/keys/${repoName}`,
             body: {
               title: "key_" + uid,
               key: generatedKey,
@@ -226,7 +219,7 @@ export class GitSync {
     );
     this.agHelper.TypeText(
       this.remoteUrlInput,
-      `${this.dataManager.GITEA_API_URL_TED}/${repoName}.git`,
+      `${this.dataManager.GIT_CLONE_URL}/${repoName}.git`,
     );
     this.agHelper.GetNClick(this.gitConnectNextBtn);
 
@@ -238,10 +231,7 @@ export class GitSync {
         // fetch the generated key and post to the github repo
         cy.request({
           method: "POST",
-          url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repoName}/keys`,
-          headers: {
-            Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
-          },
+          url: `${this.dataManager.GIT_API_BASE}/api/v1/git/keys/${repoName}`,
           body: {
             title: "key_" + uid,
             key: generatedKey,
@@ -281,30 +271,21 @@ export class GitSync {
   DeleteTestGithubRepo(repo: any) {
     cy.request({
       method: "DELETE",
-      url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}`,
-      headers: {
-        Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
-      },
+      url: `${this.dataManager.GIT_API_BASE}/api/v1/git/repos/${repo}`,
     });
   }
 
   DeleteDeployKey(repo: any, id: number) {
     cy.request({
       method: "DELETE",
-      url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/keys/${id}`,
-      headers: {
-        Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
-      },
+      url: `${this.dataManager.GIT_API_BASE}/api/v1/git/keys/${id}`,
     });
   }
 
   public CreateRemoteBranch(repo: string, branchName: string) {
     cy.request({
       method: "POST",
-      url: `${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/api/v1/repos/Cypress/${repo}/branches`,
-      headers: {
-        Authorization: `token ${Cypress.env("GITEA_TOKEN")}`,
-      },
+      url: `${this.dataManager.GIT_API_BASE}/api/v1/git/repos/${repo}/branches`,
       body: {
         new_branch_name: branchName,
       },
@@ -341,7 +322,7 @@ export class GitSync {
         this.assertHelper.AssertNetworkStatus("createBranch", 201);
       this.agHelper.AssertElementAbsence(
         this.locator._specificToast(
-          "Unable to import application in workspace",
+          Cypress.env("MESSAGES").UNABLE_TO_IMPORT_APP(),
         ),
       );
       this.agHelper.WaitUntilEleAppear(this._branchName(branch + uid));
@@ -407,6 +388,18 @@ export class GitSync {
     this.agHelper.AssertElementAbsence(this._checkMergeability, 35000);
   }
 
+  MergeToMaster() {
+    this.CheckMergeConflicts("master");
+    this.agHelper.AssertElementEnabledDisabled(this.mergeCTA, 0, false);
+    this.agHelper.GetNClick(this.mergeCTA);
+    this.assertHelper.AssertNetworkStatus("@mergeBranch");
+    this.agHelper.AssertContains(
+      Cypress.env("MESSAGES").MERGED_SUCCESSFULLY(),
+      "be.visible",
+    );
+    this.CloseGitSyncModal();
+  }
+
   OpenRepositoryAndVerify() {
     this.agHelper.GetNClick(this._openRepoButton);
   }
@@ -469,99 +462,4 @@ export class GitSync {
     }
     this.CloseGitSyncModal();
   }
-  //#region Unused methods
-
-  private AuthorizeLocalGitSSH(remoteUrl: string, assertConnect = true) {
-    let generatedKey;
-    this.OpenGitSyncModal();
-    this.agHelper.AssertAttribute(
-      this._gitRepoInput,
-      "placeholder",
-      "git@example.com:user/repository.git",
-    );
-    this.agHelper.TypeText(this._gitRepoInput, remoteUrl);
-
-    this.agHelper.ClickButton("Generate key");
-
-    cy.wait(`@generateKey`).then((result: any) => {
-      generatedKey = result.response.body.data.publicKey;
-      generatedKey = generatedKey.slice(0, generatedKey.length - 1);
-      let formdata = new FormData();
-      cy.log("generatedKey is " + generatedKey);
-      formdata.set("sshkey", generatedKey);
-      // fetch the generated key and post to the github repo
-      cy.request({
-        method: "POST",
-        url: `http://${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/v1/gitserver/addgitssh`,
-        //body: formdata,
-        body: {
-          sshkey: generatedKey,
-        },
-        form: true,
-        // headers: {
-        //   "Content-Type": "application/x-www-form-urlencoded"
-        // },
-      }).then((response) => {
-        expect(response.status).to.equal(200);
-      });
-      this.agHelper.GetNClick(this._useDefaultConfig); //Uncheck the Use default configuration
-      this.agHelper.TypeText(
-        this._gitConfigNameInput,
-        "testusername",
-        //`{selectall}${testUsername}`,
-      );
-      this.agHelper.TypeText(this._gitConfigEmailInput, "test@test.com");
-      this.agHelper.ClickButton("CONNECT");
-
-      if (assertConnect) {
-        //this.ReplaceForGit("cypress/fixtures/Bugs/GitConnectResponse.json", remoteUrl);
-        //cy.get('@connectGitLocalRepo').its('response.statusCode').should('equal', 200);
-        // cy.intercept("POST", "/api/v1/git/connect/app/*", {
-        //   fixture: "/Bugs/GitConnectResponse.json",
-        // });
-        this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
-      }
-      this.CloseGitSyncModal();
-    });
-  }
-
-  private ReplaceForGit(fixtureFile: any, remoteUrl: string) {
-    let currentAppId, currentURL;
-    cy.readFile(
-      fixtureFile,
-      // (err: string) => {
-      // if (err) {
-      //   return console.error(err);
-      // }}
-    ).then((data) => {
-      cy.url().then((url) => {
-        currentURL = url;
-        const myRegexp = /page-1(.*)/;
-        const match = myRegexp.exec(currentURL);
-        cy.log(currentURL + "currentURL from intercept is");
-        currentAppId = match ? match[1].split("/")[1] : null;
-        data.data.id = currentAppId;
-        data.data.gitApplicationMetadata.defaultApplicationId = currentAppId;
-        data.data.gitApplicationMetadata.remoteUrl = remoteUrl;
-        cy.writeFile(fixtureFile, JSON.stringify(data));
-      });
-    });
-  }
-
-  private CreateLocalGithubRepo(repo: string) {
-    let remoteUrl = "";
-    cy.request({
-      method: "GET",
-      url:
-        `http://${this.dataManager.GITEA_API_BASE_TED}:${this.dataManager.GITEA_API_PORT_TED}/v1/gitserver/addrepo?reponame=` +
-        repo,
-    }).then((response) => {
-      remoteUrl = JSON.stringify(response.body).replace(/['"]+/g, "");
-      expect(response.status).to.equal(200);
-      //cy.log("remoteUrl is"+ remoteUrl);
-      cy.wrap(remoteUrl).as("remoteUrl");
-    });
-  }
-
-  //#endregion
 }

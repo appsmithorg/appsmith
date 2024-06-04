@@ -13,7 +13,7 @@ import EditorNavigation, {
   AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
 
-let dsName: any, jsName: any;
+let jsName: any;
 
 describe(
   "JSObjects OnLoad Actions tests",
@@ -34,9 +34,6 @@ describe(
         locators._widgetInCanvas("imagewidget"),
       );
       dataSources.CreateDataSource("Postgres");
-      cy.get("@dsName").then(($dsName) => {
-        dsName = $dsName;
-      });
       cy.fixture("datasources").then((datasourceFormData: any) => {
         AppSidebar.navigate(AppSidebarButton.Editor);
         apiPage.CreateAndFillApi(
@@ -87,8 +84,6 @@ describe(
           .and("contain", jsName as string)
           .and("contain", "will be executed automatically on page load");
 
-        //agHelper.WaitUntilToastDisappear("Quotes");
-
         EditorNavigation.SelectEntityByName("Input2", EntityType.Widget);
         propPane.UpdatePropertyFieldValue(
           "Default value",
@@ -105,9 +100,6 @@ describe(
         deployMode.DeployApp();
 
         agHelper.RefreshPage("getConsolidatedData");
-        // agHelper.AssertElementVisibility(
-        //   jsEditor._dialogBody((jsName as string) + ".callTrump"),
-        // );
 
         agHelper.Sleep(4000); //to let the api's call be finished & populate the text fields before validation!
         agHelper

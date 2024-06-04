@@ -294,6 +294,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     const allResponses: InitConsolidatedApi = yield call(getInitResponses, {
       ...action.payload,
     });
+    yield put({ type: ReduxActionTypes.LINT_SETUP });
     const { applicationId, toLoadPageId } = yield call(
       engine.loadAppData,
       action.payload,

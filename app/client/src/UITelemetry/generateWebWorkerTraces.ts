@@ -45,9 +45,11 @@ export const convertWebworkerSpansToRegularSpans = (
   parentSpan: Span,
   allSpans: Record<string, WebworkerSpanData> = {},
 ) => {
-  for (const spanData of Object.values(allSpans)) {
-    const { attributes, endTime, spanName, startTime } = spanData;
-    const span = startNestedSpan(spanName, parentSpan, attributes, startTime);
-    span?.end(endTime);
-  }
+  Object.values(allSpans)
+    .filter(({ endTime, startTime }) => startTime && endTime)
+    .forEach((spanData) => {
+      const { attributes, endTime, spanName, startTime } = spanData;
+      const span = startNestedSpan(spanName, parentSpan, attributes, startTime);
+      span?.end(endTime);
+    });
 };

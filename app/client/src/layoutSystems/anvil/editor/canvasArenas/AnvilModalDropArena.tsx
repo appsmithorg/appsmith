@@ -5,13 +5,14 @@ import styled from "styled-components";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { DropWidgetsHereMessage } from "layoutSystems/anvil/common/messages";
 
-const StyledEmptyModalDropArenaWrapper = styled.div<{ isModalEmpty: boolean }>`
+export const EMPTY_MODAL_PADDING = 4;
+
+const StyledModalEditorDropArenaWrapper = styled.div<{ isModalEmpty: boolean }>`
+  position: relative;
   ${(props) =>
     props.isModalEmpty &&
     `
-  position: relative;
-  height: 100% !important;
-  padding: 4px;
+  padding: ${EMPTY_MODAL_PADDING}px;
   `}
 `;
 const StyledEmptyModalDropArena = styled.div<{
@@ -62,7 +63,10 @@ export const AnvilModalDropArena = ({
   const widget = useSelector(getWidgetByID(modalId));
   const isModalEmpty = widget.children?.length === 0;
   return (
-    <StyledEmptyModalDropArenaWrapper isModalEmpty={isModalEmpty}>
+    <StyledModalEditorDropArenaWrapper
+      isModalEmpty={isModalEmpty}
+      style={{ height: isModalEmpty ? "100%" : "auto" }}
+    >
       <StyledEmptyModalDropArena
         isActive={isCurrentDraggedCanvas}
         isModalEmpty={isModalEmpty}
@@ -70,6 +74,6 @@ export const AnvilModalDropArena = ({
         {DropWidgetsHereMessage()}
       </StyledEmptyModalDropArena>
       {children}
-    </StyledEmptyModalDropArenaWrapper>
+    </StyledModalEditorDropArenaWrapper>
   );
 };

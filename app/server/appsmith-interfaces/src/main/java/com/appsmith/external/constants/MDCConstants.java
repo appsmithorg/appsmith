@@ -3,7 +3,6 @@ package com.appsmith.external.constants;
 public class MDCConstants {
 
     public static final String USER_EMAIL = "userEmail";
-    public static final String REQUEST_ID_LOG = "requestId";
     public static final String SESSION_ID_LOG = "sessionId";
     public static final String THREAD = "thread";
     public static final String OBSERVATION = "micrometer.observation";

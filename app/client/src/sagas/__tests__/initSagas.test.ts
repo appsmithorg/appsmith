@@ -58,6 +58,8 @@ describe("tests the sagas in initSagas", () => {
       .next()
       .call(getInitResponses, { ...action.payload })
       .next(mockResponse.data)
+      .put({ type: ReduxActionTypes.LINT_SETUP })
+      .next()
       .call(engine.loadAppData, action.payload, mockResponse.data)
       .next({
         applicationId: action.payload.applicationId,

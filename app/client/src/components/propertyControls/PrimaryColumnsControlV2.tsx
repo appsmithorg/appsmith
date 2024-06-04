@@ -201,6 +201,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     const isFocused =
       !_.isNull(this.state.focusedIndex) &&
       _.includes(this.state.duplicateColumnIds, column?.id);
+
     return (
       <>
         <div className="flex pt-2 pb-2 justify-between">

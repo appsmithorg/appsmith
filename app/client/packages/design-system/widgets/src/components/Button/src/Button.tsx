@@ -1,7 +1,7 @@
+import type { ForwardedRef } from "react";
 import React, { forwardRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
-import { Button as HeadlessButton } from "@design-system/headless";
-import type { ButtonRef as HeadlessButtonRef } from "@design-system/headless";
+import { Button as HeadlessButton } from "react-aria-components";
 import type { SIZES } from "../../../shared";
 import clsx from "clsx";
 import { Text } from "../../Text";
@@ -10,10 +10,11 @@ import styles from "./styles.module.css";
 import type { ButtonProps } from "./types";
 import { Icon } from "../../Icon";
 
-const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
+const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
   props = useVisuallyDisabled(props);
   const {
     children,
+    className,
     color = "accent",
     icon,
     iconPosition = "start",
@@ -21,11 +22,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
     isLoading = false,
     loadingText = "Loading...",
     size = "medium",
-    // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
-    onKeyUp,
     variant = "filled",
-    visuallyDisabled = false,
-    className,
     ...rest
   } = props;
   const { visuallyHiddenProps } = useVisuallyHidden();
@@ -36,12 +33,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
         <span aria-hidden={isLoading ? true : undefined} data-content="">
           {icon && <Icon name={icon} size={size as keyof typeof SIZES} />}
           {Boolean(children) && (
-            <Text
-              data-text=""
-              fontWeight={600}
-              lineClamp={1}
-              textAlign="center"
-            >
+            <Text data-text="" fontWeight={500} lineClamp={1}>
               {children}
             </Text>
           )}
@@ -64,10 +56,6 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
 
   return (
     <HeadlessButton
-      aria-busy={isLoading ? true : undefined}
-      aria-disabled={
-        visuallyDisabled || isLoading || isDisabled ? true : undefined
-      }
       className={clsx(className, styles.button)}
       data-button=""
       data-color={color}
@@ -75,13 +63,11 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       data-loading={isLoading ? "" : undefined}
       data-size={Boolean(size) ? size : undefined}
       data-variant={variant}
-      draggable
       isDisabled={isDisabled}
       ref={ref}
       {...rest}
     >
       {renderChildren()}
-      <span aria-hidden="true" className={styles.dragContainer} />
     </HeadlessButton>
   );
 };
@@ -93,14 +79,13 @@ export const Button = forwardRef(_Button);
  * when the button is visually disabled
  */
 const useVisuallyDisabled = (props: ButtonProps) => {
-  const { isLoading = false, visuallyDisabled = false } = props;
+  const { isLoading = false } = props;
   let computedProps = props;
 
-  if (visuallyDisabled || isLoading) {
+  if (isLoading) {
     computedProps = {
       ...props,
       isDisabled: false,
-      // disabling click/press events
       onPress: undefined,
       onPressStart: undefined,
       onPressEnd: undefined,

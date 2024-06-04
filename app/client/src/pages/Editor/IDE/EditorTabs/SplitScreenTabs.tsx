@@ -1,106 +1,76 @@
-import React from "react";
-import { Flex, Spinner, ToggleButton } from "design-system";
+import React, { useCallback } from "react";
 
 import FileTabs from "./FileTabs";
-import { useSelector } from "react-redux";
-import {
-  getIDEViewMode,
-  getIsSideBySideEnabled,
-  getIsTabsRevampEnabled,
-} from "selectors/ideSelectors";
+import { useDispatch, useSelector } from "react-redux";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import Container from "./Container";
 import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
 import {
   EditorEntityTab,
-  EditorEntityTabState,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
-import { useIsJSAddLoading } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { TabSelectors } from "./constants";
-import { includes } from "lodash";
-import ListButton from "./ListButton";
 import { Announcement } from "../EditorPane/components/Announcement";
 import { SearchableFilesList } from "./SearchableFilesList";
+import { AddButton } from "./AddButton";
+import { Button, Tooltip } from "design-system";
+import {
+  MAXIMIZE_BUTTON_TOOLTIP,
+  createMessage,
+} from "@appsmith/constants/messages";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { setIdeEditorViewMode } from "actions/ideActions";
 
 const SplitScreenTabs = () => {
+  const dispatch = useDispatch();
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const ideViewMode = useSelector(getIDEViewMode);
-  const isTabsRevampEnabled = useSelector(getIsTabsRevampEnabled);
-  const { segment, segmentMode } = useCurrentEditorState();
-  const { addClickHandler, closeClickHandler, tabClickHandler } =
-    useIDETabClickHandlers();
-  const isJSLoading = useIsJSAddLoading();
+  const { segment } = useCurrentEditorState();
+  const { closeClickHandler, tabClickHandler } = useIDETabClickHandlers();
 
   const tabsConfig = TabSelectors[segment];
 
   const files = useSelector(tabsConfig.tabsSelector);
   const allFilesList = useSelector(tabsConfig.listSelector);
 
-  const overflowList = allFilesList.filter((item) => !includes(files, item));
+  const handleMaximizeButtonClick = useCallback(() => {
+    AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
+      to: EditorViewMode.FullScreen,
+    });
+    dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen));
+  }, []);
 
   if (!isSideBySideEnabled) return null;
   if (ideViewMode === EditorViewMode.FullScreen) return null;
   if (segment === EditorEntityTab.UI) return null;
 
-  const AddButton = () => {
-    if (isJSLoading) {
-      return (
-        <Flex px="spaces-2">
-          <Spinner size="md" />
-        </Flex>
-      );
-    }
-    return (
-      <ToggleButton
-        data-testid="t--ide-split-screen-add-button"
-        icon="add-line"
-        id="tabs-add-toggle"
-        isSelected={segmentMode === EditorEntityTabState.Add}
-        onClick={addClickHandler}
-        size="md"
-      />
-    );
-  };
-
-  // TODO: Remove this once release_ide_tabs_revamp_enabled is lifted
-  const Content = () => {
-    if (isTabsRevampEnabled) {
-      return (
-        <>
-          <SearchableFilesList
-            allItems={allFilesList}
-            navigateToTab={tabClickHandler}
-            openTabs={files}
-          />
-          <FileTabs
-            navigateToTab={tabClickHandler}
-            onClose={closeClickHandler}
-            tabs={files}
-          />
-          <AddButton />
-        </>
-      );
-    }
-    return (
-      <>
-        <AddButton />
+  return (
+    <>
+      {/* {files.length > 0 ? ( */}
+      <Container>
+        <SearchableFilesList
+          allItems={allFilesList}
+          navigateToTab={tabClickHandler}
+        />
         <FileTabs
           navigateToTab={tabClickHandler}
           onClose={closeClickHandler}
           tabs={files}
         />
-        <ListButton items={overflowList} navigateToTab={tabClickHandler} />
-      </>
-    );
-  };
+        {files.length > 0 ? <AddButton /> : null}
 
-  return (
-    <>
-      {files.length > 0 ? (
-        <Container>
-          <Content />
-        </Container>
-      ) : null}
+        <Tooltip content={createMessage(MAXIMIZE_BUTTON_TOOLTIP)}>
+          <Button
+            className="ml-auto !min-w-[24px]"
+            data-testid="t--ide-maximize"
+            id="editor-mode-maximize"
+            isIconButton
+            kind="tertiary"
+            onClick={handleMaximizeButtonClick}
+            startIcon="maximize-v3"
+          />
+        </Tooltip>
+      </Container>
       <Announcement />
     </>
   );

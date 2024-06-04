@@ -240,7 +240,7 @@
                 ],
                 "displayName": "JSON Form",
                 "iconSVG": "/static/media/icon.5b428de12db9ad6a591955ead07f86e9.svg",
-                "onSubmit": "{{updateRecord.run(() => {closeModal('UpdateModal'), () => {};\nselectRecords.run()})}}",
+                "onSubmit": "{{updateRecord.run(() => {closeModal(UpdateModal.name), () => {};\nselectRecords.run()})}}",
                 "topRow": 8,
                 "bottomRow": 60,
                 "fieldLimitExceeded": false,
@@ -439,7 +439,7 @@
               {
                 "boxShadow": "none",
                 "widgetName": "IconButton1Copy",
-                "onClick": "{{closeModal('UpdateModal')}}",
+                "onClick": "{{closeModal(UpdateModal.name)}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
@@ -746,7 +746,7 @@
       {
         "boxShadow": "none",
         "widgetName": "InsertButton",
-        "onClick": "{{showModal('InsertModal')}}",
+        "onClick": "{{showModal(InsertModal.name)}}",
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "dynamicPropertyPathList": [
           {
@@ -796,7 +796,7 @@
       {
         "boxShadow": "none",
         "widgetName": "UpdateButton",
-        "onClick": "{{showModal('UpdateModal')}}",
+        "onClick": "{{showModal(UpdateModal.name)}}",
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "dynamicPropertyPathList": [],
         "displayName": "Button",
@@ -880,7 +880,7 @@
               {
                 "boxShadow": "none",
                 "widgetName": "IconButton1",
-                "onClick": "{{closeModal('InsertModal')}}",
+                "onClick": "{{closeModal(InsertModal.name)}}",
                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                 "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
@@ -1130,7 +1130,7 @@
                 ],
                 "displayName": "JSON Form",
                 "iconSVG": "/static/media/icon.5b428de12db9ad6a591955ead07f86e9.svg",
-                "onSubmit": "{{insertRecord.run(() => {\nselectRecords.run();\t\t\t\tresetWidget('InsertModal', true);\ncloseModal('InsertModal'), () => {};})}}",
+                "onSubmit": "{{insertRecord.run(() => {\nselectRecords.run();\t\t\t\tresetWidget('InsertModal', true);\ncloseModal(InsertModal.name), () => {};})}}",
                 "topRow": 6,
                 "bottomRow": 58,
                 "fieldLimitExceeded": false,

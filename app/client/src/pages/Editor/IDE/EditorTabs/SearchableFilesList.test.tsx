@@ -33,7 +33,6 @@ describe("SearchableFilesList", () => {
       <SearchableFilesList
         allItems={allItems}
         navigateToTab={navigateToTabMock}
-        openTabs={openTabs}
       />,
     );
   });
@@ -43,7 +42,6 @@ describe("SearchableFilesList", () => {
       <SearchableFilesList
         allItems={allItems}
         navigateToTab={navigateToTabMock}
-        openTabs={[]}
       />,
     );
 
@@ -62,7 +60,6 @@ describe("SearchableFilesList", () => {
       <SearchableFilesList
         allItems={allItems}
         navigateToTab={navigateToTabMock}
-        openTabs={openTabs}
       />,
     );
 
@@ -82,7 +79,6 @@ describe("SearchableFilesList", () => {
       <SearchableFilesList
         allItems={allItems}
         navigateToTab={navigateToTabMock}
-        openTabs={openTabs}
       />,
     );
 
@@ -102,7 +98,6 @@ describe("SearchableFilesList", () => {
       <SearchableFilesList
         allItems={allItems}
         navigateToTab={navigateToTabMock}
-        openTabs={openTabs}
       />,
     );
 

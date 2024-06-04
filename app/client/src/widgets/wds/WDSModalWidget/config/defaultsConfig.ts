@@ -20,6 +20,7 @@ export const defaultsConfig = {
   size: "medium",
   title: "Modal Title",
   showSubmitButton: true,
+  closeOnSubmit: true,
   submitButtonText: "Save Changes",
   cancelButtonText: "Cancel",
   blueprint: {

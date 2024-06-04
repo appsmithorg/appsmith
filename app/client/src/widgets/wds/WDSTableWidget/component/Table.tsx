@@ -9,7 +9,6 @@ import {
   useRowSelect,
 } from "react-table";
 import { useSticky } from "react-table-sticky";
-import { TableWrapper } from "./TableStyledWrappers";
 import { TableHeader } from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import type {
@@ -20,7 +19,6 @@ import type {
   StickyType,
 } from "./Constants";
 import { TABLE_SIZES, CompactModeTypes } from "./Constants";
-import { Colors } from "constants/Colors";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { EditableCell, TableVariant } from "../constants";
 import "simplebar-react/dist/simplebar.min.css";
@@ -73,7 +71,6 @@ export interface TableProps {
   triggerRowSelection: boolean;
   onSearch: (searchKey: any) => void;
   filters?: ReactTableFilter[];
-  applyFilter: (filters: ReactTableFilter[]) => void;
   compactMode?: CompactMode;
   isVisibleDownload?: boolean;
   isVisibleFilters?: boolean;
@@ -117,8 +114,6 @@ export interface HeaderComponentProps {
   ) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   columnOrder?: string[];
-  accentColor: string;
-  borderRadius: string;
   headerGroups: any;
   canFreezeColumn?: boolean;
   editMode: boolean;
@@ -182,7 +177,6 @@ export function Table(props: TableProps) {
     getTableProps,
     headerGroups,
     page,
-    pageOptions,
     prepareRow,
     state,
     totalColumnsWidth,
@@ -283,60 +277,29 @@ export function Table(props: TableProps) {
           onConnectData={props.onConnectData}
         />
       )}
-      <TableWrapper
-        accentColor={props.accentColor}
-        backgroundColor={Colors.ATHENS_GRAY_DARKER}
-        borderColor={props.borderColor}
-        borderRadius={props.borderRadius}
-        borderWidth={props.borderWidth}
-        boxShadow={props.boxShadow}
+      <div
         className={styles.table}
         data-status={props.isAddRowInProgress ? "add-row-in-progress" : ""}
         data-type={shouldUseVirtual ? "virtualized" : "static"}
         data-variant={variant}
-        height={props.height}
         id={`table${props.widgetId}`}
-        isAddRowInProgress={props.isAddRowInProgress}
-        isHeaderVisible={isHeaderVisible}
-        isResizingColumn={isResizingColumn.current}
-        tableSizes={tableSizes}
-        triggerRowSelection={props.triggerRowSelection}
-        variant={props.variant}
-        width={props.width}
       >
         {isHeaderVisible && (
           <TableHeader
-            allowAddNewRow={props.allowAddNewRow}
-            applyFilter={props.applyFilter}
             columns={tableHeadercolumns}
             currentPageIndex={currentPageIndex}
-            delimiter={props.delimiter}
-            disableAddNewRow={!!props.editableCell?.column}
-            disabledAddNewRowSave={props.disabledAddNewRowSave}
-            filters={props.filters}
-            isAddRowInProgress={props.isAddRowInProgress}
-            isVisibleDownload={props.isVisibleDownload}
-            isVisibleFilters={props.isVisibleFilters}
             isVisiblePagination={props.isVisiblePagination}
             isVisibleSearch={props.isVisibleSearch}
             nextPageClick={props.nextPageClick}
-            onAddNewRow={props.onAddNewRow}
-            onAddNewRowAction={props.onAddNewRowAction}
             onSearch={props.onSearch}
             pageCount={pageCount}
             pageNo={props.pageNo}
-            pageOptions={pageOptions}
             prevPageClick={props.prevPageClick}
             searchKey={props.searchKey}
             serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-            tableColumns={columns}
             tableData={data}
-            tableSizes={tableSizes}
             totalRecordsCount={props.totalRecordsCount}
             updatePageNo={props.updatePageNo}
-            widgetId={props.widgetId}
-            widgetName={props.widgetName}
-            width={props.width}
           />
         )}
         <div
@@ -344,8 +307,8 @@ export function Table(props: TableProps) {
             props.isLoading
               ? Classes.SKELETON
               : shouldUseVirtual
-              ? " virtual"
-              : ""
+                ? " virtual"
+                : ""
           }`}
           data-table-wrapper=""
         >
@@ -422,7 +385,7 @@ export function Table(props: TableProps) {
             )}
           </div>
         </div>
-      </TableWrapper>
+      </div>
     </>
   );
 }

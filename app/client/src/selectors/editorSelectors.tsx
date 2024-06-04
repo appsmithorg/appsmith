@@ -30,6 +30,7 @@ import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer
 
 import {
   getActions,
+  getApiPaneSavingMap,
   getCanvasWidgets,
   getJSCollections,
 } from "@appsmith/selectors/entitiesSelector";
@@ -73,33 +74,40 @@ export const getIsFetchingPage = (state: AppState) =>
 export const getLoadingError = (state: AppState) =>
   state.ui.editor.loadingStates.loadingError;
 
-export const getIsPageSaving = (state: AppState) => {
-  let areApisSaving = false;
-  let areJsObjectsSaving = false;
+export const getIsPageSaving = createSelector(
+  [
+    getApiPaneSavingMap,
+    (state: AppState) => state.ui.jsPane.isSaving,
+    (state: AppState) => state.ui.appTheming.isSaving,
+    (state: AppState) => state.ui.applications.isSavingNavigationSetting,
+    (state: AppState) => state.ui.editor.loadingStates.savingEntity,
+    (state: AppState) => state.ui.editor.loadingStates.saving,
+  ],
+  (
+    savingApis,
+    savingJSObjects,
+    isSavingAppTheme,
+    isSavingNavigationSetting,
+    isEditorSavingEntity,
+    isEditorSaving,
+  ) => {
+    const areApisSaving = Object.keys(savingApis).some(
+      (apiId) => savingApis[apiId],
+    );
+    const areJsObjectsSaving = Object.keys(savingJSObjects).some(
+      (collectionId) => savingJSObjects[collectionId],
+    );
 
-  const savingApis = state.ui.apiPane.isSaving;
-  const savingJSObjects = state.ui.jsPane.isSaving;
-  const isSavingAppTheme = state.ui.appTheming.isSaving;
-  const isSavingNavigationSetting =
-    state.ui.applications.isSavingNavigationSetting;
-
-  Object.keys(savingApis).forEach((apiId) => {
-    areApisSaving = savingApis[apiId] || areApisSaving;
-  });
-
-  Object.keys(savingJSObjects).forEach((collectionId) => {
-    areJsObjectsSaving = savingJSObjects[collectionId] || areJsObjectsSaving;
-  });
-
-  return (
-    state.ui.editor.loadingStates.saving ||
-    areApisSaving ||
-    areJsObjectsSaving ||
-    isSavingAppTheme ||
-    state.ui.editor.loadingStates.savingEntity ||
-    isSavingNavigationSetting
-  );
-};
+    return (
+      isEditorSavingEntity ||
+      areApisSaving ||
+      areJsObjectsSaving ||
+      isSavingAppTheme ||
+      isEditorSaving ||
+      isSavingNavigationSetting
+    );
+  },
+);
 
 export const snipingModeSelector = (state: AppState) =>
   state.ui.editor.isSnipingMode;
@@ -124,7 +132,7 @@ export const getIsPublishingApplication = (state: AppState) =>
 export const getPublishingError = (state: AppState) =>
   state.ui.editor.loadingStates.publishingError;
 
-export const getCurrentLayoutId = (state: AppState) =>
+export const getCurrentLayoutId = (state: AppState): string | undefined =>
   state.ui.editor.currentLayoutId;
 
 export const getPageList = (state: AppState) => state.entities.pageList.pages;
@@ -309,25 +317,20 @@ export const getWidgetCards = createSelector(
   getIsAnvilLayout,
   (isAutoLayout, isAnvilLayout) => {
     const widgetConfigs = WidgetFactory.getConfigs();
-
-    const cards = Object.values(widgetConfigs).filter((config) => {
-      // if anvil is not enabled, hide all wds widgets
-      if (
-        Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
-        !isAnvilLayout
-      ) {
-        return false;
+    const widgetConfigsArray = Object.values(widgetConfigs);
+    const layoutSystemBasesWidgets = widgetConfigsArray.filter((config) => {
+      const isAnvilWidget = Object.values(WDS_V2_WIDGET_MAP).includes(
+        config.type,
+      );
+      if (isAnvilLayout) {
+        return isAnvilWidget;
       }
-
+      return !isAnvilWidget;
+    });
+    const cards = layoutSystemBasesWidgets.filter((config) => {
       if (isAirgapped()) {
         return config.widgetName !== "Map" && !config.hideCard;
       }
-
-      // if anvil is enabled, only show the wds widgets
-      if (isAnvilLayout) {
-        return Object.values(WDS_V2_WIDGET_MAP).includes(config.type);
-      }
-
       return !config.hideCard;
     });
 
@@ -351,6 +354,10 @@ export const getWidgetCards = createSelector(
         columns = autoLayoutConfig?.defaults?.columns ?? columns;
       }
 
+      const { IconCmp, ThumbnailCmp } = WidgetFactory.getWidgetMethods(
+        config.type,
+      );
+
       return {
         key,
         type,
@@ -360,6 +367,8 @@ export const getWidgetCards = createSelector(
         displayName,
         icon: iconSVG,
         thumbnail: thumbnailSVG,
+        IconCmp,
+        ThumbnailCmp,
         searchTags,
         tags,
         isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),

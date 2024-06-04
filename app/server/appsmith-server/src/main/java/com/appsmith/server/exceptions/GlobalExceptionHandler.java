@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.WebExchangeBindException;
-import org.springframework.web.server.MethodNotAllowedException;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
@@ -204,7 +204,18 @@ public class GlobalExceptionHandler {
             ServerWebInputException e, ServerWebExchange exchange) {
         AppsmithError appsmithError = AppsmithError.GENERIC_BAD_REQUEST;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
-        doLog(e);
+
+        StringBuilder builder = new StringBuilder();
+        Throwable t = e;
+        for (int turn = 0; t != null && turn < 10; ++turn) {
+            if (turn > 0) {
+                builder.append(";; ");
+            }
+            builder.append(t.getMessage());
+            t = t.getCause();
+        }
+        log.warn(builder.toString());
+
         String errorMessage = e.getReason();
         if (e.getMethodParameter() != null) {
             errorMessage = "Malformed parameter '" + e.getMethodParameter().getParameterName()
@@ -278,19 +289,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     @ResponseBody
-    public Mono<ResponseDTO<ErrorDTO>> catchMethodNotAllowed(MethodNotAllowedException e, ServerWebExchange exchange) {
-        AppsmithError appsmithError = AppsmithError.HTTP_METHOD_NOT_ALLOWED;
-
-        exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
+    public Mono<ResponseDTO<Void>> catchResponseStatusException(ResponseStatusException e, ServerWebExchange exchange) {
+        exchange.getResponse().setStatusCode(e.getStatusCode());
 
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
-                appsmithError.getHttpErrorCode(),
-                new ErrorDTO(
-                        appsmithError.getAppErrorCode(),
-                        appsmithError.getErrorType(),
-                        appsmithError.getMessage(e.getMessage()),
-                        appsmithError.getTitle()));
+        ResponseDTO<Void> response = new ResponseDTO<>(e.getStatusCode().value(), null, e.getMessage(), false);
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -380,7 +383,7 @@ public class GlobalExceptionHandler {
         return getResponseDTOMono(urlPath, response);
     }
 
-    private Mono<ResponseDTO<ErrorDTO>> getResponseDTOMono(String urlPath, ResponseDTO<ErrorDTO> response) {
+    private <T> Mono<ResponseDTO<T>> getResponseDTOMono(String urlPath, ResponseDTO<T> response) {
         if (urlPath.contains("/git") && urlPath.contains("/app")) {
             String appId = getAppIdFromUrlPath(urlPath);
             if (StringUtils.isEmpty(appId)) {

@@ -680,11 +680,13 @@ export function* createDefaultApiActionPayload(
   const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
   // Default Config is Rest Api Plugin Config
   let defaultConfig: any = DEFAULT_CREATE_API_CONFIG;
+  let pluginType: PluginType = PluginType.API;
   if (apiType === PluginPackageName.GRAPHQL) {
     defaultConfig = DEFAULT_CREATE_GRAPHQL_CONFIG;
   }
   if (apiType === PluginPackageName.APPSMITH_AI) {
     defaultConfig = DEFAULT_CREATE_APPSMITH_AI_CONFIG;
+    pluginType = PluginType.AI;
     yield call(checkAndGetPluginFormConfigsSaga, pluginId);
   }
 
@@ -697,6 +699,7 @@ export function* createDefaultApiActionPayload(
       workspaceId,
       datasourceConfiguration: defaultConfig.datasource.datasourceConfiguration,
     },
+    pluginType,
     eventData: {
       actionType: defaultConfig.eventData.actionType,
       from: from,

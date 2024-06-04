@@ -279,10 +279,6 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         final String fallbackDefaultContextId = unpublishedCollection.calculateContextId();
 
         if (unpublishedCollection.getName() != null) {
-            unpublishedCollection.setDefaultToBranchedActionIdsMap(mappedImportableResourcesDTO
-                    .getActionResultDTO()
-                    .getUnpublishedCollectionIdToActionIdsMap()
-                    .get(idFromJsonFile));
             unpublishedCollection.setPluginId(
                     mappedImportableResourcesDTO.getPluginMap().get(unpublishedCollection.getPluginId()));
 
@@ -291,10 +287,6 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         }
 
         if (publishedCollection != null && publishedCollection.getName() != null) {
-            publishedCollection.setDefaultToBranchedActionIdsMap(mappedImportableResourcesDTO
-                    .getActionResultDTO()
-                    .getPublishedCollectionIdToActionIdsMap()
-                    .get(idFromJsonFile));
             publishedCollection.setPluginId(
                     mappedImportableResourcesDTO.getPluginMap().get(publishedCollection.getPluginId()));
 

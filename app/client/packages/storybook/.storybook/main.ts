@@ -1,10 +1,4 @@
-import { mergeConfig } from "vite";
-import svgr from "vite-plugin-svgr";
-import postcssNesting from "postcss-nesting";
-import postcssImport from "postcss-import";
-import postcssAtRulesVariables from "postcss-at-rules-variables";
-import postcssEach from "postcss-each";
-import postcssModulesValues from "postcss-modules-values";
+import type { StorybookConfig } from "@storybook/react-vite";
 import * as glob from "glob";
 import * as path from "path";
 
@@ -12,36 +6,21 @@ const dsDir = path.resolve(__dirname, "../../design-system");
 
 function getStories() {
   if (process.env.CHROMATIC) {
-    return ["../../design-system/**/*.chromatic.stories.@(js|jsx|ts|tsx)"];
+    return ["../../design-system/**/*.chromatic.stories.@(ts|tsx)"];
   }
 
-  return glob
-    .sync(`${dsDir}/**/*.stories.@(js|jsx|ts|tsx|mdx)`, { nosort: true })
+  const tsStories = glob
+    .sync(`${dsDir}/**/*.stories.@(ts|tsx)`, { nosort: true })
     .filter((storyPath) => !storyPath.includes("chromatic"));
+
+  return ["../../design-system/**/*.mdx", "../../icons/**/*.mdx", ...tsStories];
 }
 
-module.exports = {
-  async viteFinal(config, { configType }) {
-    return mergeConfig(config, {
-      define: { "process.env": {} },
-      plugins: [svgr()],
-      css: {
-        postcss: {
-          plugins: [
-            postcssNesting,
-            postcssImport,
-            postcssAtRulesVariables,
-            postcssEach,
-            postcssModulesValues,
-          ],
-        },
-      },
-    });
-  },
-
+const config: StorybookConfig = {
   stories: getStories(),
 
   addons: [
+    "@chromatic-com/storybook",
     "@storybook/addon-a11y",
     "@storybook/addon-viewport",
     "@storybook/addon-docs",
@@ -53,9 +32,7 @@ module.exports = {
     "./addons/theming/manager.ts",
   ],
 
-  framework: {
-    name: "@storybook/react-vite",
-  },
+  framework: "@storybook/react-vite",
 
   typescript: {
     reactDocgen: "react-docgen-typescript",
@@ -77,3 +54,5 @@ module.exports = {
     autodocs: true,
   },
 };
+
+export default config;

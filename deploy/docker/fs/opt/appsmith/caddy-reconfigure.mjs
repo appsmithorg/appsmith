@@ -6,11 +6,12 @@ import {X509Certificate} from "crypto"
 // The custom domain is expected to only have the domain. So if it has a protocol, we ignore the whole value.
 // This was the effective behaviour before Caddy.
 const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
-
-// Rate limit, numeric value defining the requests-per-second allowed.
-const RATE_LIMIT = parseInt(process.env._APPSMITH_RATE_LIMIT || 100, 10)
-
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
+const AppsmithCaddy = process.env._APPSMITH_CADDY
+
+// Rate limit environment.
+const isRateLimitingEnabled = process.env.APPSMITH_RATE_LIMIT !== "disabled"
+const RATE_LIMIT = parseInt(process.env.APPSMITH_RATE_LIMIT || 100, 10)
 
 let certLocation = null
 if (CUSTOM_DOMAIN !== "") {
@@ -48,7 +49,7 @@ parts.push(`
   servers {
     trusted_proxies static 0.0.0.0/0
   }
-  order rate_limit before basicauth
+  ${isRateLimitingEnabled ? "order rate_limit before basicauth" : ""}
 }
 
 (file_server) {
@@ -62,6 +63,7 @@ parts.push(`
   reverse_proxy {
     to 127.0.0.1:{args[0]}
     header_up -Forwarded
+    header_up X-Appsmith-Request-Id {http.request.uuid}
   }
 }
 
@@ -71,10 +73,22 @@ parts.push(`
   }
   skip_log /api/v1/health
 
+  # The internal request ID header should never be accepted from an incoming request.
+  request_header -X-Appsmith-Request-Id
+
+  # Ref: https://stackoverflow.com/a/38191078/151048
+  # We're only accepting v4 UUIDs today, in order to not make it too lax unless needed.
+  @valid-request-id expression {header.X-Request-Id}.matches("(?i)^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
+  header @valid-request-id X-Request-Id {header.X-Request-Id}
+  @invalid-request-id expression !{header.X-Request-Id}.matches("(?i)^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
+  header @invalid-request-id X-Request-Id invalid_request_id
+  request_header @invalid-request-id X-Request-Id invalid_request_id
+
   header {
     -Server
     Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}"
     X-Content-Type-Options "nosniff"
+    X-Appsmith-Request-Id {http.request.uuid}
   }
 
   request_body {
@@ -118,13 +132,13 @@ parts.push(`
     import reverse_proxy 9001
   }
 
-  rate_limit {
+  ${isRateLimitingEnabled ? `rate_limit {
     zone dynamic_zone {
       key {http.request.remote_ip}
       events ${RATE_LIMIT}
       window 1s
     }
-  }
+  }`: ""}
 
   handle_errors {
     respond "{err.status_code} {err.status_text}" {err.status_code}
@@ -133,7 +147,7 @@ parts.push(`
 }
 
 # We bind to http on 80, so that localhost requests don't get redirected to https.
-:80 {
+:${process.env.PORT || 80} {
   import all-config
 }
 `)
@@ -174,8 +188,8 @@ if (!process.argv.includes("--no-finalize-index-html")) {
 
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
 fs.writeFileSync(CaddyfilePath, parts.join("\n"))
-spawnSync("/opt/caddy/caddy", ["fmt", "--overwrite", CaddyfilePath])
-spawnSync("/opt/caddy/caddy", ["reload", "--config", CaddyfilePath])
+spawnSync(AppsmithCaddy, ["fmt", "--overwrite", CaddyfilePath])
+spawnSync(AppsmithCaddy, ["reload", "--config", CaddyfilePath])
 
 function finalizeIndexHtml() {
   let info = null;
@@ -205,3 +219,4 @@ function isCertExpired(path) {
   console.log(path, cert)
   return new Date(cert.validTo) < new Date()
 }
+

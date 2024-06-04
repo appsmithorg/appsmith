@@ -22,6 +22,10 @@ import {
 } from "pages/Editor/SaaSEditor/constants";
 import type { PluginType } from "entities/Action";
 import type { ReactNode, ComponentType } from "react";
+import {
+  EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export enum EditorState {
   DATA = "DATA",
@@ -57,11 +61,17 @@ export enum EditorViewMode {
   SplitScreen = "SplitScreen",
 }
 
+export enum SideButtonType {
+  DATSOURCE = "DATASOURCE",
+}
+
 export interface SidebarButton {
   state: EditorState;
   icon: string;
   title?: string;
   urlSuffix: string;
+  conditionType?: SideButtonType;
+  conditionTooltip?: string;
 }
 
 export const TopButtons: SidebarButton[] = [
@@ -76,6 +86,8 @@ export const TopButtons: SidebarButton[] = [
     icon: "datasource-v3",
     title: SidebarTopButtonTitles.DATA,
     urlSuffix: "datasource",
+    conditionType: SideButtonType.DATSOURCE,
+    conditionTooltip: createMessage(EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON),
   },
 ];
 

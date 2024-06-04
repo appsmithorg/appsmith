@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Flex, Text } from "design-system";
+import { Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
@@ -18,30 +18,8 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
-import styled from "styled-components";
-
-const Container = styled(Flex)`
-  & .t--entity-item {
-    grid-template-columns: 0 auto 1fr auto auto auto auto auto;
-    height: 32px;
-
-    & .t--entity-name {
-      padding-left: var(--ads-v2-spaces-3);
-    }
-  }
-`;
-
-const Header = styled.div`
-  padding: var(--ads-v2-spaces-3);
-  padding-right: var(--ads-v2-spaces-2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 40px;
-  span {
-    line-height: 20px;
-  }
-`;
+import { IDEHeaderDropdown } from "IDE";
+import { PAGE_ENTITY_NAME } from "@appsmith/constants/messages";
 
 const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
   const dispatch = useDispatch();
@@ -65,17 +43,11 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
 
   const createPageCallback = useCallback(() => {
     const name = getNextEntityName(
-      "Page",
+      PAGE_ENTITY_NAME,
       pages.map((page: Page) => page.pageName),
     );
     dispatch(
-      createNewPageFromEntities(
-        applicationId,
-        name,
-        workspaceId,
-        false,
-        instanceId,
-      ),
+      createNewPageFromEntities(applicationId, name, workspaceId, instanceId),
     );
   }, [dispatch, pages, applicationId]);
 
@@ -90,13 +62,8 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
   );
 
   return (
-    <Container
-      flexDirection={"column"}
-      justifyContent={"center"}
-      maxHeight={"300px"}
-      overflow={"hidden"}
-    >
-      <Header className="pages">
+    <IDEHeaderDropdown>
+      <IDEHeaderDropdown.Header className="pages">
         <Text kind="heading-xs">{`All Pages (${pages.length})`}</Text>
         {canCreatePages ? (
           <AddPageContextMenu
@@ -108,18 +75,9 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
             openMenu={isMenuOpen}
           />
         ) : null}
-      </Header>
-      <Flex
-        alignItems={"center"}
-        flex={"1"}
-        flexDirection={"column"}
-        overflow={"auto"}
-        px="spaces-2"
-        width={"100%"}
-      >
-        {pageElements}
-      </Flex>
-    </Container>
+      </IDEHeaderDropdown.Header>
+      <IDEHeaderDropdown.Body>{pageElements}</IDEHeaderDropdown.Body>
+    </IDEHeaderDropdown>
   );
 };
 

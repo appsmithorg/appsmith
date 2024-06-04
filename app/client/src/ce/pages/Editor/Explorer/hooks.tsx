@@ -130,17 +130,15 @@ export const useAppWideAndOtherDatasource = () => {
   const otherDatasourceInWorkspace = useOtherDatasourcesInWorkspace();
   const appWideDS = useMemo(
     () =>
-      [...datasourcesUsedInApplication].sort(
-        (ds1, ds2) =>
-          ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
+      [...datasourcesUsedInApplication].sort((ds1, ds2) =>
+        ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
       ),
     [datasourcesUsedInApplication],
   );
   const otherDS = useMemo(
     () =>
-      [...otherDatasourceInWorkspace].sort(
-        (ds1, ds2) =>
-          ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
+      [...otherDatasourceInWorkspace].sort((ds1, ds2) =>
+        ds1.name?.toLowerCase()?.localeCompare(ds2.name?.toLowerCase()),
       ),
     [otherDatasourceInWorkspace],
   );
@@ -256,9 +254,8 @@ export const usePageIds = (searchKeyword?: string) => {
 };
 
 export const useEntityUpdateState = (entityId: string) => {
-  return useSelector(
-    (state: AppState) =>
-      get(state, "ui.explorer.entity.updatingEntity")?.includes(entityId),
+  return useSelector((state: AppState) =>
+    get(state, "ui.explorer.entity.updatingEntity")?.includes(entityId),
   );
 };
 

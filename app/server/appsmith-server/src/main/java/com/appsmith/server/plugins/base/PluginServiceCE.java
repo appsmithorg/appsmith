@@ -15,6 +15,8 @@ import java.util.Set;
 
 public interface PluginServiceCE extends CrudService<Plugin, String> {
 
+    Flux<Plugin> getInWorkspace(String workspaceId);
+
     Flux<Plugin> getDefaultPlugins();
 
     Flux<Plugin> getDefaultPluginIcons();
@@ -22,8 +24,6 @@ public interface PluginServiceCE extends CrudService<Plugin, String> {
     Mono<Workspace> installPlugin(PluginWorkspaceDTO plugin);
 
     Flux<Workspace> installDefaultPlugins(List<Plugin> plugins);
-
-    Mono<Workspace> uninstallPlugin(PluginWorkspaceDTO plugin);
 
     Mono<Plugin> findByName(String name);
 
@@ -35,11 +35,11 @@ public interface PluginServiceCE extends CrudService<Plugin, String> {
 
     Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO);
 
-    Mono<Map> getFormConfig(String pluginId);
+    Mono<Map<?, ?>> getFormConfig(String pluginId);
 
     Flux<Plugin> getAllRemotePlugins();
 
-    Mono<Map> loadPluginResource(String pluginId, String resourcePath);
+    Mono<Map<?, ?>> loadPluginResource(String pluginId, String resourcePath);
 
     Mono<Map> getEditorConfigLabelMap(String pluginId);
 
@@ -48,4 +48,6 @@ public interface PluginServiceCE extends CrudService<Plugin, String> {
     Flux<Plugin> saveAll(Iterable<Plugin> plugins);
 
     Flux<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields);
+
+    Mono<Map<String, Plugin>> findAllPluginsInWorkspace(String workspaceId);
 }
