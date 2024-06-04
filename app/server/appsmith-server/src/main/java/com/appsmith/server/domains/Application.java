@@ -65,6 +65,10 @@ public class Application extends BaseDomain implements Artifact {
     @JsonView({Views.Public.class, Git.class})
     boolean appIsExample = false;
 
+    @Transient
+    @JsonView(Views.Public.class)
+    long unreadCommentThreads;
+
     @JsonView(Views.Internal.class)
     String clonedFromApplicationId;
 
