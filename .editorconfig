@@ -9,5 +9,5 @@ indent_size = 2
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-[{*.java,pom.xml,*.py}]
+[{*.java,pom.xml,*.py,*.sql}]
 indent_size = 4
