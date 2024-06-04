@@ -100,13 +100,38 @@ On your development machine, please ensure that:
 
 #### Integration Tests
 
-- To setup the configurations for running integration tests via Cypress, use these commands below,
+##### Pre-flight checks
 
-  ```bash
-    cd app/client/cypress/scripts
-    yarn install
-    yarn run setup
-  ```
+- The base URL can be updated on a temporary basis in the `cypress.config.ts` file based on the configuration you used for running the codebase locally. By default, it’s `https://dev.appsmith.com` .
+- If you wish to run Git test cases locally, please add `APPSMITH_GIT_ROOT=./container-volumes/git-storage` to the folder `app/server/.env` and run the server locally instead of via Docker container.
+
+##### Setup Cypress configurations
+
+To setup the configurations for running integration tests via Cypress, use these commands below,
+
+```bash
+  cd app/client/cypress/scripts
+  yarn install
+  yarn run setup
+```
+
+##### Running Cypress tests locally
+
+To run a specific test file in headless fashion, use the following command:
+
+```bash
+  cd app/client/
+  yarn install
+  npx cypress run --spec <spec path> --browser chrome
+```
+
+To open Cypress in the browser and run the tests visually
+
+```bash
+  cd app/client/
+  yarn install
+  npx cypress open
+```
 
 - <b><a name="running-backend-locally">Running appsmith backend server locally</a></b>
 
