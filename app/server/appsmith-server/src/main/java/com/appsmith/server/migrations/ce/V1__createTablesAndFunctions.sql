@@ -472,8 +472,7 @@ create table "user"
     source text,
     state text,
     tenant_id text,
-    workspace_ids jsonb,
-    last_active_at timestamp(6) with time zone
+    workspace_ids jsonb
 );
 
 create table user_data

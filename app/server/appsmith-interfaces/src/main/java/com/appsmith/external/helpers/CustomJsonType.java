@@ -1,18 +1,10 @@
 package com.appsmith.external.helpers;
 
-import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.annotations.encryption.EncryptionHandler;
 import com.appsmith.external.models.AppsmithDomain;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.introspect.Annotated;
-import com.fasterxml.jackson.databind.introspect.AnnotatedField;
-import com.fasterxml.jackson.databind.introspect.AnnotatedMember;
-import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
-import com.fasterxml.jackson.databind.util.Converter;
-import com.fasterxml.jackson.databind.util.StdConverter;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.hypersistence.utils.hibernate.type.util.ObjectMapperWrapper;
-import jakarta.persistence.Transient;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 
@@ -85,5 +77,4 @@ public final class CustomJsonType extends JsonBinaryType {
             return obj;
         }
     }
-
 }
