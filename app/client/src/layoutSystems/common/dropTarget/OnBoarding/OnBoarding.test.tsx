@@ -90,6 +90,28 @@ describe("OnBoarding - Non-AirGap Edition", () => {
     );
     expect(onboardingElement).toBeInTheDocument();
   });
+
+  it("6. does not render onboarding component when in preview mode", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
+    const previewModeStore = {
+      ...storeToUseWithDragDropBuildingBlocksEnabled,
+      ui: {
+        ...storeToUseWithDragDropBuildingBlocksEnabled.ui,
+        gitSync: {
+          protectedBranches: true,
+        },
+        editor: {
+          isPreviewMode: true,
+        },
+      },
+    };
+    render(BaseComponentRender(previewModeStore));
+
+    const onboardingElement = screen.queryByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
+    );
+    expect(onboardingElement).not.toBeInTheDocument();
+  });
 });
 
 describe("OnBoarding - AirGap Edition", () => {
@@ -131,6 +153,28 @@ describe("OnBoarding - AirGap Edition", () => {
     render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
     assertOnboardingElement();
   });
+
+  it("6. [Airgap] does not render onboarding component when in preview mode", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
+    const previewModeStore = {
+      ...storeToUseWithDragDropBuildingBlocksEnabled,
+      ui: {
+        ...storeToUseWithDragDropBuildingBlocksEnabled.ui,
+        gitSync: {
+          protectedBranches: true,
+        },
+        editor: {
+          isPreviewMode: true,
+        },
+      },
+    };
+    render(BaseComponentRender(previewModeStore));
+
+    const onboardingElement = screen.queryByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
+    );
+    expect(onboardingElement).not.toBeInTheDocument();
+  });
 });
 
 const baseStoreForSpec = {
@@ -139,6 +183,12 @@ const baseStoreForSpec = {
     ...unitTestBaseMockStore.ui,
     buildingBlocks: {
       isDraggingBuildingBlocksToCanvas: false,
+    },
+    gitSync: {
+      protectedBranch: false,
+    },
+    editor: {
+      isPreviewModel: false,
     },
     users: {
       featureFlag: {
