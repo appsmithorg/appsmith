@@ -97,29 +97,12 @@ export interface TextInputProps extends IInputGroupProps {
   autoFocus?: boolean;
 }
 
-interface TextInputState {
-  inputIsFocused: boolean;
-}
-
-export class BaseTextInput extends Component<TextInputProps, TextInputState> {
-  constructor(props: TextInputProps) {
-    super(props);
-    this.state = {
-      inputIsFocused: false,
-    };
-  }
-
-  handleFocus = (e: React.FocusEvent) => {
-    this.setState({ inputIsFocused: true });
-    if (this.props.input && this.props.input.onFocus) {
-      this.props.input.onFocus(e);
-    }
+export class BaseTextInput extends Component<TextInputProps> {
+  handleFocus = (e: React.FocusEvent) => { 
+    this.props.input?.onFocus?.(e);
   };
   handleBlur = (e: React.FocusEvent) => {
-    this.setState({ inputIsFocused: false });
-    if (this.props.input && this.props.input.onBlur) {
-      this.props.input.onBlur(e);
-    }
+    this.props.input?.onBlur?.(e);
   };
   render() {
     const { className, input, meta, refHandler, showError, ...rest } =

@@ -260,7 +260,6 @@ interface Props extends ReduxStateProps, EditorProps, ReduxDispatchProps {}
 interface State {
   isFocused: boolean;
   isOpened: boolean;
-  autoCompleteVisible: boolean;
   hinterOpen: boolean;
   // Flag for determining whether the entity change has been started or not so that even if the initial and final value remains the same, the status should be changed to not loading
   changeStarted: boolean;
@@ -305,7 +304,6 @@ class CodeEditor extends Component<Props, State> {
       isDynamic: false,
       isFocused: false,
       isOpened: false,
-      autoCompleteVisible: false,
       hinterOpen: false,
       changeStarted: false,
       ctrlPressed: false,
@@ -648,10 +646,6 @@ class CodeEditor extends Component<Props, State> {
         prevProps.customErrors !== this.props.customErrors
       ) {
         this.lintCode(this.editor);
-      } else {
-        if (!!this.updateLintingCallback) {
-          this.updateLintingCallback(this.editor, this.annotations);
-        }
       }
       if (this.props.datasourceTableKeys !== prevProps.datasourceTableKeys) {
         sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
@@ -818,9 +812,7 @@ class CodeEditor extends Component<Props, State> {
 
   handleMouseOver = (event: MouseEvent) => {
     const tokenElement = event.target;
-    const rect = (tokenElement as Element).getBoundingClientRect();
     if (
-      !(rect.height === 0 && rect.width === 0) &&
       tokenElement instanceof Element &&
       this.isPeekableElement(tokenElement)
     ) {
@@ -1442,12 +1434,12 @@ class CodeEditor extends Component<Props, State> {
       lintErrors.push(...this.props.customErrors);
     }
 
-    this.annotations = getLintAnnotations(editor.getValue(), lintErrors, {
+    const annotations = getLintAnnotations(editor.getValue(), lintErrors, {
       isJSObject,
       contextData,
     });
 
-    this.updateLintingCallback(editor, this.annotations);
+    this.updateLintingCallback(editor, annotations);
   }
 
   static updateMarkings = (

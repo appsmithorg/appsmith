@@ -104,10 +104,8 @@ interface IntegrationsHomeScreenProps {
   showDebugger: boolean;
 }
 
-interface IntegrationsHomeScreenState {
-  page: number;
-  activePrimaryMenuId: string;
-  activeSecondaryMenuId: number;
+interface IntegrationsHomeScreenState { 
+  activePrimaryMenuId: string; 
   unsupportedPluginDialogVisible: boolean;
 }
 
@@ -141,12 +139,8 @@ class IntegrationsHomeScreen extends React.Component<
   constructor(props: Props) {
     super(props);
     this.unsupportedPluginContinueAction = () => null;
-    this.state = {
-      page: 1,
-      activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW,
-      activeSecondaryMenuId: getSecondaryMenuIds(
-        props.mockDatasources.length > 0,
-      ).API,
+    this.state = { 
+      activePrimaryMenuId: PRIMARY_MENU_IDS.CREATE_NEW, 
       unsupportedPluginDialogVisible: false,
     };
   }
@@ -205,10 +199,7 @@ class IntegrationsHomeScreen extends React.Component<
           pageId,
           selectedTab: INTEGRATION_TABS.NEW,
         }),
-      );
-      this.onSelectSecondaryMenu(
-        getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
-      );
+      ); 
     } else {
       this.syncActivePrimaryMenu();
     }
@@ -223,10 +214,7 @@ class IntegrationsHomeScreen extends React.Component<
           pageId,
           selectedTab: INTEGRATION_TABS.NEW,
         }),
-      );
-      this.onSelectSecondaryMenu(
-        getSecondaryMenuIds(dataSources.length > 0).MOCK_DATABASE,
-      );
+      ); 
     }
   }
 
@@ -243,18 +231,8 @@ class IntegrationsHomeScreen extends React.Component<
             ? INTEGRATION_TABS.ACTIVE
             : INTEGRATION_TABS.NEW,
       }),
-    );
-    this.setState({
-      activeSecondaryMenuId:
-        activePrimaryMenuId === PRIMARY_MENU_IDS.ACTIVE
-          ? TERTIARY_MENU_IDS.ACTIVE_CONNECTIONS
-          : getSecondaryMenuIds(dataSources.length > 0).API,
-    });
-  };
-
-  onSelectSecondaryMenu = (activeSecondaryMenuId: number) => {
-    this.setState({ activeSecondaryMenuId });
-  };
+    ); 
+  }; 
 
   render() {
     const {

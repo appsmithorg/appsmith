@@ -28,16 +28,14 @@ export interface TextComponentProps extends ComponentProps {
 }
 
 interface State {
-  isTruncated: boolean;
-  showModal: boolean;
+  isTruncated: boolean; 
 }
 
 type TextRef = React.Ref<Text> | undefined;
 
 class TextComponent extends React.Component<TextComponentProps, State> {
   state = {
-    isTruncated: false,
-    showModal: false,
+    isTruncated: false,   
   };
 
   textRef = React.createRef() as TextRef;
@@ -78,13 +76,6 @@ class TextComponent extends React.Component<TextComponentProps, State> {
     }
   };
 
-  handleModelOpen = () => {
-    this.setState({ showModal: true });
-  };
-
-  handleModelClose = () => {
-    this.setState({ showModal: false });
-  };
 
   render() {
     const { text } = this.props;
