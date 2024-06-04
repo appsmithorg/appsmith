@@ -919,16 +919,6 @@ Cypress.Commands.add("CheckForPageSaveError", () => {
   });
 });
 
-Cypress.Commands.add("assertPageSave", (validateSavedState = true) => {
-  if (validateSavedState) {
-    cy.CheckForPageSaveError();
-    cy.get(commonlocators.saveStatusContainer).should("not.exist", {
-      timeout: 30000,
-    });
-  }
-  //assertHelper.AssertNetworkStatus("@sucessSave", 200);
-});
-
 Cypress.Commands.add(
   "validateCodeEditorContent",
   (selector, contentToValidate) => {
