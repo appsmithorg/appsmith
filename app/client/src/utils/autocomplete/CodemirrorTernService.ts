@@ -113,7 +113,7 @@ export function isCustomKeywordType(
 }
 
 // Define the regex for extracting the final object path
-const FinalObjectPathRegex = /(?:\w+\.)*\w+$/;
+const FINAL_OBJECT_PATH_REGEX = /(?:\w+\.)*\w+$/;
 
 /**
  * Extracts the final object path from a given input string.
@@ -127,7 +127,7 @@ const FinalObjectPathRegex = /(?:\w+\.)*\w+$/;
  *   Output: 'PageQuery.run'
  */
 export function extractFinalObjectPath(input: string) {
-  const match = (input || "")?.trim().match(FinalObjectPathRegex);
+  const match = (input || "")?.trim().match(FINAL_OBJECT_PATH_REGEX);
   return match ? match[0] : null;
 }
 
