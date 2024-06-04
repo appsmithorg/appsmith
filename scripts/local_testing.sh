@@ -104,6 +104,7 @@ fi
 pretty_print "RTS build successful. Starting Docker build ..."
 
 popd
+bash "$(dirname "$0")/generate_info_json.sh"
 docker build -t appsmith/appsmith-ce:local-testing \
   --build-arg BASE="appsmith/base-$edition:release" \
   --build-arg APPSMITH_CLOUD_SERVICES_BASE_URL="${cs_url:-https://release-cs.appsmith.com}" \
