@@ -66,16 +66,11 @@ export type PublishCommunityTemplateResponse = ApiResponse<{
   modifiedAt: string;
 }>;
 
-const createTemplateResponse = (data: Template) => {
-  return {
-    responseMeta: {
-      status: 200,
-      success: true,
-    },
-    data: data,
-    errorDisplay: "",
-  };
-};
+ const createTemplateResponse = (data: Template) => ({
+     responseMeta: { status: 200, success: true },
+     data,
+     errorDisplay: "",
+   });
 
 class TemplatesAPI extends Api {
   static baseUrl = "v1";
