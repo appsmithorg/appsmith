@@ -265,9 +265,9 @@ public class GitControllerCE {
     @PostMapping("/import/{workspaceId}")
     public Mono<ResponseDTO<ApplicationImportDTO>> importApplicationFromGit(
             @PathVariable String workspaceId, @RequestBody GitConnectDTO gitConnectDTO) {
-        //        return service.importApplicationFromGit(workspaceId, gitConnectDTO)
-        //                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
-        return Mono.empty();
+        return service.importArtifactFromGit(workspaceId, gitConnectDTO, ArtifactType.APPLICATION)
+                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO)
+                .map(result -> new ResponseDTO<>(HttpStatus.CREATED.value(), result, null));
     }
 
     @JsonView(Views.Public.class)
