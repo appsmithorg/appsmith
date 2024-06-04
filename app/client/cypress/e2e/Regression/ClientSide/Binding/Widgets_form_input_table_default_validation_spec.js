@@ -28,7 +28,7 @@ describe(
         200,
       );
       // Validation of data displayed in all widgets based on row selected
-      cy.isSelectRow(1);
+      _.table.SelectTableRow(1);
       cy.readTabledataPublish("1", "0").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("2736212");
@@ -38,10 +38,6 @@ describe(
           .first()
           .invoke("attr", "value")
           .should("contain", tabValue);
-        //       cy.get(publish.inputWidget + " " + "input")
-        //         .last()
-        //         .invoke("attr", "value")
-        //         .should("contain", tabValue);
       });
     });
   },

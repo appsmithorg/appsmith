@@ -49,11 +49,7 @@ const UpgradeBanner = () => {
           </StyledSettingsSubHeader>
         </main>
         <aside>
-          <Button
-            data-testid="t--branding-upgrade-button"
-            onClick={onUpgrade}
-            size="md"
-          >
+          <Button data-testid="t--button-upgrade" onClick={onUpgrade} size="md">
             Upgrade
           </Button>
         </aside>

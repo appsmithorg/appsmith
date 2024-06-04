@@ -3,9 +3,6 @@ package com.appsmith.external.helpers;
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.annotations.encryption.EncryptionHandler;
 import com.appsmith.external.models.AppsmithDomain;
-import com.appsmith.external.views.Views;
-import com.appsmith.util.SerializationUtils;
-import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.introspect.Annotated;
 import com.fasterxml.jackson.databind.introspect.AnnotatedField;
@@ -37,31 +34,8 @@ public final class CustomJsonType extends JsonBinaryType {
             System.getenv("APPSMITH_ENCRYPTION_PASSWORD"),
             HexFormat.of().formatHex(System.getenv("APPSMITH_ENCRYPTION_SALT").getBytes()));
 
-    private static final Converter<String, String> encConverter = new StdConverter<>() {
-        @Override
-        public String convert(String value) {
-            return textEncryptor.encrypt(value);
-        }
-    };
-
     public CustomJsonType() {
         super(new CustomWrapper());
-    }
-
-    private static ObjectMapper makeObjectMapperForDatabaseSerialization() {
-        final ObjectMapper om = new ObjectMapper();
-        SerializationUtils.configureObjectMapper(om);
-
-        om.setVisibility(om.getSerializationConfig()
-                .getDefaultVisibilityChecker()
-                .withFieldVisibility(JsonAutoDetect.Visibility.ANY)
-                .withGetterVisibility(JsonAutoDetect.Visibility.NONE)
-                .withIsGetterVisibility(JsonAutoDetect.Visibility.NONE)
-                .withCreatorVisibility(JsonAutoDetect.Visibility.NONE));
-
-        om.setAnnotationIntrospector(new CustomAnnotationIntrospector());
-
-        return om.setConfig(om.getSerializationConfig().withView(Views.Internal.class));
     }
 
     private static class CustomWrapper extends ObjectMapperWrapper {
@@ -70,7 +44,7 @@ public final class CustomJsonType extends JsonBinaryType {
          * wrapper objects to have separate `ObjectMapper` instances. Don't know the reason, but this is how
          * hypersistence-utils is built, and I don't see much reason to deviate.
          */
-        private final ObjectMapper om = makeObjectMapperForDatabaseSerialization();
+        private final ObjectMapper om = JsonForDatabase.create();
 
         @Override
         public ObjectMapper getObjectMapper() {
@@ -112,30 +86,4 @@ public final class CustomJsonType extends JsonBinaryType {
         }
     }
 
-    private static final class CustomAnnotationIntrospector extends JacksonAnnotationIntrospector {
-        @Override
-        public boolean hasIgnoreMarker(AnnotatedMember m) {
-            if (m.hasAnnotation(Transient.class)) {
-                return true;
-            }
-            if (m.hasAnnotation(org.springframework.data.annotation.Transient.class)) {
-                // This is the incorrect `@Transient` annotation to be used. Fail loud and clear.
-                // throw new RuntimeException("Incorrect @Transient annotation on " + m.getFullName());
-                return true;
-            }
-            return super.hasIgnoreMarker(m);
-        }
-
-        /**
-         * For serialization, we use the converter, since the converter gets called for every class/field/method that's
-         * about to be serialized.
-         */
-        @Override
-        public Object findSerializationConverter(Annotated a) {
-            if (a instanceof AnnotatedField && a.hasAnnotation(Encrypted.class)) {
-                return encConverter;
-            }
-            return super.findSerializationConverter(a);
-        }
-    }
 }

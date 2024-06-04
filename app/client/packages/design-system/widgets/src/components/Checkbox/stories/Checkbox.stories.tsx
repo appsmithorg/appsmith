@@ -64,3 +64,11 @@ export const CustomIcon: Story = {
     </Flex>
   ),
 };
+
+export const IsRequired: Story = {
+  render: () => (
+    <Flex direction="column" gap="1rem" wrap="wrap">
+      <Checkbox isRequired>Required</Checkbox>
+    </Flex>
+  ),
+};

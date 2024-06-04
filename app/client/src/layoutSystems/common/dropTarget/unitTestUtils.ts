@@ -516,7 +516,6 @@ export const unitTestBaseMockStore = {
       allFilters: {},
       templateSearchQuery: "",
       templates: [],
-      isImportingStarterBuildingBlockToApp: false,
     },
   },
 };

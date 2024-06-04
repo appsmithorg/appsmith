@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers.ce.autocommit;
+package com.appsmith.server.git.autocommit.helpers;
 
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.acl.AclPermission;
@@ -11,13 +11,13 @@ import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.extensions.AfterAllCleanUpExtension;
+import com.appsmith.server.git.AutoCommitEventHandler;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.CommonGitService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.AutoCommitEventHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.junit.jupiter.api.AfterEach;
