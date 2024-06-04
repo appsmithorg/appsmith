@@ -92,7 +92,7 @@ class TemplatesAPI extends Api {
     const templates = getTemplatesSelector(state);
     const template = templates.find((template) => template.id === templateId);
     if (template) {
-      return createTemplateResponse(template) as any;
+     return createTemplateResponse(template) as AxiosPromise<TemplatesResponse>;
     }
     return Api.get(TemplatesAPI.baseUrl + `/app-templates/${templateId}`);
   }
