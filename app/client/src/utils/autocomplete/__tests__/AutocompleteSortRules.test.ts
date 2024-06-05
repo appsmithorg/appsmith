@@ -180,6 +180,7 @@ describe("Autocomplete Ranking", () => {
     const sortedCompletionsText = AutocompleteSorter.sort(
       completions as Completion<TernCompletionResult>[],
       currentFieldInfo as FieldEntityInformation,
+      {},
       entityInfo,
       true,
     ).map((c) => c.displayText);
