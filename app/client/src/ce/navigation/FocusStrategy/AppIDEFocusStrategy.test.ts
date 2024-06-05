@@ -59,7 +59,7 @@ describe("AppIDEFocusStrategy", () => {
         },
         AppIDEFocusStrategy.getEntitiesForSet,
         `/app/appSlug/pageSlug-${pageId1}/edit/widgets/1`,
-        `/app/appSlug/pageSlug-0123456789abcdef00000001/edit/widgets`,
+        `/app/appSlug/pageSlug-${pageId2}/edit/widgets`,
         { invokedBy: undefined },
       ).toPromise();
 
@@ -72,7 +72,7 @@ describe("AppIDEFocusStrategy", () => {
             params: {
               applicationSlug: "appSlug",
               entity: "widgets",
-              pageId: "0123456789abcdef00000001",
+              pageId: pageId2,
               pageSlug: "pageSlug-",
             },
           },

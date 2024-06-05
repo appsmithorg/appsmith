@@ -33,7 +33,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/queries`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries`,
           featureFlags: FeatureFlags,
         },
       );
@@ -55,7 +55,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/queries`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -78,7 +78,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/queries/add`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/add`,
           featureFlags: FeatureFlags,
         },
       );
@@ -103,7 +103,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/queries/add`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -148,7 +148,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/api/api_id`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/api/api_id`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -192,7 +192,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/api/api_id2`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/api/api_id2`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -233,7 +233,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/api/api_id/add`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/api/api_id/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -269,7 +269,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/api/api_id/add`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/api/api_id/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -321,7 +321,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/queries/query_id`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/query_id`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -369,7 +369,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/queries/query_id`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/query_id`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -458,7 +458,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/queries/query_id/add`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/query_id/add`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -512,7 +512,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -561,7 +561,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -611,7 +611,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id/add`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id/add`,
           initialState: state,
           featureFlags: FeatureFlags,
           sagasToRun: sagasToRunForTests,
@@ -654,7 +654,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: `/app/applicationSlug/pageSlug${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id/add`,
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id/add`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
