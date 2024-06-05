@@ -7,9 +7,12 @@ import {
   StaleWhileRevalidate,
 } from "workbox-strategies";
 import {
-  getPrefetchConsolidatedApiRequest,
-  ConsolidatedApiCacheStrategy,
-} from "utils/serviceWorkerUtils";
+  getApplicationParamsFromUrl,
+  getConsolidatedApiPrefetchRequest,
+  getPrefetchModuleApiRequests,
+  PrefetchApiCacheStrategy,
+} from "@appsmith/utils/serviceWorkerUtils";
+import type { RouteHandlerCallback } from "workbox-core/types";
 
 setCacheNameDetails({
   prefix: "appsmith",
@@ -30,15 +33,16 @@ const regexMap = {
 
 /* eslint-disable no-restricted-globals */
 // Note: if you need to filter out some files from precaching,
+
 // do that in craco.build.config.js → workbox webpack plugin options
-const toPrecache = self.__WB_MANIFEST;
+const toPrecache = (self as any).__WB_MANIFEST;
 precacheAndRoute(toPrecache);
 
-self.__WB_DISABLE_DEV_DEBUG_LOGS = false;
+self.__WB_DISABLE_DEV_LOGS = false;
 skipWaiting();
 clientsClaim();
 
-const consolidatedApiCacheStrategy = new ConsolidatedApiCacheStrategy();
+const prefetchApiCacheStrategy = new PrefetchApiCacheStrategy();
 
 /**
  *
@@ -47,16 +51,35 @@ const consolidatedApiCacheStrategy = new ConsolidatedApiCacheStrategy();
  * @param {URL} url
  * @returns
  */
-const handleFetchHtml = async (event, request, url) => {
-  // Get the prefetch consolidated api request if the url matches the builder or viewer path
-  const prefetchConsolidatedApiRequest = getPrefetchConsolidatedApiRequest(url);
+const handleFetchHtml: RouteHandlerCallback = async ({
+  event,
+  request,
+  url,
+}) => {
+  const applicationParams = getApplicationParamsFromUrl(url);
 
-  if (prefetchConsolidatedApiRequest) {
-    consolidatedApiCacheStrategy
-      .cacheConsolidatedApi(prefetchConsolidatedApiRequest)
-      .catch(() => {
-        // Silently fail
-      });
+  if (applicationParams) {
+    const consolidatedApiPrefetchRequest =
+      getConsolidatedApiPrefetchRequest(applicationParams);
+
+    if (consolidatedApiPrefetchRequest) {
+      prefetchApiCacheStrategy
+        .cacheConsolidatedApi(consolidatedApiPrefetchRequest)
+        .catch(() => {
+          // Silently fail
+        });
+    }
+
+    const moduleApiPrefetchRequests =
+      getPrefetchModuleApiRequests(applicationParams);
+
+    moduleApiPrefetchRequests.forEach((prefetchRequest) => {
+      prefetchApiCacheStrategy
+        .cacheConsolidatedApi(prefetchRequest)
+        .catch(() => {
+          // Silently fail
+        });
+    });
   }
 
   const networkHandler = new NetworkOnly();
@@ -81,21 +104,18 @@ registerRoute(({ url }) => {
 }, new StaleWhileRevalidate());
 
 registerRoute(
-  new Route(
-    ({ request, sameOrigin }) => {
-      return sameOrigin && request.destination === "document";
-    },
-    async ({ event, request, url }) => handleFetchHtml(event, request, url),
-  ),
+  new Route(({ request, sameOrigin }) => {
+    return sameOrigin && request.destination === "document";
+  }, handleFetchHtml),
 );
 
 // Route for fetching the API directly
 registerRoute(
-  new RegExp("/api/v1/consolidated-api/"),
+  new RegExp("/api/v1/(consolidated-api|moduleInstances)"),
   async ({ event, request }) => {
     // Check for cached response
     const cachedResponse =
-      await consolidatedApiCacheStrategy.getCachedResponse(request);
+      await prefetchApiCacheStrategy.getCachedResponse(request);
 
     // If the response is cached, return the response
     if (cachedResponse) {
