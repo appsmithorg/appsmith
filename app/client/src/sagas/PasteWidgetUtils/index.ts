@@ -1,5 +1,8 @@
 import type { EitherMouseLocationORGridPosition } from "constants/WidgetConstants";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, select } from "redux-saga/effects";
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
@@ -152,7 +155,8 @@ function* getNewPositionsBasedOnMousePositions(
   if (selectedWidgets.length === 1 && isDropTarget(selectedWidgets[0].type)) {
     containerWidget = selectedWidgets[0];
     ({ canvasDOM, canvasId } = getCanvasIdForContainer(containerWidget));
-  } else if (pastingIntoWidgetId) {
+  }
+  if (pastingIntoWidgetId && pastingIntoWidgetId !== MAIN_CONTAINER_WIDGET_ID) {
     // For building block we already know the widget where we want to paste the new widgets
     // no need to calculate it
     const containerWidgetId = getContainerIdForCanvas(pastingIntoWidgetId);
