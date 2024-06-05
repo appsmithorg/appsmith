@@ -244,6 +244,7 @@ describe("Tern server sorting", () => {
     new Map();
   const contextCompletion: Completion = {
     text: "context",
+    displayText: "context",
     type: AutocompleteDataType.STRING,
     origin: "[doc]",
     data: {
@@ -253,6 +254,7 @@ describe("Tern server sorting", () => {
 
   const sameEntityCompletion: Completion<any> = {
     text: "sameEntity.tableData",
+    displayText: "sameEntity.tableData",
     type: AutocompleteDataType.ARRAY,
     origin: "DATA_TREE",
     data: {},
@@ -268,6 +270,7 @@ describe("Tern server sorting", () => {
 
   const priorityCompletion: Completion<any> = {
     text: "selectedRow",
+    displayText: "selectedRow",
     type: AutocompleteDataType.OBJECT,
     origin: "DATA_TREE",
     data: {},
@@ -283,6 +286,7 @@ describe("Tern server sorting", () => {
 
   const diffTypeCompletion: Completion<any> = {
     text: "diffType.tableData",
+    displayText: "diffType.tableData",
     type: AutocompleteDataType.ARRAY,
     origin: "DATA_TREE.WIDGET",
     data: {},
@@ -299,6 +303,7 @@ describe("Tern server sorting", () => {
 
   const sameTypeDiffEntityTypeCompletion: Completion<any> = {
     text: "diffEntity.data",
+    displayText: "diffEntity.data",
     type: AutocompleteDataType.OBJECT,
     origin: "DATA_TREE",
     data: {},
@@ -311,6 +316,7 @@ describe("Tern server sorting", () => {
 
   const dataTreeCompletion: Completion<any> = {
     text: "otherDataTree",
+    displayText: "otherDataTree",
     type: AutocompleteDataType.STRING,
     origin: "DATA_TREE",
     data: {},
@@ -323,6 +329,7 @@ describe("Tern server sorting", () => {
 
   const functionCompletion: Completion<any> = {
     text: "otherDataFunction",
+    displayText: "otherDataFunction",
     type: AutocompleteDataType.FUNCTION,
     origin: "DATA_TREE.APPSMITH.FUNCTIONS",
     data: {},
@@ -330,6 +337,7 @@ describe("Tern server sorting", () => {
 
   const ecmascriptCompletion: Completion<any> = {
     text: "otherJS",
+    displayText: "otherJS",
     type: AutocompleteDataType.OBJECT,
     origin: "ecmascript",
     data: {},
@@ -337,6 +345,7 @@ describe("Tern server sorting", () => {
 
   const libCompletion: Completion<any> = {
     text: "libValue",
+    displayText: "libValue",
     type: AutocompleteDataType.OBJECT,
     origin: "LIB/lodash",
     data: {},
@@ -344,6 +353,7 @@ describe("Tern server sorting", () => {
 
   const unknownCompletion: Completion<any> = {
     text: "unknownSuggestion",
+    displayText: "unknownSuggestion",
     type: AutocompleteDataType.UNKNOWN,
     origin: "unknown",
     data: {},
