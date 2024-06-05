@@ -5,6 +5,7 @@ import {
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import { CodeEditorColors } from "components/editorComponents/CodeEditor/constants";
 import type { Theme } from "constants/DefaultTheme";
 import { Skin } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
@@ -27,17 +28,6 @@ const getBorderStyle = (
     return "var(--ads-v2-color-border)";
   }
   return "transparent";
-};
-
-export const CodeEditorColors = {
-  KEYWORD: "#304eaa",
-  FOLD_MARKER: "#442334",
-  STRING: "#1659df",
-  OPERATOR: "#009595",
-  NUMBER: "#555",
-  COMMENT: "var(--ads-v2-color-gray-400)",
-  FUNCTION_ARGS: "hsl(288, 44%, 44%)",
-  TOOLTIP_FN_ARGS: "#DB6E33",
 };
 
 export const EditorWrapper = styled.div<{
@@ -137,7 +127,7 @@ export const EditorWrapper = styled.div<{
         }
       }
       .cm-property {
-        color: hsl(21, 70%, 53%);
+        color: ${CodeEditorColors.PROPERTY};
       }
       .cm-keyword {
         color: ${CodeEditorColors.KEYWORD};
@@ -172,7 +162,7 @@ export const EditorWrapper = styled.div<{
 
       /* json response in the debugger */
       .cm-string.cm-property {
-        color: hsl(21, 70%, 53%);
+        color: ${CodeEditorColors.PROPERTY};
       }
 
       // /* +, =>, -, etc. operators */

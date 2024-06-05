@@ -16,7 +16,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
-import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.AnalyticsService;
@@ -47,7 +46,6 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     private final GitRedisUtils gitRedisUtils;
     private final RedisUtils redisUtils;
     private final DSLMigrationUtils dslMigrationUtils;
-    private final GitFileUtils fileUtils;
     private final CommonGitFileUtils commonGitFileUtils;
     private final GitExecutor gitExecutor;
     private final ProjectProperties projectProperties;
@@ -106,7 +104,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
             ApplicationJson applicationJson, AutoCommitEvent autoCommitEvent) {
         // all the migrations are done, write to file system
         try {
-            return fileUtils.saveApplicationToLocalRepo(
+            return commonGitFileUtils.saveArtifactToLocalRepo(
                     autoCommitEvent.getWorkspaceId(),
                     autoCommitEvent.getApplicationId(),
                     autoCommitEvent.getRepoName(),
