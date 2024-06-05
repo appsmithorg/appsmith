@@ -19,10 +19,11 @@ type TApplicationParamsOrNull = TApplicationParams | null;
 /**
  * returns the value in the query string for a key
  */
-export const getSearchQuery = (search = "", key: string) => {
+const getSearchQuery = (search = "", key: string) => {
   const params = new URLSearchParams(search);
   return decodeURIComponent(params.get(key) || "");
 };
+
 export const getApplicationParamsFromUrl = (
   url: URL,
 ): TApplicationParamsOrNull => {
