@@ -51,6 +51,7 @@ export /**
  * @param copiedTopMostRow top row of the top most copied widget
  * @param copiedLeftMostColumn left column of the left most copied widget
  * @param gridPosition left and top canvas grid position values
+ * @param pastingIntoWidgetId - The ID of the widget where the new widgets should be pasted into.
  * @returns
  */
 const getNewPositions = function* (
@@ -129,6 +130,7 @@ const getNewPositions = function* (
  * @param copiedTopMostRow top row of the top most copied widget
  * @param copiedLeftMostColumn left column of the left most copied widget
  * @param gridPosition left and top canvas grid position values
+ * @param pastingIntoWidgetId - The ID of the widget where the new widgets should be pasted into. If this is known we don't need to calculate it. In addition, the container widget and dom queries will be different.
  * @returns
  */
 function* getNewPositionsBasedOnMousePositions(
