@@ -9,6 +9,8 @@ const {
   agHelper,
   assertHelper,
   dataSources,
+  entityExplorer,
+  draggableWidgets,
 } = require("../../../../../support/Objects/ObjectsCore");
 const {
   default: EditorNavigation,
@@ -20,12 +22,12 @@ const oneClickBinding = new OneClickBinding();
 
 describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
   it("1. Drag and drop Select/Text widgets", () => {
-    cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });
+    entityExplorer.DragNDropWidget(draggableWidgets.SELECT, 300, 300);
     cy.get(formWidgetsPage.selectWidget).should("exist");
   });
 
   it("2. Check isDirty meta property", () => {
-    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+    entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 500);
     cy.updateCodeInput(".t--property-control-text", `{{Select1.isDirty}}`);
     // Check if initial value of isDirty is false
     cy.get(".t--widget-textwidget").should("contain", "false");

@@ -132,7 +132,7 @@ describe(
     });
 
     it("5. should check that updatedRows and updatedRowIndices have correct values", () => {
-      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+      entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 500);
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(".t--property-control-text", `{{Table1.updatedRows}}`);
       cy.openPropertyPane("tablewidgetv2");

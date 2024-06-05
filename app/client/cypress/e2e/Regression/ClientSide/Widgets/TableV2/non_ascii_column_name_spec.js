@@ -31,7 +31,7 @@ describe(
     });
 
     it("2. should test that selectedRow also retains the non-ascii characters", () => {
-      cy.dragAndDropToCanvas("textwidget", { x: 200, y: 100 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TEXT, 200, 100);
       cy.openPropertyPane("textwidget");
       _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow}}");
       cy.get(".t--widget-textwidget .bp3-ui-text").should(

@@ -36,7 +36,7 @@ describe(
     });
 
     it("2. should test that custom alias is used in the selectedRow", () => {
-      cy.dragAndDropToCanvas("textwidget", { x: 200, y: 100 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TEXT, 200, 100);
       cy.openPropertyPane("textwidget");
       _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow}}");
       cy.openPropertyPane("tablewidgetv2");

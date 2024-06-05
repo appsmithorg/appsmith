@@ -1,3 +1,6 @@
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
+import { draggableWidgets } from "../../../../../support/Objects/ObjectsCore";
+
 const widgetName = "audiorecorderwidget";
 
 describe(
@@ -5,9 +8,9 @@ describe(
   { tags: ["@tag.Widget", "@tag.Audio"] },
   () => {
     it("Drag & drop AudioRecorder and Text widgets", () => {
-      cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
+      entityExplorer.DragNDropWidget(widgetName, 300, 300);
       cy.get(`.t--widget-${widgetName}`).should("exist");
-      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+      entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 500);
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",

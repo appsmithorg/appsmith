@@ -41,15 +41,16 @@ describe(
     it("1. To capture the height and width of various autofill / Hug widgets in webview", function () {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);
 
-      cy.dragAndDropToCanvas("switchwidget", { x: 100, y: 200 });
-      cy.dragAndDropToCanvas("currencyinputwidget", { x: 110, y: 210 });
-      cy.dragAndDropToCanvas("audiowidget", { x: 250, y: 300 });
-      cy.dragAndDropToCanvas("selectwidget", { x: 560, y: 560 });
-      cy.dragAndDropToCanvas("checkboxwidget", { x: 670, y: 770 });
-      cy.dragAndDropToCanvas("radiogroupwidget", { x: 670, y: 770 });
-      cy.dragAndDropToCanvas("datepickerwidget2", { x: 670, y: 970 });
-      cy.dragAndDropToCanvas("phoneinputwidget", { x: 660, y: 810 });
-      cy.dragAndDropToCanvas("categorysliderwidget", { x: 620, y: 810 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.SWITCH, 100, 200);
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.CURRENCY_INPUT, 110, 210);
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.AUDIO, 250, 300);
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.SELECT, 560, 560);
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.CHECKBOX, 670, 770);
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.RADIO_GROUP, 670, 770);
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.DATEPICKER, 670, 970);
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.PHONE_INPUT, 660, 810);
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.CATEGORY_SLIDER, 620, 810);
+
       cy.wait(5000);
       _.deployMode.DeployApp();
       cy.wait(2000);

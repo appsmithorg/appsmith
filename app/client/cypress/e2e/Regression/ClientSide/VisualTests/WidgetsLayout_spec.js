@@ -1,3 +1,8 @@
+import {
+  entityExplorer,
+  draggableWidgets,
+} from "../../../../support/Objects/ObjectsCore";
+
 describe("Visual regression tests", { tags: ["@tag.Visual"] }, () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
   //  1. Delete the required screenshot which you want to update
@@ -6,7 +11,7 @@ describe("Visual regression tests", { tags: ["@tag.Visual"] }, () => {
   //  3. New screenshot will be generated in the snapshot folder
 
   it("Verify SwitchGroup inline enable/disbale", () => {
-    cy.dragAndDropToCanvas("switchgroupwidget", { x: 300, y: 300 });
+    entityExplorer.DragNDropWidget(draggableWidgets.SWITCHGROUP, 300, 300);
     cy.wait(1000);
 
     //Verify default check

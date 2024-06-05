@@ -1,4 +1,5 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import { entityExplorer } from "../../../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 
 const inputWidgetName = "inputwidgetv2";
@@ -17,7 +18,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Input"] },
   function () {
     it("1. onBlur and onFocus should be triggered from the input widget", () => {
-      cy.dragAndDropToCanvas(inputWidgetName, { x: 300, y: 200 });
+      entityExplorer.DragNDropWidget(inputWidgetName, 300, 200);
       cy.openPropertyPane(inputWidgetName);
 
       cy.get(widgetsPage.toggleOnFocus).click({ force: true });
@@ -33,7 +34,7 @@ describe(
     });
 
     it("2. onBlur and onFocus should be triggered from the phone input widget", () => {
-      cy.dragAndDropToCanvas(phoneInputWidgetName, { x: 300, y: 400 });
+      entityExplorer.DragNDropWidget(phoneInputWidgetName, 300, 400);
       cy.openPropertyPane(phoneInputWidgetName);
 
       cy.get(widgetsPage.toggleOnFocus).click({ force: true });
@@ -49,7 +50,7 @@ describe(
     });
 
     it("3. onBlur and onFocus should be triggered from the currency input widget", () => {
-      cy.dragAndDropToCanvas(currencyInputWidgetName, { x: 300, y: 600 });
+      entityExplorer.DragNDropWidget(currencyInputWidgetName, 300, 600);
       cy.openPropertyPane(currencyInputWidgetName);
 
       cy.get(widgetsPage.toggleOnFocus).click({ force: true });

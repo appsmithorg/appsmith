@@ -6,6 +6,8 @@ import EditorNavigation, {
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import FileTabs from "../../../../support/Pages/IDE/FileTabs";
 import AddView from "../../../../support/Pages/IDE/AddView";
+import { entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import { draggableWidgets } from "../../../../support/Objects/ObjectsCore";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const commonLocators = ObjectsRegistry.CommonLocators;
@@ -21,7 +23,7 @@ describe("IDE add pane interactions", { tags: ["@tag.IDE"] }, () => {
     // check add pane
     PageLeftPane.assertInAddView();
     // drag and drop a widget and list view should be opened
-    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
+    entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 200);
     // check listing ui
     PageLeftPane.selectedItem().contains("Text1");
     // click add button

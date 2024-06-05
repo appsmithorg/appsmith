@@ -12,7 +12,7 @@ describe(
     });
 
     it("Add new dropdown widget", () => {
-      cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.SELECT, 300, 300);
       cy.get(".t--widget-selectwidget").should("exist");
     });
 

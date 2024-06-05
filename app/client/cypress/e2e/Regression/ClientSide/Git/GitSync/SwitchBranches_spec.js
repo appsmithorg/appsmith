@@ -9,6 +9,7 @@ import {
   gitSync,
   apiPage,
   dataSources,
+  draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -140,7 +141,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   it("4. enables switching branch from the URL", () => {
     cy.url().then((url) => {
       EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
-      cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 200 });
+      entityExplorer.DragNDropWidget(draggableWidgets.TABLE, 200, 200);
       cy.get(".t--widget-tablewidgetv2").should("exist");
       cy.commitAndPush();
 

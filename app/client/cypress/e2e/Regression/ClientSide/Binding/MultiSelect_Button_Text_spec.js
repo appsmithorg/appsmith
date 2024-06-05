@@ -4,7 +4,11 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-import { agHelper, deployMode } from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 import {
   WIDGET,
   PROPERTY_SELECTOR,
@@ -44,7 +48,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig]) => {
       });
 
       it(`1. DragDrop Widget ${testConfig.widgetName}`, function () {
-        cy.dragAndDropToCanvas(widgetSelector, { x: 300, y: 200 });
+        entityExplorer.DragNDropWidget(widgetSelector, 300, 200);
         cy.get(getWidgetSelector(widgetSelector)).should("exist");
       });
 

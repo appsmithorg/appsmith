@@ -10,10 +10,10 @@ describe(
     it("1. Capture the height/width of autofill widgets in webview", function () {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);
 
-      cy.dragAndDropToCanvas("listwidgetv2", { x: 100, y: 200 });
-      cy.dragAndDropToCanvas("containerwidget", { x: 620, y: 820 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.LIST_V2, 100, 200);
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.CONTAINER, 620, 820);
       for (let i = 0; i < 10; i++) {
-        cy.dragAndDropToCanvas("inputwidgetv2", { x: 450, y: 530 });
+        _.entityExplorer.DragNDropWidget(_.draggableWidgets.INPUT_V2, 450, 530);
       }
       cy.get(".t--widget-inputwidgetv2").first().should("be.visible");
       _.deployMode.DeployApp();

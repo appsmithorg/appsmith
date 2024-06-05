@@ -5,6 +5,10 @@ import {
   PROPERTY_SELECTOR,
 } from "../../../../../locators/WidgetLocators";
 import homePage from "../../../../../locators/HomePage";
+import {
+  entityExplorer,
+  draggableWidgets,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Input Widget Multiline feature",
@@ -13,7 +17,7 @@ describe(
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     it("1. Single-line text with different heights i.e. Auto height and Fixed", () => {
       const textMsg = "Dynamic panel validation for input widget wrt height";
-      cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
+      entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2, 300, 300);
       //verify fixed height is selected
       cy.get(commonlocators.generalSectionHeight)
         .scrollIntoView()
@@ -43,7 +47,7 @@ describe(
 
     it("2. Multi-line text with different heights i.e. Auto height, Auto height with limit and Fixed", () => {
       const textMsg = "Dynamic panel validation for input widget wrt height";
-      cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
+      entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2, 300, 300);
       cy.openPropertyPane("inputwidgetv2");
       cy.selectDropdownValue(widgetsPage.datatype, "Multi-line text");
       // verify height changes to auto height
@@ -123,7 +127,7 @@ describe(
     });
 
     it("3. Enter key behaviour with single line and multi line selection", () => {
-      cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
+      entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2, 300, 500);
       cy.openPropertyPane(WIDGET.INPUT_V2);
       cy.get(PROPERTY_SELECTOR.onSubmit).find(".t--js-toggle").click();
       cy.updateCodeInput(

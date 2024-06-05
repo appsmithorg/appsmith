@@ -25,10 +25,14 @@ describe(
   function () {
     it("1. To capture the height and width of various autofill / Hug widgets in webview", function () {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);
-      cy.dragAndDropToCanvas("codescannerwidget", { x: 100, y: 200 });
-      cy.dragAndDropToCanvas("listwidgetv2", { x: 620, y: 820 });
-      cy.dragAndDropToCanvas("tablewidgetv2", { x: 620, y: 820 });
-      cy.dragAndDropToCanvas("tabswidget", { x: 670, y: 770 });
+      _.entityExplorer.DragNDropWidget(
+        _.draggableWidgets.CODESCANNER,
+        100,
+        200,
+      );
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.LIST_V2, 620, 820);
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TABLE, 620, 820);
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TAB, 670, 770);
       cy.wait(2000);
       _.deployMode.DeployApp();
       cy.wait(2000);

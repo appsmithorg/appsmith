@@ -2,6 +2,8 @@ import {
   propPane,
   table,
   agHelper,
+  entityExplorer,
+  draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const totalRows = 100;
@@ -11,7 +13,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Table"] },
   function () {
     before(() => {
-      cy.dragAndDropToCanvas("tablewidgetv2", { x: 300, y: 600 });
+      entityExplorer.DragNDropWidget(draggableWidgets.TABLE, 300, 600);
       const row = {
         step: "#3",
         task: "Bind the query using => fetch_users.data",

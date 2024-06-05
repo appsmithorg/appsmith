@@ -9,7 +9,11 @@ describe(
     });
 
     it("Add new widget", () => {
-      cy.dragAndDropToCanvas("multiselecttreewidget", { x: 300, y: 300 });
+      _.entityExplorer.DragNDropWidget(
+        _.draggableWidgets.MULTITREESELECT,
+        300,
+        300,
+      );
       cy.get(".t--widget-multiselecttreewidget").should("exist");
     });
 

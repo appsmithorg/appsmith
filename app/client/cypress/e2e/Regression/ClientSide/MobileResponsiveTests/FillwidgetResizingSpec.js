@@ -9,8 +9,8 @@ describe(
   function () {
     it("Validate change with height width for fill widget - Input widget", function () {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);
-      cy.dragAndDropToCanvas("inputwidgetv2", { x: 100, y: 200 });
-      cy.dragAndDropToCanvas("inputwidgetv2", { x: 10, y: 20 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.INPUT_V2, 100, 200);
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.INPUT_V2, 10, 20);
       _.deployMode.DeployApp();
       cy.get(".t--widget-inputwidgetv2").first().should("be.visible");
       cy.get(".t--widget-inputwidgetv2").last().should("be.visible");

@@ -1,6 +1,11 @@
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 
-import { agHelper, gitSync } from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  gitSync,
+  draggableWidgets,
+} from "../../../../../support/Objects/ObjectsCore";
 import {
   PageLeftPane,
   PagePaneSegment,
@@ -48,7 +53,7 @@ describe("Delete branch flow", { tags: ["@tag.Git"] }, () => {
     gitSync.CreateGitBranch("", true);
     cy.wait(1000);
     PageLeftPane.switchSegment(PagePaneSegment.UI);
-    cy.dragAndDropToCanvas("checkboxwidget", { x: 100, y: 200 });
+    entityExplorer.DragNDropWidget(draggableWidgets.CHECKBOX, 100, 200);
     cy.get(".t--draggable-checkboxwidget").should("exist");
     cy.wait(2000);
     cy.commitAndPush();
@@ -72,7 +77,7 @@ describe("Delete branch flow", { tags: ["@tag.Git"] }, () => {
     gitSync.CreateGitBranch("", true);
     cy.wait(1000);
     PageLeftPane.switchSegment(PagePaneSegment.UI);
-    cy.dragAndDropToCanvas("chartwidget", { x: 210, y: 300 });
+    entityExplorer.DragNDropWidget(draggableWidgets.CHART, 210, 300);
     cy.get(".t--widget-chartwidget").should("exist");
     cy.wait(2000);
     cy.commitAndPush();

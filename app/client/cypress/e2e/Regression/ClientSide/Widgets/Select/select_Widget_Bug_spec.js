@@ -267,7 +267,7 @@ describe(
         }
       ]`,
       );
-      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 80 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TEXT, 300, 80);
       cy.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{typeof Select1.selectedOptionLabel}}");
       // Filtering the option

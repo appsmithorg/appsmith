@@ -32,7 +32,11 @@ describe(
       _.dataSources.RunQuery();
 
       // add checkbox group widget
-      cy.dragAndDropToCanvas("checkboxgroupwidget", { x: 300, y: 300 });
+      _.entityExplorer.DragNDropWidget(
+        _.draggableWidgets.CHECKBOXGROUP,
+        300,
+        300,
+      );
       cy.openPropertyPane("checkboxgroupwidget");
 
       // bind options to query data

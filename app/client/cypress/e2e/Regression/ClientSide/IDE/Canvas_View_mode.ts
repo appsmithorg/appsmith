@@ -1,6 +1,7 @@
 import {
   agHelper,
   draggableWidgets,
+  entityExplorer,
   jsEditor,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
@@ -20,7 +21,7 @@ describe("Canvas view mode", { tags: ["@tag.IDE"] }, () => {
   const shortKey = Cypress.platform === "darwin" ? "\u2318" : "Ctrl +";
 
   it("1. Canvas view mode functionalities", () => {
-    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 200 });
+    entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2, 300, 200);
 
     jsEditor.CreateJSObject(JS_OBJECT_BODY, {
       paste: true,

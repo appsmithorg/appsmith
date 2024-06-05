@@ -19,7 +19,7 @@ describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
     _.agHelper.AddDsl("editorContextdsl");
 
     PageList.AddNewPage("New blank page");
-    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
+    _.entityExplorer.DragNDropWidget(_.draggableWidgets.TEXT, 300, 200);
     EditorNavigation.SelectEntityByName(page1, EntityType.Page);
     _.apiPage.CreateApi(api1);
     PageLeftPane.switchSegment(PagePaneSegment.UI);

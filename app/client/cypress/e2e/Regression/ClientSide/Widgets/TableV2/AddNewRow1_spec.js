@@ -120,7 +120,7 @@ describe("Basic flow ", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     cy.makeColumnEditable("task");
     cy.enterTableCellValue(0, 0, "22");
     cy.enterTableCellValue(1, 0, "21");
-    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
+    _.entityExplorer.DragNDropWidget(_.draggableWidgets.TEXT, 300, 600);
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{Table1.newRow}}`);
     cy.get(".t--widget-textwidget .bp3-ui-text").should(

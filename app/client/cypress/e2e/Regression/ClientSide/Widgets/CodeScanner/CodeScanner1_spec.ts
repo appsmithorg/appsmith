@@ -12,7 +12,7 @@ describe(
   () => {
     it("1 => Check if code scanner widget can be dropped on the canvas", () => {
       // Drop the widget
-      cy.dragAndDropToCanvas(widgetName, { x: 300, y: 100 });
+      _.entityExplorer.DragNDropWidget(widgetName, 300, 100);
 
       // Widget should be on the canvas
       cy.get(widgetsPage.codescannerwidget).should("exist");
@@ -20,7 +20,7 @@ describe(
 
     it("2 => Check if the default scanner layout is ALWAYS_ON", () => {
       // Drop a text widget to test the code scanner value binding
-      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TEXT, 300, 600);
       cy.openPropertyPane("textwidget");
       cy.moveToContentTab();
       cy.updateCodeInput(

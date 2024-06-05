@@ -4,6 +4,8 @@ import {
   agHelper,
   propPane,
   deployMode,
+  entityExplorer,
+  draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -116,7 +118,7 @@ describe(
     });
 
     it("5. Check isDirty meta property", function () {
-      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+      entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 500);
       cy.openPropertyPane("textwidget");
       propPane.UpdatePropertyFieldValue("Text", "{{CBGTest.isDirty}}");
       // Change defaultSelectedValues

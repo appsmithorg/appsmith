@@ -12,7 +12,7 @@ describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table"] }, function () {
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
     let jsContext = `{{Switch1.isSwitchedOn?[{name: "joe"}]:[{employee_name: "john"}];}}`;
     cy.wait(5000);
-    cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 200 });
+    _.entityExplorer.DragNDropWidget(_.draggableWidgets.SWITCH, 200, 200);
     cy.wait(2000);
     cy.openPropertyPane("tablewidget");
     cy.get(".t--property-control-tabledata").then(($el) => {

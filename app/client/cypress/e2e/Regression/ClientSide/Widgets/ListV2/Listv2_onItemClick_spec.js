@@ -33,10 +33,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     it("1. List widget V2 with onItemClick", () => {
-      cy.dragAndDropToCanvas("listwidgetv2", {
-        x: 300,
-        y: 300,
-      });
+      entityExplorer.DragNDropWidget(draggableWidgets.LIST_V2, 300, 300);
       cy.openPropertyPane("listwidgetv2");
 
       cy.get(toggleJSButton("onitemclick")).click({ force: true });

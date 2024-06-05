@@ -15,9 +15,9 @@ describe("Unique react keys", function () {
   });
 
   it("1. Should not create duplicate versions of widget on drop from explorer", function () {
-    cy.dragAndDropToCanvas("chartwidget", { x: 200, y: 200 });
-    cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 600 });
-    cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 700 });
+    _.entityExplorer.DragNDropWidget(_.draggableWidgets.CHART, 200, 200);
+    _.entityExplorer.DragNDropWidget(_.draggableWidgets.SELECT, 200, 600);
+    _.entityExplorer.DragNDropWidget(_.draggableWidgets.SELECT, 200, 700);
 
     cy.openPropertyPane("chartwidget");
     cy.deleteWidget(widgetsPage.chartWidget);
@@ -27,8 +27,8 @@ describe("Unique react keys", function () {
 
   it("2. Should not create duplicate versions of widget on widget copy", function () {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    cy.dragAndDropToCanvas("chartwidget", { x: 200, y: 200 });
-    cy.dragAndDropToCanvas("selectwidget", { x: 200, y: 600 });
+    _.entityExplorer.DragNDropWidget(_.draggableWidgets.CHART, 200, 200);
+    _.entityExplorer.DragNDropWidget(_.draggableWidgets.SELECT, 200, 600);
     //copy and paste
     cy.openPropertyPane("selectwidget");
     cy.get("body").type(`{${modifierKey}}c`);

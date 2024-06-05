@@ -16,8 +16,8 @@ describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table"] }, function () {
       "response.body.responseMeta.status",
       201,
     );
-    cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 200 });
-    cy.dragAndDropToCanvas("tablewidgetv2", { x: 200, y: 300 });
+    _.entityExplorer.DragNDropWidget(_.draggableWidgets.SWITCH, 200, 200);
+    _.entityExplorer.DragNDropWidget(_.draggableWidgets.TABLE, 200, 300);
     _.propPane.EnterJSContext("Table data", jsContext);
     _.deployMode.DeployApp();
     cy.wait(5000);

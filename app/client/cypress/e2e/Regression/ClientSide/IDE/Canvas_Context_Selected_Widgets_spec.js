@@ -18,7 +18,7 @@ describe(
     before(() => {
       _.agHelper.AddDsl("editorContextdsl");
       cy.Createpage(page2);
-      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TEXT, 300, 200);
       EditorNavigation.SelectEntityByName(page1, EntityType.Page);
       cy.CreateAPI(api1);
       _.agHelper.Sleep(2000); // adding wait for page to load

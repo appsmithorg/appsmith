@@ -7,10 +7,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     it("1. List widget V2 with invisible widgets", () => {
-      cy.dragAndDropToCanvas("listwidgetv2", {
-        x: 300,
-        y: 300,
-      });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.LIST_V2, 300, 300);
       cy.openPropertyPaneByWidgetName("Text1", "textwidget");
 
       cy.get(widgetsPage.toggleVisible).click({ force: true });

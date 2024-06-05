@@ -7,6 +7,7 @@ const {
   draggableWidgets,
   entityExplorer,
   propPane,
+  draggableWidgets,
 } = require("../../../../support/Objects/ObjectsCore");
 import EditorNavigation, {
   EntityType,
@@ -126,7 +127,7 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("5. checks if property Pane is open on undo/redo property changes", function () {
-    cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
+    entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 400, 400);
 
     cy.wait(100);
     propPane.UpdatePropertyFieldValue("Text", "Label");
@@ -150,7 +151,7 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("6. checks if toast is shown while undo/redo widget deletion or creation only the first time", function () {
-    cy.dragAndDropToCanvas("textwidget", { x: 400, y: 400 });
+    entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 400, 400);
     localStorage.removeItem("undoToastShown");
     localStorage.removeItem("redoToastShown");
 
@@ -167,7 +168,7 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("7. checks undo/redo for color picker", function () {
-    cy.dragAndDropToCanvas("textwidget", { x: 100, y: 100 });
+    entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 100, 100);
     cy.moveToStyleTab();
     cy.selectColor("textcolor");
     cy.get("body").click({ force: true });
@@ -193,7 +194,7 @@ describe("Undo/Redo functionality", function () {
   });
 
   it("8. checks undo/redo for option control for radio button", function () {
-    cy.dragAndDropToCanvas("radiogroupwidget", { x: 200, y: 600 });
+    entityExplorer.DragNDropWidget(draggableWidgets.RADIO_GROUP, 200, 600);
 
     cy.get(widgetsPage.RadioInput).first().type("1");
 

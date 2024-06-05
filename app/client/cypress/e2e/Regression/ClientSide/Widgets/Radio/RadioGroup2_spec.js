@@ -1,10 +1,15 @@
+import {
+  entityExplorer,
+  draggableWidgets,
+} from "../../../../../support/Objects/ObjectsCore";
+
 const widgetName = "radiogroupwidget";
 
 describe("Radio Group Widget", { tags: ["@tag.Widget", "@tag.Radio"] }, () => {
   it("Drag & drop Radio group & Text widgets", () => {
-    cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
+    entityExplorer.DragNDropWidget(widgetName, 300, 300);
     cy.get(`.t--widget-${widgetName}`).should("exist");
-    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+    entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 500);
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{RadioGroup1.isDirty}}`);
   });

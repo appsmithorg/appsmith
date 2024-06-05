@@ -13,7 +13,7 @@ describe(
     });
 
     it("1. Check isDirty meta property", function () {
-      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TEXT, 300, 500);
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",

@@ -1,12 +1,14 @@
+import {
+  entityExplorer,
+  draggableWidgets,
+} from "../../../../../support/Objects/ObjectsCore";
+
 describe(
   "List widget v2 Evaluated Popup",
   { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     it("1. List widget V2 with currentItem", () => {
-      cy.dragAndDropToCanvas("listwidgetv2", {
-        x: 300,
-        y: 300,
-      });
+      entityExplorer.DragNDropWidget(draggableWidgets.LIST_V2, 300, 300);
       [["{{null}}", "[]"]].forEach(([input, expected]) => {
         cy.updateCodeInput(".t--property-control-items", input);
         cy.wait(500);

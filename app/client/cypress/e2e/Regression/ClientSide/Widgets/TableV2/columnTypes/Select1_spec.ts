@@ -11,7 +11,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
-      cy.dragAndDropToCanvas("tablewidgetv2", { x: 350, y: 500 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TABLE, 350, 500);
       _.table.AddSampleTableData();
     });
 

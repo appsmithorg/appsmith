@@ -135,10 +135,7 @@ describe(
     });
 
     it("2. List widget V2 with server side pagination", () => {
-      cy.dragAndDropToCanvas("listwidgetv2", {
-        x: 300,
-        y: 300,
-      });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.LIST_V2, 300, 300);
       cy.openPropertyPane("listwidgetv2");
 
       cy.openPropertyPane("textwidget");

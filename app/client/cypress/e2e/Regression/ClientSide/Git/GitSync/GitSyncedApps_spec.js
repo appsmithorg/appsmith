@@ -149,14 +149,14 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       });
       EditorNavigation.ShowCanvas();
       // bind input widgets to the api calls responses
-      cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
+      entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2, 300, 300);
       cy.get(".t--widget-inputwidgetv2").should("exist");
       cy.EnableAllCodeEditors();
       cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
         .last()
         .click({ force: true })
         .type("{{Api1.data.body.name}}", { parseSpecialCharSequences: false });
-      cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
+      entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2, 300, 500);
       propPane.UpdatePropertyFieldValue(
         "Default value",
         "{{get_data.data.headers.Info}}",
@@ -283,14 +283,14 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     });
     agHelper.WaitUntilAllToastsDisappear();
     // bind input widgets to the jsObject and query response
-    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
+    entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2, 300, 300);
     cy.get(".t--widget-inputwidgetv2").should("exist");
     cy.EnableAllCodeEditors();
     cy.get(`.t--property-control-defaultvalue ${dynamicInputLocators.input}`)
       .last()
       .click({ force: true })
       .type("{{JSObject1.myFun1()}}", { parseSpecialCharSequences: false });
-    cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
+    entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2, 300, 500);
     cy.get(".t--widget-inputwidgetv2").should("exist");
     propPane.UpdatePropertyFieldValue(
       "Default value",

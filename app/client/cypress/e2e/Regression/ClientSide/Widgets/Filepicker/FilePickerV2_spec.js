@@ -15,9 +15,9 @@ describe(
   { tags: ["@tag.Widget", "@tag.Filepicker"] },
   () => {
     it("1. Drag & drop FilePicker/Text widgets", () => {
-      cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
+      _.entityExplorer.DragNDropWidget(widgetName, 300, 300);
       cy.get(widgetsPage.filepickerwidgetv2).should("exist");
-      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TEXT, 300, 500);
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",

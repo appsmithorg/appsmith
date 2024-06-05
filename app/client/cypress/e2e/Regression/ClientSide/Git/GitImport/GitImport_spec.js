@@ -10,9 +10,11 @@ import {
   agHelper,
   dataSources,
   deployMode,
+  entityExplorer,
   gitSync,
   homePage,
   table,
+  draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -209,7 +211,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
   it("6. Add widget to master, merge then checkout to child branch and verify data", () => {
     PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.wait(2000); // wait for transition
-    cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
+    entityExplorer.DragNDropWidget(draggableWidgets.BUTTON, 300, 600);
     cy.wait(3000);
     cy.commitAndPush();
     cy.merge(newBranch);

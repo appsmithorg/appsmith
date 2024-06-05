@@ -16,7 +16,7 @@ describe(
     it("1. Drag and drop form widget and validate", function () {
       cy.get(commonlocators.entityExplorersearch).should("be.visible");
       cy.get(commonlocators.entityExplorersearch).clear().type("form");
-      cy.dragAndDropToCanvas("formwidget", { x: 300, y: 80 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.FORM, 300, 80);
       cy.get(formWidgetsPage.formD).click();
       /**
        * @param{Text} Random Text

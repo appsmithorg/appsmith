@@ -11,7 +11,7 @@ describe(
     });
 
     it("1. Add new widget", () => {
-      cy.dragAndDropToCanvas("singleselecttreewidget", { x: 300, y: 300 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TREESELECT, 300, 300);
       cy.get(".t--widget-singleselecttreewidget").should("exist");
     });
 

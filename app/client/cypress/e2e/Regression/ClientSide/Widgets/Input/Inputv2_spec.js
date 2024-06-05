@@ -1,11 +1,16 @@
+import {
+  entityExplorer,
+  draggableWidgets,
+} from "../../../../../support/Objects/ObjectsCore";
+
 const widgetName = "inputwidgetv2";
 const widgetInput = `.t--widget-${widgetName} input`;
 
 describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   it("1. DragDrop Input & Label/Text widgets", () => {
-    cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
+    entityExplorer.DragNDropWidget(widgetName, 300, 300);
     cy.get(`.t--widget-${widgetName}`).should("exist");
-    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+    entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 500);
     cy.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",

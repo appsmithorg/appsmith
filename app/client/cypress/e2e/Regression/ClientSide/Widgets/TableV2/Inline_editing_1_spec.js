@@ -1,6 +1,10 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import { agHelper } from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  entityExplorer,
+  draggableWidgets,
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table widget inline editing functionality",
@@ -243,7 +247,7 @@ describe(
       cy.makeColumnEditable("step");
       cy.get(".t--property-control-updatemode").should("exist");
 
-      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
+      entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 600);
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",

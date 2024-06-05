@@ -2,9 +2,11 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import {
   agHelper,
   assertHelper,
+  entityExplorer,
   locators,
   propPane,
   table,
+  draggableWidgets,
 } from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "filepickerwidgetv2";
@@ -136,7 +138,7 @@ describe(
       agHelper.GetNClick(commonlocators.filePickerRemoveButton, 0, true);
 
       // Drag and drop a text widget for binding file data
-      cy.dragAndDropToCanvas("textwidget", { x: 100, y: 100 });
+      entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 100, 100);
       cy.openPropertyPane("textwidget");
       propPane.UpdatePropertyFieldValue(
         "Text",

@@ -9,7 +9,11 @@ describe(
     });
 
     it("Add new widget", () => {
-      cy.dragAndDropToCanvas("radiogroupwidget", { x: 300, y: 300 });
+      _.entityExplorer.DragNDropWidget(
+        _.draggableWidgets.RADIO_GROUP,
+        300,
+        300,
+      );
       cy.get(".t--widget-radiogroupwidget").should("exist");
     });
 

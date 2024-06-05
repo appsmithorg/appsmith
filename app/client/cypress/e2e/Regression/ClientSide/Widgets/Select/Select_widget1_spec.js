@@ -18,7 +18,7 @@ describe(
       cy.wait(2000);
     });
     it("Add new Select widget", () => {
-      cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.SELECT, 300, 300);
       cy.get(".t--widget-selectwidget").should("exist");
       _.propPane.ToggleJSMode("sourcedata");
       cy.updateCodeInput(

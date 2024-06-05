@@ -6,7 +6,7 @@ describe(
   function () {
     it("1. Validate change with height width for hug widget - image widget", function () {
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);
-      cy.dragAndDropToCanvas("imagewidget", { x: 300, y: 600 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.IMAGE, 300, 600);
       _.deployMode.DeployApp();
       cy.get(".t--widget-imagewidget").first().should("be.visible");
     });

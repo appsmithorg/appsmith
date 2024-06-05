@@ -15,7 +15,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
-      cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 600, y: 200 });
+      _.entityExplorer.DragNDropWidget(WIDGET.TABLE, 600, 200);
       cy.wait(2000);
       cy.openPropertyPane(WIDGET.TABLE);
       _.propPane.EnterJSContext("Table data", TABLE_DATA_STATIC);

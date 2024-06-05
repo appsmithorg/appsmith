@@ -5,6 +5,8 @@ import {
   dataSources,
   homePage,
   locators,
+  draggableWidgets,
+  entityExplorer
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -174,7 +176,7 @@ describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
     EditorNavigation.SelectEntityByName("Rest_Api_1", EntityType.Api);
 
     EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
-    cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
+    entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 200);
 
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     cy.get(".t--nameOfApi .bp3-editable-text-content").should(

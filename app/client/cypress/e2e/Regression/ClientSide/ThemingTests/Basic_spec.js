@@ -11,6 +11,8 @@ import {
   agHelper,
   appSettings,
   deployMode,
+  entityExplorer,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
 
 const containerShadowElement = `${widgetsPage.containerWidget}`;
@@ -63,9 +65,9 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     cy.get(commonlocators.selectThemeBackBtn).click({ force: true });
     appSettings.ClosePane();
 
-    // drop a button & container widget and click on body
-    cy.dragAndDropToCanvas("buttonwidget", { x: 100, y: 100 });
-    cy.dragAndDropToCanvas("containerwidget", { x: 200, y: 200 });
+    // drop a button & container widget and click on body;
+    entityExplorer.DragNDropWidget("buttonwidget", 100, 100);
+    entityExplorer.DragNDropWidget("containerwidget", 200, 200);
     cy.get("canvas").first(0).trigger("click", { force: true });
 
     appSettings.OpenAppSettings();
@@ -420,7 +422,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
   });
 
   it("6. Verify Adding new Individual widgets & it can change Color, Border radius, Shadow & can revert [Color/Border Radius] to already selected theme", () => {
-    cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 400 }); //another button widget
+    entityExplorer.DragNDropWidget(draggableWidgets.BUTTON, 200, 400); //another button widget
     cy.moveToStyleTab();
     //Change Color & verify
     cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();

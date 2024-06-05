@@ -9,7 +9,11 @@ describe(
     });
 
     it("Add new widget", () => {
-      cy.dragAndDropToCanvas("checkboxgroupwidget", { x: 300, y: 300 });
+      _.entityExplorer.DragNDropWidget(
+        _.draggableWidgets.CHECKBOXGROUP,
+        300,
+        300,
+      );
       cy.get(".t--widget-checkboxgroupwidget").should("exist");
     });
 

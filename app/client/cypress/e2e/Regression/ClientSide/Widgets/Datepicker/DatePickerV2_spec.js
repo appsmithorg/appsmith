@@ -205,7 +205,7 @@ describe(
   function () {
     it("onBlur and onFocus should be triggered from the datePicker widget", () => {
       cy.Createpage("New Page");
-      cy.dragAndDropToCanvas("datepickerwidget2", { x: 300, y: 600 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.DATEPICKER, 300, 600);
       cy.openPropertyPane("datepickerwidget2");
 
       cy.get(widgetsPage.toggleOnFocus).click({ force: true });

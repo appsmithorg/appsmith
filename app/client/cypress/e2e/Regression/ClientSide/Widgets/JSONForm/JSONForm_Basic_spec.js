@@ -7,6 +7,8 @@ const jsonform = require("../../../../../locators/jsonFormWidget.json");
 const {
   deployMode,
   propPane,
+  entityExplorer,
+  draggableWidgets,
 } = require("../../../../../support/Objects/ObjectsCore");
 
 describe(
@@ -14,7 +16,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.JSONForm"] },
   function () {
     before(() => {
-      cy.dragAndDropToCanvas("jsonformwidget", { x: 200, y: 200 });
+      entityExplorer.DragNDropWidget(draggableWidgets.JSONFORM, 200, 200);
       cy.fixture("TestDataSet1").then(function (dataSet) {
         cy.openPropertyPane("jsonformwidget");
         propPane.EnterJSContext(

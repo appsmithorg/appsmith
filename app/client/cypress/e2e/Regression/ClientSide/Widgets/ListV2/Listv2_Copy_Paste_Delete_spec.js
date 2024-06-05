@@ -1,4 +1,8 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
+const {
+  entityExplorer,
+  draggableWidgets,
+} = require("../../../../../support/Objects/ObjectsCore");
 
 const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
@@ -7,10 +11,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.List"] },
   () => {
     it("1. Validate Copy paste action", () => {
-      cy.dragAndDropToCanvas("listwidgetv2", {
-        x: 300,
-        y: 300,
-      });
+      entityExplorer.DragNDropWidget(draggableWidgets.LIST_V2, 300, 300);
       cy.openPropertyPane("imagewidget");
       cy.get(commonlocators.PropertyPaneSearchInput).type("border");
       cy.get(commonlocators.BorderRadius0px).click({ force: true });

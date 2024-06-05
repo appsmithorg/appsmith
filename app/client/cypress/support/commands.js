@@ -48,7 +48,7 @@ const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
-const table = ObjectsRegistry.Table;
+const entityExplorer = ObjectsRegistry.EntityExplorer;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -871,7 +871,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-      table.SelectTableRow(0);
+      cy.isSelectRow(0);
       cy.readTabledata("0", "5").then((tabData) => {
         const tableData = tabData;
         expect(valueToTest).contains(tableData);
@@ -897,7 +897,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.wait(2000);
-      table.SelectTableRow(0, 0, true, "v2");
+      cy.isSelectRow(0);
       cy.readTableV2data("0", "5").then((tabData) => {
         const tableData = tabData;
         cy.log(valueToTest);
@@ -1232,7 +1232,7 @@ Cypress.Commands.add("checkLabelForWidget", (options) => {
   const labelWidth = options.labelWidth;
 
   // Drag a widget
-  cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
+  entityExplorer.DragNDropWidget(widgetName, 300, 300);
   cy.get(`.t--widget-${widgetName}`).should("exist");
 
   // Set the label text

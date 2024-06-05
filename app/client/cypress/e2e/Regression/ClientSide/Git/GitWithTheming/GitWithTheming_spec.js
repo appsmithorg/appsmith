@@ -48,7 +48,7 @@ describe("Git with Theming:", { tags: ["@tag.Git"] }, function () {
       });
     _.appSettings.ClosePane();
     // drag a widget and assert theme is applied
-    cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 700 });
+    _.entityExplorer.DragNDropWidget(_.draggableWidgets.BUTTON, 300, 700);
     //cy.get('.t--draggable-buttonwidget').closest("div").should('have.css' , 'background-color', backgroudColorChildBranch)
     cy.get(widgetsPage.widgetBtn).should(
       "have.css",

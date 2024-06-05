@@ -8,7 +8,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
-      cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 500, y: 200 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TABLE, 500, 200);
       _.propPane.EnterJSContext("Table data", TABLE_DATA_DYNAMIC);
       cy.get(commonlocators.serverSidePaginationCheckbox).click({
         force: true,

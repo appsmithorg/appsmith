@@ -52,7 +52,7 @@ describe(
     });
 
     it("3. Checks if audio widget is reset on button click", function () {
-      cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.BUTTON, 300, 300);
       cy.openPropertyPane("buttonwidget");
       cy.widgetText(
         "Button1",
@@ -62,7 +62,7 @@ describe(
       cy.selectResetWidget("onClick");
       cy.selectWidgetForReset("Audio1");
 
-      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TEXT, 300, 500);
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(".t--property-control-text", `{{Audio1.playState}}`);
 

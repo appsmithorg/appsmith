@@ -1,4 +1,7 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
+const {
+  entityExplorer,
+} = require("../../../../../support/Objects/ObjectsCore");
 
 const widgetName = "currencyinputwidget";
 
@@ -7,7 +10,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.CurrencyInput"] },
   function () {
     it("1. Validate that For new currency input widgets being dragged, the value for showStepArrows should be set to false", () => {
-      cy.dragAndDropToCanvas(widgetName, { x: 300, y: 400 });
+      entityExplorer.DragNDropWidget(widgetName, 300, 400);
       cy.openPropertyPane(widgetName);
 
       cy.get(widgetsPage.showStepArrowsToggleCheckBox).should("not.be.checked");

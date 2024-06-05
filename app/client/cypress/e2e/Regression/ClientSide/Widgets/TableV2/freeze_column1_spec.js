@@ -12,9 +12,9 @@ describe(
   { tags: ["@tag.Widget", "@tag.Table"] },
   () => {
     before(() => {
-      cy.dragAndDropToCanvas(_.draggableWidgets.TABLE, { x: 200, y: 200 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TABLE, 200, 200);
       _.table.AddSampleTableData();
-      cy.dragAndDropToCanvas(_.draggableWidgets.TEXT, { x: 200, y: 600 });
+      _.entityExplorer.DragNDropWidget(_.draggableWidgets.TABLE, 200, 600);
       _.propPane.UpdatePropertyFieldValue(
         "Text",
         `{{JSON.stringify({
