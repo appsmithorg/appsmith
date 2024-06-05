@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations.ce;
 
+import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.migrations.AppsmithJavaMigration;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,10 +18,13 @@ import java.sql.Types;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -28,16 +32,29 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
     final ObjectMapper objectMapper = new ObjectMapper();
     final ObjectReader objectReader = objectMapper.readerForMapOf(Object.class);
 
+    private static final Pattern OBJECTID_PATTERN = Pattern.compile("([\":])([0-9a-f]{24})(\")");
+
+    final Map<String, String> idMap = new HashMap<>();
+
+    final Path BASELINE_DATA_ROOT =
+        Path.of("/Users/shri/work/appsmith-ee-pg/deploy/docker/fs/opt/appsmith/utils/bin/baseline-" + ProjectProperties.EDITION.toLowerCase() + "-data");
+
     final Path MONGO_DATA_ROOT =
             Path.of("/Users/shri/work/appsmith-ce-pg/deploy/docker/fs/opt/appsmith/utils/bin/mongo-data");
 
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
-        if (!MONGO_DATA_ROOT.toFile().exists()) {
-            return;
+        final boolean isOperatingOnBaselineData = MONGO_DATA_ROOT.toFile().exists();
+
+        final Path effectiveDataRoot;
+        if (isOperatingOnBaselineData) {
+            effectiveDataRoot = BASELINE_DATA_ROOT;
+        } else {
+            effectiveDataRoot = MONGO_DATA_ROOT;
         }
-        // iterate over files in MONGO_DATA_ROOT, use the name as the `collectionName` and process them.
-        try (final Stream<Path> items = Files.list(MONGO_DATA_ROOT).sorted()) {
+
+        // Iterate over files in `effectiveDataRoot`, use the name as the `collectionName` and process them.
+        try (final Stream<Path> items = Files.list(effectiveDataRoot).sorted()) {
             items.forEach(item -> {
                 final String name = item.toFile().getName();
                 if (!name.endsWith(".jsonl")) {
@@ -47,12 +64,12 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
                     // Ignore these collections.
                     return;
                 }
-                moveForTable(item, jdbcTemplate);
+                moveForTable(item, jdbcTemplate, isOperatingOnBaselineData);
             });
         }
     }
 
-    private void moveForTable(Path jsonlPath, JdbcTemplate jdbcTemplate) {
+    private void moveForTable(Path jsonlPath, JdbcTemplate jdbcTemplate, boolean isOperatingOnBaselineData) {
         final Map<String, Integer> columnTypes = new LinkedHashMap<>();
 
         final String collectionName = jsonlPath.toFile().getName().replace(".jsonl", "");
@@ -75,6 +92,17 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
             lines.forEach(line -> {
                 if (line.isEmpty()) {
                     return;
+                }
+
+                // Replace ObjectId values in the base data with new random UUIDs.
+                if (isOperatingOnBaselineData) {
+                    line = OBJECTID_PATTERN.matcher(line).replaceAll(match -> {
+                        String objectId = match.group(2);
+                        if (!idMap.containsKey(objectId)) {
+                            idMap.put(objectId, UUID.randomUUID().toString());
+                        }
+                        return match.group(1) + idMap.get(objectId) + match.group(3);
+                    });
                 }
 
                 // Load the field values from the JSON document in the current line.
