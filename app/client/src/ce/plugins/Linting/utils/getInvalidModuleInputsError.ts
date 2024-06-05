@@ -2,7 +2,7 @@ import type { MemberCallExpressionData } from "@shared/ast";
 import type { Position } from "codemirror";
 import type { LintError } from "utils/DynamicBindingUtils";
 
-export interface GetInvalidModuleInputsErrorProps {
+export interface InvalidModuleInputsErrorProps {
   data: Record<string, unknown>;
   memberCallExpressions: MemberCallExpressionData[];
   originalBinding: string;
@@ -12,7 +12,7 @@ export interface GetInvalidModuleInputsErrorProps {
 
 function getInvalidModuleInputsError(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _props: GetInvalidModuleInputsErrorProps,
+  _props: InvalidModuleInputsErrorProps,
 ): LintError[] {
   return [];
 }
