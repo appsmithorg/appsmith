@@ -166,8 +166,8 @@ public class RepositoryHelperMethods {
                 insertInstanceConfigurationQuery,
                 uuid,
                 permissionGroup.getName(),
-            JsonForDatabase.writeValueAsString(permissionGroup.getPermissions()),
-            JsonForDatabase.writeValueAsString(permissionGroup.getAssignedToUserIds()));
+                JsonForDatabase.writeValueAsString(permissionGroup.getPermissions()),
+                JsonForDatabase.writeValueAsString(permissionGroup.getAssignedToUserIds()));
         permissionGroup.setId(uuid);
         return permissionGroup;
     }
@@ -179,8 +179,8 @@ public class RepositoryHelperMethods {
         jdbcTemplate.update(
                 insertInstanceConfigurationQuery,
                 permissionGroup.getName(),
-            JsonForDatabase.writeValueAsString(permissionGroup.getPolicies()),
-            JsonForDatabase.writeValueAsString(permissionGroup.getPermissions()),
+                JsonForDatabase.writeValueAsString(permissionGroup.getPolicies()),
+                JsonForDatabase.writeValueAsString(permissionGroup.getPermissions()),
                 id);
         return permissionGroup;
     }
@@ -193,8 +193,8 @@ public class RepositoryHelperMethods {
                 insertInstanceConfigurationQuery,
                 id,
                 config.getName(),
-            JsonForDatabase.writeValueAsString(config.getConfig()),
-            JsonForDatabase.writeValueAsString(config.getPolicies()));
+                JsonForDatabase.writeValueAsString(config.getConfig()),
+                JsonForDatabase.writeValueAsString(config.getPolicies()));
         config.setId(id);
         return config;
     }
@@ -206,8 +206,8 @@ public class RepositoryHelperMethods {
         jdbcTemplate.update(
                 insertInstanceConfigurationQuery,
                 config.getName(),
-            JsonForDatabase.writeValueAsString(config.getConfig()),
-            JsonForDatabase.writeValueAsString(config.getPolicies()),
+                JsonForDatabase.writeValueAsString(config.getConfig()),
+                JsonForDatabase.writeValueAsString(config.getPolicies()),
                 id);
         return config;
     }
@@ -219,8 +219,8 @@ public class RepositoryHelperMethods {
         jdbcTemplate.update(
                 insertInstanceConfigurationQuery,
                 tenant.getSlug(),
-            JsonForDatabase.writeValueAsString(tenant.getTenantConfiguration()),
-            JsonForDatabase.writeValueAsString(tenant.getPolicies()),
+                JsonForDatabase.writeValueAsString(tenant.getTenantConfiguration()),
+                JsonForDatabase.writeValueAsString(tenant.getPolicies()),
                 id);
         return tenant;
     }
@@ -253,10 +253,10 @@ public class RepositoryHelperMethods {
                 updateThemeQuery,
                 theme.getName(),
                 theme.getDisplayName(),
-            JsonForDatabase.writeValueAsString(theme.getConfig()),
-            JsonForDatabase.writeValueAsString(theme.getProperties()),
-            JsonForDatabase.writeValueAsString(theme.getStylesheet()),
-            JsonForDatabase.writeValueAsString(theme.getPolicies()),
+                JsonForDatabase.writeValueAsString(theme.getConfig()),
+                JsonForDatabase.writeValueAsString(theme.getProperties()),
+                JsonForDatabase.writeValueAsString(theme.getStylesheet()),
+                JsonForDatabase.writeValueAsString(theme.getPolicies()),
                 id);
         return theme;
     }
@@ -270,11 +270,11 @@ public class RepositoryHelperMethods {
                 id,
                 theme.getName(),
                 theme.getDisplayName(),
-            JsonForDatabase.writeValueAsString(theme.getConfig()),
-            JsonForDatabase.writeValueAsString(theme.getProperties()),
-            JsonForDatabase.writeValueAsString(theme.getStylesheet()),
+                JsonForDatabase.writeValueAsString(theme.getConfig()),
+                JsonForDatabase.writeValueAsString(theme.getProperties()),
+                JsonForDatabase.writeValueAsString(theme.getStylesheet()),
                 theme.isSystemTheme(),
-            JsonForDatabase.writeValueAsString(theme.getPolicies()));
+                JsonForDatabase.writeValueAsString(theme.getPolicies()));
         theme.setId(id);
         return theme;
     }
