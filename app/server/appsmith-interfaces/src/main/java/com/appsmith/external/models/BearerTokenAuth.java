@@ -16,6 +16,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BearerTokenAuth extends AuthenticationDTO {
-    @Encrypted @JsonView({Views.Public.class, FromRequest.class})
+    @Encrypted @JsonView({Views.Internal.class, FromRequest.class})
     String bearerToken;
 }
