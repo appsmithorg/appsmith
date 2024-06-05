@@ -420,15 +420,18 @@ init_postgres() {
       chown postgres:postgres "$POSTGRES_DB_PATH"
 
       # Initialize the postgres db file system
+      echo "Initializing postgres db file system"
       su postgres -c "/usr/lib/postgresql/15/bin/initdb -D $POSTGRES_DB_PATH"
       sed -Ei "s,^#(unix_socket_directories =).*,\\1 '$TMP/pg-runtime'," "$POSTGRES_DB_PATH/postgresql.conf"
 
+      echo "Starting postgres server in daemon mode"
       # Start the postgres server in daemon mode
       su postgres -c "/usr/lib/postgresql/15/bin/pg_ctl -D $POSTGRES_DB_PATH start"
 
       # Create mockdb db and user and populate it with the data
       # seed_embedded_postgres
       # Stop the postgres daemon
+      echo "Stopping postgres server"
       su postgres -c "/usr/lib/postgresql/15/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
     fi
   else
