@@ -83,7 +83,6 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -140,6 +139,7 @@ import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_C
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.dtos.ce.CustomJSLibContextCE_DTO.getDTOFromCustomJSLib;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -148,7 +148,6 @@ import static org.junit.jupiter.api.Assertions.fail;
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @TestMethodOrder(MethodOrderer.MethodName.class)
-@Disabled
 public class ImportServiceTests {
     private static final Map<String, Datasource> datasourceMap = new HashMap<>();
     private static Plugin installedPlugin;
@@ -1002,7 +1001,7 @@ public class ImportServiceTests {
                     assertEquals(expectedJSLib.getUrl(), importedJSLib.getUrl());
                     assertEquals(expectedJSLib.getDocsUrl(), importedJSLib.getDocsUrl());
                     assertEquals(expectedJSLib.getVersion(), importedJSLib.getVersion());
-                    assertEquals(expectedJSLib.getDefs(), importedJSLib.getDefs());
+                    assertArrayEquals(expectedJSLib.getDefs(), importedJSLib.getDefs());
                     // although the imported list had only one jsLib entry, the other entry comes from ensuring an xml
                     // parser entry for backward compatibility
                     assertEquals(2, application.getUnpublishedCustomJSLibs().size());
@@ -4865,7 +4864,7 @@ public class ImportServiceTests {
                     assertEquals(jsLib.getUrl(), exportedJSLib.getUrl());
                     assertEquals(jsLib.getDocsUrl(), exportedJSLib.getDocsUrl());
                     assertEquals(jsLib.getVersion(), exportedJSLib.getVersion());
-                    assertEquals(jsLib.getDefs(), exportedJSLib.getDefs());
+                    assertArrayEquals(jsLib.getDefs(), exportedJSLib.getDefs());
                     assertEquals(
                             getDTOFromCustomJSLib(jsLib),
                             exportedAppJson

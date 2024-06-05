@@ -375,9 +375,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .flatMap(this::validateDatasource)
                 .flatMap(unsavedDatasource -> {
                     return repository.save(unsavedDatasource).map(savedDatasource -> {
-                        // datasource.pluginName is a transient field. It was set by validateDatasource method
-                        // object from db will have pluginName=null so set it manually from the unsaved datasource obj
+                        // datasource.pluginName, datasource.datasourceStorages are transient fields. so DB save won't
+                        // have it, we need to add back to saved object explicitly
                         savedDatasource.setPluginName(unsavedDatasource.getPluginName());
+                        savedDatasource.setDatasourceStorages(unsavedDatasource.getDatasourceStorages());
                         return savedDatasource;
                     });
                 })

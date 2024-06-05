@@ -721,7 +721,7 @@
       "url": "url",
       "docsUrl": "docsUrl",
       "version": "1.0",
-      "defs": "defs_string",
+      "defs": [100, 101, 102, 115, 95, 115, 116, 114, 105, 110, 103],
       "uidString": "accessor1_url"
     }
   ]

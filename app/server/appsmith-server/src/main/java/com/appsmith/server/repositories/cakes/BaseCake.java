@@ -70,7 +70,9 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                         entity.setId(generateId());
                     }
                     try {
-                        repository.save(entity);
+                        T savedEntity = repository.save(entity);
+                        entity.setCreatedAt(savedEntity.getCreatedAt());
+                        entity.setUpdatedAt(savedEntity.getUpdatedAt());
                         return entity;
                     } catch (DataIntegrityViolationException e) {
                         // save wasn't successful, reset the id if it was generated
