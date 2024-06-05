@@ -116,6 +116,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -4596,6 +4597,7 @@ public class ImportServiceTests {
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
                     List<NewPage> pages = applicationJson.getPageList();
+                    pages.sort(Comparator.comparing(p -> p.getUnpublishedPage().getName()));
                     assertThat(pages).hasSize(2);
                     assertThat(pages.get(1).getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
                     assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");

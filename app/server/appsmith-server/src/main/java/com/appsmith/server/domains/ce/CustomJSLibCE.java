@@ -7,6 +7,10 @@ import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -16,6 +20,8 @@ import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -66,7 +72,20 @@ public class CustomJSLibCE extends BranchAwareDomain {
     feature i.e. the function name showing up as suggestion when user has partially typed it. */
     @Column(columnDefinition = "text")
     @JsonView({Views.Public.class, Git.class})
+    @JsonAdapter(DefsAdapter.class)
     byte[] defs;
+
+    public static class DefsAdapter extends TypeAdapter<byte[]> {
+        @Override
+        public void write(JsonWriter out, byte[] value) throws IOException {
+            out.value(new String(value, StandardCharsets.UTF_8));
+        }
+
+        @Override
+        public byte[] read(JsonReader in) throws IOException {
+            return in.nextString().getBytes(StandardCharsets.UTF_8);
+        }
+    }
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public CustomJSLibCE(
