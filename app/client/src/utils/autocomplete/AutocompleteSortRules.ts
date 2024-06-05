@@ -432,7 +432,7 @@ export class AutocompleteSorter {
               case ENTITY_TYPE.JSACTION:
                 if (jsObjectCompletionsList.length === 0) {
                   jsObjectCompletionsList.push(
-                    createCompletionHeader("JSObjects"),
+                    createCompletionHeader("JS Objects"),
                   );
                 }
                 jsObjectCompletionsList.push(completionObj);
