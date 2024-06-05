@@ -424,7 +424,7 @@ init_postgres() {
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
       chown postgres:postgres "$POSTGRES_DB_PATH"
 
-      # Please refer to base.dockerfile for the installation of postgres
+      # Please refer to base.dockerfile for the installation of Postgres
       # Initialize the postgres db file system
       su postgres -c "/usr/lib/postgresql/current/bin/initdb -D $POSTGRES_DB_PATH"
       sed -Ei "s,^#(unix_socket_directories =).*,\\1 '$TMP/pg-runtime'," "$POSTGRES_DB_PATH/postgresql.conf"
