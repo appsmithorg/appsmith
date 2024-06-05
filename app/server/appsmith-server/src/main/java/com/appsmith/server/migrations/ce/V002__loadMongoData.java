@@ -168,6 +168,7 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
         // Convert "userData" to "user_data".
         // Convert "userPermissionGroup" to "user_permission_group".
         // Convert "customJSLib" to "customjslib".
-        return str.replaceAll("([a-z])([A-Z][a-z])", "$1_$2").toLowerCase(Locale.ENGLISH);
+        // Convert "assignedToUserIds" to "assigned_to_user_ids".
+        return str.replaceAll("([a-z])([A-Z](?=[a-z]))", "$1_$2").toLowerCase(Locale.ENGLISH);
     }
 }
