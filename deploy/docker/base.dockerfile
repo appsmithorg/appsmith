@@ -59,7 +59,7 @@ RUN mv /opt/caddy/caddy /opt/caddy/caddy_vanilla
 COPY --from=caddybuilder /usr/bin/caddy /opt/caddy/caddy
 
 # Add newrelic related files
-RUN curl -o /opt/newrelic/newrelic.jar https://download.newrelic.com/newrelic/java-agent/newrelic-agent/8.9.1/newrelic-agent-8.9.1.jar
+RUN curl -o /opt/newrelic/newrelic.jar https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-agent.jar
 
 # Clean up
 RUN rm -rf \
