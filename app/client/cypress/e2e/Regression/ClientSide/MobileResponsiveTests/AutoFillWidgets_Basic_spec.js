@@ -42,14 +42,30 @@ describe(
       _.autoLayout.ConvertToAutoLayoutAndVerify(false);
 
       _.entityExplorer.DragNDropWidget(_.draggableWidgets.SWITCH, 100, 200);
-      _.entityExplorer.DragNDropWidget(_.draggableWidgets.CURRENCY_INPUT, 110, 210);
+      _.entityExplorer.DragNDropWidget(
+        _.draggableWidgets.CURRENCY_INPUT,
+        110,
+        210,
+      );
       _.entityExplorer.DragNDropWidget(_.draggableWidgets.AUDIO, 250, 300);
       _.entityExplorer.DragNDropWidget(_.draggableWidgets.SELECT, 560, 560);
       _.entityExplorer.DragNDropWidget(_.draggableWidgets.CHECKBOX, 670, 770);
-      _.entityExplorer.DragNDropWidget(_.draggableWidgets.RADIO_GROUP, 670, 770);
+      _.entityExplorer.DragNDropWidget(
+        _.draggableWidgets.RADIO_GROUP,
+        670,
+        770,
+      );
       _.entityExplorer.DragNDropWidget(_.draggableWidgets.DATEPICKER, 670, 970);
-      _.entityExplorer.DragNDropWidget(_.draggableWidgets.PHONE_INPUT, 660, 810);
-      _.entityExplorer.DragNDropWidget(_.draggableWidgets.CATEGORY_SLIDER, 620, 810);
+      _.entityExplorer.DragNDropWidget(
+        _.draggableWidgets.PHONE_INPUT,
+        660,
+        810,
+      );
+      _.entityExplorer.DragNDropWidget(
+        _.draggableWidgets.CATEGORY_SLIDER,
+        620,
+        810,
+      );
 
       cy.wait(5000);
       _.deployMode.DeployApp();
