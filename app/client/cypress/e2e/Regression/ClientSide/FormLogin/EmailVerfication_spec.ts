@@ -72,7 +72,7 @@ describe("Email verification", () => {
     // save
     cy.get(adminsSettings.saveButton).click();
 
-    cy.waitForServerRestart();
+    // cy.waitForServerRestart();
 
     cy.waitUntil(() =>
       cy.contains("General", { timeout: 210000 }).should("be.visible"),
