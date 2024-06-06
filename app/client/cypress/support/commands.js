@@ -49,6 +49,7 @@ const deployMode = ObjectsRegistry.DeployMode;
 const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
 const entityExplorer = ObjectsRegistry.EntityExplorer;
+const table = ObjectsRegistry.Table;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -469,25 +470,6 @@ Cypress.Commands.add("selectAction", (option) => {
     .click({ force: true });
 });
 
-Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
-  PageLeftPane.switchSegment(PagePaneSegment.UI);
-  PageLeftPane.switchToAddNew();
-  const selector = `.t--widget-card-draggable-${widgetType}`;
-  cy.wait(500);
-  cy.get(selector)
-    .first()
-    .trigger("dragstart", { force: true })
-    .trigger("mousemove", x, y, { force: true });
-
-  const option = { eventConstructor: "MouseEvent", scrollBehavior: false };
-
-  cy.get(explorer.dropHere)
-    .trigger("mousemove", x, y, option)
-    .trigger("mousemove", x, y, option)
-    .trigger("mouseup", x, y, option);
-  agHelper.AssertAutoSave();
-});
-
 Cypress.Commands.add(
   "dragAndDropToWidget",
   (widgetType, destinationWidget, { x, y }) => {
@@ -871,7 +853,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-      cy.isSelectRow(0);
+      table.SelectTableRow(0);
       cy.readTabledata("0", "5").then((tabData) => {
         const tableData = tabData;
         expect(valueToTest).contains(tableData);
@@ -897,7 +879,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.wait(2000);
-      cy.isSelectRow(0);
+      table.SelectTableRow(0);
       cy.readTableV2data("0", "5").then((tabData) => {
         const tableData = tabData;
         cy.log(valueToTest);

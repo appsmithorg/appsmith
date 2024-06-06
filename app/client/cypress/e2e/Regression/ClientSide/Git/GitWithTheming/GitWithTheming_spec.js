@@ -49,7 +49,6 @@ describe("Git with Theming:", { tags: ["@tag.Git"] }, function () {
     _.appSettings.ClosePane();
     // drag a widget and assert theme is applied
     _.entityExplorer.DragNDropWidget(_.draggableWidgets.BUTTON, 300, 700);
-    //cy.get('.t--draggable-buttonwidget').closest("div").should('have.css' , 'background-color', backgroudColorChildBranch)
     cy.get(widgetsPage.widgetBtn).should(
       "have.css",
       "background-color",
@@ -58,7 +57,6 @@ describe("Git with Theming:", { tags: ["@tag.Git"] }, function () {
     cy.commitAndPush();
     cy.wait(2000);
     _.gitSync.CreateGitBranch(tempBranch);
-    //cy.createGitBranch(tempBranch);
     cy.wait(1000);
     cy.get(".canvas").click(0, 0, { force: true });
     // change theme on tempBranch

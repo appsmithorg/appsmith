@@ -23,7 +23,6 @@ describe(
 
     it("1. Add new Modal", () => {
       _.entityExplorer.DragNDropWidget(_.draggableWidgets.MODAL, 300, 300);
-      // cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 300 });
       cy.get(".t--modal-widget").should("exist");
     });
 
