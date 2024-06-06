@@ -436,7 +436,7 @@ public class ApplicationImportServiceCEImpl
                             Mono<Application> parentApplicationMono;
                             if (application.getGitApplicationMetadata() != null) {
                                 parentApplicationMono = applicationService.findById(
-                                        application.getGitApplicationMetadata().getDefaultApplicationId());
+                                        application.getGitApplicationMetadata().getDefaultArtifactId());
                             } else {
                                 parentApplicationMono = Mono.just(application);
                             }

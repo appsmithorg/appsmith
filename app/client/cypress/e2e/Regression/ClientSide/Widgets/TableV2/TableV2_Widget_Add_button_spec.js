@@ -256,7 +256,7 @@ describe(
       cy.wait(1000);
       cy.moveToContentTab();
       cy.wait(500);
-      cy.get(".t--property-control-disabled input").click({
+      cy.get(widgetsPage.selectWidgetDisabled).click({
         force: true,
       });
       //cy.closePropertyPane();

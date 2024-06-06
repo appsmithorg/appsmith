@@ -645,7 +645,7 @@ public enum AppsmithError {
             ErrorType.CONFIGURATION_ERROR,
             null),
     CLOUD_SERVICES_ERROR(
-            500,
+            400,
             AppsmithErrorCode.CLOUD_SERVICES_ERROR.getCode(),
             "Received error from cloud services {0}",
             AppsmithErrorAction.DEFAULT,
