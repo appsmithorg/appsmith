@@ -271,7 +271,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     if (params.getPermission() != null && permissionGroups.isEmpty()) {
-                        return Mono.empty();
+                        return Mono.just(Collections.<P>emptyList());
                     }
 
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -334,7 +334,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                                 }
                                 return map((List<Object[]>) tuple, projectionClass);
                             })
-                            .onErrorResume(NoResultException.class, e -> Mono.empty());
+                            .onErrorResume(NoResultException.class, e -> Mono.just(Collections.emptyList()));
                 })
                 .block();
     }
