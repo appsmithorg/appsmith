@@ -34,21 +34,45 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
 
     private static final Pattern UUID_OR_OBJECTID_PATTERN =
             Pattern.compile("([\":])([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{24})(\")");
+    private static final String MONGO_DATA_NAME = "mongo-data";
 
     final Map<String, String> idMap = new HashMap<>();
 
-    final Path BASELINE_DATA_ROOT =
-            Path.of("/Users/shri/work/appsmith-ee-pg/deploy/docker/fs/opt/appsmith/utils/bin/baseline-"
-                    + ProjectProperties.EDITION.toLowerCase() + "-data");
+    private static Path findEffectiveDataPath() {
+        // MongoDB export placed in Stacks volume, in Docker container.
+        final Path mongoDataInStacks = Path.of("appsmith-stacks", MONGO_DATA_NAME);
+        if (Files.exists(mongoDataInStacks)) {
+            return mongoDataInStacks;
+        }
 
-    final Path MONGO_DATA_ROOT =
-            Path.of("/Users/shri/work/appsmith-ce-pg/deploy/docker/fs/opt/appsmith/utils/bin/mongo-data");
+        // Find where `opt/appsmith` folder is located.
+        // In Docker container, we'll find it at `/opt/appsmith`.
+        // In dev systems, we look for the `deploy` folder, navigating upwards.
+        Path optAppsmith = Path.of("opt", "appsmith");
+        if (!Files.exists(optAppsmith)) {
+            Path current = Path.of(".").toAbsolutePath();
+            while (!Files.exists(current.resolve("deploy"))) {
+                current = current.getParent();
+                if (current == null) {
+                    throw new RuntimeException("No baseline folder found");
+                }
+            }
+            optAppsmith = current.resolve(Path.of("deploy", "docker", "fs", "opt", "appsmith"));
+        }
+
+        // Is there MongoDB export in optAppsmith?
+        if (Files.exists(optAppsmith.resolve(MONGO_DATA_NAME))) {
+            return optAppsmith.resolve(MONGO_DATA_NAME);
+        }
+
+        // Otherwise, just return baseline data path.
+        return optAppsmith.resolve("baseline-" + ProjectProperties.EDITION.toLowerCase());
+    }
 
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
-        final boolean isOperatingOnBaselineData = !MONGO_DATA_ROOT.toFile().exists();
-
-        final Path effectiveDataRoot = isOperatingOnBaselineData ? BASELINE_DATA_ROOT : MONGO_DATA_ROOT;
+        final Path effectiveDataRoot = findEffectiveDataPath();
+        final boolean isCustomerExistingDataPresent = effectiveDataRoot.endsWith(MONGO_DATA_NAME);
 
         // Iterate over files in `effectiveDataRoot`, use the name as the `collectionName` and process them.
         try (final Stream<Path> items = Files.list(effectiveDataRoot).sorted()) {
@@ -61,12 +85,12 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
                     // Ignore these collections.
                     return;
                 }
-                moveForTable(item, jdbcTemplate, isOperatingOnBaselineData);
+                moveForTable(item, jdbcTemplate, isCustomerExistingDataPresent);
             });
         }
     }
 
-    private void moveForTable(Path jsonlPath, JdbcTemplate jdbcTemplate, boolean isOperatingOnBaselineData) {
+    private void moveForTable(Path jsonlPath, JdbcTemplate jdbcTemplate, boolean isCustomerExistingDataPresent) {
         final Map<String, Integer> columnTypes = new LinkedHashMap<>();
 
         final String collectionName = jsonlPath.toFile().getName().replace(".jsonl", "");
@@ -92,7 +116,7 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
                 }
 
                 // Replace ObjectId values in the base data with new random UUIDs.
-                if (isOperatingOnBaselineData) {
+                if (!isCustomerExistingDataPresent) {
                     line = UUID_OR_OBJECTID_PATTERN.matcher(line).replaceAll(match -> {
                         String objectId = match.group(2);
                         if (!idMap.containsKey(objectId)) {
