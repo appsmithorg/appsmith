@@ -130,7 +130,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
 
     // Step 7: mock the entire copied widget handling logic
     for (let i = 0; i < newWidgetList.length; i++) {
-      result = generator.next({ pageId: "01234567890abcdef00000000" });
+      result = generator.next("0123456789abcdef00000000");
     }
 
     result = generator.next();
