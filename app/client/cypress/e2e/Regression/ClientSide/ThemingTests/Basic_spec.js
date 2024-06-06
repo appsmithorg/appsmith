@@ -34,10 +34,10 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     appSettings.OpenAppSettings();
     appSettings.GoToThemeSettings();
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
-    cy.assertPageSave();
+    agHelper.AssertAutoSave();
     // select a theme
     cy.get(commonlocators.themeCard).last().click({ force: true });
-    cy.assertPageSave();
+    agHelper.AssertAutoSave();
     // check for alert
     cy.get(`${commonlocators.themeCard}`)
       .last()
@@ -83,7 +83,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
 
     // change app border radius
     cy.get(commonlocators.themeAppBorderRadiusBtn).eq(1).click({ force: true });
-    cy.assertPageSave();
+    agHelper.AssertAutoSave();
     // check if border radius is changed on button
     cy.get(commonlocators.themeAppBorderRadiusBtn)
       .eq(1)
@@ -658,7 +658,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
       "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
     );
 
-    cy.assertPageSave();
+    agHelper.AssertAutoSave();
 
     //Add deploy mode verification here also!
     deployMode.DeployApp();

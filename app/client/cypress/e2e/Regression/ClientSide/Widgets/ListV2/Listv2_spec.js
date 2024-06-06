@@ -68,7 +68,7 @@ describe(
           entityExplorer.DragDropWidgetNVerify(widget);
           //cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });
           agHelper.GetNClick(propPane._deleteWidget);
-          cy.assertPageSave();
+          agHelper.AssertAutoSave();
           cy.wait(800);
         });
       },
@@ -86,10 +86,10 @@ describe(
           entityExplorer.DragDropWidgetNVerify(widget);
 
           //cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });
-          cy.assertPageSave();
+          agHelper.AssertAutoSave();
           cy.get(`.t--draggable-${widget}`).should("exist");
           cy.get(widgetsPage.removeWidget).click({ force: true });
-          cy.assertPageSave();
+          agHelper.AssertAutoSave();
           cy.wait(800);
         });
       },
