@@ -4,10 +4,7 @@ import {
   type LayoutComponentProps,
   type WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import {
-  AlignmentIndexMap,
-  MOBILE_BREAKPOINT,
-} from "layoutSystems/anvil/utils/constants";
+import { AlignmentIndexMap } from "layoutSystems/anvil/utils/constants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
 import { FlexLayout, type FlexLayoutProps } from "../FlexLayout";
@@ -34,7 +31,7 @@ import { isFillWidgetPresentInList } from "layoutSystems/anvil/utils/layouts/wid
  *    thanks to flex wrap in the parent layout.
  */
 const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
-  const { canvasId, layout, layoutId, renderMode } = props;
+  const { canvasId, layout, layoutId } = props;
 
   const commonProps: Omit<
     FlexLayoutProps,
@@ -49,10 +46,11 @@ const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
       flexShrink: 1,
       layoutType: LayoutComponentTypes.WIDGET_ROW,
       parentDropTarget: props.parentDropTarget,
-      renderMode,
-      wrap: { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
+      wrap: "wrap",
       className: props.className,
       maxWidth: "100%",
+      width: "100%",
+      minWidth: "fit-content",
     };
   }, []);
 

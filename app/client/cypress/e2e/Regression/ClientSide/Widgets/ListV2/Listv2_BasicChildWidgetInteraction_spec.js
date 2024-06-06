@@ -64,7 +64,7 @@ describe(
         x: 250,
         y: 50,
       });
-      cy.assertPageSave();
+      _.agHelper.AssertAutoSave();
 
       // Verify drop
       cy.get(publishLocators.inputWidget).should("exist");
