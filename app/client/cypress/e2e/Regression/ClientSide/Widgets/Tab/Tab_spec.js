@@ -48,7 +48,7 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
     cy.get(Layoutpage.tabContainer)
       .scrollIntoView({ easing: "linear" })
       .should("be.visible");
-    cy.assertPageSave();
+    agHelper.AssertAutoSave();
     deployMode.DeployApp();
   });
 
