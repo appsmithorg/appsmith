@@ -1,5 +1,6 @@
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Visual regression tests", { tags: ["@tag.Visual"] }, () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
@@ -18,7 +19,7 @@ describe("Visual regression tests", { tags: ["@tag.Visual"] }, () => {
     cy.get("#root").matchImageSnapshot("apppage");
 
     //Layout validation for Quick page wizard
-    cy.get("[data-testid='generate-app']").click();
+    PageList.AddNewPage("Generate page with data");
     cy.wait(2000);
     // taking screenshot of generate crud page
     cy.get("#root").matchImageSnapshot("quickPageWizard");
