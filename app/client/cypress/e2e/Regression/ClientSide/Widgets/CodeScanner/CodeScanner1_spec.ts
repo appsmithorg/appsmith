@@ -51,7 +51,7 @@ describe(
                   cy.moveToContentTab();
 
                   // Disable and publish
-                  cy.togglebar(commonlocators.disableCheckbox);
+                  _.agHelper.CheckUncheck(commonlocators.disableCheckbox);
                   _.deployMode.DeployApp();
                   // Disabled icon should be there
                   cy.get(codeScannerDisabledSVGIconOnPublishPage).should(
@@ -124,7 +124,7 @@ describe(
               cy.moveToContentTab();
 
               // Visibilty ON and publish
-              cy.togglebar(commonlocators.visibleCheckbox);
+              _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
               _.deployMode.DeployApp();
 
               // Video should be streaming
@@ -189,7 +189,7 @@ describe(
               cy.moveToContentTab();
 
               // Disable and publish
-              cy.togglebar(commonlocators.disableCheckbox);
+              _.agHelper.CheckUncheck(commonlocators.disableCheckbox);
               _.deployMode.DeployApp();
 
               // Button should be disabled
@@ -246,7 +246,7 @@ describe(
               cy.moveToContentTab();
 
               // Visibilty ON and publish
-              cy.togglebar(commonlocators.visibleCheckbox);
+              _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
               _.deployMode.DeployApp();
 
               // Button should be visible

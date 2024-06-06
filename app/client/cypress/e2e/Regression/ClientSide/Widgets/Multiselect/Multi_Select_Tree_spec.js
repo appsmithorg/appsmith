@@ -110,7 +110,7 @@ describe(
 
     it("6. To Check Visible Widget", function () {
       cy.openPropertyPane("multiselecttreewidget");
-      cy.togglebar(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
       cy.get(
         publish.multiselecttreewidget + " " + ".rc-tree-select-multiple",

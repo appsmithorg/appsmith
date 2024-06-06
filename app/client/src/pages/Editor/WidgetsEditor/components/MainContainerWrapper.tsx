@@ -134,8 +134,6 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
     useMainContainerResizer();
   const isAnvilLayout = useSelector(getIsAnvilLayout);
 
-  const headerHeight = "40px";
-
   useEffect(() => {
     return () => {
       dispatch(forceOpenWidgetPanel(false));
@@ -206,7 +204,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         isPreviewingNavigation={isPreviewingNavigation}
         navigationHeight={navigationHeight}
         style={{
-          height: isPreviewMode ? `calc(100% - ${headerHeight})` : "auto",
+          height: isPreviewMode ? `calc(100% - ${navigationHeight})` : "auto",
           fontFamily: fontFamily,
           pointerEvents: isAutoCanvasResizing ? "none" : "auto",
         }}
@@ -229,7 +227,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         enableMainCanvasResizer={enableMainContainerResizer && canShowResizer}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
         isPreview={isPreviewMode || isProtectedMode}
-        shouldHaveTopMargin={shouldHaveTopMargin}
+        navigationHeight={navigationHeight}
       />
     </>
   );

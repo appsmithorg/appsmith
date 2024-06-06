@@ -91,6 +91,7 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     public Mono<AutoCommitTriggerDTO> isAutoCommitRequired(
             String workspaceId, GitArtifactMetadata gitArtifactMetadata, PageDTO pageDTO) {
 
