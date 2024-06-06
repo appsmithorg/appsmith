@@ -90,7 +90,7 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
         }
     }
 
-    private void moveForTable(Path jsonlPath, JdbcTemplate jdbcTemplate, boolean isOperatingOnBaselineData) {
+    private void moveForTable(Path jsonlPath, JdbcTemplate jdbcTemplate, boolean isCustomerExistingDataPresent) {
         final Map<String, Integer> columnTypes = new LinkedHashMap<>();
 
         final String collectionName = jsonlPath.toFile().getName().replace(".jsonl", "");
@@ -116,7 +116,7 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
                 }
 
                 // Replace ObjectId values in the base data with new random UUIDs.
-                if (isOperatingOnBaselineData) {
+                if (!isCustomerExistingDataPresent) {
                     line = UUID_OR_OBJECTID_PATTERN.matcher(line).replaceAll(match -> {
                         String objectId = match.group(2);
                         if (!idMap.containsKey(objectId)) {
