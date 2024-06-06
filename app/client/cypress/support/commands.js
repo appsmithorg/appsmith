@@ -936,6 +936,7 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.get(welcomePage.firstName).type(Cypress.env("USERNAME"));
   cy.get(welcomePage.continueButton).should("be.disabled");
   cy.get(welcomePage.email).type(Cypress.env("USERNAME"));
+  
   cy.get(welcomePage.continueButton).should("be.disabled");
   cy.get(welcomePage.password).type(Cypress.env("PASSWORD"));
   cy.get(welcomePage.continueButton).should("be.disabled");
