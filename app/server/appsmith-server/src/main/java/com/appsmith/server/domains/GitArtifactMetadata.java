@@ -4,9 +4,9 @@ import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Transient;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.annotation.Transient;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;

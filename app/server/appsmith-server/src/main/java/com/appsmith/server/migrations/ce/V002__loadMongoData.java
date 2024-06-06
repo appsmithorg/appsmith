@@ -32,12 +32,14 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
     final ObjectMapper objectMapper = new ObjectMapper();
     final ObjectReader objectReader = objectMapper.readerForMapOf(Object.class);
 
-    private static final Pattern UUID_OR_OBJECTID_PATTERN = Pattern.compile("([\":])([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{24})(\")");
+    private static final Pattern UUID_OR_OBJECTID_PATTERN =
+            Pattern.compile("([\":])([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{24})(\")");
 
     final Map<String, String> idMap = new HashMap<>();
 
     final Path BASELINE_DATA_ROOT =
-        Path.of("/Users/shri/work/appsmith-ee-pg/deploy/docker/fs/opt/appsmith/utils/bin/baseline-" + ProjectProperties.EDITION.toLowerCase() + "-data");
+            Path.of("/Users/shri/work/appsmith-ee-pg/deploy/docker/fs/opt/appsmith/utils/bin/baseline-"
+                    + ProjectProperties.EDITION.toLowerCase() + "-data");
 
     final Path MONGO_DATA_ROOT =
             Path.of("/Users/shri/work/appsmith-ce-pg/deploy/docker/fs/opt/appsmith/utils/bin/mongo-data");
