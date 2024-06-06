@@ -180,7 +180,7 @@ describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
   });
 
   it("4. Shows lint error and toast modal when JS Object doesn't start with 'export default'", () => {
-    const invalidJSObjectStartToastMessage = "Start object with export default";
+   // const invalidJSObjectStartToastMessage = "Start object with export default";
     const jsComment = "// This is a comment";
     const jsObjectStartLine = `export default{`;
     const jsObjectStartLineWithSpace = `export  default{`;
@@ -209,9 +209,8 @@ describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
         shouldCreateNewJSObj: true,
       });
 
-      // Assert presence of toast message
-      agHelper.AssertContains(invalidJSObjectStartToastMessage);
-
+      
+      
       // Assert presence of lint error at the start line
       agHelper.GetNAssertElementText(
         locators._lintErrorElement,

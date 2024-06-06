@@ -610,8 +610,7 @@ export const EXECUTING_FUNCTION = () => `Executing function`;
 export const UPDATING_JS_COLLECTION = () => `Updating...`;
 export const EMPTY_JS_OBJECT = () =>
   `Nothing to show, write some code to get response`;
-export const EXPORT_DEFAULT_BEGINNING = () =>
-  `Start object with export default`;
+export const EXPORT_DEFAULT_BEGINNING = () => {};
 export const ACTION_EXECUTION_FAILED = (actionName: string) =>
   `The action "${actionName}" has failed.`;
 export const JS_EXECUTION_SUCCESS = () => "JS Function executed successfully";
