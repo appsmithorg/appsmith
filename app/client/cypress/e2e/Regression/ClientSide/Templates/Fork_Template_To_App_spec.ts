@@ -33,7 +33,7 @@ describe(
 
     it("2. Add selected pages from template to an app", () => {
       homePage.CreateNewApplication();
-      PageList.AddNewPage("Add page from template");
+      agHelper.GetNClick(template.startFromTemplateCard);
       agHelper.AssertElementVisibility(template.templateDialogBox);
       agHelper.GetNClick("//h1[text()='Applicant Tracker-test']");
       agHelper.FailIfErrorToast(
