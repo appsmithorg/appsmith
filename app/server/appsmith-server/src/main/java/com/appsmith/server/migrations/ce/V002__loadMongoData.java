@@ -36,21 +36,26 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
 
     final Map<String, String> idMap = new HashMap<>();
 
-    final Path BASELINE_DATA_ROOT =
-        Path.of("/Users/shri/work/appsmith-ee-pg/deploy/docker/fs/opt/appsmith/utils/bin/baseline-" + ProjectProperties.EDITION.toLowerCase() + "-data");
+    final Path MONGO_DATA_ROOT = Path.of("dummy-path-for-existing-data-finding");
 
-    final Path MONGO_DATA_ROOT =
-            Path.of("/Users/shri/work/appsmith-ce-pg/deploy/docker/fs/opt/appsmith/utils/bin/mongo-data");
+    private String findBaselineDataPath() {
+        String appsmithBaselineDataPath = System.getenv("APPSMITH_BASE_DATA_PATH");
+        if (appsmithBaselineDataPath != null) {
+            return appsmithBaselineDataPath + "/baseline-" + ProjectProperties.EDITION.toLowerCase() + "-data";
+        }
+        throw new RuntimeException(
+                "(Env:APPSMITH_BASE_DATA_PATH) is not set, unable to run the migration further. Please set the path and try again.");
+    }
 
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
-        final boolean isOperatingOnBaselineData = MONGO_DATA_ROOT.toFile().exists();
-
+        final boolean isCustomerExistingDataPresent = MONGO_DATA_ROOT.toFile().exists();
         final Path effectiveDataRoot;
-        if (isOperatingOnBaselineData) {
-            effectiveDataRoot = BASELINE_DATA_ROOT;
-        } else {
+
+        if (isCustomerExistingDataPresent) {
             effectiveDataRoot = MONGO_DATA_ROOT;
+        } else {
+            effectiveDataRoot = Path.of(findBaselineDataPath());
         }
 
         // Iterate over files in `effectiveDataRoot`, use the name as the `collectionName` and process them.
@@ -64,7 +69,7 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
                     // Ignore these collections.
                     return;
                 }
-                moveForTable(item, jdbcTemplate, isOperatingOnBaselineData);
+                moveForTable(item, jdbcTemplate, isCustomerExistingDataPresent);
             });
         }
     }
