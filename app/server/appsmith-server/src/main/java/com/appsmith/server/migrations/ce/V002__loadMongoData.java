@@ -46,7 +46,7 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
 
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
-        final boolean isOperatingOnBaselineData = MONGO_DATA_ROOT.toFile().exists();
+        final boolean isOperatingOnBaselineData = !MONGO_DATA_ROOT.toFile().exists();
 
         final Path effectiveDataRoot;
         if (isOperatingOnBaselineData) {
