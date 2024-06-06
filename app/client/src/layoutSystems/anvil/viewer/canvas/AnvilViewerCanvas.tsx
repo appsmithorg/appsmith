@@ -18,7 +18,6 @@ export const AnvilViewerCanvas = React.forwardRef(
           className={className}
           id={getAnvilCanvasId(props.widgetId)}
           ref={ref}
-          tabIndex={0} //adding for accessibility in test cases.
         >
           <LayoutProvider {...props} />
         </div>

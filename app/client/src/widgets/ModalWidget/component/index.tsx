@@ -138,7 +138,6 @@ export default function ModalComponent(props: ModalComponentProps) {
         className={`${getCanvasClassName()} ${props.className} scroll-parent`}
         id={props.widgetId}
         ref={modalContentRef}
-        tabIndex={0}
       >
         {children}
       </Content>
