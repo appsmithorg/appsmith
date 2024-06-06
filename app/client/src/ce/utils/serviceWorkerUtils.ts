@@ -6,7 +6,7 @@ import {
 import { Mutex } from "async-mutex";
 import { APP_MODE } from "entities/App";
 
-interface TApplicationParams {
+export interface TApplicationParams {
   origin: string;
   pageId?: string;
   applicationId?: string;
