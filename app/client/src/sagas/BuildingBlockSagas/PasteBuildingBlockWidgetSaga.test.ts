@@ -43,7 +43,7 @@ type GeneratorType = Generator<
 
 describe("pasteBuildingBlockWidgetsSaga", () => {
   const copiedWidgetsResponse = { widgets: copiedWidgets, flexLayers };
-  it("should handle pasting into a valid parent widget", () => {
+  it("1. should handle pasting into a valid parent widget", () => {
     const generator: GeneratorType = pasteBuildingBlockWidgetsSaga(
       gridPosition,
       parentWidgetId,
@@ -101,6 +101,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
         boundaryWidgets.topMostWidget.topRow,
         boundaryWidgets.leftMostWidget.leftColumn,
         { gridPosition },
+        parentWidgetId,
       ),
     );
 
@@ -136,7 +137,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
     expect(result.done).toBe(true);
   });
 
-  it("should handle errors gracefully", () => {
+  it("2. should handle errors gracefully", () => {
     const generator: GeneratorType = pasteBuildingBlockWidgetsSaga(
       { left: 0, top: 0 },
       "testParentId",
