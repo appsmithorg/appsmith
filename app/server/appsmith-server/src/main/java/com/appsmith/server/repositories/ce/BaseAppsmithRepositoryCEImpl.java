@@ -287,7 +287,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
 
-                    final Predicate permissionGroupsPredicate = getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
+                    final Predicate permissionGroupsPredicate =
+                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
                     if (permissionGroupsPredicate != null) {
                         predicate = cb.and(predicate, permissionGroupsPredicate);
                     }
@@ -347,6 +348,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
+                    if (permissionGroups.isEmpty()) {}
+
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
                     CriteriaQuery<?> cq = cb.createQuery(projectionClass);
                     // We are creating the query with generic return type as Object[] and then mapping it to the
@@ -364,7 +367,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
 
-                    final Predicate permissionGroupsPredicate = getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
+                    final Predicate permissionGroupsPredicate =
+                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
                     if (permissionGroupsPredicate != null) {
                         predicate = cb.and(predicate, permissionGroupsPredicate);
                     }
@@ -414,7 +418,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
 
-                    final Predicate permissionGroupsPredicate = getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
+                    final Predicate permissionGroupsPredicate =
+                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
                     if (permissionGroupsPredicate != null) {
                         predicate = cb.and(predicate, permissionGroupsPredicate);
                     }
@@ -499,7 +504,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
         }
 
-        final Predicate permissionGroupsPredicate = getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
+        final Predicate permissionGroupsPredicate =
+                getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
         if (permissionGroupsPredicate != null) {
             predicate = cb.and(predicate, permissionGroupsPredicate);
         }
@@ -702,6 +708,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             return null;
         }
 
+        if (permissionGroups.isEmpty()) {
+            // TODO(Shri): Yes, this is an "always-fail" condition. We're working on whether we need it at all, on
+            // `release` branch.
+            return cb.literal(1).isNull();
+        }
+
         Map<String, String> fnVars = new HashMap<>();
         fnVars.put("p", permission.getValue());
         final List<String> conditions = new ArrayList<>();
@@ -712,12 +724,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         try {
             return cb.isTrue(cb.function(
-                            "jsonb_path_exists",
-                            Boolean.class,
-                            root.get(BaseDomain.Fields.policies),
-                            cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
-                                    + String.join(" || ", conditions) + ")))"),
-                            cb.literal(objectMapper.writeValueAsString(fnVars))));
+                    "jsonb_path_exists",
+                    Boolean.class,
+                    root.get(BaseDomain.Fields.policies),
+                    cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
+                            + String.join(" || ", conditions) + ")))"),
+                    cb.literal(objectMapper.writeValueAsString(fnVars))));
         } catch (JsonProcessingException e) {
             // This should never happen, were serializing a Map<String, String>, which ideally should never fail.
             throw new RuntimeException(e);
