@@ -32,7 +32,8 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
     final ObjectMapper objectMapper = new ObjectMapper();
     final ObjectReader objectReader = objectMapper.readerForMapOf(Object.class);
 
-    private static final Pattern OBJECTID_PATTERN = Pattern.compile("([\":])([0-9a-f]{24})(\")");
+    private static final Pattern UUID_OR_OBJECTID_PATTERN =
+            Pattern.compile("([\":])([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{24})(\")");
 
     final Map<String, String> idMap = new HashMap<>();
 
@@ -101,7 +102,7 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
 
                 // Replace ObjectId values in the base data with new random UUIDs.
                 if (isOperatingOnBaselineData) {
-                    line = OBJECTID_PATTERN.matcher(line).replaceAll(match -> {
+                    line = UUID_OR_OBJECTID_PATTERN.matcher(line).replaceAll(match -> {
                         String objectId = match.group(2);
                         if (!idMap.containsKey(objectId)) {
                             idMap.put(objectId, UUID.randomUUID().toString());
