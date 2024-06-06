@@ -12761,7 +12761,6 @@ export const defaultAppState = {
           license_widget_rtl_support_enabled: false,
           release_show_new_sidebar_announcement_enabled: false,
           rollout_app_sidebar_enabled: false,
-          ab_one_click_learning_popover_enabled: false,
           release_side_by_side_ide_enabled: false,
           release_global_add_pane_enabled: false,
           license_git_unlimited_repo_enabled: false,

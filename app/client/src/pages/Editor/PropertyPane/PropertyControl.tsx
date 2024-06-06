@@ -173,9 +173,7 @@ const PropertyControl = memo((props: Props) => {
 
   const propertyValue = _.get(widgetProperties, props.propertyName);
 
-  const experimentalJSToggle = useFeatureFlag(
-    FEATURE_FLAG.ab_one_click_learning_popover_enabled,
-  );
+  const experimentalJSToggle = false;
 
   /**
    * checks if property value is deviated or not.
