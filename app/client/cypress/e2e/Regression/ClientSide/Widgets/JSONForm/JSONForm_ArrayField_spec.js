@@ -370,9 +370,7 @@ describe(
       );
 
       // Enable Allow Country Code Change
-      agHelper.CheckUncheck(
-        ".t--property-control-allowcurrencychange input[type='checkbox']",
-      );
+      agHelper.CheckUncheck(commonlocators.allowCurrencyChange);
       // Change the label of the field to Phone Number
       cy.testJsontext("text", "Currency");
 
