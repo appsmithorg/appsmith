@@ -81,7 +81,7 @@ const renderNestedComponent = () => {
 
   return render(
     <MemoryRouter
-      initialEntries={[`/apps/applicationSlug/pageSlug-${pageId}/edit`]}
+      initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
     >
       <MockApplication>
         <GlobalHotKeys>
@@ -157,7 +157,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={[`/apps/applicationSlug/pageSlug-${pageId}/edit`]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -260,7 +260,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={[`/apps/applicationSlug/pageSlug-${pageId}/edit`]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -368,7 +368,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
   //   const component = render(
   //     <MemoryRouter
-  //       initialEntries={[`/apps/applicationSlug/pageSlug-${pageId}/edit`]}
+  //       initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
   //     >
   //       <MockApplication>
   //         <GlobalHotKeys>
@@ -477,7 +477,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={[`/apps/applicationSlug/pageSlug-${pageId}/edit`]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -584,7 +584,7 @@ describe("Drag and Drop widgets into Main container", () => {
       .mockImplementation(mockGetPagePermissions);
     const component = render(
       <MemoryRouter
-        initialEntries={[`/apps/applicationSlug/pageSlug-${pageId}/edit`]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -685,7 +685,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={[`/apps/applicationSlug/pageSlug-${pageId}/edit`]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>
