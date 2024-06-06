@@ -121,7 +121,7 @@ Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", (isOAuth2) => {
   cy.get(datasource.useCertInAuth).should("not.exist");
   cy.get(datasource.certificateDetails).should("not.exist");
   // cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
-  cy.togglebar(datasource.useSelfSignedCert);
+  agHelper.CheckUncheck(datasource.useSelfSignedCert);
   cy.get(datasource.useSelfSignedCert).should("be.checked");
   if (isOAuth2) {
     cy.get(datasource.useCertInAuth).should("exist");
@@ -442,10 +442,6 @@ Cypress.Commands.add("DeleteWorkspaceByApi", () => {
       cy.log(response.status);
     });
   }
-});
-
-Cypress.Commands.add("togglebar", (value) => {
-  cy.get(value).check({ force: true }).should("be.checked");
 });
 
 Cypress.Commands.add("NavigateToJSEditor", () => {
