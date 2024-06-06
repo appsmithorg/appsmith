@@ -20,7 +20,11 @@ import java.util.regex.Pattern;
 
 import static com.amazonaws.regions.Regions.DEFAULT_REGION;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
-import static com.external.plugins.constants.S3PluginConstants.*;
+import static com.external.plugins.constants.S3PluginConstants.AUTO;
+import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_INDEX;
+import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX;
+import static com.external.plugins.constants.S3PluginConstants.GOOGLE_CLOUD_SERVICE_PROVIDER;
+import static com.external.plugins.constants.S3PluginConstants.S3_SERVICE_PROVIDER_PROPERTY_INDEX;
 import static com.external.utils.DatasourceUtils.S3ServiceProvider.AMAZON;
 
 public class DatasourceUtils {
@@ -94,7 +98,7 @@ public class DatasourceUtils {
      * @param datasourceConfiguration
      * @return AmazonS3ClientBuilder object
      * @throws AppsmithPluginException when (1) there is an error with parsing credentials (2) required
-     * datasourceConfiguration properties are missing (3) endpoint URL is found incorrect.
+     *                                 datasourceConfiguration properties are missing (3) endpoint URL is found incorrect.
      */
     public static AmazonS3ClientBuilder getS3ClientBuilder(DatasourceConfiguration datasourceConfiguration)
             throws AppsmithPluginException {
