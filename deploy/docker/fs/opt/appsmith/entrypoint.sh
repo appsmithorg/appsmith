@@ -288,35 +288,6 @@ is_empty_directory() {
   [[ -d $1 && -z "$(ls -A "$1")" ]]
 }
 
-check_setup_custom_ca_certificates() {
-  # old, deprecated, should be removed.
-  local stacks_ca_certs_path
-  stacks_ca_certs_path="$stacks_path/ca-certs"
-
-  local container_ca_certs_path
-  container_ca_certs_path="/usr/local/share/ca-certificates"
-
-  if [[ -d $stacks_ca_certs_path ]]; then
-    if [[ ! -L $container_ca_certs_path ]]; then
-      if is_empty_directory "$container_ca_certs_path"; then
-        rmdir -v "$container_ca_certs_path"
-      else
-        echo "The 'ca-certificates' directory inside the container is not empty. Please clear it and restart to use certs from 'stacks/ca-certs' directory." >&2
-        return
-      fi
-    fi
-
-    ln --verbose --force --symbolic --no-target-directory "$stacks_ca_certs_path" "$container_ca_certs_path"
-
-  elif [[ ! -e $container_ca_certs_path ]]; then
-    rm -vf "$container_ca_certs_path"  # If it exists as a broken symlink, this will be needed.
-    mkdir -v "$container_ca_certs_path"
-
-  fi
-
-  update-ca-certificates --fresh
-}
-
 setup-custom-ca-certificates() (
   local stacks_ca_certs_path="$stacks_path/ca-certs"
   local store="$TMP/cacerts"
@@ -429,7 +400,7 @@ init_postgres() {
       sed -Ei "s,^#(unix_socket_directories =).*,\\1 '$TMP/pg-runtime'," "$POSTGRES_DB_PATH/postgresql.conf"
 
       # Start the postgres server in daemon mode
-      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
+      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl start -D $POSTGRES_DB_PATH"
 
       # Create mockdb db and user and populate it with the data
       seed_embedded_postgres
@@ -524,7 +495,6 @@ else
   export HOSTNAME="heroku_dyno"
 fi
 
-check_setup_custom_ca_certificates
 setup-custom-ca-certificates
 
 check_redis_compatible_page_size
