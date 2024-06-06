@@ -1,11 +1,11 @@
-import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ButtonType } from "widgets/ButtonWidget/component";
-import ButtonComponent from "widgets/ButtonWidget/component";
-import { ValidationTypes } from "constants/WidgetValidation";
-import ButtonWidget from "widgets/ButtonWidget";
+import { Alignment } from "@blueprintjs/core";
+import type { IconName } from "@blueprintjs/icons";
+import type {
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+  WidgetCallout,
+} from "WidgetProvider/constants";
 import type {
   ButtonBorderRadius,
   ButtonVariant,
@@ -16,16 +16,19 @@ import {
   ButtonVariantTypes,
   RecaptchaTypes,
 } from "components/constants";
-import type { IconName } from "@blueprintjs/icons";
-import { Alignment } from "@blueprintjs/core";
-import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
+import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
+import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
+import React from "react";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import ButtonWidget from "widgets/ButtonWidget";
+import type { ButtonType } from "widgets/ButtonWidget/component";
+import ButtonComponent from "widgets/ButtonWidget/component";
+import type { ButtonWidgetProps } from "widgets/ButtonWidget/widget";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type {
-  AutocompletionDefinitions,
-  PropertyUpdates,
-  SnipingModeProperty,
-} from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 
 class FormButtonWidget extends ButtonWidget {
@@ -43,6 +46,7 @@ class FormButtonWidget extends ButtonWidget {
       isDeprecated: true,
       replacement: "BUTTON_WIDGET",
       needsMeta: true,
+      tags: [WIDGET_TAGS.BUTTONS],
     } as any; // TODO (Sangeeth): Type error
   }
 
@@ -69,6 +73,15 @@ class FormButtonWidget extends ButtonWidget {
             propertyPath: "onClick",
             propertyValue: propValueMap.run,
             isDynamicPropertyPath: true,
+          },
+        ];
+      },
+      getEditorCallouts(): WidgetCallout[] {
+        return [
+          {
+            message: buildDeprecationWidgetMessage(
+              FormButtonWidget.getConfig().name,
+            ),
           },
         ];
       },

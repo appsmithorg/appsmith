@@ -35,12 +35,14 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -59,6 +61,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static com.appsmith.external.constants.spans.DatasourceSpan.FETCH_ALL_DATASOURCES_WITH_STORAGES;
+import static com.appsmith.external.constants.spans.DatasourceSpan.FETCH_ALL_PLUGINS_IN_WORKSPACE;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
@@ -87,6 +91,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final EnvironmentPermission environmentPermission;
     private final RateLimitService rateLimitService;
     private final FeatureFlagService featureFlagService;
+    private final ObservationRegistry observationRegistry;
 
     // Defines blocking duration for test as well as connection created for query execution
     // This will block the creation of datasource connection for 5 minutes, in case of more than 3 failed connection
@@ -112,7 +117,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
             RateLimitService rateLimitService,
-            FeatureFlagService featureFlagService) {
+            FeatureFlagService featureFlagService,
+            ObservationRegistry observationRegistry) {
 
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -130,6 +136,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         this.environmentPermission = environmentPermission;
         this.rateLimitService = rateLimitService;
         this.featureFlagService = featureFlagService;
+        this.observationRegistry = observationRegistry;
     }
 
     @Override
@@ -766,14 +773,19 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, AclPermission permission) {
+        Mono<Map<String, Plugin>> pluginsMapMono = pluginService
+                .findAllPluginsInWorkspace(workspaceId)
+                .name(FETCH_ALL_PLUGINS_IN_WORKSPACE)
+                .tap(Micrometer.observation(observationRegistry));
 
-        return repository
+        return pluginsMapMono.flatMapMany(pluginsMap -> repository
                 .findAllByWorkspaceId(workspaceId, permission)
                 .publishOn(Schedulers.boundedElastic())
                 .flatMap(datasource -> datasourceStorageService
                         .findByDatasource(datasource)
                         .publishOn(Schedulers.boundedElastic())
-                        .flatMap(datasourceStorageService::populateHintMessages)
+                        .flatMap(datasourceStorage ->
+                                datasourceStorageService.populateHintMessages(datasourceStorage, pluginsMap))
                         .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
                         .collectMap(DatasourceStorageDTO::getEnvironmentId)
                         .flatMap(datasourceStorages -> {
@@ -781,10 +793,12 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                             return Mono.just(datasource);
                         }))
                 .collectList()
+                .name(FETCH_ALL_DATASOURCES_WITH_STORAGES)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMapMany(datasourceList -> {
                     markRecentlyUsed(datasourceList, 3);
                     return Flux.fromIterable(datasourceList);
-                });
+                }));
     }
 
     @Override
