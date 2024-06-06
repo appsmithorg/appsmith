@@ -54,7 +54,7 @@ describe("pasteSagas", () => {
     cleanAllMocks();
     getLayoutSystemType.mockReturnValue("ANVIL");
   });
-  it("should handle pasting widgets correctly", async () => {
+  it("should perform paste operation with all necessary effects", async () => {
     // create mock data for copiedWidgets, selectedWidget, allWidgets
     const copiedWidgets: any = {
       widgets: [
@@ -122,7 +122,7 @@ describe("pasteSagas", () => {
     );
     expect(selectWidgetInitActionPut.payload.payload.length).toEqual(1);
   });
-  it("should add modals only to Main canvas", async () => {
+  it("should paste copied modals only to Main canvas", async () => {
     // Mock copiedWidgets data
     const copiedWidgets = {
       widgets: [
