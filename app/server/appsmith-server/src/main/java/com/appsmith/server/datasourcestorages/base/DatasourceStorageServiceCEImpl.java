@@ -219,8 +219,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 .map(this::sanitizeDatasourceStorage)
                 .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1))
                 .flatMap(this::executePreSaveActions)
-                .flatMap(unsavedDatasourceStorage ->
-                        repository.save(unsavedDatasourceStorage).thenReturn(unsavedDatasourceStorage));
+                .flatMap(repository::save);
     }
 
     @Override

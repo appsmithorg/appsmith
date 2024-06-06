@@ -287,7 +287,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
 
-                    final Predicate permissionGroupsPredicate = getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
+                    final Predicate permissionGroupsPredicate =
+                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
                     if (permissionGroupsPredicate != null) {
                         predicate = cb.and(predicate, permissionGroupsPredicate);
                     }
@@ -364,7 +365,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
 
-                    final Predicate permissionGroupsPredicate = getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
+                    final Predicate permissionGroupsPredicate =
+                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
                     if (permissionGroupsPredicate != null) {
                         predicate = cb.and(predicate, permissionGroupsPredicate);
                     }
@@ -414,7 +416,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
 
-                    final Predicate permissionGroupsPredicate = getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
+                    final Predicate permissionGroupsPredicate =
+                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
                     if (permissionGroupsPredicate != null) {
                         predicate = cb.and(predicate, permissionGroupsPredicate);
                     }
@@ -499,7 +502,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
         }
 
-        final Predicate permissionGroupsPredicate = getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
+        final Predicate permissionGroupsPredicate =
+                getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
         if (permissionGroupsPredicate != null) {
             predicate = cb.and(predicate, permissionGroupsPredicate);
         }
@@ -712,12 +716,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         try {
             return cb.isTrue(cb.function(
-                            "jsonb_path_exists",
-                            Boolean.class,
-                            root.get(BaseDomain.Fields.policies),
-                            cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
-                                    + String.join(" || ", conditions) + ")))"),
-                            cb.literal(objectMapper.writeValueAsString(fnVars))));
+                    "jsonb_path_exists",
+                    Boolean.class,
+                    root.get(BaseDomain.Fields.policies),
+                    cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
+                            + String.join(" || ", conditions) + ")))"),
+                    cb.literal(objectMapper.writeValueAsString(fnVars))));
         } catch (JsonProcessingException e) {
             // This should never happen, were serializing a Map<String, String>, which ideally should never fail.
             throw new RuntimeException(e);
