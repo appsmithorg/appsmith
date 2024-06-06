@@ -270,6 +270,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
+                    if (params.getPermission() != null && permissionGroups.isEmpty()) {
+                        return Mono.empty();
+                    }
+
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
                     CriteriaQuery<?> cq = cb.createQuery(projectionClass);
 
@@ -348,7 +352,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
-                    if (permissionGroups.isEmpty()) {}
+                    if (params.getPermission() != null && permissionGroups.isEmpty()) {
+                        return Mono.empty();
+                    }
 
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
                     CriteriaQuery<?> cq = cb.createQuery(projectionClass);
@@ -406,6 +412,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
+                    if (params.getPermission() != null && permissionGroups.isEmpty()) {
+                        return Mono.just(0L);
+                    }
+
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
                     final CriteriaQuery<Long> cq = cb.createQuery(Long.class);
                     final Root<T> root = cq.from(genericDomain);
@@ -502,6 +512,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         Predicate predicate = root.get(FieldName.DELETED_AT).isNull();
         if (!specifications.isEmpty()) {
             predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
+        }
+
+        if (params.getPermission() != null && permissionGroups.isEmpty()) {
+            return 0;
         }
 
         final Predicate permissionGroupsPredicate =
@@ -706,12 +720,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             Root<? extends BaseDomain> root) {
         if (permission == null) {
             return null;
-        }
-
-        if (permissionGroups.isEmpty()) {
-            // TODO(Shri): Yes, this is an "always-fail" condition. We're working on whether we need it at all, on
-            // `release` branch.
-            return cb.literal(1).isNull();
         }
 
         Map<String, String> fnVars = new HashMap<>();
