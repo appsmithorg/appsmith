@@ -48,12 +48,7 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
         final boolean isOperatingOnBaselineData = !MONGO_DATA_ROOT.toFile().exists();
 
-        final Path effectiveDataRoot;
-        if (isOperatingOnBaselineData) {
-            effectiveDataRoot = BASELINE_DATA_ROOT;
-        } else {
-            effectiveDataRoot = MONGO_DATA_ROOT;
-        }
+        final Path effectiveDataRoot = isOperatingOnBaselineData ? BASELINE_DATA_ROOT : MONGO_DATA_ROOT;
 
         // Iterate over files in `effectiveDataRoot`, use the name as the `collectionName` and process them.
         try (final Stream<Path> items = Files.list(effectiveDataRoot).sorted()) {
