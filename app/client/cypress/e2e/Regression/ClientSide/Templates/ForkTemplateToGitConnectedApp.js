@@ -33,7 +33,7 @@ describe(
 
     it("1.Bug #17002 Forking a template into an existing app which is connected to git makes the application go into a bad state ", function () {
       PageList.AddNewPage("Add page from template");
-      agHelper.AssertElementExist(template.templateDialogBox);
+      _.agHelper.AssertElementExist(template.templateDialogBox);
       _.agHelper.GetNClick(template.templateCard);
       _.agHelper.GetNClick(template.templateViewForkButton);
       cy.waitUntil(() => cy.xpath("//span[text()='Setting up the template']"), {
