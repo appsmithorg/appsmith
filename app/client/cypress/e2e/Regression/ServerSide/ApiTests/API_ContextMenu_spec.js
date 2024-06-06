@@ -8,6 +8,7 @@ const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 
 import {
+  agHelper,
   apiPage,
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
@@ -20,7 +21,7 @@ describe(
       cy.Createpage("SecondPage");
       cy.CreateAPI("FirstAPI");
       cy.enterDatasourceAndPath(testdata.baseUrl, "{{ '/random' }}");
-      cy.assertPageSave();
+      agHelper.AssertAutoSave();
       cy.get("body").click(0, 0);
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.ActionContextMenuByEntityName({

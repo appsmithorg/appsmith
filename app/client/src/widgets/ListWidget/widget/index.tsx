@@ -1,14 +1,35 @@
+import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+  WidgetCallout,
+} from "WidgetProvider/constants";
+import {
+  BlueprintOperationTypes,
+  type DSLWidget,
+  type FlattenedWidgetProps,
+} from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import {
+  GridDefaults,
+  RenderModes,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
+import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import equal from "fast-deep-equal/es6";
+import { klona } from "klona/lite";
+import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import {
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
-import equal from "fast-deep-equal/es6";
-import { klona } from "klona/lite";
 import {
   cloneDeep,
   compact,
@@ -26,24 +47,19 @@ import {
 } from "lodash";
 import log from "loglevel";
 import memoizeOne from "memoize-one";
+import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
 import React from "react";
 import shallowEqual from "shallowequal";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
-import { removeFalsyEntries } from "utils/helpers";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
-import WidgetFactory from "WidgetProvider/factory";
+import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
+import { removeFalsyEntries } from "utils/helpers";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  type FlattenedWidgetProps,
-  type DSLWidget,
-} from "WidgetProvider/constants";
+import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
@@ -51,22 +67,12 @@ import ListComponent, {
 import ListPagination, {
   ServerSideListPagination,
 } from "../component/ListPagination";
+import IconSVG from "../icon.svg";
 import derivedProperties from "./parseDerivedProperties";
 import {
   PropertyPaneContentConfig,
   PropertyPaneStyleConfig,
 } from "./propertyConfig";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-  PropertyUpdates,
-  SnipingModeProperty,
-} from "WidgetProvider/constants";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
-import IconSVG from "../icon.svg";
-import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 
@@ -92,6 +98,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       hideCard: true,
       replacement: "LIST_WIDGET_V2",
       needsHeightForContent: true,
+      tags: [WIDGET_TAGS.DISPLAY],
     };
   }
 
@@ -495,6 +502,13 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             propertyPath: "listData",
             propertyValue: propValueMap.data,
             isDynamicPropertyPath: true,
+          },
+        ];
+      },
+      getEditorCallouts(): WidgetCallout[] {
+        return [
+          {
+            message: buildDeprecationWidgetMessage(ListWidget.getConfig().name),
           },
         ];
       },

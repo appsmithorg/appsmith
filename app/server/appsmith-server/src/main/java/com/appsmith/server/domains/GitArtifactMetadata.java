@@ -107,8 +107,18 @@ public class GitArtifactMetadata implements AppsmithDomain {
 
     @JsonView(Views.Public.class)
     public String getDefaultArtifactId() {
-        if (StringUtils.hasText(defaultApplicationId)) {
-            return defaultApplicationId;
-        } else return defaultArtifactId;
+        if (StringUtils.hasText(defaultArtifactId)) {
+            return defaultArtifactId;
+        } else return defaultApplicationId;
+    }
+
+    // TODO : Set to private to prevent direct access unless migration is performed
+    private void setDefaultArtifactId(String defaultArtifactId) {
+        this.defaultArtifactId = defaultArtifactId;
+    }
+
+    public void setDefaultApplicationId(String defaultApplicationId) {
+        this.defaultApplicationId = defaultApplicationId;
+        this.defaultArtifactId = defaultApplicationId;
     }
 }

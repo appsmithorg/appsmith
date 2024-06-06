@@ -194,23 +194,26 @@ function JSResponseView(props: Props) {
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <>
-          {(hasExecutionParseErrors ||
-            (hasJSObjectParseError && errorMessage)) && (
-            <ResponseTabErrorContainer>
-              <ResponseTabErrorContent>
-                <div className="t--js-response-parse-error-call-out">
-                  {errorMessage}
-                </div>
+          {localExecutionAllowed &&
+            (hasExecutionParseErrors ||
+              (hasJSObjectParseError && errorMessage)) && (
+              <ResponseTabErrorContainer>
+                <ResponseTabErrorContent>
+                  <div className="t--js-response-parse-error-call-out">
+                    {errorMessage}
+                  </div>
 
-                <LogHelper
-                  logType={LOG_TYPE.EVAL_ERROR}
-                  name={errorType}
-                  source={actionSource}
-                />
-              </ResponseTabErrorContent>
-            </ResponseTabErrorContainer>
-          )}
-          <ResponseTabWrapper className={errors.length ? "disable" : ""}>
+                  <LogHelper
+                    logType={LOG_TYPE.EVAL_ERROR}
+                    name={errorType}
+                    source={actionSource}
+                  />
+                </ResponseTabErrorContent>
+              </ResponseTabErrorContainer>
+            )}
+          <ResponseTabWrapper
+            className={errors.length && localExecutionAllowed ? "disable" : ""}
+          >
             <Flex px="spaces-7" width="100%">
               <>
                 {localExecutionAllowed && (

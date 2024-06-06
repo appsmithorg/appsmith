@@ -1,6 +1,7 @@
 package com.appsmith.server.imports.internal.partial;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
@@ -237,6 +238,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                     if (applicationJson.getPageList() == null) {
                         return Mono.just(application);
                     }
+                    Stopwatch processStopwatch1 = new Stopwatch("Refactoring the widget in DSL ");
                     // The building block is stored as a page in an application
                     final JsonNode dsl = widgetRefactorUtil.convertDslStringToJsonNode(applicationJson
                             .getPageList()
@@ -264,6 +266,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                             })
                             .collectList()
                             .flatMap(refactoredDsl -> {
+                                processStopwatch1.stopAndLogTimeInMillis();
                                 applicationJson.setWidgets(dsl.toString());
                                 return Mono.just(application);
                             });
@@ -414,7 +417,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         Mono<ApplicationJson> applicationJsonMono =
                 applicationTemplateService.getApplicationJsonFromTemplate(buildingBlockDTO.getTemplateId());
 
+        Stopwatch processStopwatch = new Stopwatch("Download Content from Cloud service");
         return applicationJsonMono.flatMap(applicationJson -> {
+            processStopwatch.stopAndLogTimeInMillis();
+            Stopwatch processStopwatch1 = new Stopwatch("Importing resource in db ");
             return this.importResourceInPage(
                             buildingBlockDTO.getWorkspaceId(),
                             buildingBlockDTO.getApplicationId(),
@@ -422,6 +428,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                             branchName,
                             applicationJson)
                     .flatMap(buildingBlockImportDTO -> {
+                        processStopwatch1.stopAndLogTimeInMillis();
                         // Fetch layout and get new onPageLoadActions
                         // This data is not present in a client, since these are created
                         // after importing the block

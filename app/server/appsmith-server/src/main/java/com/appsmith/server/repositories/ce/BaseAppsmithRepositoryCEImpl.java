@@ -171,16 +171,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return builder.permission(permission).updateFirst(update);
     }
 
-    protected Mono<Set<String>> getCurrentUserPermissionGroupsIfRequired(Optional<AclPermission> permission) {
+    protected Mono<Set<String>> getCurrentUserPermissionGroupsIfRequired(AclPermission permission) {
         return getCurrentUserPermissionGroupsIfRequired(permission, true);
     }
 
     protected Mono<Set<String>> getCurrentUserPermissionGroupsIfRequired(
-            Optional<AclPermission> permission, boolean includeAnonymousUserPermissions) {
-        if (permission.isEmpty()) {
-            return Mono.just(Set.of());
-        }
-        return getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
+            AclPermission permission, boolean includeAnonymousUserPermissions) {
+        return permission == null
+                ? Mono.just(Set.of())
+                : getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
     }
 
     public Mono<Set<String>> getCurrentUserPermissionGroups() {
@@ -233,8 +232,17 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     public <P> Flux<P> queryAllExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return ensurePermissionGroupsInParams(params).thenMany(Flux.defer(() -> {
-            final Query query = createQueryWithPermission(
-                    params.getCriteria(), params.getFields(), params.getPermissionGroups(), params.getPermission());
+            final AclPermission permission = params.getPermission();
+            final Set<String> permissionGroups = params.getPermissionGroups();
+
+            if (permission != null && CollectionUtils.isEmpty(permissionGroups)) {
+                // There's a permission we want to check, but there's zero permission groups to check against. The
+                // resulting query will _always_ be `false`. So returning an early response, without hitting the DB.
+                return Flux.empty();
+            }
+
+            final Query query =
+                    createQueryWithPermission(params.getCriteria(), params.getFields(), permissionGroups, permission);
 
             if (params.getSkip() > NO_SKIP) {
                 query.skip(params.getSkip());
@@ -262,33 +270,64 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public <P> Mono<P> queryOneExecute(QueryAllParams<T> params, Class<P> projectionClass) {
-        return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> mongoOperations
-                .query(genericDomain)
-                .as(projectionClass)
-                .matching(createQueryWithPermission(
-                                params.getCriteria(),
-                                params.getFields(),
-                                params.getPermissionGroups(),
-                                params.getPermission())
-                        .cursorBatchSize(10_000))
-                .one()));
+        return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> {
+            final AclPermission permission = params.getPermission();
+            final Set<String> permissionGroups = params.getPermissionGroups();
+
+            if (permission != null && CollectionUtils.isEmpty(permissionGroups)) {
+                // There's a permission we want to check, but there's zero permission groups to check against. The
+                // resulting query will _always_ be `false`. So returning an early response, without hitting the DB.
+                return Mono.empty();
+            }
+
+            final Query query =
+                    createQueryWithPermission(params.getCriteria(), params.getFields(), permissionGroups, permission);
+
+            return mongoOperations
+                    .query(genericDomain)
+                    .as(projectionClass)
+                    .matching(query.cursorBatchSize(10_000))
+                    .one();
+        }));
     }
 
     public Mono<T> queryFirstExecute(QueryAllParams<T> params) {
-        return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> mongoOperations
-                .query(this.genericDomain)
-                .matching(createQueryWithPermission(
-                        params.getCriteria(), params.getFields(), params.getPermissionGroups(), params.getPermission()))
-                .first()
-                .flatMap(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()))));
+        return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> {
+            final AclPermission permission = params.getPermission();
+            final Set<String> permissionGroups = params.getPermissionGroups();
+
+            if (permission != null && CollectionUtils.isEmpty(permissionGroups)) {
+                // There's a permission we want to check, but there's zero permission groups to check against. The
+                // resulting query will _always_ be `false`. So returning an early response, without hitting the DB.
+                return Mono.empty();
+            }
+
+            final Query query =
+                    createQueryWithPermission(params.getCriteria(), params.getFields(), permissionGroups, permission);
+
+            return mongoOperations
+                    .query(this.genericDomain)
+                    .matching(query)
+                    .first()
+                    .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
+        }));
     }
 
     public Mono<Long> countExecute(QueryAllParams<T> params) {
-        return ensurePermissionGroupsInParams(params)
-                .then(Mono.defer(() -> mongoOperations.count(
-                        createQueryWithPermission(
-                                params.getCriteria(), params.getPermissionGroups(), params.getPermission()),
-                        this.genericDomain)));
+        return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> {
+            final AclPermission permission = params.getPermission();
+            final Set<String> permissionGroups = params.getPermissionGroups();
+
+            if (permission != null && CollectionUtils.isEmpty(permissionGroups)) {
+                // There's a permission we want to check, but there's zero permission groups to check against. The
+                // resulting query will _always_ be `false`. So returning an early response, without hitting the DB.
+                return Mono.just(0L);
+            }
+
+            final Query query = createQueryWithPermission(params.getCriteria(), permissionGroups, permission);
+
+            return mongoOperations.count(query, this.genericDomain);
+        }));
     }
 
     public Mono<Integer> updateExecute(@NonNull QueryAllParams<T> params, @NonNull T resource) {
@@ -316,19 +355,29 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "fields"));
         }
 
-        return ensurePermissionGroupsInParams(params)
-                .then(Mono.defer(() -> {
-                    final Query query = createQueryWithPermission(
-                            params.getCriteria(), null, params.getPermissionGroups(), params.getPermission());
-                    if (QueryAllParams.Scope.ALL.equals(params.getScope())) {
-                        return mongoOperations.updateMulti(query, update, genericDomain);
-                    } else if (QueryAllParams.Scope.FIRST.equals(params.getScope())) {
-                        return mongoOperations.updateFirst(query, update, genericDomain);
-                    } else {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
-                    }
-                }))
-                .map(updateResult -> Math.toIntExact(updateResult.getMatchedCount()));
+        return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> {
+            final AclPermission permission = params.getPermission();
+            final Set<String> permissionGroups = params.getPermissionGroups();
+
+            if (permission != null && CollectionUtils.isEmpty(permissionGroups)) {
+                // There's a permission we want to check, but there's zero permission groups to check against. The
+                // resulting query will _always_ be `false`. So returning an early response, without hitting the DB.
+                return Mono.just(0);
+            }
+
+            final Query query = createQueryWithPermission(params.getCriteria(), null, permissionGroups, permission);
+            if (QueryAllParams.Scope.ALL.equals(params.getScope())) {
+                return mongoOperations
+                        .updateMulti(query, update, genericDomain)
+                        .map(updateResult -> Math.toIntExact(updateResult.getMatchedCount()));
+            } else if (QueryAllParams.Scope.FIRST.equals(params.getScope())) {
+                return mongoOperations
+                        .updateFirst(query, update, genericDomain)
+                        .map(updateResult -> Math.toIntExact(updateResult.getMatchedCount()));
+            } else {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
+            }
+        }));
     }
 
     public Mono<T> updateExecuteAndFind(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
@@ -357,7 +406,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         }
 
         return getCurrentUserPermissionGroupsIfRequired(
-                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())
+                        params.getPermission(), params.isIncludeAnonymousUserPermissions())
                 .defaultIfEmpty(Collections.emptySet())
                 .map(params::permissionGroups)
                 .then();
@@ -460,18 +509,18 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
      *
      * @see FindAndModifyOptions
      */
-    public Mono<T> updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission) {
+    public Mono<T> updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission) {
         Query query = new Query(Criteria.where("id").is(id));
 
         FindAndModifyOptions findAndModifyOptions =
                 FindAndModifyOptions.options().returnNew(Boolean.TRUE);
 
-        if (permission.isEmpty()) {
+        if (permission == null) {
             return mongoOperations.findAndModify(query, updateObj, findAndModifyOptions, this.genericDomain);
         }
 
         return getCurrentUserPermissionGroupsIfRequired(permission, true).flatMap(permissionGroups -> {
-            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission.get())));
+            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
             return mongoOperations.findAndModify(query, updateObj, findAndModifyOptions, this.genericDomain);
         });
     }

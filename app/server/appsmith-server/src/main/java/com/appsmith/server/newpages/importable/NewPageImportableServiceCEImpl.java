@@ -479,7 +479,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                             }
                             if (application.getGitApplicationMetadata() != null) {
                                 final String defaultApplicationId =
-                                        application.getGitApplicationMetadata().getDefaultApplicationId();
+                                        application.getGitApplicationMetadata().getDefaultArtifactId();
                                 return newPageService
                                         .findByGitSyncIdAndDefaultApplicationId(
                                                 defaultApplicationId, newPage.getGitSyncId(), Optional.empty())
