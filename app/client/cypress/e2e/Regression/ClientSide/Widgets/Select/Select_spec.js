@@ -9,8 +9,8 @@ const {
   agHelper,
   assertHelper,
   dataSources,
-  entityExplorer,
   draggableWidgets,
+  entityExplorer,
 } = require("../../../../../support/Objects/ObjectsCore");
 const {
   default: EditorNavigation,

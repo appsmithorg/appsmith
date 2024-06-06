@@ -6,9 +6,9 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 const jsonform = require("../../../../../locators/jsonFormWidget.json");
 const {
   deployMode,
-  propPane,
-  entityExplorer,
   draggableWidgets,
+  entityExplorer,
+  propPane,
 } = require("../../../../../support/Objects/ObjectsCore");
 
 describe(

@@ -1,7 +1,7 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const {
-  entityExplorer,
   draggableWidgets,
+  entityExplorer,
 } = require("../../../../../support/Objects/ObjectsCore");
 
 const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
