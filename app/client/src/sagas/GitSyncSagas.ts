@@ -115,6 +115,7 @@ import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
+  getGitMetadataSelector,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
@@ -1268,13 +1269,15 @@ function* triggerAutocommitSaga() {
     selectFeatureFlagCheck,
     FEATURE_FLAG.release_git_autocommit_feature_enabled,
   );
-  const gitMetadata: GitMetadata = yield select(getGitMetadataSaga);
+  const gitMetadata: GitMetadata = yield select(getGitMetadataSelector);
   const isAutocommitEnabled: boolean = !!gitMetadata?.autoCommitConfig?.enabled;
   if (isAutocommitFeatureEnabled && isAutocommitEnabled) {
     /* @ts-expect-error: not sure how to do typings of this */
     const pollTask = yield fork(pollAutocommitProgressSaga);
     yield take(ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING);
     yield cancel(pollTask);
+  } else {
+    yield put(triggerAutocommitSuccessAction());
   }
 }
 
@@ -1301,6 +1304,7 @@ const gitRequestBlockingActions: Record<
     updateGitProtectedBranchesSaga,
   [ReduxActionTypes.GIT_AUTOCOMMIT_TRIGGER_INIT]: triggerAutocommitSaga,
   [ReduxActionTypes.FETCH_GIT_STATUS_INIT]: fetchGitStatusSaga,
+  [ReduxActionTypes.GIT_GET_METADATA_INIT]: getGitMetadataSaga,
 };
 
 const gitRequestNonBlockingActions: Record<
@@ -1315,7 +1319,6 @@ const gitRequestNonBlockingActions: Record<
   [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:
     fetchGitProtectedBranchesSaga,
   [ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT]: toggleAutocommitSaga,
-  [ReduxActionTypes.GIT_GET_METADATA_INIT]: getGitMetadataSaga,
 };
 
 /**
