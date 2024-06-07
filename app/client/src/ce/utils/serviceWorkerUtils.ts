@@ -1,10 +1,35 @@
-/* eslint-disable no-console */
-import {
-  matchBuilderPath,
-  matchViewerPath,
-} from "@appsmith/constants/routes/appRoutes";
 import { Mutex } from "async-mutex";
 import { APP_MODE } from "entities/App";
+import type { Match, TokensToRegexpOptions } from "path-to-regexp";
+import { match } from "path-to-regexp";
+
+export const BUILDER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
+export const BUILDER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId/edit`;
+export const VIEWER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId`;
+export const VIEWER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId`;
+export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
+export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
+
+interface TMatchResult {
+  pageId?: string;
+  applicationId?: string;
+}
+
+export const matchBuilderPath = (
+  pathName: string,
+  options: TokensToRegexpOptions,
+) =>
+  match<TMatchResult>(BUILDER_PATH, options)(pathName) ||
+  match<TMatchResult>(BUILDER_PATH_DEPRECATED, options)(pathName) ||
+  match<TMatchResult>(BUILDER_CUSTOM_PATH, options)(pathName);
+
+/**
+ * Function to match the path with the viewer path
+ */
+export const matchViewerPath = (pathName: string) =>
+  match<TMatchResult>(VIEWER_PATH)(pathName) ||
+  match<TMatchResult>(VIEWER_PATH_DEPRECATED)(pathName) ||
+  match<TMatchResult>(VIEWER_CUSTOM_PATH)(pathName);
 
 export interface TApplicationParams {
   origin: string;
@@ -33,18 +58,16 @@ export const getApplicationParamsFromUrl = (
 
   const branchName = getSearchQuery(url.search, "branch");
 
-  const matchedBuilder: { pageId?: string; applicationId?: string } =
-    matchBuilderPath(url.pathname, {
-      end: false,
-    });
-  const matchedViewer: { pageId?: string; applicationId?: string } =
-    matchViewerPath(url.pathname);
+  const matchedBuilder: Match<TMatchResult> = matchBuilderPath(url.pathname, {
+    end: false,
+  });
+  const matchedViewer: Match<TMatchResult> = matchViewerPath(url.pathname);
 
   if (matchedBuilder) {
     return {
       origin: url.origin,
-      pageId: matchedBuilder.pageId,
-      applicationId: matchedBuilder.applicationId,
+      pageId: matchedBuilder.params.pageId,
+      applicationId: matchedBuilder.params.applicationId,
       branchName,
       appMode: APP_MODE.EDIT,
     };
@@ -53,8 +76,8 @@ export const getApplicationParamsFromUrl = (
   if (matchedViewer) {
     return {
       origin: url.origin,
-      pageId: matchedViewer.pageId,
-      applicationId: matchedViewer.applicationId,
+      pageId: matchedViewer.params.pageId,
+      applicationId: matchedViewer.params.applicationId,
       branchName,
       appMode: APP_MODE.PUBLISHED,
     };
