@@ -52,7 +52,6 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -1028,7 +1027,6 @@ public class PageServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    @Disabled
     public void reuseDeletedPageName() {
 
         PageDTO testPage = new PageDTO();
@@ -1040,7 +1038,7 @@ public class PageServiceTest {
         PageDTO firstPage = applicationPageService.createPage(testPage).block();
 
         // Publish the application
-        applicationPageService.publish(application.getId(), true);
+        applicationPageService.publish(application.getId(), true).block();
 
         // Delete Page in edit mode
         applicationPageService.deleteUnpublishedPage(firstPage.getId()).block();
