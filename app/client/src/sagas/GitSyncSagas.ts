@@ -125,7 +125,10 @@ import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { APP_MODE } from "entities/App";
-import type { GitDiscardResponse } from "reducers/uiReducers/gitSyncReducer";
+import type {
+  GitDiscardResponse,
+  GitMetadata,
+} from "reducers/uiReducers/gitSyncReducer";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import {
   getActions,
@@ -135,6 +138,8 @@ import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
 import { gitExtendedSagas } from "@appsmith/sagas/GitExtendedSagas";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -1259,10 +1264,18 @@ function* pollAutocommitProgressSaga(): any {
 }
 
 function* triggerAutocommitSaga() {
-  /* @ts-expect-error: not sure how to do typings of this */
-  const pollTask = yield fork(pollAutocommitProgressSaga);
-  yield take(ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING);
-  yield cancel(pollTask);
+  const isAutocommitFeatureEnabled: boolean = yield select(
+    selectFeatureFlagCheck,
+    FEATURE_FLAG.release_git_autocommit_feature_enabled,
+  );
+  const gitMetadata: GitMetadata = yield select(getGitMetadataSaga);
+  const isAutocommitEnabled: boolean = !!gitMetadata?.autoCommitConfig?.enabled;
+  if (isAutocommitFeatureEnabled && isAutocommitEnabled) {
+    /* @ts-expect-error: not sure how to do typings of this */
+    const pollTask = yield fork(pollAutocommitProgressSaga);
+    yield take(ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING);
+    yield cancel(pollTask);
+  }
 }
 
 const gitRequestBlockingActions: Record<
