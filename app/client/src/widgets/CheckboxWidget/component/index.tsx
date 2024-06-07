@@ -13,7 +13,7 @@ interface StyledCheckboxContainerProps {
   noContainerPadding?: boolean;
   labelPosition?: LabelPosition;
   minHeight?: number;
-  isFullWidth?: boolean;
+  $isFullWidth?: boolean;
 }
 
 const DEFAULT_BORDER_RADIUS = "0";
@@ -25,7 +25,7 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     display: flex;
     height: 100%;
     justify-content: start;
-    width: ${({ isFullWidth }) => (isFullWidth ? "100%" : "auto")};
+    width: ${({ $isFullWidth }) => ($isFullWidth ? "100%" : "auto")};
 
     ${({ minHeight }) => `
     ${minHeight ? `min-height: ${minHeight}px;` : ""}`};
@@ -103,7 +103,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
 
     return (
       <CheckboxContainer
-        isFullWidth={this.props.isFullWidth}
+        $isFullWidth={this.props.isFullWidth}
         isValid={isValid}
         minHeight={this.props.minHeight}
         noContainerPadding={this.props.noContainerPadding}
