@@ -412,6 +412,7 @@ public class ServerSchemaMigrationEnforcerTest {
         Path suffixPath = Paths.get(WORKSPACE_ID, DEFAULT_APPLICATION_ID, REPO_NAME);
         Path gitCompletePath = gitExecutor.createRepoPath(suffixPath);
 
+        // save back to the repository in order to compare the diff.
         commonGitFileUtils
                 .saveArtifactToLocalRepo(suffixPath, exportedJson, BRANCH_NAME)
                 .block();
@@ -419,6 +420,10 @@ public class ServerSchemaMigrationEnforcerTest {
         try (Git gitRepo = Git.open(gitCompletePath.toFile())) {
             List<DiffEntry> diffEntries = gitRepo.diff().call();
             assertThat(diffEntries.size()).isNotZero();
+            for (DiffEntry diffEntry : diffEntries) {
+                // assertion that no new file has been created
+                assertThat(diffEntry.getOldPath()).isEqualTo(diffEntry.getNewPath());
+            }
         }
     }
 }
