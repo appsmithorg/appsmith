@@ -23,7 +23,6 @@ import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromProper
 import static com.external.plugins.constants.S3PluginConstants.AUTO;
 import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_INDEX;
 import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX;
-import static com.external.plugins.constants.S3PluginConstants.GOOGLE_CLOUD_SERVICE_PROVIDER;
 import static com.external.plugins.constants.S3PluginConstants.S3_SERVICE_PROVIDER_PROPERTY_INDEX;
 import static com.external.utils.DatasourceUtils.S3ServiceProvider.AMAZON;
 
@@ -158,13 +157,6 @@ public class DatasourceUtils {
          */
         if (s3ServiceProvider.equals(AMAZON)) {
             s3ClientBuilder = s3ClientBuilder.withRegion(DEFAULT_REGION).enableForceGlobalBucketAccess();
-        } else if (s3ServiceProvider.equals(GOOGLE_CLOUD_SERVICE_PROVIDER)) {
-            String endpoint = datasourceConfiguration
-                    .getEndpoints()
-                    .get(CUSTOM_ENDPOINT_INDEX)
-                    .getHost();
-            s3ClientBuilder = s3ClientBuilder.withEndpointConfiguration(
-                    new AwsClientBuilder.EndpointConfiguration(endpoint, AUTO));
         } else {
             String endpoint = datasourceConfiguration
                     .getEndpoints()
@@ -177,6 +169,10 @@ public class DatasourceUtils {
                     /* This case can never be reached because of the if condition above. Just adding for sake of
                     completeness. */
 
+                    break;
+                case GOOGLE_CLOUD_STORAGE:
+                    s3ClientBuilder = s3ClientBuilder.withEndpointConfiguration(
+                            new AwsClientBuilder.EndpointConfiguration(endpoint, AUTO));
                     break;
                 case UPCLOUD:
                     region = getRegionFromEndpointPattern(
