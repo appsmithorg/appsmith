@@ -139,7 +139,7 @@ describe(
       );
 
       cy.openPropertyPane("listwidgetv2");
-      cy.togglebar(commonlocators.serverSidePaginationCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.serverSidePaginationCheckbox);
 
       // Page number resets
       cy.waitUntil(() =>
