@@ -258,7 +258,7 @@ export class Table {
   }
 
   public AssertTableHeaderOrder(expectedOrder: string) {
-    cy.xpath(this._tableHeader)
+    cy.get(".thead div[role=columnheader]")
       .invoke("text")
       .then((x) => {
         expect(x).to.eq(expectedOrder);
