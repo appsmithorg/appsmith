@@ -270,6 +270,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
+                    if (params.getPermission() != null && permissionGroups.isEmpty()) {
+                        return Mono.just(Collections.<P>emptyList());
+                    }
+
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
                     CriteriaQuery<?> cq = cb.createQuery(projectionClass);
 
@@ -330,7 +334,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                                 }
                                 return map((List<Object[]>) tuple, projectionClass);
                             })
-                            .onErrorResume(NoResultException.class, e -> Mono.empty());
+                            .onErrorResume(NoResultException.class, e -> Mono.just(Collections.emptyList()));
                 })
                 .block();
     }
@@ -348,6 +352,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
+                    if (params.getPermission() != null && permissionGroups.isEmpty()) {
+                        return Mono.empty();
+                    }
+
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
                     CriteriaQuery<?> cq = cb.createQuery(projectionClass);
                     // We are creating the query with generic return type as Object[] and then mapping it to the
@@ -404,6 +412,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
+                    if (params.getPermission() != null && permissionGroups.isEmpty()) {
+                        return Mono.just(0L);
+                    }
+
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
                     final CriteriaQuery<Long> cq = cb.createQuery(Long.class);
                     final Root<T> root = cq.from(genericDomain);
@@ -500,6 +512,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         Predicate predicate = root.get(FieldName.DELETED_AT).isNull();
         if (!specifications.isEmpty()) {
             predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
+        }
+
+        if (params.getPermission() != null && permissionGroups.isEmpty()) {
+            return 0;
         }
 
         final Predicate permissionGroupsPredicate =
