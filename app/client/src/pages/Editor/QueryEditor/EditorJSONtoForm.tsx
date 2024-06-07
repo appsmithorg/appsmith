@@ -40,6 +40,7 @@ import QueryEditorHeader from "./QueryEditorHeader";
 import ActionEditor from "../IDE/EditorPane/components/ActionEditor";
 import QueryResponseTab from "./QueryResponseTab";
 import DatasourceSelector from "./DatasourceSelector";
+import RunHistory from "@appsmith/components/RunHistory";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -386,6 +387,7 @@ export function EditorJSONtoForm(props: Props) {
                 runErrorMessage={runErrorMessage}
                 showSchema={showSchema}
               />
+              <RunHistory />
             </SecondaryWrapper>
           </div>
           <ActionRightPane
