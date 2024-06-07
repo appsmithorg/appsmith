@@ -517,12 +517,14 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
-      decimals: columnProperties.decimals,
-      thousandSeparator: getBooleanPropertyValue(
-        columnProperties.thousandSeparator,
+      selectDisplayAs: getPropertyValue(
+        columnProperties.selectDisplayAs,
         rowIndex,
+        true,
       ),
-      notation: getPropertyValue(columnProperties.notation, rowIndex, true),
+      decimals: columnProperties.decimals,
+      thousandSeparator: !!columnProperties.thousandSeparator,
+      notation: columnProperties.notation,
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;

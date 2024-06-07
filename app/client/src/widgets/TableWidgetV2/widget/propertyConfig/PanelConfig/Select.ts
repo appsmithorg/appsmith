@@ -1,5 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import { get } from "lodash";
+import { SelectOptionAccessor } from "widgets/TableWidgetV2/component/Constants";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import {
@@ -30,6 +31,7 @@ export default {
           },
           fnString: selectColumnOptionsValidation.toString(),
         },
+        dependentPaths: ["primaryColumns"],
       },
       isTriggerProperty: false,
       dependencies: ["primaryColumns"],
@@ -96,8 +98,34 @@ export default {
       },
     },
     {
+      propertyName: "selectDisplayAs",
+      defaultValue: "label",
+      helpText: "Allows to display an option's label or value in the cell",
+      label: "Display as",
+      controlType: "DROP_DOWN",
+      isBindProperty: true,
+      isJSConvertible: true,
+      isTriggerProperty: false,
+      options: [
+        {
+          label: "Label",
+          value: SelectOptionAccessor.LABEL,
+        },
+        {
+          label: "Value",
+          value: SelectOptionAccessor.VALUE,
+        },
+      ],
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          allowedValues: ["label", "value"],
+        },
+      },
+    },
+    {
       propertyName: "placeholderText",
-      helpText: "Sets a Placeholder Text",
+      helpText: "Sets a placeholder text",
       label: "Placeholder",
       controlType: "INPUT_TEXT",
       placeholderText: "Enter placeholder text",

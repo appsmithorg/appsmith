@@ -9,10 +9,12 @@ import {
   updateCustomColumnAliasOnLabelChange,
   selectColumnOptionsValidation,
   allowedFirstDayOfWeekRange,
+  updateSelectColumnDisplayAsValue,
 } from "./propertyUtils";
 import _ from "lodash";
 import type { ColumnTypes, TableWidgetProps } from "../constants";
 import { StickyType } from "../component/Constants";
+import { ColumnTypes as ColumnTypesType } from "../constants";
 
 describe("PropertyUtils - ", () => {
   it("totalRecordsCountValidation - should test with all possible values", () => {
@@ -1014,5 +1016,70 @@ describe("allowedFirstDayOfWeekRange", () => {
       parsed: 0,
       messages: ["Number should be between 0-6."],
     });
+  });
+});
+describe("updateSelectColumnDisplayAsValue", () => {
+  it(`Should return an updates array when the column type is "select" and the selectDisplayAs value is not present.`, () => {
+    const tableProps = {
+      primaryColumns: {
+        gender: {
+          computedValue: ["male", "female"],
+        },
+        columnType: ColumnTypesType.SELECT,
+      },
+    };
+
+    expect(
+      updateSelectColumnDisplayAsValue(
+        tableProps as unknown as TableWidgetProps,
+        "primaryColumns.gender.computedValue",
+        "select",
+      ),
+    ).toEqual([
+      {
+        propertyPath: "primaryColumns.gender.selectDisplayAs",
+        propertyValue: "label",
+      },
+    ]);
+  });
+
+  it(`should return an undefined when column type is not "select" and selectDisplayAs value is present`, () => {
+    const tableProps = {
+      primaryColumns: {
+        gender: {
+          computedValue: ["male", "female"],
+          selectDisplayAs: "label",
+        },
+        columnType: ColumnTypesType.TEXT,
+      },
+    };
+
+    expect(
+      updateSelectColumnDisplayAsValue(
+        tableProps as unknown as TableWidgetProps,
+        "primaryColumns.gender.computedValue",
+        "select",
+      ),
+    ).toEqual(undefined);
+  });
+
+  it(`should return an undefined when column type is "select" and selectDisplayAs value is present`, () => {
+    const tableProps = {
+      primaryColumns: {
+        gender: {
+          computedValue: ["male", "female"],
+          selectDisplayAs: "label",
+        },
+        columnType: ColumnTypesType.SELECT,
+      },
+    };
+
+    expect(
+      updateSelectColumnDisplayAsValue(
+        tableProps as unknown as TableWidgetProps,
+        "primaryColumns.gender.computedValue",
+        "select",
+      ),
+    ).toEqual(undefined);
   });
 });

@@ -8,6 +8,7 @@ import { CellWrapper } from "../TableStyledWrappers";
 import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { BasicCell } from "./BasicCell";
 import { useCallback } from "react";
+import { SelectOptionAccessor } from "../Constants";
 
 const StyledSelectComponent = styled(SelectComponent)<{
   accentColor: string;
@@ -100,6 +101,7 @@ type SelectProps = BaseCellComponentProps & {
   onFilterChangeActionString?: string;
   disabledEditIconMessage: string;
   isNewRow: boolean;
+  selectDisplayAs: string;
 };
 
 /*
@@ -137,6 +139,7 @@ export const SelectCell = (props: SelectProps) => {
     placeholderText,
     resetFilterTextOnClose,
     rowIndex,
+    selectDisplayAs = SelectOptionAccessor.LABEL,
     serverSideFiltering = false,
     tableWidth,
     textColor,
@@ -149,7 +152,7 @@ export const SelectCell = (props: SelectProps) => {
   const onSelect = useCallback(
     (option: DropdownOption) => {
       onItemSelect(
-        option.value || "",
+        option?.value ?? "",
         rowIndex,
         alias,
         onOptionSelectActionString,
@@ -189,6 +192,18 @@ export const SelectCell = (props: SelectProps) => {
     .map((d: DropdownOption) => d.value)
     .indexOf(value);
 
+  let cellValue: string | number | undefined | null = value;
+
+  if (selectDisplayAs === SelectOptionAccessor.LABEL) {
+    const selectedOption = options.find(
+      (item) => item[SelectOptionAccessor.VALUE] === value,
+    );
+
+    cellValue = selectedOption
+      ? selectedOption[SelectOptionAccessor.LABEL]
+      : "";
+  }
+
   if (isEditable && isCellEditable && isCellEditMode) {
     return (
       <StyledCellWrapper
@@ -227,7 +242,7 @@ export const SelectCell = (props: SelectProps) => {
           resetFilterTextOnClose={resetFilterTextOnClose}
           selectedIndex={selectedIndex}
           serverSideFiltering={serverSideFiltering}
-          value={value}
+          value={cellValue}
           widgetId={""}
           width={width}
         />
@@ -257,7 +272,7 @@ export const SelectCell = (props: SelectProps) => {
         tableWidth={tableWidth}
         textColor={textColor}
         textSize={textSize}
-        value={value}
+        value={cellValue}
         verticalAlignment={verticalAlignment}
       />
     );
