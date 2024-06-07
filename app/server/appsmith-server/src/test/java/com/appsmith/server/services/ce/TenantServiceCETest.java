@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static com.appsmith.external.enums.FeatureFlagEnum.TENANT_TEST_FEATURE;
@@ -94,8 +93,7 @@ public class TenantServiceCETest {
         originalTenantConfiguration = tenant.getTenantConfiguration();
 
         tenantRepository
-                .updateAndReturn(
-                        tenant.getId(), Bridge.update().set(Tenant.Fields.tenantConfiguration, null), Optional.empty())
+                .updateAndReturn(tenant.getId(), Bridge.update().set(Tenant.Fields.tenantConfiguration, null), null)
                 .block();
 
         // Make api_user super-user to test tenant admin functionality

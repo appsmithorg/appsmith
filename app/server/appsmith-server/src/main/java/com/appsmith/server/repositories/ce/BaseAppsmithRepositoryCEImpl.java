@@ -225,16 +225,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return Optional.of(count);
     }
 
-    protected Set<String> getCurrentUserPermissionGroupsIfRequired(Optional<AclPermission> permission) {
+    protected Set<String> getCurrentUserPermissionGroupsIfRequired(AclPermission permission) {
         return getCurrentUserPermissionGroupsIfRequired(permission, true);
     }
 
     protected Set<String> getCurrentUserPermissionGroupsIfRequired(
-            Optional<AclPermission> permission, boolean includeAnonymousUserPermissions) {
-        if (permission.isEmpty()) {
-            return Set.of();
-        }
-        return getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
+            AclPermission permission, boolean includeAnonymousUserPermissions) {
+        return permission == null ? Set.of() : getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
     }
 
     public Set<String> getCurrentUserPermissionGroups() {
@@ -266,8 +263,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @SuppressWarnings("unchecked")
     public <P> List<P> queryAllExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(() -> Mono.just(
-                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
+                .switchIfEmpty(
+                        Mono.defer(() -> Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission()))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     if (params.getPermission() != null && permissionGroups.isEmpty()) {
@@ -348,8 +345,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @SuppressWarnings("unchecked")
     public <P> Optional<P> queryOneExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(() -> Mono.just(
-                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
+                .switchIfEmpty(
+                        Mono.defer(() -> Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission()))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     if (params.getPermission() != null && permissionGroups.isEmpty()) {
@@ -408,8 +405,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     public Optional<Long> countExecute(QueryAllParams<T> params) {
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(() -> Mono.just(
-                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
+                .switchIfEmpty(
+                        Mono.defer(() -> Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission()))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     if (params.getPermission() != null && permissionGroups.isEmpty()) {
@@ -484,7 +481,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.fromSupplier(() -> getCurrentUserPermissionGroupsIfRequired(
-                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())))
+                        params.getPermission(), params.isIncludeAnonymousUserPermissions())))
                 .doOnSuccess(params::permissionGroups)
                 .then();
     }
@@ -494,8 +491,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         ArrayList<String> permissionGroups;
 
         if (CollectionUtils.isEmpty(permissionGroupsSet)) {
-            permissionGroups = new ArrayList<>(
-                    getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())));
+            permissionGroups = new ArrayList<>(getCurrentUserPermissionGroupsIfRequired(params.getPermission()));
         } else {
             permissionGroups = new ArrayList<>(permissionGroupsSet);
         }
@@ -760,10 +756,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      */
     @Transactional
     @Modifying
-    public T updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission) {
-        int modifiedCount =
-                queryBuilder().byId(id).permission(permission.orElse(null)).updateFirst(updateObj);
-        return queryBuilder().byId(id).permission(permission.orElse(null)).one().orElse(null);
+    public T updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission) {
+        int modifiedCount = queryBuilder().byId(id).permission(permission).updateFirst(updateObj);
+        return queryBuilder().byId(id).permission(permission).one().orElse(null);
     }
 
     public Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> entities) {

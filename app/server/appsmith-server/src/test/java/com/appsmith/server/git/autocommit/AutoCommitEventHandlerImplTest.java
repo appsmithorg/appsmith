@@ -20,7 +20,6 @@ import com.appsmith.server.git.AutoCommitEventHandlerImpl;
 import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
-import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
@@ -84,9 +83,6 @@ public class AutoCommitEventHandlerImplTest {
     DSLMigrationUtils dslMigrationUtils;
 
     @SpyBean
-    GitFileUtils gitFileUtils;
-
-    @SpyBean
     FileInterface fileUtils;
 
     @SpyBean
@@ -120,7 +116,6 @@ public class AutoCommitEventHandlerImplTest {
                 gitRedisUtils,
                 redisUtils,
                 dslMigrationUtils,
-                gitFileUtils,
                 commonGitFileUtils,
                 gitExecutor,
                 projectProperties,
@@ -221,8 +216,8 @@ public class AutoCommitEventHandlerImplTest {
         Mockito.when(dslMigrationUtils.migratePageDsl(any(JSONObject.class))).thenReturn(Mono.just(dslAfterMigration));
 
         doReturn(Mono.just(baseRepoSuffix))
-                .when(gitFileUtils)
-                .saveApplicationToLocalRepo(
+                .when(commonGitFileUtils)
+                .saveArtifactToLocalRepo(
                         autoCommitEvent.getWorkspaceId(),
                         autoCommitEvent.getApplicationId(),
                         autoCommitEvent.getRepoName(),
@@ -319,8 +314,8 @@ public class AutoCommitEventHandlerImplTest {
                         ArtifactType.APPLICATION);
 
         doReturn(Mono.just(baseRepoSuffix))
-                .when(gitFileUtils)
-                .saveApplicationToLocalRepo(
+                .when(commonGitFileUtils)
+                .saveArtifactToLocalRepo(
                         autoCommitEvent.getWorkspaceId(),
                         autoCommitEvent.getApplicationId(),
                         autoCommitEvent.getRepoName(),
@@ -394,8 +389,8 @@ public class AutoCommitEventHandlerImplTest {
                         ArtifactType.APPLICATION);
 
         doReturn(Mono.just(baseRepoSuffix))
-                .when(gitFileUtils)
-                .saveApplicationToLocalRepo(
+                .when(commonGitFileUtils)
+                .saveArtifactToLocalRepo(
                         autoCommitEvent.getWorkspaceId(),
                         autoCommitEvent.getApplicationId(),
                         autoCommitEvent.getRepoName(),
@@ -440,8 +435,8 @@ public class AutoCommitEventHandlerImplTest {
                         autoCommitEvent.getBranchName());
 
         doReturn(Mono.just(baseRepoSuffix))
-                .when(gitFileUtils)
-                .saveApplicationToLocalRepo(
+                .when(commonGitFileUtils)
+                .saveArtifactToLocalRepo(
                         anyString(), anyString(), anyString(), any(ApplicationJson.class), anyString());
 
         ApplicationJson applicationJson1 = new ApplicationJson();

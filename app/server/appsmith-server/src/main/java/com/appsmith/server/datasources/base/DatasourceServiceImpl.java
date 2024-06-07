@@ -17,6 +17,7 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,8 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             DatasourceStorageService datasourceStorageService,
             EnvironmentPermission environmentPermission,
             RateLimitService rateLimitService,
-            FeatureFlagService featureFlagService) {
+            FeatureFlagService featureFlagService,
+            ObservationRegistry observationRegistry) {
 
         super(
                 repositoryDirect,
@@ -60,6 +62,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 datasourceStorageService,
                 environmentPermission,
                 rateLimitService,
-                featureFlagService);
+                featureFlagService,
+                observationRegistry);
     }
 }

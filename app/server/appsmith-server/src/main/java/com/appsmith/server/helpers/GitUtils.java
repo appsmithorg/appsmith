@@ -161,7 +161,7 @@ public class GitUtils {
     public static boolean isApplicationConnectedToGit(Application application) {
         GitArtifactMetadata metadata = application.getGitApplicationMetadata();
         return metadata != null
-                && !StringUtils.isEmptyOrNull(metadata.getDefaultApplicationId())
+                && !StringUtils.isEmptyOrNull(metadata.getDefaultArtifactId())
                 && !StringUtils.isEmptyOrNull(metadata.getRemoteUrl());
     }
 

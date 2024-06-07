@@ -8,6 +8,10 @@ export function CurrencyInputComponent(props: CurrencyInputComponentProps) {
     (option) => option.currency === props.currencyCode,
   );
 
+  const prefix = (
+    <Text style={{ whiteSpace: "nowrap" }}>{currency?.symbol_native}</Text>
+  );
+
   return (
     <TextInput
       autoComplete={props.autoComplete}
@@ -22,7 +26,7 @@ export function CurrencyInputComponent(props: CurrencyInputComponentProps) {
       onFocusChange={props.onFocusChange}
       onKeyDown={props.onKeyDown}
       placeholder={props.placeholder}
-      prefix={<Text>{currency?.symbol_native}</Text>}
+      prefix={prefix}
       validationState={props.validationStatus}
       value={props.value}
     />
