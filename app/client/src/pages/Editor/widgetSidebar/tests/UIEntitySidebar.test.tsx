@@ -96,7 +96,41 @@ describe("UIEntitySidebar", () => {
     });
   });
 
-  it("3. should hide `Suggested` when drag drop building blocks feature flag is enabled", () => {
+  it("3. should display grouped widget cards by tags correctly", () => {
+    // Mock the necessary dependencies
+    mockUIExplorerItems();
+    mockDragDropBuildingBlocksFF(false);
+
+    // Render the UIEntitySidebar component
+    const { container } = renderUIEntitySidebar(true, true);
+
+    // in the mock data we have 12 tags
+    expect(
+      container.getElementsByClassName("widget-tag-collapisble").length,
+    ).toBe(12);
+  });
+
+  it("4. should filter widget cards based on search input", async () => {
+    mockUIExplorerItems();
+    mockDragDropBuildingBlocksFF(false);
+    const { container, getByPlaceholderText } = renderUIEntitySidebar(
+      true,
+      true,
+    );
+
+    const input = getByPlaceholderText(
+      createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT),
+    );
+    fireEvent.change(input, { target: { value: "table" } });
+    await waitFor(() => {
+      // one from building blocks and one from normal widgets
+      expect(
+        container.getElementsByClassName("widget-tag-collapisble").length,
+      ).toBe(2);
+    });
+  });
+
+  it("5. should hide `Suggested` when drag drop building blocks feature flag is enabled", () => {
     mockUIExplorerItems();
     mockDragDropBuildingBlocksFF(true);
     const { queryByText } = renderUIEntitySidebar(true, true);
