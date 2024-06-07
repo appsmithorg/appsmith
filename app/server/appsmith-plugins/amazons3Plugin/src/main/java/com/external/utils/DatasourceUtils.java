@@ -171,8 +171,7 @@ public class DatasourceUtils {
 
                     break;
                 case GOOGLE_CLOUD_STORAGE:
-                    s3ClientBuilder = s3ClientBuilder.withEndpointConfiguration(
-                            new AwsClientBuilder.EndpointConfiguration(endpoint, AUTO));
+                    region = AUTO;
                     break;
                 case UPCLOUD:
                     region = getRegionFromEndpointPattern(
