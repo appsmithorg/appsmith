@@ -213,7 +213,7 @@ export const DateCell = (props: DateComponentProps) => {
   }, [value, props.outputFormat]);
 
   const onDateSelected = (date: string) => {
-    const formattedDate : string = date ? moment(date).format(inputFormat) : '';
+    const formattedDate: string = date ? moment(date).format(inputFormat) : "";
     if (isNewRow) {
       updateNewRowValues(alias, date, formattedDate);
       return;
