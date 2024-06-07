@@ -124,6 +124,7 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
           props.borderRadius,
           {},
           props.prepareRow,
+          true,
         )}
     </thead>
   );

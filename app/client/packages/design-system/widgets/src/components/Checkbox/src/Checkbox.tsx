@@ -25,7 +25,19 @@ const _Checkbox = (props: CheckboxProps, ref: HeadlessCheckboxRef) => {
         inlineLabelStyles["inline-label"],
       )}
     >
-      {Boolean(children) && <Text>{children}</Text>}
+      {Boolean(children) && (
+        <>
+          <Text>{children}</Text>
+          {Boolean(props.isRequired) && (
+            <Text
+              color="negative"
+              data-inline-label-necessity-indicator-icon=""
+            >
+              *
+            </Text>
+          )}
+        </>
+      )}
     </HeadlessCheckbox>
   );
 };

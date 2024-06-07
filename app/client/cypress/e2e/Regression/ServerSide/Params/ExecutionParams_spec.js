@@ -20,7 +20,7 @@ describe(
       agHelper.AddDsl("executionParamsDsl");
     });
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
     it("1. Create a postgres datasource", function () {
       cy.NavigateToDatasourceEditor();

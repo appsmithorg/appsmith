@@ -23,15 +23,9 @@ describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
   before(() => {
     agHelper.AddDsl("PageLoadDsl");
     PageList.AddNewPage();
-    if (Cypress.env("AIRGAPPED")) {
-      cy.get("h2").contains(
-        Cypress.env("MESSAGES").EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT(),
-      );
-    } else {
-      cy.get("span").contains(
-        Cypress.env("MESSAGES").STARTER_TEMPLATE_PAGE_LAYOUTS.header(),
-      );
-    }
+    cy.get("h2").contains(
+      Cypress.env("MESSAGES").EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT(),
+    );
   });
 
   it("1. Published page loads correctly", () => {

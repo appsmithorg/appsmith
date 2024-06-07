@@ -133,8 +133,13 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             AclPermission aclPermission) {
 
         return queryBuilder()
-                .criteria(Bridge.equal(
-                                Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId)
+                .criteria(Bridge.or(
+                                Bridge.equal(
+                                        Application.Fields.gitApplicationMetadata_defaultApplicationId,
+                                        defaultApplicationId),
+                                Bridge.equal(
+                                        Application.Fields.gitApplicationMetadata_defaultArtifactId,
+                                        defaultApplicationId))
                         .equal(Application.Fields.gitApplicationMetadata_branchName, branchName))
                 .fields(projectionFieldNames)
                 .permission(aclPermission)
