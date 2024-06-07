@@ -1,4 +1,4 @@
-package com.appsmith.server.services.ce;
+package com.appsmith.server.git.common;
 
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
+import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
@@ -107,4 +108,7 @@ public interface CommonGitServiceCE {
     Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId, ArtifactType artifactType);
 
     Mono<Boolean> autoCommitApplication(String defaultApplicationId, String branchName, ArtifactType artifactType);
+
+    Mono<? extends ArtifactImportDTO> importArtifactFromGit(
+            String workspaceId, GitConnectDTO gitConnectDTO, ArtifactType artifactType);
 }

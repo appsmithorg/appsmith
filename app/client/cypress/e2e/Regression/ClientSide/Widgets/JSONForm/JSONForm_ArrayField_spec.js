@@ -191,7 +191,6 @@ describe(
 
       // Disable -> true
       propPane.TogglePropertyState("Disabled", "On");
-      // cy.togglebar(".t--property-control-disabled input");
       deployMode.DeployApp();
       cy.get(education)
         .first()
@@ -207,7 +206,6 @@ describe(
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       cy.openFieldConfiguration("education");
       propPane.TogglePropertyState("Disabled", "Off");
-      // cy.togglebarDisable(".t--property-control-disabled input");
       cy.get(education).should("exist");
       cy.get(education)
         .first()
@@ -235,7 +233,6 @@ describe(
       // Disable -> true
       propPane.TogglePropertyState("Disabled", "On");
       deployMode.DeployApp();
-      // cy.togglebar(".t--property-control-disabled input");
       cy.get(`${education} ${addButton}`).should("have.attr", "disabled");
       cy.get(`${education} ${addButton}`).should("have.attr", "disabled");
 
@@ -339,9 +336,7 @@ describe(
       );
 
       // Enable Allow Country Code Change
-      cy.togglebar(
-        ".t--property-control-allowcountrycodechange input[type='checkbox']",
-      );
+      agHelper.CheckUncheck(commonlocators.allowcountrycodechangeInput);
       // Change the label of the field to Phone Number
       cy.testJsontext("text", "Phone Number");
 
@@ -375,9 +370,7 @@ describe(
       );
 
       // Enable Allow Country Code Change
-      cy.togglebar(
-        ".t--property-control-allowcurrencychange input[type='checkbox']",
-      );
+      agHelper.CheckUncheck(commonlocators.allowCurrencyChange);
       // Change the label of the field to Phone Number
       cy.testJsontext("text", "Currency");
 
