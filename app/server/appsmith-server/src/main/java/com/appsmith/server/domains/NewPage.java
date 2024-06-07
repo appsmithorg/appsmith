@@ -59,11 +59,11 @@ public class NewPage extends BranchAwareDomain implements Context {
     @JsonView(Views.Internal.class)
     @Override
     public Layout getLayout() {
-        if (this.getUnpublishedPage() == null) {
+        if (this.getUnpublishedPage() == null || this.getUnpublishedPage().getLayouts() == null) {
             return null;
         }
         List<Layout> layouts = this.getUnpublishedPage().getLayouts();
-        return (layouts != null && !layouts.isEmpty()) ? layouts.get(0) : null;
+        return !layouts.isEmpty() ? layouts.get(0) : null;
     }
 
     public static class Fields extends BranchAwareDomain.Fields {
