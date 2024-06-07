@@ -151,7 +151,7 @@ describe(
       anvilLayout.sections.moveDistributionHandle("right", "Section1", 1, 7);
       anvilLayout.sections.verifySectionDistribution("Section1", [10, 2]);
     });
-    it.only("4. Verify visual check for background less zones and resize indicators", () => {
+    it("4. Verify visual check for background less zones and resize indicators", () => {
       // create a new section with a button widget
       anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
         anvilLocators.WDSBUTTON,
