@@ -37,8 +37,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.git.autocommit.helpers.AutoCommitEligibilityHelper;
 import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
-import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
@@ -109,7 +109,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final NewPageService newPageService;
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
-    private final GitFileUtils gitFileUtils;
+    private final CommonGitFileUtils commonGitFileUtils;
     private final ThemeService themeService;
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
@@ -603,7 +603,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     if (GitUtils.isApplicationConnectedToGit(application)) {
                         return applicationService.findAllApplicationsByDefaultApplicationId(
-                                gitData.getDefaultApplicationId(), applicationPermission.getDeletePermission());
+                                gitData.getDefaultArtifactId(), applicationPermission.getDeletePermission());
                     }
                     return Flux.fromIterable(List.of(application));
                 })
@@ -615,13 +615,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(application -> {
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     if (gitData != null
-                            && !StringUtils.isEmpty(gitData.getDefaultApplicationId())
+                            && !StringUtils.isEmpty(gitData.getDefaultArtifactId())
                             && !StringUtils.isEmpty(gitData.getRepoName())) {
                         String repoName = gitData.getRepoName();
                         Path repoPath =
-                                Paths.get(application.getWorkspaceId(), gitData.getDefaultApplicationId(), repoName);
+                                Paths.get(application.getWorkspaceId(), gitData.getDefaultArtifactId(), repoName);
                         // Delete git repo from local
-                        return gitFileUtils.deleteLocalRepo(repoPath).then(Mono.just(application));
+                        return commonGitFileUtils.deleteLocalRepo(repoPath).then(Mono.just(application));
                     }
                     return Mono.just(application);
                 });
@@ -741,7 +741,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 DefaultResources defaults = new DefaultResources();
                                 GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                                 if (gitData != null) {
-                                    defaults.setApplicationId(gitData.getDefaultApplicationId());
+                                    defaults.setApplicationId(gitData.getDefaultArtifactId());
                                     defaults.setBranchName(gitData.getBranchName());
                                 } else {
                                     defaults.setApplicationId(applicationId);

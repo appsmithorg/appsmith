@@ -52,7 +52,6 @@ public class CommonGitFileUtilsCE {
     private final FileInterface fileUtils;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
-    private final Gson gson;
 
     // Number of seconds after lock file is stale
     @Value("${appsmith.index.lock.file.time}")
@@ -93,8 +92,7 @@ public class CommonGitFileUtilsCE {
     }
 
     public Mono<Path> saveArtifactToLocalRepoWithAnalytics(
-            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName)
-            throws IOException, GitAPIException {
+            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName) {
 
         /*
            1. Checkout to branch

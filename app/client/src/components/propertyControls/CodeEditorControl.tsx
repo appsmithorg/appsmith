@@ -11,10 +11,12 @@ import {
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import type { EditorProps } from "components/editorComponents/CodeEditor";
 
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {
     const {
+      controlConfig,
       dataTreePath,
       evaluatedValue,
       expected,
@@ -33,6 +35,7 @@ class CodeEditorControl extends BaseControl<ControlProps> {
         additionalDynamicData={this.props.additionalAutoComplete}
         hinting={[bindingHintHelper, slashCommandHintHelper]}
         input={{ value: propertyValue, onChange: this.onChange }}
+        maxHeight={controlConfig?.maxHeight as EditorProps["maxHeight"]}
         mode={EditorModes.TEXT_WITH_BINDING}
         positionCursorInsideBinding
         size={EditorSize.EXTENDED}

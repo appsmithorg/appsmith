@@ -18,18 +18,18 @@ export function Link(props: LinkProps) {
   } = props;
 
   return (
-    <Text color="accent" {...rest}>
-      <HeadlessLink
-        className={styles.link}
-        download={download}
-        href={href}
-        ping={ping}
-        referrerPolicy={referrerPolicy}
-        rel={rel}
-        target={target}
-      >
+    <HeadlessLink
+      className={styles.link}
+      download={download}
+      href={href}
+      ping={ping}
+      referrerPolicy={referrerPolicy}
+      rel={rel}
+      target={target}
+    >
+      <Text color="accent" {...rest}>
         {children}
-      </HeadlessLink>
-    </Text>
+      </Text>
+    </HeadlessLink>
   );
 }

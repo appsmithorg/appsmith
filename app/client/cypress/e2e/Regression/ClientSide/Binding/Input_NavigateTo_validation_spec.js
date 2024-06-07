@@ -51,7 +51,7 @@ describe(
       cy.get(commonlocators.singleSelectMenuItem)
         .contains(pageid)
         .click({ force: true });
-      cy.assertPageSave();
+      agHelper.AssertAutoSave();
     });
 
     it("3. Validate NavigateTo Page functionality ", function () {

@@ -219,8 +219,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 .map(this::sanitizeDatasourceStorage)
                 .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1))
                 .flatMap(this::executePreSaveActions)
-                .flatMap(unsavedDatasourceStorage ->
-                        repository.save(unsavedDatasourceStorage).thenReturn(unsavedDatasourceStorage));
+                .flatMap(repository::save);
     }
 
     @Override
@@ -246,7 +245,12 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     @Override
     public Mono<DatasourceStorage> populateHintMessages(DatasourceStorage datasourceStorage) {
+        return this.populateHintMessages(datasourceStorage, null);
+    }
 
+    @Override
+    public Mono<DatasourceStorage> populateHintMessages(
+            DatasourceStorage datasourceStorage, Map<String, Plugin> pluginsMap) {
         if (datasourceStorage == null) {
             /*
              * - Not throwing an exception here because we do not throw an error in case of missing datasourceStorage.
@@ -263,7 +267,13 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
             return Mono.just(datasourceStorage);
         }
 
-        final Mono<Plugin> pluginMono = pluginService.findById(datasourceStorage.getPluginId());
+        Mono<Plugin> pluginMono;
+        if (pluginsMap == null) {
+            pluginMono = pluginService.findById(datasourceStorage.getPluginId());
+        } else {
+            pluginMono = Mono.justOrEmpty(pluginsMap.get(datasourceStorage.getPluginId()));
+        }
+
         Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper
                 .getPluginExecutor(pluginMono)
                 .switchIfEmpty(Mono.error(new AppsmithException(

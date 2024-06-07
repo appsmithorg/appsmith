@@ -19,7 +19,6 @@ import com.appsmith.server.solutions.EnvManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -37,7 +36,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static com.appsmith.external.enums.FeatureFlagEnum.TENANT_TEST_FEATURE;
@@ -55,7 +53,6 @@ import static org.mockito.Mockito.doReturn;
 @SpringBootTest
 @ExtendWith(AfterAllCleanUpExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-@Disabled
 public class TenantServiceCETest {
 
     @Autowired
@@ -94,8 +91,7 @@ public class TenantServiceCETest {
         originalTenantConfiguration = tenant.getTenantConfiguration();
 
         tenantRepository
-                .updateAndReturn(
-                        tenant.getId(), Bridge.update().set(Tenant.Fields.tenantConfiguration, null), Optional.empty())
+                .updateAndReturn(tenant.getId(), Bridge.update().set(Tenant.Fields.tenantConfiguration, null), null)
                 .block();
 
         // Make api_user super-user to test tenant admin functionality
