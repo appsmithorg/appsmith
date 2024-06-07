@@ -375,7 +375,7 @@
                       "bottomRow": true,
                       "parentId": true
                     },
-                    "onClick": "{{showModal('Modal1')}}"
+                    "onClick": "{{showModal(Modal1.name)}}"
                   }
                 },
                 "widgetName": "List1",
@@ -751,7 +751,7 @@
                               },
                               {
                                 "widgetName": "Button2",
-                                "onClick": "{{showModal('Modal1')}}",
+                                "onClick": "{{showModal(Modal1.name)}}",
                                 "buttonColor": "#DD4B34",
                                 "dynamicPropertyPathList": [
                                   { "key": "onClick" }
@@ -854,7 +854,7 @@
               },
               {
                 "widgetName": "Button3",
-                "onClick": "{{showModal('nt_modal')}}",
+                "onClick": "{{showModal(nt_modal.name)}}",
                 "buttonColor": "#03B365",
                 "dynamicPropertyPathList": [],
                 "displayName": "Button",
@@ -1036,7 +1036,7 @@
                     "iconName": "pencil-fill-icon",
                     "buttonVariant": "SECONDARY",
                     "boxShadow": "NONE",
-                    "onClick": "{{showModal('ec_modal')}}"
+                    "onClick": "{{showModal(ec_modal.name)}}"
                   },
                   "starelid": {
                     "index": 0,
@@ -1637,7 +1637,7 @@
               },
               {
                 "widgetName": "Button6",
-                "onClick": "{{showModal('nc_modal')}}",
+                "onClick": "{{showModal(nc_modal.name)}}",
                 "buttonColor": "#03B365",
                 "dynamicPropertyPathList": [{ "key": "onClick" }],
                 "displayName": "Button",
@@ -1862,7 +1862,7 @@
                       {
                         "resetFormOnClick": true,
                         "widgetName": "FormButton2",
-                        "onClick": "{{closeModal('nt_modal')}}",
+                        "onClick": "{{closeModal(nt_modal.name)}}",
                         "rightColumn": 17,
                         "isDefaultClickDisabled": true,
                         "buttonColor": "#03B365",
@@ -2104,7 +2104,7 @@
                       },
                       {
                         "widgetName": "Button5",
-                        "onClick": "{{showModal('nt_col_modal')}}",
+                        "onClick": "{{showModal(nt_col_modal.name)}}",
                         "buttonColor": "#03B365",
                         "displayName": "Button",
                         "iconSVG": "/static/media/icon.cca02633.svg",
@@ -2240,7 +2240,7 @@
                       {
                         "resetFormOnClick": true,
                         "widgetName": "FormButton3",
-                        "onClick": "{{(()=>{\n\tconst nt_col = appsmith.store.nt_col ||[];\nnt_col.push({\n\t\tname:nt_col_name.text,\ndtype:nt_col_type.selectedOptionValue,\npkey:nt_col_pkey.isSwitchedOn,\nnnull:nt_col_nnull.isSwitchedOn});\nstoreValue('nt_col',nt_col)\n\tshowModal('nt_modal')\n})()}}",
+                        "onClick": "{{(()=>{\n\tconst nt_col = appsmith.store.nt_col ||[];\nnt_col.push({\n\t\tname:nt_col_name.text,\ndtype:nt_col_type.selectedOptionValue,\npkey:nt_col_pkey.isSwitchedOn,\nnnull:nt_col_nnull.isSwitchedOn});\nstoreValue('nt_col',nt_col)\n\tshowModal(nt_modal.name)\n})()}}",
                         "buttonColor": "#03B365",
                         "dynamicPropertyPathList": [{ "key": "onClick" }],
                         "displayName": "FormButton",
@@ -2595,7 +2595,7 @@
                       {
                         "resetFormOnClick": true,
                         "widgetName": "FormButton5",
-                        "onClick": "{{create_column.run(()=>{get_columns.run();\ncloseModal('nc_modal');\t\t})}}",
+                        "onClick": "{{create_column.run(()=>{get_columns.run();\ncloseModal(nc_modal.name);\t\t})}}",
                         "buttonColor": "#03B365",
                         "dynamicPropertyPathList": [{ "key": "onClick" }],
                         "displayName": "FormButton",
@@ -3219,7 +3219,7 @@
               {
                 "widgetName": "Icon1",
                 "rightColumn": 63,
-                "onClick": "{{closeModal('Modal1')}}",
+                "onClick": "{{closeModal(Modal1.name)}}",
                 "color": "#040627",
                 "iconName": "cross",
                 "displayName": "Icon",
@@ -3265,7 +3265,7 @@
               },
               {
                 "widgetName": "Button7",
-                "onClick": "{{closeModal('Modal1')}}",
+                "onClick": "{{closeModal(Modal1.name)}}",
                 "buttonColor": "#03B365",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",

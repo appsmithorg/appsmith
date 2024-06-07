@@ -1,0 +1,88 @@
+/**
+  ASYMMETRIC PADDING
+  [data-elevation] — true or false, indicates whether elevation is enabled or not
+  [elevation="1"] — section
+  [elevation="2"] — zone
+  [elevation="3"] — card
+*/
+.anvilWidgetWrapper {
+  /** If a section,zone and card have elevation, then add padding */
+  [data-elevation="true"][elevation="1"],
+  [data-elevation="true"][elevation="2"],
+  [data-elevation="true"][elevation="3"],
+  /** If a section has any zone with elevation, then add padding to all the zones that don't have elevation */
+  [elevation="1"]:has([elevation="2"][data-elevation="true"]) [elevation="2"][data-elevation="false"],
+  /** If a section has any card with elevation, then add padding to all the cards that don't have elevation */
+  [elevation="1"]:has([elevation="3"][data-elevation="true"]) [elevation="3"][data-elevation="false"],
+  /** If a zone has any card with elevation, then add padding to all the cards that don't have elevation,*/
+  [elevation="2"]:has([elevation="3"][data-elevation="true"]) [elevation="3"][data-elevation="false"] {
+    padding-block: var(--outer-spacing-3);
+    padding-inline: var(--outer-spacing-3);
+  }
+
+  /**also we want to adding margin to the widgets as well that are not cards, this is required to align widgets with elevations of cards */
+  [elevation="2"]:has([elevation="3"][data-elevation="true"])
+    [data-widget-wrapper]:not(:has([data-elevation])) {
+    margin-block: var(--outer-spacing-3);
+    margin-inline: var(--outer-spacing-3);
+  }
+
+  [elevation="2"] {
+    /** Font size is necessary for the compensator(margins) since they use em values */
+    font-size: var(--body-font-size);
+    /** We make min-block-size the same as of all the main widgets (buttons, toggles) so that the zones do not jump when dropping widgets. */
+    min-block-size: calc(
+      var(--body-line-height) + var(--body-margin-start) +
+        var(--body-margin-end) + var(--inner-spacing-3) * 2 +
+        var(--outer-spacing-3) * 2
+    );
+  }
+
+  [data-elevation="false"][elevation="2"] {
+    min-block-size: calc(
+      var(--body-line-height) + var(--body-margin-start) +
+        var(--body-margin-end) + var(--inner-spacing-3) * 2
+    );
+  }
+
+  /** by default, sections/zone/cards with elevation have styles 1 */
+  [data-elevation="true"][elevation="1"],
+  [data-elevation="true"][elevation="2"],
+  [data-elevation="true"][elevation="3"] {
+    background-color: var(--color-bg-elevation-2);
+    border-radius: var(--border-radius-elevation-2);
+    outline: var(--border-width-1) solid var(--color-bd-elevation-2);
+  }
+
+  /** when there are two elevation levels, then add styles-1 -> the first level and styles-2 -> second level */
+  [data-elevation="true"]:has([data-elevation="true"]) {
+    background-color: var(--color-bg-elevation-1);
+    border-radius: var(--border-radius-elevation-1);
+    outline: var(--border-width-1) solid var(--color-bd-elevation-1);
+
+    [data-elevation="true"] {
+      background-color: var(--color-bg-elevation-2);
+      border-radius: var(--border-radius-elevation-2);
+      outline: var(--border-width-1) solid var(--color-bd-elevation-2);
+    }
+  }
+
+  /** when there are three elevation levels, then add styles-1 -> the first level and styles-2 -> second level and styles-3 -> third level */
+  [data-elevation="true"]:has([data-elevation="true"] [data-elevation="true"]) {
+    background-color: var(--color-bg-elevation-1);
+    border-radius: var(--border-radius-elevation-1);
+    outline: var(--border-width-1) solid var(--color-bd-elevation-1);
+
+    [data-elevation="true"] {
+      background-color: var(--color-bg-elevation-2);
+      border-radius: var(--border-radius-elevation-2);
+      outline: var(--border-width-1) solid var(--color-bd-elevation-2);
+
+      [data-elevation="true"] {
+        background-color: var(--color-bg-elevation-3);
+        border-radius: var(--border-radius-elevation-3);
+        outline: var(--border-width-1) solid var(--color-bd-elevation-3);
+      }
+    }
+  }
+}

@@ -24,7 +24,6 @@ import {
   LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK,
   NEW_TO_APPSMITH,
   createMessage,
-  LOGIN_PAGE_SUBTITLE,
 } from "@appsmith/constants/messages";
 import { FormGroup } from "design-system-old";
 import { Button, Link, Callout } from "design-system";
@@ -33,8 +32,12 @@ import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import type { LoginFormValues } from "pages/UserAuth/helpers";
 
-import { SpacedSubmitForm, FormActions } from "pages/UserAuth/StyledComponents";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  SpacedSubmitForm,
+  FormActions,
+  EmailFormWrapper,
+} from "pages/UserAuth/StyledComponents";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { LOGIN_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -125,10 +128,10 @@ export function Login(props: LoginFormProps) {
   }
 
   const footerSection = isFormLoginEnabled && (
-    <div className="px-2 py-4 flex align-center justify-center text-base text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
-      {createMessage(NEW_TO_APPSMITH)}
+    <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+      {createMessage(NEW_TO_APPSMITH)}&nbsp;
       <Link
-        className="t--sign-up t--signup-link pl-[var(--ads-v2\-spaces-3)]"
+        className="t--sign-up t--signup-link"
         kind="primary"
         target="_self"
         to={signupURL}
@@ -139,11 +142,7 @@ export function Login(props: LoginFormProps) {
   );
 
   return (
-    <Container
-      footer={footerSection}
-      subtitle={createMessage(LOGIN_PAGE_SUBTITLE)}
-      title={createMessage(LOGIN_PAGE_TITLE)}
-    >
+    <Container footer={footerSection} title={createMessage(LOGIN_PAGE_TITLE)}>
       <Helmet>
         <title>{htmlPageTitle}</title>
       </Helmet>
@@ -171,7 +170,7 @@ export function Login(props: LoginFormProps) {
         <ThirdPartyAuth logins={socialLoginList} type={"SIGNIN"} />
       )}
       {isFormLoginEnabled && (
-        <>
+        <EmailFormWrapper>
           <SpacedSubmitForm action={loginURL} method="POST">
             <FormGroup
               intent={error ? "danger" : "none"}
@@ -218,12 +217,13 @@ export function Login(props: LoginFormProps) {
           </SpacedSubmitForm>
           <Link
             className="justify-center"
+            kind="secondary"
             target="_self"
             to={forgotPasswordURL}
           >
             {createMessage(LOGIN_PAGE_FORGOT_PASSWORD_TEXT)}
           </Link>
-        </>
+        </EmailFormWrapper>
       )}
     </Container>
   );

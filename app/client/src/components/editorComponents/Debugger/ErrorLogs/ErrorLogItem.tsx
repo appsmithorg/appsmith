@@ -11,7 +11,7 @@ import LogAdditionalInfo from "./components/LogAdditionalInfo";
 import LogEntityLink from "./components/LogEntityLink";
 import LogTimeStamp from "./components/LogTimeStamp";
 import { getLogIcon } from "../helpers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import moment from "moment";
 import LogHelper from "./components/LogHelper";
 import { toggleExpandErrorLogItem } from "actions/debuggerActions";

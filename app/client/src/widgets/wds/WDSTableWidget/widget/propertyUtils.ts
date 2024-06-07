@@ -1,15 +1,10 @@
 import { Alignment } from "@blueprintjs/core";
 import type { ColumnProperties } from "../component/Constants";
 import { StickyType } from "../component/Constants";
-import { CellAlignmentTypes } from "../component/Constants";
 import type { TableWidgetProps } from "../constants";
 import { ColumnTypes, InlineEditingSaveOptions } from "../constants";
 import _, { findIndex, get, isBoolean } from "lodash";
 import { Colors } from "constants/Colors";
-import {
-  combineDynamicBindings,
-  getDynamicBindings,
-} from "utils/DynamicBindingUtils";
 import {
   createEditActionColumn,
   generateNewColumnOrderFromStickyValue,
@@ -544,86 +539,20 @@ export const updateNumberColumnTypeTextAlignment = (
     return [
       {
         propertyPath: `${baseProperty}.horizontalAlignment`,
-        propertyValue: CellAlignmentTypes.RIGHT,
+        propertyValue: "end",
       },
     ];
   } else {
     return [
       {
         propertyPath: `${baseProperty}.horizontalAlignment`,
-        propertyValue: CellAlignmentTypes.LEFT,
+        propertyValue: "start",
       },
     ];
   }
 
   return;
 };
-
-/**
- * updates theme stylesheets
- *
- * @param props
- * @param propertyPath
- * @param propertyValue
- */
-export function updateThemeStylesheetsInColumns(
-  props: TableWidgetProps,
-  propertyPath: string,
-  propertyValue: any,
-): Array<PropertyUpdates> | undefined {
-  const regex = /^primaryColumns\.(\w+)\.(.*)$/;
-  const matches = propertyPath.match(regex);
-  const columnId = matches?.[1];
-  const columnProperty = matches?.[2];
-
-  if (columnProperty === "columnType") {
-    const propertiesToUpdate: Array<PropertyUpdates> = [];
-    const oldColumnType = get(props, `primaryColumns.${columnId}.columnType`);
-    const newColumnType = propertyValue;
-
-    const propertiesToRemove = Object.keys(
-      props.childStylesheet[oldColumnType] || {},
-    );
-
-    const propertiesToAdd = Object.keys(
-      props.childStylesheet[newColumnType] || {},
-    );
-
-    propertiesToRemove.forEach((propertyKey) => {
-      propertiesToUpdate.push({
-        propertyPath: `primaryColumns.${columnId}.${propertyKey}`,
-        shouldDeleteProperty: true,
-      });
-    });
-
-    propertiesToAdd.forEach((propertyKey) => {
-      const { jsSnippets, stringSegments } = getDynamicBindings(
-        props.childStylesheet[newColumnType][propertyKey],
-      );
-
-      const js = combineDynamicBindings(jsSnippets, stringSegments);
-
-      propertiesToUpdate.push({
-        propertyPath: `primaryColumns.${columnId}.${propertyKey}`,
-        propertyValue: `{{${props.widgetName}.processedTableData.map((currentRow, currentIndex) => ( ${js}))}}`,
-      });
-    });
-
-    if (propertiesToUpdate.length) {
-      /*
-       * Temporary patch to make evaluations to compute inverseDependencyMap when
-       * column type is changed.
-       * TODO(Balaji): remove once https://github.com/appsmithorg/appsmith/issues/14436 gets fixed
-       */
-      propertiesToUpdate.push({
-        propertyPath: `primaryColumns.${columnId}.customAlias`,
-        propertyValue: "",
-      });
-
-      return propertiesToUpdate;
-    }
-  }
-}
 
 /**
  * A function for updateHook to remove the boxShadowColor property post migration.

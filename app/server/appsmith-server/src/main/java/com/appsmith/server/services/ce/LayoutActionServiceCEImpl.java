@@ -78,7 +78,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         } else if (action.getCollectionId().length() == 0) {
             // The Action has been removed from existing collection.
             return newActionService
-                    .getById(id)
+                    .getByIdWithoutPermissionCheck(id)
                     .flatMap(action1 -> collectionService.removeSingleActionFromCollection(
                             action1.getUnpublishedAction().getCollectionId(), Mono.just(action1)))
                     .flatMap(action1 -> {
@@ -93,7 +93,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
             // collection.
             // Remove the action from previous collection and add it to the new collection.
             return newActionService
-                    .getById(id)
+                    .getByIdWithoutPermissionCheck(id)
                     .flatMap(action1 -> {
                         if (action1.getUnpublishedAction().getCollectionId() != null) {
                             return collectionService.removeSingleActionFromCollection(
@@ -264,16 +264,21 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      */
     protected Mono<ActionDTO> updateActionBasedOnContextType(NewAction newAction, ActionDTO action) {
         log.debug("Updating action based on context type with action id: {}", action != null ? action.getId() : null);
-        String pageId = action.getPageId();
+        String defaultPageId =
+                newAction.getUnpublishedAction().getDefaultResources().getPageId();
+        String branchName = newAction.getDefaultResources().getBranchName();
         action.setApplicationId(null);
         action.setPageId(null);
         return updateSingleAction(newAction.getId(), action)
-                .flatMap(updatedAction ->
-                        updateLayoutService.updatePageLayoutsByPageId(pageId).thenReturn(updatedAction))
+                .flatMap(updatedAction -> newPageService
+                        .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
+                        .flatMap(branchedPage -> updateLayoutService.updatePageLayoutsByPageId(branchedPage.getId()))
+                        .thenReturn(updatedAction))
                 .map(responseUtils::updateActionDTOWithDefaultResources)
-                .zipWith(
-                        newPageService.findPageById(pageId, pagePermission.getEditPermission(), false),
-                        (actionDTO, pageDTO) -> {
+                .flatMap(actionDTO -> newPageService
+                        .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
+                        .flatMap(newPage -> newPageService.getPageByViewMode(newPage, false))
+                        .map(pageDTO -> {
                             // redundant check
                             if (pageDTO.getLayouts().size() > 0) {
                                 actionDTO.setErrorReports(
@@ -283,7 +288,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                     "Update action based on context type completed, returning actionDTO with action id: {}",
                                     actionDTO != null ? actionDTO.getId() : null);
                             return actionDTO;
-                        });
+                        }));
     }
 
     @Override

@@ -32,7 +32,7 @@ describe("Shopping cart App", { tags: ["@tag.Datasource"] }, function () {
     // EditProducts query to update the cart
     dataSources.CreateQueryFromOverlay(datasourceName, "", "EditProducts");
     dataSources.ValidateNSelectDropdown(
-      "Commands",
+      "Command",
       "Find document(s)",
       "Update document(s)",
     );
@@ -62,7 +62,7 @@ describe("Shopping cart App", { tags: ["@tag.Datasource"] }, function () {
     // AddProducts query to add to cart
     dataSources.CreateQueryFromOverlay(datasourceName, "", "AddProduct");
     dataSources.ValidateNSelectDropdown(
-      "Commands",
+      "Command",
       "Find document(s)",
       "Insert document(s)",
     );
@@ -89,7 +89,7 @@ describe("Shopping cart App", { tags: ["@tag.Datasource"] }, function () {
     // Delete product
     dataSources.CreateQueryFromOverlay(datasourceName, "", "DeleteProduct");
     dataSources.ValidateNSelectDropdown(
-      "Commands",
+      "Command",
       "Find document(s)",
       "Delete document(s)",
     );

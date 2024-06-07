@@ -9,7 +9,7 @@ import type { JSCollection } from "entities/JSCollection";
 import { JsFileIconV2 } from "../ExplorerIcons";
 import type { PluginType } from "entities/Action";
 import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import {
   getHasDeleteActionPermission,
@@ -92,7 +92,9 @@ export const ExplorerJSCollectionEntity = memo(
       <Entity
         action={navigateToJSCollection}
         active={props.isActive}
-        canEditEntityName={canManageJSAction}
+        canEditEntityName={
+          canManageJSAction && !Boolean(jsAction?.isMainJSCollection)
+        }
         className="t--jsaction"
         contextMenu={contextMenu}
         entityId={jsAction.id}

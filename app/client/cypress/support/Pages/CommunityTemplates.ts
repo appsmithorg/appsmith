@@ -59,7 +59,7 @@ export class CommunityTemplates {
     this.agHelper.GetText(selector, "val").then((authorName) => {
       if (typeof authorName === "string" && authorName === "") {
         this.AssertPublishButtonState(true);
-        this.agHelper.UpdateInputValue(selector, testUserName);
+        this.agHelper.ClearNType(selector, testUserName);
       }
     });
   }

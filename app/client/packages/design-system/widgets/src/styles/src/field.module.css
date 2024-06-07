@@ -41,7 +41,7 @@
   */
   & [data-field-necessity-indicator-icon] {
     color: var(--color-fg-negative);
-    margin-left: var(--inner-spacing-1);
+    margin-inline-start: var(--inner-spacing-1);
   }
 
   /**
@@ -100,16 +100,6 @@
     gap: var(--inner-spacing-2);
     display: flex;
     flex-direction: column;
-  }
-
-  /**
-  * ----------------------------------------------------------------------------
-  * FIELD INPUT GROUP
-  *-----------------------------------------------------------------------------
-  */
-  & [data-field-input-group] {
-    display: flex;
-    align-items: center;
   }
 
   /**

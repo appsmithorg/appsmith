@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { PluginName } from "entities/Action";
 import { DatasourceStructureSearchContainer } from "./SchemaViewModeCSS";
 import { refreshDatasourceStructure } from "actions/datasourceActions";

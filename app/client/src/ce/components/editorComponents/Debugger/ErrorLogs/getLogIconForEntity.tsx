@@ -1,3 +1,4 @@
+import type { FunctionComponent } from "react";
 import React from "react";
 import type { LogItemProps } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
 import { PluginType } from "entities/Action";
@@ -10,22 +11,27 @@ import {
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
-export const getIconForEntity: Record<
-  string,
-  (props: LogItemProps, pluginImages: Record<string, string>) => any
-> = {
-  [ENTITY_TYPE.WIDGET]: (props) => {
+type IconProps = LogItemProps & {
+  pluginImages: Record<string, string>;
+};
+
+export type IconEntityMapper = Record<string, FunctionComponent<IconProps>>;
+
+export const getIconForEntity: IconEntityMapper = {
+  [ENTITY_TYPE.WIDGET]: (props: IconProps) => {
     if (props.source?.pluginType) {
       return (
         <WidgetIcon height={16} type={props.source.pluginType} width={16} />
       );
     }
+
+    return null;
   },
   [ENTITY_TYPE.JSACTION]: () => {
     return JsFileIconV2(16, 16, true, true);
   },
-  [ENTITY_TYPE.ACTION]: (props, pluginImages) => {
-    const { iconId, source } = props;
+  [ENTITY_TYPE.ACTION]: (props) => {
+    const { iconId, pluginImages, source } = props;
     if (source?.pluginType === PluginType.API && source.httpMethod) {
       // If the source is an API action.
       return ApiMethodIcon(source.httpMethod, "16px", "32px", 50);

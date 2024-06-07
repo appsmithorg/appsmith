@@ -1,6 +1,10 @@
 import { RecaptchaTypes } from "components/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  BUTTON_WIDGET_DEFAULT_LABEL,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export const propertyPaneContentConfig = [
   {
@@ -11,7 +15,7 @@ export const propertyPaneContentConfig = [
         label: "Label",
         helpText: "Sets the label of the button",
         controlType: "INPUT_TEXT",
-        placeholderText: "Submit",
+        placeholderText: createMessage(BUTTON_WIDGET_DEFAULT_LABEL),
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
@@ -35,7 +39,7 @@ export const propertyPaneContentConfig = [
         propertyName: "tooltip",
         label: "Tooltip",
         controlType: "INPUT_TEXT",
-        placeholderText: "Submits Form",
+        placeholderText: "Does the thing",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },

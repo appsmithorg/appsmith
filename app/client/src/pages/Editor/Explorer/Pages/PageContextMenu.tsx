@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
   clonePageInit,
@@ -22,10 +22,7 @@ import {
   CONTEXT_PARTIAL_IMPORT,
 } from "@appsmith/constants/messages";
 import { getPageById } from "selectors/editorSelectors";
-import {
-  getCurrentApplication,
-  getPartialImportExportLoadingState,
-} from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
@@ -36,8 +33,8 @@ import {
   getHasDeletePagePermission,
   getHasManagePagePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import PartiaExportModel from "components/editorComponents/PartialImportExport/PartialExportModal";
-import PartialImportModal from "components/editorComponents/PartialImportExport/PartialImportModal";
+import { openPartialExportModal } from "actions/widgetActions";
+import { openPartialImportModal } from "@appsmith/actions/applicationActions";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -54,27 +51,11 @@ export function PageContextMenu(props: {
   isDefaultPage: boolean;
   isHidden: boolean;
   hasExportPermission: boolean;
+  onItemSelected?: () => void;
 }) {
   const dispatch = useDispatch();
-  const isPartialImportExportEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_partial_import_export_enabled,
-  );
-  const [showPartialExportModal, setShowPartialExportModal] = useState(false);
-  const [showPartialImportModal, setShowPartialImportModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
-  const partialImportExportLoadingState = useSelector(
-    getPartialImportExportLoadingState,
-  );
-
-  useEffect(() => {
-    if (partialImportExportLoadingState.isExportDone) {
-      setShowPartialExportModal(false);
-    }
-    if (partialImportExportLoadingState.isImportDone) {
-      setShowPartialImportModal(false);
-    }
-  }, [partialImportExportLoadingState]);
   /**
    * delete the page
    *
@@ -134,19 +115,18 @@ export function PageContextMenu(props: {
   );
 
   const showPartialImportExportInMenu = useMemo(
-    () =>
-      isPartialImportExportEnabled &&
-      props.hasExportPermission &&
-      props.isCurrentPage,
-    [
-      isPartialImportExportEnabled,
-      props.hasExportPermission,
-      props.isCurrentPage,
-    ],
+    () => props.hasExportPermission && props.isCurrentPage,
+    [props.hasExportPermission, props.isCurrentPage],
   );
 
-  const openPartialExportModal = () => setShowPartialExportModal(true);
-  const openPartialImportModal = () => setShowPartialImportModal(true);
+  const handlePartialExportClick = () => {
+    if (props.onItemSelected) props.onItemSelected();
+    dispatch(openPartialExportModal(true));
+  };
+  const handlePartialImportClick = () => {
+    if (props.onItemSelected) props.onItemSelected();
+    dispatch(openPartialImportModal(true));
+  };
 
   const pagePermissions =
     useSelector(getPageById(props.pageId))?.userPermissions || [];
@@ -210,12 +190,12 @@ export function PageContextMenu(props: {
       },
     showPartialImportExportInMenu && {
       value: "partial-export",
-      onSelect: openPartialExportModal,
+      onSelect: handlePartialExportClick,
       label: createMessage(CONTEXT_PARTIAL_EXPORT),
     },
     showPartialImportExportInMenu && {
       value: "partial-import",
-      onSelect: openPartialImportModal,
+      onSelect: handlePartialImportClick,
       label: createMessage(CONTEXT_PARTIAL_IMPORT),
     },
     !props.isDefaultPage &&
@@ -234,25 +214,11 @@ export function PageContextMenu(props: {
   ].filter(Boolean);
 
   return optionsTree?.length > 0 ? (
-    <>
-      <ContextMenu
-        className={props.className}
-        optionTree={optionsTree as TreeDropdownOption[]}
-        setConfirmDelete={setConfirmDelete}
-      />
-      {showPartialExportModal && (
-        <PartiaExportModel
-          handleModalClose={() => setShowPartialExportModal(false)}
-          isModalOpen={showPartialExportModal}
-        />
-      )}
-      {showPartialImportModal && (
-        <PartialImportModal
-          isModalOpen={showPartialImportModal}
-          onClose={() => setShowPartialImportModal(false)}
-        />
-      )}
-    </>
+    <ContextMenu
+      className={props.className}
+      optionTree={optionsTree as TreeDropdownOption[]}
+      setConfirmDelete={setConfirmDelete}
+    />
   ) : null;
 }
 

@@ -6,7 +6,6 @@ import {
   deleteJSCollection,
 } from "actions/jsActionActions";
 import noop from "lodash/noop";
-import { getJSEntityName } from "./helpers";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -62,12 +61,11 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
 
   const copyJSCollectionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) => {
-      const nextEntityName = getJSEntityName();
       dispatch(
         copyJSCollectionRequest({
           id: actionId,
           destinationPageId: pageId,
-          name: nextEntityName(actionName, pageId, true),
+          name: actionName,
         }),
       );
     },
@@ -75,12 +73,11 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
   );
   const moveJSCollectionToPage = useCallback(
     (actionId: string, actionName: string, destinationPageId: string) => {
-      const nextEntityName = getJSEntityName();
       dispatch(
         moveJSCollectionRequest({
           id: actionId,
           destinationPageId,
-          name: nextEntityName(actionName, destinationPageId, false),
+          name: actionName,
         }),
       );
     },

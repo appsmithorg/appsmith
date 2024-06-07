@@ -15,7 +15,7 @@ import GitConnection from "../Tabs/GitConnection";
 
 import GitErrorPopup from "../components/GitErrorPopup";
 import styled from "styled-components";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Modal, ModalContent, ModalHeader } from "design-system";
 import {
   createMessage,

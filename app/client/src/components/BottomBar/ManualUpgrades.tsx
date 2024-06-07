@@ -25,7 +25,7 @@ import {
 import styled from "styled-components";
 import { createMessage, CLEAN_URL_UPDATE } from "@appsmith/constants/messages";
 import { useLocation } from "react-router";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import classNames from "classnames";
 
 const StyledList = styled.ul`

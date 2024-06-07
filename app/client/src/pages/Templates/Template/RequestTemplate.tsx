@@ -10,7 +10,7 @@ import {
   REQUEST_TEMPLATE,
   REQUEST_BUILDING_BLOCK,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   border: 1px solid var(--ads-v2-color-border);

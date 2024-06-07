@@ -3,7 +3,6 @@ import type { JSCollection, JSAction, Variable } from "entities/JSCollection";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { isEmpty, isEqual, xorWith } from "lodash";
 
 export interface ParsedJSSubAction {
   name: string;
@@ -21,13 +20,25 @@ export interface JSUpdate {
   parsedBody: ParsedBody | undefined;
 }
 
-export const getDifferenceInJSArgumentArrays = (x: any, y: any) =>
-  isEmpty(xorWith(x, y, isEqual));
+export interface JSCollectionDifference {
+  newActions: Partial<JSAction>[];
+  updateActions: JSAction[];
+  deletedActions: JSAction[];
+  nameChangedActions: Array<{
+    id: string;
+    collectionId?: string;
+    oldName: string;
+    newName: string;
+    pageId: string;
+    moduleId?: string;
+  }>;
+  changedVariables: Variable[];
+}
 
 export const getDifferenceInJSCollection = (
   parsedBody: ParsedBody,
   jsAction: JSCollection,
-) => {
+): JSCollectionDifference => {
   const newActions: ParsedJSSubAction[] = [];
   const toBearchivedActions: JSAction[] = [];
   const toBeUpdatedActions: JSAction[] = [];
@@ -40,13 +51,7 @@ export const getDifferenceInJSCollection = (
       const action = parsedBody.actions[i];
       const preExisted = jsAction.actions.find((js) => js.name === action.name);
       if (preExisted) {
-        if (
-          preExisted.actionConfiguration.body !== action.body ||
-          !getDifferenceInJSArgumentArrays(
-            preExisted.actionConfiguration?.jsArguments,
-            action.arguments,
-          )
-        ) {
+        if (preExisted.actionConfiguration.body !== action.body) {
           toBeUpdatedActions.push({
             ...preExisted,
             actionConfiguration: {
@@ -245,6 +250,37 @@ export const createDummyJSCollectionActions = (
       value: {},
     },
   ];
+
+  return {
+    actions,
+    body,
+    variables,
+  };
+};
+
+export const createSingleFunctionJsCollection = (
+  workspaceId: string,
+  functionName: string,
+  additionalParams: Record<string, unknown> = {},
+) => {
+  const body = `export default {\n\t${functionName} () {\n\t\t//\twrite code here\n\t}\n}`;
+
+  const actions = [
+    {
+      name: functionName,
+      workspaceId,
+      executeOnLoad: false,
+      actionConfiguration: {
+        body: "function (){\n\t\t//\twrite code here\n\t}",
+        timeoutInMillisecond: 0,
+        jsArguments: [],
+      },
+      clientSideExecution: true,
+      ...additionalParams,
+    },
+  ];
+
+  const variables: Variable[] = [];
 
   return {
     actions,

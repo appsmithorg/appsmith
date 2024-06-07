@@ -3,10 +3,10 @@ import {
   AppSidebarButton,
 } from "../../../../support/Pages/EditorNavigation";
 
-const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 import appPage from "../../../../locators/CMSApplocators";
 import apiEditor from "../../../../locators/ApiEditor";
+import { apiPage } from "../../../../support/Objects/ObjectsCore";
 
 describe("API Panel request body", { tags: ["@tag.Datasource"] }, function () {
   it("1. Check whether the default content-type changes on changing method types and remains unchanged on switching to GET", function () {
@@ -16,7 +16,7 @@ describe("API Panel request body", { tags: ["@tag.Datasource"] }, function () {
     cy.contains(apiEditor.bodyTab).click({ force: true });
     cy.get(apiEditor.bodyTypeSelected).should("have.text", "NONE");
 
-    cy.get(apiEditor.jsonBodyTab).click({ force: true });
+    apiPage.SelectSubTab("JSON");
 
     //Switch to headers tab
     cy.contains(apiEditor.headersTab).click();
@@ -35,7 +35,7 @@ describe("API Panel request body", { tags: ["@tag.Datasource"] }, function () {
 
     // Checking Body type to be JSON
     cy.contains(apiEditor.bodyTab).click({ force: true });
-    cy.get(apiEditor.jsonBodyTab).click({ force: true });
+    apiPage.SelectSubTab("JSON");
     cy.get(apiEditor.bodyTypeSelected).should("have.text", "JSON");
 
     // Changing method type to GET

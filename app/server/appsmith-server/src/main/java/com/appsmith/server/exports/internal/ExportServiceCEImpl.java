@@ -166,8 +166,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
                                 exportableArtifact.makePristine();
                                 exportableArtifact.sanitiseToExportDBObject();
                                 // Disable exporting the exportableArtifact with datasource config once imported in
-                                // destination
-                                // instance
+                                // destination instance
                                 exportableArtifact.setExportWithConfiguration(null);
                                 return artifactExchangeJson;
                             }));

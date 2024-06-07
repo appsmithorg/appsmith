@@ -16,7 +16,7 @@ export const propertyPaneContentConfig = [
         helpText: "Sets the label of a menu",
         label: "Label",
         controlType: "INPUT_TEXT",
-        placeholderText: "Open",
+        placeholderText: "Open The Menu…",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },

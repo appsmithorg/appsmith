@@ -2,7 +2,6 @@ import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { generateReactKey } from "utils/generators";
-import { getNextEntityName } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
@@ -154,16 +153,13 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
     let menuItems = this.props.propertyValue || [];
     const menuItemsArray = this.getMenuItems();
     const newMenuItemId = generateReactKey({ prefix: "menuItem" });
-    const newMenuItemLabel = getNextEntityName(
-      "Menu Item ",
-      menuItemsArray.map((menuItem: any) => menuItem.label),
-    );
+
     menuItems = {
       ...menuItems,
       [newMenuItemId]: {
         id: newMenuItemId,
         index: menuItemsArray.length,
-        label: newMenuItemLabel,
+        label: "Menu Item",
         widgetId: generateReactKey(),
         isDisabled: false,
         isVisible: true,

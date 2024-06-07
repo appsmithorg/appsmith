@@ -143,6 +143,7 @@ public class DatasourceStorage extends BaseDomain {
         this.setIsRecentlyCreated(null);
     }
 
+    @JsonView({Views.Internal.class})
     public boolean isEmbedded() {
         /**
          * We cannot just rely on datasourceId == null check because it will always be true for all cases when the

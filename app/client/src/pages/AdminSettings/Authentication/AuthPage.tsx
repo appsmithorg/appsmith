@@ -13,7 +13,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Button, Callout, Divider, Icon, Text, Tooltip } from "design-system";
 import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 import EnterpriseTag from "components/EnterpriseTag";
@@ -108,6 +108,7 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
     logEventData: { method: method.label },
     featureName: RampFeature.Sso,
     sectionName: RampSection.AdminSettings,
+    isEnterprise: true,
   });
 
   const onClickHandler = (method: AuthMethodType) => {
@@ -148,8 +149,8 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
           method.isConnected
             ? EDIT
             : !method?.isFeatureEnabled
-            ? UPGRADE
-            : ENABLE,
+              ? UPGRADE
+              : ENABLE,
         )}
       </Button>
     </ButtonWrapper>

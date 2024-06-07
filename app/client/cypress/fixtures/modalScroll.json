@@ -59,7 +59,7 @@
                             {
                                 "widgetName": "Icon1",
                                 "rightColumn": 64,
-                                "onClick": "{{closeModal('Modal1')}}",
+                                "onClick": "{{closeModal(Modal1.name)}}",
                                 "color": "#040627",
                                 "iconName": "cross",
                                 "displayName": "Icon",
@@ -107,7 +107,7 @@
                             },
                             {
                                 "widgetName": "Button1",
-                                "onClick": "{{closeModal('Modal1')}}",
+                                "onClick": "{{closeModal(Modal1.name)}}",
                                 "buttonColor": "#03B365",
                                 "displayName": "Button",
                                 "iconSVG": "/static/media/icon.cca02633.svg",
@@ -342,7 +342,7 @@
             },
             {
                 "widgetName": "Button3",
-                "onClick": "{{showModal('Modal1')}}",
+                "onClick": "{{showModal(Modal1.name)}}",
                 "buttonColor": "#03B365",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",

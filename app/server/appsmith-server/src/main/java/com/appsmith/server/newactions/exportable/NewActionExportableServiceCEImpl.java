@@ -22,7 +22,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
+import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static com.appsmith.server.helpers.ImportExportUtils.sanitizeDatasourceInActionDTO;

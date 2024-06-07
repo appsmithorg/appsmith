@@ -4,7 +4,7 @@ import type { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
 import type { Message, SourceEntity } from "entities/AppsmithConsole";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   createMessage,

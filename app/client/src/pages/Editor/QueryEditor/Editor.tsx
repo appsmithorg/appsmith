@@ -33,7 +33,7 @@ import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { initFormEvaluations } from "actions/evaluationActions";
 import { getUIComponent } from "./helpers";
 import type { Diff } from "deep-diff";

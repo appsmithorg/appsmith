@@ -7,9 +7,9 @@ import type {
 import type { ReactElementType } from "react-window";
 import "simplebar-react/dist/simplebar.min.css";
 import type { ReactTableColumnProps, TableSizes } from "./Constants";
-import { MULTISELECT_CHECKBOX_WIDTH, TABLE_SCROLLBAR_WIDTH } from "./Constants";
-import type { TableColumnHeaderProps } from "./header/TableColumnHeader";
-import TableColumnHeader from "./header/TableColumnHeader";
+import { MULTISELECT_CHECKBOX_WIDTH } from "./Constants";
+import type { TableColumnHeaderProps } from "./TableHeader/TableColumnHeader";
+import TableColumnHeader from "./TableHeader/TableColumnHeader";
 import { TableBody } from "./TableBody";
 
 type StaticTableProps = TableColumnHeaderProps & {
@@ -85,9 +85,8 @@ const StaticTable = (props: StaticTableProps) => {
         selectTableRow={props.selectTableRow}
         selectedRowIndex={props.selectedRowIndex}
         selectedRowIndices={props.selectedRowIndices}
-        tableSizes={props.tableSizes}
         useVirtual={props.useVirtual}
-        width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
+        width={props.width}
       />
     </>
   );

@@ -26,7 +26,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { call, put, select } from "redux-saga/effects";
 import type { AnyReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import AppsmithConsole from "utils/AppsmithConsole";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   createMessage,
   JS_EXECUTION_FAILURE,

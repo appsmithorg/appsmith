@@ -9,7 +9,7 @@ import {
   isImportingTemplateToAppSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { TemplateContent } from "./TemplateContent";
 import TemplateFilters from "./TemplateFilters";
 

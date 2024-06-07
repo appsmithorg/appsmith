@@ -143,7 +143,7 @@ describe("AlignedColumnHighlights tests", () => {
       expect(res[1].isVertical).toBeFalsy();
 
       // First set of highlights should be placed before the first widget.
-      expect(res[0].posY).toEqual(positions[button].top - HIGHLIGHT_SIZE);
+      expect(res[0].posY).toEqual(positions[button].top);
       // Second set of highlights should be placed between the two widgets.
       expect(res[4].posY).toBeLessThanOrEqual(positions[input].top);
       expect(res[4].posY).toBeGreaterThan(
@@ -202,7 +202,7 @@ describe("AlignedColumnHighlights tests", () => {
 
       expect(res.length).toEqual(3);
       // First highlight before the first widget.
-      expect(res[0].posY).toEqual(positions[button].top - HIGHLIGHT_SIZE);
+      expect(res[0].posY).toEqual(positions[button].top);
       // Second highlight before second widget.
       expect(res[1].posY).toBeLessThanOrEqual(positions[input].top);
       expect(res[1].posY).toBeGreaterThanOrEqual(positions[button].top);
@@ -266,7 +266,7 @@ describe("AlignedColumnHighlights tests", () => {
       // Highlight for the dragged widget's position should be discounted.
       expect(res.length).toEqual(2);
       // First highlight before the first widget.
-      expect(res[0].posY).toEqual(positions[button].top - HIGHLIGHT_SIZE);
+      expect(res[0].posY).toEqual(positions[button].top);
       expect(res[0].rowIndex).toEqual(0);
       // Final highlight should be placed after the last widget.
       expect(res[1].posY).toBeGreaterThanOrEqual(
@@ -460,9 +460,7 @@ describe("AlignedColumnHighlights tests", () => {
       expect(res[1].isVertical).toBeTruthy();
       expect(res[3].isVertical).toBeTruthy();
 
-      expect(res[0].posY).toEqual(
-        dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
-      );
+      expect(res[0].posY).toEqual(dimensions[row1.layoutId].top);
     });
     it("2. should skip highlights of non drop target child layouts in the final output", () => {
       /**
@@ -581,9 +579,7 @@ describe("AlignedColumnHighlights tests", () => {
       expect(res[1].isVertical).toBeTruthy();
       expect(res[3].isVertical).toBeTruthy();
 
-      expect(res[0].posY).toEqual(
-        dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
-      );
+      expect(res[0].posY).toEqual(dimensions[row1.layoutId].top);
     });
   });
 });

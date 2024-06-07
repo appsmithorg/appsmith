@@ -181,7 +181,7 @@ describe(
       cy.get("[data-value='SHORT']").click({ force: true });
       cy.wait(2000);
       deployMode.DeployApp();
-      cy.readTableV2dataValidateCSS("0", "1", "height", "29px", true);
+      cy.readTableV2dataValidateCSS("0", "1", "height", "30px", true);
     });
   },
 );

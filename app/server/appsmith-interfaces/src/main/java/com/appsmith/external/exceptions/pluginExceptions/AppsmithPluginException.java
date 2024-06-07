@@ -60,4 +60,9 @@ public class AppsmithPluginException extends BaseException {
                 ? AppsmithPluginErrorCode.GENERIC_PLUGIN_ERROR.getCode()
                 : this.error.getAppErrorCode();
     }
+
+    public AppsmithPluginException hideStackTraceInLogs() {
+        hideStackTraceInLogs = true;
+        return this;
+    }
 }

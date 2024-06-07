@@ -19,8 +19,11 @@ import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.commands.AnthropicCommand;
 import com.external.plugins.constants.AnthropicConstants;
 import com.external.plugins.models.AnthropicRequestDTO;
+import com.external.plugins.models.CompletionDTO;
+import com.external.plugins.models.MessageDTO;
 import com.external.plugins.utils.AnthropicMethodStrategy;
 import com.external.plugins.utils.RequestUtils;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
@@ -45,6 +48,7 @@ import java.util.stream.Collectors;
 
 import static com.external.plugins.constants.AnthropicConstants.ANTHROPIC_MODELS;
 import static com.external.plugins.constants.AnthropicConstants.BODY;
+import static com.external.plugins.constants.AnthropicConstants.CLAUDE3_PREFIX;
 import static com.external.plugins.constants.AnthropicConstants.LABEL;
 import static com.external.plugins.constants.AnthropicConstants.TEST_MODEL;
 import static com.external.plugins.constants.AnthropicConstants.TEST_PROMPT;
@@ -137,7 +141,21 @@ public class AnthropicPlugin extends BasePlugin {
                 return Mono.just(apiKeyNotPresentErrorResult);
             }
 
-            return RequestUtils.makeRequest(httpMethod, uri, apiKeyAuth, BodyInserters.fromValue(anthropicRequestDTO))
+            String model = anthropicRequestDTO.getModel();
+
+            // we don't want to serialise null values as Anthropic throws bad request otherwise
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            String requestBody;
+            try {
+                requestBody = objectMapper.writeValueAsString(anthropicRequestDTO);
+            } catch (Exception e) {
+                errorResult.setIsExecutionSuccess(false);
+                errorResult.setErrorInfo(
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, e.getMessage()));
+                return Mono.just(errorResult);
+            }
+
+            return RequestUtils.makeRequest(httpMethod, uri, apiKeyAuth, BodyInserters.fromValue(requestBody))
                     .flatMap(responseEntity -> {
                         HttpStatusCode statusCode = responseEntity.getStatusCode();
 
@@ -171,7 +189,12 @@ public class AnthropicPlugin extends BasePlugin {
                         Object body;
                         try {
                             body = objectMapper.readValue(responseEntity.getBody(), Object.class);
-                            actionExecutionResult.setBody(body);
+                            if (model.contains(CLAUDE3_PREFIX)) {
+                                actionExecutionResult.setBody(body);
+                            } else {
+                                actionExecutionResult.setBody(
+                                        formatResponseBodyAsCompletionAPI(model, responseEntity.getBody()));
+                            }
                         } catch (IOException ex) {
                             actionExecutionResult.setIsExecutionSuccess(false);
                             actionExecutionResult.setErrorInfo(new AppsmithPluginException(
@@ -202,6 +225,24 @@ public class AnthropicPlugin extends BasePlugin {
                         errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
                     });
+        }
+
+        /**
+         * To keep things backward compatible, if model doesn't belong to claude 3, format response in form of claude completion API
+         */
+        private Object formatResponseBodyAsCompletionAPI(String model, byte[] response) {
+            try {
+                MessageDTO messageDTO = objectMapper.readValue(response, MessageDTO.class);
+                CompletionDTO completionDTO = new CompletionDTO();
+                completionDTO.setId(messageDTO.getId());
+                completionDTO.setType("completion");
+                completionDTO.setStopReason(messageDTO.getStopReason());
+                completionDTO.setModel(model);
+                completionDTO.setCompletion(messageDTO.getFirstMessage());
+                return completionDTO;
+            } catch (IOException e) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, new String(response));
+            }
         }
 
         @Override
@@ -252,7 +293,11 @@ public class AnthropicPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         log.debug("Error while fetching Anthropic models list", error);
-                        return Mono.just(getDataToMap(ANTHROPIC_MODELS));
+                        if (ANTHROPIC_MODELS.containsKey(requestType)) {
+                            return Mono.just(getDataToMap(ANTHROPIC_MODELS.get(requestType)));
+                        }
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, error.getMessage()));
                     })
                     .map(trigger -> {
                         TriggerResultDTO triggerResult = new TriggerResultDTO(trigger);
@@ -268,7 +313,7 @@ public class AnthropicPlugin extends BasePlugin {
         }
 
         private List<Map<String, String>> getDataToMap(List<String> data) {
-            return data.stream().sorted().map(x -> Map.of(LABEL, x, VALUE, x)).collect(Collectors.toList());
+            return data.stream().map(x -> Map.of(LABEL, x, VALUE, x)).collect(Collectors.toList());
         }
     }
 }

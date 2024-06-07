@@ -32,6 +32,7 @@ import {
 import { generateReactKey } from "widgets/WidgetUtils";
 import { LabelOrientation } from "../constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { EChartsDatasetBuilder } from "../component/EChartsDatasetBuilder";
 
@@ -66,6 +67,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     return {
       name: "Chart",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.DISPLAY],
       needsMeta: true,
       needsErrorInfo: true,

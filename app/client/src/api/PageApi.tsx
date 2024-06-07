@@ -253,7 +253,10 @@ class PageApi extends Api {
   static async updatePage(
     request: UpdatePageRequest,
   ): Promise<AxiosPromise<ApiResponse<UpdatePageResponse>>> {
-    return Api.put(PageApi.updatePageUrl(request.id), request);
+    return Api.put(PageApi.updatePageUrl(request.id), {
+      ...request,
+      id: undefined,
+    });
   }
 
   static async generateTemplatePage(

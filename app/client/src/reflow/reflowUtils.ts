@@ -305,9 +305,8 @@ export function getCollidingSpaceMap(
   const collidingSpaceMap: CollisionMap = {};
   let order = 1;
   const orientationalAccessor = getOrientationAccessor(isHorizontalMove);
-  const oppositeOrientationalAccessor = getOrientationAccessor(
-    !isHorizontalMove,
-  );
+  const oppositeOrientationalAccessor =
+    getOrientationAccessor(!isHorizontalMove);
 
   let reflowableOccSpaces = [...occupiedSpaces],
     currSpacePositions = [...newSpacePositions];
@@ -1537,9 +1536,8 @@ export function checkReCollisionWithOtherNewSpacePositions(
   const { isHorizontal: globalIsHorizontal } = getAccessor(globalDirection);
   const { prevCollidingSpaceMap, prevSpacesMap } = prevReflowState;
   const orientationalAccessor = getOrientationAccessor(globalIsHorizontal);
-  const oppositeOrientationalAccessor = getOrientationAccessor(
-    !globalIsHorizontal,
-  );
+  const oppositeOrientationalAccessor =
+    getOrientationAccessor(!globalIsHorizontal);
   let stopCollisionCheck = false;
 
   for (const newSpacePosition of newSpacePositions) {
@@ -2201,8 +2199,8 @@ export function modifyResizePosition(
   const minDimension = isHorizontal
     ? HORIZONTAL_RESIZE_MIN_LIMIT
     : newSpacePosition.fixedHeight === undefined
-    ? VERTICAL_RESIZE_MIN_LIMIT
-    : newSpacePosition.fixedHeight;
+      ? VERTICAL_RESIZE_MIN_LIMIT
+      : newSpacePosition.fixedHeight;
 
   spacePosition[directionAccessor] = Math[oppositeMathComparator](
     spacePosition[directionAccessor],

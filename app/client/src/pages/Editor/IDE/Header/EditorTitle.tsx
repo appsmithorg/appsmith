@@ -1,52 +1,35 @@
-import React from "react";
-import { Flex, Text, Icon } from "design-system";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
+import { Popover, PopoverTrigger, PopoverContent } from "design-system";
 
 import { createMessage, HEADER_TITLES } from "@appsmith/constants/messages";
-import { setIdeEditorPagesActiveStatus } from "actions/ideActions";
-import { getPagesActiveStatus } from "selectors/ideSelectors";
+import { PagesSection } from "../EditorPane/PagesSection";
+import { IDEHeaderEditorSwitcher } from "IDE";
 
 const EditorTitle = ({ title }: { title: string }) => {
-  const dispatch = useDispatch();
-  const active = useSelector(getPagesActiveStatus);
+  const [active, setActive] = useState(false);
 
-  const onClickHandler = () => {
-    dispatch(setIdeEditorPagesActiveStatus(!active));
+  const closeMenu = () => {
+    setActive(false);
   };
 
   return (
-    <Flex
-      alignItems={"center"}
-      borderRadius={"var(--ads-v2-border-radius)"}
-      className={"hover:bg-[var(--ads-v2-color-bg-subtle)] cursor-pointer"}
-      justifyContent={"center"}
-      onClick={onClickHandler}
-      p={"spaces-2"}
-    >
-      <Text
-        color={"var(--ads-v2-colors-content-label-inactive-fg)"}
-        kind="body-m"
-      >
-        {createMessage(HEADER_TITLES.EDITOR) + " /"}
-      </Text>
-      <Flex
-        alignItems={"center"}
-        className={"t--pages-switcher"}
-        data-active={active}
-        gap={"spaces-1"}
-        height={"100%"}
-        justifyContent={"center"}
-        paddingLeft={"spaces-2"}
-      >
-        <Text isBold kind={"body-m"}>
-          {title}
-        </Text>
-        <Icon
-          name={active ? "arrow-up-s-line" : "arrow-down-s-line"}
-          size={"md"}
+    <Popover onOpenChange={setActive} open={active}>
+      <PopoverTrigger>
+        <IDEHeaderEditorSwitcher
+          active={active}
+          prefix={createMessage(HEADER_TITLES.EDITOR)}
+          title={title}
+          titleTestId="t--pages-switcher"
         />
-      </Flex>
-    </Flex>
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="!p-0 !pb-1"
+        onEscapeKeyDown={closeMenu}
+      >
+        <PagesSection onItemSelected={closeMenu} />
+      </PopoverContent>
+    </Popover>
   );
 };
 

@@ -27,6 +27,7 @@ const initialState: GitSyncReducerState = {
   branches: [],
   fetchingBranches: false,
   localGitConfig: { authorEmail: "", authorName: "" },
+  showBranchPopup: false,
 
   isDiscarding: false,
 
@@ -654,22 +655,46 @@ const gitSyncReducer = createReducer(initialState, {
     isGitSettingsModalOpen: action.payload.open,
     activeGitSettingsModalTab: action.payload.tab || GitSettingsTab.GENERAL,
   }),
+  [ReduxActionTypes.GIT_SHOW_BRANCH_POPUP]: (
+    state,
+    action: ReduxAction<{ show: boolean }>,
+  ) => ({
+    ...state,
+    showBranchPopup: action.payload.show,
+  }),
 });
 
 export interface GitStatusData {
+  modified: string[];
+  added: string[];
+  removed: any[];
+  pagesModified: any[];
+  pagesAdded: string[];
+  pagesRemoved: any[];
+  queriesModified: any[];
+  queriesAdded: any[];
+  queriesRemoved: any[];
+  jsObjectsModified: any[];
+  jsObjectsAdded: string[];
+  jsObjectsRemoved: any[];
+  datasourcesModified: any[];
+  datasourcesAdded: any[];
+  datasourcesRemoved: any[];
+  jsLibsModified: any[];
+  jsLibsAdded: any[];
+  jsLibsRemoved: any[];
+  conflicting: any[];
+  isClean: boolean;
   aheadCount: number;
   behindCount: number;
-  conflicting: Array<string>;
-  isClean: boolean;
-  modified: Array<string>;
-  modifiedPages: number;
-  modifiedQueries: number;
   remoteBranch: string;
-  modifiedJSObjects: number;
+  discardDocUrl: string;
+  migrationMessage: string;
+  modifiedPages: number;
   modifiedDatasources: number;
+  modifiedJSObjects: number;
+  modifiedQueries: number;
   modifiedJSLibs: number;
-  discardDocUrl?: string;
-  migrationMessage?: string;
   modifiedPackages?: number;
   modifiedModules?: number;
   modifiedModuleInstances?: number;
@@ -763,6 +788,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   globalGitConfig: GitConfig;
 
   branches: Array<{ branchName: string; default: boolean }>;
+  showBranchPopup: boolean;
 
   localGitConfig: GitConfig;
   gitStatus?: GitStatusData;

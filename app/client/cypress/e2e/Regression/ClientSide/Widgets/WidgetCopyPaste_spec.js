@@ -115,8 +115,7 @@ describe("Widget Copy paste", { tags: ["@tag.Widget"] }, function () {
 
   it("6. Should be able to paste list widget inside another list widget", function () {
     //clean up
-    cy.get("body").type(`{${modifierKey}}{a}`);
-    cy.get("body").type("{del}");
+    PageList.AddNewPage("New blank page");
 
     //add list widget
     PageLeftPane.switchToAddNew();

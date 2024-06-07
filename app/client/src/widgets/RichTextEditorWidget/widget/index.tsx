@@ -28,6 +28,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 
 import type {
   SnipingModeProperty,
@@ -56,6 +57,7 @@ class RichTextEditorWidget extends BaseWidget<
     return {
       name: "Rich Text Editor",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.INPUTS],
       needsMeta: true,
       searchTags: ["input", "rte"],

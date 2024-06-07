@@ -6,7 +6,6 @@ import {
   setThenBlockInQuery,
   setCatchBlockInQuery,
 } from "@shared/ast";
-import { createNewJSCollection } from "actions/jsPaneActions";
 import { createModalAction } from "actions/widgetActions";
 import type { AppState } from "@appsmith/reducers";
 import {
@@ -40,6 +39,7 @@ import {
 } from "selectors/widgetSelectors";
 import {
   APPSMITH_GLOBAL_FUNCTIONS,
+  APPSMITH_INTEGRATIONS,
   AppsmithFunction,
   AppsmithFunctionsWithFields,
   FieldType,
@@ -64,14 +64,14 @@ import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelector
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { ModuleInstanceDataState } from "@appsmith/constants/ModuleInstanceConstants";
-import { setShowCreateNewModal } from "actions/propertyPaneActions";
-import { setIdeEditorViewMode } from "actions/ideActions";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { getModuleIcon, getPluginImagesFromPlugins } from "pages/Editor/utils";
 import { getAllModules } from "@appsmith/selectors/modulesSelector";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { Plugin } from "api/PluginApi";
+import {
+  createNewJSCollectionFromActionCreator,
+  createNewQueryFromActionCreator,
+} from "actions/propertyPaneActions";
 
 const actionList: {
   label: string;
@@ -378,7 +378,7 @@ export function useModalDropdownList(handleClose: () => void) {
         const modalName = nextModalName;
         if (setter) {
           setter({
-            value: `${modalName}`,
+            value: `${modalName}.name`,
           });
           dispatch(createModalAction(modalName));
           handleClose();
@@ -429,8 +429,6 @@ function getApiAndQueryOptions(
   queryModuleInstances: ModuleInstanceDataState,
   modules: Record<string, Module>,
 ) {
-  const state = store.getState();
-  const isSideBySideEnabled = getIsSideBySideEnabled(state);
   const pluginImages = getPluginImagesFromPlugins(plugins);
   const pluginGroups: any = keyBy(plugins, "id");
 
@@ -440,10 +438,18 @@ function getApiAndQueryOptions(
     id: "create",
     icon: "plus",
     className: "t--create-datasources-query-btn",
-    onSelect: () => {
-      dispatch(setShowCreateNewModal(true));
-      if (isSideBySideEnabled) {
-        dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+    onSelect: (value, setterMethod) => {
+      if (setterMethod && queryOptions) {
+        const createQueryCallback = (name: string) => {
+          setterMethod({
+            label: name,
+            id: name,
+            value: name,
+            type: queryOptions.value,
+          });
+        };
+
+        dispatch(createNewQueryFromActionCreator(createQueryCallback));
       }
     },
   };
@@ -513,20 +519,30 @@ export function getJSOptions(
   dispatch: any,
   jsModuleInstances: ReturnType<typeof getJSModuleInstancesData>,
 ) {
+  const jsOption = actionList.find(
+    (action) => action.value === AppsmithFunction.jsFunction,
+  );
+
   const createJSObject: TreeDropdownOption = {
     label: "New JS Object",
     value: AppsmithFunction.jsFunction,
     id: "create",
     icon: "plus",
     className: "t--create-js-object-btn",
-    onSelect: () => {
-      dispatch(createNewJSCollection(pageId, "ACTION_SELECTOR"));
+    onSelect: (value, setterMethod) => {
+      if (setterMethod) {
+        const callback = (bindingValue: string) => {
+          setterMethod({
+            label: bindingValue,
+            id: bindingValue,
+            value: bindingValue,
+            type: APPSMITH_INTEGRATIONS.jsFunction,
+          });
+        };
+        dispatch(createNewJSCollectionFromActionCreator(callback));
+      }
     },
   };
-
-  const jsOption = actionList.find(
-    (action) => action.value === AppsmithFunction.jsFunction,
-  );
 
   if (jsOption) {
     jsOption.children = [createJSObject];

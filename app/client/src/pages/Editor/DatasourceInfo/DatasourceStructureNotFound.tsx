@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { Text, Button } from "design-system";
 import type { APIResponseError } from "api/ApiResponses";
 import { EDIT_DATASOURCE, createMessage } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { DatasourceEditEntryPoints } from "constants/Datasource";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";

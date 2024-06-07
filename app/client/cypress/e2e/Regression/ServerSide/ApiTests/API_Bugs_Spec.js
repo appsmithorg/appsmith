@@ -46,13 +46,16 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.PressEscape();
 
     //Api 3
-    apiPage.CreateAndFillApi("http://numbersapi.com/random/math", "NumberFact");
+    apiPage.CreateAndFillApi(
+      "http://host.docker.internal:8000/a.txt",
+      "SampleText",
+    );
     agHelper.PressEscape();
 
     //Api 4
     apiPage.CreateAndFillApi(
-      "https://www.thecocktaildb.com/api/json/v1/1/search.php?s=margarita",
-      "CocktailDB",
+      "http://host.docker.internal:5001/v1/dynamicrecords/getrecordsArray",
+      "dynamicRecords",
     );
     agHelper.PressEscape();
 

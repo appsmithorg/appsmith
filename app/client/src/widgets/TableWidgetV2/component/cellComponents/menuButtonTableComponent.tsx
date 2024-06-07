@@ -110,8 +110,8 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
         getCustomBackgroundColor(buttonVariant, buttonColor) !== "none"
           ? getCustomBackgroundColor(buttonVariant, buttonColor)
           : buttonVariant === ButtonVariantTypes.PRIMARY
-          ? theme.colors.button.primary.primary.bgColor
-          : "none"
+            ? theme.colors.button.primary.primary.bgColor
+            : "none"
       } !important;
     }
 
@@ -120,10 +120,10 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
         getCustomHoverColor(theme, buttonVariant, buttonColor) !== "none"
           ? getCustomHoverColor(theme, buttonVariant, buttonColor)
           : buttonVariant === ButtonVariantTypes.SECONDARY
-          ? theme.colors.button.primary.secondary.hoverColor
-          : buttonVariant === ButtonVariantTypes.TERTIARY
-          ? theme.colors.button.primary.tertiary.hoverColor
-          : theme.colors.button.primary.primary.hoverColor
+            ? theme.colors.button.primary.secondary.hoverColor
+            : buttonVariant === ButtonVariantTypes.TERTIARY
+              ? theme.colors.button.primary.tertiary.hoverColor
+              : theme.colors.button.primary.primary.hoverColor
       } !important;
     }
 
@@ -136,8 +136,8 @@ const BaseButton = styled(Button)<ThemeProp & BaseStyleProps>`
       getCustomBorderColor(buttonVariant, buttonColor) !== "none"
         ? `1px solid ${getCustomBorderColor(buttonVariant, buttonColor)}`
         : buttonVariant === ButtonVariantTypes.SECONDARY
-        ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
-        : "none"
+          ? `1px solid ${theme.colors.button.primary.secondary.borderColor}`
+          : "none"
     } !important;
 
     & > span {

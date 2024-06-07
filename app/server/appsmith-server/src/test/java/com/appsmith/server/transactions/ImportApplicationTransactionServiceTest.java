@@ -1,10 +1,8 @@
 package com.appsmith.server.transactions;
 
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
-import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -16,14 +14,15 @@ import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.WorkspaceService;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -32,8 +31,6 @@ import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.data.mongodb.MongoTransactionException;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -50,8 +47,7 @@ import static org.mockito.ArgumentMatchers.any;
 // ImportExportApplicationServiceTest class
 
 @AutoConfigureDataMongo
-@SpringBootTest(properties = "de.flapdoodle.mongodb.embedded.version=5.0.5")
-@EnableAutoConfiguration()
+@SpringBootTest
 @TestPropertySource(properties = "property=C")
 @DirtiesContext
 public class ImportApplicationTransactionServiceTest {
@@ -63,18 +59,21 @@ public class ImportApplicationTransactionServiceTest {
     WorkspaceService workspaceService;
 
     @Autowired
-    MongoTemplate mongoTemplate;
+    ApplicationRepository applicationRepository;
 
     @MockBean
     NewActionService newActionService;
 
-    @MockBean
+    @Autowired
     NewActionRepository newActionRepository;
+
+    @Autowired
+    NewPageRepository newPageRepository;
 
     @MockBean
     ActionCollectionService actionCollectionService;
 
-    @MockBean
+    @Autowired
     ActionCollectionRepository actionCollectionRepository;
 
     @MockBean
@@ -95,10 +94,11 @@ public class ImportApplicationTransactionServiceTest {
 
         applicationJson = createAppJson("test_assets/ImportExportServiceTest/valid-application.json")
                 .block();
-        applicationCount = mongoTemplate.count(new Query(), Application.class);
-        pageCount = mongoTemplate.count(new Query(), NewPage.class);
-        actionCount = mongoTemplate.count(new Query(), NewAction.class);
-        actionCollectionCount = mongoTemplate.count(new Query(), ActionCollection.class);
+
+        applicationCount = applicationRepository.count().block();
+        pageCount = newPageRepository.count().block();
+        actionCount = newActionRepository.count().block();
+        actionCollectionCount = actionCollectionRepository.count().block();
     }
 
     private FilePart createFilePart(String filePath) {
@@ -127,7 +127,8 @@ public class ImportApplicationTransactionServiceTest {
                 .map(data -> {
                     return gson.fromJson(data, ApplicationJson.class);
                 })
-                .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
+                .map(JsonSchemaMigration::migrateArtifactToLatestSchema)
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
     @Test
@@ -157,9 +158,9 @@ public class ImportApplicationTransactionServiceTest {
         // After the import application failed in the middle of execution after the application and pages are saved to
         // DB
         // check if the saved pages reverted after the exception
-        assertThat(mongoTemplate.count(new Query(), Application.class)).isEqualTo(applicationCount);
-        assertThat(mongoTemplate.count(new Query(), NewPage.class)).isEqualTo(pageCount);
-        assertThat(mongoTemplate.count(new Query(), NewAction.class)).isEqualTo(actionCount);
+        assertThat(applicationRepository.count().block()).isEqualTo(applicationCount);
+        assertThat(newPageRepository.count().block()).isEqualTo(pageCount);
+        assertThat(newActionRepository.count().block()).isEqualTo(actionCount);
     }
 
     @Test

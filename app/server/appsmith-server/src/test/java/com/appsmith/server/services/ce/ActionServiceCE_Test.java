@@ -6,7 +6,6 @@ import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.AnalyticsInfo;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorageDTO;
@@ -867,6 +866,57 @@ public class ActionServiceCE_Test {
 
     @Test
     @WithUserDetails(value = "api_user")
+    public void updateActionShouldSetUpdatedAtField() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource externalDatasource = new Datasource();
+        externalDatasource.setName("updateActionShouldSetUpdatedAtField Database");
+        externalDatasource.setWorkspaceId(workspaceId);
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("installed-plugin").block();
+        externalDatasource.setPluginId(installed_plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("some url here");
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        externalDatasource.setDatasourceStorages(storages);
+        Datasource savedDs = datasourceService.create(externalDatasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("updateActionShouldSetUpdatedAtField");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(savedDs);
+
+        Mono<ActionDTO> newActionMono =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
+
+        Mono<ActionDTO> updateActionMono = newActionMono.flatMap(preUpdateAction -> {
+            ActionDTO actionUpdate = action;
+            actionUpdate.getActionConfiguration().setBody("New Body");
+            return layoutActionService
+                    .updateSingleAction(preUpdateAction.getId(), actionUpdate)
+                    .flatMap(updatedAction -> updateLayoutService
+                            .updatePageLayoutsByPageId(updatedAction.getPageId())
+                            .thenReturn(updatedAction));
+        });
+
+        StepVerifier.create(updateActionMono)
+                .assertNext(updatedAction -> {
+                    assertThat(updatedAction).isNotNull();
+                    assertThat(updatedAction.getUpdatedAt()).isNotNull();
+                    assertThat(updatedAction.getActionConfiguration().getBody()).isEqualTo("New Body");
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
     public void testActionWithGraphQLDatasourceMoustacheBinding() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
@@ -1490,42 +1540,30 @@ public class ActionServiceCE_Test {
     }
 
     @Test
-    @WithUserDetails(value = "api_user")
-    public void createCopyActionWithAnalyticsData_validateAnalyticsDataPersistsInResponse() {
+    @WithUserDetails("api_user")
+    public void validateAndSaveActionToRepository_ActionDTOHasCreatedAtUpdatedAtFieldsPresent() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
                 .thenReturn(Mono.just(new MockPluginExecutor()));
-
+        Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
         ActionDTO action = new ActionDTO();
-        action.setName("CopyOfQuery1");
-        action.setPageId(testPage.getId());
-        action.setDatasource(datasource);
         ActionConfiguration actionConfiguration = new ActionConfiguration();
-        actionConfiguration.setPluginSpecifiedTemplates(List.of(new Property(null, true)));
-
-        AnalyticsInfo analyticsInfo = new AnalyticsInfo();
-        Map<String, Object> analyticsData = new HashMap<>();
-        String keyOriginalActionId = "originalActionId";
-        String valueOriginalActionId = "xyz";
-        analyticsData.put(keyOriginalActionId, valueOriginalActionId);
-        analyticsInfo.setAnalyticsData(analyticsData);
-        action.setEventData(analyticsInfo);
-
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
         action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionFields");
+        action.setDatasource(datasource);
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
 
-        Mono<ActionDTO> actionMono =
-                Mono.just(action).flatMap(action1 -> layoutActionService.createSingleAction(action1, Boolean.FALSE));
-        StepVerifier.create(actionMono)
-                .assertNext(createdAction -> {
-                    assertThat(createdAction.getId()).isNotEmpty();
-                    assertThat(createdAction.getName()).isEqualTo(action.getName());
-                    assertThat(createdAction.getIsValid()).isTrue();
-                    assertThat(createdAction
-                            .getEventData()
-                            .getAnalyticsData()
-                            .get(keyOriginalActionId)
-                            .toString()
-                            .equalsIgnoreCase(valueOriginalActionId));
-                })
-                .verifyComplete();
+        NewAction newAction = newActionService.findById(createdAction.getId()).block();
+        ActionDTO savedAction =
+                newActionService.validateAndSaveActionToRepository(newAction).block();
+        assertThat(savedAction.getIsValid()).isTrue();
+        assertThat(savedAction.getCreatedAt()).isNotNull();
+        assertThat(savedAction.getUpdatedAt()).isNotNull();
     }
 }

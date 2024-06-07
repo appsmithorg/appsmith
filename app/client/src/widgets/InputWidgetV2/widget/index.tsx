@@ -42,6 +42,7 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 
 import type {
   SnipingModeProperty,
@@ -288,6 +289,7 @@ class InputWidget extends BaseInputWidget<InputWidgetProps, WidgetState> {
     return {
       name: "Input",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.INPUTS],
       needsMeta: true,
       searchTags: ["form", "text input", "number", "textarea"],

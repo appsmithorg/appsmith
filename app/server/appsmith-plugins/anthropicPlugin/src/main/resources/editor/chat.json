@@ -48,6 +48,20 @@
       }
     },
     {
+      "label": "System Prompt",
+      "Description": "Provide additional instructions for the AI model as system prompt",
+      "subtitle": "Provide additional instructions for the AI model as system prompt",
+      "configProperty": "actionConfiguration.formData.systemPrompt.data",
+      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "placeholderText": "Write some text or use {{ }} to reference a dynamic text value",
+      "initialValue": "",
+      "isRequired": false,
+      "customStyles": {
+        "width": "590px",
+        "minWidth": "400px"
+      }
+    },
+    {
       "label": "Messages",
       "tooltipText": "Ask a question",
       "subtitle": "A list of messages comprising the conversation so far.",
@@ -62,7 +76,7 @@
           "label": "Role",
           "key": "role",
           "controlType": "DROP_DOWN", 
-          "initialValue": "Human",        
+          "initialValue": "Human",
           "options": [
             {
               "label": "Human",

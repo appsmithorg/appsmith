@@ -16,7 +16,7 @@ done
 echo "MongoDB is RUNNING"
 
 for _ in {1..60}; do
-  if mongosh --quiet "$APPSMITH_MONGODB_URI" --eval '
+  if mongosh --quiet "$APPSMITH_DB_URL" --eval '
     parseFloat(db.adminCommand({getParameter: 1, featureCompatibilityVersion: 1}).featureCompatibilityVersion.version) < 5 &&
       db.adminCommand({setFeatureCompatibilityVersion: "5.0"})
   '; then

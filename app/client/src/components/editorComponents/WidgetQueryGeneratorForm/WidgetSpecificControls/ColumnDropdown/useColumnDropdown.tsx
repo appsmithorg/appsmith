@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import { PluginPackageName } from "entities/Action";
 import { get, isArray } from "lodash";
 import { ALLOWED_SEARCH_DATATYPE } from "pages/Editor/GeneratePage/components/constants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { DropdownOption as Option } from "../../CommonControls/DatasourceDropdown/DropdownOption";
 import type { DropdownOptionType } from "../../types";
 

@@ -22,6 +22,8 @@ export interface Template {
   datasources: string[];
   pages: ApplicationPagePayload[];
   allowPageImport: boolean;
+  templateGridColumnSize?: number;
+  templateGridRowSize?: number;
 }
 
 export type FetchTemplatesResponse = ApiResponse<Template[]>;

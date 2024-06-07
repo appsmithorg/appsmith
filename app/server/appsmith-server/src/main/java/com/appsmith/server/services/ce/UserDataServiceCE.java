@@ -48,7 +48,7 @@ public interface UserDataServiceCE {
 
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
 
-    Mono<Void> removeRecentWorkspaceAndApps(String userId, String workspaceId);
+    Mono<Void> removeRecentWorkspaceAndChildEntities(String userId, String workspaceId);
 
     Mono<GitProfile> getGitProfileForCurrentUser(String defaultApplicationId);
 }

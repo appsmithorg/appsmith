@@ -7,7 +7,7 @@ import {
 } from "@appsmith/pages/AdminSettings/config/types";
 import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
 import { useParams } from "react-router";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Link, Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
@@ -68,7 +68,7 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
 
   .ads-v2-text {
     display: flex;
-    gap: 12px;
+    gap: var(--ads-v2-spaces-3);
     align-items: center;
   }
 

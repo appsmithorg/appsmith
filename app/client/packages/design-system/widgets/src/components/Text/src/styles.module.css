@@ -1,10 +1,10 @@
 @import "../../../shared/colors/colors.module.css";
 
 .text {
-  /* using auto instead of 100% so that text doesnot push everything to the edge */
+  /* using auto instead of 100% so that text does not push everything to the edge when the parent is flex layout ( this happens in case of switch ) */
   width: auto;
   color: inherit;
-  overflow-wrap: anywhere;
+  word-break: break-all;
 
   @each $color in colors {
     &[data-color="$(color)"] {

@@ -1,18 +1,22 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.caching.components.CacheManager;
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.FeatureMigrationType;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.EnvManager;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,10 +24,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
@@ -35,15 +37,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.appsmith.external.enums.FeatureFlagEnum.TENANT_TEST_FEATURE;
+import static com.appsmith.external.enums.FeatureFlagEnum.TEST_FEATURE_2;
 import static com.appsmith.server.constants.MigrationStatus.COMPLETED;
 import static com.appsmith.server.constants.MigrationStatus.IN_PROGRESS;
 import static com.appsmith.server.exceptions.AppsmithErrorCode.FEATURE_FLAG_MIGRATION_FAILURE;
-import static com.appsmith.server.featureflags.FeatureFlagEnum.TENANT_TEST_FEATURE;
-import static com.appsmith.server.featureflags.FeatureFlagEnum.TEST_FEATURE_2;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -59,10 +63,19 @@ class TenantServiceCETest {
     UserRepository userRepository;
 
     @Autowired
+    TenantRepository tenantRepository;
+
+    @Autowired
     UserUtils userUtils;
 
     @Autowired
-    MongoOperations mongoOperations;
+    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
+
+    @SpyBean
+    CacheManager cacheManager;
+
+    @SpyBean
+    CacheableRepositoryHelper cacheableRepositoryHelper;
 
     @MockBean
     FeatureFlagMigrationHelper featureFlagMigrationHelper;
@@ -74,10 +87,10 @@ class TenantServiceCETest {
         final Tenant tenant = tenantService.getDefaultTenant().block();
         assert tenant != null;
         originalTenantConfiguration = tenant.getTenantConfiguration();
-        mongoOperations.updateFirst(
-                Query.query(Criteria.where(FieldName.ID).is(tenant.getId())),
-                Update.update(Tenant.Fields.tenantConfiguration, null),
-                Tenant.class);
+
+        tenantRepository
+                .updateAndReturn(tenant.getId(), Bridge.update().set(Tenant.Fields.tenantConfiguration, null), null)
+                .block();
 
         // Make api_user super-user to test tenant admin functionality
         // Todo change this to tenant admin once we introduce multitenancy
@@ -85,15 +98,20 @@ class TenantServiceCETest {
                 .findByEmail("api_user")
                 .flatMap(user -> userUtils.makeSuperUser(List.of(user)))
                 .block();
+        doReturn(Mono.empty()).when(cacheManager).get(anyString(), anyString());
     }
 
     @AfterEach
     public void cleanup() {
-        final Tenant tenant = tenantService.getDefaultTenant().block();
-        mongoOperations.updateFirst(
-                Query.query(Criteria.where(FieldName.ID).is(tenant.getId())),
-                Update.update(Tenant.Fields.tenantConfiguration, originalTenantConfiguration),
-                Tenant.class);
+        Tenant updatedTenant = new Tenant();
+        updatedTenant.setTenantConfiguration(originalTenantConfiguration);
+        tenantService
+                .getDefaultTenantId()
+                .flatMap(tenantId -> tenantService.update(tenantId, updatedTenant))
+                .doOnError(error -> {
+                    System.err.println("Error during cleanup: " + error.getMessage());
+                })
+                .block();
     }
 
     @Test
@@ -309,7 +327,7 @@ class TenantServiceCETest {
                 .verify();
 
         // Verify that the tenant is updated for the feature flag migration failure
-        StepVerifier.create(tenantService.getById(tenant.getId()))
+        StepVerifier.create(tenantService.getByIdWithoutPermissionCheck(tenant.getId()))
                 .assertNext(updatedTenant -> {
                     assertThat(updatedTenant.getTenantConfiguration().getFeaturesWithPendingMigration())
                             .hasSize(1);
@@ -359,6 +377,23 @@ class TenantServiceCETest {
                     assertThat(tenantConfiguration.getIsStrongPasswordPolicyEnabled())
                             .isFalse();
                 })
+                .verifyComplete();
+    }
+
+    /**
+     * This test checks that the tenant cache is created and data is fetched without any deserialization errors
+     * This will ensure if any new nested user-defined classes are created in the tenant object in the future, and
+     * implements serializable is missed for that class, the deserialization will fail leads this test to fail.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testDeserializationErrors() {
+        String tenantId = tenantService.getDefaultTenantId().block();
+        Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedTenant(tenantId);
+        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenant:" + tenantId);
+        Mono<Tenant> cachedTenant = tenantService.getDefaultTenant();
+        StepVerifier.create(evictTenantCache.then(cachedTenant).then(hasKeyMono))
+                .assertNext(Assertions::assertTrue)
                 .verifyComplete();
     }
 }

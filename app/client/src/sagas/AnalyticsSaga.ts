@@ -3,7 +3,7 @@ import {
   type ReduxActionType,
 } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   RequestPayloadAnalyticsPath,
   cleanValuesInObjectForHashing,

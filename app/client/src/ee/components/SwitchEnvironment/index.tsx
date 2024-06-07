@@ -1,2 +1,3 @@
-import SwitchEnvironment from "ce/components/SwitchEnvironment";
-export default SwitchEnvironment;
+export * from "ce/components/SwitchEnvironment";
+import { default as CE_SwitchEnvironment } from "ce/components/SwitchEnvironment";
+export default CE_SwitchEnvironment;

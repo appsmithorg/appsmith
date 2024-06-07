@@ -27,7 +27,12 @@ const Announcement = () => {
 
   const modalFooter = () => (
     <>
-      <Button kind="primary" onClick={tryClickHandler} size="md">
+      <Button
+        data-testid="t--ide-close-announcement"
+        kind="primary"
+        onClick={tryClickHandler}
+        size="md"
+      >
         Try it out
       </Button>
       <Button kind="tertiary" onClick={learnClickHandler} size="md">

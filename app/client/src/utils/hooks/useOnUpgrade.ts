@@ -1,8 +1,11 @@
 import { useSelector } from "react-redux";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
-import { CUSTOMER_PORTAL_URL_WITH_PARAMS } from "constants/ThirdPartyConstants";
+import {
+  CUSTOMER_PORTAL_URL_WITH_PARAMS,
+  PRICING_PAGE_URL,
+} from "constants/ThirdPartyConstants";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { pricingPageUrlSource } from "@appsmith/utils/licenseHelpers";
 import type {
@@ -15,10 +18,12 @@ interface Props {
   logEventData?: any;
   featureName?: RampFeature;
   sectionName?: RampSection;
+  isEnterprise?: boolean;
 }
 
 const useOnUpgrade = (props: Props) => {
-  const { featureName, logEventData, logEventName, sectionName } = props;
+  const { featureName, isEnterprise, logEventData, logEventName, sectionName } =
+    props;
   const instanceId = useSelector(getInstanceId);
   const appsmithConfigs = getAppsmithConfigs();
 
@@ -27,16 +32,28 @@ const useOnUpgrade = (props: Props) => {
       logEventName || "ADMIN_SETTINGS_UPGRADE",
       logEventData,
     );
-    window.open(
-      CUSTOMER_PORTAL_URL_WITH_PARAMS(
-        appsmithConfigs.customerPortalUrl,
-        pricingPageUrlSource,
-        instanceId,
-        featureName,
-        sectionName,
-      ),
-      "_blank",
-    );
+    if (isEnterprise) {
+      window.open(
+        PRICING_PAGE_URL(
+          appsmithConfigs.pricingUrl,
+          pricingPageUrlSource,
+          instanceId,
+          featureName,
+          sectionName,
+        ),
+      );
+    } else {
+      window.open(
+        CUSTOMER_PORTAL_URL_WITH_PARAMS(
+          appsmithConfigs.customerPortalUrl,
+          pricingPageUrlSource,
+          instanceId,
+          featureName,
+          sectionName,
+        ),
+        "_blank",
+      );
+    }
   };
 
   return { onUpgrade };

@@ -1,7 +1,7 @@
 import { useLocation } from "react-router";
 import { DEBUGGER_TAB_KEYS } from "../helpers";
 import { setCanvasDebuggerState } from "actions/debuggerActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { setJsPaneDebuggerState } from "actions/jsPaneActions";

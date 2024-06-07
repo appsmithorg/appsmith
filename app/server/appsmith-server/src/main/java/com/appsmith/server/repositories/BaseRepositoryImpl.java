@@ -2,7 +2,6 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;
-import com.google.errorprone.annotations.DoNotCall;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
@@ -106,7 +105,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
      * We don't use this today, it doesn't use our `notDeleted` criteria, and since we don't use it, we're not porting
      * it to Postgres. Querying with `queryBuilder` or anything else is arguably more readable than this.
      */
-    @DoNotCall
     @Override
     public <S extends T> Flux<S> findAll(Example<S> example, Sort sort) {
         return Flux.error(new UnsupportedOperationException("This method is not supported!"));

@@ -48,7 +48,7 @@ describe(
             } else {
               cy.get(homePageLocators.toastMessage).should(
                 "contain",
-                "Application imported successfully",
+                Cypress.env("MESSAGES").IMPORT_APP_SUCCESSFUL(),
               );
             }
             // check datasource configured success modal

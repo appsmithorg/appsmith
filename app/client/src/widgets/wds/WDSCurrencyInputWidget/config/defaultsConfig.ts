@@ -12,5 +12,6 @@ export const defaultsConfig = {
   defaultCurrencyCode: getDefaultCurrency().currency,
   decimals: 0,
   showStepArrows: false,
+  label: "Current Price",
   responsiveBehavior: ResponsiveBehavior.Fill,
 } as WidgetDefaultProps;

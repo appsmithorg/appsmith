@@ -62,7 +62,7 @@
         ]
       },
       {
-        "image": "https://source.unsplash.com/mGFHA_0TWnA/2048x620",
+        "image": "http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg",
         "widgetName": "Image1",
         "rightColumn": 64,
         "widgetId": "ah4cbb9o2e",
@@ -270,7 +270,7 @@
                   "customColumn2": {
                     "isDerived": true,
                     "computedValue": "",
-                    "onClick": "{{showModal('Modal2')}}",
+                    "onClick": "{{showModal(Modal2.name)}}",
                     "textSize": "PARAGRAPH2",
                     "buttonStyle": "#38AFF4",
                     "index": 9,
@@ -411,7 +411,7 @@
                   "customColumn2": {
                     "isDerived": true,
                     "computedValue": "",
-                    "onClick": "{{showModal('Modal2')}}",
+                    "onClick": "{{showModal(Modal2.name)}}",
                     "textSize": "PARAGRAPH2",
                     "buttonStyle": "#38AFF4",
                     "index": 9,

@@ -1,6 +1,6 @@
 package com.external.plugins;
 
-import com.appsmith.external.connectionpoolconfig.configurations.ConnectionPoolConfig;
+import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -21,12 +21,14 @@ import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.exceptions.PostgresErrorMessages;
 import com.external.plugins.exceptions.PostgresPluginError;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.zaxxer.hikari.HikariDataSource;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -305,7 +307,9 @@ public class PostgresPluginTest {
         Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
-                .assertNext(Assertions::assertNotNull)
+                .assertNext(value -> {
+                    Assertions.assertThat(value).isNotNull();
+                })
                 .verifyComplete();
     }
 
@@ -383,6 +387,7 @@ public class PostgresPluginTest {
                     assertArrayEquals(
                             new String[] {"user_id"},
                             new ObjectMapper()
+                                    .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -448,7 +453,7 @@ public class PostgresPluginTest {
                     assertEquals(
                             "1 years 5 mons 0 days 2 hours 0 mins 0.0 secs",
                             node.get("interval1").asText());
-                    assertTrue(node.get("spouse_dob").isNull());
+                    Assertions.assertThat(node.get("spouse_dob")).isEqualTo(NullNode.getInstance());
 
                     // Check the order of the columns.
                     assertArrayEquals(
@@ -469,6 +474,7 @@ public class PostgresPluginTest {
                                 "rating"
                             },
                             new ObjectMapper()
+                                    .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -777,6 +783,7 @@ public class PostgresPluginTest {
                                 "rating"
                             },
                             new ObjectMapper()
+                                    .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -854,6 +861,7 @@ public class PostgresPluginTest {
                                 "rating"
                             },
                             new ObjectMapper()
+                                    .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -943,6 +951,7 @@ public class PostgresPluginTest {
                                 "rating"
                             },
                             new ObjectMapper()
+                                    .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -1617,6 +1626,7 @@ public class PostgresPluginTest {
                     assertArrayEquals(
                             new String[] {"numeric_string"},
                             new ObjectMapper()
+                                    .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());

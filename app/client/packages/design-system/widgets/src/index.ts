@@ -17,8 +17,12 @@ export * from "./components/Spinner";
 export * from "./components/Menu";
 export * from "./components/Modal";
 export * from "./components/TagGroup";
-export * from "./components/ActionGroup";
-export * from "./components/ButtonGroup";
+export * from "./components/ToolbarButtons";
+export * from "./components/InlineButtons";
+export * from "./components/Select";
+export * from "./components/ContextualHelp";
+export * from "./components/Link";
+export * from "./components/Popover";
 
 export * from "./utils";
 export * from "./styles";

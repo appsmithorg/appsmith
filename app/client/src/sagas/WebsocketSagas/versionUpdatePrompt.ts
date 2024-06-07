@@ -12,7 +12,7 @@ import {
   removeVersionUpdateState,
   setVersionUpdateState,
 } from "utils/storage";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 enum UpdateStateEvent {
   PROMPT_SHOWN = "PROMPT_SHOWN",

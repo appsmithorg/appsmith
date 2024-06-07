@@ -61,10 +61,7 @@ describe(
       cy.get(homePage.signOutIcon).click();
       cy.wait(500);
       // validating sso with google is enabled
-      cy.get(adminSettings.loginWithGoogle).should(
-        "have.text",
-        "Continue with Google",
-      );
+      cy.get(adminSettings.loginWithGoogle).should("have.text", "Google");
     });
 
     it("3. Go to admin settings and disable Google", function () {

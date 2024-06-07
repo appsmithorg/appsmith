@@ -7,13 +7,14 @@ import reactor.core.publisher.Mono;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Set;
 
 public interface FileInterface {
     /**
      * This method is use to store the serialised application to git repo, directory path structure we are going to follow :
      * ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
      * @param baseRepoSuffix path suffix used to create a repo path
-     * @param applicationGitReference application reference object from which entire application can be rehydrated
+     * @param artifactGitReference application reference object from which entire application can be rehydrated
      * @return Path to where the application is stored
      *
      *   Application will be stored in the following structure :
@@ -46,6 +47,19 @@ public interface FileInterface {
             String organisationId, String defaultApplicationId, String repoName, String branchName);
 
     /**
+     * This method just reconstructs the metdata of the json from git repo.
+     *
+     * @param workspaceId
+     * @param defaultApplicationId
+     * @param repoName
+     * @param branchName
+     * @param repoSuffixPath
+     * @return
+     */
+    Mono<Object> reconstructMetadataFromGitRepo(
+            String workspaceId, String defaultApplicationId, String repoName, String branchName, Path repoSuffixPath);
+
+    /**
      * Once the user connects the existing application to a remote repo, we will initialize the repo with Readme.md -
      * Url to the deployed app(view and edit mode)
      * Link to discord channel for support
@@ -71,9 +85,13 @@ public interface FileInterface {
      * This will check if the cloned repo is empty. The check excludes files like Readme files
      *
      * @param baseRepoSuffix path suffix used to create a branch repo path as per worktree implementation
-     * @return success if the clone repo doesnt contain any files
+     * @return success if the clone repo doesn't contain any files
      */
     Mono<Boolean> checkIfDirectoryIsEmpty(Path baseRepoSuffix) throws IOException;
 
     Mono<Long> deleteIndexLockFile(Path path, int validTimeInSeconds);
+
+    void scanAndDeleteFileForDeletedResources(Set<String> validResources, Path resourceDirectory);
+
+    void scanAndDeleteDirectoryForDeletedResources(Set<String> validResources, Path resourceDirectory);
 }

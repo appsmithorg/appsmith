@@ -50,10 +50,9 @@ import {
   LayoutDirection,
 } from "layoutSystems/common/utils/constants";
 import { getModalWidgetType } from "selectors/widgetSelectors";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { getWidgetSelectionBlock } from "selectors/ui";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -62,8 +61,7 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
     const modalWidgetId = generateReactKey();
     const isAutoLayout: boolean = yield select(getIsAutoLayout);
     const modalWidgetType: string = yield select(getModalWidgetType);
-    const layoutSystemType: LayoutSystemTypes =
-      yield select(getLayoutSystemType);
+    const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
     const newWidget: WidgetAddChild = {
       widgetId: MAIN_CONTAINER_WIDGET_ID,
       widgetName: action.payload.modalName,
@@ -100,7 +98,7 @@ export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
           addToBottom: true,
         },
       });
-    } else if (layoutSystemType === LayoutSystemTypes.ANVIL) {
+    } else if (isAnvilLayout) {
       //TODO(#30604): Refactor to separate this logic from the anvil layout system
       yield put({
         type: AnvilReduxActionTypes.ANVIL_ADD_NEW_WIDGET,

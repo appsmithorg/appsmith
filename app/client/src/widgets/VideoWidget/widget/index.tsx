@@ -20,6 +20,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
@@ -44,6 +45,7 @@ class VideoWidget extends BaseWidget<VideoWidgetProps, WidgetState> {
     return {
       name: "Video",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.MEDIA],
       needsMeta: true,
       searchTags: ["youtube"],

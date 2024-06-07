@@ -3,7 +3,7 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import { SectionColumns, ZoneMinColumnWidth } from "../constants";
-import type { WidgetLayoutProps } from "../../utils/anvilTypes";
+import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { select } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
 
@@ -497,8 +497,8 @@ function adjustZoneSpaces(
             LARGE_SMALL_ZONE_SHRINK_THRESHOLD * spaceDistributedArray[i],
           )
         : index === i
-        ? currentZoneShrinkLimit
-        : minColumnWidth;
+          ? currentZoneShrinkLimit
+          : minColumnWidth;
 
     const adjustedSpace = Math.max(
       Math.round(newlyAdjustedValues[i]),

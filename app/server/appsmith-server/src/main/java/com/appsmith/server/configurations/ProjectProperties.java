@@ -16,13 +16,12 @@ import java.nio.file.Paths;
 @Slf4j
 public class ProjectProperties {
     private static final String INFO_JSON_PATH = "/opt/appsmith/info.json";
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static final String EDITION = "CE";
     private String version = "UNKNOWN";
     private String commitSha = "UNKNOWN";
 
-    public ProjectProperties() {
+    public ProjectProperties(ObjectMapper objectMapper) {
         try {
             Path infoJsonPath = Paths.get(INFO_JSON_PATH);
             if (Files.exists(infoJsonPath)) {

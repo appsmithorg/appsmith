@@ -16,37 +16,61 @@ interface SpaceDistributionNodeProps {
   spaceToWorkWith: number;
   spaceDistributed: { [key: string]: number };
   zoneIds: string[];
+  zoneGap: number;
 }
 const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   display: inline;
   position: absolute;
   width: ${SpaceDistributorHandleDimensions.width}px;
-  height: calc(100% - ${2 * SpaceDistributorHandleDimensions.offsetTop}px);
+  height: calc(100% - 2 * ${SpaceDistributorHandleDimensions.offsetTop}px);
   top: ${SpaceDistributorHandleDimensions.offsetTop}px;
   border-radius: ${SpaceDistributorHandleDimensions.borderRadius}px;
-  padding: 0px ${SpaceDistributorHandleDimensions.padding}px;
-  border: ${SpaceDistributorHandleDimensions.border}px solid;
-  border-color: white;
-  background: var(--ads-v2-color-bg-brand);
-  opacity: 0%;
+  padding: 0 ${SpaceDistributorHandleDimensions.padding}px;
+  pointer-events: all;
   z-index: 1000;
   left: ${({ left }) => left}px;
+  &:hover {
+    background: var(--space-distribution-handle-bg);
+  }
+  &.active {
+    background: var(--space-distribution-handle-active-bg);
+  }
   &:hover,
   &.active {
     cursor: col-resize;
-    opacity: 100%;
   }
 `;
 
 const updateDistributionHandlePosition = (
   entries: ResizeObserverEntry[],
   ref: React.RefObject<HTMLDivElement>,
+  zoneGap: number,
 ) => {
   if (ref.current && entries.length) {
     const target = entries[0].target as HTMLElement;
-    const updatedLeft =
-      target.offsetLeft - SpaceDistributorHandleDimensions.width * 0.5;
-    ref.current.style.left = updatedLeft + "px";
+    if (target && target.parentElement) {
+      // making this change to compute offset left coz offsetLeft of the dom api does not provide decimal values
+      // which is causing the handle to jump on clicking it the first time
+
+      // Get the left position of the parent element relative to the viewport
+      const parentLeft = target.parentElement.getBoundingClientRect().left;
+
+      // Get the left position of the target element relative to the viewport
+      const targetLeft = target.getBoundingClientRect().left;
+
+      // Calculate the offset between the left edges of the target element and its parent element
+      const offsetLeft = targetLeft - parentLeft;
+
+      // Calculate the midpoint between zones by subtracting half of the zoneGap from the offsetLeft
+      const midPointBetweenZones = offsetLeft - zoneGap / 2;
+
+      // Calculate the left position of the handle, adjusting for its width
+      const handleWidthAdjustedLeft =
+        midPointBetweenZones - SpaceDistributorHandleDimensions.width / 2;
+
+      // Set the left position of the handle element using its reference
+      ref.current.style.left = handleWidthAdjustedLeft + "px";
+    }
   }
 };
 
@@ -58,6 +82,7 @@ export const SpaceDistributionHandle = ({
   sectionWidgetId,
   spaceDistributed,
   spaceToWorkWith,
+  zoneGap,
   zoneIds,
 }: SpaceDistributionNodeProps) => {
   // Create a ref for the distribution handle DOM element
@@ -71,7 +96,7 @@ export const SpaceDistributionHandle = ({
 
   // Calculate the left position of the distribution handle
   const leftPositionOfHandle =
-    left - SpaceDistributorHandleDimensions.width * 0.5;
+    left - (SpaceDistributorHandleDimensions.width + zoneGap) * 0.5;
 
   // Destructure the parent zones array of zone ids
   const [leftZone, rightZone] = parentZones;
@@ -80,7 +105,9 @@ export const SpaceDistributionHandle = ({
   const resizeObserverRef = useRef<ResizeObserver>();
   resizeObserverRef.current = new ResizeObserver((entries) => {
     // Update the position of the distribution handle on resize
-    updateDistributionHandlePosition(entries, ref);
+    requestAnimationFrame(() =>
+      updateDistributionHandlePosition(entries, ref, zoneGap),
+    );
   });
 
   // Use a custom hook to handle space distribution events
@@ -123,6 +150,7 @@ export const SpaceDistributionHandle = ({
 
   return (
     <StyledSpaceDistributionHandle
+      data-testid="t--anvil-distribution-handle"
       id={getDistributionHandleId(leftZone)}
       left={leftPositionOfHandle}
       ref={ref}

@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { useDispatch, useSelector } from "react-redux";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getTypographyByKey } from "design-system-old";
 import type { Message } from "entities/AppsmithConsole";
 import ContextualMenu from "./ContextualMenu";

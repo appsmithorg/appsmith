@@ -26,7 +26,7 @@ import {
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
 import { getSelectedWidgets } from "selectors/ui";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import type { WidgetProps } from "widgets/BaseWidget";
 import {
@@ -49,9 +49,10 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
+import FocusRetention from "./FocusRetentionSaga";
 import { widgetURL } from "@appsmith/RouteBuilder";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -107,6 +108,7 @@ function* deleteTabChildSaga(
       };
       const layoutSystemType: LayoutSystemTypes =
         yield select(getLayoutSystemType);
+      const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
       let finalData: CanvasWidgetsReduxState = parentUpdatedWidgets;
       if (layoutSystemType === LayoutSystemTypes.AUTO) {
         // Update flex layers of a canvas upon deletion of a widget.
@@ -122,7 +124,7 @@ function* deleteTabChildSaga(
           mainCanvasWidth,
           metaProps,
         );
-      } else if (layoutSystemType === LayoutSystemTypes.ANVIL) {
+      } else if (isAnvilLayout) {
         finalData = updateAnvilParentPostWidgetDeletion(
           finalData,
           tabWidget.parentId,
@@ -242,6 +244,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
         const { finalWidgets, otherWidgetsToDelete, widgetName } = updatedObj;
         const layoutSystemType: LayoutSystemTypes =
           yield select(getLayoutSystemType);
+        const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
         let finalData: CanvasWidgetsReduxState = finalWidgets;
         if (layoutSystemType === LayoutSystemTypes.AUTO) {
           const isMobile: boolean = yield select(
@@ -258,7 +261,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
             mainCanvasWidth,
             metaProps,
           );
-        } else if (layoutSystemType === LayoutSystemTypes.ANVIL) {
+        } else if (isAnvilLayout) {
           finalData = updateAnvilParentPostWidgetDeletion(
             finalData,
             parentId,
@@ -282,6 +285,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           templateTitle: currentApplication?.forkedFromTemplateTitle,
         });
         const currentUrl = window.location.pathname;
+        yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
         if (!disallowUndo) {
           // close property pane after delete
           yield put(closePropertyPane());
@@ -290,7 +294,6 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           );
           yield call(postDelete, widgetId, widgetName, otherWidgetsToDelete);
         }
-        yield put(removeFocusHistoryRequest(currentUrl));
       }
     }
   } catch (error) {
@@ -346,6 +349,7 @@ function* deleteAllSelectedWidgetsSaga(
     if (parentId) {
       const layoutSystemType: LayoutSystemTypes =
         yield select(getLayoutSystemType);
+      const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
       if (layoutSystemType === LayoutSystemTypes.AUTO) {
         const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
         const mainCanvasWidth: number = yield select(getCanvasWidth);
@@ -361,7 +365,7 @@ function* deleteAllSelectedWidgetsSaga(
             metaProps,
           );
         }
-      } else if (layoutSystemType === LayoutSystemTypes.ANVIL) {
+      } else if (isAnvilLayout) {
         for (const widgetId of selectedWidgets) {
           finalData = updateAnvilParentPostWidgetDeletion(
             finalData,
@@ -397,6 +401,12 @@ function* deleteAllSelectedWidgetsSaga(
 
     yield put(selectWidgetInitAction(SelectionRequestType.Empty));
     const bulkDeleteKey = selectedWidgets.join(",");
+    for (const widget of selectedWidgets) {
+      yield call(
+        FocusRetention.handleRemoveFocusHistory,
+        widgetURL({ selectedWidgets: [widget] }),
+      );
+    }
     if (!disallowUndo) {
       // close property pane after delete
       yield put(closePropertyPane());
@@ -418,11 +428,6 @@ function* deleteAllSelectedWidgetsSaga(
           });
         });
       }
-    }
-    for (const widget of selectedWidgets) {
-      yield put(
-        removeFocusHistoryRequest(widgetURL({ selectedWidgets: [widget] })),
-      );
     }
   } catch (error) {
     yield put({

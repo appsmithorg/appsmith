@@ -3,12 +3,13 @@ import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export const defaultsConfig = {
   animateLoading: true,
-  label: "Label",
+  label: "Size",
   options: [
-    { label: "Yes", value: "Y" },
-    { label: "No", value: "N" },
+    { label: "Small", value: "S" },
+    { label: "Medium", value: "M" },
+    { label: "Large", value: "L" },
   ],
-  defaultOptionValue: "Y",
+  defaultOptionValue: "L",
   isRequired: false,
   isDisabled: false,
   isInline: true,

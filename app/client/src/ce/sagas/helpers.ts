@@ -1,6 +1,8 @@
 import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import type { DeleteErrorLogPayload } from "actions/debuggerActions";
 import type { Action } from "entities/Action";
+import type { Log } from "entities/AppsmithConsole";
 
 export interface ResolveParentEntityMetadataReturnType {
   parentEntityId?: string;
@@ -20,3 +22,11 @@ export const resolveParentEntityMetadata = (
 
   return { parentEntityId: undefined, parentEntityKey: undefined };
 };
+
+export function* transformAddErrorLogsSaga(logs: Log[]) {
+  return logs;
+}
+
+export function* transformDeleteErrorLogsSaga(payload: DeleteErrorLogPayload) {
+  return payload;
+}

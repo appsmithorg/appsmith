@@ -40,6 +40,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getDefaultISDCode } from "../component/ISDCodeDropdown";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export function defaultValueValidation(
@@ -88,6 +89,7 @@ class PhoneInputWidget extends BaseInputWidget<
     return {
       name: "Phone Input",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.INPUTS],
       needsMeta: true,
       searchTags: ["call"],

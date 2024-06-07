@@ -40,7 +40,7 @@ import {
   useSheetColumnHeaders,
   useS3BucketList,
 } from "./hooks";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { AppState } from "@appsmith/reducers";
 import type {
   DropdownOptions,

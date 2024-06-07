@@ -295,6 +295,12 @@ describe("rowHighlights tests", () => {
       posY: 0,
       rowIndex: 0,
       width: HIGHLIGHT_SIZE,
+      edgeDetails: {
+        bottom: false,
+        left: false,
+        right: false,
+        top: false,
+      },
     };
     it("should derive highlights for a row", () => {
       const data: WidgetLayoutProps[] = [
@@ -641,7 +647,7 @@ describe("rowHighlights tests", () => {
       ]);
       expect(res[0].posY).toEqual(0);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
-      expect(res[0].posX).toEqual(HIGHLIGHT_SIZE / 2);
+      expect(res[0].posX).toEqual(0);
       expect(res[0].height).toEqual(positions[layout.layoutId].height);
       expect(res[0].width).toEqual(HIGHLIGHT_SIZE);
     });

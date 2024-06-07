@@ -2,11 +2,17 @@ import { LICENSE_FEATURE_FLAGS } from "../Constants";
 import { ObjectsRegistry } from "./Registry";
 import produce from "immer";
 
+const defaultFlags = {
+  release_side_by_side_ide_enabled: true,
+  ab_learnability_discoverability_collapse_all_except_data_enabled: false, // remove this flag from here when it's removed from code
+  rollout_remove_feature_walkthrough_enabled: false, // remove this flag from here when it's removed from code
+};
+
 export const featureFlagIntercept = (
   flags: Record<string, boolean> = {},
   reload = true,
 ) => {
-  getConsolidatedDataApi(flags, false);
+  getConsolidatedDataApi({ ...flags, ...defaultFlags }, false);
   const response = {
     responseMeta: {
       status: 200,
@@ -14,14 +20,11 @@ export const featureFlagIntercept = (
     },
     data: {
       ...flags,
-      release_show_new_sidebar_pages_pane_enabled: true,
-      rollout_consolidated_page_load_fetch_enabled: true,
-      release_side_by_side_ide_enabled: true,
+      ...defaultFlags,
     },
     errorDisplay: "",
   };
   cy.intercept("GET", "/api/v1/users/features", response);
-
   if (reload) ObjectsRegistry.AggregateHelper.CypressReload();
 };
 
@@ -38,14 +41,9 @@ export const getConsolidatedDataApi = (
       ) {
         const originalResponse = res?.body;
         const updatedResponse = produce(originalResponse, (draft: any) => {
-          draft.data.featureFlags.data = { ...flags };
-          draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
-          draft.data.featureFlags.data[
-            "release_show_new_sidebar_pages_pane_enabled"
-          ] = true;
-          draft.data.featureFlags.data[
-            "rollout_consolidated_page_load_fetch_enabled"
-          ] = true;
+          draft.data.featureFlags.data = {
+            ...flags,
+          };
         });
         return res.send(updatedResponse);
       }
@@ -73,7 +71,6 @@ export const featureFlagInterceptForLicenseFlags = () => {
           modifiedResponse = {
             ...modifiedResponse,
             release_app_sidebar_enabled: true,
-            rollout_consolidated_page_load_fetch_enabled: true,
           };
           res.send({
             responseMeta: {
@@ -103,9 +100,6 @@ export const featureFlagInterceptForLicenseFlags = () => {
             },
           );
           draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
-          draft.data.featureFlags.data[
-            "rollout_consolidated_page_load_fetch_enabled"
-          ] = true;
         });
         return res.send(updatedResponse);
       }

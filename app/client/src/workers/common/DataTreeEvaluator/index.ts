@@ -37,6 +37,7 @@ import type {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { convertMicroDiffToDeepDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 import {
   addDependantsOfNestedPropertyPaths,
@@ -111,7 +112,11 @@ import {
   parseJSActions,
   updateEvalTreeWithJSCollectionState,
 } from "workers/Evaluation/JSObject";
-import { getFixedTimeDifference, replaceThisDotParams } from "./utils";
+import {
+  getFixedTimeDifference,
+  getOnlyAffectedJSObjects,
+  replaceThisDotParams,
+} from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
   validateActionProperty,
@@ -127,6 +132,13 @@ import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
 import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
 import DataStore from "workers/Evaluation/dataStore";
 import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
+import microDiff from "microdiff";
+import {
+  profileFn,
+  type WebworkerSpanData,
+} from "UITelemetry/generateWebWorkerTraces";
+import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
+import generateOverrideContext from "@appsmith/workers/Evaluation/generateOverrideContext";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {
@@ -221,6 +233,7 @@ export default class DataTreeEvaluator {
   setupFirstTree(
     unEvalTree: any,
     configTree: ConfigTree,
+    webworkerTelemetry: Record<string, WebworkerSpanData> = {},
   ): {
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
@@ -239,7 +252,14 @@ export default class DataTreeEvaluator {
     //save functions in resolveFunctions (as functions) to be executed as functions are not allowed in evalTree
     //and functions are saved in dataTree as strings
     const parseJSActionsStartTime = performance.now();
-    const parsedCollections = parseJSActions(this, localUnEvalTree);
+    const parsedCollections = profileFn(
+      "SetupFirstTree.parseJSActions",
+      undefined,
+      webworkerTelemetry,
+      () => {
+        return parseJSActions(this, localUnEvalTree);
+      },
+    );
     const parseJSActionsEndTime = performance.now();
 
     jsUpdates = parsedCollections.jsUpdates;
@@ -263,10 +283,14 @@ export default class DataTreeEvaluator {
     const allKeysGenerationEndTime = performance.now();
 
     const createDependencyMapStartTime = performance.now();
-    const { dependencies, inverseDependencies } = createDependencyMap(
-      this,
-      localUnEvalTree,
-      configTree,
+
+    const { dependencies, inverseDependencies } = profileFn(
+      "createDependencyMap",
+      undefined,
+      webworkerTelemetry,
+      () => {
+        return createDependencyMap(this, localUnEvalTree, configTree);
+      },
     );
     const createDependencyMapEndTime = performance.now();
 
@@ -465,6 +489,8 @@ export default class DataTreeEvaluator {
   setupUpdateTree(
     unEvalTree: any,
     configTree: ConfigTree,
+    webworkerTelemetry: Record<string, WebworkerSpanData> = {},
+    affectedJSObjects: AffectedJSObjects = { isAllAffected: false, ids: [] },
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -484,11 +510,28 @@ export default class DataTreeEvaluator {
     //get difference in js collection body to be parsed
     const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
     const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
-
     const jsDifferences: Diff<
       Record<string, JSActionEntity>,
       Record<string, JSActionEntity>
-    >[] = diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
+    >[] = profileFn(
+      "SetupUpdateTree.Diff1",
+      undefined,
+      webworkerTelemetry,
+      () =>
+        convertMicroDiffToDeepDiff(
+          microDiff(
+            getOnlyAffectedJSObjects(
+              oldUnEvalTreeJSCollections,
+              affectedJSObjects,
+            ),
+            getOnlyAffectedJSObjects(
+              localUnEvalTreeJSCollection,
+              affectedJSObjects,
+            ),
+          ) || [],
+        ),
+    );
+
     const jsTranslatedDiffs = flatten(
       jsDifferences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
@@ -496,11 +539,18 @@ export default class DataTreeEvaluator {
     );
 
     //save parsed functions in resolveJSFunctions, update current state of js collection
-    const parsedCollections = parseJSActions(
-      this,
-      localUnEvalTree,
-      this.oldUnEvalTree,
-      jsTranslatedDiffs,
+    const parsedCollections = profileFn(
+      "SetupUpdateTree.parseJSActions",
+      undefined,
+      webworkerTelemetry,
+      () => {
+        return parseJSActions(
+          this,
+          localUnEvalTree,
+          this.oldUnEvalTree,
+          jsTranslatedDiffs,
+        );
+      },
     );
 
     jsUpdates = parsedCollections.jsUpdates;
@@ -548,6 +598,7 @@ export default class DataTreeEvaluator {
         isNewWidgetAdded: false,
       };
     }
+
     DataStore.update(differences);
     let isNewWidgetAdded = false;
 
@@ -584,11 +635,13 @@ export default class DataTreeEvaluator {
       dependenciesOfRemovedPaths,
       inverseDependencies,
       removedPaths,
-    } = updateDependencyMap({
-      configTree,
-      dataTreeEvalRef: this,
-      translatedDiffs,
-      unEvalDataTree: localUnEvalTree,
+    } = profileFn("updateDependencyMap", undefined, webworkerTelemetry, () => {
+      return updateDependencyMap({
+        configTree,
+        dataTreeEvalRef: this,
+        translatedDiffs,
+        unEvalDataTree: localUnEvalTree,
+      });
     });
     const updateDependencyEndTime = performance.now();
 
@@ -620,17 +673,26 @@ export default class DataTreeEvaluator {
       translatedDiffs,
     });
 
+    const setupUpdateTreeOutput = profileFn(
+      "setupTree",
+      undefined,
+      webworkerTelemetry,
+      () => {
+        return this.setupTree(localUnEvalTree, updatedValuePaths, {
+          totalUpdateTreeSetupStartTime,
+          dependenciesOfRemovedPaths,
+          removedPaths,
+          translatedDiffs,
+          findDifferenceTime,
+          updateDependencyMapTime,
+          configTree,
+          isNewWidgetAdded,
+        });
+      },
+    );
+
     return {
-      ...this.setupTree(localUnEvalTree, updatedValuePaths, {
-        totalUpdateTreeSetupStartTime,
-        dependenciesOfRemovedPaths,
-        removedPaths,
-        translatedDiffs,
-        findDifferenceTime,
-        updateDependencyMapTime,
-        configTree,
-        isNewWidgetAdded,
-      }),
+      ...setupUpdateTreeOutput,
       jsUpdates,
     };
   }
@@ -1653,11 +1715,13 @@ export default class DataTreeEvaluator {
     bindings: string[],
     executionParams?: Record<string, unknown> | string,
   ) {
+    const dataTree = klona(this.evalTree);
     // We might get execution params as an object or as a string.
     // If the user has added a proper object (valid case) it will be an object
     // If they have not added any execution params or not an object
     // it would be a string (invalid case)
     let evaluatedExecutionParams: Record<string, any> = {};
+    let overrideContext: Record<string, unknown>;
     if (executionParams && isObject(executionParams)) {
       evaluatedExecutionParams = this.getDynamicValue(
         `{{${JSON.stringify(executionParams)}}}`,
@@ -1665,9 +1729,13 @@ export default class DataTreeEvaluator {
         this.oldConfigTree,
         EvaluationSubstitutionType.TEMPLATE,
       );
-    }
 
-    const dataTree = klona(this.evalTree);
+      overrideContext = generateOverrideContext({
+        bindings,
+        executionParams,
+        dataTree,
+      });
+    }
 
     return bindings.map((binding) => {
       // Replace any reference of 'this.params' to 'executionParams' (backwards compatibility)
@@ -1690,6 +1758,7 @@ export default class DataTreeEvaluator {
           globalContext: {
             [EXECUTION_PARAM_KEY]: evaluatedExecutionParams,
           },
+          overrideContext,
         },
       );
     });

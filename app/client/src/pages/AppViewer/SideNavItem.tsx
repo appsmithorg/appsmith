@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import { NavLink, useRouteMatch } from "react-router-dom";
 import { MenuItem, Classes } from "@blueprintjs/core";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const Content = styled.div<{ collapsed: boolean }>`
   display: flex;

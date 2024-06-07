@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 
+import java.util.Objects;
+
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CONSOLIDATED_API_ROOT_EDIT;
 import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CONSOLIDATED_API_ROOT_VIEW;
 
@@ -58,6 +60,9 @@ public class ConsolidatedAPIController {
                 .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, ApplicationMode.EDIT)
                 .map(consolidatedAPIResponseDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null))
+                .tag("pageId", Objects.toString(defaultPageId))
+                .tag("applicationId", Objects.toString(applicationId))
+                .tag("branchName", Objects.toString(branchName))
                 .name(CONSOLIDATED_API_ROOT_EDIT)
                 .tap(Micrometer.observation(observationRegistry));
     }
@@ -80,6 +85,9 @@ public class ConsolidatedAPIController {
                 .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, ApplicationMode.PUBLISHED)
                 .map(consolidatedAPIResponseDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null))
+                .tag("pageId", Objects.toString(defaultPageId))
+                .tag("applicationId", Objects.toString(applicationId))
+                .tag("branchName", Objects.toString(branchName))
                 .name(CONSOLIDATED_API_ROOT_VIEW)
                 .tap(Micrometer.observation(observationRegistry));
     }

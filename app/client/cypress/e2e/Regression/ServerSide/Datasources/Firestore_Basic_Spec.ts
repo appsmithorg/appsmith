@@ -35,8 +35,7 @@ describe("Validate Firestore DS", { tags: ["@tag.Datasource"] }, () => {
     agHelper.GetNAssertContains(locators._dsName, "Untitled datasource");
     agHelper.GetNClick(locators._dsName);
     agHelper.ClearTextField(locators._dsNameTxt); //removing ds name
-    agHelper.AssertTooltip("Please enter a valid name");
-    //agHelper.ValidateToastMessage("Invalid name");
+    agHelper.AssertTooltip(Cypress.env("MESSAGES").ACTION_INVALID_NAME_ERROR());
     agHelper.TypeText(locators._dsNameTxt, dsName);
     agHelper.PressEnter();
     agHelper.AssertAttribute(
@@ -76,7 +75,7 @@ describe("Validate Firestore DS", { tags: ["@tag.Datasource"] }, () => {
 
       //Create
       dataSources.ValidateNSelectDropdown(
-        "Commands",
+        "Command",
         "List Documents",
         "Create document",
       );
@@ -100,7 +99,7 @@ describe("Validate Firestore DS", { tags: ["@tag.Datasource"] }, () => {
 
       //Find the document id of the newly inserted record + Verify List all records
       dataSources.ValidateNSelectDropdown(
-        "Commands",
+        "Command",
         "Create document",
         "List Documents",
       );
@@ -151,7 +150,7 @@ describe("Validate Firestore DS", { tags: ["@tag.Datasource"] }, () => {
 
         //Update document
         dataSources.ValidateNSelectDropdown(
-          "Commands",
+          "Command",
           "List Documents",
           "Update document",
         );
@@ -177,7 +176,7 @@ describe("Validate Firestore DS", { tags: ["@tag.Datasource"] }, () => {
 
         //Validate the update happened fine
         dataSources.ValidateNSelectDropdown(
-          "Commands",
+          "Command",
           "Update document",
           "List Documents",
         );
@@ -206,7 +205,7 @@ describe("Validate Firestore DS", { tags: ["@tag.Datasource"] }, () => {
 
         //Get Document
         dataSources.ValidateNSelectDropdown(
-          "Commands",
+          "Command",
           "List Documents",
           "Get Document",
         );
@@ -228,7 +227,7 @@ describe("Validate Firestore DS", { tags: ["@tag.Datasource"] }, () => {
 
   it("3. Validate Widget binding & Deploy app", () => {
     dataSources.ValidateNSelectDropdown(
-      "Commands",
+      "Command",
       "Get Document",
       "List Documents",
     );
@@ -249,7 +248,7 @@ describe("Validate Firestore DS", { tags: ["@tag.Datasource"] }, () => {
   it("4. Validate Upsert [Update & Insert]/Delete documents", () => {
     //Validating Upsert
     dataSources.ValidateNSelectDropdown(
-      "Commands",
+      "Command",
       "List Documents",
       "Upsert Document",
     );
@@ -273,7 +272,7 @@ describe("Validate Firestore DS", { tags: ["@tag.Datasource"] }, () => {
     dataSources.RunQuery(); //Upsert the document
 
     dataSources.ValidateNSelectDropdown(
-      "Commands",
+      "Command",
       "Upsert Document",
       "List Documents",
     );
@@ -309,7 +308,7 @@ describe("Validate Firestore DS", { tags: ["@tag.Datasource"] }, () => {
 
     //Validating Delete
     dataSources.ValidateNSelectDropdown(
-      "Commands",
+      "Command",
       "List Documents",
       "Delete document",
     );
@@ -323,7 +322,7 @@ describe("Validate Firestore DS", { tags: ["@tag.Datasource"] }, () => {
 
     //Validate Deletion
     dataSources.ValidateNSelectDropdown(
-      "Commands",
+      "Command",
       "Delete document",
       "List Documents",
     );

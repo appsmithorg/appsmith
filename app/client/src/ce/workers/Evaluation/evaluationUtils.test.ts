@@ -2,6 +2,7 @@ import type { DependencyMap, EvaluationError } from "utils/DynamicBindingUtils";
 import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
+import microDiff from "microdiff";
 
 import type {
   WidgetEntity,
@@ -19,6 +20,7 @@ import type {
   DataTree,
 } from "entities/DataTree/dataTreeTypes";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { convertMicroDiffToDeepDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   addErrorToEntityProperty,
   convertJSFunctionsToString,
@@ -980,4 +982,40 @@ describe("convertJSFunctionsToString", () => {
   const actualResult = convertJSFunctionsToString(jsCollections, configTree);
 
   expect(expectedResult).toStrictEqual(actualResult);
+});
+describe("convertMicroDiffToDeepDiff", () => {
+  it("should generate edit deepDiff updates", () => {
+    const microDiffUpdates = microDiff({ a: 1, b: 2 }, { a: 1, b: 3 });
+    const deepDiffUpdates = convertMicroDiffToDeepDiff(microDiffUpdates);
+    expect(deepDiffUpdates).toStrictEqual([
+      {
+        kind: "E",
+        lhs: 2,
+        path: ["b"],
+        rhs: 3,
+      },
+    ]);
+  });
+  it("should generate create deepDiff updates", () => {
+    const microDiffUpdates = microDiff({ a: 1 }, { a: 1, b: 3 });
+    const deepDiffUpdates = convertMicroDiffToDeepDiff(microDiffUpdates);
+    expect(deepDiffUpdates).toStrictEqual([
+      {
+        kind: "N",
+        path: ["b"],
+        rhs: 3,
+      },
+    ]);
+  });
+  it("should generate delete deepDiff updates", () => {
+    const microDiffUpdates = microDiff({ a: 1, b: 3 }, { a: 1 });
+    const deepDiffUpdates = convertMicroDiffToDeepDiff(microDiffUpdates);
+    expect(deepDiffUpdates).toStrictEqual([
+      {
+        kind: "D",
+        path: ["b"],
+        lhs: 3,
+      },
+    ]);
+  });
 });

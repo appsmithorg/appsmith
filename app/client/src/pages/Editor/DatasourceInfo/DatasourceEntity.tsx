@@ -15,7 +15,7 @@ import {
   datasourcesEditorIdURL,
   saasEditorDatasourceIdURL,
 } from "@appsmith/RouteBuilder";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import omit from "lodash/omit";
 import { getQueryParams } from "utils/URLUtils";

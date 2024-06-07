@@ -9,7 +9,7 @@ import {
   PAGE_NOT_FOUND,
   PAGE_NOT_FOUND_TITLE,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 import Page from "./Page";
 

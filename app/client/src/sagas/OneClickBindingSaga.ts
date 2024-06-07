@@ -44,7 +44,7 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { ActionCreateUpdateResponse } from "api/ActionAPI";
 import ActionAPI from "api/ActionAPI";
 import { validateResponse } from "./ErrorSagas";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { fetchActions, runAction } from "actions/pluginActionActions";

@@ -43,7 +43,7 @@ describe("JS Segment", () => {
     expect(result.current).toBeDefined();
 
     act(() => {
-      result.current();
+      result.current.openAddJS();
     });
 
     expect(mockDispatchFn).toBeCalledWith({
@@ -66,7 +66,7 @@ describe("JS Segment", () => {
 
     // Call the function now from a different page
     act(() => {
-      result.current();
+      result.current.openAddJS();
     });
 
     // Now the creation action should have the new page id

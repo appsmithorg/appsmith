@@ -33,7 +33,7 @@ import TextLoaderIcon from "../Components/TextLoaderIcon";
 import { filterAccentedAndSpecialCharacters, getUrlPreview } from "../Utils";
 import type { AppState } from "@appsmith/reducers";
 import { getUsedActionNames } from "selectors/actionSelectors";
-import { isNameValid, resolveAsSpaceChar } from "utils/helpers";
+import { isNameValid, toValidPageName } from "utils/helpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
@@ -169,7 +169,7 @@ function PageSettings(props: { page: Page }) {
     }
 
     setIsPageNameValid(isValid);
-    setPageName(resolveAsSpaceChar(value, 30));
+    setPageName(toValidPageName(value));
   };
 
   const onPageSlugChange = (value: string) => {
@@ -253,7 +253,7 @@ function PageSettings(props: { page: Page }) {
       {!appNeedsUpdate && (
         <UrlPreviewWrapper className="mb-2">
           <UrlPreviewScroll
-            className="py-1 pl-2 mr-0.5 text-xs break-all"
+            className="py-1 pl-2 mr-0.5 text-xs break-all select-text"
             onCopy={() => {
               navigator.clipboard.writeText(
                 location.protocol +

@@ -35,7 +35,10 @@ describe("Property Pane Suggestions", { tags: ["@tag.JS"] }, () => {
     jsEditor.CreateJSObject("");
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.TypeTextIntoField("Label", "/");
-    agHelper.GetElementsNAssertTextPresence(locators._hints, "JSObject1");
+    agHelper.GetElementsNAssertTextPresence(
+      locators._slashCommandHintText,
+      "JSObject1",
+    );
   });
 
   it("3. Should add Autocomplete Suggestions on Tab press", () => {

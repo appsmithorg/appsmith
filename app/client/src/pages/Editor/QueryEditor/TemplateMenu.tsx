@@ -3,7 +3,7 @@ import styled from "styled-components";
 import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { getPluginTemplates } from "@appsmith/selectors/entitiesSelector";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const Container = styled.div`
   display: flex;

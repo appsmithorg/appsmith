@@ -16,7 +16,7 @@ import {
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { Flex, Spinner } from "design-system";
+import { Flex } from "design-system";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import NameEditorComponent, {
   IconBox,
@@ -113,7 +113,6 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
               updating={saveStatus.isSaving}
               valueTransform={removeSpecialChars}
             />
-            {saveStatus.isSaving && <Spinner size="md" />}
           </Flex>
         </NameWrapper>
       )}

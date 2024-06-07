@@ -20,7 +20,6 @@ import {
   IN_APP_EMBED_SETTING,
   PAGE_SETTINGS_SECTION_CONTENT_HEADER,
   PAGE_SETTINGS_SECTION_HEADER,
-  THEME_SETTINGS_SECTION_CONTENT_HEADER,
   THEME_SETTINGS_SECTION_HEADER,
   THEME_SETTINGS_SECTION_HEADER_DESC,
   UPDATE_VIA_IMPORT_SETTING,
@@ -29,11 +28,10 @@ import { Colors } from "constants/Colors";
 import EmbedSettings from "./EmbedSettings";
 import NavigationSettings from "./NavigationSettings";
 import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Divider } from "design-system";
 import { ImportAppSettings } from "./ImportAppSettings";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import BetaCard from "components/editorComponents/BetaCard";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export enum AppSettingsTabs {
   General,
@@ -62,7 +60,7 @@ const SectionContent = styled.div`
   }
 `;
 
-const SectionTitle = styled.p`
+export const SectionTitle = styled.p`
   padding-top: 0.75rem;
   padding-bottom: 0.5rem;
   font-weight: var(--ads-v2-font-weight-bold);
@@ -84,7 +82,7 @@ function AppSettings() {
   const { context } = useSelector(getAppSettingsPane);
   const pages: Page[] = useSelector(selectAllPages);
   const dispatch = useDispatch();
-  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
+  const isAnvilLayout = useSelector(getIsAnvilLayout);
 
   const [selectedTab, setSelectedTab] = useState<SelectedTab>({
     type: context?.type || AppSettingsTabs.General,
@@ -237,21 +235,13 @@ function AppSettings() {
               );
             case AppSettingsTabs.Theme:
               return (
-                <>
-                  <div className="px-4">
-                    <SectionTitle className="flex items-center gap-2">
-                      {THEME_SETTINGS_SECTION_CONTENT_HEADER()}
-                      <BetaCard />
-                    </SectionTitle>
-                  </div>
-                  <ThemeContentWrapper>
-                    {isWDSEnabled ? (
-                      <WDSThemePropertyPane />
-                    ) : (
-                      <ThemePropertyPane />
-                    )}
-                  </ThemeContentWrapper>
-                </>
+                <ThemeContentWrapper>
+                  {isAnvilLayout ? (
+                    <WDSThemePropertyPane />
+                  ) : (
+                    <ThemePropertyPane />
+                  )}
+                </ThemeContentWrapper>
               );
             case AppSettingsTabs.Page:
               return (

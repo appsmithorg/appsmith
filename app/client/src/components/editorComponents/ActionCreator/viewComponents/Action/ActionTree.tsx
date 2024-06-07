@@ -9,7 +9,7 @@ import type { TActionBlock, VariantType } from "../../types";
 import { chainableFns } from "../../utils";
 import ActionCard from "./ActionCard";
 import ActionSelector from "./ActionSelector";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getActionTypeLabel } from "../ActionBlockTree/utils";
 import classNames from "classnames";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";

@@ -42,7 +42,7 @@ export const propertyPaneContentConfig = [
         propertyName: "tooltip",
         label: "Tooltip",
         controlType: "INPUT_TEXT",
-        placeholderText: "Add Input Field",
+        placeholderText: "Add new item",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },

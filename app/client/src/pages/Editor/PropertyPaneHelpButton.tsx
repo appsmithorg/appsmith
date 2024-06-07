@@ -5,7 +5,7 @@ import {
   setGlobalSearchQuery,
   toggleShowGlobalSearchModal,
 } from "actions/globalSearchActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import WidgetFactory from "WidgetProvider/factory";
 import { getSelectedWidget } from "sagas/selectors";
 import { Icon } from "design-system";

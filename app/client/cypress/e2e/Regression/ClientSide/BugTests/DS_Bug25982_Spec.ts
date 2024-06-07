@@ -9,7 +9,7 @@ describe("Fix UQI query switching", { tags: ["@tag.Datasource"] }, function () {
     dataSources.CreateDataSource("Mongo", false, false);
     dataSources.CreateQueryAfterDSSaved("", "MongoQuery");
     dataSources.ValidateNSelectDropdown(
-      "Commands",
+      "Command",
       "Find document(s)",
       "Insert document(s)",
     );
@@ -17,14 +17,14 @@ describe("Fix UQI query switching", { tags: ["@tag.Datasource"] }, function () {
     dataSources.CreateDataSource("S3", false, false);
     dataSources.CreateQueryAfterDSSaved("", "S3Query");
     dataSources.ValidateNSelectDropdown(
-      "Commands",
+      "Command",
       "List files in bucket",
       "Create a new file",
     );
     EditorNavigation.SelectEntityByName("MongoQuery", EntityType.Query);
-    dataSources.ValidateNSelectDropdown("Commands", "Insert document(s)");
+    dataSources.ValidateNSelectDropdown("Command", "Insert document(s)");
 
     EditorNavigation.SelectEntityByName("S3Query", EntityType.Query);
-    dataSources.ValidateNSelectDropdown("Commands", "Create a new file");
+    dataSources.ValidateNSelectDropdown("Command", "Create a new file");
   });
 });

@@ -23,14 +23,12 @@ import {
 } from "selectors/appThemingSelectors";
 import { getCanvasWidgetsStructure } from "@appsmith/selectors/entitiesSelector";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import Canvas from "pages/Editor/Canvas";
 import type { AppState } from "@appsmith/reducers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
 import { useMainContainerResizer } from "layoutSystems/common/mainContainerResizer/useMainContainerResizer";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 interface MainCanvasWrapperProps {
   isPreviewMode: boolean;
@@ -132,12 +130,9 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const showAnonymousDataPopup = useSelector(getIsAnonymousDataPopupVisible);
   const isLayoutingInitialized = useDynamicAppLayout();
   const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
-  const isWDSV2Enabled = useFeatureFlag("ab_wds_enabled");
   const { canShowResizer, enableMainContainerResizer } =
     useMainContainerResizer();
-  const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
-  const isAnvilLayout = layoutSystemType === LayoutSystemTypes.ANVIL;
-  const headerHeight = "40px";
+  const isAnvilLayout = useSelector(getIsAnvilLayout);
 
   useEffect(() => {
     return () => {
@@ -182,7 +177,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
           isPreviewMode ||
           isProtectedMode ||
           isAppSettingsPaneWithNavigationTabOpen
-            ? isWDSV2Enabled
+            ? isAnvilLayout
               ? ""
               : selectedTheme.properties.colors.backgroundColor
             : "initial"
@@ -192,7 +187,8 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
           "mt-0": shouldShowSnapShotBanner || !shouldHaveTopMargin,
           "mt-4":
             !shouldShowSnapShotBanner &&
-            (showCanvasTopSection || showAnonymousDataPopup),
+            (showCanvasTopSection || showAnonymousDataPopup) &&
+            !isAnvilLayout,
           "mt-8":
             !shouldShowSnapShotBanner &&
             shouldHaveTopMargin &&
@@ -208,12 +204,12 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         isPreviewingNavigation={isPreviewingNavigation}
         navigationHeight={navigationHeight}
         style={{
-          height: isPreviewMode ? `calc(100% - ${headerHeight})` : "auto",
+          height: isPreviewMode ? `calc(100% - ${navigationHeight})` : "auto",
           fontFamily: fontFamily,
           pointerEvents: isAutoCanvasResizing ? "none" : "auto",
         }}
       >
-        {!isWDSV2Enabled && (
+        {!isAnvilLayout && (
           <WidgetGlobaStyles
             fontFamily={selectedTheme.properties.fontFamily.appFont}
             primaryColor={selectedTheme.properties.colors.primaryColor}
@@ -231,7 +227,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         enableMainCanvasResizer={enableMainContainerResizer && canShowResizer}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
         isPreview={isPreviewMode || isProtectedMode}
-        shouldHaveTopMargin={shouldHaveTopMargin}
+        navigationHeight={navigationHeight}
       />
     </>
   );

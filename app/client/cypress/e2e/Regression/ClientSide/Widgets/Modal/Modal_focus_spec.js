@@ -17,7 +17,7 @@ describe("Modal focus", { tags: ["@tag.Widget", "@tag.Modal"] }, function () {
 
     cy.updateCodeInput(
       ".t--property-control-onclick",
-      `{{showModal('Modal1')}}`,
+      `{{showModal(Modal1.name)}}`,
     );
     //add modal
     EditorNavigation.SelectEntityByName("Modal1", EntityType.Widget);

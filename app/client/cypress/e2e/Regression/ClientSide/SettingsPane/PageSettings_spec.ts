@@ -59,10 +59,10 @@ describe("Page Settings", { tags: ["@tag.Settings"] }, () => {
     });
     _.appSettings.ClosePane();
 
-    //Page name doesn't allow special character
+    // Page name doesn't allow slashes and colons
     _.appSettings.OpenAppSettings();
     _.appSettings.GoToPageSettings("Page3");
-    _.pageSettings.UpdatePageNameAndVerifyTextValue("Page3!@#", "Page3 ");
+    _.pageSettings.UpdatePageNameAndVerifyTextValue("Page3/\\:", "Page3");
     _.appSettings.ClosePane();
 
     // Page name doesn't allow empty

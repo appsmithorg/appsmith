@@ -138,6 +138,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const ReactTableComponent = lazy(async () =>
@@ -172,6 +173,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return {
       name: "Table",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.DISPLAY],
       needsMeta: true,
       needsHeightForContent: true,

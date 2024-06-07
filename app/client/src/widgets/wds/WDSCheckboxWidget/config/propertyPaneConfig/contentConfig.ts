@@ -9,7 +9,7 @@ export const propertyPaneContentConfig = [
         label: "Text",
         controlType: "INPUT_TEXT",
         helpText: "Displays a label next to the widget",
-        placeholderText: "I agree to the T&C",
+        placeholderText: "Label",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },

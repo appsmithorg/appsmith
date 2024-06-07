@@ -23,6 +23,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
@@ -70,6 +71,7 @@ class MapWidget extends BaseWidget<MapWidgetProps, WidgetState> {
     return {
       name: "Map",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.CONTENT],
       needsMeta: true,
     };

@@ -121,28 +121,5 @@ describe(
         expect(location.pathname).includes(legacyPathname);
       });
     });
-
-    //   // _.gitSync.DeleteTestGithubRepo(repoName);
-    //   // //cy.deleteTestGithubRepo(repoName);
-    //   // // TODO remove when app deletion with conflicts is fixed
-    //   // cy.get(homePage.homeIcon).click({ force: true });
-    //   // cy.get(homePage.createNew)
-    //   //   .first()
-    //   //   .click({ force: true });
-    //   // cy.wait("@createNewApplication").should(
-    //   //   "have.nested.property",
-    //   //   "response.body.responseMeta.status",
-    //   //   201,
-    //   // );
-    //   // cy.get("#loading").should("not.exist");
-    //   // cy.wait(2000);
-    //   // cy.AppSetupForRename();
-    //   // cy.get(homePage.applicationName).type(repoName + "{enter}");
-    //   // cy.wait("@updateApplication").should(
-    //   //   "have.nested.property",
-    //   //   "response.body.responseMeta.status",
-    //   //   200,
-    //   // );
-    // });
   },
 );

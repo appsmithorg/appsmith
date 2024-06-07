@@ -22,6 +22,7 @@ export function ProvisioningUpgradePage() {
     logEventData: { source: "Provisioning" },
     featureName: RampFeature.Provisioning,
     sectionName: RampSection.AdminSettings,
+    isEnterprise: true,
   });
 
   const header: Header = {

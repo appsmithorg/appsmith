@@ -26,7 +26,7 @@ import { ColorInput } from "pages/AdminSettings/FormGroup/ColorInput";
 import { ImageInput } from "pages/AdminSettings/FormGroup/ImageInput";
 import { logoImageValidator, faivconImageValidator } from "utils/BrandingUtils";
 import { useBrandingForm } from "@appsmith/pages/AdminSettings/Branding/useBrandingForm";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import styled from "styled-components";
 import { HelperText } from "pages/AdminSettings/components";
 

@@ -16,7 +16,7 @@ import {
   CREATE_PAGE,
   GENERATE_PAGE_ACTION_TITLE,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { ButtonSizes } from "design-system";
 import {
   Menu,
@@ -47,12 +47,14 @@ interface SubMenuProps {
   onMenuClose: () => void;
   createPageCallback: () => void;
   buttonSize?: ButtonSizes;
+  onItemSelected?: () => void;
 }
 
 function AddPageContextMenu({
   buttonSize,
   className,
   createPageCallback,
+  onItemSelected,
   onMenuClose,
   openMenu,
 }: SubMenuProps) {
@@ -114,6 +116,7 @@ function AddPageContextMenu({
   };
 
   const onMenuItemClick = (item: (typeof ContextMenuItems)[number]) => {
+    if (onItemSelected) onItemSelected();
     handleOpenChange(false);
     item.onClick();
     AnalyticsUtil.logEvent("ENTITY_EXPLORER_ADD_PAGE_CLICK", {

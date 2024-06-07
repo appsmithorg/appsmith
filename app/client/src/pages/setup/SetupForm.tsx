@@ -97,6 +97,7 @@ function SetupForm(props: SetupFormProps) {
   const [isSubmitted, setIsSubmitted] = useState(false);
 
   const onSubmit = () => {
+    if (isSubmitted) return;
     const form: HTMLFormElement = formRef.current as HTMLFormElement;
     const verifyPassword: HTMLInputElement = document.querySelector(
       `[name="verifyPassword"]`,
@@ -147,6 +148,8 @@ function SetupForm(props: SetupFormProps) {
     if (signupForNewsletter)
       signupForNewsletter.value = signupForNewsletter.checked.toString();
     form.submit();
+    //if form is already submitted once do not submit it again
+    setIsSubmitted(true);
     return true;
   };
 
@@ -171,9 +174,7 @@ function SetupForm(props: SetupFormProps) {
           toggleFormPage();
         } else {
           // If we are on the second page we submit the form if not submitted already
-          if (!isSubmitted) onSubmit();
-          //if form is already submitted once do not submit it again
-          setIsSubmitted(true);
+          onSubmit();
         }
       } else {
         // The fields to be marked as touched so that we can display the errors
@@ -206,6 +207,7 @@ function SetupForm(props: SetupFormProps) {
             <DetailsForm
               {...props}
               isFirstPage={isFirstPage}
+              isSubmitted={isSubmitted}
               toggleFormPage={toggleFormPage}
             />
           </SetupStep>

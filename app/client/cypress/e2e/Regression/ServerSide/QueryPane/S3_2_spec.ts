@@ -425,7 +425,7 @@ describe(
       dataSources.CreateQueryForDS(datasourceName);
 
       agHelper.GetObjectName().then(($queryName) => {
-        dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
+        dataSources.ValidateNSelectDropdown("Command", "List files in bucket");
         agHelper.UpdateCodeInput(formControls.s3BucketName, bucketName);
 
         dataSources.RunQuery();
@@ -451,7 +451,7 @@ describe(
       dataSources.CreateQueryForDS(datasourceName);
       agHelper.GetObjectName().then(($queryName) => {
         EditorNavigation.SelectEntityByName($queryName, EntityType.Query);
-        dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
+        dataSources.ValidateNSelectDropdown("Command", "List files in bucket");
         agHelper.UpdateCodeInput(formControls.s3BucketName, bucketName);
         dataSources.RunQuery();
         agHelper.Sleep(); //for CI runs

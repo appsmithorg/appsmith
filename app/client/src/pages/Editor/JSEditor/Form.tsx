@@ -71,7 +71,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { DEBUGGER_TAB_KEYS } from "../../../components/editorComponents/Debugger/helpers";
-
+import RunHistory from "@appsmith/components/RunHistory";
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
   contextMenu: React.ReactNode;
@@ -88,7 +88,7 @@ type Props = JSFormProps;
 const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
-  height: calc(100% - 64px);
+  height: 100%;
   width: 100%;
 `;
 
@@ -441,6 +441,7 @@ function JSEditorForm({
                   }}
                   theme={theme}
                 />
+                <RunHistory />
               </SecondaryWrapper>
             </div>
           </Wrapper>

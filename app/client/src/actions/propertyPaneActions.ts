@@ -97,9 +97,20 @@ export const setSelectedPropertyPanels = (payload: SelectedPropertyPanel) => {
   };
 };
 
-export const setShowCreateNewModal = (payload: boolean) => {
+export const createNewJSCollectionFromActionCreator = (
+  payload: (bindingValue: string) => void,
+) => {
   return {
-    type: ReduxActionTypes.SET_SHOW_CREATE_NEW_MODAL,
+    type: ReduxActionTypes.CREATE_NEW_JS_FROM_ACTION_CREATOR,
+    payload,
+  };
+};
+
+export const createNewQueryFromActionCreator = (
+  payload: (bindingValue: string) => void,
+) => {
+  return {
+    type: ReduxActionTypes.CREATE_NEW_QUERY_FROM_ACTION_CREATOR,
     payload,
   };
 };

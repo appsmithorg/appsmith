@@ -11,6 +11,8 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -22,7 +24,6 @@ import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import jakarta.validation.Validator;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -234,7 +235,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
                     Set<String> assignedToUserIds = pg.getAssignedToUserIds();
                     assignedToUserIds.removeAll(userIds);
 
-                    Update updateObj = new Update();
+                    BridgeUpdate updateObj = Bridge.update();
                     String path = PermissionGroup.Fields.assignedToUserIds;
 
                     updateObj.set(path, assignedToUserIds);
@@ -400,7 +401,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
                     assignedToUserIds.remove(userId);
 
-                    Update updateObj = new Update();
+                    BridgeUpdate updateObj = Bridge.update();
                     String path = PermissionGroup.Fields.assignedToUserIds;
 
                     updateObj.set(path, assignedToUserIds);

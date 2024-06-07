@@ -11,7 +11,8 @@ interface PanelProps {
 }
 
 const Wrapper = styled.div`
-  position: relative;
+  position: fixed;
+  z-index: 999;
   padding: 10px;
   display: flex;
   flex-direction: column;

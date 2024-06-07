@@ -1,4 +1,5 @@
 import {
+  UI_ELEMENT_PANEL_SEARCH_TEXT,
   WIDGET_PANEL_EMPTY_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -8,16 +9,22 @@ import type {
   WidgetTags,
 } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { SearchInput, Text } from "design-system";
+import { Flex, SearchInput, Text } from "design-system";
 import Fuse from "fuse.js";
 import { debounce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { groupWidgetCardsByTags } from "../utils";
 import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
 
-function UIEntitySidebar({ isActive }: { isActive: boolean }) {
+function UIEntitySidebar({
+  focusSearchInput,
+  isActive,
+}: {
+  isActive: boolean;
+  focusSearchInput?: boolean;
+}) {
   const { cards, entityLoading, groupedCards } = useUIExplorerItems();
   const [filteredCards, setFilteredCards] =
     useState<WidgetCardsGroupedByTags>(groupedCards);
@@ -77,9 +84,14 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
     filterCards(value.toLowerCase());
   }, 300);
 
+  // update widgets list after building blocks have been fetched async
   useEffect(() => {
     setFilteredCards(groupedCards);
-  }, [groupedCards]);
+  }, [entityLoading[WIDGET_TAGS.BUILDING_BLOCKS]]);
+
+  useEffect(() => {
+    if (focusSearchInput) searchInputRef.current?.focus();
+  }, [focusSearchInput]);
 
   return (
     <div
@@ -92,14 +104,15 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
           autoComplete="off"
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
-          placeholder="Search widgets"
+          placeholder={createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT)}
           ref={searchInputRef}
           type="text"
         />
       </div>
-      <div
-        className="flex-grow px-3 mt-2 overflow-y-scroll"
+      <Flex
+        className="flex-grow px-3 overflow-y-scroll flex-col"
         data-testid="t--widget-sidebar-scrollable-wrapper"
+        pt="spaces-2"
       >
         {isEmpty && (
           <Text
@@ -138,7 +151,7 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
             );
           })}
         </div>
-      </div>
+      </Flex>
     </div>
   );
 }

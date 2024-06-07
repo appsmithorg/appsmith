@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import PartialExportModal from "./index";
+import { PartialExportModal } from "./index";
 import { lightTheme } from "selectors/themeSelectors";
 import { ThemeProvider } from "styled-components";
 import configureStore from "redux-mock-store";
@@ -29,13 +29,15 @@ describe("<PartialExportModal />", () => {
   let store: any;
 
   beforeEach(() => {
+    defaultAppState.ui.applications.partialImportExport.isExportModalOpen =
+      true;
     store = mockStore(defaultAppState);
   });
 
   const BaseComponentRender = () => (
     <Provider store={store}>
       <ThemeProvider theme={lightTheme}>
-        <PartialExportModal handleModalClose={() => jest.fn()} isModalOpen />
+        <PartialExportModal />
       </ThemeProvider>
     </Provider>
   );

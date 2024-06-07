@@ -34,10 +34,6 @@ The `build-docker-image` job builds and pushes the Docker image for the applicat
 
 The `ci-test` job runs continuous integration tests on the Docker image. It depends on the successful completion of the `build-docker-image` job.
 
-### `perf-test`
-
-The `perf-test` job performs performance tests on the Docker image. It depends on the successful completion of the `build-docker-image` job.
-
 ### `ci-test-result`
 
 The `ci-test-result` job collects the results from the `ci-test` and `perf-test` jobs and generates a report. It always runs, and it processes the test results against known failures. The results are then added as a comment on the associated pull request.

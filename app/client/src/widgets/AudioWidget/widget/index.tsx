@@ -17,6 +17,7 @@ import type { SetterConfig } from "entities/AppTheming";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 const AudioComponent = lazy(async () =>
@@ -37,6 +38,7 @@ class AudioWidget extends BaseWidget<AudioWidgetProps, WidgetState> {
     return {
       name: "Audio",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.MEDIA],
       needsMeta: true,
       searchTags: ["mp3", "sound", "wave", "player"],

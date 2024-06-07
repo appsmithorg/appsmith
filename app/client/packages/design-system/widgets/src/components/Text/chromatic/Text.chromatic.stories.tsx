@@ -39,14 +39,14 @@ export const LightMode: Story = {
         necessitatibus, molestias deleniti corrupti aliquam repudiandae.
       </Text>
 
-      <Text textAlign="left">Text Align Left</Text>
+      <Text textAlign="start">Text Align Left</Text>
       <Text textAlign="center">Text Align Center</Text>
-      <Text textAlign="right">Text Align Right</Text>
+      <Text textAlign="end">Text Align Right</Text>
       <Text isItalic>isItalic</Text>
       <Text isBold>isBold</Text>
 
       {Object.values(TYPOGRAPHY_VARIANTS).map((variant) => (
-        <Text key={variant} variant={variant}>
+        <Text key={variant} size={variant}>
           variant — {variant}
         </Text>
       ))}

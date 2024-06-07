@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React from "react";
 
 import CurlImportForm from "./CurlImportForm";
 import { curlImportSubmitHandler } from "./helpers";
@@ -8,10 +8,8 @@ import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import type { BuilderRouteParams } from "constants/routes";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 import { DEFAULT_PREFIX } from "sagas/ActionSagas";
-import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 
 type CurlImportEditorProps = RouteComponentProps<BuilderRouteParams>;
@@ -34,13 +32,9 @@ function CurlImportEditor(props: CurlImportEditorProps) {
     contextType: ActionParentEntityType.PAGE,
     name: actionName,
   };
-  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
-
-  const closeEditorLink = useMemo(() => <CloseEditor />, []);
 
   return (
     <CurlImportForm
-      closeEditorLink={isEditorPaneEnabled ? null : closeEditorLink}
       curlImportSubmitHandler={curlImportSubmitHandler}
       initialValues={initialFormValues}
       isImportingCurl={isImportingCurl}

@@ -11,6 +11,7 @@ import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import {
   createMessage,
+  DEBUGGER_RESPONSE,
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
 } from "@appsmith/constants/messages";
@@ -39,6 +40,7 @@ import QueryEditorHeader from "./QueryEditorHeader";
 import ActionEditor from "../IDE/EditorPane/components/ActionEditor";
 import QueryResponseTab from "./QueryResponseTab";
 import DatasourceSelector from "./DatasourceSelector";
+import RunHistory from "@appsmith/components/RunHistory";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -116,6 +118,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   height: calc(100% - 50px);
+  overflow: hidden;
   width: 100%;
 `;
 
@@ -245,7 +248,7 @@ export function EditorJSONtoForm(props: Props) {
     if (currentActionConfig) {
       responseTabs.push({
         key: "response",
-        title: "Response",
+        title: createMessage(DEBUGGER_RESPONSE),
         panelComponent: (
           <QueryResponseTab
             actionSource={actionSource}
@@ -306,7 +309,7 @@ export function EditorJSONtoForm(props: Props) {
         />
         {notification}
         <Wrapper>
-          <div className="flex flex-1">
+          <div className="flex flex-1 w-full">
             <SecondaryWrapper>
               <TabContainerView>
                 <Tabs
@@ -384,6 +387,7 @@ export function EditorJSONtoForm(props: Props) {
                 runErrorMessage={runErrorMessage}
                 showSchema={showSchema}
               />
+              <RunHistory />
             </SecondaryWrapper>
           </div>
           <ActionRightPane

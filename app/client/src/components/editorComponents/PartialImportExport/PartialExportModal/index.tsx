@@ -9,7 +9,10 @@ import {
   selectLibrariesForExplorer,
   selectWidgetsForCurrentPage,
 } from "@appsmith/selectors/entitiesSelector";
-import { partialExportWidgets } from "actions/widgetActions";
+import {
+  openPartialExportModal,
+  partialExportWidgets,
+} from "actions/widgetActions";
 import {
   Button,
   Collapsible,
@@ -36,10 +39,6 @@ import JSObjectsNQueriesExport from "./JSObjectsNQueriesExport";
 import { Bar, ScrollableSection } from "./StyledSheet";
 import WidgetsExport from "./WidgetsExport";
 
-interface Props {
-  handleModalClose: () => void;
-  isModalOpen: boolean;
-}
 const selectedParamsInitValue: PartialExportParams = {
   jsObjects: [],
   datasources: [],
@@ -47,7 +46,7 @@ const selectedParamsInitValue: PartialExportParams = {
   widgets: [],
   queries: [],
 };
-const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
+export const PartialExportModal = () => {
   const [customJsLibraries, setCustomJsLibraries] = useState<JSLibrary[]>([]);
   const dispatch = useDispatch();
   const [selectedParams, setSelectedParams] = useState<PartialExportParams>(
@@ -260,10 +259,21 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
         widgets: selectOnlyParentIds(canvasWidgets!, selectedParams.widgets),
       }),
     );
+    setSelectedParams(selectedParamsInitValue);
+  };
+
+  const handleModalClose = (open: boolean) => {
+    if (!open) {
+      dispatch(openPartialExportModal(false));
+      setSelectedParams(selectedParamsInitValue);
+    }
   };
 
   return (
-    <Modal onOpenChange={handleModalClose} open={isModalOpen}>
+    <Modal
+      onOpenChange={handleModalClose}
+      open={partialImportExportLoadingState.isExportModalOpen}
+    >
       <ModalContent>
         <ModalHeader>
           <Text className="title" kind="heading-xl">
@@ -329,5 +339,3 @@ const PartiaExportModel = ({ handleModalClose, isModalOpen }: Props) => {
     </Modal>
   );
 };
-
-export default PartiaExportModel;

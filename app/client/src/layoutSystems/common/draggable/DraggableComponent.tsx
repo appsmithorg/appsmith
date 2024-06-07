@@ -5,10 +5,7 @@ import type { CSSProperties, DragEventHandler, ReactNode } from "react";
 import React, { useMemo, useRef } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import {
-  isCurrentWidgetFocused,
-  isWidgetSelected,
-} from "selectors/widgetSelectors";
+import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
@@ -17,8 +14,6 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 
 const DraggableWrapper = styled.div<{ draggable: boolean }>`
   display: block;
@@ -57,8 +52,8 @@ const WidgetBoundaries = styled.div`
 `;
 
 function DraggableComponent(props: DraggableComponentProps) {
-  // Dispatch hook handy to set a widget as focused/selected
-  const { focusWidget, selectWidget } = useWidgetSelection();
+  // Dispatch hook handy to set a widget as selected
+  const { selectWidget } = useWidgetSelection();
 
   const shouldAllowDrag = useSelector(getShouldAllowDrag);
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
@@ -69,15 +64,12 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isSelected = useSelector(isWidgetSelected(props.widgetId));
   // This state tels us which widget is focused
   // The value is the widgetId of the focused widget.
-  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
+  const isFocused = useSelector(isWidgetFocused(props.widgetId));
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
-
-  // This state tells us whether space redistribution is in process
-  const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
 
   // This state tells us whether a `DraggableComponent` is dragging
   const isDragging = useSelector(
@@ -89,31 +81,12 @@ function DraggableComponent(props: DraggableComponentProps) {
       state.ui.widgetDragResize?.dragDetails?.draggedOn === props.parentId,
   );
 
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
-
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
   const isCurrentWidgetDragging = isDragging && isSelected;
   const isCurrentWidgetResizing = isResizing && isSelected;
   const showBoundary =
     !props.isFlexChild && (isCurrentWidgetDragging || isDraggingSibling);
-
-  // When mouse is over this draggable
-  const handleMouseOver = (e: React.MouseEvent) => {
-    focusWidget &&
-      !isResizingOrDragging &&
-      !isFocused &&
-      !isDistributingSpace &&
-      !props.resizeDisabled &&
-      !isPreviewMode &&
-      focusWidget(props.widgetId, e.metaKey);
-    e.stopPropagation();
-  };
-
-  const handleMouseLeave = () => {
-    // on leaving a widget, we reset the focused widget
-    focusWidget && focusWidget();
-  };
 
   // Display this draggable based on the current drag state
   const dragWrapperStyle: CSSProperties = {
@@ -156,8 +129,6 @@ function DraggableComponent(props: DraggableComponentProps) {
       data-testid={isSelected ? "t--selected" : ""}
       draggable={allowDrag}
       onDragStart={onDragStart}
-      onMouseLeave={handleMouseLeave}
-      onMouseOver={handleMouseOver}
       ref={draggableRef}
       style={dragWrapperStyle}
     >

@@ -8,6 +8,7 @@ import BaseWidget from "widgets/BaseWidget";
 import CustomComponent from "../component";
 
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_PADDING, WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type {
@@ -31,7 +32,7 @@ import { Link } from "design-system";
 import styled from "styled-components";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { DynamicHeight, type WidgetFeatures } from "utils/WidgetFeatures";
 
 const StyledLink = styled(Link)`
@@ -48,6 +49,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
     return {
       name: "Custom",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       needsMeta: true,
       isCanvas: false,
       tags: [WIDGET_TAGS.DISPLAY],

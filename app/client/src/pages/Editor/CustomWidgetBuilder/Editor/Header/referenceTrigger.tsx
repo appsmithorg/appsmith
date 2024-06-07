@@ -6,7 +6,7 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 export default function ReferenceTrigger() {
   const { isReferenceOpen, toggleReference, widgetId } = useContext(

@@ -142,9 +142,16 @@ export function TemplateLayout(props: TemplateLayoutProps) {
           <StyledImage alt="Template Thumbnail" src={screenshotUrls[0]} />
         </ImageWrapper>
         <TemplateContent className="template-content">
-          <Text className="title" kind="heading-m" renderAs="h1">
-            {title}
-          </Text>
+          <Tooltip content={title} placement="right">
+            <Text
+              className="title"
+              data-testid="template-content-title"
+              kind="heading-m"
+              renderAs="h1"
+            >
+              {title}
+            </Text>
+          </Tooltip>
           <Text className="categories" kind="heading-s" renderAs="h4">
             {functions.join(" • ")}
           </Text>

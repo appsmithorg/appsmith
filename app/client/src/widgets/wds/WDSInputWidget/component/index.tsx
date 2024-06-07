@@ -94,7 +94,6 @@ function InputComponent(props: InputComponentProps) {
       autoFocus={props.autoFocus}
       contextualHelp={props.tooltip}
       defaultValue={props.defaultValue}
-      endIcon={endIcon}
       errorMessage={props.validationStatus === "invalid" ? errorMessage : ""}
       isDisabled={props.isDisabled}
       isReadOnly={props.isReadOnly}
@@ -106,9 +105,11 @@ function InputComponent(props: InputComponentProps) {
       onChange={props.onValueChange}
       onFocusChange={props.onFocusChange}
       onKeyDown={props.onKeyDown}
+      onPaste={props.onPaste}
       placeholder={props.placeholder}
+      prefix={startIcon}
       spellCheck={props.spellCheck}
-      startIcon={startIcon}
+      suffix={endIcon}
       type={type}
       validationState={validationStatus}
       value={props.value}

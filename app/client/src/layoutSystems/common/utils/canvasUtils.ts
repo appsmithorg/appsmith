@@ -1,5 +1,5 @@
 import type { RenderModes } from "constants/WidgetConstants";
-import type { AdditionalAnvilProperties } from "layoutSystems/anvil/canvas/types";
+import type { AdditionalAnvilProperties } from "layoutSystems/anvil/viewer/canvas/types";
 import type { AdditionalAutoLayoutProperties } from "layoutSystems/autolayout/canvas/types";
 import type { AdditionalFixedLayoutProperties } from "layoutSystems/fixedlayout/canvas/types";
 import { map } from "lodash";

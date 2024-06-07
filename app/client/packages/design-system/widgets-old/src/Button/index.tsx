@@ -512,8 +512,8 @@ const getButtonContent = (props: ButtonProps) => {
   const iconPos = props.iconPosition
     ? props.iconPosition
     : props.tag === "a"
-    ? IconPositions.right
-    : IconPositions.left;
+      ? IconPositions.right
+      : IconPositions.left;
   return (
     <>
       {iconPos === IconPositions.left && getIconContent(props)}

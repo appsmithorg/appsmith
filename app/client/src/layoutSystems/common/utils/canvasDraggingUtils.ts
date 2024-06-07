@@ -465,10 +465,12 @@ export const modifyBlockDimension = (
   parentBottomRow: number,
   canExtend: boolean,
   modifyBlock: boolean,
+  // this allows dynamic resize limit for building blocks
+  horizontalMinResizeLimit: number = HORIZONTAL_RESIZE_MIN_LIMIT,
+  verticalMinResizeLimit: number = VERTICAL_RESIZE_MIN_LIMIT,
 ) => {
   const { columnWidth, fixedHeight, height, left, rowHeight, top, width } =
     draggingBlock;
-
   //get left and top of widget on canvas grid
   const [leftColumn, topRow] = getDropZoneOffsets(
     snapColumnSpace,
@@ -490,23 +492,23 @@ export const modifyBlockDimension = (
     // calculate offsets based on collisions and limits
     if (leftColumn < 0) {
       leftOffset =
-        leftColumn + columnWidth > HORIZONTAL_RESIZE_MIN_LIMIT
+        leftColumn + columnWidth > horizontalMinResizeLimit
           ? leftColumn
-          : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
+          : horizontalMinResizeLimit - columnWidth;
     } else if (leftColumn + columnWidth > GridDefaults.DEFAULT_GRID_COLUMNS) {
       rightOffset =
         GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - columnWidth;
       rightOffset =
-        columnWidth + rightOffset >= HORIZONTAL_RESIZE_MIN_LIMIT
+        columnWidth + rightOffset >= horizontalMinResizeLimit
           ? rightOffset
-          : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
+          : horizontalMinResizeLimit - columnWidth;
     }
 
     if (topRow < 0 && fixedHeight === undefined) {
       topOffset =
-        topRow + rowHeight > VERTICAL_RESIZE_MIN_LIMIT
+        topRow + rowHeight > verticalMinResizeLimit
           ? topRow
-          : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
+          : verticalMinResizeLimit - rowHeight;
     }
 
     if (
@@ -516,9 +518,9 @@ export const modifyBlockDimension = (
     ) {
       bottomOffset = parentBottomRow - topRow - rowHeight;
       bottomOffset =
-        rowHeight + bottomOffset >= VERTICAL_RESIZE_MIN_LIMIT
+        rowHeight + bottomOffset >= verticalMinResizeLimit
           ? bottomOffset
-          : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
+          : verticalMinResizeLimit - rowHeight;
     }
   }
 

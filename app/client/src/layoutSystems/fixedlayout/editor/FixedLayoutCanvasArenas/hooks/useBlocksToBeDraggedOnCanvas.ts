@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";

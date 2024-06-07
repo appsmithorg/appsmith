@@ -52,6 +52,7 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import defaultProps from "./defaultProps";
 
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 const getCurrentItemsViewBindingTemplate = () => ({
@@ -157,6 +158,7 @@ class ListWidget extends BaseWidget<
     return {
       name: "List",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.DISPLAY],
       needsMeta: true,
       isCanvas: true,

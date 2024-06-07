@@ -23,7 +23,7 @@ import {
   getIsAutocommitModalOpen,
   getIsAutocommitToggling,
 } from "selectors/gitSyncSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 function DisableAutocommitModal() {
   const isAutocommitModalOpen = useSelector(getIsAutocommitModalOpen);

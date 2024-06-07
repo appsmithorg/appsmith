@@ -13,7 +13,7 @@ describe(
   "JSObjects OnLoad Actions tests",
   { tags: ["@tag.PropertyPane", "@tag.JS"] },
   function () {
-    it("1. Tc 51, 52 Verify that JS editor function has a settings button available for functions marked async", () => {
+    it("1. Tc 51, 52 Verify that JS editor function has a settings button available for functions", () => {
       jsEditor.CreateJSObject(
         `export default {
         myVar1: [],
@@ -34,16 +34,22 @@ describe(
         },
       );
 
-      jsEditor.VerifyAsyncFuncSettings("myFun2", false, false);
-      jsEditor.VerifyAsyncFuncSettings("myFun3", false, false);
-      jsEditor.VerifyAsyncFuncSettings("myFun4", false, false);
-      jsEditor.VerifyAsyncFuncSettings("myFun5", false, false);
-      jsEditor.VerifyAsyncFuncSettings("myFun6", false, false);
+      jsEditor.VerifyAsyncFuncSettings("myFun1", false);
+      jsEditor.VerifyAsyncFuncSettings("myFun2", false);
+      jsEditor.VerifyAsyncFuncSettings("myFun3", false);
+      jsEditor.VerifyAsyncFuncSettings("myFun4", false);
+      jsEditor.VerifyAsyncFuncSettings("myFun5", false);
+      jsEditor.VerifyAsyncFuncSettings("myFun6", false);
 
-      VerifyFunctionDropdown(
-        ["myFun1", "myFun7"],
-        ["myFun2", "myFun3", "myFun4", "myFun5", "myFun6"],
-      );
+      VerifyFunctionDropdown([
+        "myFun1",
+        "myFun7",
+        "myFun2",
+        "myFun3",
+        "myFun4",
+        "myFun5",
+        "myFun6",
+      ]);
 
       cy.get("@jsObjName").then((jsObjName) => {
         jsName = jsObjName;
@@ -59,19 +65,16 @@ describe(
       });
     });
 
-    function VerifyFunctionDropdown(
-      syncFunctions: string[],
-      asyncFunctions: string[],
-    ) {
+    function VerifyFunctionDropdown(functions: string[]) {
       cy.get(jsEditor._funcDropdown).click();
       cy.get(jsEditor._funcDropdownOptions).then(function ($ele) {
-        expect($ele.eq(0).text()).to.be.oneOf(syncFunctions);
-        expect($ele.eq(1).text()).to.be.oneOf(asyncFunctions);
-        expect($ele.eq(2).text()).to.be.oneOf(asyncFunctions);
-        expect($ele.eq(3).text()).to.be.oneOf(asyncFunctions);
-        expect($ele.eq(4).text()).to.be.oneOf(asyncFunctions);
-        expect($ele.eq(5).text()).to.be.oneOf(asyncFunctions);
-        expect($ele.eq(6).text()).to.be.oneOf(syncFunctions);
+        expect($ele.eq(0).text()).to.be.oneOf(functions);
+        expect($ele.eq(1).text()).to.be.oneOf(functions);
+        expect($ele.eq(2).text()).to.be.oneOf(functions);
+        expect($ele.eq(3).text()).to.be.oneOf(functions);
+        expect($ele.eq(4).text()).to.be.oneOf(functions);
+        expect($ele.eq(5).text()).to.be.oneOf(functions);
+        expect($ele.eq(6).text()).to.be.oneOf(functions);
       });
       cy.get(jsEditor._funcDropdown).click();
     }

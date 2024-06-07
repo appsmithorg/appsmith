@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.actuate.data.mongo.MongoReactiveHealthIndicator;
 import org.springframework.boot.actuate.data.redis.RedisReactiveHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.Status;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import reactor.core.publisher.Mono;
@@ -30,11 +29,10 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
 
     @Override
     public Mono<String> getHealth() {
-        return Mono.zip(getRedisHealth(), getMongoHealth()).map(tuple -> "All systems are Up");
+        return Mono.when(getRedisHealth(), getMongoHealth()).thenReturn("All systems are up");
     }
 
-    @Override
-    public Mono<Health> getRedisHealth() {
+    private Mono<Health> getRedisHealth() {
         Function<TimeoutException, Throwable> healthTimeout = error -> {
             log.warn("Redis health check timed out: {}", error.getMessage());
             return new AppsmithException(AppsmithError.HEALTHCHECK_TIMEOUT, "Redis");
@@ -47,8 +45,7 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
                 .onErrorMap(TimeoutException.class, healthTimeout);
     }
 
-    @Override
-    public Mono<Health> getMongoHealth() {
+    private Mono<Health> getMongoHealth() {
         Function<TimeoutException, Throwable> healthTimeout = error -> {
             log.warn("MongoDB health check timed out: {}", error.getMessage());
             return new AppsmithException(AppsmithError.HEALTHCHECK_TIMEOUT, "Mongo");
@@ -59,12 +56,5 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
                 .health()
                 .timeout(Duration.ofSeconds(1))
                 .onErrorMap(TimeoutException.class, healthTimeout);
-    }
-
-    private boolean isUp(Health health) {
-        if (Status.UP.equals(health.getStatus())) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
     }
 }

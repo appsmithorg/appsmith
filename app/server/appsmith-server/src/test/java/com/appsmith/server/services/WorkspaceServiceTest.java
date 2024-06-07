@@ -1045,7 +1045,10 @@ public class WorkspaceServiceTest {
 
         Application application = new Application();
         application.setName("User Management Admin Test Application");
-        Mono<Application> applicationMono = applicationPageService.createApplication(application, workspace1.getId());
+        Mono<Application> applicationMono = applicationPageService
+                .createApplication(application, workspace1.getId())
+                .cache();
+        final String applicationId = applicationMono.block().getId();
 
         // Create datasource for this workspace
         Mono<Datasource> datasourceMono = workspaceService
@@ -1078,7 +1081,7 @@ public class WorkspaceServiceTest {
                 .flatMap(tuple -> workspaceService.findById(workspace1.getId(), READ_WORKSPACES));
 
         Mono<Application> readApplicationByNameMono = applicationService
-                .findByName("User Management Admin Test Application", READ_APPLICATIONS)
+                .getById(applicationId)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
@@ -1202,11 +1205,14 @@ public class WorkspaceServiceTest {
                 .single();
 
         // Create an application for this workspace
-        Mono<Application> applicationMono = workspaceMono.flatMap(workspace1 -> {
-            Application application = new Application();
-            application.setName("User Management Viewer Test Application");
-            return applicationPageService.createApplication(application, workspace1.getId());
-        });
+        Mono<Application> applicationMono = workspaceMono
+                .flatMap(workspace1 -> {
+                    Application application = new Application();
+                    application.setName("User Management Viewer Test Application");
+                    return applicationPageService.createApplication(application, workspace1.getId());
+                })
+                .cache();
+        final String applicationId = applicationMono.block().getId();
 
         Mono<Workspace> userAddedToWorkspaceMono = Mono.zip(workspaceMono, viewerPermissionGroupMono)
                 .flatMap(tuple -> {
@@ -1229,7 +1235,7 @@ public class WorkspaceServiceTest {
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService
-                .findByName("User Management Viewer Test Application", READ_APPLICATIONS)
+                .getById(applicationId)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 

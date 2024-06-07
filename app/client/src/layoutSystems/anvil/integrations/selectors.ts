@@ -1,5 +1,18 @@
 import type { AppState } from "@appsmith/reducers";
 import { LayoutComponentTypes, type LayoutProps } from "../utils/anvilTypes";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+
+export const getIsAnvilLayoutEnabled = (state: AppState) => {
+  return selectFeatureFlagCheck(state, FEATURE_FLAG.release_anvil_enabled);
+};
+
+export const getIsAnvilLayout = (state: AppState) => {
+  const layoutSystemType = getLayoutSystemType(state);
+  return layoutSystemType === LayoutSystemTypes.ANVIL;
+};
 
 // ToDo: This is a placeholder implementation this is bound to change
 export function getDropTargetLayoutId(state: AppState, canvasId: string) {
@@ -11,7 +24,11 @@ export function getDropTargetLayoutId(state: AppState, canvasId: string) {
  * Returns a boolean indicating if space distribution is in progress
  */
 export function getAnvilSpaceDistributionStatus(state: AppState) {
-  return state.ui.widgetDragResize.anvil.isDistributingSpace;
+  return state.ui.widgetDragResize.anvil.spaceDistribution.isDistributingSpace;
+}
+
+export function getWidgetsDistributingSpace(state: AppState) {
+  return state.ui.widgetDragResize.anvil.spaceDistribution.widgetsEffected;
 }
 
 /**

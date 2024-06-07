@@ -24,7 +24,7 @@ import history from "utils/history";
 import { curlImportPageURL } from "@appsmith/RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Icon } from "design-system";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 import {

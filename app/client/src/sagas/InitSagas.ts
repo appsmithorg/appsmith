@@ -62,7 +62,7 @@ import {
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "../entities/App";
 import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { deleteErrorLog } from "actions/debuggerActions";
@@ -77,15 +77,12 @@ import { embedRedirectURL, validateResponse } from "./ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import type { ProductAlert } from "reducers/uiReducers/usersReducer";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import type { Action, ActionViewMode } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
 import type { AppTheme } from "entities/AppTheming";
 import type { Datasource } from "entities/Datasource";
 import type { Plugin, PluginFormPayload } from "api/PluginApi";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { fetchFeatureFlags } from "@appsmith/sagas/userSagas";
 import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
 import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
 
@@ -189,15 +186,7 @@ export function* reportSWStatus() {
     });
   }
 }
-function* isConsolidatedFetchFeatureFlagEnabled() {
-  yield call(fetchFeatureFlags);
 
-  const consolidatedApiFetch: boolean = yield select(
-    selectFeatureFlagCheck,
-    FEATURE_FLAG.rollout_consolidated_page_load_fetch_enabled,
-  );
-  return consolidatedApiFetch;
-}
 function* executeActionDuringUserDetailsInitialisation(
   actionType: string,
   shouldInitialiseUserDetails?: boolean,
@@ -228,53 +217,46 @@ export function* getInitResponses({
     identity,
   );
   let response: InitConsolidatedApi | undefined;
+  try {
+    yield call(
+      executeActionDuringUserDetailsInitialisation,
+      ReduxActionTypes.START_CONSOLIDATED_PAGE_LOAD,
+      shouldInitialiseUserDetails,
+    );
 
-  const isConsolidatedApiFetchEnabled = yield call(
-    isConsolidatedFetchFeatureFlagEnabled,
-  );
+    const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
+      yield mode === APP_MODE.EDIT
+        ? ConsolidatedPageLoadApi.getConsolidatedPageLoadDataEdit(params)
+        : ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
 
-  if (!!isConsolidatedApiFetchEnabled) {
-    try {
-      yield call(
-        executeActionDuringUserDetailsInitialisation,
-        ReduxActionTypes.START_CONSOLIDATED_PAGE_LOAD,
-        shouldInitialiseUserDetails,
-      );
+    const isValidResponse: boolean = yield validateResponse(
+      initConsolidatedApiResponse,
+    );
+    response = initConsolidatedApiResponse.data;
 
-      const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
-        yield mode === APP_MODE.EDIT
-          ? ConsolidatedPageLoadApi.getConsolidatedPageLoadDataEdit(params)
-          : ConsolidatedPageLoadApi.getConsolidatedPageLoadDataView(params);
-
-      const isValidResponse: boolean = yield validateResponse(
-        initConsolidatedApiResponse,
-      );
-      response = initConsolidatedApiResponse.data;
-
-      if (!isValidResponse) {
-        // its only invalid when there is a axios related error
-        throw new Error("Error occured " + axiosConnectionAbortedCode);
-      }
-    } catch (e: any) {
-      // when the user is an anonymous user we embed the url with the attempted route
-      // this is taken care in ce code repo but not on ee
-      if (e?.response?.status === 401) {
-        embedRedirectURL();
-      }
-
-      yield call(
-        executeActionDuringUserDetailsInitialisation,
-        ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
-        shouldInitialiseUserDetails,
-      );
-
-      Sentry.captureMessage(
-        `consolidated api failure for mode=${mode} ${JSON.stringify(
-          params,
-        )} errored message response ${e}`,
-      );
-      throw new PageNotFoundError(`Cannot find page with id: ${pageId}`);
+    if (!isValidResponse) {
+      // its only invalid when there is a axios related error
+      throw new Error("Error occured " + axiosConnectionAbortedCode);
     }
+  } catch (e: any) {
+    // when the user is an anonymous user we embed the url with the attempted route
+    // this is taken care in ce code repo but not on ee
+    if (e?.response?.status === 401) {
+      embedRedirectURL();
+    }
+
+    yield call(
+      executeActionDuringUserDetailsInitialisation,
+      ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
+      shouldInitialiseUserDetails,
+    );
+
+    Sentry.captureMessage(
+      `consolidated api failure for ${JSON.stringify(
+        params,
+      )} errored message response ${e}`,
+    );
+    throw new PageNotFoundError(`Cannot find page with id: ${pageId}`);
   }
 
   const { featureFlags, productAlert, tenantConfig, userProfile, ...rest } =
@@ -287,11 +269,8 @@ export function* getInitResponses({
   }
 
   yield put(getCurrentUser(userProfile));
-  // we already fetch this feature flag when isConsolidatedApiFetchEnabled is true
-  // do not fetch this again
-  if (isConsolidatedApiFetchEnabled) {
-    yield put(fetchFeatureFlagsInit(featureFlags));
-  }
+
+  yield put(fetchFeatureFlagsInit(featureFlags));
 
   yield put(getCurrentTenant(false, tenantConfig));
 
@@ -315,6 +294,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     const allResponses: InitConsolidatedApi = yield call(getInitResponses, {
       ...action.payload,
     });
+    yield put({ type: ReduxActionTypes.LINT_SETUP });
     const { applicationId, toLoadPageId } = yield call(
       engine.loadAppData,
       action.payload,

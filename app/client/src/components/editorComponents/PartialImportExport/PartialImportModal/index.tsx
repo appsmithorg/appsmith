@@ -1,4 +1,7 @@
-import { importPartialApplication } from "@appsmith/actions/applicationActions";
+import {
+  importPartialApplication,
+  openPartialImportModal,
+} from "@appsmith/actions/applicationActions";
 import {
   IMPORT_APP_FROM_FILE_MESSAGE,
   IMPORT_APP_FROM_FILE_TITLE,
@@ -130,13 +133,7 @@ const StatusbarWrapper = styled.div`
   }
 `;
 
-interface PartialImportModalProps {
-  isModalOpen?: boolean;
-  onClose?: () => void;
-}
-
-function PartialImportModal(props: PartialImportModalProps) {
-  const { isModalOpen, onClose } = props;
+export function PartialImportModal() {
   const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
     file: File;
     setProgress: SetProgress;
@@ -170,11 +167,15 @@ function PartialImportModal(props: PartialImportModalProps) {
     [],
   );
 
+  const handleClose = () => {
+    dispatch(openPartialImportModal(false));
+  };
+
   useEffect(() => {
     // finished of importing application
     if (appFileToBeUploaded && partialImportExportLoadingState.isImportDone) {
       setAppFileToBeUploaded(null);
-      onClose && onClose();
+      handleClose();
     }
   }, [appFileToBeUploaded, partialImportExportLoadingState]);
 
@@ -182,12 +183,15 @@ function PartialImportModal(props: PartialImportModalProps) {
 
   const handleModalClose = (open: boolean) => {
     if (!open) {
-      onClose && onClose();
+      handleClose();
     }
   };
 
   return (
-    <Modal onOpenChange={handleModalClose} open={isModalOpen}>
+    <Modal
+      onOpenChange={handleModalClose}
+      open={partialImportExportLoadingState.isImportModalOpen}
+    >
       <ModalContent
         className={"t--import-application-modal"}
         data-testid="t--partialImportModal"
@@ -246,5 +250,3 @@ function PartialImportModal(props: PartialImportModalProps) {
     </Modal>
   );
 }
-
-export default PartialImportModal;

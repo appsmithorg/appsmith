@@ -1,8 +1,10 @@
 import { getWidgetSelector } from "../../../../locators/WidgetLocators";
+import { locators } from "../../../../support/Objects/ObjectsCore";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("JSObject testing", { tags: ["@tag.JS"] }, () => {
   before(() => {
@@ -128,6 +130,7 @@ describe("JSObject testing", { tags: ["@tag.JS"] }, () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
+    _.agHelper.GetNAssertContains(locators._selectionItem, "getData");
     _.jsEditor.SelectFunctionDropdown("myFun1");
     _.jsEditor.RunJSObj();
     EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);

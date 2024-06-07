@@ -879,7 +879,7 @@
                 "value": "RAW"
               }
             ],
-            "label": "Commands",
+            "label": "Command",
             "description": "Choose method you would like to use to query the database",
             "configProperty": "actionConfiguration.formData.command",
             "controlType": "DROP_DOWN",
@@ -2208,7 +2208,7 @@
                 "value": "DELETE_FILE"
               }
             ],
-            "label": "Commands",
+            "label": "Command",
             "description": "Choose method you would like to use",
             "configProperty": "actionConfiguration.formData.command",
             "controlType": "DROP_DOWN",

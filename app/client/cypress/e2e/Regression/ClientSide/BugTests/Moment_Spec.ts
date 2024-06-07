@@ -2,6 +2,7 @@ import {
   agHelper,
   appSettings,
   dataSources,
+  debuggerHelper,
   deployMode,
   entityExplorer,
   entityItems,
@@ -118,7 +119,15 @@ describe(
     after(
       "Verify Deletion of the datasource after all created queries are deleted",
       () => {
-        deployMode.NavigateBacktoEditor("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
+        deployMode.NavigateBacktoEditor();
+
+        //verify runAstros triggered on PageLaoad of Edit page!
+        debuggerHelper.ClickDebuggerIcon();
+        debuggerHelper.ClickLogsTab();
+        debuggerHelper.DebuggerLogsFilter("JSObject1.runAstros");
+        debuggerHelper.DoesConsoleLogExist("JS Function executed successfully");
+        debuggerHelper.CloseBottomBar();
+
         PageLeftPane.switchSegment(PagePaneSegment.JS);
         entityExplorer.ActionContextMenuByEntityName({
           entityNameinLeftSidebar: "JSObject1",

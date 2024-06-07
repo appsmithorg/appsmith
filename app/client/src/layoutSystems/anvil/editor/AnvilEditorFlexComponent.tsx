@@ -7,6 +7,7 @@ import { useAnvilWidgetStyles } from "./hooks/useAnvilWidgetStyles";
 import { useAnvilWidgetClick } from "./hooks/useAnvilWidgetClick";
 import { useAnvilWidgetDrag } from "./hooks/useAnvilWidgetDrag";
 import { useAnvilWidgetHover } from "./hooks/useAnvilWidgetHover";
+import styles from "./styles.module.css";
 
 export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
   // Create a ref for the AnvilFlexComponent
@@ -21,7 +22,8 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
         props.widgetType,
       )} t--widget-${props.widgetName.toLowerCase()} drop-target-${
         props.layoutId
-      } row-index-${props.rowIndex}`,
+      } row-index-${props.rowIndex} 
+      ${styles.disableAnvilWidgetInteraction}`,
     [
       props.parentId,
       props.widgetId,
@@ -40,8 +42,15 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
   );
 
   // Use custom hooks to manage styles, click, drag, and hover behavior exclusive for Edit mode
-  useAnvilWidgetStyles(props.widgetId, props.widgetName, props.isVisible, ref);
-  useAnvilWidgetDrag(props.widgetId, props.layoutId, ref);
+  useAnvilWidgetStyles(
+    props.widgetId,
+    props.widgetName,
+    props.isVisible,
+    props.widgetType,
+    !!props.elevatedBackground,
+    ref,
+  );
+  useAnvilWidgetDrag(props.widgetId, props.widgetType, props.layoutId, ref);
   useAnvilWidgetHover(props.widgetId, ref);
   // Note: For some reason native click callback listeners are somehow hindering with events required for toggle-able widgets like checkbox, switch, etc.
   // Hence supplying click and click capture callbacks to the AnvilFlexComponent

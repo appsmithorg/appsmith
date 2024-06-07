@@ -5,7 +5,7 @@ import {
 } from "@appsmith/constants/messages";
 import React, { useCallback, useState } from "react";
 import { Space } from "pages/Editor/gitSync/components/StyledComponents";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useSSHKeyPair } from "../../hooks";
 import {
   DeployedKeyContainer,

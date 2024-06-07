@@ -1,7 +1,6 @@
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AnvilReduxActionTypes } from "../integrations/actions/actionTypes";
 import {
   getMouseSpeedTrackingCallback,
   getPropertyPaneZoneId,
@@ -10,6 +9,7 @@ import {
   resetDistributionHandleCSS,
   getPropertyPaneDistributionHandleId,
   convertFlexGrowToFlexBasis,
+  convertFlexGrowToFlexBasisForPropPane,
 } from "./utils/spaceDistributionEditorUtils";
 import { PropPaneDistributionHandleCustomEvent } from "./constants";
 import { getSelectedWidgets } from "selectors/ui";
@@ -20,6 +20,11 @@ import {
   updateWidgetCSSOnHandleMove,
   updateWidgetCSSOnMinimumLimit,
 } from "./utils/onMouseMoveUtils";
+import {
+  startAnvilSpaceDistributionAction,
+  stopAnvilSpaceDistributionAction,
+  updateSpaceDistributionAction,
+} from "./actions";
 
 interface SpaceDistributionEventsProps {
   ref: React.RefObject<HTMLDivElement>;
@@ -53,16 +58,19 @@ export const useSpaceDistributionEvents = ({
     getMouseSpeedTrackingCallback(currentMouseSpeed);
   const selectedWidgets = useSelector(getSelectedWidgets);
   const { selectWidget } = useWidgetSelection();
+  const onSpaceDistributionStart = useCallback(() => {
+    dispatch(
+      startAnvilSpaceDistributionAction({
+        section: sectionWidgetId,
+        zones: zoneIds,
+      }),
+    );
+  }, [sectionWidgetId, zoneIds]);
   const selectCorrespondingSectionWidget = useCallback(() => {
-    if (
-      !(
-        selectedWidgets.includes(sectionWidgetId) ||
-        zoneIds.some((each) => selectedWidgets.includes(each))
-      )
-    ) {
+    if (!selectedWidgets.includes(sectionWidgetId)) {
       selectWidget(SelectionRequestType.One, [sectionWidgetId]);
     }
-  }, [sectionWidgetId, selectedWidgets, zoneIds]);
+  }, [sectionWidgetId, selectedWidgets]);
   useEffect(() => {
     if (ref.current) {
       // Check if the ref to the DOM element exists
@@ -116,7 +124,8 @@ export const useSpaceDistributionEvents = ({
             zoneDom.style.flexBasis = convertFlexGrowToFlexBasis(flexGrow);
           }
           if (zonePropDom) {
-            zonePropDom.style.flexBasis = convertFlexGrowToFlexBasis(flexGrow);
+            zonePropDom.style.flexBasis =
+              convertFlexGrowToFlexBasisForPropPane(flexGrow);
           }
         });
 
@@ -141,21 +150,15 @@ export const useSpaceDistributionEvents = ({
           currentFlexGrow.rightZone !== currentGrowthFactor.rightZone
         ) {
           // Dispatch action to update space distribution
-          dispatch({
-            type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_UPDATE,
-            payload: {
-              zonesDistributed: {
-                [leftZone]: currentGrowthFactor.leftZone,
-                [rightZone]: currentGrowthFactor.rightZone,
-              },
-              sectionLayoutId,
-            },
-          });
+          dispatch(
+            updateSpaceDistributionAction(sectionWidgetId, {
+              [leftZone]: currentGrowthFactor.leftZone,
+              [rightZone]: currentGrowthFactor.rightZone,
+            }),
+          );
         }
         // Stop space distribution process
-        dispatch({
-          type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP,
-        });
+        dispatch(stopAnvilSpaceDistributionAction());
         resetCSSOnZones(spaceDistributed);
         removeMouseMoveHandlers();
         currentMouseSpeed.current = 0;
@@ -194,9 +197,7 @@ export const useSpaceDistributionEvents = ({
         e.preventDefault();
         x = e.clientX; // Store the initial mouse position
         isCurrentHandleDistributingSpace.current = true; // Set distribution flag
-        dispatch({
-          type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_START,
-        });
+        onSpaceDistributionStart();
         addMouseMoveHandlers();
       };
 
@@ -329,5 +330,6 @@ export const useSpaceDistributionEvents = ({
     sectionWidgetId,
     spaceDistributed,
     spaceToWorkWith,
+    onSpaceDistributionStart,
   ]);
 };

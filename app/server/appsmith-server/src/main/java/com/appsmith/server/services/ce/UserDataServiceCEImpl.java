@@ -300,7 +300,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         }
         // keeping the last maxSize ids, there may be a lot of ids which are not used anymore
         if (srcIdList.size() > maxSize) {
-            srcIdList = srcIdList.subList(0, maxSize);
+            srcIdList.subList(maxSize, srcIdList.size()).clear();
         }
         return srcIdList;
     }
@@ -331,7 +331,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
         // keeping the last maxSize ids, there may be a lot of ids which are not used anymore
         if (srcIdList.size() > maxSize) {
-            srcIdList = srcIdList.subList(0, maxSize);
+            srcIdList.subList(maxSize, srcIdList.size()).clear();
         }
         return srcIdList;
     }
@@ -348,13 +348,13 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
      * @return update result obtained from DB
      */
     @Override
-    public Mono<Void> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
+    public Mono<Void> removeRecentWorkspaceAndChildEntities(String userId, String workspaceId) {
 
         return applicationRepository
                 .findIdsByWorkspaceId(workspaceId)
                 .map(IdOnly::id)
                 .collectList()
-                .flatMap(appIdsList -> repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
+                .flatMap(appIdsList -> repository.removeEntitiesFromRecentlyUsedList(userId, workspaceId));
     }
 
     /**

@@ -1,21 +1,22 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.constants.MigrationStatus;
 import com.appsmith.server.domains.License;
 import com.appsmith.server.domains.TenantConfiguration;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import org.apache.commons.lang3.ObjectUtils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Data
-public class TenantConfigurationCE {
+public class TenantConfigurationCE implements Serializable {
 
     private String googleMapsKey;
 
@@ -53,6 +54,8 @@ public class TenantConfigurationCE {
 
     Boolean isStrongPasswordPolicyEnabled;
 
+    private Boolean isAtomicPushAllowed;
+
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
             thirdPartyAuths = new ArrayList<>();
@@ -77,6 +80,7 @@ public class TenantConfigurationCE {
         featuresWithPendingMigration = tenantConfiguration.getFeaturesWithPendingMigration();
         migrationStatus = tenantConfiguration.getMigrationStatus();
         isStrongPasswordPolicyEnabled = tenantConfiguration.getIsStrongPasswordPolicyEnabled();
+        isAtomicPushAllowed = tenantConfiguration.getIsAtomicPushAllowed();
     }
 
     public Boolean isEmailVerificationEnabled() {

@@ -12,9 +12,11 @@ const DistributionHandle = styled.div`
   cursor: col-resize;
   user-select: none;
   -webkit-user-select: none;
-  &:hover,
+  &:hover {
+    background: var(--space-distribution-handle-bg);
+  }
   &.active {
-    background: var(--ads-v2-color-bg-brand);
+    background: var(--space-distribution-handle-active-bg);
   }
 `;
 

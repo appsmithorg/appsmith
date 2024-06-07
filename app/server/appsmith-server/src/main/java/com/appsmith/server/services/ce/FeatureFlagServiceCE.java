@@ -1,8 +1,8 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.featureflags.CachedFeatures;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;

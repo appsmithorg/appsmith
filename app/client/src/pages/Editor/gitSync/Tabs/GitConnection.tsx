@@ -68,7 +68,7 @@ import {
   ModalBody,
   ModalFooter,
 } from "design-system";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { GIT_DOC_URLs, isValidGitRemoteUrl } from "../utils";
 import { useGitConnect, useSSHKeyPair } from "../hooks";
 
@@ -498,8 +498,8 @@ function GitConnection({ isImport }: Props) {
             {isImport
               ? createMessage(IMPORT_BTN_LABEL)
               : isGitConnected
-              ? createMessage(UPDATE_CONFIG)
-              : createMessage(CONNECT_BTN_LABEL)}
+                ? createMessage(UPDATE_CONFIG)
+                : createMessage(CONNECT_BTN_LABEL)}
           </Button>
         ) : null}
       </ModalFooter>

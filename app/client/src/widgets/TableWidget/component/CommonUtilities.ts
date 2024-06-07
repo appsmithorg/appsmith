@@ -25,16 +25,16 @@ export function sortTableFunction(
                 ? 1
                 : -1
               : Number(b[sortedColumn]) > Number(a[sortedColumn])
-              ? 1
-              : -1;
+                ? 1
+                : -1;
           case ColumnTypes.DATE:
             return sortOrder
               ? moment(a[sortedColumn]).isAfter(b[sortedColumn])
                 ? 1
                 : -1
               : moment(b[sortedColumn]).isAfter(a[sortedColumn])
-              ? 1
-              : -1;
+                ? 1
+                : -1;
           default:
             return sortOrder
               ? a[sortedColumn].toString().toUpperCase() >
@@ -42,9 +42,9 @@ export function sortTableFunction(
                 ? 1
                 : -1
               : b[sortedColumn].toString().toUpperCase() >
-                a[sortedColumn].toString().toUpperCase()
-              ? 1
-              : -1;
+                  a[sortedColumn].toString().toUpperCase()
+                ? 1
+                : -1;
         }
       } else {
         return sortOrder ? 1 : 0;

@@ -95,12 +95,12 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
       cy.go(-1);
-      cy.stubPricingPage();
+      cy.stubCustomerPortalPage();
       cy.get(adminsSettings.branding).click();
       cy.url().should("contain", adminSettingsHelper.routes.BRANDING);
       cy.get(adminsSettings.brandingSubmitButton).should("be.disabled");
-      cy.xpath(adminsSettings.upgrade).click();
-      cy.get("@pricingPage").should("be.called");
+      agHelper.GetNClick(adminsSettings.upgrade);
+      cy.get("@customerPortalPage").should("be.called");
       cy.wait(2000);
       cy.go(-1);
     }
@@ -119,11 +119,14 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       });
       cy.get(adminsSettings.accessControl).click();
       cy.url().should("contain", adminSettingsHelper.routes.ACCESS_CONTROL);
-      cy.stubPricingPage();
-      cy.xpath(adminsSettings.upgrade).click();
-      cy.get("@pricingPage").should("be.called");
+      cy.stubCustomerPortalPage();
+      agHelper.GetNClick(adminsSettings.upgrade);
+      cy.get("@customerPortalPage").should("be.called");
       cy.wait(2000);
-      cy.go(-1);
+      agHelper.VisitNAssert(
+        adminSettingsHelper.routes.GENERAL,
+        "getEnvVariables",
+      );
       cy.get(adminsSettings.auditLogs).within(() => {
         cy.get(adminsSettings.businessTag)
           .should("exist")
@@ -131,11 +134,14 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       });
       cy.get(adminsSettings.auditLogs).click();
       cy.url().should("contain", adminSettingsHelper.routes.AUDIT_LOGS);
-      cy.stubPricingPage();
-      cy.xpath(adminsSettings.upgrade).click();
-      cy.get("@pricingPage").should("be.called");
+      cy.stubCustomerPortalPage();
+      agHelper.GetNClick(adminsSettings.upgrade);
+      cy.get("@customerPortalPage").should("be.called");
       cy.wait(2000);
-      cy.go(-1);
+      agHelper.VisitNAssert(
+        adminSettingsHelper.routes.GENERAL,
+        "getEnvVariables",
+      );
       cy.get(adminsSettings.provisioning).within(() => {
         cy.get(adminsSettings.enterpriseTag)
           .should("exist")
@@ -144,7 +150,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       cy.get(adminsSettings.provisioning).click();
       cy.url().should("contain", adminSettingsHelper.routes.PROVISIONING);
       cy.stubPricingPage();
-      cy.xpath(adminsSettings.upgrade).click();
+      agHelper.GetNClick(adminsSettings.upgrade);
       cy.get("@pricingPage").should("be.called");
       cy.wait(2000);
       cy.go(-1);

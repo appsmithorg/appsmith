@@ -497,8 +497,8 @@ function getCollisionTreeHelper(
       (accessors.isHorizontal
         ? HORIZONTAL_RESIZE_MIN_LIMIT
         : collidingSpace.fixedHeight && accessors.directionIndicator < 0
-        ? collidingSpace.fixedHeight
-        : VERTICAL_RESIZE_MIN_LIMIT),
+          ? collidingSpace.fixedHeight
+          : VERTICAL_RESIZE_MIN_LIMIT),
   };
 }
 
@@ -769,8 +769,8 @@ function getMovementMapHelper(
       (accessors.isHorizontal
         ? HORIZONTAL_RESIZE_MIN_LIMIT
         : collisionTree.fixedHeight && accessors.directionIndicator < 0
-        ? collisionTree.fixedHeight
-        : VERTICAL_RESIZE_MIN_LIMIT),
+          ? collisionTree.fixedHeight
+          : VERTICAL_RESIZE_MIN_LIMIT),
     currentEmptySpaces,
   };
 }

@@ -2,7 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
 import { builderURL, generateTemplateFormURL } from "@appsmith/RouteBuilder";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { Link } from "design-system";

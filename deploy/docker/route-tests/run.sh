@@ -18,7 +18,7 @@ docker run \
   --name ar \
   --rm \
   "${args[@]}" \
-  -e OPEN_SHELL=${OPEN_SHELL-} \
+  -e OPEN_SHELL="${OPEN_SHELL-}" \
   --volume "$(dirname "$PWD")/fs/opt/appsmith/caddy-reconfigure.mjs:/caddy-reconfigure.mjs:ro" \
   --volume ".:/code:ro" \
   ar

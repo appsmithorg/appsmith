@@ -22,9 +22,8 @@ import {
 } from "@appsmith/constants/messages";
 import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
-import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { toast } from "design-system";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   MIGRATION_STATUS,
   RESTART_POLL_INTERVAL,
@@ -116,8 +115,6 @@ export function* SaveAdminSettingsSaga(
       yield put({
         type: ReduxActionTypes.SAVE_ADMIN_SETTINGS_SUCCESS,
       });
-
-      yield put(getCurrentTenant());
 
       yield put({
         type: ReduxActionTypes.FETCH_ADMIN_SETTINGS_SUCCESS,

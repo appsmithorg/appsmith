@@ -32,7 +32,7 @@ import {
 } from "sagas/InitSagas";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import history from "utils/history";
 import PerformanceTracker, {
   PerformanceTransactionName,

@@ -8,12 +8,13 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.UQIDataFilterParams;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.types.ObjectId;
 import org.h2.jdbc.JdbcSQLSyntaxErrorException;
 import org.springframework.util.CollectionUtils;
 
@@ -97,7 +98,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
     public FilterDataServiceCE() {
 
-        objectMapper = new ObjectMapper();
+        objectMapper = SerializationUtils.getObjectMapperWithSourceInLocationEnabled();
 
         try {
             connection = DriverManager.getConnection(URL);
@@ -530,7 +531,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
     public String generateTable(Map<String, DataType> schema) {
 
         // Generate table name
-        String generateUniqueId = new ObjectId().toString().toUpperCase();
+        String generateUniqueId = RandomStringUtils.randomAlphabetic(16).toUpperCase();
 
         // Appending tbl_ before the generated unique id since using the string directly was throwing a SQL error
         // which I couldnt solve. Just appending a string to it though works perfectly.

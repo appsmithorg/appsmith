@@ -1,10 +1,10 @@
 package com.appsmith.server.helpers.ce;
 
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.featureflags.CachedFeatures;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import com.appsmith.server.solutions.ce.ScheduledTaskCEImpl;

@@ -265,10 +265,6 @@ public class ResponseUtilsCE {
             actionDto.setCollectionId(defaultResourceIds.getCollectionId());
             this.updateActionDTOWithDefaultResources(actionDto);
         });
-        collection.getArchivedActions().forEach(actionDto -> {
-            actionDto.setCollectionId(defaultResourceIds.getCollectionId());
-            this.updateActionDTOWithDefaultResources(actionDto);
-        });
 
         return collection;
     }
@@ -299,8 +295,8 @@ public class ResponseUtilsCE {
 
     public Application updateApplicationWithDefaultResources(Application application) {
         if (application.getGitApplicationMetadata() != null
-                && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultApplicationId())) {
-            application.setId(application.getGitApplicationMetadata().getDefaultApplicationId());
+                && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultArtifactId())) {
+            application.setId(application.getGitApplicationMetadata().getDefaultArtifactId());
         }
         if (!CollectionUtils.isEmpty(application.getPages())) {
             application.getPages().forEach(page -> {

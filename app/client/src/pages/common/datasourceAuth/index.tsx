@@ -10,7 +10,7 @@ import {
   toggleSaveActionFlag,
   updateDatasourceAuthState,
 } from "actions/datasourceActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation, useHistory } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
@@ -121,6 +121,7 @@ const SaveButtonContainer = styled.div<{
   border-color: var(--ads-v2-color-border);
   align-items: center;
   height: 68px;
+  flex-shrink: ${(props) => (props.isInsideReconnectModal ? "unset" : "0")};
 `;
 
 const StyledAuthMessage = styled.div`

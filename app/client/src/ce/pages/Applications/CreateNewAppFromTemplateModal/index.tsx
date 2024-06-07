@@ -33,7 +33,7 @@ import {
   templatesCountSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { StartWithTemplatesHeader } from "../StartWithTemplatesWrapper";
 
 interface CreateNewAppFromTemplatesModalProps {

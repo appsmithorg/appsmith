@@ -60,7 +60,7 @@
                   "topRow": 6.0,
                   "bottomRow": 38.0,
                   "parentRowSpace": 10.0,
-                  "source": "https://www.example.com",
+                  "source": "http://host.docker.internal:8000/a.txt",
                   "type": "IFRAME_WIDGET",
                   "hideCard": false,
                   "borderOpacity": 100.0,

@@ -346,7 +346,7 @@ export function updateHighlights(
   isLastHighlight: boolean,
   hasAlignments: boolean,
   hasFillWidget?: boolean,
-  emptyLayout = false,
+  isCurrentLayoutEmpty = false,
   isInitialHighlight = false,
 ): AnvilHighlightInfo[] {
   let updatedHighlights: AnvilHighlightInfo[] = arr;
@@ -377,7 +377,7 @@ export function updateHighlights(
     isLastHighlight,
     hasAlignments,
     hasFillWidget,
-    emptyLayout,
+    isCurrentLayoutEmpty,
     isInitialHighlight,
   );
   /**
@@ -404,21 +404,21 @@ export function generateHighlights(
   isLastHighlight: boolean,
   hasAlignments: boolean,
   hasFillWidget = false,
-  emptyLayout = false,
+  isCurrentLayoutEmpty = false,
   isInitialHighlight = false,
 ): AnvilHighlightInfo[] {
+  const renderHorizontalHighlights = hasFillWidget || !hasAlignments;
   /**
    * If dragged widgets include a Fill widget,
    * then show a single highlight with start alignment.
    */
-  const arr =
-    hasFillWidget || !hasAlignments
-      ? [FlexLayerAlignment.Start]
-      : [
-          FlexLayerAlignment.Start,
-          FlexLayerAlignment.Center,
-          FlexLayerAlignment.End,
-        ];
+  const arr = renderHorizontalHighlights
+    ? [FlexLayerAlignment.Start]
+    : [
+        FlexLayerAlignment.Start,
+        FlexLayerAlignment.Center,
+        FlexLayerAlignment.End,
+      ];
   /**
    * For fill widget => single highlight spanning the total width.
    * For hug widget => 3 highlights, one for each alignment. width / 3.
@@ -426,14 +426,16 @@ export function generateHighlights(
   const width: number = layoutDimension.width / arr.length;
 
   const isFirstHighlight: boolean = rowIndex === 0;
-
   let posY = 0;
-  if (isLastHighlight) {
-    if (isFirstHighlight) {
-      // Position values are relative to the MainCanvas. Hence it is important to deduct parent's position from widget's to get a position that is relative to the parent widget.
+  const emptyLayout = isFirstHighlight && isLastHighlight;
+  let gap = 0;
+  switch (true) {
+    case emptyLayout:
+    case isFirstHighlight:
       posY = Math.max(currentDimension.top - layoutDimension.top, 0);
-    } else {
-      const gap: number =
+      break;
+    case isLastHighlight:
+      gap =
         layoutDimension.top +
         layoutDimension.height -
         currentDimension.top -
@@ -446,15 +448,17 @@ export function generateHighlights(
           HIGHLIGHT_SIZE / 2, // In the middle of the gap between the last child and the bottom edge of the layout.
         layoutDimension.top + layoutDimension.height - HIGHLIGHT_SIZE, // Along the bottom edge of the layout.
       );
-    }
-  } else {
-    const gap: number = prevDimension
-      ? currentDimension.top - (prevDimension.top + prevDimension.height)
-      : HIGHLIGHT_SIZE;
-    posY = Math.max(
-      currentDimension.top - gap / 2 - HIGHLIGHT_SIZE / 2,
-      HIGHLIGHT_SIZE / 2,
-    );
+      break;
+    default:
+      gap =
+        prevDimension && !isCurrentLayoutEmpty
+          ? currentDimension.top - (prevDimension.top + prevDimension.height)
+          : 0;
+      posY = Math.max(
+        currentDimension.top - gap / 2 - HIGHLIGHT_SIZE / 2,
+        HIGHLIGHT_SIZE / 2,
+      );
+      break;
   }
   return arr.map((alignment: FlexLayerAlignment, index: number) => ({
     ...baseHighlight,
@@ -463,7 +467,13 @@ export function generateHighlights(
     posY,
     rowIndex,
     width,
-    ...(emptyLayout && !hasFillWidget
+    edgeDetails: {
+      top: isFirstHighlight,
+      bottom: isLastHighlight,
+      left: width * index === 0,
+      right: width * (index + 1) === layoutDimension.width,
+    },
+    ...(isCurrentLayoutEmpty && !hasFillWidget
       ? {
           isVertical: true,
           height: isInitialHighlight

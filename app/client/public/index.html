@@ -22,6 +22,7 @@
         // could return either boolean or string based on value
         const parseConfig = (config) => {
           if (
+            (config.startsWith("{") && config.startsWith("}")) ||
             config.indexOf("__") === 0 ||
             config.indexOf("$") === 0 ||
             config.indexOf("%") === 0
@@ -37,32 +38,9 @@
 
           return result;
         };
-        const CLOUD_HOSTING = parseConfig("__APPSMITH_CLOUD_HOSTING__");
-        const ZIPY_KEY = parseConfig("__APPSMITH_ZIPY_SDK_KEY__");
-        const AIRGAPPED = parseConfig("__APPSMITH_AIRGAP_ENABLED__");
-        // NREUM variable is required when we are we are are dynamically loading new relic browser agent script
-        NREUM = undefined
-      </script>
-      <script>
-
-        const enableNewRelic=parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ENABLE__");
-      //only when newRelic is enabled do we load the browser agent script
-      if (!!enableNewRelic) {
-          const accountId = parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ID__");
-          const applicationId = parseConfig("__APPSMITH_NEW_RELIC_APPLICATION_ID__");
-          const browserAgentlicenseKey = parseConfig("__APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY__");
-          const script = document.createElement("script");
-          //we load the new relic browser agent script from our CDN.
-          script.src = "https://assets.appsmith.com/newRelicBrowserAgent1.js";
-          script.onload = () => {
-            // we have defined and init function within the Browser agent script.
-            // This init fn gets assigned to a global var called NEW_RELIC_BROWSER_AGENT, when the script tag element loads
-            // we call the init fn with all env vars. Through this step browser agent has the required license key to push telemetry info to new relic.
-            NEW_RELIC_BROWSER_AGENT && NEW_RELIC_BROWSER_AGENT.init([accountId,applicationId,browserAgentlicenseKey]);
-          };
-          const head = document.getElementsByTagName("head")[0];
-          head && head.appendChild(script);
-        }
+        const CLOUD_HOSTING = parseConfig('{{env "APPSMITH_CLOUD_HOSTING"}}');
+        const ZIPY_KEY = parseConfig('{{env "APPSMITH_ZIPY_SDK_KEY"}}');
+        const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
       </script>
     <script>
         window.__APPSMITH_CHUNKS_TO_PRELOAD =
@@ -98,7 +76,7 @@
         head && head.appendChild(script);
       }
 
-    
+
     </script>
   </head>
 
@@ -182,13 +160,13 @@
     <script type="text/javascript">
       const LOG_LEVELS = ["debug", "error"];
       const CONFIG_LOG_LEVEL_INDEX = LOG_LEVELS.indexOf(
-        parseConfig("__APPSMITH_CLIENT_LOG_LEVEL__"),
+        parseConfig('{{env "APPSMITH_CLIENT_LOG_LEVEL"}}'),
       );
 
       const INTERCOM_APP_ID =
         parseConfig("%REACT_APP_INTERCOM_APP_ID%") ||
-        parseConfig("__APPSMITH_INTERCOM_APP_ID__");
-      const DISABLE_INTERCOM = parseConfig("__APPSMITH_DISABLE_INTERCOM__");
+        parseConfig('{{env "APPSMITH_INTERCOM_APP_ID"}}');
+      const DISABLE_INTERCOM = parseConfig('{{env "APPSMITH_DISABLE_INTERCOM"}}');
 
       // Initialize the Intercom library
       if (INTERCOM_APP_ID.length && !DISABLE_INTERCOM) {
@@ -227,39 +205,40 @@
         })();
       }
 
-      window.SENTRY_CONFIG = parseConfig("__APPSMITH_SENTRY_DSN__");
+      window.SENTRY_CONFIG = parseConfig('{{env "APPSMITH_SENTRY_DSN"}}');
       window.APPSMITH_FEATURE_CONFIGS = {
         sentry: {
-          dsn: parseConfig("__APPSMITH_SENTRY_DSN__"),
-          release: parseConfig("__APPSMITH_SENTRY_RELEASE__"),
-          environment: parseConfig("__APPSMITH_SENTRY_ENVIRONMENT__"),
+          dsn: parseConfig('{{env "APPSMITH_SENTRY_DSN"}}'),
+          release: parseConfig('{{env "APPSMITH_SENTRY_RELEASE"}}'),
+          environment: parseConfig('{{env "APPSMITH_SENTRY_ENVIRONMENT"}}'),
         },
         smartLook: {
-          id: parseConfig("__APPSMITH_SMART_LOOK_ID__"),
+          id: parseConfig('{{env "APPSMITH_SMART_LOOK_ID"}}'),
         },
         segment: {
-          apiKey: parseConfig("__APPSMITH_SEGMENT_KEY__"),
-          ceKey: parseConfig("__APPSMITH_SEGMENT_CE_KEY__"),
+          apiKey: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
+          ceKey: parseConfig('{{env "APPSMITH_SEGMENT_CE_KEY"}}'),
         },
         newRelic:{
-          enableNewRelic: parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ENABLE__"),
-          accountId: parseConfig("__APPSMITH_NEW_RELIC_ACCOUNT_ID__"),
-          applicationId: parseConfig("__APPSMITH_NEW_RELIC_APPLICATION_ID__"),
-          browserAgentlicenseKey: parseConfig("__APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY__"),
-          otlpLicenseKey: parseConfig("__APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY__"),
+          enableNewRelic: parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ENABLE"}}'),
+          accountId: parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ID"}}'),
+          applicationId: parseConfig('{{env "APPSMITH_NEW_RELIC_APPLICATION_ID"}}'),
+          browserAgentlicenseKey: parseConfig('{{env "APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY"}}'),
+          browserAgentEndpoint: parseConfig('{{env "APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT"}}'),
+          otlpLicenseKey: parseConfig('{{env "APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY"}}'),
           //OTLP following the naming convention of Sdk initialisation
-          otlpServiceName: parseConfig("__APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME__"),
-          otlpEndpoint:parseConfig("__APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT__"),
+          otlpServiceName: parseConfig('{{env "APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME"}}'),
+          otlpEndpoint:parseConfig('{{env "APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT"}}'),
 
         },
         fusioncharts: {
-          licenseKey: parseConfig("__APPSMITH_FUSIONCHARTS_LICENSE_KEY__"),
+          licenseKey: parseConfig('{{env "APPSMITH_FUSIONCHARTS_LICENSE_KEY"}}'),
         },
-        enableMixpanel: parseConfig("__APPSMITH_SEGMENT_KEY__"),
+        enableMixpanel: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
         algolia: {
-          apiId: parseConfig("__APPSMITH_ALGOLIA_API_ID__"),
-          apiKey: parseConfig("__APPSMITH_ALGOLIA_API_KEY__"),
-          indexName: parseConfig("__APPSMITH_ALGOLIA_SEARCH_INDEX_NAME__"),
+          apiId: parseConfig('{{env "APPSMITH_ALGOLIA_API_ID"}}'),
+          apiKey: parseConfig('{{env "APPSMITH_ALGOLIA_API_KEY"}}'),
+          indexName: parseConfig('{{env "APPSMITH_ALGOLIA_SEARCH_INDEX_NAME"}}'),
         },
         logLevel:
           CONFIG_LOG_LEVEL_INDEX > -1
@@ -267,25 +246,25 @@
             : LOG_LEVELS[1],
         cloudHosting: CLOUD_HOSTING,
         appVersion: {
-          id: parseConfig("__APPSMITH_VERSION_ID__"),
-          sha: parseConfig("__APPSMITH_VERSION_SHA__"),
-          releaseDate: parseConfig("__APPSMITH_VERSION_RELEASE_DATE__"),
+          id: parseConfig('{{env "APPSMITH_VERSION_ID"}}'),
+          sha: parseConfig('{{env "APPSMITH_VERSION_SHA"}}'),
+          releaseDate: parseConfig('{{env "APPSMITH_VERSION_RELEASE_DATE"}}'),
         },
         intercomAppID: INTERCOM_APP_ID,
-        mailEnabled: parseConfig("__APPSMITH_MAIL_ENABLED__"),
+        mailEnabled: parseConfig('{{env "APPSMITH_MAIL_ENABLED"}}'),
         cloudServicesBaseUrl:
-          parseConfig("__APPSMITH_CLOUD_SERVICES_BASE_URL__") ||
+          parseConfig('{{env "APPSMITH_CLOUD_SERVICES_BASE_URL"}}') ||
           "https://cs.appsmith.com",
-        googleRecaptchaSiteKey: parseConfig("__APPSMITH_RECAPTCHA_SITE_KEY__"),
-        hideWatermark: parseConfig("__APPSMITH_HIDE_WATERMARK__"),
+        googleRecaptchaSiteKey: parseConfig('{{env "APPSMITH_RECAPTCHA_SITE_KEY"}}'),
+        hideWatermark: parseConfig('{{env "APPSMITH_HIDE_WATERMARK"}}'),
         disableIframeWidgetSandbox: parseConfig(
-          "__APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__",
+          '{{env "APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX"}}',
         ),
         customerPortalUrl:
-          parseConfig("__APPSMITH_CUSTOMER_PORTAL_URL__") ||
+          parseConfig('{{env "APPSMITH_CUSTOMER_PORTAL_URL"}}') ||
           "https://customer.appsmith.com",
         pricingUrl:
-          parseConfig("__APPSMITH_PRICING_URL__") ||
+          parseConfig('{{env "APPSMITH_PRICING_URL"}}') ||
           "https://www.appsmith.com/pricing",
       };
     </script>

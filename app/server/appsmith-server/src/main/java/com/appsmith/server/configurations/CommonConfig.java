@@ -1,6 +1,8 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.util.JSONPrettyPrinter;
 import com.appsmith.util.SerializationUtils;
+import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -10,7 +12,7 @@ import jakarta.validation.ValidatorFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -63,14 +65,16 @@ public class CommonConfig {
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 
-    @Value("${appsmith.rts.port:8091}")
-    private String rtsPort;
+    @Value("${appsmith.micrometer.tracing.detail.enabled:false}")
+    private boolean tracingDetail;
 
     private List<String> allowedDomains;
 
     private String mongoDBVersion;
 
     private static final String MIN_SUPPORTED_MONGODB_VERSION = "5.0.0";
+
+    private static String adminEmailDomainHash;
 
     @Bean
     public Scheduler scheduler() {
@@ -88,8 +92,13 @@ public class CommonConfig {
     }
 
     @Bean
+    public PrettyPrinter prettyPrinter() {
+        return new JSONPrettyPrinter();
+    }
+
+    @Bean
     public ObjectMapper objectMapper() {
-        return SerializationUtils.getDefaultObjectMapper();
+        return SerializationUtils.getDefaultObjectMapper(null);
     }
 
     @Bean
@@ -133,21 +142,21 @@ public class CommonConfig {
         isSignupDisabled = "true".equalsIgnoreCase(value);
     }
 
-    public String getRtsBaseUrl() {
-        return "http://127.0.0.1:" + rtsPort;
-    }
-
-    public boolean isMongoUptoDate() {
-        ComparableVersion minSupportedVersion = new ComparableVersion(MIN_SUPPORTED_MONGODB_VERSION);
-        ComparableVersion connectedMongoVersion = new ComparableVersion(mongoDBVersion);
-        return minSupportedVersion.compareTo(connectedMongoVersion) <= 0;
-    }
-
-    public boolean isConnectedMongoVersionAvailable() {
-        return mongoDBVersion != null;
-    }
-
     public Long getCurrentTimeInstantEpochMilli() {
         return Instant.now().toEpochMilli();
+    }
+
+    public String getAdminEmailDomainHash() {
+        if (StringUtils.hasLength(adminEmailDomainHash)) {
+            return adminEmailDomainHash;
+        }
+        adminEmailDomainHash = this.adminEmails.stream()
+                .map(email -> email.split("@"))
+                .filter(emailParts -> emailParts.length == 2)
+                .findFirst()
+                .map(email -> email[1])
+                .map(DigestUtils::sha256Hex)
+                .orElse("");
+        return adminEmailDomainHash;
     }
 }

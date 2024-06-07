@@ -215,7 +215,7 @@
                         {
                           "boxShadow": "none",
                           "widgetName": "Icon2",
-                          "onClick": "{{closeModal('upvote_modal')}}",
+                          "onClick": "{{closeModal(upvote_modal.name)}}",
                           "buttonColor": "#2E3D49",
                           "displayName": "Icon",
                           "iconSVG": "/static/media/icon.31d6cfe0.svg",
@@ -277,7 +277,7 @@
                         {
                           "boxShadow": "none",
                           "widgetName": "Button5",
-                          "onClick": "{{closeModal('upvote_modal')}}",
+                          "onClick": "{{closeModal(upvote_modal.name)}}",
                           "buttonColor": "#2E3D49",
                           "displayName": "Button",
                           "iconSVG": "/static/media/icon.cca02633.svg",
@@ -2362,7 +2362,7 @@
                 {
                   "boxShadow": "none",
                   "widgetName": "AddIssue",
-                  "onClick": "{{showModal('add_issue_modal')}}",
+                  "onClick": "{{showModal(add_issue_modal.name)}}",
                   "buttonColor": "#2E3D49",
                   "displayName": "Icon Button",
                   "iconSVG": "/static/media/icon.1a0c634a.svg",
@@ -2929,7 +2929,7 @@
                         {
                           "boxShadow": "none",
                           "widgetName": "Button2",
-                          "onClick": "{{closeModal('add_issue_modal')}}",
+                          "onClick": "{{closeModal(add_issue_modal.name)}}",
                           "buttonColor": "#2E3D49",
                           "displayName": "Button",
                           "iconSVG": "/static/media/icon.cca02633.svg",
@@ -2997,7 +2997,7 @@
                         {
                           "boxShadow": "none",
                           "widgetName": "IconButton5",
-                          "onClick": "{{closeModal('add_issue_modal')}}",
+                          "onClick": "{{closeModal(add_issue_modal.name)}}",
                           "buttonColor": "#2E3D49",
                           "dynamicPropertyPathList": [
                             { "key": "borderRadius" }
@@ -4127,7 +4127,7 @@
                       "boxShadow": "none",
                       "customAlias": "",
                       "iconName": "caret-up",
-                      "onClick": "{{showModal('upvote_modal');}}",
+                      "onClick": "{{showModal(upvote_modal.name);}}",
                       "buttonVariant": "SECONDARY"
                     }
                   },
@@ -4387,7 +4387,7 @@
                         {
                           "widgetName": "Icon2",
                           "rightColumn": 64.0,
-                          "onClick": "{{closeModal('upvote_modal')}}",
+                          "onClick": "{{closeModal(upvote_modal.name)}}",
                           "iconName": "cross",
                           "buttonColor": "#2E3D49",
                           "displayName": "Icon",
@@ -4437,7 +4437,7 @@
                         },
                         {
                           "widgetName": "Button5",
-                          "onClick": "{{closeModal('upvote_modal')}}",
+                          "onClick": "{{closeModal(upvote_modal.name)}}",
                           "buttonColor": "#2E3D49",
                           "displayName": "Button",
                           "iconSVG": "/static/media/icon.cca02633.svg",
@@ -6281,7 +6281,7 @@
                 {
                   "boxShadow": "NONE",
                   "widgetName": "AddIssue",
-                  "onClick": "{{showModal('add_issue_modal')}}",
+                  "onClick": "{{showModal(add_issue_modal.name)}}",
                   "buttonColor": "#2E3D49",
                   "displayName": "Icon Button",
                   "iconSVG": "/static/media/icon.1a0c634a.svg",
@@ -6751,7 +6751,7 @@
                         },
                         {
                           "widgetName": "Button2",
-                          "onClick": "{{closeModal('add_issue_modal')}}",
+                          "onClick": "{{closeModal(add_issue_modal.name)}}",
                           "buttonColor": "#2E3D49",
                           "displayName": "Button",
                           "iconSVG": "/static/media/icon.cca02633.svg",
@@ -6814,7 +6814,7 @@
                         {
                           "boxShadow": "NONE",
                           "widgetName": "IconButton5",
-                          "onClick": "{{closeModal('add_issue_modal')}}",
+                          "onClick": "{{closeModal(add_issue_modal.name)}}",
                           "buttonColor": "#2E3D49",
                           "displayName": "Icon Button",
                           "iconSVG": "/static/media/icon.1a0c634a.svg",
@@ -7280,7 +7280,7 @@
                       "iconName": "caret-up",
                       "borderRadius": "ROUNDED",
                       "buttonVariant": "SECONDARY",
-                      "onClick": "{{showModal('upvote_modal')}}",
+                      "onClick": "{{showModal(upvote_modal.name)}}",
                       "horizontalAlignment": "LEFT",
                       "textSize": "PARAGRAPH"
                     },
@@ -8518,7 +8518,7 @@
           "timeoutInMillisecond": 10000.0,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "() => {\n  const labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n  add_new_issue.run(() => {\n    fetch_issues.run(() => {\n      resetWidget('add_issue_modal', true);\n      closeModal('add_issue_modal');\n    });\n  }, undefined, {\n    labels: labels\n  });\n}",
+          "body": "() => {\n  const labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n  add_new_issue.run(() => {\n    fetch_issues.run(() => {\n      resetWidget('add_issue_modal', true);\n      closeModal(add_issue_modal.name);\n    });\n  }, undefined, {\n    labels: labels\n  });\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": [],
           "isAsync": false
@@ -8529,7 +8529,7 @@
         "invalids": [],
         "messages": [],
         "jsonPathKeys": [
-          "() => {\n  const labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n  add_new_issue.run(() => {\n    fetch_issues.run(() => {\n      resetWidget('add_issue_modal', true);\n      closeModal('add_issue_modal');\n    });\n  }, undefined, {\n    labels: labels\n  });\n}"
+          "() => {\n  const labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n  add_new_issue.run(() => {\n    fetch_issues.run(() => {\n      resetWidget('add_issue_modal', true);\n      closeModal(add_issue_modal.name);\n    });\n  }, undefined, {\n    labels: labels\n  });\n}"
         ],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
@@ -8554,7 +8554,7 @@
           "timeoutInMillisecond": 10000.0,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "() => {\n\t\tconst labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal('add_issue_modal');\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t}",
+          "body": "() => {\n\t\tconst labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal(add_issue_modal.name);\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t}",
           "selfReferencingDataPaths": [],
           "jsArguments": [],
           "isAsync": false
@@ -8565,7 +8565,7 @@
         "invalids": [],
         "messages": [],
         "jsonPathKeys": [
-          "() => {\n\t\tconst labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal('add_issue_modal');\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t}"
+          "() => {\n\t\tconst labels = IssueManager.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal(add_issue_modal.name);\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t}"
         ],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
@@ -9632,7 +9632,7 @@
           "timeoutInMillisecond": 10000.0,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "() => {\n  add_new_comment.run(() => {\n    fetch_comments.run();\n    update_issue_labels.run(() => fetch_issues.run());\n    closeModal('upvote_modal');\n    resetWidget('upvote_modal', true);\n  });\n}",
+          "body": "() => {\n  add_new_comment.run(() => {\n    fetch_comments.run();\n    update_issue_labels.run(() => fetch_issues.run());\n    closeModal(upvote_modal.name);\n    resetWidget('upvote_modal', true);\n  });\n}",
           "selfReferencingDataPaths": [],
           "jsArguments": [],
           "isAsync": true
@@ -9643,7 +9643,7 @@
         "invalids": [],
         "messages": [],
         "jsonPathKeys": [
-          "() => {\n  add_new_comment.run(() => {\n    fetch_comments.run();\n    update_issue_labels.run(() => fetch_issues.run());\n    closeModal('upvote_modal');\n    resetWidget('upvote_modal', true);\n  });\n}"
+          "() => {\n  add_new_comment.run(() => {\n    fetch_comments.run();\n    update_issue_labels.run(() => fetch_issues.run());\n    closeModal(upvote_modal.name);\n    resetWidget('upvote_modal', true);\n  });\n}"
         ],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
@@ -9668,7 +9668,7 @@
           "timeoutInMillisecond": 10000.0,
           "paginationType": "NONE",
           "encodeParamsToggle": true,
-          "body": "() => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal('upvote_modal');\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t}",
+          "body": "() => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal(upvote_modal.name);\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t}",
           "selfReferencingDataPaths": [],
           "jsArguments": [],
           "isAsync": true
@@ -9679,7 +9679,7 @@
         "invalids": [],
         "messages": [],
         "jsonPathKeys": [
-          "() => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal('upvote_modal');\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t}"
+          "() => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal(upvote_modal.name);\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t}"
         ],
         "userSetOnLoad": false,
         "confirmBeforeExecute": false,
@@ -9975,7 +9975,7 @@
         "pluginType": "JS",
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n\tgetAssignedLabels: (allLabels = label_select.selectedOptionValues) => {\n\t\tconst labels = allLabels.filter((label) => {\n\t\t\treturn Utils.checkIsPod(label) !== true;\n\t\t}); \n\t\tconst podMap = {};\n\t\tlabels.map((label) => {\n\t\t\tconst pod = Utils.getPodForLabel(label);\n\t\t\tif (pod)\n\t\t\t\tpodMap[pod] = true;\n\t\t});\n\t\treturn [...Object.keys(podMap), ...labels];\n\t}, \n\tcreate_issue: () => {\n\t\tconst labels = this.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal('add_issue_modal');\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t},\n\tfetchIssues: () => {\n\t\tfetch_issues.run();\n\t},\n\tgetIssueData: () => {\n\t\treturn fetch_issues.data.map((issue) => {\n\t\t\tif (issue.upvote_id > 0)\n\t\t\t\tissue.count = issue.count + 1;\n\t\t\treturn { type: issue.type, title: issue.title, total_reactions: issue.total_reactions, unique_commentors: issue.unique_commentors, upvote_id: issue.upvote_id  ,...issue};\n\t\t});\n\t},\n\taddComment: () => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal('upvote_modal');\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t},\n\tupdate: async () => {\n\t\tconst labels = this.getAssignedLabels(edit_label_select.selectedOptionValues);\n\t\tawait update_issue.run({ labels: labels });\n\t\tawait fetch_issues.run();\n\t},\n\tdelete: async () => {\n\t\tawait delete_issue.run(() => fetch_issues.run());\n\t}\n}",
+        "body": "export default {\n\tgetAssignedLabels: (allLabels = label_select.selectedOptionValues) => {\n\t\tconst labels = allLabels.filter((label) => {\n\t\t\treturn Utils.checkIsPod(label) !== true;\n\t\t}); \n\t\tconst podMap = {};\n\t\tlabels.map((label) => {\n\t\t\tconst pod = Utils.getPodForLabel(label);\n\t\t\tif (pod)\n\t\t\t\tpodMap[pod] = true;\n\t\t});\n\t\treturn [...Object.keys(podMap), ...labels];\n\t}, \n\tcreate_issue: () => {\n\t\tconst labels = this.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal(add_issue_modal.name);\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t},\n\tfetchIssues: () => {\n\t\tfetch_issues.run();\n\t},\n\tgetIssueData: () => {\n\t\treturn fetch_issues.data.map((issue) => {\n\t\t\tif (issue.upvote_id > 0)\n\t\t\t\tissue.count = issue.count + 1;\n\t\t\treturn { type: issue.type, title: issue.title, total_reactions: issue.total_reactions, unique_commentors: issue.unique_commentors, upvote_id: issue.upvote_id  ,...issue};\n\t\t});\n\t},\n\taddComment: () => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal(upvote_modal.name);\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t},\n\tupdate: async () => {\n\t\tconst labels = this.getAssignedLabels(edit_label_select.selectedOptionValues);\n\t\tawait update_issue.run({ labels: labels });\n\t\tawait fetch_issues.run();\n\t},\n\tdelete: async () => {\n\t\tawait delete_issue.run(() => fetch_issues.run());\n\t}\n}",
         "variables": [],
         "userPermissions": []
       },
@@ -9986,7 +9986,7 @@
         "pluginType": "JS",
         "actions": [],
         "archivedActions": [],
-        "body": "export default {\n\tgetAssignedLabels: (allLabels = label_select.selectedOptionValues) => {\n\t\tconst labels = allLabels.filter((label) => {\n\t\t\treturn Utils.checkIsPod(label) !== true;\n\t\t}); \n\t\tconst podMap = {};\n\t\tlabels.map((label) => {\n\t\t\tconst pod = Utils.getPodForLabel(label);\n\t\t\tif (pod)\n\t\t\t\tpodMap[pod] = true;\n\t\t});\n\t\treturn [...Object.keys(podMap), ...labels];\n\t}, \n\tcreate_issue: () => {\n\t\tconst labels = this.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal('add_issue_modal');\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t},\n\tfetchIssues: () => {\n\t\tfetch_issues.run();\n\t},\n\tgetIssueData: () => {\n\t\treturn fetch_issues.data.map((issue) => {\n\t\t\tif (issue.upvote_id > 0)\n\t\t\t\tissue.count = issue.count + 1;\n\t\t\treturn { type: issue.type, title: issue.title, total_reactions: issue.total_reactions, unique_commentors: issue.unique_commentors, upvote_id: issue.upvote_id  ,...issue};\n\t\t});\n\t},\n\taddComment: () => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal('upvote_modal');\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t},\n\tupdate: async () => {\n\t\tconst labels = this.getAssignedLabels(edit_label_select.selectedOptionValues);\n\t\tawait update_issue.run({ labels: labels });\n\t\tawait fetch_issues.run();\n\t},\n\tdelete: async () => {\n\t\tawait delete_issue.run(() => fetch_issues.run());\n\t}\n}",
+        "body": "export default {\n\tgetAssignedLabels: (allLabels = label_select.selectedOptionValues) => {\n\t\tconst labels = allLabels.filter((label) => {\n\t\t\treturn Utils.checkIsPod(label) !== true;\n\t\t}); \n\t\tconst podMap = {};\n\t\tlabels.map((label) => {\n\t\t\tconst pod = Utils.getPodForLabel(label);\n\t\t\tif (pod)\n\t\t\t\tpodMap[pod] = true;\n\t\t});\n\t\treturn [...Object.keys(podMap), ...labels];\n\t}, \n\tcreate_issue: () => {\n\t\tconst labels = this.getAssignedLabels(label_select.selectedOptionValues);\n\t\tadd_new_issue.run(() => {\n\t\t\t\tfetch_issues.run(() => {\n\t\t\t\t\tresetWidget('add_issue_modal', true);\n\t\t\t\t\tcloseModal(add_issue_modal.name);\n\t\t\t\t});\n\t\t}, undefined, { labels: labels })\n\t},\n\tfetchIssues: () => {\n\t\tfetch_issues.run();\n\t},\n\tgetIssueData: () => {\n\t\treturn fetch_issues.data.map((issue) => {\n\t\t\tif (issue.upvote_id > 0)\n\t\t\t\tissue.count = issue.count + 1;\n\t\t\treturn { type: issue.type, title: issue.title, total_reactions: issue.total_reactions, unique_commentors: issue.unique_commentors, upvote_id: issue.upvote_id  ,...issue};\n\t\t});\n\t},\n\taddComment: () => {\n\t\tadd_new_comment.run(() => {\n\t\t\tfetch_comments.run();\n\t\t\tupdate_issue_labels.run(() => \n\t\t\t\tfetch_issues.run());\n\t\t\tcloseModal(upvote_modal.name);\n\t\t\tresetWidget('upvote_modal', true);\n\t\t});\n\t},\n\tupdate: async () => {\n\t\tconst labels = this.getAssignedLabels(edit_label_select.selectedOptionValues);\n\t\tawait update_issue.run({ labels: labels });\n\t\tawait fetch_issues.run();\n\t},\n\tdelete: async () => {\n\t\tawait delete_issue.run(() => fetch_issues.run());\n\t}\n}",
         "variables": [],
         "userPermissions": []
       },

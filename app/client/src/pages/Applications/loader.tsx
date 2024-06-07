@@ -4,7 +4,7 @@ import { retryPromise } from "utils/AppsmithUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { connect } from "react-redux";
 import { showDebugger } from "actions/debuggerActions";
 

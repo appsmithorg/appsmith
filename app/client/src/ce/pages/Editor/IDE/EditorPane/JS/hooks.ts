@@ -7,17 +7,12 @@ import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import type { UseRoutes } from "@appsmith/entities/IDE/constants";
-import {
-  EditorEntityTabState,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import JSEditor from "pages/Editor/JSEditor";
 import AddJS from "pages/Editor/IDE/EditorPane/JS/Add";
 import { ADD_PATH } from "@appsmith/constants/routes/appRoutes";
 import ListJS from "pages/Editor/IDE/EditorPane/JS/List";
-import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/JS/BlankStateContainer";
-import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
@@ -27,34 +22,41 @@ export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
-  const { segmentMode } = useCurrentEditorState();
   const moduleCreationOptions = useModuleOptions();
   const jsModuleCreationOptions = moduleCreationOptions.filter(
     (opt) => opt.focusEntityType === FocusEntity.JS_MODULE_INSTANCE,
   );
 
-  return useCallback(() => {
+  const openAddJS = useCallback(() => {
     if (jsModuleCreationOptions.length === 0) {
-      if (segmentMode === EditorEntityTabState.Add) {
-        const url = getJSUrl(currentEntityInfo, false);
-        history.push(url);
-      } else {
-        dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
-      }
+      dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
     } else {
-      const url = getJSUrl(
-        currentEntityInfo,
-        !(segmentMode === EditorEntityTabState.Add),
-      );
+      if (currentEntityInfo.entity === FocusEntity.JS_OBJECT_ADD) {
+        return;
+      }
+      const url = getJSUrl(currentEntityInfo, true);
       history.push(url);
     }
-  }, [
-    dispatch,
-    pageId,
-    segmentMode,
-    currentEntityInfo,
-    jsModuleCreationOptions,
-  ]);
+  }, [jsModuleCreationOptions, pageId, dispatch, currentEntityInfo]);
+
+  const closeAddJS = useCallback(() => {
+    const url = getJSUrl(currentEntityInfo, false);
+    history.push(url);
+  }, [pageId, currentEntityInfo]);
+
+  return { openAddJS, closeAddJS };
+};
+
+export const useIsJSAddLoading = () => {
+  const moduleCreationOptions = useModuleOptions();
+  const jsModuleCreationOptions = moduleCreationOptions.filter(
+    (opt) => opt.focusEntityType === FocusEntity.JS_MODULE_INSTANCE,
+  );
+  const { isCreating } = useSelector((state) => state.ui.jsPane);
+  if (jsModuleCreationOptions.length === 0) {
+    return isCreating;
+  }
+  return false;
 };
 
 export const useGroupedAddJsOperations = (): GroupedAddOperations => {
@@ -93,7 +95,7 @@ export const useJSSegmentRoutes = (path: string): UseRoutes => {
       },
       {
         key: "JSEmpty",
-        component: BlankStateContainer,
+        component: ListJS,
         exact: true,
         path: [path],
       },
@@ -101,16 +103,10 @@ export const useJSSegmentRoutes = (path: string): UseRoutes => {
   }
   return [
     {
-      exact: true,
-      key: "AddJS",
-      component: AddJS,
-      path: [`${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
-    },
-    {
       exact: false,
       key: "ListJS",
       component: ListJS,
-      path: [path],
+      path: [path, `${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
     },
   ];
 };

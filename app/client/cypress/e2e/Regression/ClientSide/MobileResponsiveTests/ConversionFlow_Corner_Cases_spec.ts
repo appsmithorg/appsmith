@@ -11,6 +11,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
+import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
 describe(
   "Handle Cases while conversion",
@@ -37,6 +38,7 @@ describe(
 
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Page2",
+        entityType: EntityItems.Page,
       });
     });
 

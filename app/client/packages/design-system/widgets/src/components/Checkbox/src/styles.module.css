@@ -30,6 +30,11 @@
     --checkbox-border-color: var(--color-bd-neutral-hover);
   }
 
+  & [data-inline-label-necessity-indicator-icon] {
+    color: var(--color-fg-negative);
+    margin-inline-start: var(--inner-spacing-1);
+  }
+
   /**
   * ----------------------------------------------------------------------------
   * LABEL POSITION
@@ -86,10 +91,10 @@
   }
 
   /**
- * ----------------------------------------------------------------------------
- * ERROR ( INVALID )
- *-----------------------------------------------------------------------------
- */
+  * ----------------------------------------------------------------------------
+  * ERROR ( INVALID )
+  *-----------------------------------------------------------------------------
+  */
   &[data-invalid] [data-icon] {
     --checkbox-border-color: var(--color-bd-negative);
   }

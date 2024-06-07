@@ -2,7 +2,7 @@ import { fork, put, select, call } from "redux-saga/effects";
 import type { RouteChangeActionPayload } from "actions/focusHistoryActions";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import log from "loglevel";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { getCurrentThemeDetails } from "selectors/themeSelectors";

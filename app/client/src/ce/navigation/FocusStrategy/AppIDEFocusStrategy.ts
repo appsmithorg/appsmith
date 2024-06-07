@@ -1,4 +1,4 @@
-import { select, take } from "redux-saga/effects";
+import { all, select, take } from "redux-saga/effects";
 import type { FocusPath, FocusStrategy } from "sagas/FocusRetentionSaga";
 import type { AppsmithLocationState } from "utils/history";
 import { NavigationMethod } from "utils/history";
@@ -81,8 +81,10 @@ const isPageChange = (prevPath: string, currentPath: string) => {
   );
 };
 
+export const createEditorFocusInfoKey = (pageId: string, branch?: string) =>
+  `EDITOR_STATE.${pageId}#${branch}`;
 export const createEditorFocusInfo = (pageId: string, branch?: string) => ({
-  key: `EDITOR_STATE.${pageId}#${branch}`,
+  key: createEditorFocusInfoKey(pageId, branch),
   entityInfo: {
     id: `EDITOR.${pageId}`,
     appState: EditorState.EDITOR,
@@ -134,7 +136,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     // If the entity has a parent defined, store the state of the parent as well.
     if (prevFocusEntityInfo.entity in FocusStoreHierarchy) {
       const parentEntity = FocusStoreHierarchy[prevFocusEntityInfo.entity];
-      if (parentEntity) {
+      if (parentEntity && parentEntity !== currentFocusEntityInfo.entity) {
         const parentPath = AppIDEFocusStrategy.getEntityParentUrl(
           prevFocusEntityInfo,
           parentEntity,
@@ -218,6 +220,14 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       if (isPageChange(previousPath, currentPath)) {
         yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
       }
+    } else {
+      // Wait for the application's actions and plugins to be fetched
+      // so we know if we should focus the Headers or Body tab in the API Editor,
+      // which depends on the action type.
+      yield all([
+        take(ReduxActionTypes.FETCH_ACTIONS_SUCCESS),
+        take(ReduxActionTypes.FETCH_PLUGINS_SUCCESS),
+      ]);
     }
   },
 };

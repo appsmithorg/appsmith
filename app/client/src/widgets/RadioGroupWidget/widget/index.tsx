@@ -25,6 +25,7 @@ import type {
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
@@ -197,6 +198,7 @@ class RadioGroupWidget extends BaseWidget<RadioGroupWidgetProps, WidgetState> {
     return {
       name: "Radio Group",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.TOGGLES],
       needsMeta: true,
       searchTags: ["choice"],

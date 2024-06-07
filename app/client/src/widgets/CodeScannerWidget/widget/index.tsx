@@ -13,6 +13,7 @@ import type {
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 
 import { ButtonPlacementTypes } from "components/constants";
 import { ScannerLayout } from "../constants";
@@ -31,6 +32,7 @@ class CodeScannerWidget extends BaseWidget<
     return {
       name: "Code Scanner",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.EXTERNAL],
       needsMeta: true,
       searchTags: [

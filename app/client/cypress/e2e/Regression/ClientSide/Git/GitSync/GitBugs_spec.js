@@ -16,6 +16,7 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
+import { EntityItems } from "../../../../../support/Pages/AssertHelper";
 
 const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";
@@ -98,6 +99,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
         entityExplorer.ActionContextMenuByEntityName({
           entityNameinLeftSidebar: "Page1",
           action: "Clone",
+          entityType: EntityItems.Page,
         });
         cy.wait("@clonePage").should(
           "have.nested.property",
@@ -151,6 +153,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Page1",
       action: "Clone",
+      entityType: EntityItems.Page,
     });
     cy.wait("@clonePage").should(
       "have.nested.property",
@@ -180,6 +183,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Page1",
       action: "Clone",
+      entityType: EntityItems.Page,
     });
     cy.wait("@clonePage").should(
       "have.nested.property",
@@ -261,7 +265,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
         agHelper.GetNClick(gitSync.gitConnectNextBtn);
         agHelper.TypeText(
           gitSync.remoteUrlInput,
-          `${dataManager.GITEA_API_URL_TED}/${repoName}.git`,
+          `${dataManager.GIT_CLONE_URL}/${repoName}.git`,
         );
         agHelper.GetNClick(gitSync.gitConnectNextBtn);
 

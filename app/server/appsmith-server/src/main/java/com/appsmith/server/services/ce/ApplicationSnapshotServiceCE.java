@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationSnapshot;
+import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import reactor.core.publisher.Mono;
 
 public interface ApplicationSnapshotServiceCE {
@@ -15,7 +15,7 @@ public interface ApplicationSnapshotServiceCE {
      */
     Mono<Boolean> createApplicationSnapshot(String applicationId, String branchName);
 
-    Mono<ApplicationSnapshot> getWithoutDataByApplicationId(String applicationId, String branchName);
+    Mono<ApplicationSnapshotResponseDTO> getWithoutDataByApplicationId(String applicationId, String branchName);
 
     Mono<Application> restoreSnapshot(String applicationId, String branchName);
 

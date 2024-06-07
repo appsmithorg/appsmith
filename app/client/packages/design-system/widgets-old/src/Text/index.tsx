@@ -105,8 +105,8 @@ const Text = styled.span.attrs<TextProps>(({ className, cypressSelector }) => ({
     props.highlight
       ? "var(--ads-text-highlight-color)"
       : props.color
-      ? props.color
-      : typeSelector(props)};
+        ? props.color
+        : typeSelector(props)};
   text-transform: ${(props) => (props.case ? props.case : "none")};
   text-align: ${(props) => (props.textAlign ? props.textAlign : "normal")};
 `;

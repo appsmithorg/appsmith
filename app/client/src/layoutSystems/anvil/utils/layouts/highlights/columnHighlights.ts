@@ -50,6 +50,12 @@ export const deriveColumnHighlights =
       posY: HIGHLIGHT_SIZE / 2,
       rowIndex: 0,
       width: 0,
+      edgeDetails: {
+        bottom: false,
+        left: false,
+        right: false,
+        top: false,
+      },
     };
 
     return deriveHighlights(

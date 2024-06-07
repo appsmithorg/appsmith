@@ -9,16 +9,16 @@ import {
   propertyPaneContentConfig,
   propertyPaneStyleConfig,
   settersConfig,
-} from "./../config";
+  methodsConfig,
+} from "../config";
 import type { AnvilConfig } from "WidgetProvider/constants";
-import { Button, Item, Menu, MenuList } from "@design-system/widgets";
+import { Button, MenuTrigger, Menu } from "@design-system/widgets";
 import { isArray, orderBy } from "lodash";
 import type { MenuButtonWidgetProps, MenuItem } from "./types";
 import {
   EventType,
   type ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { Text } from "@design-system/widgets";
 
 class WDSMenuButtonWidget extends BaseWidget<
   MenuButtonWidgetProps,
@@ -69,6 +69,10 @@ class WDSMenuButtonWidget extends BaseWidget<
 
   static getSetterConfig(): SetterConfig {
     return settersConfig;
+  }
+
+  static getMethods() {
+    return methodsConfig;
   }
 
   menuItemClickHandler = (onClick: string | undefined, index: number) => {
@@ -160,21 +164,7 @@ class WDSMenuButtonWidget extends BaseWidget<
       .map((item) => item.id);
 
     return (
-      <Menu
-        disabledKeys={disabledKeys}
-        onAction={(key) => {
-          const clickedItemIndex = visibleItems.findIndex(
-            (item) => item.id === key,
-          );
-
-          if (clickedItemIndex > -1) {
-            this.menuItemClickHandler(
-              visibleItems[clickedItemIndex]?.onClick,
-              clickedItemIndex,
-            );
-          }
-        }}
-      >
+      <MenuTrigger>
         <Button
           color={triggerButtonColor}
           icon={triggerButtonIconName}
@@ -185,14 +175,23 @@ class WDSMenuButtonWidget extends BaseWidget<
           {label}
         </Button>
 
-        <MenuList>
-          {visibleItems.map((menuItem: MenuItem) => (
-            <Item key={menuItem.id}>
-              <Text color={menuItem.textColor}>{menuItem.label}</Text>
-            </Item>
-          ))}
-        </MenuList>
-      </Menu>
+        <Menu
+          disabledKeys={disabledKeys}
+          items={visibleItems}
+          onAction={(key) => {
+            const clickedItemIndex = visibleItems.findIndex(
+              (item) => item.id === key,
+            );
+
+            if (clickedItemIndex > -1) {
+              this.menuItemClickHandler(
+                visibleItems[clickedItemIndex]?.onClick,
+                clickedItemIndex,
+              );
+            }
+          }}
+        />
+      </MenuTrigger>
     );
   }
 }

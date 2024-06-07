@@ -1,7 +1,7 @@
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -11,6 +11,7 @@ import {
   agHelper,
   propPane,
   deployMode,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -32,7 +33,7 @@ describe(
     it("1. Create MyPage and valdiate if its successfully created", function () {
       cy.Createpage(pageid);
       agHelper.AddDsl("displayWidgetDsl");
-      PageLeftPane.assertPresence(pageid);
+      PageList.assertPresence(pageid);
       //Table Widget Functionality with multiple page
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
@@ -50,12 +51,12 @@ describe(
       cy.get(commonlocators.singleSelectMenuItem)
         .contains(pageid)
         .click({ force: true });
-      cy.assertPageSave();
+      agHelper.AssertAutoSave();
       //Validate NavigateTo Page functionality
       cy.wait(2000);
       deployMode.DeployApp();
       cy.get(widgetsPage.chartWidget).should("not.exist");
-      cy.isSelectRow(1);
+      table.SelectTableRow(1);
       cy.get(widgetsPage.chartWidget).should("be.visible");
     });
   },

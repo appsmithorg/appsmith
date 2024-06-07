@@ -17,6 +17,7 @@ import type {
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 
@@ -27,6 +28,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
     return {
       name: "Menu button",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.BUTTONS],
     };
   }

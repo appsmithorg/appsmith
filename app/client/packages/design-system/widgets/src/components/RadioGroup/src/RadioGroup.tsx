@@ -8,7 +8,7 @@ import { getTypographyClassName } from "@design-system/theming";
 import { RadioGroup as HeadlessRadioGroup } from "@design-system/headless";
 
 import { fieldStyles } from "../../../styles";
-import { ContextualHelp } from "../../TextInput/src/ContextualHelp";
+import { ContextualHelp } from "../../ContextualHelp";
 
 export interface RadioGroupProps extends HeadlessRadioGroupProps {
   className?: string;

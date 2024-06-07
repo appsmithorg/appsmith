@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import org.junit.jupiter.api.AfterEach;
@@ -91,7 +92,7 @@ public class ApplicationSnapshotServiceTest {
         Application testApplication = new Application();
         testApplication.setName("Test app for snapshot");
         testApplication.setWorkspaceId(workspace.getId());
-        Mono<ApplicationSnapshot> snapshotMono = applicationPageService
+        Mono<ApplicationSnapshotResponseDTO> snapshotMono = applicationPageService
                 .createApplication(testApplication)
                 .flatMap(application -> {
                     assert application.getId() != null;
@@ -104,8 +105,7 @@ public class ApplicationSnapshotServiceTest {
 
         StepVerifier.create(snapshotMono)
                 .assertNext(snapshot -> {
-                    assertThat(snapshot.getApplicationId()).isNotNull();
-                    assertThat(snapshot.getData()).isNull();
+                    assertThat(snapshot.updatedAt()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -116,7 +116,7 @@ public class ApplicationSnapshotServiceTest {
         Application testApplication = new Application();
         testApplication.setName("Test app for snapshot");
         testApplication.setWorkspaceId(workspace.getId());
-        Mono<ApplicationSnapshot> snapshotMono = applicationPageService
+        Mono<ApplicationSnapshotResponseDTO> snapshotMono = applicationPageService
                 .createApplication(testApplication)
                 .flatMap(application -> {
                     assert application.getId() != null;
@@ -131,8 +131,7 @@ public class ApplicationSnapshotServiceTest {
 
         StepVerifier.create(snapshotMono)
                 .assertNext(snapshot -> {
-                    assertThat(snapshot.getApplicationId()).isNotNull();
-                    assertThat(snapshot.getData()).isNull();
+                    assertThat(snapshot.updatedAt()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -152,7 +151,7 @@ public class ApplicationSnapshotServiceTest {
         gitArtifactMetadata.setDefaultApplicationId(testDefaultAppId);
         gitArtifactMetadata.setBranchName(testBranchName);
         testApplication.setGitApplicationMetadata(gitArtifactMetadata);
-        Mono<Tuple2<ApplicationSnapshot, Application>> tuple2Mono = applicationPageService
+        Mono<Tuple2<ApplicationSnapshotResponseDTO, Application>> tuple2Mono = applicationPageService
                 .createApplication(testApplication)
                 .flatMap(application -> applicationSnapshotService
                         .createApplicationSnapshot(testDefaultAppId, testBranchName)
@@ -162,10 +161,8 @@ public class ApplicationSnapshotServiceTest {
 
         StepVerifier.create(tuple2Mono)
                 .assertNext(objects -> {
-                    ApplicationSnapshot applicationSnapshot = objects.getT1();
-                    Application application = objects.getT2();
-                    assertThat(applicationSnapshot.getData()).isNull();
-                    assertThat(applicationSnapshot.getApplicationId()).isEqualTo(application.getId());
+                    ApplicationSnapshotResponseDTO applicationSnapshot = objects.getT1();
+                    assertThat(applicationSnapshot.updatedAt()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -304,7 +301,7 @@ public class ApplicationSnapshotServiceTest {
         Application testApplication = new Application();
         testApplication.setName("Test app for snapshot");
         testApplication.setWorkspaceId(workspace.getId());
-        Mono<ApplicationSnapshot> applicationSnapshotMono = applicationPageService
+        Mono<ApplicationSnapshotResponseDTO> applicationSnapshotMono = applicationPageService
                 .createApplication(testApplication)
                 .flatMap(application1 -> {
                     return applicationSnapshotService.getWithoutDataByApplicationId(application1.getId(), null);
@@ -312,7 +309,7 @@ public class ApplicationSnapshotServiceTest {
 
         StepVerifier.create(applicationSnapshotMono)
                 .assertNext(applicationSnapshot -> {
-                    assertThat(applicationSnapshot.getId()).isNull();
+                    assertThat(applicationSnapshot.updatedAt()).isNull();
                 })
                 .verifyComplete();
     }

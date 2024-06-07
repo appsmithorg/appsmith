@@ -163,83 +163,16 @@ export const handlers = {
         };
       return a;
     }),
-  [ReduxActionTypes.COPY_JS_ACTION_INIT]: (
-    state: JSCollectionDataState,
-    action: ReduxAction<{
-      id: string;
-      destinationPageId: string;
-      name: string;
-    }>,
-  ): JSCollectionDataState =>
-    state.concat(
-      state
-        .filter((a) => a.config.id === action.payload.id)
-        .map((a) => ({
-          ...a,
-          data: undefined,
-          config: {
-            ...a.config,
-            id: "TEMP_COPY_ID",
-            name: action.payload.name,
-            pageId: action.payload.destinationPageId,
-          },
-        })),
-    ),
   [ReduxActionTypes.COPY_JS_ACTION_SUCCESS]: (
     state: JSCollectionDataState,
     action: ReduxAction<JSCollection>,
   ): JSCollectionDataState =>
-    state.map((a) => {
-      if (
-        a.config.pageId === action.payload.pageId &&
-        a.config.name === action.payload.name
-      ) {
-        return {
-          ...a,
-          config: action.payload,
-        };
-      }
-
-      return a;
-    }),
-  [ReduxActionErrorTypes.COPY_JS_ACTION_ERROR]: (
-    state: JSCollectionDataState,
-    action: ReduxAction<{
-      id: string;
-      destinationPageId: string;
-      name: string;
-    }>,
-  ): JSCollectionDataState =>
-    state.filter((a) => {
-      if (a.config.pageId === action.payload.destinationPageId) {
-        if (a.config.id === action.payload.id) {
-          return a.config.name !== action.payload.name;
-        }
-        return true;
-      }
-
-      return true;
-    }),
-  [ReduxActionTypes.MOVE_JS_ACTION_INIT]: (
-    state: JSCollectionDataState,
-    action: ReduxAction<{
-      id: string;
-      destinationPageId: string;
-    }>,
-  ): JSCollectionDataState =>
-    state.map((a) => {
-      if (a.config.id === action.payload.id) {
-        return {
-          ...a,
-          config: {
-            ...a.config,
-            pageId: action.payload.destinationPageId,
-          },
-        };
-      }
-
-      return a;
-    }),
+    state.concat([
+      {
+        config: { ...action.payload },
+        isLoading: false,
+      },
+    ]),
   [ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS]: (
     state: JSCollectionDataState,
     action: ReduxAction<JSCollection[]>,
@@ -290,23 +223,6 @@ export const handlers = {
     state.map((a) => {
       if (a.config.id === action.payload.id) {
         return { ...a, config: action.payload };
-      }
-
-      return a;
-    }),
-  [ReduxActionErrorTypes.MOVE_JS_ACTION_ERROR]: (
-    state: JSCollectionDataState,
-    action: ReduxAction<{ id: string; originalPageId: string }>,
-  ): JSCollectionDataState =>
-    state.map((a) => {
-      if (a.config.id === action.payload.id) {
-        return {
-          ...a,
-          config: {
-            ...a.config,
-            pageId: action.payload.originalPageId,
-          },
-        };
       }
 
       return a;
@@ -493,6 +409,48 @@ export const handlers = {
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
   },
+  [ReduxActionTypes.UPDATE_TEST_PAYLOAD_FOR_COLLECTION]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{
+      collectionId: string;
+      testPayload: Record<string, unknown>;
+    }>,
+  ): JSCollectionDataState =>
+    state.map((jsCollectionData) => {
+      if (jsCollectionData.config.id === action.payload.collectionId) {
+        return {
+          ...jsCollectionData,
+          data: {
+            ...jsCollectionData.data,
+            testPayload: action.payload.testPayload,
+          },
+        };
+      }
+      return jsCollectionData;
+    }),
+  [ReduxActionTypes.UPDATE_TEST_PAYLOAD_FOR_JS_ACTION]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{
+      collectionId: string;
+      actionId: string;
+      testPayload: Record<string, unknown>;
+    }>,
+  ): JSCollectionDataState =>
+    state.map((jsCollectionData) => {
+      if (jsCollectionData.config.id === action.payload.collectionId) {
+        return {
+          ...jsCollectionData,
+          data: {
+            ...jsCollectionData.data,
+            testPayload: {
+              ...(jsCollectionData.data?.testPayload || {}),
+              [action.payload.actionId]: action.payload.testPayload,
+            },
+          },
+        };
+      }
+      return jsCollectionData;
+    }),
 };
 
 const jsActionsReducer = createReducer(initialState, handlers);

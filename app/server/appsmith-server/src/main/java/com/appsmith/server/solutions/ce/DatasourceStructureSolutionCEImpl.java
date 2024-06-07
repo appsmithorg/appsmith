@@ -116,12 +116,11 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                                             datasourceStorage.getIsMock()));
                 })
                 .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS))
-                .onErrorMap(
-                        TimeoutException.class,
-                        error -> new AppsmithPluginException(
+                .onErrorMap(TimeoutException.class, error -> new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR,
                                 "Appsmith server timed out when fetching structure. Please reach out to appsmith "
-                                        + "customer support to resolve this."))
+                                        + "customer support to resolve this.")
+                        .hideStackTraceInLogs())
                 .onErrorMap(
                         StaleConnectionException.class,
                         error -> new AppsmithPluginException(

@@ -32,6 +32,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
@@ -41,6 +42,7 @@ class CameraWidget extends BaseWidget<CameraWidgetProps, WidgetState> {
     return {
       name: "Camera", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.EXTERNAL],
       needsMeta: true, // Defines if this widget adds any meta properties
       isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets

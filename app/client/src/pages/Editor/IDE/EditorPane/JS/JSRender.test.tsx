@@ -15,7 +15,6 @@ import { JSObjectFactory } from "test/factories/Actions/JSObject";
 
 const FeatureFlags = {
   rollout_side_by_side_enabled: true,
-  rollout_editor_pane_segments_enabled: true,
 };
 describe("IDE Render: JS", () => {
   localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
@@ -70,7 +69,7 @@ describe("IDE Render: JS", () => {
     });
 
     it("Renders Fullscreen Add in Blank State", () => {
-      const { getByRole, getByText } = render(
+      const { getByTestId, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -81,20 +80,20 @@ describe("IDE Render: JS", () => {
       );
 
       // Main pane text
-      getByText(createMessage(EDITOR_PANE_TEXTS.js_blank_state));
-
-      // Left pane header
       getByText(createMessage(EDITOR_PANE_TEXTS.js_create_tab_title));
+
+      // Left pane description
+      getByText(createMessage(EDITOR_PANE_TEXTS.js_blank_state_description));
 
       // Create options are rendered
       getByText(createMessage(EDITOR_PANE_TEXTS.js_blank_object_item));
-      // Close button is rendered
-      getByRole("button", { name: "Close pane" });
+      // Tab close button is rendered
+      getByTestId("t--tab-close-btn");
     });
 
     it("Renders Split Screen Add in Blank State", () => {
       const state = getIDETestState({ ideView: EditorViewMode.SplitScreen });
-      const { getByRole, getByTestId, getByText } = render(
+      const { getByTestId, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -114,8 +113,6 @@ describe("IDE Render: JS", () => {
 
       // Create options are rendered
       getByText(createMessage(EDITOR_PANE_TEXTS.js_blank_object_item));
-      // Close button is rendered
-      getByRole("button", { name: "Close pane" });
     });
   });
 
@@ -213,7 +210,7 @@ describe("IDE Render: JS", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByTestId("t--ide-split-screen-add-button");
+      getByTestId("t--ide-tabs-add-button");
     });
 
     it("Renders JS add routes in Full Screen", () => {
@@ -231,17 +228,16 @@ describe("IDE Render: JS", () => {
         },
       });
 
-      const { container, getAllByText, getByRole, getByTestId, getByText } =
-        render(
-          <Route path={BUILDER_PATH}>
-            <IDE />
-          </Route>,
-          {
-            url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id3/add",
-            initialState: state,
-            featureFlags: FeatureFlags,
-          },
-        );
+      const { container, getAllByText, getByTestId, getByText } = render(
+        <Route path={BUILDER_PATH}>
+          <IDE />
+        </Route>,
+        {
+          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id3/add",
+          initialState: state,
+          featureFlags: FeatureFlags,
+        },
+      );
 
       // There will be 2 JSObject3 text (editor tab and Editor form)
       expect(getAllByText("JSObject3").length).toEqual(2);
@@ -249,17 +245,12 @@ describe("IDE Render: JS", () => {
       expect(
         getByTestId("t--ide-tab-JSObject3").classList.contains("active"),
       ).toBe(false);
-      // Check if the form is rendered
-      expect(container.querySelector(".js-editor-tab")).not.toBeNull();
-      // Check if the code and settings tabs is visible
-      getByRole("tab", { name: /code/i });
-      getByRole("tab", { name: /settings/i });
-      // Check if run button is visible
-      getByRole("button", { name: /run/i });
+      // Check js object is not rendered. Instead new tab should render
+      expect(container.querySelector(".js-editor-tab")).toBeNull();
+      // Check is new tab is visible
+      getByText("New JS");
       // Create options are rendered
       getByText(createMessage(EDITOR_PANE_TEXTS.js_blank_object_item));
-      // Close button is rendered
-      getByRole("button", { name: "Close pane" });
     });
 
     it("Renders JS add routes in Split Screen", () => {
@@ -275,17 +266,16 @@ describe("IDE Render: JS", () => {
         ideView: EditorViewMode.SplitScreen,
       });
 
-      const { container, getAllByText, getByRole, getByTestId, getByText } =
-        render(
-          <Route path={BUILDER_PATH}>
-            <IDE />
-          </Route>,
-          {
-            url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id4/add",
-            initialState: state,
-            featureFlags: FeatureFlags,
-          },
-        );
+      const { container, getAllByText, getByTestId, getByText } = render(
+        <Route path={BUILDER_PATH}>
+          <IDE />
+        </Route>,
+        {
+          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id4/add",
+          initialState: state,
+          featureFlags: FeatureFlags,
+        },
+      );
 
       // There will be 1 JSObject3 text ( The tab )
       expect(getAllByText("JSObject4").length).toEqual(1);
@@ -293,19 +283,62 @@ describe("IDE Render: JS", () => {
       expect(
         getByTestId("t--ide-tab-JSObject4").classList.contains("active"),
       ).toBe(false);
-      // Add button active state
-      expect(
-        getByTestId("t--ide-split-screen-add-button").getAttribute(
-          "data-selected",
-        ),
-      ).toBe("true");
 
       // Check if the form is not rendered
       expect(container.querySelector(".js-editor-tab")).toBeNull();
       // Create options are rendered
       getByText(createMessage(EDITOR_PANE_TEXTS.js_blank_object_item));
-      // Close button is rendered
-      getByRole("button", { name: "Close pane" });
+    });
+
+    it("Prevents edit of main JS object", () => {
+      const page = PageFactory.build();
+      const Main_JS = JSObjectFactory.build({
+        id: "js_id",
+        name: "Main",
+        pageId: page.pageId,
+      });
+      Main_JS.isMainJSCollection = true;
+
+      const Normal_JS = JSObjectFactory.build({
+        id: "js_id2",
+        name: "Normal",
+        pageId: page.pageId,
+      });
+
+      const state = getIDETestState({
+        pages: [page],
+        js: [Main_JS, Normal_JS],
+        tabs: {
+          [EditorEntityTab.QUERIES]: [],
+          [EditorEntityTab.JS]: ["js_id"],
+        },
+      });
+
+      const { getByTestId } = render(
+        <Route path={BUILDER_PATH}>
+          <IDE />
+        </Route>,
+        {
+          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id",
+          initialState: state,
+          featureFlags: FeatureFlags,
+        },
+      );
+
+      // Normal JS object should be editable
+      const normalJsObjectEntity = getByTestId("t--entity-item-Normal");
+      expect(normalJsObjectEntity.classList.contains("editable")).toBe(true);
+
+      // should have `t--context-menu` as a child of the normalJsObjectEntity
+      expect(
+        normalJsObjectEntity.querySelector(".t--context-menu"),
+      ).not.toBeNull();
+
+      // Main JS object should not be editable
+      const mainJsObjectEntity = getByTestId("t--entity-item-Main");
+      expect(mainJsObjectEntity.classList.contains("editable")).toBe(false);
+      // should not have `t--context-menu` as a child of the mainJsObjectEntity
+      expect(mainJsObjectEntity.querySelector(".t--context-menu")).toBeNull();
     });
   });
 });

@@ -60,7 +60,7 @@ import {
 import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   datasourcesEditorIdURL,
   generateTemplateFormURL,

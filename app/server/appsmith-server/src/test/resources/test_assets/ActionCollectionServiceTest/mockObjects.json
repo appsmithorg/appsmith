@@ -51,14 +51,6 @@
       "name": "testCollection",
       "pageId": "testPageId",
       "pluginId": "testPluginId",
-      "defaultToBranchedActionIdsMap": [
-        {
-          "defaultTestActionId1": "testActionId1"
-        },
-        {
-          "defaultTestActionId2": "testActionId2"
-        }
-      ],
       "actions": [
         {
           "id": "testActionId1"
@@ -71,12 +63,7 @@
     "publishedCollection": {
       "name": "testCollection",
       "pageId": "testPageId",
-      "pluginId": "testPluginId",
-      "defaultToBranchedActionIdsMap": [
-        {
-          "defaultTestActionId1": "testActionId1"
-        }
-      ]
+      "pluginId": "testPluginId"
     }
   },
   "actionCollectionDTOWithModifiedActions": {
@@ -86,30 +73,12 @@
     "name": "testCollection",
     "pageId": "testPageId",
     "pluginId": "testPluginId",
-    "defaultToBranchedActionIdsMap": [
-      {
-        "defaultTestActionId1": "testActionId1"
-      },
-      {
-        "defaultTestActionId3": "testActionId3"
-      }
-    ],
-    "defaultToBranchedArchivedActionIdsMap": [
-      {
-        "defaultTestActionId2": "testActionId2"
-      }
-    ],
     "actions": [
       {
         "id": "testActionId1"
       },
       {
         "id": "testActionId3"
-      }
-    ],
-    "archivedActions": [
-      {
-        "id": "testActionId2"
       }
     ]
   },
@@ -123,19 +92,6 @@
       "name": "testCollection",
       "pageId": "testPageId",
       "pluginId": "testPluginId",
-      "defaultToBranchedActionIdsMap": [
-        {
-          "defaultTestActionId1": "testActionId1"
-        },
-        {
-          "defaultTestActionId3": "testActionId3"
-        }
-      ],
-      "defaultToBranchedArchivedActionIdsMap": [
-        {
-          "defaultTestActionId2": "testActionId2"
-        }
-      ],
       "actions": [
         {
           "id": "testActionId1"
@@ -143,22 +99,12 @@
         {
           "id": "testActionId3"
         }
-      ],
-      "archivedActions": [
-        {
-          "id": "testActionId2"
-        }
       ]
     },
     "publishedCollection": {
       "name": "testCollection",
       "pageId": "testPageId",
-      "pluginId": "testPluginId",
-      "defaultToBranchedActionIdsMap": [
-        {
-          "defaultTestActionId1": "testActionId1"
-        }
-      ]
+      "pluginId": "testPluginId"
     }
   }
 }

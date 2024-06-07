@@ -29,6 +29,7 @@ import type {
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
@@ -71,6 +72,7 @@ class CheckboxGroupWidget extends BaseWidget<
     return {
       name: "Checkbox Group",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.TOGGLES],
       needsMeta: true,
     };

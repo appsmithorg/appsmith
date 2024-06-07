@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import {
   EditorEntityTab,
   EditorEntityTabState,
@@ -18,18 +19,21 @@ import {
   queryListURL,
   widgetListURL,
 } from "@appsmith/RouteBuilder";
-import isEmpty from "lodash/isEmpty";
-import pickBy from "lodash/pickBy";
-import { getFocusInfo } from "selectors/focusHistorySelectors";
+import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import {
   DEFAULT_EDITOR_PANE_WIDTH,
   DEFAULT_SPLIT_SCREEN_WIDTH,
 } from "constants/AppConstants";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
 import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
+import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
+import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
+import { TabSelectors } from "./EditorTabs/constants";
+import { createEditorFocusInfoKey } from "@appsmith/navigation/FocusStrategy/AppIDEFocusStrategy";
+import { FocusElement } from "navigation/FocusElements";
+import { closeJSActionTab } from "actions/jsActionActions";
+import { closeQueryActionTab } from "actions/pluginActionActions";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -168,54 +172,25 @@ export const useSegmentNavigation = (): {
 };
 
 export const useGetPageFocusUrl = (pageId: string): string => {
-  const editorStateString = "EDITOR_STATE.";
-  const focusInfo = useSelector(getFocusInfo);
-  const branch = useSelector(getCurrentGitBranch);
   const [focusPageUrl, setFocusPageUrl] = useState(
     builderURL({ pageId: pageId }),
   );
 
+  const branch = useSelector(getCurrentGitBranch);
+  const editorStateFocusInfo = useSelector((appState) =>
+    getCurrentFocusInfo(appState, createEditorFocusInfoKey(pageId, branch)),
+  );
+
   useEffect(() => {
-    const editorState = pickBy(
-      focusInfo,
-      (v, k) =>
-        k === editorStateString + pageId + "#" + (branch || "undefined"),
-    );
+    if (editorStateFocusInfo) {
+      const lastSelectedEntity =
+        editorStateFocusInfo.state[FocusElement.SelectedEntity];
 
-    if (isEmpty(editorState)) {
-      return;
+      setFocusPageUrl(builderURL({ pageId, suffix: lastSelectedEntity }));
     }
-
-    const segment = Object.values(editorState)[0].state?.SelectedSegment;
-
-    switch (segment) {
-      case EditorEntityTab.UI:
-        setFocusPageUrl(widgetListURL({ pageId: pageId }));
-        break;
-      case EditorEntityTab.JS:
-        setFocusPageUrl(jsCollectionListURL({ pageId: pageId }));
-        break;
-      case EditorEntityTab.QUERIES:
-        setFocusPageUrl(queryListURL({ pageId: pageId }));
-        break;
-      default:
-        setFocusPageUrl(widgetListURL({ pageId: pageId }));
-    }
-  }, [focusInfo, branch]);
+  }, [editorStateFocusInfo, branch]);
 
   return focusPageUrl;
-};
-
-export const useIsEditorPaneSegmentsEnabled = () => {
-  const isEditorSegmentsReleaseEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
-  );
-
-  const isEditorSegmentsRolloutEnabled = useFeatureFlag(
-    FEATURE_FLAG.rollout_editor_pane_segments_enabled,
-  );
-
-  return isEditorSegmentsReleaseEnabled || isEditorSegmentsRolloutEnabled;
 };
 
 export function useWidgetSelectionBlockListener() {
@@ -255,3 +230,43 @@ export function useWidgetSelectionBlockListener() {
     }
   };
 }
+
+export const useIDETabClickHandlers = () => {
+  const dispatch = useDispatch();
+  const { closeAddJS, openAddJS } = useJSAdd();
+  const { closeAddQuery, openAddQuery } = useQueryAdd();
+  const { segment, segmentMode } = useCurrentEditorState();
+  const tabsConfig = TabSelectors[segment];
+  const pageId = useSelector(getCurrentPageId);
+
+  const addClickHandler = useCallback(() => {
+    if (segment === EditorEntityTab.JS) openAddJS();
+    if (segment === EditorEntityTab.QUERIES) openAddQuery();
+  }, [segment, segmentMode, openAddQuery, openAddJS]);
+
+  const tabClickHandler = useCallback(
+    (item: EntityItem) => {
+      const navigateToUrl = tabsConfig.itemUrlSelector(item, pageId);
+      history.push(navigateToUrl, {
+        invokedBy: NavigationMethod.EditorTabs,
+      });
+    },
+    [segment, pageId],
+  );
+
+  const closeClickHandler = useCallback(
+    (actionId: string | undefined) => {
+      if (!actionId) {
+        // handle JS
+        return segment === EditorEntityTab.JS ? closeAddJS() : closeAddQuery();
+      }
+      if (segment === EditorEntityTab.JS)
+        dispatch(closeJSActionTab({ id: actionId, parentId: pageId }));
+      if (segment === EditorEntityTab.QUERIES)
+        dispatch(closeQueryActionTab({ id: actionId, parentId: pageId }));
+    },
+    [segment, pageId, dispatch],
+  );
+
+  return { addClickHandler, tabClickHandler, closeClickHandler };
+};

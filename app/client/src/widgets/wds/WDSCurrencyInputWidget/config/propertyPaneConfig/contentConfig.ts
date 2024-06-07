@@ -15,7 +15,7 @@ export const propertyPaneContentConfig = [
         propertyName: "defaultText",
         label: "Default value",
         controlType: "INPUT_TEXT",
-        placeholderText: "100",
+        placeholderText: "42",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
@@ -55,16 +55,6 @@ export const propertyPaneContentConfig = [
         validation: {
           type: ValidationTypes.TEXT,
         },
-      },
-      {
-        propertyName: "allowCurrencyChange",
-        label: "Allow currency change",
-        helpText: "Search by currency or country",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
       },
       {
         helpText: "No. of decimals in currency input",

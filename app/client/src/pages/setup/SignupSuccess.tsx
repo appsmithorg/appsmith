@@ -14,7 +14,7 @@ import { Spinner } from "design-system";
 import { isValidLicense } from "@appsmith/selectors/tenantSelectors";
 import { redirectUserAfterSignup } from "@appsmith/utils/signupHelpers";
 import { setUserSignedUpFlag } from "utils/storage";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 export function SignupSuccess() {
   const dispatch = useDispatch();

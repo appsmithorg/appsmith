@@ -42,7 +42,7 @@ import {
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import { getLastSelectedWidget } from "selectors/ui";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import useRecentEntities from "./useRecentEntities";
 import { noop } from "lodash";
 import {

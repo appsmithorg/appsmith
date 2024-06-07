@@ -11,7 +11,7 @@ export const propertyPaneContentConfig = [
         propertyName: "label",
         label: "Text",
         controlType: "INPUT_TEXT",
-        placeholderText: "Name:",
+        placeholderText: "Label",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
@@ -68,20 +68,27 @@ export const propertyPaneContentConfig = [
         propertyName: "tooltip",
         label: "Tooltip",
         controlType: "INPUT_TEXT",
-        placeholderText: "Value must be atleast 6 chars",
+        placeholderText:
+          "The tooltip may include relevant information or instructions",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        hidden: (props: BaseInputWidgetProps) => {
+          return Boolean(props.isReadOnly);
+        },
       },
       {
         helpText: "Sets a placeholder text for the input",
         propertyName: "placeholderText",
         label: "Placeholder",
         controlType: "INPUT_TEXT",
-        placeholderText: "Placeholder",
+        placeholderText: "Value placeholder",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
+        hidden: (props: BaseInputWidgetProps) => {
+          return Boolean(props.isReadOnly);
+        },
       },
       {
         helpText: "Controls the visibility of the widget",
@@ -102,6 +109,9 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (props: BaseInputWidgetProps) => {
+          return Boolean(props.isReadOnly);
+        },
       },
       {
         helpText:
@@ -134,6 +144,9 @@ export const propertyPaneContentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.BOOLEAN },
+        hidden: (props: BaseInputWidgetProps) => {
+          return Boolean(props.isReadOnly);
+        },
       },
       {
         propertyName: "allowFormatting",
@@ -152,6 +165,9 @@ export const propertyPaneContentConfig = [
   },
   {
     sectionName: "Events",
+    hidden: (props: BaseInputWidgetProps) => {
+      return Boolean(props.isReadOnly);
+    },
     children: [
       {
         helpText: "when the text is changed",

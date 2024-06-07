@@ -63,7 +63,7 @@ describe(
       _.deployMode.DeployApp();
       cy.get(".bp3-button.select-button").click({ force: true });
       cy.get(".menu-item-text").first().click({ force: true });
-      cy.get(".t--widget-textwidget").should("contain", "USD:AS:USD");
+      cy.get(".t--widget-textwidget").should("contain", "USD:US:USD");
       cy.get(".t--input-currency-change").should("contain", "$");
       cy.get(".bp3-button.select-button").click({ force: true });
       cy.get(".menu-item-text").last().click({ force: true });

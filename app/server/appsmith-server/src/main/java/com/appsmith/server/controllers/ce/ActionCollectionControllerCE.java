@@ -131,6 +131,18 @@ public class ActionCollectionControllerCE {
     }
 
     @JsonView(Views.Public.class)
+    @PutMapping("/{id}/body")
+    public Mono<ResponseDTO<Integer>> updateActionCollectionBody(
+            @PathVariable String id,
+            @Valid @RequestBody ActionCollectionDTO resource,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to update action collection body with id: {}, branch: {}", id, branchName);
+        return layoutCollectionService
+                .updateUnpublishedActionCollectionBody(id, resource, branchName)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
     @PutMapping("/refactorAction")
     public Mono<ResponseDTO<LayoutDTO>> refactorActionCollection(
             @Valid @RequestBody RefactorEntityNameDTO refactorEntityNameDTO,

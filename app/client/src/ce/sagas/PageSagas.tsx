@@ -11,7 +11,6 @@ import {
 import type {
   ClonePageActionPayload,
   CreatePageActionPayload,
-  FetchPageListPayload,
 } from "actions/pageActions";
 import { createPage, fetchPublishedPage } from "actions/pageActions";
 import {
@@ -38,7 +37,6 @@ import type {
   ClonePageRequest,
   CreatePageRequest,
   DeletePageRequest,
-  FetchPageListResponse,
   FetchPageRequest,
   FetchPageResponse,
   FetchPageResponseData,
@@ -100,7 +98,7 @@ import log from "loglevel";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
 
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
@@ -139,13 +137,13 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { ActionExecutionContext } from "entities/Action";
+import type { LayoutSystemTypes } from "layoutSystems/types";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -159,83 +157,6 @@ export const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
-
-export function* fetchPageListSaga(
-  fetchPageListAction: ReduxAction<FetchPageListPayload>,
-) {
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.FETCH_PAGE_LIST_API,
-  );
-  try {
-    const { applicationId, mode } = fetchPageListAction.payload;
-    const apiCall =
-      mode === APP_MODE.EDIT
-        ? PageApi.fetchPageList
-        : PageApi.fetchPageListViewMode;
-    const response: FetchPageListResponse = yield call(apiCall, applicationId);
-    const isValidResponse: boolean = yield validateResponse(response);
-    const prevPagesState: Page[] = yield select(getPageList);
-    const pagePermissionsMap = prevPagesState.reduce(
-      (acc, page) => {
-        acc[page.pageId] = page.userPermissions ?? [];
-        return acc;
-      },
-      {} as Record<string, string[]>,
-    );
-    if (isValidResponse) {
-      const workspaceId = response.data.workspaceId;
-      const pages: Page[] = response.data.pages.map((page) => ({
-        pageName: page.name,
-        description: page.description,
-        pageId: page.id,
-        isDefault: page.isDefault,
-        isHidden: !!page.isHidden,
-        slug: page.slug,
-        userPermissions: page.userPermissions
-          ? page.userPermissions
-          : pagePermissionsMap[page.id],
-      }));
-      yield put({
-        type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
-        payload: {
-          workspaceId,
-          editorId: applicationId,
-        },
-      });
-      yield put({
-        type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-        payload: {
-          pages,
-          applicationId: applicationId,
-        },
-      });
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_PAGE_LIST_API,
-      );
-    } else {
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_PAGE_LIST_API,
-      );
-      yield put({
-        type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-        payload: {
-          error: response.responseMeta.error,
-        },
-      });
-    }
-  } catch (error) {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.FETCH_PAGE_LIST_API,
-      { failed: true },
-    );
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
 
 //Method to load the default page if current page is not found
 export function* refreshTheApp() {
@@ -267,12 +188,10 @@ export function* refreshTheApp() {
 export const getCanvasWidgetsPayload = (
   pageResponse: FetchPageResponse,
   dslTransformer?: (dsl: DSLWidget) => DSLWidget,
-  migrateDSLLocally: boolean = true,
 ): UpdateCanvasPayload => {
   const extractedDSL = extractCurrentDSL({
     dslTransformer,
     response: pageResponse,
-    migrateDSLLocally,
   }).dsl;
   const flattenedDSL = flattenDSL(extractedDSL);
   const pageWidgetId = MAIN_CONTAINER_WIDGET_ID;
@@ -300,6 +219,7 @@ export function* handleFetchedPage({
   isFirstLoad?: boolean;
 }) {
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+  const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
   const mainCanvasProps: MainCanvasReduxState =
     yield select(getMainCanvasProps);
   const dslTransformer = getLayoutSystemDSLTransformer(
@@ -320,13 +240,9 @@ export function* handleFetchedPage({
     // Wait for widget config to be loaded before we can generate the canvas payload
     yield call(waitForWidgetConfigBuild);
     // Get Canvas payload
-    const isServerDSLMigrationsEnabled: boolean = yield select(
-      getIsServerDSLMigrationsEnabled,
-    );
     const canvasWidgetsPayload = getCanvasWidgetsPayload(
       fetchPageResponse,
       dslTransformer,
-      !isServerDSLMigrationsEnabled,
     );
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
@@ -359,7 +275,7 @@ export function* handleFetchedPage({
     // If the type of the layoutSystem is ANVIL, then we need to save the layout
     // This is because we have updated the DSL
     // using the AnvilDSLTransformer when we called the getCanvasWidgetsPayload function
-    if (willPageBeMigrated || layoutSystemType === LayoutSystemTypes.ANVIL) {
+    if (willPageBeMigrated || isAnvilLayout) {
       yield put(saveLayout());
     }
   }
@@ -377,14 +293,8 @@ export function* fetchPageSaga(
       PerformanceTransactionName.FETCH_PAGE_API,
       { pageId: id },
     );
-    const isServerDSLMigrationsEnabled = select(
-      getIsServerDSLMigrationsEnabled,
-    );
 
-    const params: FetchPageRequest = { id };
-    if (isServerDSLMigrationsEnabled) {
-      params.migrateDSL = true;
-    }
+    const params: FetchPageRequest = { id, migrateDSL: true };
     const fetchPageResponse: FetchPageResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
       pageWithMigratedDsl,
@@ -756,8 +666,7 @@ export function* createNewPageFromEntity(
       },
     ];
 
-    const { applicationId, blockNavigation, name } =
-      createPageAction?.payload || {};
+    const { applicationId, name } = createPageAction?.payload || {};
 
     const workspaceId: string = yield select(getCurrentWorkspaceId);
     const instanceId: string | undefined = yield select(getInstanceId);
@@ -772,7 +681,6 @@ export function* createNewPageFromEntity(
         name,
         defaultPageLayouts,
         workspaceId,
-        blockNavigation,
         instanceId,
       ),
     );
@@ -816,9 +724,6 @@ export function* createPageSaga(
       // Add this to the page DSLs for entity explorer
       // The dslTransformer may not be necessary for the entity explorer
       // However, we still transform for consistency.
-      const isServerDSLMigrationsEnabled: boolean = yield select(
-        getIsServerDSLMigrationsEnabled,
-      );
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
@@ -826,20 +731,17 @@ export function* createPageSaga(
           dsl: extractCurrentDSL({
             dslTransformer,
             response,
-            migrateDSLLocally: !isServerDSLMigrationsEnabled,
           }).dsl,
           layoutId: response.data.layouts[0].id,
         },
       });
       // TODO: Update URL params here
       // route to generate template for new page created
-      if (!createPageAction.payload.blockNavigation) {
-        history.push(
-          builderURL({
-            pageId: response.data.id,
-          }),
-        );
-      }
+      history.push(
+        builderURL({
+          pageId: response.data.id,
+        }),
+      );
     }
   } catch (error) {
     yield put({
@@ -940,12 +842,8 @@ export function* clonePageSaga(
       // We're not sending the `dslTransformer` to the `extractCurrentDSL` function
       // as this is a clone operation, and any layout system specific
       // updates to the DSL would have already been performed in the original page
-      const isServerDSLMigrationsEnabled: boolean = yield select(
-        getIsServerDSLMigrationsEnabled,
-      );
       const { dsl, layoutId } = extractCurrentDSL({
         response,
-        migrateDSLLocally: !isServerDSLMigrationsEnabled,
       });
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
@@ -1202,13 +1100,7 @@ export function* fetchPageDSLSaga(
       layoutSystemType,
       mainCanvasProps.width,
     );
-    const isServerDSLMigrationsEnabled = select(
-      getIsServerDSLMigrationsEnabled,
-    );
-    const params: FetchPageRequest = { id: pageId };
-    if (isServerDSLMigrationsEnabled) {
-      params.migrateDSL = true;
-    }
+    const params: FetchPageRequest = { id: pageId, migrateDSL: true };
     const fetchPageResponse: FetchPageResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
       pageDSL,
@@ -1229,7 +1121,6 @@ export function* fetchPageDSLSaga(
       const { dsl, layoutId } = extractCurrentDSL({
         dslTransformer,
         response: fetchPageResponse,
-        migrateDSLLocally: !isServerDSLMigrationsEnabled,
       });
       return {
         pageId,

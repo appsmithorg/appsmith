@@ -11,7 +11,7 @@ const StyledButton = styled(BaseButton)<{
   min-width: 40px;
 
   min-height: ${({ compactMode }) =>
-    compactMode === "SHORT" ? "24px" : "30px"};
+    compactMode === "SHORT" ? "22px" : "27px"};
   font-size: ${({ compactMode }) =>
     compactMode === "SHORT" ? "12px" : "14px"};
   line-height: ${({ compactMode }) =>

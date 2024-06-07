@@ -14,7 +14,7 @@ import {
   getAppThemingStack,
 } from "selectors/appThemingSelectors";
 import type { AppTheme } from "entities/AppTheming";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import DeleteThemeModal from "./DeleteThemeModal";
 import { getComplementaryGrayscaleColor } from "widgets/WidgetUtils";
 import { getCurrentApplicationId } from "selectors/editorSelectors";

@@ -5,6 +5,8 @@ import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePr
 import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import type { OverriddenFeatureFlags } from "./hooks/useFeatureFlagOverride";
+import { AvailableFeaturesToOverride } from "./hooks/useFeatureFlagOverride";
 
 export const STORAGE_KEYS: {
   [id: string]: string;
@@ -39,6 +41,8 @@ export const STORAGE_KEYS: {
   PARTNER_PROGRAM_CALLOUT: "PARTNER_PROGRAM_CALLOUT",
   IDE_VIEW_MODE: "IDE_VIEW_MODE",
   CODE_WIDGET_NAVIGATION_USED: "CODE_WIDGET_NAVIGATION_USED",
+  OVERRIDDEN_FEATURE_FLAGS: "OVERRIDDEN_FEATURE_FLAGS",
+  ACTION_TEST_PAYLOAD: "ACTION_TEST_PAYLOAD",
 };
 
 const store = localforage.createInstance({
@@ -904,5 +908,77 @@ export const retrieveCodeWidgetNavigationUsed = async (): Promise<number> => {
     log.error("An error occurred while fetching CODE_WIDGET_NAVIGATION_USED");
     log.error(error);
     return 0;
+  }
+};
+
+/**
+
+
+Retrieves the overridden values for feature flags.
+
+
+@param flagsToFetch - The feature flags to fetch the overridden values for.
+
+@returns An object containing the overridden values for each feature flag.
+*/
+export const getFeatureFlagOverrideValues = async (
+  flagsToFetch = AvailableFeaturesToOverride,
+) => {
+  const featureFlagValues: OverriddenFeatureFlags = {};
+  for (const flag of flagsToFetch) {
+    featureFlagValues[flag] = (await store.getItem(flag)) as boolean;
+  }
+  return featureFlagValues;
+};
+
+/**
+
+
+Sets the override values for feature flags.
+
+
+@param featureFlagValues - An object containing the feature flags and their corresponding override values.
+
+@returns {Promise<void>} - A promise that resolves when all the feature flags have been set.
+*/
+export const setFeatureFlagOverrideValues = async (
+  featureFlagValues: OverriddenFeatureFlags,
+) => {
+  for (const [flag, value] of Object.entries(featureFlagValues)) {
+    await store.setItem(flag, value);
+  }
+};
+
+export const getAllActionTestPayloads = async () => {
+  try {
+    const storedPayload: Record<string, unknown> | null = await store.getItem(
+      STORAGE_KEYS.ACTION_TEST_PAYLOAD,
+    );
+    return storedPayload;
+  } catch (error) {
+    log.error("An error occurred while fetching ACTION_TEST_PAYLOAD");
+    log.error(error);
+    return null;
+  }
+};
+
+export const storeActionTestPayload = async (payload: {
+  actionId: string;
+  testData: any;
+}) => {
+  try {
+    const storedPayload: Record<string, unknown> | null = await store.getItem(
+      STORAGE_KEYS.ACTION_TEST_PAYLOAD,
+    );
+    const newPayload = {
+      ...storedPayload,
+      [payload.actionId]: payload.testData,
+    };
+    await store.setItem(STORAGE_KEYS.ACTION_TEST_PAYLOAD, newPayload);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting ACTION_TEST_PAYLOAD");
+    log.error(error);
+    return false;
   }
 };

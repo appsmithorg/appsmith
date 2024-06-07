@@ -22,7 +22,7 @@ import {
 } from "@appsmith/constants/messages";
 import { hasInviteUserToApplicationPermission } from "@appsmith/utils/permissionHelpers";
 import { Button, Icon, Switch, Tooltip } from "design-system";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 

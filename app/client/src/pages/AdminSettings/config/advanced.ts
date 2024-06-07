@@ -15,7 +15,7 @@ export const config: AdminConfigType = {
   canSave: true,
   settings: [
     {
-      id: "APPSMITH_MONGODB_URI",
+      id: "APPSMITH_DB_URL",
       category: SettingCategories.ADVANCED,
       controlType: SettingTypes.TEXTINPUT,
       controlSubType: SettingSubtype.TEXT,

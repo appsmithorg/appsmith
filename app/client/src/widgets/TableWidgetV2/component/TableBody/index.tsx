@@ -90,14 +90,12 @@ const TableVirtualBodyComponent = React.forwardRef(
           height={
             props.height -
             props.tableSizes.TABLE_HEADER_HEIGHT -
-            2 * WIDGET_PADDING
+            2 * props.tableSizes.VERTICAL_PADDING
           }
           innerElementType={props.innerElementType}
           itemCount={Math.max(props.rows.length, props.pageSize)}
           itemData={props.rows}
-          itemSize={
-            props.tableSizes.ROW_HEIGHT + props.tableSizes.ROW_VIRTUAL_OFFSET
-          }
+          itemSize={props.tableSizes.ROW_HEIGHT}
           outerRef={ref}
           width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
         >

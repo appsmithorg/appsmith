@@ -6,7 +6,7 @@ import type {
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import { generateQuickCommands } from "./generateQuickCommands";
 import type { Datasource } from "entities/Datasource";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import log from "loglevel";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {
@@ -20,6 +20,86 @@ import type {
   NavigationData,
 } from "selectors/navigationSelectors";
 import { getAIContext } from "@appsmith/components/editorComponents/GPT/trigger";
+import type { Plugin } from "api/PluginApi";
+
+export const getShowHintOptions = (
+  list: CommandsCompletion[],
+  editor: CodeMirror.Editor,
+  focusEditor: (focusOnLine?: number, chOffset?: number) => void,
+  searchText: string = "",
+) => {
+  let currentSelection: CommandsCompletion = {
+    data: {},
+    text: "",
+    shortcut: "",
+    displayText: "",
+  };
+  const cursor = editor.getCursor();
+  return {
+    hint: () => {
+      const hints = {
+        list,
+        from: {
+          ch: cursor.ch - searchText.length - 1,
+          line: cursor.line,
+        },
+        to: editor.getCursor(),
+        selectedHint: list[0]?.isHeader ? 1 : 0,
+      };
+      function handleSelection(selected: CommandsCompletion) {
+        currentSelection = selected;
+      }
+      function handlePick(selected: CommandsCompletion) {
+        if (selected.action && typeof selected.action === "function") {
+          const callback = (completion: string) => {
+            editor.replaceRange(completion, cursor);
+          };
+          selected.action(callback);
+        }
+
+        // Focus on the editor if the selected command has text
+        if (selected.text) {
+          focusEditor(editor.getCursor().line, 2);
+        }
+
+        selected.triggerCompletionsPostPick &&
+          CodeMirror.signal(editor, "postPick", selected.displayText);
+
+        try {
+          const { data, ...rest } = selected;
+          const { name, type } = data as NavigationData;
+          AnalyticsUtil.logEvent("SLASH_COMMAND", {
+            ...rest,
+            type,
+            name,
+          });
+        } catch (e) {
+          log.debug(e, "Error logging slash command");
+        }
+        CodeMirror.off(hints, "pick", handlePick);
+        CodeMirror.off(hints, "select", handleSelection);
+      }
+      CodeMirror.on(hints, "pick", handlePick);
+      CodeMirror.on(hints, "select", handleSelection);
+      return hints;
+    },
+    extraKeys: {
+      Up: (cm: CodeMirror.Editor, handle: any) => {
+        handle.moveFocus(-1);
+        if (currentSelection.isHeader === true) {
+          handle.moveFocus(-1);
+        }
+      },
+      Down: (cm: CodeMirror.Editor, handle: any) => {
+        handle.moveFocus(1);
+        if (currentSelection.isHeader === true) {
+          handle.moveFocus(1);
+        }
+      },
+    },
+    completeSingle: false,
+  };
+};
 
 export const slashCommandHintHelper: HintHelper = (
   _,
@@ -38,12 +118,12 @@ export const slashCommandHintHelper: HintHelper = (
         executeCommand,
         featureFlags,
         focusEditor,
-        pluginIdToImageLocation,
+        pluginIdToPlugin,
         recentEntities,
       }: {
         datasources: Datasource[];
         executeCommand: (payload: SlashCommandPayload) => void;
-        pluginIdToImageLocation: Record<string, string>;
+        pluginIdToPlugin: Record<string, Plugin>;
         recentEntities: string[];
         entityId: string;
         featureFlags: FeatureFlags;
@@ -92,83 +172,17 @@ export const slashCommandHintHelper: HintHelper = (
           aiContext,
           datasources,
           executeCommand,
-          pluginIdToImageLocation,
+          pluginIdToPlugin,
           recentEntities,
           featureFlags,
           enableAIAssistance,
         },
+        editor,
+        focusEditor,
       );
-      let currentSelection: CommandsCompletion = {
-        data: {},
-        text: "",
-        shortcut: "",
-      };
-      const cursor = editor.getCursor();
-      editor.showHint({
-        hint: () => {
-          const hints = {
-            list,
-            from: {
-              ch: cursor.ch - searchText.length - 1,
-              line: cursor.line,
-            },
-            to: editor.getCursor(),
-            selectedHint: list[0]?.isHeader ? 1 : 0,
-          };
-          function handleSelection(selected: CommandsCompletion) {
-            currentSelection = selected;
-          }
-          function handlePick(selected: CommandsCompletion) {
-            if (selected.action && typeof selected.action === "function") {
-              const callback = (completion: string) => {
-                editor.replaceRange(completion, cursor);
-              };
-              selected.action(callback);
-            }
-
-            // Focus on the editor if the selected command has text
-            if (selected.text) {
-              focusEditor(cursorPosition.line, 2);
-            }
-
-            selected.triggerCompletionsPostPick &&
-              CodeMirror.signal(editor, "postPick", selected.displayText);
-
-            try {
-              // eslint-disable-next-line @typescript-eslint/no-unused-vars
-              const { data, render, ...rest } = selected;
-              const { name, type } = data as NavigationData;
-              AnalyticsUtil.logEvent("SLASH_COMMAND", {
-                ...rest,
-                type,
-                name,
-              });
-            } catch (e) {
-              log.debug(e, "Error logging slash command");
-            }
-            CodeMirror.off(hints, "pick", handlePick);
-            CodeMirror.off(hints, "select", handleSelection);
-          }
-          CodeMirror.on(hints, "pick", handlePick);
-          CodeMirror.on(hints, "select", handleSelection);
-          return hints;
-        },
-        extraKeys: {
-          Up: (cm: CodeMirror.Editor, handle: any) => {
-            handle.moveFocus(-1);
-            if (currentSelection.isHeader === true) {
-              handle.moveFocus(-1);
-            }
-          },
-          Down: (cm: CodeMirror.Editor, handle: any) => {
-            handle.moveFocus(1);
-            if (currentSelection.isHeader === true) {
-              handle.moveFocus(1);
-            }
-          },
-        },
-        completeSingle: false,
-      });
+      editor.showHint(
+        getShowHintOptions(list, editor, focusEditor, searchText),
+      );
       return true;
     },
     fireOnFocus: true,

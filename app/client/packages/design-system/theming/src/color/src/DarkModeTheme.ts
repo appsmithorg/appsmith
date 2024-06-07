@@ -109,7 +109,6 @@ export class DarkModeTheme implements ColorModeTheme {
       bdFocus: this.bdFocus.to("sRGB").toString(),
       bdNeutral: this.bdNeutral.to("sRGB").toString(),
       bdNeutralHover: this.bdNeutralHover.to("sRGB").toString(),
-      bdOnNeutralHover: this.bdOnNeutralHover.to("sRGB").toString(),
       bdPositive: this.bdPositive.to("sRGB").toString(),
       bdPositiveHover: this.bdPositiveHover.to("sRGB").toString(),
       bdNegative: this.bdNegative.to("sRGB").toString(),
@@ -119,6 +118,8 @@ export class DarkModeTheme implements ColorModeTheme {
 
       bdOnAccent: this.bdOnAccent.to("sRGB").toString(),
       bdOnNeutral: this.bdOnNeutral.to("sRGB").toString(),
+      bdOnNeutralSubtle: this.bdOnNeutralSubtle.to("sRGB").toString(),
+      bdOnNeutralSubtleHover: this.bdOnNeutralSubtleHover.to("sRGB").toString(),
       bdOnPositive: this.bdOnPositive.to("sRGB").toString(),
       bdOnNegative: this.bdOnNegative.to("sRGB").toString(),
       bdOnWarning: this.bdOnWarning.to("sRGB").toString(),
@@ -326,10 +327,14 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bgNeutralOpacity() {
+    // Overlay behind modal dialogue
     const color = this.bgNeutral.clone();
 
-    color.oklch.l = 0.15;
-    color.alpha = 0.5;
+    color.alpha = 0.7;
+
+    if (color.oklch.l > 0.12) {
+      color.oklch.l = 0.12;
+    }
 
     return color;
   }
@@ -384,8 +389,8 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.seedColor.clone();
 
     // Adjusted version of bgAccentSubtle (less or no chroma)
-    if (this.seedLightness > 0.25) {
-      color.oklch.l = 0.25;
+    if (this.seedLightness > 0.29) {
+      color.oklch.l = 0.29;
     }
 
     // If the color is too dark it won't be visible against bg.
@@ -393,8 +398,8 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.l = 0.22;
     }
 
-    if (this.seedChroma > 0.015) {
-      color.oklch.c = 0.015;
+    if (this.seedChroma > 0.025) {
+      color.oklch.c = 0.025;
     }
 
     if (this.seedIsAchromatic) {
@@ -1136,21 +1141,20 @@ export class DarkModeTheme implements ColorModeTheme {
     return color;
   }
 
-  private get bdOnNeutralHover() {
+  private get bdOnNeutralSubtle() {
+    // Border on bgNeutralSubtle, low contrast indicator of interactivity in TextInput and similar
+    const color = this.bgNeutralSubtle.clone();
+
+    color.oklch.l += 0.04;
+
+    return color;
+  }
+
+  private get bdOnNeutralSubtleHover() {
     // Outline on the input field shown on hover
-    const color = this.bdNeutral.clone();
+    const color = this.bdOnNeutralSubtle.clone();
 
-    if (this.bdNeutral.oklch.l < 0.8) {
-      color.oklch.l += 0.05;
-    }
-
-    if (this.bdNeutral.oklch.l >= 0.8 && this.bdNeutral.oklch.l < 0.9) {
-      color.oklch.l += 0.01;
-    }
-
-    if (this.bdNeutral.oklch.l >= 0.9) {
-      color.oklch.l -= 0.35;
-    }
+    color.oklch.l += 0.08;
 
     return color;
   }

@@ -46,7 +46,6 @@ import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -169,7 +168,8 @@ class RefactoringServiceCEImplTest {
         layout1.setId("testLayoutId");
         layout1.setDsl(jsonObject);
         pageDTO.setLayouts(List.of(layout1));
-        Mockito.when(newPageService.getById(Mockito.anyString())).thenReturn(Mono.just(newPage));
+        Mockito.when(newPageService.getByIdWithoutPermissionCheck(Mockito.anyString()))
+                .thenReturn(Mono.just(newPage));
 
         Mockito.when(newPageService.findPageById(Mockito.anyString(), Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(pageDTO));
@@ -243,7 +243,8 @@ class RefactoringServiceCEImplTest {
         newPage.setUnpublishedPage(pageDTO);
         Mockito.when(newPageService.findPageById(Mockito.anyString(), Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(pageDTO));
-        Mockito.when(newPageService.getById(Mockito.anyString())).thenReturn(Mono.just(newPage));
+        Mockito.when(newPageService.getByIdWithoutPermissionCheck(Mockito.anyString()))
+                .thenReturn(Mono.just(newPage));
 
         final Mono<LayoutDTO> layoutDTOMono =
                 refactoringServiceCE.refactorEntityName(refactorActionCollectionNameDTO, null);
@@ -270,7 +271,6 @@ class RefactoringServiceCEImplTest {
         oldActionCollection.setId("testCollectionId");
         oldUnpublishedCollection.setPageId("testPageId");
         oldUnpublishedCollection.setName("oldName");
-        oldUnpublishedCollection.setDefaultToBranchedActionIdsMap(Map.of("defaultTestActionId", "testActionId"));
         oldActionCollection.setUnpublishedCollection(oldUnpublishedCollection);
         oldActionCollection.setDefaultResources(setDefaultResources(oldActionCollection));
         oldUnpublishedCollection.setDefaultResources(setDefaultResources(oldUnpublishedCollection));
@@ -297,7 +297,8 @@ class RefactoringServiceCEImplTest {
         layout1.setId("testLayoutId");
         layout1.setDsl(new JSONObject());
         pageDTO.setLayouts(List.of(layout1));
-        Mockito.when(newPageService.getById(Mockito.anyString())).thenReturn(Mono.just(newPage));
+        Mockito.when(newPageService.getByIdWithoutPermissionCheck(Mockito.anyString()))
+                .thenReturn(Mono.just(newPage));
 
         Mockito.when(newPageService.findPageById(Mockito.anyString(), Mockito.any(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(pageDTO));

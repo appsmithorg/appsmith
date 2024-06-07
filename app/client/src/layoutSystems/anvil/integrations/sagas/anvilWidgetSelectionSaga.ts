@@ -1,17 +1,26 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { AppState } from "@appsmith/reducers";
+import type { DSLWidget } from "WidgetProvider/constants";
 import { focusWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import get from "lodash/get";
 import log from "loglevel";
 import { put, select, takeLatest } from "redux-saga/effects";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getWidget } from "sagas/selectors";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import {
   getFocusedParentToOpen,
   isWidgetSelected,
   shouldWidgetIgnoreClicksSelector,
 } from "selectors/widgetSelectors";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import { NavigationMethod } from "utils/history";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { AnvilReduxActionTypes } from "../actions/actionTypes";
+import { setActiveEditorField } from "actions/activeFieldActions";
+import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
+import { setEvalPopupState } from "actions/editorContextActions";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 
 /**
  * This saga selects widgets in the Anvil Layout system
@@ -76,6 +85,51 @@ export function* selectAnvilWidget(
   log.debug("Time taken to select widget", performance.now() - start, "ms");
 }
 
+/**
+ * A function that loops through all the entries in the error object and finds the first error path
+ * @param errors The error object from evaluations
+ * @param widget The widget in which the error occured
+ * @returns The full property path of the property with the error
+ */
+function getErrorPropertyPath(
+  errors: Record<string, Array<unknown>>,
+  widget: DSLWidget,
+) {
+  for (const [key, value] of Object.entries(errors)) {
+    if (value && value.length > 0) {
+      return `${widget.widgetName}.${key}`;
+    }
+  }
+}
+
+// This is a stopgap measure until #33014 is resolved
+export function* debugWidget(action: ReduxAction<{ widgetId: string }>) {
+  const widgetId = action.payload.widgetId;
+  const widget: DSLWidget = yield select(getWidget, widgetId);
+  const widgetName: string = widget.widgetName;
+  const errors: Record<string, Array<unknown>> = yield select(
+    (state: AppState) =>
+      get(state.evaluations.tree[widgetName], EVAL_ERROR_PATH, {}),
+  );
+
+  const fullPath = getErrorPropertyPath(errors, widget);
+  if (fullPath && fullPath.length > 0) {
+    yield put(setActiveEditorField(fullPath));
+    yield put(setFocusablePropertyPaneField(fullPath));
+    yield put(
+      setEvalPopupState(fullPath, {
+        type: false,
+        value: true,
+        example: false,
+      }),
+    );
+  }
+}
+
 export default function* selectAnvilWidgetSaga() {
-  yield takeLatest("ANVIL_WIDGET_SELECTION_CLICK", selectAnvilWidget);
+  yield takeLatest(AnvilReduxActionTypes.DEBUG_WIDGET, debugWidget);
+  yield takeLatest(
+    AnvilReduxActionTypes.ANVIL_WIDGET_SELECTION_CLICK,
+    selectAnvilWidget,
+  );
 }

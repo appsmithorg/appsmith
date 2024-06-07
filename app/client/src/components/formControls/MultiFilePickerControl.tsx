@@ -17,7 +17,7 @@ import { get, isArray } from "lodash";
 import { formatFileSize } from "./utils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPlugin } from "@appsmith/selectors/entitiesSelector";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const HiddenFileInput = styled.input`
   visibility: hidden;

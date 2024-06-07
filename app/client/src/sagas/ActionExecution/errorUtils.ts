@@ -8,12 +8,9 @@ import type { Types } from "utils/TypeHelpers";
 import type { ActionTriggerKeys } from "@appsmith/workers/Evaluation/fns/index";
 import { getActionTriggerFunctionNames } from "@appsmith/workers/Evaluation/fns/index";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import AnalyticsUtil from "../../utils/AnalyticsUtil";
-import {
-  setDebuggerSelectedTab,
-  showDebugger,
-} from "../../actions/debuggerActions";
-import { DEBUGGER_TAB_KEYS } from "../../components/editorComponents/Debugger/helpers";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import store from "store";
 import showToast from "sagas/ToastSagas";
 import { call } from "redux-saga/effects";

@@ -1,12 +1,15 @@
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
 
 export const metaConfig = {
   name: "Modal",
-  iconSVG: IconSVG,
-  thumbnailSVG: ThumbnailSVG,
   tags: [WIDGET_TAGS.LAYOUT],
   needsMeta: true,
   searchTags: ["dialog", "popup", "notification"],
+  onCanvasUI: {
+    selectionBGCSSVar: "--on-canvas-ui-widget-selection",
+    focusBGCSSVar: "--on-canvas-ui-widget-focus",
+    selectionColorCSSVar: "--on-canvas-ui-widget-focus",
+    focusColorCSSVar: "--on-canvas-ui-widget-selection",
+    disableParentSelection: true,
+  },
 };

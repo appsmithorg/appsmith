@@ -31,6 +31,7 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 
@@ -60,6 +61,7 @@ class SingleSelectTreeWidget extends BaseWidget<
       name: "TreeSelect",
       searchTags: ["dropdown", "singleselecttree"],
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.SELECT],
       needsMeta: true,
     };

@@ -65,7 +65,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       //Image Widget Functionality To Check Visible Widget", function () {
       cy.openPropertyPane("imagewidget");
-      cy.togglebar(commonlocators.visibleCheckbox);
+      agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       deployMode.DeployApp(publish.imageWidget);
       deployMode.NavigateBacktoEditor();
     });
@@ -74,7 +74,7 @@ describe(
       cy.openPropertyPane("imagewidget");
       // Invalid image url
       const invalidImageUrl =
-        "http://host.docker.internal:8001/photo-not-exists.jpeg";
+        "http://host.docker.internal:4200/photo-not-exists.jpeg";
       cy.testCodeMirror(invalidImageUrl);
 
       // Show off error message

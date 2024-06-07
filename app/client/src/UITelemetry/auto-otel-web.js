@@ -1,6 +1,5 @@
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { WebTracerProvider } from "@opentelemetry/sdk-trace-web";
-import { getWebAutoInstrumentations } from "@opentelemetry/auto-instrumentations-web";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import { ZoneContextManager } from "@opentelemetry/context-zone";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
@@ -67,17 +66,5 @@ provider.register({
 });
 
 registerInstrumentations({
-  instrumentations: [
-    getWebAutoInstrumentations({
-      "@opentelemetry/instrumentation-xml-http-request": {
-        enabled: true,
-      },
-      "@opentelemetry/instrumentation-document-load": {
-        enabled: true,
-      },
-      "@opentelemetry/instrumentation-user-interaction": {
-        enabled: true,
-      },
-    }),
-  ],
+  instrumentations: [],
 });

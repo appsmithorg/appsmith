@@ -11,12 +11,6 @@ import org.springframework.context.annotation.Configuration;
 public class CloudServicesConfig {
     private String baseUrl;
 
-    @Value("${appsmith.cloud_services.username}")
-    private String username;
-
-    @Value("${appsmith.cloud_services.password}")
-    private String password;
-
     @Value("${appsmith.cloud_services.template_upload_auth_header}")
     private String templateUploadAuthHeader;
 

@@ -10,7 +10,7 @@ import {
   EDIT,
   createMessage,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteDatasource } from "actions/datasourceActions";
 import { debounce } from "lodash";
@@ -145,8 +145,8 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
         {isDeleting
           ? createMessage(CONFIRM_CONTEXT_DELETING)
           : confirmDelete
-          ? createMessage(CONFIRM_CONTEXT_DELETE)
-          : createMessage(CONTEXT_DELETE)}
+            ? createMessage(CONFIRM_CONTEXT_DELETE)
+            : createMessage(CONTEXT_DELETE)}
       </MenuItem>,
     ];
   };
@@ -183,6 +183,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
           {canDeleteDatasource && (
             <MenuWrapper
               className="t--datasource-menu-option"
+              key={datasourceId}
               onClick={(e) => {
                 e.stopPropagation();
               }}

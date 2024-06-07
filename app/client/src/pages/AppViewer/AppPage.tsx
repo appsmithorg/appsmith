@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { useSelector } from "react-redux";
@@ -8,9 +8,8 @@ import { PageView, PageViewWrapper } from "./AppPage.styled";
 import { APP_MODE } from "entities/App";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 interface AppPageProps {
   appName?: string;
@@ -23,8 +22,7 @@ interface AppPageProps {
 export function AppPage(props: AppPageProps) {
   const appMode = useSelector(getAppMode);
   const isPublished = appMode === APP_MODE.PUBLISHED;
-  const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
-  const isAnvilLayout = layoutSystemType === LayoutSystemTypes.ANVIL;
+  const isAnvilLayout = useSelector(getIsAnvilLayout);
   const { hasSidebarPinned, sidebarWidth } = useAppViewerSidebarProperties();
 
   const width: string = useMemo(() => {

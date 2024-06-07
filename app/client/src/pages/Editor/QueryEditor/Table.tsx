@@ -33,7 +33,7 @@ const NoDataMessage = styled.span`
 `;
 
 // TODO: replace with ads table
-export const TableWrapper = styled.div`
+export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
   width: 100%;
   height: auto;
   background: var(--ads-v2-color-bg);
@@ -94,6 +94,10 @@ export const TableWrapper = styled.div`
       position: relative;
       font-size: ${TABLE_SIZES.ROW_FONT_SIZE}px;
       line-height: ${TABLE_SIZES.ROW_FONT_SIZE}px;
+      ${(props) =>
+        `${
+          props.minColumnWidth ? `min-width: ${props.minColumnWidth}px;` : ""
+        }`}
       :last-child {
         border-right: 0;
       }
@@ -191,7 +195,11 @@ const renderCell = (props: any) => {
   }
 
   return (
-    <AutoToolTipComponent title={displayValue}>
+    <AutoToolTipComponent
+      boundary="viewport"
+      position="left"
+      title={displayValue}
+    >
       {displayValue}
     </AutoToolTipComponent>
   );
@@ -322,6 +330,7 @@ function Table(props: TableProps) {
       <TableWrapper
         className="t--table-response"
         data-guided-tour-id="query-table-response"
+        minColumnWidth={defaultColumn.width}
       >
         <div className="tableWrap">
           <div {...getTableProps()} className="table">
@@ -346,7 +355,11 @@ function Table(props: TableProps) {
                               : "hidden-header"
                           }
                         >
-                          <AutoToolTipComponent title={column.render("Header")}>
+                          <AutoToolTipComponent
+                            boundary="viewport"
+                            position="left"
+                            title={column.render("Header")}
+                          >
                             {column.render("Header")}
                             {shouldResize && (
                               <div

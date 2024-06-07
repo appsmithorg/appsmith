@@ -16,6 +16,7 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
+import { EntityItems } from "../../../../../support/Pages/AssertHelper";
 
 let parentBranchKey = "ParentBranch",
   childBranchKey = "ChildBranch",
@@ -67,7 +68,12 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     });
 
     PageList.AddNewPage();
-    entityExplorer.RenameEntityFromExplorer("Page2", "ParentPage1", true);
+    entityExplorer.RenameEntityFromExplorer(
+      "Page2",
+      "ParentPage1",
+      false,
+      EntityItems.Page,
+    );
     dataSources.NavigateToDSCreateNew();
     apiPage.CreateApi("ParentApi1");
     jsEditor.CreateJSObject();
@@ -80,7 +86,12 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
       childBranchKey = branName;
     });
     PageList.AddNewPage();
-    entityExplorer.RenameEntityFromExplorer("Page2", "ChildPage1", true);
+    entityExplorer.RenameEntityFromExplorer(
+      "Page2",
+      "ChildPage1",
+      false,
+      EntityItems.Page,
+    );
     dataSources.NavigateToDSCreateNew();
     apiPage.CreateApi("ChildApi1");
     jsEditor.CreateJSObject();
@@ -92,14 +103,10 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     // A switch here should not show a 404 page
     cy.switchGitBranch(parentBranchKey);
     // When entity not found, takes them to the home page
-    cy.get(`.t--entity.page`)
-      .contains("Page1")
-      .closest(".t--entity")
-      .should("be.visible")
-      .should("have.class", "activePage");
+    PageList.VerifyIsCurrentPage("Page1");
 
     EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
-    PageLeftPane.assertAbsence("ChildPage1");
+    PageList.assertAbsence("ChildPage1");
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.assertAbsence("ChildApi1");
     PageLeftPane.switchSegment(PagePaneSegment.JS);
@@ -113,16 +120,19 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     entityExplorer.RenameEntityFromExplorer(
       "ParentPage1",
       "ParentPageRenamed",
-      true,
+      false,
+      EntityItems.Page,
     );
-    agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
+    agHelper.RemoveUIElement(
+      "Tooltip",
+      Cypress.env("MESSAGES").ADD_QUERY_JS_TOOLTIP(),
+    );
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     entityExplorer.RenameEntityFromExplorer("ParentApi1", "ParentApiRenamed");
 
     cy.switchGitBranch(parentBranchKey);
 
-    PageList.ShowList();
-    PageLeftPane.assertAbsence("ParentPageRenamed");
+    PageList.assertAbsence("ParentPageRenamed");
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.assertAbsence("ParentApiRenamed");
   });
@@ -180,7 +190,8 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     // cy.get("@gitbranchName").then((branName) => {
     //   tempBranch = branName;
     // });
-    cy.renameBranchViaGithubApi(repoName, tempBranch, tempBranchRenamed);
+    // rename branch API missing in TED.
+    // cy.renameBranchViaGithubApi(repoName, tempBranch, tempBranchRenamed);
     cy.get(gitSyncLocators.branchButton).click();
     cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${tempBranch}`);
     const tempBranchRegex = new RegExp(`^${tempBranch}$`);
@@ -219,11 +230,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
       cy.get(gitSyncLocators.branchListItem).contains("master").click();
       cy.wait(4000);
       PageLeftPane.switchSegment(PagePaneSegment.UI);
-      cy.get(`.t--entity.page`)
-        .contains("Page1")
-        .closest(".t--entity")
-        .should("be.visible")
-        .should("have.class", "activePage");
+      PageList.VerifyIsCurrentPage("Page1");
       cy.get(".t--canvas-artboard").should("be.visible");
     });
     agHelper.RefreshPage();

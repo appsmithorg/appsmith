@@ -266,8 +266,8 @@ export const getPropertyValue = (
     return isSourceData
       ? getValueForSourceData(value, index)
       : preserveCase
-      ? value[index].toString()
-      : value[index].toString().toUpperCase();
+        ? value[index].toString()
+        : value[index].toString().toUpperCase();
   } else if (value) {
     return preserveCase ? value.toString() : value.toString().toUpperCase();
   } else {
@@ -518,8 +518,11 @@ export const getCellProperties = (
         true,
       ),
       decimals: columnProperties.decimals,
-      thousandSeparator: !!columnProperties.thousandSeparator,
-      notation: columnProperties.notation,
+      thousandSeparator: getBooleanPropertyValue(
+        columnProperties.thousandSeparator,
+        rowIndex,
+      ),
+      notation: getPropertyValue(columnProperties.notation, rowIndex, true),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
@@ -679,9 +682,8 @@ export const createEditActionColumn = (props: TableWidgetProps) => {
 
         const js = combineDynamicBindings(jsSnippets, stringSegments);
 
-        themeProps[
-          key
-        ] = `{{${props.widgetName}.processedTableData.map((currentRow, currentIndex) => ( ${js}))}}`;
+        themeProps[key] =
+          `{{${props.widgetName}.processedTableData.map((currentRow, currentIndex) => ( ${js}))}}`;
       },
     );
   }

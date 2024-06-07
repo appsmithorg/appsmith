@@ -18,7 +18,7 @@ import {
   fetchDatasourceStructure,
   fetchGheetSpreadsheets,
 } from "actions/datasourceActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { invert } from "lodash";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { useDispatch, useSelector } from "react-redux";

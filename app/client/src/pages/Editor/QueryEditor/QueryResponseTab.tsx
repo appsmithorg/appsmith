@@ -16,7 +16,7 @@ import { JsonWrapper } from "components/editorComponents/Debugger/ErrorLogs/comp
 import { Callout, Flex, SegmentedControl } from "design-system";
 import styled from "styled-components";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
 import { getUpdateTimestamp } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
 import type { SourceEntity } from "entities/AppsmithConsole";

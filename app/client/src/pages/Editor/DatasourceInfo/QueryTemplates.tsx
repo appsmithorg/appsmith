@@ -27,7 +27,7 @@ import { change, getFormValues } from "redux-form";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import { diff } from "deep-diff";
 import { UndoRedoToastContext, showUndoRedoToast } from "utils/replayHelpers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
 import { SUGGESTED_TAG, createMessage } from "@appsmith/constants/messages";
 import { transformTextToSentenceCase } from "pages/Editor/utils";

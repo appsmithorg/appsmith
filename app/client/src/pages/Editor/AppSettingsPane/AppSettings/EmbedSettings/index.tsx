@@ -19,7 +19,7 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import MakeApplicationForkable from "./MakeApplicationForkable";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getEmbedSnippetTab } from "@appsmith/utils/BusinessFeatures/privateEmbedHelpers";

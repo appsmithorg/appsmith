@@ -18,14 +18,13 @@ import {
   autoIndentCode,
   getAutoIndentShortcutKeyText,
 } from "components/editorComponents/CodeEditor/utils/autoIndentUtils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { updateJSCollectionBody } from "actions/jsPaneActions";
 import type { IconName } from "@blueprintjs/icons";
 
 import type { ContextMenuOption } from "./JSEditorContextMenu";
 import JSEditorContextMenu from "./JSEditorContextMenu";
 import equal from "fast-deep-equal/es6";
-import { getJSEntityName } from "../Explorer/JSActions/helpers";
 import {
   getHasDeleteActionPermission,
   getHasManageActionPermission,
@@ -59,12 +58,11 @@ export function AppJSEditorContextMenu({
 
   const copyJSCollectionToPage = useCallback(
     (actionId: string, actionName: string, pageId: string) => {
-      const nextEntityName = getJSEntityName();
       dispatch(
         copyJSCollectionRequest({
           id: actionId,
           destinationPageId: pageId,
-          name: nextEntityName(`${actionName}Copy`, pageId),
+          name: actionName,
         }),
       );
     },
@@ -73,12 +71,11 @@ export function AppJSEditorContextMenu({
 
   const moveJSCollectionToPage = useCallback(
     (actionId: string, actionName: string, destinationPageId: string) => {
-      const nextEntityName = getJSEntityName();
       dispatch(
         moveJSCollectionRequest({
           id: actionId,
           destinationPageId,
-          name: nextEntityName(actionName, destinationPageId, false),
+          name: actionName,
         }),
       );
     },

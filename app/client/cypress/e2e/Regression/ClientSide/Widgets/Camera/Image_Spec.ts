@@ -35,10 +35,10 @@ describe(
 
       // Check camera resource is properly released on navigating away
       PageList.AddNewPage();
-      EditorNavigation.SelectEntityByName("Page2", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
       agHelper.AssertElementAbsence(widgetLocators.cameraVideo);
 
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Widget);
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper.AssertElementVisibility(widgetLocators.cameraVideo);
     });
 

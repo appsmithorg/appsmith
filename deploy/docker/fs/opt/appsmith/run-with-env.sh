@@ -30,7 +30,15 @@ fi
 
 if [[ -z "${APPSMITH_GIT_ROOT:-}" ]]; then
   export APPSMITH_GIT_ROOT=/appsmith-stacks/git-storage
+else
+  echo "WARNING: It appears a custom value has been configured for APPSMITH_GIT_ROOT. This behaviour is deprecated and will soon be removed."
 fi
 mkdir -pv "$APPSMITH_GIT_ROOT"
+
+# Check if APPSMITH_DB_URL is set
+if [[ -z "${APPSMITH_DB_URL}" ]]; then
+  # If APPSMITH_DB_URL is not set, fall back to APPSMITH_MONGODB_URI
+  export APPSMITH_DB_URL="${APPSMITH_MONGODB_URI}"
+fi
 
 exec "$@"

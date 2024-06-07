@@ -1,8 +1,10 @@
 import { createGlobalStyle } from "styled-components";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { Theme } from "constants/DefaultTheme";
-import { LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS } from "components/editorComponents/CodeEditor/constants";
-import { CodeEditorColors } from "components/editorComponents/CodeEditor/styledComponents";
+import {
+  CodeEditorColors,
+  LINT_TOOLTIP_JUSTIFIED_LEFT_CLASS,
+} from "components/editorComponents/CodeEditor/constants";
 
 export const CodemirrorHintStyles = createGlobalStyle<{
   editorTheme: EditorTheme;
@@ -112,6 +114,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         display: flex;
         align-items: start;
         gap: 8px;
+      }
+      &.show-more-option {
+        opacity: 0.7;
       }
     }
 

@@ -113,8 +113,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                         new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change role of a member")));
 
         // the user is being removed from the workspace. Remove the workspace from recent workspace list of UserData
-        Mono<Void> updateUserDataMono =
-                userMono.flatMap(user -> userDataService.removeRecentWorkspaceAndApps(user.getId(), workspaceId));
+        Mono<Void> updateUserDataMono = userMono.flatMap(
+                user -> userDataService.removeRecentWorkspaceAndChildEntities(user.getId(), workspaceId));
 
         Mono<Boolean> removeUserFromOldPermissionGroupMono = oldDefaultPermissionGroupsMono.flatMap(
                 permissionGroup -> permissionGroupService.leaveExplicitlyAssignedSelfRole(permissionGroup.getId()));

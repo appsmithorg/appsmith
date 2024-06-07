@@ -5,3 +5,4 @@ export { metaConfig } from "./metaConfig";
 export { propertyPaneContentConfig } from "./propertyPaneConfig";
 export { autocompleteConfig } from "./autocompleteConfig";
 export { settersConfig } from "./settersConfig";
+export { methodsConfig } from "./methodsConfig";

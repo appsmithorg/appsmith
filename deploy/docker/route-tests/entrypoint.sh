@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/bin/bash
 
 set -o errexit
 set -o nounset
@@ -44,8 +44,11 @@ echo
 export TMP=/tmp/appsmith
 export WWW_PATH="$TMP/www"
 
-mkdir -p "$WWW_PATH"
-echo -n 'index.html body' > "$WWW_PATH/index.html"
+# Fake files needed by the caddy-reconfigure script
+mkdir -p "$WWW_PATH" /opt/appsmith/editor
+echo -n 'index.html body, this will be replaced' > "$WWW_PATH/index.html"
+echo '{}' > /opt/appsmith/info.json
+echo -n 'actual index.html body' > /opt/appsmith/editor/index.html
 mkcert -install
 
 # Start echo server

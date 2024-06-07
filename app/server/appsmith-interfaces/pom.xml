@@ -22,6 +22,12 @@
             <groupId>com.hierynomus</groupId>
             <artifactId>sshj</artifactId>
             <version>0.35.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Actual Junit5 implementation. Will transitively include junit-jupiter-api -->
@@ -88,11 +94,13 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
+            <version>${jackson-bom.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson-bom.version}</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -184,6 +192,12 @@
             <artifactId>jjwt-jackson</artifactId>
             <!-- or jjwt-gson if Gson is preferred -->
             <version>${jjwt.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.fasterxml.jackson.core</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!--Test dependencies-->
@@ -229,8 +243,12 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.74</version>
+            <version>1.78</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing</artifactId>
         </dependency>
 
     </dependencies>

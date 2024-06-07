@@ -4,13 +4,13 @@ import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
@@ -21,9 +21,7 @@ import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -39,15 +37,11 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.proj
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
+@RequiredArgsConstructor
 public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
         implements CustomNewActionRepositoryCE {
 
-    public CustomNewActionRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
-    }
+    private final ReactiveMongoOperations mongoOperations;
 
     @Override
     public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
@@ -240,10 +234,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Mono<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, Boolean viewMode, AclPermission permission) {
-        final String defaultResources = NewAction.Fields.defaultResources;
         final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(
-                        defaultResources + "." + FieldName.ACTION_ID, defaultActionId)
-                .equal(defaultResources + "." + FieldName.BRANCH_NAME, branchName);
+                        NewAction.Fields.defaultResources_actionId, defaultActionId)
+                .equal(NewAction.Fields.defaultResources_branchName, branchName);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
@@ -340,7 +333,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
         final String defaultResources = BranchAwareDomain.Fields.defaultResources;
         return queryBuilder()
-                .criteria(Bridge.equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId)
+                .criteria(Bridge.equal(NewAction.Fields.defaultResources_applicationId, defaultApplicationId)
                         .isNull(NewAction.Fields.unpublishedAction_deletedAt))
                 .permission(permission.orElse(null))
                 .all();
@@ -353,8 +346,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     protected Mono<Void> copyUnpublishedActionToPublishedAction(
             BridgeQuery<NewAction> criteria, AclPermission permission) {
-        Mono<Set<String>> permissionGroupsMono =
-                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
+        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
 
         return permissionGroupsMono
                 .flatMapMany(permissionGroups -> {
@@ -384,9 +376,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         final BridgeQuery<NewAction> q = getCriterionForFindByApplicationId(applicationId)
                 .isNotNull(NewAction.Fields.unpublishedAction_deletedAt);
 
-        Update update = new Update();
-        update.set(FieldName.DELETED, true);
-        update.set(FieldName.DELETED_AT, Instant.now());
+        BridgeUpdate update = Bridge.update();
+        update.set(NewAction.Fields.deleted, true);
+        update.set(NewAction.Fields.deletedAt, Instant.now());
         return queryBuilder().criteria(q).permission(permission).updateAll(update);
     }
 
@@ -409,6 +401,19 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(Bridge.in(NewAction.Fields.applicationId, applicationIds))
                 .fields(includeFields)
                 .all();
+    }
+
+    @Override
+    public Flux<NewAction> findAllByCollectionIds(
+            List<String> collectionIds, boolean viewMode, AclPermission aclPermission) {
+        String collectionIdPath;
+        if (viewMode) {
+            collectionIdPath = NewAction.Fields.publishedAction_collectionId;
+        } else {
+            collectionIdPath = NewAction.Fields.unpublishedAction_collectionId;
+        }
+        BridgeQuery<NewAction> q = Bridge.in(collectionIdPath, collectionIds);
+        return queryBuilder().criteria(q).permission(aclPermission).all();
     }
 
     @Override

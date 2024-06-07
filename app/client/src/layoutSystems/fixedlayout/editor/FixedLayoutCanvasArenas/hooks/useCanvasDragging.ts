@@ -1,5 +1,6 @@
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
+  BUILDING_BLOCK_EXPLORER_TYPE,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
@@ -34,6 +35,8 @@ import { useBlocksToBeDraggedOnCanvas } from "./useBlocksToBeDraggedOnCanvas";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
+import { useSelector } from "react-redux";
+import { getDragDetails } from "sagas/selectors";
 
 /**
  * useCanvasDragging hook is utilized to handle all drag and drop related functions that are required to give user the sense of dragging and dropping while moving a widget on canvas
@@ -63,6 +66,7 @@ export const useCanvasDragging = (
   }: FixedCanvasDraggingArenaProps,
 ) => {
   const currentDirection = useRef<ReflowDirection>(ReflowDirection.UNSET);
+  const dragDetails = useSelector(getDragDetails);
   const { devicePixelRatio: scale = 1 } = window;
   const {
     blocksToDraw,
@@ -352,8 +356,14 @@ export const useCanvasDragging = (
               top: e.offsetY - startPoints.top - parentDiff.top,
             };
 
-            const drawingBlocks = blocksToDraw.map((each) =>
-              modifyBlockDimension(
+            const drawingBlocks = blocksToDraw.map((each) => {
+              let buildingBlockRows;
+              let buildingBlockColumns;
+              if (each.type === BUILDING_BLOCK_EXPLORER_TYPE) {
+                buildingBlockRows = dragDetails.newWidget.rows;
+                buildingBlockColumns = dragDetails.newWidget.columns;
+              }
+              return modifyBlockDimension(
                 {
                   ...each,
                   left: each.left + delta.left,
@@ -364,8 +374,10 @@ export const useCanvasDragging = (
                 rowRef.current - 1,
                 canExtend,
                 false,
-              ),
-            );
+                buildingBlockColumns,
+                buildingBlockRows,
+              );
+            });
             const newRows = updateRelativeRows(drawingBlocks, rowRef.current);
             const rowDelta = newRows ? newRows - rowRef.current : 0;
             rowRef.current = newRows ? newRows : rowRef.current;

@@ -252,7 +252,7 @@
                       {
                         "resetFormOnClick": true,
                         "widgetName": "FormButton1",
-                        "onClick": "{{showModal('Modal1')}}",
+                        "onClick": "{{showModal(Modal1.name)}}",
                         "buttonColor": "#03B365",
                         "dynamicPropertyPathList": [{ "key": "onClick" }],
                         "displayName": "FormButton",
@@ -609,7 +609,7 @@
               },
               {
                 "widgetName": "Button4",
-                "onClick": "{{showModal('Modal2')}}",
+                "onClick": "{{showModal(Modal2.name)}}",
                 "buttonColor": "#03B365",
                 "dynamicPropertyPathList": [{ "key": "onClick" }],
                 "displayName": "Button",
@@ -821,7 +821,7 @@
               {
                 "widgetName": "Icon1",
                 "rightColumn": 64,
-                "onClick": "{{closeModal('Modal1')}}",
+                "onClick": "{{closeModal(Modal1.name)}}",
                 "color": "#040627",
                 "iconName": "cross",
                 "displayName": "Icon",
@@ -867,7 +867,7 @@
               },
               {
                 "widgetName": "Button2",
-                "onClick": "{{closeModal('Modal1')}}",
+                "onClick": "{{closeModal(Modal1.name)}}",
                 "buttonColor": "#03B365",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",

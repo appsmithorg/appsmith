@@ -10,7 +10,8 @@ import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.services.UserWorkspaceService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.annotation.JsonView;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,24 +23,46 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 @RequestMapping(Url.WORKSPACE_URL)
-public class WorkspaceControllerCE extends BaseController<WorkspaceService, Workspace, String> {
+@RequiredArgsConstructor
+public class WorkspaceControllerCE {
+    private final WorkspaceService service;
     private final UserWorkspaceService userWorkspaceService;
 
-    @Autowired
-    public WorkspaceControllerCE(WorkspaceService workspaceService, UserWorkspaceService userWorkspaceService) {
-        super(workspaceService);
-        this.userWorkspaceService = userWorkspaceService;
+    @JsonView(Views.Public.class)
+    @GetMapping("/{id}")
+    public Mono<ResponseDTO<Workspace>> getByIdAndBranchName(@PathVariable String id) {
+        return service.getById(id).map(workspace -> new ResponseDTO<>(HttpStatus.OK.value(), workspace, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public Mono<ResponseDTO<Workspace>> create(@Valid @RequestBody Workspace resource) {
+        return service.create(resource).map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PutMapping("/{id}")
+    public Mono<ResponseDTO<Workspace>> update(@PathVariable String id, @RequestBody Workspace resource) {
+        return service.update(id, resource)
+                .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @DeleteMapping("/{id}")
+    public Mono<ResponseDTO<Workspace>> delete(@PathVariable String id) {
+        return service.archiveById(id)
+                .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
     }
 
     /**
      * This function would be used to fetch default permission groups of workspace, for which user has access to invite users.
-     *
-     * @return
      */
     @JsonView(Views.Public.class)
     @GetMapping("/{workspaceId}/permissionGroups")

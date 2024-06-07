@@ -1,7 +1,8 @@
 package com.appsmith.server.configurations;
 
-import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.LogHelper;
+import io.micrometer.observation.Observation;
+import io.micrometer.tracing.handler.TracingObservationHandler;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.reactivestreams.Subscription;
@@ -13,6 +14,11 @@ import reactor.core.publisher.Operators;
 import reactor.util.context.Context;
 
 import java.util.Map;
+import java.util.Optional;
+
+import static com.appsmith.external.constants.MDCConstants.OBSERVATION;
+import static com.appsmith.external.constants.MDCConstants.SPAN_ID;
+import static com.appsmith.external.constants.MDCConstants.TRACE_ID;
 
 @Configuration
 public class MDCConfig {
@@ -77,7 +83,15 @@ public class MDCConfig {
             if (!context.isEmpty() && context.hasKey(LogHelper.CONTEXT_MAP)) {
                 Map<String, String> map = context.get(LogHelper.CONTEXT_MAP);
 
-                map.put(MDCFilter.THREAD, Thread.currentThread().getName());
+                Optional<Observation> observationOptional = context.getOrEmpty(OBSERVATION);
+                observationOptional.ifPresent(observation -> {
+                    TracingObservationHandler.TracingContext tracingContext =
+                            observation.getContext().get(TracingObservationHandler.TracingContext.class);
+                    if (tracingContext != null && tracingContext.getSpan() != null) {
+                        map.put(TRACE_ID, tracingContext.getSpan().context().traceId());
+                        map.put(SPAN_ID, tracingContext.getSpan().context().spanId());
+                    }
+                });
                 MDC.setContextMap(map);
             } else {
                 MDC.clear();

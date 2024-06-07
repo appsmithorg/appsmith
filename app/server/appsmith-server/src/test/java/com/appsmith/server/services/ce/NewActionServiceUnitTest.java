@@ -34,11 +34,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -51,16 +48,7 @@ public class NewActionServiceUnitTest {
     NewActionServiceCEImpl newActionService;
 
     @MockBean
-    Scheduler scheduler;
-
-    @MockBean
     Validator validator;
-
-    @MockBean
-    MongoConverter mongoConverter;
-
-    @MockBean
-    ReactiveMongoTemplate reactiveMongoTemplate;
 
     @MockBean
     AnalyticsService analyticsService;

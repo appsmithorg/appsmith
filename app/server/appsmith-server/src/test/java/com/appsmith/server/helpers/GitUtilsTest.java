@@ -3,6 +3,7 @@ package com.appsmith.server.helpers;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitArtifactMetadata;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -30,7 +31,7 @@ public class GitUtilsTest {
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.in:test/testRepo.git"))
                 .isEqualTo("https://example.in/test/testRepo");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
-                        "ssh://git@example.test.net:user/test/tests/testRepo.git"))
+                        "ssh://git@example.test.net/user/test/tests/testRepo.git"))
                 .isEqualTo("https://example.test.net/user/test/tests/testRepo");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
                         "git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk.git"))
@@ -38,13 +39,51 @@ public class GitUtilsTest {
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
-                        "ssh://git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk.git"))
+                        "ssh://git@tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk.git"))
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
-                        "ssh://git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
+                        "ssh://git@tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk"))
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@127.0.0.1:test/newRepo.git"))
                 .isEqualTo("https://127.0.0.1/test/newRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@localhost:test/newRepo.git"))
+                .isEqualTo("https://localhost/test/newRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@absolute.path.com:/test/newRepo.git"))
+                .isEqualTo("https://absolute.path.com/test/newRepo");
+
+        // Custom SSH port:
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
+                        "ssh://git@example.test.net:1234/user/test/tests/testRepo.git"))
+                .isEqualTo("https://example.test.net/user/test/tests/testRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
+                        "ssh://git@tim.tam.example.com:5678/v3/sladeping/pyhe/SpaceJunk.git"))
+                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
+                        "ssh://git@tim.tam.example.com:9876/v3/sladeping/pyhe/SpaceJunk"))
+                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
+
+        // custom ssh username:
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("abc-xy@vs-ssh.visualstudio.com:v3/newJet/ai/zilla"))
+                .isEqualTo("https://vs-ssh.visualstudio.com/v3/newJet/ai/zilla");
+
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
+                        "ssh://cust-om@vs-ssh.visualstudio.com:/v3/newJet/ai/zilla.git"))
+                .isEqualTo("https://vs-ssh.visualstudio.com/v3/newJet/ai/zilla");
+
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://xy-ab@sub.domain.xy:/v3/xy-ab/path/path.git"))
+                .isEqualTo("https://sub.domain.xy/v3/xy-ab/path/path");
+
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://domain.xy:/path/path.git"))
+                .isEqualTo("https://domain.xy/path/path");
+
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://user@domain.com/repopath.git"))
+                .isEqualTo("https://domain.com/repopath");
+
+        AppsmithException exception = assertThrows(
+                AppsmithException.class,
+                () -> GitUtils.convertSshUrlToBrowserSupportedUrl(
+                        "ssh://cust-om@vs-ssh.visualstudio.com:v3/newJet/ai/zilla.git"));
+        assertThat(exception.getAppErrorCode()).isEqualTo(AppsmithError.INVALID_GIT_CONFIGURATION.getAppErrorCode());
     }
 
     @Test
@@ -56,7 +95,7 @@ public class GitUtilsTest {
                 .verifyComplete();
 
         StepVerifier.create(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl(
-                        "ssh://git@example.test.net:user/test/tests/testRepo.git")))
+                        "ssh://git@example.test.net/user/test/tests/testRepo.git")))
                 .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
                 .verifyComplete();
 
@@ -116,6 +155,18 @@ public class GitUtilsTest {
         assertThat(GitUtils.getRepoName("user@host.xz:path/to/repo.git")).isEqualTo("repo");
         assertThat(GitUtils.getRepoName("org-987654321@github.com:org_name/repository_name.git"))
                 .isEqualTo("repository_name");
+
+        // custom ssh username:
+        assertThat(GitUtils.getRepoName("custom@vs-ssh.visualstudio.com:v3/newJet/ai/zilla"))
+                .isEqualTo("zilla");
+
+        assertThat(GitUtils.getRepoName("ssh://custom@vs-ssh.visualstudio.com:/v3/newJet/ai/zilla"))
+                .isEqualTo("zilla");
+
+        assertThat(GitUtils.getRepoName("ssh://xy-ab@sub.domain.xy:/v3/xy-ab/path/path.git"))
+                .isEqualTo("path");
+
+        assertThat(GitUtils.getRepoName("ssh://domain.xy:/path/path.git")).isEqualTo("path");
     }
 
     @Test

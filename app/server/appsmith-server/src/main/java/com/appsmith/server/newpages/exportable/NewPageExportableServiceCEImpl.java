@@ -22,7 +22,6 @@ import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.constants.ResourceModes.EDIT;
@@ -55,8 +54,8 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
             ArtifactExchangeJson artifactExchangeJson) {
 
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
-        Optional<AclPermission> optionalPermission = Optional.ofNullable(pagePermission.getExportPermission(
-                exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration()));
+        AclPermission optionalPermission = pagePermission.getExportPermission(
+                exportingMetaDTO.getIsGitSync(), exportingMetaDTO.getExportWithConfiguration());
 
         List<String> unpublishedPages = exportingMetaDTO.getUnpublishedContextIds();
 

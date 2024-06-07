@@ -103,8 +103,7 @@ public class UserWorkspaceServiceUnitTest {
         List<Workspace> workspaceList = new ArrayList<>(4);
         for (int i = 1; i <= 4; i++) {
             Workspace workspace = new Workspace();
-            workspace.setId("org-" + i);
-            workspace.setName(workspace.getId());
+            workspace.setName(UUID.randomUUID().toString());
             workspaceList.add(workspace);
         }
         return Flux.fromIterable(workspaceList)

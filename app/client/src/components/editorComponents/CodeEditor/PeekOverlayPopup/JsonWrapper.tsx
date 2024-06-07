@@ -55,7 +55,6 @@ export const JsonWrapper = styled.div`
         padding-bottom: 0 !important;
         border-left: 0 !important;
         .variable-value div {
-          text-transform: lowercase;
           font-size: 10px !important;
           padding-top: 0 !important;
           padding-bottom: 0 !important;

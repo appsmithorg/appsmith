@@ -14,10 +14,6 @@ describe(
     before(() => {
       agHelper.GenerateUUID();
       homePage.ImportApp(`PartialImportExport/${fixtureName}`);
-
-      featureFlagIntercept({
-        release_show_partial_import_export_enabled: true,
-      });
     });
 
     beforeEach(() => {

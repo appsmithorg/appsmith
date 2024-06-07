@@ -59,7 +59,7 @@
               {
                 "boxShadow": "NONE",
                 "widgetName": "IconButton1",
-                "onClick": "{{closeModal('Modal1')}}",
+                "onClick": "{{closeModal(Modal1.name)}}",
                 "buttonColor": "#2E3D49",
                 "displayName": "Icon button",
                 "iconSVG": "/static/media/icon.1a0c634a.svg",
@@ -112,7 +112,7 @@
               },
               {
                 "widgetName": "Button1",
-                "onClick": "{{closeModal('Modal1')}}",
+                "onClick": "{{closeModal(Modal1.name)}}",
                 "buttonColor": "#03B365",
                 "displayName": "Button",
                 "iconSVG": "/static/media/icon.cca02633.svg",
@@ -463,7 +463,7 @@
             "isDisabled": false,
             "isDerived": false,
             "label": "action",
-            "onClick": "{{showModal('Modal1')}}",
+            "onClick": "{{showModal(Modal1.name)}}",
             "computedValue": "{{Table1.sanitizedTableData.map((currentRow) => ( currentRow.action))}}",
             "buttonColor": "#03B365",
             "menuColor": "#03B365",

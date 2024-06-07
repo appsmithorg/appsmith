@@ -39,6 +39,7 @@ import {
 import type { WidgetProps } from "widgets/BaseWidget";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 
 export function selectedTabValidation(
@@ -71,6 +72,7 @@ class TabsWidget extends BaseWidget<
     return {
       name: "Tabs",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.LAYOUT],
       needsMeta: true,
       isCanvas: true,
@@ -617,8 +619,8 @@ class TabsWidget extends BaseWidget<
     let selectedTabWidgetId = this.props.selectedTabWidgetId;
     if (this.props.children) {
       selectedTabWidgetId =
-        this.props.children.find(
-          (tab) => this.props.selectedWidgetAncestry?.includes(tab.widgetId),
+        this.props.children.find((tab) =>
+          this.props.selectedWidgetAncestry?.includes(tab.widgetId),
         )?.widgetId ?? this.props.selectedTabWidgetId;
     }
     return selectedTabWidgetId;

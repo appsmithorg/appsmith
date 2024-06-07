@@ -10,6 +10,7 @@ import type { User } from "constants/userConstants";
 import { DefaultCurrentUserDetails } from "constants/userConstants";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
+import type { OverriddenFeatureFlags } from "utils/hooks/useFeatureFlagOverride";
 
 const initialState: UsersReduxState = {
   loadingStates: {
@@ -23,6 +24,7 @@ const initialState: UsersReduxState = {
   currentUser: undefined,
   featureFlag: {
     data: DEFAULT_FEATURE_FLAG_VALUE,
+    overriddenFlags: {},
     isFetched: false,
     isFetching: true,
   },
@@ -193,6 +195,29 @@ const usersReducer = createReducer(initialState, {
       isFetching: false,
     },
   }),
+  [ReduxActionTypes.FETCH_OVERRIDDEN_FEATURE_FLAGS]: (
+    state: UsersReduxState,
+    action: ReduxAction<FeatureFlags>,
+  ) => ({
+    ...state,
+    featureFlag: {
+      ...state.featureFlag,
+      overriddenFlags: action.payload,
+    },
+  }),
+  [ReduxActionTypes.UPDATE_OVERRIDDEN_FEATURE_FLAGS]: (
+    state: UsersReduxState,
+    action: ReduxAction<FeatureFlags>,
+  ) => ({
+    ...state,
+    featureFlag: {
+      ...state.featureFlag,
+      overriddenFlags: {
+        ...state.featureFlag.overriddenFlags,
+        ...action.payload,
+      },
+    },
+  }),
   [ReduxActionErrorTypes.FETCH_FEATURE_FLAGS_ERROR]: (
     state: UsersReduxState,
   ) => ({
@@ -264,6 +289,7 @@ export interface UsersReduxState {
     isFetched: boolean;
     data: FeatureFlags;
     isFetching: boolean;
+    overriddenFlags: OverriddenFeatureFlags;
   };
   productAlert: ProductAlertState;
 }

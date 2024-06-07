@@ -96,6 +96,11 @@ export function PeekOverlayPopUpContent(
     PEEK_OVERLAY_DELAY,
   );
 
+  const getLeftPosition = (position: DOMRect) => {
+    let left = position.right - 300;
+    if (left < 0) left = 8;
+    return left;
+  };
   return (
     <div
       className={`absolute ${zIndexLayers.PEEK_OVERLAY}`}
@@ -110,7 +115,7 @@ export function PeekOverlayPopUpContent(
         backgroundColor: "var(--ads-v2-color-bg)",
         boxShadow: "0px 0px 10px #0000001A", // color used from designs
         borderRadius: "var(--ads-v2-border-radius)",
-        left: `${props.position.left + props.position.width - 300}px`,
+        left: `${getLeftPosition(props.position)}px`,
         ...(props.position.top >= CONTAINER_MAX_HEIGHT_PX
           ? {
               bottom: `calc(100vh - ${props.position.top}px)`,

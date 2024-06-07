@@ -17,7 +17,7 @@ import { Button, MenuContent, MenuItem, MenuTrigger } from "design-system";
 import { deleteDatasource } from "actions/datasourceActions";
 import { getGenerateCRUDEnabledPluginMap } from "@appsmith/selectors/entitiesSelector";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import NewActionButton from "../DataSourceEditor/NewActionButton";
 import {
   datasourcesEditorIdURL,
@@ -405,8 +405,8 @@ function DatasourceCard(props: DatasourceCardProps) {
                         {isDeletingDatasource
                           ? createMessage(CONFIRM_CONTEXT_DELETING)
                           : confirmDelete
-                          ? createMessage(CONFIRM_CONTEXT_DELETE)
-                          : createMessage(CONTEXT_DELETE)}
+                            ? createMessage(CONFIRM_CONTEXT_DELETE)
+                            : createMessage(CONTEXT_DELETE)}
                       </MenuItem>
                     )}
                   </MenuContent>

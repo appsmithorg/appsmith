@@ -44,15 +44,15 @@ export const propertyPaneContentConfig = [
         isBindProperty: false,
         isTriggerProperty: false,
         updateHook: inputTypeUpdateHook,
-        dependencies: ["dynamicHeight"],
+        dependencies: ["defaultText"],
       },
       {
         helpText:
           "Sets the default text of the widget. The text is updated if the default text changes",
         propertyName: "defaultText",
-        label: "Default value",
+        label: "Value",
         controlType: "INPUT_TEXT",
-        placeholderText: "John Doe",
+        placeholderText: "Value",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
@@ -76,6 +76,9 @@ export const propertyPaneContentConfig = [
   },
   {
     sectionName: "Validation",
+    hidden: (props: InputWidgetProps) => {
+      return Boolean(props.isReadOnly);
+    },
     children: [
       {
         propertyName: "isRequired",

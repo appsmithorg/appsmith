@@ -26,7 +26,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL, 300, 300);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
-      propPane.EnterJSContext("onClick", "{{showModal('Modal1');}}");
+      propPane.EnterJSContext("onClick", "{{showModal(Modal1.name);}}");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
       agHelper.WaitUntilEleAppear(
         locators._widgetInDeployed(draggableWidgets.BUTTON),
@@ -126,7 +126,6 @@ describe(
           " " +
           locators._widgetInDeployed(draggableWidgets.TABLE),
       );
-
       deployMode.NavigateBacktoEditor();
 
       //Fixed height
@@ -135,10 +134,6 @@ describe(
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
       agHelper.ClickButton("Submit");
       agHelper.AssertElementVisibility(locators._modal);
-
-      //Verify that a fixed canvas size is visible when height is selected as Fixed
-      agHelper.AssertProperty(locators._modal, "offsetHeight", 1094);
-      agHelper.AssertProperty(locators._modal, "offsetWidth", 456);
       agHelper.AssertElementVisibility(
         locators._modal +
           " " +

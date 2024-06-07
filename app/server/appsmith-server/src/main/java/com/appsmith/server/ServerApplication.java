@@ -24,11 +24,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.time.Duration;
 
 @SpringBootApplication
+@ComponentScan({"com.appsmith"})
 @EnableScheduling
 @Slf4j
 public class ServerApplication {

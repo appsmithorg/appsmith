@@ -1,6 +1,9 @@
 import React, { type ReactNode, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getIsAutoLayout } from "selectors/editorSelectors";
+import {
+  combinedPreviewModeSelector,
+  getIsAutoLayout,
+} from "selectors/editorSelectors";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
 import { useAllowEditorDragToSelect } from "utils/hooks/useAllowEditorDragToSelect";
 import { useAutoHeightUIState } from "utils/hooks/autoHeightUIHooks";
@@ -10,6 +13,7 @@ export const WidgetEditorContentWrapper = (props: { children: ReactNode }) => {
   const allowDragToSelect = useAllowEditorDragToSelect();
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
   const dispatch = useDispatch();
+  const isCombinedPreviewMode = useSelector(combinedPreviewModeSelector);
 
   const handleWrapperClick = useCallback(
     (e) => {
@@ -62,7 +66,7 @@ export const WidgetEditorContentWrapper = (props: { children: ReactNode }) => {
     <div
       className="relative flex flex-row h-full w-full overflow-hidden"
       data-testid="t--widgets-editor"
-      draggable
+      draggable={!isCombinedPreviewMode}
       id="widgets-editor"
       onClick={handleWrapperClick}
       onDragStart={onDragStart}

@@ -17,6 +17,8 @@ import {
   WidgetFeaturePropertyPaneEnhancements,
 } from "../../utils/WidgetFeatures";
 import { generateReactKey } from "utils/generators";
+import { DEFAULT_WIDGET_ON_CANVAS_UI } from "widgets/anvil/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export enum PropertyPaneConfigTypes {
   STYLE = "STYLE",
@@ -300,3 +302,22 @@ export const checkIsDropTarget = memoize(function isDropTarget(
 ) {
   return !!WidgetFactory.widgetConfigMap.get(type)?.isCanvas;
 });
+
+/**
+ *
+ * @param config The default configuration from the widget
+ * @returns The default on canvas UI to be applied to widgets.
+ *
+ * This function takes into account the `detachFromLayout` property in the widget configuration
+ * which allows widgets like Modal widget to not have a parent selection.
+ *
+ * This is just a failsafe, and the individual widgets must describe if they don't wan the
+ * parent selection button to be available.
+ *
+ */
+export function getDefaultOnCanvasUIConfig(config: WidgetDefaultProps) {
+  return {
+    ...DEFAULT_WIDGET_ON_CANVAS_UI,
+    disableParentSelection: !!config.detachFromLayout,
+  };
+}

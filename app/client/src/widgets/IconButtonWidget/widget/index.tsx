@@ -19,6 +19,7 @@ import type {
 import { ICON_BUTTON_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
@@ -46,6 +47,7 @@ class IconButtonWidget extends BaseWidget<IconButtonWidgetProps, WidgetState> {
     return {
       name: "Icon button",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.BUTTONS],
       searchTags: ["click", "submit"],
     };

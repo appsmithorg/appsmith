@@ -29,6 +29,7 @@ import { DynamicHeight } from "utils/WidgetFeatures";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
@@ -42,6 +43,7 @@ class FormWidget extends ContainerWidget {
     return {
       name: "Form",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.LAYOUT],
       needsMeta: true,
       isCanvas: true,

@@ -22,7 +22,7 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const StyledButton = styled(Button)`
   height: 32px !important;

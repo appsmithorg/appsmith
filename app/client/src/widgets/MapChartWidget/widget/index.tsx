@@ -32,6 +32,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import Skeleton from "components/utils/Skeleton";
 import type { MapType } from "../component/types";
@@ -78,6 +79,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     return {
       name: "Map Chart", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.DISPLAY],
       needsMeta: true, // Defines if this widget adds any meta properties
       isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets

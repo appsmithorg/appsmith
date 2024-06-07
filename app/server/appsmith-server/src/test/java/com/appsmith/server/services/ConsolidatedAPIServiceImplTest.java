@@ -6,8 +6,10 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
@@ -43,6 +45,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,6 +53,7 @@ import java.util.Map;
 import static com.appsmith.external.constants.PluginConstants.PackageName.APPSMITH_AI_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -115,7 +119,7 @@ public class ConsolidatedAPIServiceImplTest {
     @SpyBean
     ApplicationRepository spyApplicationRepository;
 
-    @MockBean
+    @SpyBean
     NewPageRepository mockNewPageRepository;
 
     @Test
@@ -123,7 +127,7 @@ public class ConsolidatedAPIServiceImplTest {
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad("pageId", null, null, null);
         StepVerifier.create(consolidatedInfoForPageLoad).verifyErrorSatisfies(error -> {
-            assertTrue(error instanceof AppsmithException);
+            assertThat(error).isInstanceOf(AppsmithException.class);
             assertEquals("Please enter a valid parameter appMode.", error.getMessage());
         });
     }
@@ -212,8 +216,18 @@ public class ConsolidatedAPIServiceImplTest {
 
         ApplicationPagesDTO sampleApplicationPagesDTO = new ApplicationPagesDTO();
         sampleApplicationPagesDTO.setWorkspaceId("sampleWorkspaceId");
-        when(spyNewPageService.findApplicationPages(anyString(), any(), anyString(), any()))
-                .thenReturn(Mono.just(sampleApplicationPagesDTO));
+
+        doReturn(Mono.just(new Application()))
+                .when(spyApplicationService)
+                .findByDefaultIdBranchNameAndApplicationMode(anyString(), anyString(), any());
+
+        doReturn(Mono.just(List.of(new NewPage())))
+                .when(spyApplicationPageService)
+                .getPagesBasedOnApplicationMode(any(), any());
+
+        doReturn(Mono.just(sampleApplicationPagesDTO))
+                .when(spyNewPageService)
+                .createApplicationPagesDTO(any(), any(), anyBoolean(), anyBoolean());
 
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
@@ -383,8 +397,18 @@ public class ConsolidatedAPIServiceImplTest {
 
         ApplicationPagesDTO sampleApplicationPagesDTO = new ApplicationPagesDTO();
         sampleApplicationPagesDTO.setWorkspaceId("sampleWorkspaceId");
-        when(spyNewPageService.findApplicationPages(anyString(), any(), anyString(), any()))
-                .thenReturn(Mono.just(sampleApplicationPagesDTO));
+
+        doReturn(Mono.just(new Application()))
+                .when(spyApplicationService)
+                .findByDefaultIdBranchNameAndApplicationMode(anyString(), anyString(), any());
+
+        doReturn(Mono.just(List.of(new NewPage())))
+                .when(spyApplicationPageService)
+                .getPagesBasedOnApplicationMode(any(), any());
+
+        doReturn(Mono.just(sampleApplicationPagesDTO))
+                .when(spyNewPageService)
+                .createApplicationPagesDTO(any(), any(), anyBoolean(), anyBoolean());
 
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
@@ -404,8 +428,14 @@ public class ConsolidatedAPIServiceImplTest {
                 .when(spyApplicationPageService)
                 .getPageAndMigrateDslByBranchAndDefaultPageId(anyString(), anyString(), anyBoolean(), anyBoolean());
 
+        doReturn(Mono.just(samplePageDTO))
+                .doReturn(Mono.just(samplePageDTO))
+                .when(spyApplicationPageService)
+                .getPageDTOAfterMigratingDSL(any(), anyBoolean(), anyBoolean());
+
         ActionDTO sampleActionDTO = new ActionDTO();
         sampleActionDTO.setName("sampleActionDTO");
+        sampleActionDTO.setUpdatedAt(Instant.now());
         doReturn(Flux.just(sampleActionDTO))
                 .when(spyNewActionService)
                 .getUnpublishedActions(any(), anyString(), anyBoolean());
@@ -437,7 +467,7 @@ public class ConsolidatedAPIServiceImplTest {
         sampleAiPlugin.setName("sampleAiPlugin");
         sampleAiPlugin.setId("sampleAiPluginId");
         sampleAiPlugin.setPackageName(APPSMITH_AI_PLUGIN);
-        when(mockPluginService.get(any()))
+        when(mockPluginService.getInWorkspace(anyString()))
                 .thenReturn(Flux.just(samplePlugin, sampleRestApiPlugin, sampleGraphqlPlugin, sampleAiPlugin));
 
         Datasource sampleDatasource = new Datasource();
@@ -445,7 +475,7 @@ public class ConsolidatedAPIServiceImplTest {
         sampleDatasource.setPluginId("samplePluginId");
         when(mockDatasourceService.getAllWithStorages(any())).thenReturn(Flux.just(sampleDatasource));
 
-        Map<String, Map> sampleFormConfig = new HashMap<>();
+        Map<String, Map<?, ?>> sampleFormConfig = new HashMap<>();
         sampleFormConfig.put("key", Map.of());
         when(mockPluginService.getFormConfig(anyString())).thenReturn(Mono.just(sampleFormConfig));
 
@@ -565,6 +595,18 @@ public class ConsolidatedAPIServiceImplTest {
                                     .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getPagesWithMigratedDsl());
+                    assertNotNull(consolidatedAPIResponseDTO.getUnpublishedActions());
+                    assertEquals(
+                            1,
+                            consolidatedAPIResponseDTO
+                                    .getUnpublishedActions()
+                                    .getData()
+                                    .size());
+                    assertNotNull(consolidatedAPIResponseDTO
+                            .getUnpublishedActions()
+                            .getData()
+                            .get(0)
+                            .getUpdatedAt());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO

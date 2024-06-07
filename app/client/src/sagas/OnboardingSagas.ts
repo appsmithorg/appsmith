@@ -34,7 +34,7 @@ import {
   getCurrentApplicationId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { User } from "constants/userConstants";
 import { builderURL } from "@appsmith/RouteBuilder";
 import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";

@@ -16,6 +16,7 @@ gzip --keep --force "$(basename "$WWW_PATH/index.html")"
 popd
 
 # Caddy may already be running for the loading page.
-/opt/caddy/caddy stop --config "$TMP/Caddyfile" || true
+"$_APPSMITH_CADDY" stop --config "$TMP/Caddyfile" || true
 
-exec /opt/caddy/caddy run --config "$TMP/Caddyfile"
+exec "$_APPSMITH_CADDY" run --config "$TMP/Caddyfile"
+

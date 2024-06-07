@@ -1,131 +1,16 @@
-import React, {
-  createRef,
-  useCallback,
-  useEffect,
-  useState,
-  memo,
-} from "react";
-import { MenuItem, Tooltip, Menu } from "@blueprintjs/core";
+import type { Key } from "react";
+import React, { useCallback, memo } from "react";
 
-import { Colors } from "constants/Colors";
-import styled from "styled-components";
-import { ControlIcons } from "icons/ControlIcons";
-import type { CellAlignment } from "../Constants";
-import {
-  HEADER_MENU_PORTAL_CLASS,
-  JUSTIFY_CONTENT,
-  MENU_CONTENT_CLASS,
-  MULTISELECT_CHECKBOX_WIDTH,
-  POPOVER_ITEMS_TEXT_MAP,
-  StickyType,
-} from "../Constants";
-import { TooltipContentWrapper } from "../TableStyledWrappers";
+import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { isColumnTypeEditable } from "widgets/wds/WDSTableWidget/widget/utilities";
-import { Popover2 } from "@blueprintjs/popover2";
-import { MenuDivider } from "@design-system/widgets-old";
-import { importRemixIcon, importSvg } from "@design-system/widgets-old";
-import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
-
-const Check = importRemixIcon(
-  async () => import("remixicon-react/CheckFillIcon"),
-);
-const ArrowDownIcon = importRemixIcon(
-  async () => import("remixicon-react/ArrowDownSLineIcon"),
-);
-const EditIcon = importSvg(
-  async () => import("assets/icons/control/edit-variant1.svg"),
-);
-
-const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
-  padding: 0;
-  position: relative;
-  top: 3px;
-  cursor: pointer;
-  transform: rotate(180deg);
-  && svg {
-    path {
-      fill: ${Colors.LIGHT_GREYISH_BLUE};
-    }
-  }
-`;
-
-const DescendingIcon = styled(ControlIcons.SORT_CONTROL)`
-  padding: 0;
-  position: relative;
-  top: 3px;
-  cursor: pointer;
-  && svg {
-    path {
-      fill: ${Colors.LIGHT_GREYISH_BLUE};
-    }
-  }
-`;
-
-const ColumnNameContainer = styled.div<{
-  horizontalAlignment: CellAlignment;
-}>`
-  display: flex;
-  align-items: center;
-  justify-content: ${(props) =>
-    props?.horizontalAlignment && JUSTIFY_CONTENT[props.horizontalAlignment]};
-`;
-
-const StyledEditIcon = styled(EditIcon)`
-  width: 14px;
-  min-width: 14px;
-  margin-right: 3px;
-`;
-
-const TitleWrapper = styled.div`
-  &,
-  span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-`;
-
-interface TitleProps {
-  children: React.ReactNode;
-  tableWidth?: number;
-  width?: number;
-}
-
-function Title(props: TitleProps) {
-  const ref = createRef<HTMLDivElement>();
-  const [useToolTip, updateToolTip] = useState(false);
-  useEffect(() => {
-    const element = ref.current;
-    if (element && element.offsetWidth < element.scrollWidth) {
-      updateToolTip(true);
-    } else {
-      updateToolTip(false);
-    }
-  }, [ref.current, props.width, props.children]);
-
-  return (
-    <TitleWrapper ref={ref}>
-      {useToolTip && props.children ? (
-        <Tooltip
-          autoFocus={false}
-          content={
-            <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
-              {props.children}
-            </TooltipContentWrapper>
-          }
-          hoverOpenDelay={1000}
-          position="top"
-        >
-          {props.children}
-        </Tooltip>
-      ) : (
-        props.children
-      )}
-    </TitleWrapper>
-  );
-}
-
-const ICON_SIZE = 16;
+import {
+  Flex,
+  Icon,
+  IconButton,
+  Menu,
+  MenuTrigger,
+  Text,
+} from "@design-system/widgets";
 
 interface HeaderProps {
   canFreezeColumn?: boolean;
@@ -161,12 +46,12 @@ interface HeaderProps {
 }
 
 const HeaderCellComponent = (props: HeaderProps) => {
-  const { column, editMode, isSortable } = props;
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { column, isSortable } = props;
 
   const headerProps = { ...column.getHeaderProps() };
   headerProps["style"] = {
     ...headerProps.style,
+    display: "flex",
     left:
       column.sticky === StickyType.LEFT && props.multiRowSelection
         ? MULTISELECT_CHECKBOX_WIDTH + column.totalLeft
@@ -183,20 +68,12 @@ const HeaderCellComponent = (props: HeaderProps) => {
     props.sortTableColumn(columnIndex, sortOrder);
   };
 
-  const disableSort = editMode === false && isSortable === false;
+  const disableSort = isSortable === false;
 
   const isColumnEditable =
     column.columnProperties.isCellEditable &&
     column.columnProperties.isEditable &&
     isColumnTypeEditable(column.columnProperties.columnType);
-
-  const toggleColumnFreeze = (value: StickyType) => {
-    props.handleColumnFreeze &&
-      props.handleColumnFreeze(
-        props.column.id,
-        props.column.sticky !== value ? value : StickyType.NONE,
-      );
-  };
 
   const onDragStart = useCallback(
     (e) => {
@@ -239,19 +116,34 @@ const HeaderCellComponent = (props: HeaderProps) => {
     [props.onDrop, props.columnIndex],
   );
 
+  const onActionOnMenu = (key: Key) => {
+    switch (key) {
+      case "sort-asc":
+        props.sortTableColumn(props.columnIndex, true);
+        break;
+      case "sort-desc":
+        props.sortTableColumn(props.columnIndex, false);
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
-    <div
+    <th
       {...headerProps}
+      aria-hidden={props.isHidden ? "true" : undefined}
       className={`th header-reorder ${props.stickyRightModifier}`}
       data-header={props.columnName}
     >
       <div
         className={!props.isHidden ? `draggable-header` : "hidden-header"}
+        data-draggable-header=""
         draggable={
           (props.column.sticky === StickyType.NONE && !props.isHidden) ||
           undefined
         }
-        onClick={!disableSort && props ? handleSortColumn : undefined}
+        onClick={!disableSort ? handleSortColumn : undefined}
         onDrag={props.onDrag}
         onDragEnd={props.onDragEnd}
         onDragEnter={onDragEnter}
@@ -259,101 +151,65 @@ const HeaderCellComponent = (props: HeaderProps) => {
         onDragOver={onDragOver}
         onDragStart={onDragStart}
         onDrop={onDrop}
+        style={
+          {
+            "--padding-inline-end": isSortable
+              ? props.isAscOrder !== undefined
+                ? "calc((var(--outer-spacing-2) * 2) + (2 *var(--sizing-7)))"
+                : "calc((var(--outer-spacing-2) * 2) + var(--sizing-7))"
+              : "calc(var(--outer-spacing-2) * 2)",
+            justifyContent: column.columnProperties.horizontalAlignment,
+          } as React.CSSProperties
+        }
       >
-        <ColumnNameContainer
-          horizontalAlignment={column.columnProperties.horizontalAlignment}
-        >
-          {isColumnEditable && <StyledEditIcon />}
-          <Title width={props.width}>
+        <Flex alignItems="center" gap="spacing-1">
+          {isColumnEditable && <Icon name="edit" size="small" />}
+          <Text
+            lineClamp={1}
+            size="caption"
+            title={props.columnName.replace(/\s/g, "\u00a0")}
+          >
             {props.columnName.replace(/\s/g, "\u00a0")}
-          </Title>
-        </ColumnNameContainer>
+          </Text>
+        </Flex>
       </div>
-      <div
-        className={`header-menu ${
-          !isSortable && !props.canFreezeColumn && "hide-menu"
-        } ${!isMenuOpen && "hide"}`}
-      >
-        <Popover2
-          content={
-            <Menu className={MENU_CONTENT_CLASS}>
-              <MenuItem
-                disabled={disableSort}
-                labelElement={props.isAscOrder === true ? <Check /> : undefined}
-                onClick={() => {
-                  props.sortTableColumn(props.columnIndex, true);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.SORT_ASC}
+      {isSortable && (
+        <Flex alignItems="center" gap="spacing-1">
+          {props.isAscOrder !== undefined && (
+            <span style={{ pointerEvents: "none" }}>
+              <Icon
+                name={props.isAscOrder ? "arrow-up" : "arrow-down"}
+                size="small"
               />
-              <MenuItem
-                disabled={disableSort}
-                labelElement={
-                  props.isAscOrder === false ? <Check /> : undefined
-                }
-                onClick={() => {
-                  props.sortTableColumn(props.columnIndex, false);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.SORT_DSC}
-              />
-              <MenuDivider
-                style={{
-                  marginLeft: 0,
-                  marginRight: 0,
-                }}
-              />
-              <MenuItem
-                disabled={!props.canFreezeColumn}
-                labelElement={
-                  column.sticky === StickyType.LEFT ? <Check /> : undefined
-                }
-                onClick={() => {
-                  toggleColumnFreeze(StickyType.LEFT);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.FREEZE_LEFT}
-              />
-              <MenuItem
-                disabled={!props.canFreezeColumn}
-                labelElement={
-                  column.sticky === StickyType.RIGHT ? <Check /> : undefined
-                }
-                onClick={() => {
-                  toggleColumnFreeze(StickyType.RIGHT);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.FREEZE_RIGHT}
-              />
-            </Menu>
-          }
-          interactionKind="hover"
-          isOpen={isMenuOpen}
-          minimal
-          onInteraction={setIsMenuOpen}
-          placement="bottom-end"
-          portalClassName={`${HEADER_MENU_PORTAL_CLASS}-${props.widgetId}`}
-          portalContainer={
-            document.getElementById(CANVAS_ART_BOARD) || undefined
-          }
-        >
-          <ArrowDownIcon className="w-5 h-5" color="var(--wds-color-icon)" />
-        </Popover2>
-      </div>
-      {props.isAscOrder !== undefined ? (
-        <div>
-          {props.isAscOrder ? (
-            <AscendingIcon height={ICON_SIZE} width={ICON_SIZE} />
-          ) : (
-            <DescendingIcon height={ICON_SIZE} width={ICON_SIZE} />
+            </span>
           )}
-        </div>
-      ) : null}
+          <MenuTrigger>
+            <IconButton
+              color="neutral"
+              icon="chevron-down"
+              size="small"
+              variant="ghost"
+            />
+            <Menu
+              items={[
+                { id: "sort-asc", label: "Sort column ascending" },
+                { id: "sort-desc", label: "Sort column descending" },
+              ]}
+              onAction={onActionOnMenu}
+            />
+          </MenuTrigger>
+        </Flex>
+      )}
       <div
         {...column.getResizerProps()}
-        className={`resizer ${column.isResizing ? "isResizing" : ""}`}
+        data-resizor=""
+        data-status={column.isResizing ? "resizing" : ""}
         onClick={(e: React.MouseEvent<HTMLElement>) => {
           e.preventDefault();
           e.stopPropagation();
         }}
       />
-    </div>
+    </th>
   );
 };
 export const HeaderCell = memo(HeaderCellComponent);

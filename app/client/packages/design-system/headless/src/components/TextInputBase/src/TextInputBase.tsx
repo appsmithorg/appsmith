@@ -11,7 +11,6 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
   const {
     autoFocus,
     descriptionProps,
-    endIcon,
     errorMessageProps,
     fieldClassName,
     inputClassName,
@@ -25,7 +24,6 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     onBlur,
     onFocus,
     prefix,
-    startIcon,
     suffix,
     validationState,
   } = props;
@@ -63,37 +61,6 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     inputRef.current?.focus();
   };
 
-  const inputField = (
-    <div
-      aria-busy={isLoading ? true : undefined}
-      data-disabled={getDisabledState() ? "" : undefined}
-      data-field-input=""
-      data-focused={
-        isFocusVisible || (isFocused && !isReadOnly) ? "" : undefined
-      }
-      data-hovered={isHovered ? "" : undefined}
-      data-invalid={isInvalid ? "" : undefined}
-      data-loading={isLoading ? "" : undefined}
-      data-readonly={isReadOnly ? "" : undefined}
-      onClick={focusInput}
-      ref={ref}
-    >
-      {Boolean(startIcon) && (
-        <span data-field-input-start-icon="">{startIcon}</span>
-      )}
-      <ElementType
-        {...mergeProps(inputProps, hoverProps, focusProps, focusableProps)}
-        className={inputClassName}
-        disabled={getDisabledState()}
-        readOnly={isReadOnly}
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ref={inputRef as any}
-        rows={multiLine ? 1 : undefined}
-      />
-      {Boolean(endIcon) && <span data-field-input-end-icon="">{endIcon}</span>}
-    </div>
-  );
-
   return (
     <Field
       {...props}
@@ -103,9 +70,30 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
       ref={domRef}
       wrapperClassName={fieldClassName}
     >
-      <div data-field-input-group="">
+      <div
+        aria-busy={isLoading ? true : undefined}
+        data-disabled={getDisabledState() ? "" : undefined}
+        data-field-input=""
+        data-focused={
+          isFocusVisible || (isFocused && !isReadOnly) ? "" : undefined
+        }
+        data-hovered={isHovered ? "" : undefined}
+        data-invalid={isInvalid ? "" : undefined}
+        data-loading={isLoading ? "" : undefined}
+        data-readonly={isReadOnly ? "" : undefined}
+        onClick={focusInput}
+        ref={ref}
+      >
         {Boolean(prefix) && <span data-field-input-prefix>{prefix}</span>}
-        {inputField}
+        <ElementType
+          {...mergeProps(inputProps, hoverProps, focusProps, focusableProps)}
+          className={inputClassName}
+          disabled={getDisabledState()}
+          readOnly={isReadOnly}
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ref={inputRef as any}
+          rows={multiLine ? 1 : undefined}
+        />
         {Boolean(suffix) && <span data-field-input-suffix>{suffix}</span>}
       </div>
     </Field>

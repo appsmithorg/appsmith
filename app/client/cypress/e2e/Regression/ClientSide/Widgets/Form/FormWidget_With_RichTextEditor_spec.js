@@ -4,7 +4,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(
   "RichTextEditor Widget Functionality in Form",
-  { tags: ["@tag.Widget", "@tag.Form"] },
+  { tags: ["@tag.Widget", "@tag.Form", "@tag.TextEditor"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formWithRTEDsl");
@@ -15,6 +15,13 @@ describe(
     });
 
     it("RichTextEditor required functionality", function () {
+      //Validate Html
+      cy.validateHTMLText(
+        formWidgetsPage.richTextEditorWidget,
+        "h1",
+        "Default",
+      );
+
       //changing the Text Name
       cy.widgetText(
         this.dataSet.RichTextEditorName,
@@ -22,12 +29,6 @@ describe(
         widgetsPage.widgetNameSpan,
       );
 
-      //Validate Html
-      cy.validateHTMLText(
-        formWidgetsPage.richTextEditorWidget,
-        "h1",
-        "Default",
-      );
       //   Make RTE Required
       cy.CheckWidgetProperties(formWidgetsPage.requiredJs);
 

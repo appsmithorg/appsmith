@@ -13,7 +13,7 @@ import {
   getTemplateSearchQuery,
   isFetchingTemplatesSelector,
 } from "selectors/templatesSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   FilterCategoryWrapper,
   FilterItemText,

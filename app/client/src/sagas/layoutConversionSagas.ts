@@ -25,7 +25,7 @@ import {
   getPageList,
 } from "selectors/editorSelectors";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { nestDSL } from "@shared/dsl";
 
 /**

@@ -5,6 +5,7 @@ import EditorNavigation, {
 
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
+import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
 describe(
   "Hide / Show page test functionality",
@@ -17,6 +18,7 @@ describe(
       _.entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Page2",
         action: "Hide",
+        entityType: EntityItems.Page,
       });
       PageLeftPane.switchToAddNew();
       cy.ClearSearch();
@@ -27,6 +29,7 @@ describe(
       _.entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Page2",
         action: "Show",
+        entityType: EntityItems.Page,
       });
       cy.ClearSearch();
       _.deployMode.DeployApp();

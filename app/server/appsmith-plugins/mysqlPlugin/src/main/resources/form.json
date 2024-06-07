@@ -32,6 +32,7 @@
           "configProperty": "datasourceConfiguration.connection.mode",
           "controlType": "SEGMENTED_CONTROL",
           "initialValue": "READ_WRITE",
+          "hidden": true,
           "options": [
             {
               "label": "Read / Write",
@@ -61,6 +62,7 @@
                   "label": "MySQL port",
                   "configProperty": "datasourceConfiguration.endpoints[*].port",
                   "dataType": "NUMBER",
+                  "initialValue": ["3306"],
                   "controlType": "KEYVALUE_ARRAY",
                   "placeholderText": "3306"
                 }

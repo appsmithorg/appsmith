@@ -16,7 +16,7 @@ import {
 } from "actions/appThemingActions";
 import SettingSection from "./SettingSection";
 import type { AppTheme } from "entities/AppTheming";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import ThemeFontControl from "./controls/ThemeFontControl";
 import ThemeColorControl from "./controls/ThemeColorControl";
 import { Classes as CsClasses } from "design-system-old";

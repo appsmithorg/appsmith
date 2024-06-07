@@ -37,7 +37,7 @@ import type { AppState } from "@appsmith/reducers";
 import { installLibraryInit } from "actions/JSLibraryActions";
 import classNames from "classnames";
 import type { JSLibrary } from "workers/common/JSLibrary";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 
 const Wrapper = styled.div`

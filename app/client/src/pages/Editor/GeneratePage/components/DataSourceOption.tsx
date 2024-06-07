@@ -94,8 +94,8 @@ function DataSourceOption({
   const optionCypressSelector = isConnectNewDataSourceBtn
     ? ".t--connectNewDatasource-option"
     : isSelectedNode
-    ? ""
-    : dataTestid;
+      ? ""
+      : dataTestid;
   return (
     <Tooltip
       content="Not supported for template generation"

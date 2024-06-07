@@ -4,7 +4,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 
 import * as config from "./../config";
 import BaseWidget from "widgets/BaseWidget";
-import { Text } from "@design-system/widgets";
+import { Flex, Text } from "@design-system/widgets";
 import type { TextWidgetProps } from "./types";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { AnvilConfig } from "WidgetProvider/constants";
@@ -64,16 +64,18 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
   getWidgetView() {
     return (
-      <Text
-        isBold={this.props?.fontStyle?.includes("bold")}
-        isItalic={this.props?.fontStyle?.includes("italic")}
-        lineClamp={this.props.lineClamp ? this.props.lineClamp : undefined}
-        textAlign={this.props.textAlign}
-        title={this.props.lineClamp ? this.props.text : undefined}
-        variant={this.props.fontSize}
-      >
-        {this.props.text}
-      </Text>
+      <Flex direction="column" width="100%">
+        <Text
+          isBold={this.props?.fontStyle?.includes("bold")}
+          isItalic={this.props?.fontStyle?.includes("italic")}
+          lineClamp={this.props.lineClamp ? this.props.lineClamp : undefined}
+          size={this.props.fontSize}
+          textAlign={this.props.textAlign}
+          title={this.props.lineClamp ? this.props.text : undefined}
+        >
+          {this.props.text}
+        </Text>
+      </Flex>
     );
   }
 }

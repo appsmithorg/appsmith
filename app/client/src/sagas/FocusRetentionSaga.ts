@@ -15,7 +15,6 @@ import {
   storeFocusHistory,
 } from "actions/focusHistoryActions";
 import type { AppsmithLocationState } from "utils/history";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
@@ -80,6 +79,7 @@ class FocusRetention {
     this.setStateOfPath = this.setStateOfPath.bind(this);
     this.getState = this.getState.bind(this);
     this.setState = this.setState.bind(this);
+    this.handleRemoveFocusHistory = this.handleRemoveFocusHistory.bind(this);
   }
 
   public *onRouteChange(
@@ -112,16 +112,16 @@ class FocusRetention {
     }
   }
 
-  public *handleRemoveFocusHistory(action: ReduxAction<{ url: string }>) {
-    const { url } = action.payload;
+  public *handleRemoveFocusHistory(url: string) {
     const branch: string | undefined = yield select(getCurrentGitBranch);
     const removeKeys: string[] = [];
-    const entity = identifyEntityFromPath(url);
+    const focusEntityInfo = identifyEntityFromPath(url);
     removeKeys.push(`${url}#${branch}`);
-    const parentElement = FocusStoreHierarchy[entity.entity];
+
+    const parentElement = FocusStoreHierarchy[focusEntityInfo.entity];
     if (parentElement) {
       const parentPath = this.focusStrategy.getEntityParentUrl(
-        entity,
+        focusEntityInfo,
         parentElement,
       );
       removeKeys.push(`${parentPath}#${branch}`);

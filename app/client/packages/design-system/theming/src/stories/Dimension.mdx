@@ -1,0 +1,181 @@
+import { Meta } from "@storybook/addon-docs";
+import { useTheme, ThemeProvider } from "@design-system/theming";
+import {
+  TokenTable,
+  StyledLinePreview,
+  StyledSquarePreview,
+} from "@design-system/storybook";
+
+import { Icon } from "@design-system/widgets";
+
+<Meta title="Design-system/Theme/Tokens/Dimension" />
+
+# Dimension
+
+WDS provides a set of dimensions scales defining sizing, distances, corner radii etc. They define dimensions of UI in an application. WDS always provide precise integer pixel values. This is used to optimize the quality of rendering, e.g. rasterization of strokes in icons.
+
+## Available Scales
+
+- [Outer Spacing](#outer-spacing)
+- [Inner Spacing](#inner-spacing)
+- [Typography Sizing](#typography-sizing)
+- [Border Radii](#border-radii)
+- [Icon Sizing](#icon-sizing)
+- [Icon Stroke](#icon-stroke)
+- [Border Thickness](#border-thickness)
+
+## Sizing
+
+As a basis for token calculations, we use the musical scale formula. The base formula for the token size looks like this:
+
+<math xmlns="http://www.w3.org/1998/Math/MathML" display="block">
+  <mi>Size</mi>
+  <mo>=</mo>
+  <mi>V</mi>
+  <mo>×</mo>
+  <mi>
+    <msup>
+      <mi>R</mi>
+      <mn>
+        <mfrac>
+          <mi>i</mi>
+          <mi>N</mi>
+        </mfrac>
+      </mn>
+    </msup>
+  </mi>
+</math>
+
+In here `V`, `R`, and `N` are configuration defined values and `i` is step numerator.
+
+> [Related article](https://spencermortensen.com/articles/typographic-scale/)
+
+## User Sizing and Density Coefficient Adjustments
+
+Token values are further adjusted based on theme-set parameters of `sizing` and `density` that apply to different scales using different coefficients.
+
+Generally it looks likes this:
+
+```language=javascript
+const ratio = userDensity * userDensityRatio + userSizing * userSizingRatio;
+
+const scales = calculateScales(
+ {
+  V: V * ratio,
+  ...rest,
+ },
+);
+```
+
+The `userDensityRatio` and `userSizingRatio` are different for each scale, e.g. `userDensityRatio` is **1.5** for outer spacing and for **2.5** for inner spacing. The achieved effect is that increasing and decreasing density has more pronounced effect on inner spacing than on outer spacing.
+
+## Scales
+
+export const Spacing = ({ type }) => {
+  const { theme } = useTheme();
+  const { outerSpacing, innerSpacing } = theme;
+  return (
+    <ThemeProvider theme={theme}>
+      <TokenTable
+        prefix={`${type}-spacing`}
+        tokens={type === "inner" ? innerSpacing : outerSpacing}
+      >
+        {(cssVar) => (
+          <StyledLinePreview
+            style={{
+              width: cssVar,
+            }}
+          />
+        )}
+      </TokenTable>
+    </ThemeProvider>
+  );
+};
+
+### Outer Spacing
+
+Outer spacing is used for distances between significant UI elements in a composition, e.g. between multiple inputs in a form.
+
+<Spacing type="outer" />
+
+### Inner Spacing
+
+Inner spacing is used inside individual UI elements, e.g. padding. It can be also used between micro-elements inside a UI element, e.g. distance between an icon and corresponding to it text element.
+
+<Spacing type="inner" />
+
+### Typography Sizing
+
+Typography sizes are fluid tokens that are applied to text with step numbers corresponding to semantical prominence.
+
+[Table goes here]
+
+### Border Radii
+
+Border radii on various elements are fluid and additionally adjusted by theme corner radius setting: `sharp | rounded | pill`.
+
+export const BorderRadius = () => {
+  const { theme } = useTheme();
+  console.log(theme);
+  const { borderRadiusElevation } = theme;
+  return (
+    <ThemeProvider theme={theme}>
+      <TokenTable
+        prefix="border-radius-elevation"
+        tokens={borderRadiusElevation}
+      >
+        {(cssVar) => (
+          <StyledSquarePreview
+            style={{
+              borderRadius: cssVar,
+            }}
+          />
+        )}
+      </TokenTable>
+    </ThemeProvider>
+  );
+};
+
+<BorderRadius />
+
+### Icon Sizing
+
+export const IconSizing = () => {
+  const { theme } = useTheme();
+  const { iconSize } = theme;
+  return (
+    <ThemeProvider theme={theme}>
+      <TokenTable prefix="icon-size" tokens={iconSize}>
+        {(cssVar) => (
+          <Icon name="star" style={{ width: cssVar, height: cssVar }} />
+        )}
+      </TokenTable>
+    </ThemeProvider>
+  );
+};
+
+<IconSizing />
+
+### Icon Stroke
+
+export const IconStroke = () => {
+  const { theme } = useTheme();
+  const { strokeWidth } = theme;
+  return (
+    <ThemeProvider theme={theme}>
+      <TokenTable prefix="stroke-width" tokens={strokeWidth}>
+        {(cssVar) => <Icon name="star" style={{ strokeWidth: cssVar }} />}
+      </TokenTable>
+    </ThemeProvider>
+  );
+};
+
+<IconStroke />
+
+[Table will be here once scale is implemented]
+
+### Border Thickness
+
+Border thickness tokens are applied to various borders and separators and are affected by `sizing` and `density` theme props as well as available viewport size.
+
+[Table will be here once scale is implemented]

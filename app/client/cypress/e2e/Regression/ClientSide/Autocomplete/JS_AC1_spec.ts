@@ -268,7 +268,7 @@ describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
     dataSources.CreateQueryAfterDSSaved();
 
     dataSources.ValidateNSelectDropdown(
-      "Commands",
+      "Command",
       "Find document(s)",
       "Insert document(s)",
     );

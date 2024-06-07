@@ -2,12 +2,13 @@ import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPosition } from "layoutSystems/common/types";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { previewModeSelector } from "selectors/editorSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import type { WidgetLayoutProps } from "../utils/anvilTypes";
 import { getWidgetByID } from "sagas/selectors";
 import { getDefaultSpaceDistributed } from "./utils/spaceRedistributionSagaUtils";
 import { SpaceDistributionHandle } from "./SpaceDistributionHandle";
 import { getAnvilZoneBoundaryOffset } from "./utils/spaceDistributionEditorUtils";
+import { getWidgetSelectionBlock } from "selectors/ui";
 
 interface SectionSpaceDistributorProps {
   sectionWidgetId: string;
@@ -39,7 +40,6 @@ const SectionSpaceDistributorHandles = (
   let previousZonePosition: LayoutElementPosition;
   let previousZoneColumn = 0;
   let spaceToWorkWith = -(zoneOffset * zones.length);
-
   // Generate an array of space distribution nodes based on the zones
   const SectionSpaceDistributorNodes = zones.reduce(
     (nodesArray, each, index) => {
@@ -55,7 +55,7 @@ const SectionSpaceDistributorHandles = (
 
       if (widgetPosition && previousZonePosition) {
         // Calculate space between zones and create a distribution node
-        const spaceBetweenZones =
+        const zoneGap =
           widgetPosition.offsetLeft -
           (previousZonePosition.offsetLeft + previousZonePosition.width);
 
@@ -63,8 +63,9 @@ const SectionSpaceDistributorHandles = (
           parentZones: [zones[index - 1].widgetId, each.widgetId],
           columnPosition: previousZoneColumn,
           position: {
-            left: widgetPosition.offsetLeft - spaceBetweenZones * 0.5,
+            left: widgetPosition.offsetLeft,
           },
+          zoneGap,
         });
 
         // Update zone column position and previous zone position
@@ -80,13 +81,14 @@ const SectionSpaceDistributorHandles = (
       };
       parentZones: string[];
       columnPosition: number;
+      zoneGap: number;
     }[],
   );
 
   return (
     <>
       {SectionSpaceDistributorNodes.map(
-        ({ columnPosition, parentZones, position }, index) => (
+        ({ columnPosition, parentZones, position, zoneGap }, index) => (
           <SpaceDistributionHandle
             columnPosition={columnPosition}
             key={index}
@@ -96,6 +98,7 @@ const SectionSpaceDistributorHandles = (
             sectionWidgetId={sectionWidgetId}
             spaceDistributed={spaceDistributed}
             spaceToWorkWith={spaceToWorkWith}
+            zoneGap={zoneGap}
             zoneIds={zoneIds}
           />
         ),
@@ -108,7 +111,8 @@ export const SectionSpaceDistributor = (
   props: SectionSpaceDistributorProps,
 ) => {
   const { zones } = props;
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isWidgetSelectionBlocked = useSelector(getWidgetSelectionBlock);
   const isDragging = useSelector(
     (state) => state.ui.widgetDragResize.isDragging,
   );
@@ -121,6 +125,7 @@ export const SectionSpaceDistributor = (
   const canRedistributeSpace =
     !isPreviewMode &&
     !isDragging &&
+    !isWidgetSelectionBlocked &&
     allZonePositionsAreAvailable &&
     zones.length > 1;
   return canRedistributeSpace ? (

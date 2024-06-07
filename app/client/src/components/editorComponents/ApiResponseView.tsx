@@ -1,10 +1,8 @@
-import type { PropsWithChildren, RefObject } from "react";
-import React, { useCallback, useRef, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
 import type { ActionResponse } from "api/ActionAPI";
-import { formatBytes } from "utils/helpers";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
@@ -15,17 +13,16 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  DEBUGGER_RESPONSE,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
 } from "@appsmith/constants/messages";
-import { Text as BlueprintText } from "@blueprintjs/core";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import NoResponseSVG from "assets/images/no-response.svg";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
-import Resizer, { ResizerCSS } from "./Debugger/Resizer";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Classes, TAB_MIN_HEIGHT, Text, TextType } from "design-system-old";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { Classes, Text, TextType } from "design-system-old";
 import { Button, Callout, Flex, SegmentedControl } from "design-system";
 import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
@@ -46,54 +43,14 @@ import { getUpdateTimestamp } from "./Debugger/ErrorLogs/ErrorLogItem";
 import type { Action } from "entities/Action";
 import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoForm";
 import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
-import { CloseDebugger } from "./Debugger/DebuggerTabs";
 import { EMPTY_RESPONSE } from "./emptyResponse";
-import BindDataButton from "../../pages/Editor/QueryEditor/BindDataButton";
 import { setApiPaneDebuggerState } from "actions/apiPaneActions";
 import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-
-interface TextStyleProps {
-  accent: "primary" | "secondary" | "error";
-}
-export const BaseText = styled(BlueprintText)<TextStyleProps>``;
-
-const ResponseContainer = styled.div`
-  ${ResizerCSS};
-  width: 100%;
-  // Minimum height of bottom tabs as it can be resized
-  min-height: 36px;
-  background-color: var(--ads-v2-color-bg);
-  border-top: 1px solid var(--ads-v2-color-border);
-  .CodeMirror-code {
-    font-size: 12px;
-  }
-`;
-const ResponseMetaInfo = styled.div`
-  display: flex;
-  ${BaseText} {
-    color: var(--ads-v2-color-fg);
-    margin-left: ${(props) => props.theme.spaces[9]}px;
-  }
-
-  & [type="p3"] {
-    color: var(--ads-v2-color-fg-muted);
-  }
-
-  & [type="h5"] {
-    color: var(--ads-v2-color-fg);
-  }
-`;
-
-const ResponseMetaWrapper = styled.div`
-  align-items: center;
-  display: flex;
-  position: absolute;
-  right: ${(props) => props.theme.spaces[17] + 1}px;
-  top: ${(props) => props.theme.spaces[2] + 3}px;
-  z-index: 6;
-`;
+import ApiResponseMeta from "./ApiResponseMeta";
+import useDebuggerTriggerClick from "./Debugger/hooks/useDebuggerTriggerClick";
+import { IDEBottomView, ViewHideBehaviour } from "IDE";
 
 const ResponseTabWrapper = styled.div`
   display: flex;
@@ -103,38 +60,6 @@ const ResponseTabWrapper = styled.div`
   &.t--headers-tab {
     padding-left: var(--ads-v2-spaces-7);
     padding-right: var(--ads-v2-spaces-7);
-  }
-`;
-
-const TabbedViewWrapper = styled.div`
-  height: 100%;
-  &&& {
-    ul.ads-v2-tabs__list {
-      margin: 0 ${(props) => props.theme.spaces[11]}px;
-      height: ${TAB_MIN_HEIGHT};
-    }
-  }
-
-  & {
-    .ads-v2-tabs__list {
-      padding: var(--ads-v2-spaces-1) var(--ads-v2-spaces-7);
-    }
-  }
-
-  & {
-    .ads-v2-tabs__panel {
-      height: calc(100% - ${TAB_MIN_HEIGHT});
-    }
-  }
-`;
-
-const FlexContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin-left: 20px;
-
-  span:first-child {
-    margin-right: ${(props) => props.theme.spaces[1] + 1}px;
   }
 `;
 
@@ -180,20 +105,6 @@ interface Props {
   actionResponse?: ActionResponse;
   isRunning: boolean;
 }
-
-const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
-  color: ${(props) =>
-    props.code.startsWith("2")
-      ? "var(--ads-v2-color-fg-success)"
-      : "var(--ads-v2-color-fg-error)"};
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  &:hover {
-    width: 100%;
-  }
-`;
 
 const ResponseDataContainer = styled.div`
   flex: 1;
@@ -303,7 +214,6 @@ function ApiResponseView(props: Props) {
     ? actionResponse.statusCode[0] !== "2"
     : false;
 
-  const panelRef: RefObject<HTMLDivElement> = useRef(null);
   const dispatch = useDispatch();
   const errorCount = useSelector(getErrorCount);
   const { open, responseTabHeight, selectedTab } = useSelector(
@@ -312,14 +222,7 @@ function ApiResponseView(props: Props) {
 
   const ideViewMode = useSelector(getIDEViewMode);
 
-  const onDebugClick = useCallback(() => {
-    AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-      source: "API",
-    });
-    dispatch(
-      setApiPaneDebuggerState({ selectedTab: DEBUGGER_TAB_KEYS.ERROR_TAB }),
-    );
-  }, []);
+  const onDebugClick = useDebuggerTriggerClick();
 
   const onRunClick = () => {
     props.onRunClick();
@@ -409,7 +312,7 @@ function ApiResponseView(props: Props) {
         source: "API_PANE",
       });
     }
-    dispatch(setApiPaneDebuggerState({ selectedTab: tabKey }));
+    dispatch(setApiPaneDebuggerState({ open: true, selectedTab: tabKey }));
   }, []);
 
   // update the height of the response pane on resize.
@@ -428,9 +331,13 @@ function ApiResponseView(props: Props) {
   const tabs: BottomTab[] = [
     {
       key: "response",
-      title: "Response",
+      title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <ResponseTabWrapper>
+          <ApiResponseMeta
+            actionName={currentActionConfig?.name}
+            actionResponse={actionResponse}
+          />
           {Array.isArray(messages) && messages.length > 0 && (
             <HelpSection>
               {messages.map((msg, i) => (
@@ -503,7 +410,7 @@ function ApiResponseView(props: Props) {
                     responseTabs.length > 0 &&
                     selectedTabIndex !== -1 ? (
                     <SegmentedControlContainer>
-                      <Flex justifyContent="space-between">
+                      <Flex>
                         <SegmentedControl
                           data-testid="t--response-tab-segmented-control"
                           defaultValue={segmentedControlOptions[0]?.value}
@@ -514,11 +421,6 @@ function ApiResponseView(props: Props) {
                           }}
                           options={segmentedControlOptions}
                           value={selectedControl}
-                        />
-                        <BindDataButton
-                          actionName={currentActionConfig?.name || ""}
-                          hasResponse={!!actionResponse}
-                          suggestedWidgets={actionResponse.suggestedWidgets}
                         />
                       </Flex>
                       {responseTabComponent(
@@ -547,7 +449,7 @@ function ApiResponseView(props: Props) {
                 {
                   children: "Debug",
                   endIcon: "bug",
-                  onClick: () => onDebugClick,
+                  onClick: onDebugClick,
                   to: "",
                 },
               ]}
@@ -597,81 +499,28 @@ function ApiResponseView(props: Props) {
 
   // close the debugger
   //TODO: move this to a common place
-  const onClose = () => dispatch(setApiPaneDebuggerState({ open: false }));
-
-  if (!open) return null;
+  const toggleHide = useCallback(
+    () => dispatch(setApiPaneDebuggerState({ open: !open })),
+    [open],
+  );
 
   return (
-    <ResponseContainer className="t--api-bottom-pane-container" ref={panelRef}>
-      <Resizer
-        initialHeight={responseTabHeight}
-        onResizeComplete={(height: number) => {
-          updateResponsePaneHeight(height);
-        }}
-        openResizer={isRunning}
-        panelRef={panelRef}
-        snapToHeight={ActionExecutionResizerHeight}
+    <IDEBottomView
+      behaviour={ViewHideBehaviour.COLLAPSE}
+      className="t--api-bottom-pane-container"
+      height={responseTabHeight}
+      hidden={!open}
+      onHideClick={toggleHide}
+      setHeight={updateResponsePaneHeight}
+    >
+      <EntityBottomTabs
+        expandedHeight={`${ActionExecutionResizerHeight}px`}
+        isCollapsed={!open}
+        onSelect={updateSelectedResponseTab}
+        selectedTabKey={selectedTab || ""}
+        tabs={tabs}
       />
-      <TabbedViewWrapper>
-        {actionResponse.statusCode && (
-          <ResponseMetaWrapper>
-            {actionResponse.statusCode && (
-              <FlexContainer>
-                <Text type={TextType.P3}>Status: </Text>
-                <StatusCodeText
-                  accent="secondary"
-                  className="t--response-status-code"
-                  code={actionResponse.statusCode.toString()}
-                >
-                  {actionResponse.statusCode}
-                </StatusCodeText>
-              </FlexContainer>
-            )}
-            <ResponseMetaInfo>
-              {actionResponse.duration && (
-                <FlexContainer>
-                  <Text type={TextType.P3}>Time: </Text>
-                  <Text type={TextType.H5}>{actionResponse.duration} ms</Text>
-                </FlexContainer>
-              )}
-              {actionResponse.size && (
-                <FlexContainer>
-                  <Text type={TextType.P3}>Size: </Text>
-                  <Text type={TextType.H5}>
-                    {formatBytes(parseInt(actionResponse.size))}
-                  </Text>
-                </FlexContainer>
-              )}
-              {!isEmpty(actionResponse?.body) &&
-                Array.isArray(actionResponse?.body) && (
-                  <FlexContainer>
-                    <Text type={TextType.P3}>Result: </Text>
-                    <Text type={TextType.H5}>
-                      {`${actionResponse?.body.length} Record${
-                        actionResponse?.body.length > 1 ? "s" : ""
-                      }`}
-                    </Text>
-                  </FlexContainer>
-                )}
-            </ResponseMetaInfo>
-          </ResponseMetaWrapper>
-        )}
-        <EntityBottomTabs
-          expandedHeight={`${ActionExecutionResizerHeight}px`}
-          onSelect={updateSelectedResponseTab}
-          selectedTabKey={selectedTab || ""}
-          tabs={tabs}
-        />
-        <CloseDebugger
-          className="close-debugger t--close-debugger"
-          isIconButton
-          kind="tertiary"
-          onClick={onClose}
-          size="md"
-          startIcon="close-modal"
-        />
-      </TabbedViewWrapper>
-    </ResponseContainer>
+    </IDEBottomView>
   );
 }
 

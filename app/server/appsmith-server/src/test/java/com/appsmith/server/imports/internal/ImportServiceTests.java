@@ -124,7 +124,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.ce.GitConstantsCE.NAME_SEPARATOR;
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.NAME_SEPARATOR;
 import static com.appsmith.server.acl.AclPermission.MANAGE_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_DATASOURCES;
@@ -354,7 +354,8 @@ public class ImportServiceTests {
                 .map(data -> {
                     return gson.fromJson(data, ApplicationJson.class);
                 })
-                .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
+                .map(JsonSchemaMigration::migrateArtifactToLatestSchema)
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
     private Workspace createTemplateWorkspace() {
@@ -983,8 +984,7 @@ public class ImportServiceTests {
                     final List<CustomJSLib> importedJSLibList = tuple.getT6();
 
                     // although the imported list had only one jsLib entry, the other entry comes from ensuring an xml
-                    // parser entry
-                    // for backward compatibility
+                    // parser entry for backward compatibility
                     assertEquals(2, importedJSLibList.size());
                     CustomJSLib importedJSLib = (CustomJSLib) importedJSLibList.toArray()[0];
                     CustomJSLib expectedJSLib = new CustomJSLib(
@@ -996,8 +996,7 @@ public class ImportServiceTests {
                     assertEquals(expectedJSLib.getVersion(), importedJSLib.getVersion());
                     assertEquals(expectedJSLib.getDefs(), importedJSLib.getDefs());
                     // although the imported list had only one jsLib entry, the other entry comes from ensuring an xml
-                    // parser entry
-                    // for backward compatibility
+                    // parser entry for backward compatibility
                     assertEquals(2, application.getUnpublishedCustomJSLibs().size());
 
                     assertThat(application.getName()).isEqualTo("valid_application");
@@ -1952,7 +1951,7 @@ public class ImportServiceTests {
                     action.setPageId(application.getPages().get(0).getId());
                     return layoutActionService.createAction(action);
                 })
-                .flatMap(actionDTO -> newActionService.getById(actionDTO.getId()))
+                .flatMap(actionDTO -> newActionService.getByIdWithoutPermissionCheck(actionDTO.getId()))
                 .flatMap(newAction -> applicationRepository.findById(newAction.getApplicationId()))
                 .cache();
 
@@ -2055,7 +2054,8 @@ public class ImportServiceTests {
 
                     return layoutCollectionService.createCollection(actionCollectionDTO1, null);
                 })
-                .flatMap(actionCollectionDTO -> actionCollectionService.getById(actionCollectionDTO.getId()))
+                .flatMap(actionCollectionDTO ->
+                        actionCollectionService.getByIdWithoutPermissionCheck(actionCollectionDTO.getId()))
                 .flatMap(actionCollection -> applicationRepository.findById(actionCollection.getApplicationId()))
                 .cache();
 
@@ -2713,7 +2713,7 @@ public class ImportServiceTests {
         Mono<ApplicationJson> migratedApplicationMono = v1ApplicationMono.map(applicationJson -> {
             ApplicationJson applicationJson1 = new ApplicationJson();
             AppsmithBeanUtils.copyNestedNonNullProperties(applicationJson, applicationJson1);
-            return JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson1);
+            return (ApplicationJson) JsonSchemaMigration.migrateArtifactToLatestSchema(applicationJson1);
         });
 
         StepVerifier.create(Mono.zip(v1ApplicationMono, migratedApplicationMono))

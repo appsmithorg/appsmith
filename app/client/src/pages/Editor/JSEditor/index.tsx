@@ -12,8 +12,6 @@ import AppJSEditorContextMenu from "./AppJSEditorContextMenu";
 import { updateFunctionProperty } from "actions/jsPaneActions";
 import type { OnUpdateSettingsProps } from "./JSFunctionSettings";
 import { saveJSObjectName } from "actions/jsActionActions";
-import CloseEditor from "components/editorComponents/CloseEditor";
-import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
 
 const LoadingContainer = styled(CenteredWrapper)`
   height: 50%;
@@ -32,7 +30,6 @@ function JSEditor(props: Props) {
     getJSCollectionDataById(state, collectionId),
   );
   const { isCreating } = useSelector((state) => state.ui.jsPane);
-  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
   const jsCollection = jsCollectionData?.config;
 
   const contextMenu = useMemo(() => {
@@ -57,12 +54,9 @@ function JSEditor(props: Props) {
     dispatch(updateFunctionProperty(props));
   };
 
-  const backLink = <CloseEditor />;
-
   if (!!jsCollection) {
     return (
       <JsEditorForm
-        backLink={isEditorPaneEnabled ? null : backLink}
         contextMenu={contextMenu}
         hideContextMenuOnEditor={Boolean(
           jsCollectionData?.config.isMainJSCollection,

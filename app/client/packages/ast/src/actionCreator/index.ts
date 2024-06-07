@@ -466,6 +466,14 @@ export const getModalName = (
     switch (argument?.type) {
       case NodeTypes.Literal:
         modalName = argument.value as string;
+        break;
+      case NodeTypes.MemberExpression:
+        // this is for cases where we have {{showModal(Modal1.name)}} or {{closeModal(Modal1.name)}}
+        // modalName = Modal1.name;
+        modalName = generate(argument, {
+          comments: true,
+        }).trim();
+        break;
     }
   }
 
@@ -509,7 +517,7 @@ export const setModalName = (
     const newNode: LiteralNode = {
       type: NodeTypes.Literal,
       value: `${changeValue}`,
-      raw: String.raw`'${changeValue}'`,
+      raw: String.raw`${changeValue}`,
       start: startPosition,
       // add 2 for quotes
       end: startPosition + (changeValue.length + LENGTH_OF_QUOTES),

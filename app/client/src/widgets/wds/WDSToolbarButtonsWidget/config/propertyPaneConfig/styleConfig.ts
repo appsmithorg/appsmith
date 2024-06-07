@@ -1,4 +1,4 @@
-import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
+import { BUTTON_VARIANTS, COLORS, objectKeys } from "@design-system/widgets";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { capitalize } from "lodash";
 
@@ -7,30 +7,32 @@ export const propertyPaneStyleConfig = [
     sectionName: "General",
     children: [
       {
-        propertyName: "buttonVariant",
+        propertyName: "variant",
         label: "Button variant",
         controlType: "ICON_TABS",
         fullWidth: true,
         helpText: "Sets the variant of the button",
-        options: Object.values(BUTTON_VARIANTS).map((variant) => ({
-          label: capitalize(variant),
+        options: objectKeys(BUTTON_VARIANTS).map((variant) => ({
+          label: BUTTON_VARIANTS[variant],
           value: variant,
         })),
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        defaultValue: "ghost",
         validation: {
           type: ValidationTypes.TEXT,
           params: {
-            allowedValues: Object.values(BUTTON_VARIANTS),
-            default: BUTTON_VARIANTS.filled,
+            allowedValues: objectKeys(BUTTON_VARIANTS),
+            default: objectKeys(BUTTON_VARIANTS)[0],
           },
         },
       },
       {
-        propertyName: "buttonColor",
+        propertyName: "color",
         label: "Button color",
         controlType: "DROP_DOWN",
+        defaultValue: "accent",
         fullWidth: true,
         helpText: "Sets the semantic color of the button",
         options: Object.values(COLORS).map((semantic) => ({
@@ -49,25 +51,23 @@ export const propertyPaneStyleConfig = [
         },
       },
       {
-        helpText: "Controls widget orientation",
-        propertyName: "orientation",
-        label: "Orientation",
+        propertyName: "alignment",
+        helpText: "Sets the alignment of the widget",
+        label: "Alignment",
         controlType: "ICON_TABS",
-        fullWidth: true,
-        options: [
-          {
-            label: "Horizontal",
-            value: "horizontal",
-          },
-          {
-            label: "Vertical",
-            value: "vertical",
-          },
-        ],
-        defaultValue: "horizontal",
+        defaultValue: "start",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
+        options: [
+          {
+            startIcon: "skip-left-line",
+            value: "start",
+          },
+          {
+            startIcon: "skip-right-line",
+            value: "end",
+          },
+        ],
       },
     ],
   },

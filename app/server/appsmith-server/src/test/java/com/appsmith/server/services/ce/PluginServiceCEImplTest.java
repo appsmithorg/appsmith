@@ -16,8 +16,6 @@ import org.pf4j.PluginManager;
 import org.pf4j.PluginWrapper;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -40,12 +38,6 @@ public class PluginServiceCEImplTest {
 
     @MockBean
     Validator validator;
-
-    @MockBean
-    MongoConverter mongoConverter;
-
-    @MockBean
-    ReactiveMongoTemplate reactiveMongoTemplate;
 
     @MockBean
     PluginRepository repository;

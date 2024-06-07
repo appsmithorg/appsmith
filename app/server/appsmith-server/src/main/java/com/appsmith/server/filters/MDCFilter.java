@@ -5,9 +5,7 @@ import com.appsmith.server.helpers.LogHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
@@ -17,8 +15,8 @@ import reactor.core.publisher.Mono;
 import reactor.util.context.Context;
 
 import java.util.Map;
-import java.util.UUID;
 
+import static com.appsmith.external.constants.MDCConstants.USER_EMAIL;
 import static java.util.stream.Collectors.toMap;
 
 /**
@@ -30,19 +28,19 @@ import static java.util.stream.Collectors.toMap;
 public class MDCFilter implements WebFilter {
 
     private static final String MDC_HEADER_PREFIX = "X-MDC-";
-    private static final String REQUEST_ID_HEADER = "X-REQUEST-ID";
-    public static final String USER_EMAIL = "userEmail";
-    public static final String REQUEST_ID_LOG = "requestId";
-    private static final String SESSION_ID_LOG = "sessionId";
-    private static final String SESSION = "SESSION";
-    public static final String THREAD = "thread";
+
+    /**
+     * This header is added to the request by Caddy. We don't copy it to the response since that is also done by Caddy.
+     * We read it from the request, _only_ to log it.
+     */
+    @SuppressWarnings("UastIncorrectHttpHeaderInspection")
+    public static final String INTERNAL_REQUEST_ID_HEADER = "X-Appsmith-Request-Id";
+
+    public static final String REQUEST_ID_HEADER = "X-Request-Id";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         try {
-            // Using beforeCommit here ensures that the function `addContextToHttpResponse` isn't run immediately
-            // It is only run when the response object is being created
-            exchange.getResponse().beforeCommit(() -> addContextToHttpResponse(exchange.getResponse()));
             return ReactiveSecurityContextHolder.getContext()
                     .map(ctx -> ctx.getAuthentication().getPrincipal())
                     .flatMap(principal -> {
@@ -64,53 +62,19 @@ public class MDCFilter implements WebFilter {
         if (user != null) {
             contextMap.put(USER_EMAIL, user.getEmail());
         }
-        contextMap.put(REQUEST_ID_LOG, getOrCreateRequestId(request));
-        contextMap.put(SESSION_ID_LOG, getSessionId(request));
 
-        // This is for the initial thread that started the request,
-        // any reactive forking will generate a new thread
-        contextMap.put(THREAD, Thread.currentThread().getName());
+        final String internalRequestId = request.getHeaders().getFirst(INTERNAL_REQUEST_ID_HEADER);
+        contextMap.put(INTERNAL_REQUEST_ID_HEADER, internalRequestId);
+
+        final String requestId = request.getHeaders().getFirst(REQUEST_ID_HEADER);
+        if (!StringUtils.isEmpty(requestId)) {
+            contextMap.put(REQUEST_ID_HEADER, requestId);
+        }
 
         // Set the MDC context here for regular non-reactive logs
         MDC.setContextMap(contextMap);
 
         // Setting the context map to the reactive context. This will be used in the reactive logger to print the MDC
         return context.put(LogHelper.CONTEXT_MAP, contextMap);
-    }
-
-    private Mono<Void> addContextToHttpResponse(final ServerHttpResponse response) {
-        return Mono.deferContextual(Mono::just)
-                .doOnNext(ctx -> {
-                    if (!ctx.hasKey(LogHelper.CONTEXT_MAP)) {
-                        return;
-                    }
-
-                    final HttpHeaders httpHeaders = response.getHeaders();
-                    // Add all the request MDC keys to the response object
-                    ctx.<Map<String, String>>get(LogHelper.CONTEXT_MAP).forEach((key, value) -> {
-                        if (!key.equalsIgnoreCase(USER_EMAIL) && !key.contains(REQUEST_ID_LOG)) {
-                            httpHeaders.add(MDC_HEADER_PREFIX + key, value);
-                        }
-                    });
-                })
-                .then();
-    }
-
-    private String getSessionId(final ServerHttpRequest request) {
-
-        if (request.getCookies().get(SESSION) != null
-                && !request.getCookies().get(SESSION).isEmpty()) {
-            return request.getCookies().get(SESSION).get(0).getValue();
-        }
-        return "";
-    }
-
-    private String getOrCreateRequestId(final ServerHttpRequest request) {
-        final String header = request.getHeaders().getFirst(REQUEST_ID_HEADER);
-        if (!StringUtils.isEmpty(header)) {
-            return header;
-        }
-
-        return UUID.randomUUID().toString();
     }
 }

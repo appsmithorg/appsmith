@@ -26,7 +26,10 @@ public class QueryAllParams<T extends BaseDomain> {
     // TODO(Shri): There's a cyclic dependency between the repository and this class. Remove it.
     private final BaseAppsmithRepositoryCEImpl<T> repo;
     private final List<Criteria> criteria = new ArrayList<>();
+
+    @Deprecated
     private final List<String> fields = new ArrayList<>();
+
     private AclPermission permission;
     private Set<String> permissionGroups;
     private Sort sort;
@@ -49,8 +52,16 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.queryAllExecute(this);
     }
 
+    public <P> Flux<P> all(Class<P> projectionClass) {
+        return repo.queryAllExecute(this, projectionClass);
+    }
+
     public Mono<T> one() {
         return repo.queryOneExecute(this);
+    }
+
+    public <P> Mono<P> one(Class<P> projectionClass) {
+        return repo.queryOneExecute(this, projectionClass);
     }
 
     public Mono<T> first() {
@@ -81,6 +92,7 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.updateExecuteAndFind(this, update);
     }
 
+    @Deprecated(forRemoval = true)
     public QueryAllParams<T> criteria(Criteria... criteria) {
         if (criteria == null) {
             return this;
@@ -88,19 +100,30 @@ public class QueryAllParams<T extends BaseDomain> {
         return criteria(List.of(criteria));
     }
 
+    @Deprecated(forRemoval = true)
     public QueryAllParams<T> criteria(List<Criteria> criteria) {
         if (criteria == null) {
             return this;
         }
-
         for (Criteria c : criteria) {
-            if (c instanceof BridgeQuery<?> b && b.getCriteriaObject().isEmpty()) {
-                throw new IllegalArgumentException(
-                        "Empty bridge criteria leads to subtle bugs. Just don't call `.criteria()` in such cases.");
-            }
-            this.criteria.add(c);
+            criteria(c);
+        }
+        return this;
+    }
+
+    public QueryAllParams<T> criteria(Criteria c) {
+        if (c == null) {
+            return this;
         }
 
+        if (c instanceof BridgeQuery<?> bq && bq.isEmpty()) {
+            // Empty bridge criteria leads to subtle bugs. Just don't call `.criteria()` in such cases.
+            // So ignore it and act as if this method hasn't been called at all, because there's some styles of using
+            // this API that make such use just so convenient.
+            return this;
+        }
+
+        criteria.add(c);
         return this;
     }
 
@@ -109,10 +132,24 @@ public class QueryAllParams<T extends BaseDomain> {
         return criteria(id == null ? w.isNull() : w.is(id));
     }
 
+    /**
+     * @deprecated Use class based projections instead.
+     * Refer to {@link #all(Class)} and {@link #one(Class)}.
+     * @param fields
+     * @return
+     */
+    @Deprecated(forRemoval = true)
     public QueryAllParams<T> fields(String... fields) {
         return fields(List.of(fields));
     }
 
+    /**
+     * @deprecated Use class based projections instead.
+     * Refer to {@link #all(Class)} and {@link #one(Class)}.
+     * @param fields
+     * @return
+     */
+    @Deprecated(forRemoval = true)
     public QueryAllParams<T> fields(Collection<String> fields) {
         if (fields == null) {
             return this;

@@ -25,8 +25,8 @@ export const IconWrapper = styled.div<IconProps>`
     props.disabled
       ? "not-allowed"
       : props.onClick
-      ? "pointer"
-      : props.cursor ?? "default"};
+        ? "pointer"
+        : props.cursor ?? "default"};
   opacity: ${(props) => (props.disabled ? 0.5 : 1)};
 
   && svg {

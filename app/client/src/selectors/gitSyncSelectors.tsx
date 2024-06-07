@@ -121,6 +121,9 @@ export const getCurrentGitBranch = (state: AppState): string | undefined => {
   return gitApplicationMetadata?.branchName;
 };
 
+export const showBranchPopupSelector = (state: AppState) =>
+  state.ui.gitSync.showBranchPopup;
+
 export const getPullFailed = (state: AppState) => state.ui.gitSync.pullFailed;
 
 export const getPullInProgress = (state: AppState) =>
@@ -136,11 +139,29 @@ export const getMergeError = (state: AppState) => state.ui.gitSync.mergeError;
 export const getCountOfChangesToCommit = (state: AppState) => {
   const gitStatus = getGitStatus(state);
   const {
+    modified = [],
+    modifiedDatasources = 0,
+    modifiedJSLibs = 0,
+    modifiedJSObjects = 0,
     modifiedModules = 0,
+    modifiedPackages = 0,
     modifiedPages = 0,
     modifiedQueries = 0,
   } = gitStatus || {};
-  return modifiedPages + modifiedQueries + modifiedModules;
+  const themeCount = modified.includes("theme.json") ? 1 : 0;
+  const settingsCount = modified.includes("application.json") ? 1 : 0;
+  // does not include ahead and behind remote counts
+  return (
+    modifiedDatasources +
+    modifiedJSLibs +
+    modifiedJSObjects +
+    modifiedModules +
+    modifiedPackages +
+    modifiedPages +
+    modifiedQueries +
+    themeCount +
+    settingsCount
+  );
 };
 
 export const getShowRepoLimitErrorModal = (state: AppState) =>

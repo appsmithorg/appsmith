@@ -15,15 +15,22 @@ import { sortBy } from "lodash";
 import React from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import SeeMoreButton from "./SeeMoreButton";
-import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
+import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
+import WidgetCard from "./WidgetCard";
 
 const LoadingWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 70px;
-  margin-bottom: 70px;
+  margin: 8px 0px;
+`;
+
+const LoadingContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 30px 0px;
 `;
 
 interface Props {
@@ -54,7 +61,16 @@ const UIEntityTagGroup = (props: Props) => {
             {props.tag}
           </Text>
         </CollapsibleHeader>
-        <Spinner size={"lg"} />
+        <LoadingContainer>
+          <Spinner size="md" />
+          <Text
+            className="select-none"
+            color="var(--ads-v2-color-gray-600)"
+            kind="body-m"
+          >
+            {createMessage(EDITOR_PANE_TEXTS.loading_building_blocks)}
+          </Text>
+        </LoadingContainer>
       </LoadingWrapper>
     );
   }

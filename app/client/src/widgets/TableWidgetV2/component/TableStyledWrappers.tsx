@@ -92,7 +92,7 @@ export const TableWrapper = styled.div<{
     height: 100%;
     display: block;
     position: relative;
-    width: 100%;
+    width: ${({ width }) => width}px;
     overflow: auto hidden;
     &.virtual {
       ${hideScrollbar};
@@ -137,12 +137,7 @@ export const TableWrapper = styled.div<{
     .th,
     .td {
       margin: 0;
-      border-bottom: ${(props) =>
-        props.variant === TableVariantTypes.DEFAULT ||
-        props.variant === undefined ||
-        props.variant === TableVariantTypes.VARIANT3
-          ? "1px solid var(--wds-color-border-onaccent)"
-          : "none"};
+      position: relative;
       border-right: ${(props) =>
         props.variant === TableVariantTypes.DEFAULT ||
         props.variant === undefined ||
@@ -172,6 +167,20 @@ export const TableWrapper = styled.div<{
         &.isResizing {
           cursor: isResizing;
         }
+      }
+
+      &:after {
+        content: "";
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        border-bottom: ${(props) =>
+          props.variant === TableVariantTypes.DEFAULT ||
+          props.variant === undefined ||
+          props.variant === TableVariantTypes.VARIANT3
+            ? "1px solid var(--wds-color-border-onaccent)"
+            : "none"};
       }
     }
 

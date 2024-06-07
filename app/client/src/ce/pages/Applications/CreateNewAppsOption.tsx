@@ -18,7 +18,7 @@ import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspac
 import { default as React, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getDatasource, getPlugin } from "@appsmith/selectors/entitiesSelector";
@@ -31,6 +31,7 @@ import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import type { Datasource } from "entities/Datasource";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
 import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const SectionWrapper = styled.div<{ isBannerVisible: boolean }>`
   display: flex;
@@ -106,7 +107,8 @@ const CreateNewAppsOption = ({
     AnalyticsUtil.logEvent("CREATE_APP_FROM_DATA");
     // fetch plugins information to show list of all plugins
     dispatch(fetchPlugins({ workspaceId: application?.workspaceId }));
-    dispatch(fetchMockDatasources());
+    // For air-gapped version as internet access won't necessarily be available, we skip fetching mock datasources.
+    if (!isAirgapped()) dispatch(fetchMockDatasources());
     if (application?.workspaceId) {
       dispatch(
         fetchingEnvironmentConfigs({

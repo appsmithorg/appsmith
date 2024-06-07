@@ -10,6 +10,7 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -46,7 +47,7 @@ import static com.appsmith.external.constants.CommonFieldName.VALUE;
 @Slf4j
 public class PluginUtils {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = SerializationUtils.getObjectMapperWithSourceInLocationEnabled();
     public static final TypeReference<String> STRING_TYPE = new TypeReference<>() {
         @Override
         public Type getType() {

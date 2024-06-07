@@ -8,7 +8,7 @@ describe(
   { tags: ["@tag.Datasource", "@tag.Sanity"] },
   function () {
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
 
     it("1. Create, test, save then delete a MySQL datasource", function () {
@@ -44,6 +44,13 @@ describe(
       );
       cy.deleteQueryUsingContext();
       cy.deleteDatasource(datasourceName);
+    });
+
+    it("4. Verify the default port for the datasource", function () {
+      dataSources.NavigateToDSCreateNew();
+      dataSources.CreatePlugIn("MySQL");
+
+      agHelper.AssertAttribute(dataSources._port, "value", "3306");
     });
   },
 );

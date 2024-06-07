@@ -19,10 +19,6 @@ export interface TextInputProps extends OmitedSpectrumTextFieldProps {
   fieldClassName?: string;
   /** className for the text input. */
   className?: string;
-  /**an icon to be displayed at the start of the component  */
-  startIcon?: React.ReactNode;
-  /** an icon to be displayed at the end of the component */
-  endIcon?: React.ReactNode;
   /** indicates loading state of the text input */
   isLoading?: boolean;
   /** suffix component  */

@@ -10,7 +10,7 @@ import type {
 import WalkthroughContext, {
   isFeatureFooterDetails,
 } from "./walkthroughContext";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { showIndicator } from "components/utils/Indicator";
 
 const CLIPID = "clip__feature";

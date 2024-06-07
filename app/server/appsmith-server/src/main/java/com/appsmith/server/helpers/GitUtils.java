@@ -21,6 +21,28 @@ public class GitUtils {
     public static final Integer MAX_RETRIES = 20;
 
     /**
+     * Pattern for validating the ssh address if that starts with a scheme
+     * Should start with ssh://
+     * may or may not have a username : e.g. ssh://domain.xy:/path/path.git
+     * username can start with any small alphabet or a _ underscore
+     * the RFC host name should have regex : ((?!-)[A-Za-z0-9-]{1,63}(?<!-)\\.)+[A-Za-z0-9-]{1,63}\\.[A-Za-z]{2,6},
+     * however due to already existing leniency
+     * hostname can have all alphanumerics, -, and .  e.g. ssh://_ab-xy@ab-12.ab:/v3/newJet/ai/zilla.git
+     * the port number could be not present as well. e.g. ssh://_ab-xy@domain.com:/v3/newJet/ai/zilla
+     */
+    public static final Pattern URL_PATTERN_WITH_SCHEME =
+            Pattern.compile("^ssh://([a-z_][\\w-]+@)?(?<host>[\\w-.]+)(:(?<port>\\d*))?/+(?<path>.+?)(\\.git)?$");
+
+    /**
+     * Pattern for validating the ssh address if it strictly doesn't start with a scheme
+     * username can start with any small alphabet or a _ underscore
+     * hostname can have all alphanumerics, -, and .  e.g. ssh://_ab-xy@ab-12.ab:/v3/newJet/ai/zilla.git
+     * the port number could be not present as well. e.g. ssh://_ab-xy@domain.com:/v3/newJet/ai/zilla
+     */
+    public static final Pattern URL_PATTERN_WITHOUT_SCHEME =
+            Pattern.compile("^[a-z_][\\w-]+@(?<host>[\\w-.]+):/*(?<path>.+?)(\\.git)?$");
+
+    /**
      * Sample repo urls :
      * git@example.com:user/repoName.git
      * ssh://git@example.org/<workspace_ID>/<repo_name>.git
@@ -33,9 +55,19 @@ public class GitUtils {
         if (StringUtils.isEmptyOrNull(sshUrl)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "ssh url");
         }
-        return sshUrl.replaceFirst(".*git@", "https://")
-                .replaceFirst("(\\.[a-zA-Z0-9]*):", "$1/")
-                .replaceFirst("\\.git$", "");
+
+        Matcher match = URL_PATTERN_WITH_SCHEME.matcher(sshUrl);
+        if (!match.matches()) {
+            match = URL_PATTERN_WITHOUT_SCHEME.matcher(sshUrl);
+        }
+
+        if (!match.matches()) {
+            throw new AppsmithException(
+                    AppsmithError.INVALID_GIT_CONFIGURATION,
+                    "Remote URL is incorrect. Please add a URL in standard format. Example: git@example.com:username/reponame.git");
+        }
+
+        return "https://" + match.group("host") + "/" + match.group("path");
     }
 
     /**
@@ -57,8 +89,8 @@ public class GitUtils {
         }
         throw new AppsmithException(
                 AppsmithError.INVALID_GIT_CONFIGURATION,
-                "Remote URL is incorrect, "
-                        + "please add a URL in standard format. Example: git@example.com:username/reponame.git");
+                "Remote URL is incorrect. "
+                        + "Please add a URL in standard format. Example: git@example.com:username/reponame.git");
     }
 
     /**
@@ -129,7 +161,7 @@ public class GitUtils {
     public static boolean isApplicationConnectedToGit(Application application) {
         GitArtifactMetadata metadata = application.getGitApplicationMetadata();
         return metadata != null
-                && !StringUtils.isEmptyOrNull(metadata.getDefaultApplicationId())
+                && !StringUtils.isEmptyOrNull(metadata.getDefaultArtifactId())
                 && !StringUtils.isEmptyOrNull(metadata.getRemoteUrl());
     }
 

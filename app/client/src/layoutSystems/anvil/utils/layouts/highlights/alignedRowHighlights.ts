@@ -66,6 +66,12 @@ export const deriveAlignedRowHighlights =
       posY: HIGHLIGHT_SIZE / 2,
       rowIndex: 0,
       width: HIGHLIGHT_SIZE,
+      edgeDetails: {
+        bottom: false,
+        left: false,
+        right: false,
+        top: false,
+      },
     };
 
     /**
@@ -100,6 +106,15 @@ export const deriveAlignedRowHighlights =
  * @param getDimensions | GetDimensions : method to get relative position of entity.
  * @returns HighlightPayload.
  */
+/**
+ * Retrieves the initial highlights for a layout.
+ *
+ * @param layoutProps - The properties of the layout.
+ * @param baseHighlight - The base highlight to be used.
+ * @param draggedWidgets - The array of dragged widgets.
+ * @param getDimensions - The function to get the dimensions of a layout element.
+ * @returns The payload containing the highlights and a flag indicating whether to skip the entity.
+ */
 function getInitialHighlights(
   layoutProps: LayoutProps,
   baseHighlight: AnvilHighlightInfo,
@@ -117,9 +132,9 @@ function getInitialHighlights(
   /**
    * If dragged widgets contain a fill widget,
    * then draw a single highlight that spans the width of the layout.
-   * else draw three highlights, one for each alignment.
+   * Otherwise, draw three highlights, one for each alignment.
    */
-  const arr = hasFillWidget
+  const alignments = hasFillWidget
     ? [FlexLayerAlignment.Start]
     : [
         FlexLayerAlignment.Start,
@@ -127,10 +142,10 @@ function getInitialHighlights(
         FlexLayerAlignment.End,
       ];
 
-  arr.forEach((alignment: FlexLayerAlignment, index: number) => {
-    const alignmentDimension: LayoutElementPosition = getDimensions(
-      `${layoutProps.layoutId}-${index}`,
-    );
+  alignments.forEach((alignment: FlexLayerAlignment, index: number) => {
+    const alignmentId: string = `${layoutProps.layoutId}-${index}`;
+    const alignmentDimension: LayoutElementPosition =
+      getDimensions(alignmentId);
     highlights = updateHighlights(
       highlights,
       baseHighlight,
@@ -367,15 +382,24 @@ function generateHighlight(
       layoutDimension.left,
     );
   }
-
+  const posY = tallestWidget ? tallestWidget.top : layoutDimension.top;
+  const edgeDetails = {
+    top: posY === layoutDimension.top,
+    bottom:
+      posY + HIGHLIGHT_SIZE === layoutDimension.top + layoutDimension.height,
+    left: posX === layoutDimension.left,
+    right:
+      posX + HIGHLIGHT_SIZE === layoutDimension.left + layoutDimension.width,
+  };
   return {
     ...baseHighlight,
     layoutId,
     alignment,
     height: tallestWidget?.height ?? layoutDimension.height,
     posX,
-    posY: tallestWidget ? tallestWidget?.top : layoutDimension.top,
+    posY,
     rowIndex: childCount,
+    edgeDetails,
   };
 }
 

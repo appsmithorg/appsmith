@@ -1,18 +1,20 @@
 package com.appsmith.git.helpers;
 
+import com.appsmith.external.git.operations.FileOperations;
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.configurations.GitServiceConfig;
+import com.appsmith.git.files.FileUtilsImpl;
+import com.appsmith.git.files.operations.FileOperationsImpl;
 import com.appsmith.git.service.GitExecutorImpl;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
@@ -27,22 +29,22 @@ import static com.appsmith.git.constants.GitDirectories.ACTION_COLLECTION_DIRECT
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
-@ExtendWith(SpringExtension.class)
 public class FileUtilsImplTest {
     private FileUtilsImpl fileUtils;
 
-    @MockBean
     private GitExecutorImpl gitExecutor;
 
-    private GitServiceConfig gitServiceConfig;
     private static final String localTestDirectory = "localTestDirectory";
     private static final Path localTestDirectoryPath = Path.of(localTestDirectory);
 
     @BeforeEach
     public void setUp() {
-        gitServiceConfig = new GitServiceConfig();
+        gitExecutor = Mockito.mock(GitExecutorImpl.class);
+        GitServiceConfig gitServiceConfig = new GitServiceConfig();
         gitServiceConfig.setGitRootPath(localTestDirectoryPath.toString());
-        fileUtils = new FileUtilsImpl(gitServiceConfig, gitExecutor);
+        FileOperations fileOperations =
+                new FileOperationsImpl(gitServiceConfig, gitExecutor, new GsonBuilder(), null, ObservationHelper.NOOP);
+        fileUtils = new FileUtilsImpl(gitServiceConfig, gitExecutor, fileOperations, ObservationHelper.NOOP);
     }
 
     @AfterEach
@@ -63,6 +65,7 @@ public class FileUtilsImplTest {
 
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
         applicationGitReference.setApplication(new Object());
+        applicationGitReference.setTheme(new Object());
         applicationGitReference.setMetadata(new Object());
         applicationGitReference.setPages(new HashMap<>());
         applicationGitReference.setActions(new HashMap<>());

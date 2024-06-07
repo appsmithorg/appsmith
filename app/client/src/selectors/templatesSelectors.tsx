@@ -5,6 +5,7 @@ import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import type { FilterKeys, Template } from "api/TemplatesApi";
 import {
+  BUILDING_BLOCK_EXPLORER_TYPE,
   DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS,
   DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS,
   WIDGET_TAGS,
@@ -29,10 +30,8 @@ export const isImportingTemplateSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplate;
 export const isImportingTemplateToAppSelector = (state: AppState) =>
   state.ui.templates.isImportingTemplateToApp;
-export const isImportingStarterBuildingBlockToAppSelector = (state: AppState) =>
-  state.ui.templates.isImportingStarterBuildingBlockToApp;
-export const starterBuildingBlockDatasourcePromptSelector = (state: AppState) =>
-  state.ui.templates.starterBuildingBlockDatasourcePrompt;
+export const currentForkingBuildingBlockName = (state: AppState) =>
+  state.ui.templates.currentForkingTemplateInfo.buildingBlock.name;
 export const buildingBlocksSourcePageIdSelector = (state: AppState) =>
   state.ui.templates.buildingBlockSourcePageId;
 export const showTemplateNotificationSelector = (state: AppState) =>
@@ -74,11 +73,19 @@ export const getBuildingBlockExplorerCards = createSelector(
   (buildingBlocks) => {
     const adjustedBuildingBlocks: WidgetCardProps[] = buildingBlocks.map(
       (buildingBlock) => ({
-        rows: DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS,
-        columns: DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS,
-        type: "BUILDING_BLOCK",
+        rows:
+          buildingBlock.templateGridRowSize ||
+          DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS,
+        columns:
+          buildingBlock.templateGridColumnSize ||
+          DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS,
+        type: BUILDING_BLOCK_EXPLORER_TYPE,
         displayName: buildingBlock.title,
         icon:
+          buildingBlock.screenshotUrls.length > 1
+            ? buildingBlock.screenshotUrls[1]
+            : buildingBlock.screenshotUrls[0],
+        thumbnail:
           buildingBlock.screenshotUrls.length > 1
             ? buildingBlock.screenshotUrls[1]
             : buildingBlock.screenshotUrls[0],

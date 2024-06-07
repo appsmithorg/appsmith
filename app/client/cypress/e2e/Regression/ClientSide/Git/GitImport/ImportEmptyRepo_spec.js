@@ -17,14 +17,12 @@ describe("Git import empty repository", { tags: ["@tag.Git"] }, function () {
     cy.generateUUID().then((uid) => {
       repoName = uid;
       _.gitSync.CreateTestGiteaRepo(repoName);
-      //cy.createTestGithubRepo(repoName);
     });
   });
 
   it("1. Bug #12749 Git Import - Empty Repo NullPointerException", () => {
     cy.generateUUID().then((uid) => {
       repoName = uid;
-      //cy.createTestGithubRepo(repoName);
       _.gitSync.CreateTestGiteaRepo(repoName);
       _.gitSync.ImportAppFromGit(undefined, repoName, false);
       cy.wait("@importFromGit").then((interception) => {
@@ -38,6 +36,5 @@ describe("Git import empty repository", { tags: ["@tag.Git"] }, function () {
   });
   after(() => {
     _.gitSync.DeleteTestGithubRepo(repoName);
-    //cy.deleteTestGithubRepo(repoName);
   });
 });

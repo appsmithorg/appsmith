@@ -33,7 +33,7 @@ import {
   isTenantConfig,
   saveAllowed,
 } from "@appsmith/utils/adminSettingsHelpers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   Wrapper,
   BottomSpace,

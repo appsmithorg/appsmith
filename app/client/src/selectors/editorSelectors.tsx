@@ -30,6 +30,7 @@ import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer
 
 import {
   getActions,
+  getApiPaneSavingMap,
   getCanvasWidgets,
   getJSCollections,
 } from "@appsmith/selectors/entitiesSelector";
@@ -43,11 +44,10 @@ import WidgetFactory from "WidgetProvider/factory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 import { protectedModeSelector } from "./gitSyncSelectors";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -74,33 +74,40 @@ export const getIsFetchingPage = (state: AppState) =>
 export const getLoadingError = (state: AppState) =>
   state.ui.editor.loadingStates.loadingError;
 
-export const getIsPageSaving = (state: AppState) => {
-  let areApisSaving = false;
-  let areJsObjectsSaving = false;
+export const getIsPageSaving = createSelector(
+  [
+    getApiPaneSavingMap,
+    (state: AppState) => state.ui.jsPane.isSaving,
+    (state: AppState) => state.ui.appTheming.isSaving,
+    (state: AppState) => state.ui.applications.isSavingNavigationSetting,
+    (state: AppState) => state.ui.editor.loadingStates.savingEntity,
+    (state: AppState) => state.ui.editor.loadingStates.saving,
+  ],
+  (
+    savingApis,
+    savingJSObjects,
+    isSavingAppTheme,
+    isSavingNavigationSetting,
+    isEditorSavingEntity,
+    isEditorSaving,
+  ) => {
+    const areApisSaving = Object.keys(savingApis).some(
+      (apiId) => savingApis[apiId],
+    );
+    const areJsObjectsSaving = Object.keys(savingJSObjects).some(
+      (collectionId) => savingJSObjects[collectionId],
+    );
 
-  const savingApis = state.ui.apiPane.isSaving;
-  const savingJSObjects = state.ui.jsPane.isSaving;
-  const isSavingAppTheme = state.ui.appTheming.isSaving;
-  const isSavingNavigationSetting =
-    state.ui.applications.isSavingNavigationSetting;
-
-  Object.keys(savingApis).forEach((apiId) => {
-    areApisSaving = savingApis[apiId] || areApisSaving;
-  });
-
-  Object.keys(savingJSObjects).forEach((collectionId) => {
-    areJsObjectsSaving = savingJSObjects[collectionId] || areJsObjectsSaving;
-  });
-
-  return (
-    state.ui.editor.loadingStates.saving ||
-    areApisSaving ||
-    areJsObjectsSaving ||
-    isSavingAppTheme ||
-    state.ui.editor.loadingStates.savingEntity ||
-    isSavingNavigationSetting
-  );
-};
+    return (
+      isEditorSavingEntity ||
+      areApisSaving ||
+      areJsObjectsSaving ||
+      isSavingAppTheme ||
+      isEditorSaving ||
+      isSavingNavigationSetting
+    );
+  },
+);
 
 export const snipingModeSelector = (state: AppState) =>
   state.ui.editor.isSnipingMode;
@@ -125,7 +132,7 @@ export const getIsPublishingApplication = (state: AppState) =>
 export const getPublishingError = (state: AppState) =>
   state.ui.editor.loadingStates.publishingError;
 
-export const getCurrentLayoutId = (state: AppState) =>
+export const getCurrentLayoutId = (state: AppState): string | undefined =>
   state.ui.editor.currentLayoutId;
 
 export const getPageList = (state: AppState) => state.entities.pageList.pages;
@@ -307,29 +314,23 @@ export const getCurrentPageName = createSelector(
 
 export const getWidgetCards = createSelector(
   getIsAutoLayout,
-  (_state: AppState) =>
-    selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
-  (isAutoLayout, isWDSEnabled) => {
+  getIsAnvilLayout,
+  (isAutoLayout, isAnvilLayout) => {
     const widgetConfigs = WidgetFactory.getConfigs();
-
-    const cards = Object.values(widgetConfigs).filter((config) => {
-      // if wds_vs is not enabled, hide all wds_v2 widgets
-      if (
-        Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
-        isWDSEnabled === false
-      ) {
-        return false;
+    const widgetConfigsArray = Object.values(widgetConfigs);
+    const layoutSystemBasesWidgets = widgetConfigsArray.filter((config) => {
+      const isAnvilWidget = Object.values(WDS_V2_WIDGET_MAP).includes(
+        config.type,
+      );
+      if (isAnvilLayout) {
+        return isAnvilWidget;
       }
-
+      return !isAnvilWidget;
+    });
+    const cards = layoutSystemBasesWidgets.filter((config) => {
       if (isAirgapped()) {
         return config.widgetName !== "Map" && !config.hideCard;
       }
-
-      // if wds is enabled, only show the wds_v2 widgets
-      if (isWDSEnabled === true) {
-        return Object.values(WDS_V2_WIDGET_MAP).includes(config.type);
-      }
-
       return !config.hideCard;
     });
 
@@ -353,6 +354,10 @@ export const getWidgetCards = createSelector(
         columns = autoLayoutConfig?.defaults?.columns ?? columns;
       }
 
+      const { IconCmp, ThumbnailCmp } = WidgetFactory.getWidgetMethods(
+        config.type,
+      );
+
       return {
         key,
         type,
@@ -362,6 +367,8 @@ export const getWidgetCards = createSelector(
         displayName,
         icon: iconSVG,
         thumbnail: thumbnailSVG,
+        IconCmp,
+        ThumbnailCmp,
         searchTags,
         tags,
         isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),
@@ -873,6 +880,20 @@ export const getApplicationLastDeployedAt = (state: AppState) =>
 export const previewModeSelector = (state: AppState) => {
   return state.ui.editor.isPreviewMode;
 };
+
+/**
+ * This selector is used to identify if the application is in an edit-only state,
+ * meaning it is in the canvas render mode but not in preview or protected mode.
+ * This is useful for enabling or disabling certain UI elements or functionalities
+ * that are only applicable in this specific mode.
+ */
+export const isEditOnlyModeSelector = createSelector(
+  getRenderMode,
+  previewModeSelector,
+  protectedModeSelector,
+  (renderMode, isPreviewMode, isProtectedMode) =>
+    renderMode === RenderModes.CANVAS && !(isPreviewMode || isProtectedMode),
+);
 
 /**
  * returns the `state.ui.editor.zoomLevel`

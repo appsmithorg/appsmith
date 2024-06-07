@@ -23,7 +23,7 @@ import Sidebar from "./Sidebar";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { setAppViewHeaderHeight } from "actions/appViewActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 export function Navigation() {
   const { search } = useLocation();

@@ -1,0 +1,54 @@
+:root {
+  --anvil-drop-indicator: #ce01d3;
+  --anvil-multiple-drag-count-bg: #f6f3ff;
+  --anvil-multiple-drag-count-text: #390a6d;
+  --anvil-cell-highlight: rgba(206, 1, 211, 0.2);
+  --info-text-font-size: 14px;
+  --info-text-font-weight: 510;
+  --info-text-line-height: 19.6px;
+  --modal-overlay-color: rgba(245, 222, 245, 0.9);
+  --modal-overlay-content-color: #ffe5fe;
+  --modal-overlay-content-outline: 1px dashed #ce01d3;
+  --modal-overlay-content-text-color: #2a002b;
+  --empty-modal-drop-arena-active-bg: #ffe5fe;
+  --empty-modal-drop-arena-bg: #e6efff;
+  --empty-modal-drop-arena-outline-color: #3075ff;
+  --empty-modal-drop-arena-outline-active-color: #ce01d3;
+  --empty-modal-drop-arena-text-color: #001040;
+  --space-distribution-handle-active-bg: #0045c6;
+  --space-distribution-handle-bg: #3075ff;
+  /* Used for on-canvas ui. Examples of on-canvas ui are selection and focused state, main container resizer, etc */
+  /* Error state color */
+  --on-canvas-ui-widget-error: #ee0132;
+
+  /* General widget selection and focus state colors */
+  --on-canvas-ui-widget-selection: #ce01d3;
+  --on-canvas-ui-widget-focus: #ffe5fe;
+
+  /* Zone widget selection and focus state colors */
+  --on-canvas-ui-zone-selection: #954bff;
+  --on-canvas-ui-zone-focus: #f0ebff;
+
+  /* Section widget selection and focus state colors */
+  --on-canvas-ui-section-selection: #3075ff;
+  --on-canvas-ui-section-focus: #e6efff;
+
+  --on-canvas-ui-white: #ffffff;
+
+  /* Other common parameters for on-canvas ui */
+  /*
+    z index of ADS modal components -- 1000
+    z index of ADS on-canvas ui components -- 998
+    z index of WDS modal components -- 990
+
+    When any of the above change, the corresponding z-index in the respective component should also be updated.
+    ADS modal > ADS on-canvas ui > WDS modal
+  */
+  --on-canvas-ui-zindex: 998;
+  --on-canvas-ui-border-radius: 4px;
+
+  --on-canvas-ui-border-width-1: 1px;
+  --on-canvas-ui-border-width-2: 2px;
+
+  --on-canvas-ui-outline-offset: 4px;
+}

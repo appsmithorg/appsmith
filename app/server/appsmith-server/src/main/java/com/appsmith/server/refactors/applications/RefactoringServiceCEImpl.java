@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.helpers.ContextTypeUtils.getDefaultContextIfNull;
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 
 @Slf4j
@@ -193,27 +194,38 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
             RefactorEntityNameDTO refactorEntityNameDTO,
             Mono<String> contextIdMono,
             Map<String, String> analyticsProperties) {
-        return contextIdMono
-                .flatMap(branchedPageId -> {
-                    refactorEntityNameDTO.setPageId(branchedPageId);
-                    return this.isNameAllowed(
-                                    branchedPageId,
-                                    CreatorContextType.PAGE,
-                                    refactorEntityNameDTO.getLayoutId(),
-                                    refactorEntityNameDTO.getNewFullyQualifiedName())
-                            .zipWith(newPageService.getById(branchedPageId));
-                })
-                .flatMap(tuple -> {
-                    analyticsProperties.put(
-                            FieldName.APPLICATION_ID, tuple.getT2().getApplicationId());
-                    analyticsProperties.put(FieldName.PAGE_ID, refactorEntityNameDTO.getPageId());
-                    if (!tuple.getT1()) {
+        return contextIdMono.flatMap(branchedContextId -> validateEntityName(refactorEntityNameDTO, branchedContextId)
+                .then(prepareAnalyticsProperties(refactorEntityNameDTO, contextIdMono, analyticsProperties)));
+    }
+
+    protected Mono<Map<String, String>> prepareAnalyticsProperties(
+            RefactorEntityNameDTO refactorEntityNameDTO,
+            Mono<String> contextIdMono,
+            Map<String, String> analyticsProperties) {
+        return contextIdMono.flatMap(branchedPageId -> {
+            refactorEntityNameDTO.setPageId(branchedPageId);
+            return newPageService.getByIdWithoutPermissionCheck(branchedPageId).map(page -> {
+                analyticsProperties.put(FieldName.APPLICATION_ID, page.getApplicationId());
+                analyticsProperties.put(FieldName.PAGE_ID, refactorEntityNameDTO.getPageId());
+                return analyticsProperties;
+            });
+        });
+    }
+
+    protected Mono<Void> validateEntityName(RefactorEntityNameDTO refactorEntityNameDTO, String contextId) {
+        return isNameAllowed(
+                        contextId,
+                        getDefaultContextIfNull(refactorEntityNameDTO.getContextType()),
+                        refactorEntityNameDTO.getLayoutId(),
+                        refactorEntityNameDTO.getNewFullyQualifiedName())
+                .flatMap(valid -> {
+                    if (!valid) {
                         return Mono.error(new AppsmithException(
                                 AppsmithError.NAME_CLASH_NOT_ALLOWED_IN_REFACTOR,
                                 refactorEntityNameDTO.getOldFullyQualifiedName(),
                                 refactorEntityNameDTO.getNewFullyQualifiedName()));
                     }
-                    return Mono.just(analyticsProperties);
+                    return Mono.empty();
                 });
     }
 
@@ -223,7 +235,7 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
             EntityRefactoringService<?> service,
             Map<String, String> analyticsProperties) {
         return service.updateRefactoredEntity(refactorEntityNameDTO, branchName)
-                .then(this.refactorName(refactorEntityNameDTO))
+                .then(Mono.defer(() -> this.refactorName(refactorEntityNameDTO)))
                 .flatMap(tuple2 -> {
                     AnalyticsEvents event = service.getRefactorAnalyticsEvent(refactorEntityNameDTO.getEntityType());
                     return this.sendRefactorAnalytics(event, analyticsProperties, tuple2.getT2())

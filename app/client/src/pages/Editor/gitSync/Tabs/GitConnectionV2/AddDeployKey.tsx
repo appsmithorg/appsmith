@@ -23,7 +23,7 @@ import {
 } from "design-system";
 import styled from "styled-components";
 import { CopyButton } from "../../components/CopyButton";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   ADD_DEPLOY_KEY_STEP_TITLE,
   CONSENT_ADDED_DEPLOY_KEY,
@@ -72,7 +72,6 @@ export const KeyText = styled.span`
   overflow: hidden;
   flex: 1;
   font-size: 10px;
-  text-transform: uppercase;
   color: var(--ads-v2-color-fg);
   direction: rtl;
   margin-right: 8px;

@@ -27,7 +27,7 @@ import {
   getSignpostingStepStateByStep,
   isWidgetActionConnectionPresent,
 } from "selectors/onboardingSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { forceOpenWidgetPanel } from "actions/widgetSidebarActions";
 import { bindDataOnCanvas } from "actions/pluginActionActions";
 import {

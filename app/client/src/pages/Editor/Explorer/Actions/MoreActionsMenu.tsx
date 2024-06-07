@@ -9,7 +9,6 @@ import {
   deleteAction,
 } from "actions/pluginActionActions";
 
-import { useNewActionName } from "./helpers";
 import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
@@ -36,13 +35,19 @@ interface EntityContextMenuProps {
   pageId: string;
   isChangePermitted?: boolean;
   isDeletePermitted?: boolean;
+  prefixAdditionalMenus?: React.ReactNode | React.ReactNode[];
+  postfixAdditionalMenus?: React.ReactNode | React.ReactNode[];
 }
 
 export function MoreActionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);
-  const nextEntityName = useNewActionName();
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const { isChangePermitted = false, isDeletePermitted = false } = props;
+  const {
+    isChangePermitted = false,
+    isDeletePermitted = false,
+    postfixAdditionalMenus,
+    prefixAdditionalMenus,
+  } = props;
 
   useEffect(() => {
     if (!isMenuOpen) setConfirmDelete(false);
@@ -55,10 +60,10 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
         copyActionRequest({
           id: actionId,
           destinationPageId: pageId,
-          name: nextEntityName(`${actionName}Copy`, pageId),
+          name: actionName,
         }),
       ),
-    [dispatch, nextEntityName],
+    [dispatch],
   );
   const moveActionToPage = useCallback(
     (actionId: string, actionName: string, destinationPageId: string) =>
@@ -67,10 +72,10 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
           id: actionId,
           destinationPageId,
           originalPageId: props.pageId,
-          name: nextEntityName(actionName, destinationPageId),
+          name: actionName,
         }),
       ),
-    [dispatch, nextEntityName, props.pageId],
+    [dispatch, props.pageId],
   );
   const deleteActionFromPage = useCallback(
     (actionId: string, actionName: string) => {
@@ -107,6 +112,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
         />
       </MenuTrigger>
       <MenuContent loop style={{ zIndex: 100 }} width="200px">
+        {prefixAdditionalMenus ? prefixAdditionalMenus : null}
         {isChangePermitted && (
           <MenuSub>
             <MenuSubTrigger startIcon="duplicate">
@@ -178,6 +184,7 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
               : createMessage(CONTEXT_DELETE)}
           </MenuItem>
         )}
+        {postfixAdditionalMenus ? postfixAdditionalMenus : null}
       </MenuContent>
     </Menu>
   ) : null;

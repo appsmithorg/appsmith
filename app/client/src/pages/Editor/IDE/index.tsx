@@ -2,7 +2,10 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 import BottomBar from "components/BottomBar";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import {
+  combinedPreviewModeSelector,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 import EditorWrapperContainer from "../commons/EditorWrapperContainer";
 import Sidebar from "pages/Editor/IDE/Sidebar";
 import LeftPane from "./LeftPane";
@@ -10,15 +13,20 @@ import MainPane from "./MainPane";
 import RightPane from "./RightPane";
 import classNames from "classnames";
 import { tailwindLayers } from "constants/Layers";
+import ProtectedCallout from "./ProtectedCallout";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 /**
  * OldName: MainContainer
  */
 function IDE() {
+  const isPreviewMode = useSelector(previewModeSelector);
   const isCombinedPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
 
   return (
     <>
+      {isProtectedMode && <ProtectedCallout />}
       <EditorWrapperContainer>
         <div
           className={classNames({
@@ -43,7 +51,7 @@ function IDE() {
           <RightPane />
         </div>
       </EditorWrapperContainer>
-      <BottomBar />
+      <BottomBar viewMode={isPreviewMode} />
     </>
   );
 }

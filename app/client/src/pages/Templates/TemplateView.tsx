@@ -18,7 +18,7 @@ import type { AppState } from "@appsmith/reducers";
 import history from "utils/history";
 import { TEMPLATES_PATH } from "constants/routes";
 import { Colors } from "constants/Colors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import TemplateDescription from "./Template/TemplateDescription";
 import SimilarTemplates from "./Template/SimilarTemplates";

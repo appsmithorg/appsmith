@@ -17,6 +17,7 @@ export const propertyPaneStyle = [
         validation: {
           type: ValidationTypes.BOOLEAN,
         },
+        isReusable: true,
       },
     ],
   },

@@ -97,8 +97,8 @@ export const showUndoRedoToast = (
   const actionKey = shouldUndo
     ? `${modText()} Z`
     : isMacOrIOS()
-    ? `${modText()} ${shiftText()} Z`
-    : `${modText()} Y`;
+      ? `${modText()} ${shiftText()} Z`
+      : `${modText()} Y`;
 
   toast.show(`${actionText}. Press ${actionKey} to ${action}`);
 };

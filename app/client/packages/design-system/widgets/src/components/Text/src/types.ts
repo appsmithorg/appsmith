@@ -6,10 +6,10 @@ import type { ReactNode } from "react";
 import type { COLORS } from "../../../shared";
 
 export interface TextProps {
-  /** Variant of the text
+  /** size variant of the text
    * @default body
    */
-  variant?: keyof typeof TYPOGRAPHY_VARIANTS;
+  size?: keyof typeof TYPOGRAPHY_VARIANTS;
   /** Color of the text
    * @default inherit
    */
@@ -29,7 +29,7 @@ export interface TextProps {
   /** Sets the horizontal alignment of the inline-level content inside a block element or table-cell box. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/text-align).
    * @default left
    */
-  textAlign?: "left" | "center" | "right";
+  textAlign?: "start" | "center" | "end";
   /** Allows limiting of the contents of a block to the specified number of lines. See [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS/-webkit-line-clamp). */
   lineClamp?: number;
   /** Sets the CSS [className](https://developer.mozilla.org/en-US/docs/Web/API/Element/className) for the element. Only use as a **last resort**. Use style props instead. */
