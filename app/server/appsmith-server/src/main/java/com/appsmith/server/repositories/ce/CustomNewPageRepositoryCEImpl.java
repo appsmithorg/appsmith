@@ -246,6 +246,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
+    @Modifying
+    @Transactional
     public Optional<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap) {
         final BridgeQuery<NewPage> q = Bridge.equal(NewPage.Fields.id, pageId);
 
