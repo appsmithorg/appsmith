@@ -1,5 +1,10 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+cypress/e2e/Regression/ClientSide/VisualTests/AppPageLayout_spec.js
+cypress/e2e/EE/Enterprise/Workflows/DBEntryForWorkflow_spec.ts
+cypress/e2e/Regression/ClientSide/OtherUIFeatures/EmptyCanvas_spec.js
+cypress/e2e/Regression/ClientSide/BugTests/DS_Bug26941_Spec.ts
+cypress/e2e/Regression/ServerSide/QueryPane/S3_2_spec.ts
+cypress/e2e/Regression/ClientSide/Widgets/Custom/CustomWidgetEditorPropertyPane_spec.ts
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
