@@ -204,7 +204,7 @@ public class AmazonS3PluginTest {
     }
 
     @Test
-    public void testValidateDatasourceWithMissingRegionWithNonAmazonProvider() {
+    public void testValidateDatasourceWithMissingRegionAndDefaultBucketWithNonAmazonProvider() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         datasourceConfiguration.getProperties().get(1).setValue(GOOGLE_CLOUD_SERVICE_PROVIDER);
@@ -226,7 +226,7 @@ public class AmazonS3PluginTest {
     }
 
     @Test
-    public void testValidateDatasourceWithNonAmazonProvider() {
+    public void testValidateDatasourceWithMissingRegionWithNonAmazonProvider() {
         DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration();
 
         datasourceConfiguration.getProperties().get(1).setValue(GOOGLE_CLOUD_SERVICE_PROVIDER);
