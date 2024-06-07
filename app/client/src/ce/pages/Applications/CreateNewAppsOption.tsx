@@ -140,25 +140,24 @@ const CreateNewAppsOption = ({
   };
 
   const onClickSkipButton = () => {
-    if (application) {
-      urlBuilder.updateURLParams(
-        {
-          applicationSlug: application.slug,
-          applicationVersion: application.applicationVersion,
-          applicationId: application.id,
-        },
-        application.pages.map((page) => ({
-          pageSlug: page.slug,
-          customSlug: page.customSlug,
-          pageId: page.id,
-        })),
-      );
-      history.push(
-        builderURL({
-          pageId: application.pages[0].id,
-        }),
-      );
-    }
+    const applicationObject = application!;
+    urlBuilder.updateURLParams(
+      {
+        applicationSlug: applicationObject.slug,
+        applicationVersion: applicationObject.applicationVersion,
+        applicationId: applicationObject.id,
+      },
+      applicationObject.pages.map((page) => ({
+        pageSlug: page.slug,
+        customSlug: page.customSlug,
+        pageId: page.id,
+      })),
+    );
+    history.push(
+      builderURL({
+        pageId: applicationObject.pages[0].id,
+      }),
+    );
 
     addAnalyticEventsForSkip();
   };
@@ -214,15 +213,16 @@ const CreateNewAppsOption = ({
         >
           {createMessage(GO_BACK)}
         </LinkWrapper>
-
-        <LinkWrapper
-          className="t--create-new-app-option-skip"
-          data-testid="t--create-new-app-option-skip"
-          endIcon="arrow-right-line"
-          onClick={onClickSkipButton}
-        >
-          {createMessage(SKIP_START_WITH_USE_CASE_TEMPLATES)}
-        </LinkWrapper>
+        {application && (
+          <LinkWrapper
+            className="t--create-new-app-option-skip"
+            data-testid="t--create-new-app-option-skip"
+            endIcon="arrow-right-line"
+            onClick={onClickSkipButton}
+          >
+            {createMessage(SKIP_START_WITH_USE_CASE_TEMPLATES)}
+          </LinkWrapper>
+        )}
       </BackWrapper>
       <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
         <Header
