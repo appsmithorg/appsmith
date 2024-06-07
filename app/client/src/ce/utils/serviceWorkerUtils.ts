@@ -15,6 +15,21 @@ interface TMatchResult {
   applicationId?: string;
 }
 
+export interface TApplicationParams {
+  origin: string;
+  pageId?: string;
+  applicationId?: string;
+  branchName: string;
+  appMode: APP_MODE;
+}
+
+type TApplicationParamsOrNull = TApplicationParams | null;
+
+export const cachedApiUrlRegex = new RegExp("/api/v1/consolidated-api/");
+
+/**
+ * Function to match the path with the builder path
+ */
 export const matchBuilderPath = (
   pathName: string,
   options: TokensToRegexpOptions,
@@ -31,20 +46,10 @@ export const matchViewerPath = (pathName: string) =>
   match<TMatchResult>(VIEWER_PATH_DEPRECATED)(pathName) ||
   match<TMatchResult>(VIEWER_CUSTOM_PATH)(pathName);
 
-export interface TApplicationParams {
-  origin: string;
-  pageId?: string;
-  applicationId?: string;
-  branchName: string;
-  appMode: APP_MODE;
-}
-
-type TApplicationParamsOrNull = TApplicationParams | null;
-
 /**
  * returns the value in the query string for a key
  */
-const getSearchQuery = (search = "", key: string) => {
+export const getSearchQuery = (search = "", key: string) => {
   const params = new URLSearchParams(search);
   return decodeURIComponent(params.get(key) || "");
 };
@@ -52,10 +57,7 @@ const getSearchQuery = (search = "", key: string) => {
 export const getApplicationParamsFromUrl = (
   url: URL,
 ): TApplicationParamsOrNull => {
-  if (!url) {
-    return null;
-  }
-
+  // Get the branch name from the query string
   const branchName = getSearchQuery(url.search, "branch");
 
   const matchedBuilder: Match<TMatchResult> = matchBuilderPath(url.pathname, {
@@ -131,7 +133,7 @@ export const getConsolidatedApiPrefetchRequest = (
 };
 
 /**
- * Function to get the prefetch request for consolidated api
+ * Function to get the prefetch request for module apis
  */
 export const getPrefetchModuleApiRequests = (
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -151,6 +153,7 @@ export class PrefetchApiCacheStrategy {
 
   constructor() {}
 
+  // Function to get the request key
   getRequestKey = (request: Request) => {
     const headersKey = Array.from(request.headers.entries())
       .map(([key, value]) => `${key}:${value}`)
@@ -158,6 +161,7 @@ export class PrefetchApiCacheStrategy {
     return `${request.method}:${request.url}:${headersKey}`;
   };
 
+  // Function to acquire the fetch mutex for a request
   aqcuireFetchMutex = async (request: Request) => {
     const requestKey = this.getRequestKey(request);
     let mutex = this.prefetchFetchMutexMap.get(requestKey);
@@ -170,6 +174,7 @@ export class PrefetchApiCacheStrategy {
     return mutex.acquire();
   };
 
+  // Function to wait for the lock to be released for a request
   waitForUnlock = async (request: Request) => {
     const requestKey = this.getRequestKey(request);
     const mutex = this.prefetchFetchMutexMap.get(requestKey);
@@ -179,6 +184,7 @@ export class PrefetchApiCacheStrategy {
     }
   };
 
+  // Function to release the fetch mutex for a request
   releaseFetchMutex = (request: Request) => {
     const requestKey = this.getRequestKey(request);
     const mutex = this.prefetchFetchMutexMap.get(requestKey);
@@ -190,10 +196,8 @@ export class PrefetchApiCacheStrategy {
 
   /**
    * Function to fetch and cache the consolidated API
-   * @param {Request} request
-   * @returns
    */
-  async cacheConsolidatedApi(request: Request) {
+  async cacheApi(request: Request) {
     // Acquire the lock
     await this.aqcuireFetchMutex(request);
     const prefetchApiCache = await caches.open(this.cacheName);
@@ -215,6 +219,9 @@ export class PrefetchApiCacheStrategy {
     }
   }
 
+  /**
+   * Function to get the cached response for the request
+   */
   async getCachedResponse(request: Request) {
     // Wait for the lock to be released
     await this.waitForUnlock(request);

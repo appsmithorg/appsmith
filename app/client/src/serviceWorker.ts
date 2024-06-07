@@ -7,6 +7,7 @@ import {
   StaleWhileRevalidate,
 } from "workbox-strategies";
 import {
+  cachedApiUrlRegex,
   getApplicationParamsFromUrl,
   getConsolidatedApiPrefetchRequest,
   getPrefetchModuleApiRequests,
@@ -45,40 +46,39 @@ clientsClaim();
 const prefetchApiCacheStrategy = new PrefetchApiCacheStrategy();
 
 /**
- *
- * @param {ExtendableEvent} event
- * @param {Request} request
- * @param {URL} url
- * @returns
+ * Route handler callback for HTML pages.
+ * This callback is responsible for prefetching the API requests for the application page.
  */
-const handleFetchHtml: RouteHandlerCallback = async ({
+const htmlRouteHandlerCallback: RouteHandlerCallback = async ({
   event,
   request,
   url,
 }) => {
+  // Extract application params from the URL
   const applicationParams = getApplicationParamsFromUrl(url);
 
+  // If application params are present, prefetch the API requests for the application
   if (applicationParams) {
+    // Prefetch the consolidated API request
     const consolidatedApiPrefetchRequest =
       getConsolidatedApiPrefetchRequest(applicationParams);
 
     if (consolidatedApiPrefetchRequest) {
       prefetchApiCacheStrategy
-        .cacheConsolidatedApi(consolidatedApiPrefetchRequest)
+        .cacheApi(consolidatedApiPrefetchRequest)
         .catch(() => {
           // Silently fail
         });
     }
 
+    // Prefetch the module API requests
     const moduleApiPrefetchRequests =
       getPrefetchModuleApiRequests(applicationParams);
 
     moduleApiPrefetchRequests.forEach((prefetchRequest) => {
-      prefetchApiCacheStrategy
-        .cacheConsolidatedApi(prefetchRequest)
-        .catch(() => {
-          // Silently fail
-        });
+      prefetchApiCacheStrategy.cacheApi(prefetchRequest).catch(() => {
+        // Silently fail
+      });
     });
   }
 
@@ -106,12 +106,13 @@ registerRoute(({ url }) => {
 registerRoute(
   new Route(({ request, sameOrigin }) => {
     return sameOrigin && request.destination === "document";
-  }, handleFetchHtml),
+  }, htmlRouteHandlerCallback),
 );
 
 // Route for fetching the API directly
 registerRoute(
-  new RegExp("/api/v1/(consolidated-api|moduleInstances)"),
+  // Intercept requests to the consolidated API and module instances API
+  cachedApiUrlRegex,
   async ({ event, request }) => {
     // Check for cached response
     const cachedResponse =
