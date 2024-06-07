@@ -695,7 +695,7 @@ public class ActionCollectionServiceCEImpl
                                             .setCollectionId(savedActionCollection.getId());
                                     // With PG, this `save` method is returning a different object than what was passed
                                     // to it.
-                                    return this.save(savedActionCollection).thenReturn(savedActionCollection);
+                                    return this.save(savedActionCollection);
                                 }
                                 return Mono.just(savedActionCollection);
                             })
@@ -720,7 +720,7 @@ public class ActionCollectionServiceCEImpl
                             .flatMap(tuple1 -> {
                                 final List<ActionDTO> actionDTOList = tuple1.getT1();
                                 final ActionCollection actionCollection1 = tuple1.getT2();
-                                return generateActionCollectionByViewMode(actionCollection, false)
+                                return generateActionCollectionByViewMode(actionCollection1, false)
                                         .flatMap(actionCollectionDTO -> splitValidActionsByViewMode(
                                                 actionCollection1.getUnpublishedCollection(), actionDTOList, false));
                             });

@@ -75,10 +75,8 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                     }
                     try {
                         T savedEntity = repository.save(entity);
-
                         // Get all non-transient field names
-                        List<String> nonTransientFields = Arrays.stream(
-                                        entity.getClass().getDeclaredFields())
+                        List<String> nonTransientFields = getAllFields(entity.getClass()).stream()
                                 .filter(field -> field.getAnnotation(Transient.class) == null)
                                 .map(Field::getName)
                                 .toList();
@@ -94,6 +92,14 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                     }
                 })
                 .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public static List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<>();
+        for (Class<?> c = type; c != null; c = c.getSuperclass()) {
+            fields.addAll(Arrays.asList(c.getDeclaredFields()));
+        }
+        return fields;
     }
 
     private String generateId() {
