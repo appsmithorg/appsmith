@@ -1226,6 +1226,7 @@ public class DatasourceServiceTest {
                             datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
 
                     assertThat(authentication.getUsername()).isEqualTo(username);
+                    // TODO :: Add assertions for encrypted password
                     assertThat(password).isEqualTo(authentication.getPassword());
                 })
                 .verifyComplete();

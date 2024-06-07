@@ -71,6 +71,9 @@ public final class CustomJsonType extends JsonBinaryType {
         }
 
         private <T> T applyDecryption(T obj) {
+            if (obj == null) {
+                return null;
+            }
             if (AppsmithDomain.class.isAssignableFrom(obj.getClass())) {
                 ENCRYPTION_HANDLER.convertEncryption(obj, textEncryptor::decrypt);
             }

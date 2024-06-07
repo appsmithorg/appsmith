@@ -19,7 +19,6 @@ import com.appsmith.server.solutions.EnvManager;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -55,7 +54,6 @@ import static org.mockito.Mockito.doReturn;
 @SpringBootTest
 @ExtendWith(AfterAllCleanUpExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-@Disabled
 public class TenantServiceCETest {
 
     @Autowired
