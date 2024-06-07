@@ -380,15 +380,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
         return Mono.just(datasource)
                 .flatMap(this::validateDatasource)
-                .flatMap(unsavedDatasource -> {
-                    return repository.save(unsavedDatasource).map(savedDatasource -> {
-                        // datasource.pluginName, datasource.datasourceStorages are transient fields. so DB save won't
-                        // have it, we need to add back to saved object explicitly
-                        savedDatasource.setPluginName(unsavedDatasource.getPluginName());
-                        savedDatasource.setDatasourceStorages(unsavedDatasource.getDatasourceStorages());
-                        return savedDatasource;
-                    });
-                })
+                .flatMap(repository::save)
                 .flatMap(repository::setUserPermissionsInObject);
     }
 
