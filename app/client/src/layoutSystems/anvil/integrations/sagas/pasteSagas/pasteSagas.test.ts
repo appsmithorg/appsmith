@@ -52,7 +52,7 @@ describe("pasteSagas", () => {
   });
   beforeEach(() => {
     cleanAllMocks();
-    getLayoutSystemType.mockReturnValue("ANVIL");
+    (getLayoutSystemType as jest.Mock<any, any>).mockReturnValue("ANVIL");
   });
   it("should perform paste operation with all necessary effects", async () => {
     // create mock data for copiedWidgets, selectedWidget, allWidgets
@@ -85,14 +85,18 @@ describe("pasteSagas", () => {
       },
     };
     // mock the return values of the functions
-    getCopiedWidgets.mockResolvedValue(copiedWidgets);
-    getSelectedWidgetWhenPasting.mockReturnValue(selectedWidget);
-    getDataTree.mockReturnValue({
+    (getCopiedWidgets as jest.Mock<any, any>).mockResolvedValue(copiedWidgets);
+    (getSelectedWidgetWhenPasting as jest.Mock<any, any>).mockReturnValue(
+      selectedWidget,
+    );
+    (getDataTree as jest.Mock<any, any>).mockReturnValue({
       widget1: {
         widgetName: "widget1",
       },
     });
-    getNextWidgetName.mockReturnValue("widgetNamecopy");
+    (getNextWidgetName as jest.Mock<any, any>).mockReturnValue(
+      "widgetNamecopy",
+    );
     // run the saga
     const { effects } = await expectSaga(pasteWidgetSagas as any)
       .provide([
@@ -177,9 +181,11 @@ describe("pasteSagas", () => {
       },
     };
     // Mock the return values of the functions
-    getCopiedWidgets.mockResolvedValue(copiedWidgets);
-    getSelectedWidgetWhenPasting.mockReturnValue(selectedWidget);
-    getDataTree.mockReturnValue({
+    (getCopiedWidgets as jest.Mock<any, any>).mockResolvedValue(copiedWidgets);
+    (getSelectedWidgetWhenPasting as jest.Mock<any, any>).mockReturnValue(
+      selectedWidget,
+    );
+    (getDataTree as jest.Mock<any, any>).mockReturnValue({
       1: {
         widgetName: "1",
       },
@@ -190,7 +196,9 @@ describe("pasteSagas", () => {
         widgetName: "3",
       },
     });
-    getNextWidgetName.mockReturnValue(Math.random() + "widgetNamecopy");
+    (getNextWidgetName as jest.Mock<any, any>).mockReturnValue(
+      Math.random() + "widgetNamecopy",
+    );
     // Run the saga
     const { effects } = await expectSaga(pasteWidgetSagas as any)
       .provide([
