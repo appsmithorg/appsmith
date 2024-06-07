@@ -29,7 +29,7 @@ describe(
         .should("exist")
         .should("have.css", "animation");
       // disable infinite loading
-      cy.togglebarDisable(widgets.infiniteLoading);
+      agHelper.CheckUncheck(widgets.infiniteLoading, false);
       // show determinate linear progress
       cy.get("[data-testid='50']").should("exist");
     });
@@ -49,7 +49,7 @@ describe(
       // show label
       cy.get("[data-testid='60']").first().next().should("contain.text", "60");
       // disable show result
-      cy.togglebarDisable(widgets.showResult);
+      agHelper.CheckUncheck(widgets.showResult, false);
       // does not show any label
       cy.get("[data-testid='60']").first().next().should("not.exist");
     });
@@ -77,7 +77,7 @@ describe(
         .should("exist")
         .should("have.css", "animation");
       // disable infinite loading
-      cy.togglebarDisable(widgets.infiniteLoading);
+      agHelper.CheckUncheck(widgets.infiniteLoading, false);
       cy.wait("@updateLayout").should(
         "have.nested.property",
         "response.body.responseMeta.status",
@@ -100,7 +100,7 @@ describe(
       // show label
       cy.get("[data-testid='circular-label']").should("contain.text", "50");
       // disable show result
-      cy.togglebarDisable(widgets.showResult);
+      agHelper.CheckUncheck(widgets.showResult, false);
       // does not show any label
       cy.get("[data-testid='circular-label']").should("not.exist");
     });
@@ -120,7 +120,7 @@ describe(
         .invoke("css", "stroke-dashoffset")
         .and("match", /-/);
       // disable counterclockwise
-      cy.togglebarDisable(widgets.counterclockwise);
+      agHelper.CheckUncheck(widgets.counterclockwise, false);
       // show the progress in a clockwise
       cy.get("[data-testvalue='50']")
         .invoke("css", "stroke-dashoffset")

@@ -131,10 +131,14 @@ describe(
         .invoke("val")
         .should("not.be.empty");
       // Turn off the filterable property for the widget
-      cy.togglebarDisable(commonlocators.allowsearchingInputTypeCheckbox);
+      _.agHelper.CheckUncheck(
+        commonlocators.allowsearchingInputTypeCheckbox,
+        false,
+      );
       // Turn off server side filtering for the widget
-      cy.togglebarDisable(
+      _.agHelper.CheckUncheck(
         '.t--property-control-serversidefiltering input[type="checkbox"]',
+        false,
       );
     });
 
@@ -299,7 +303,7 @@ describe(
     });
 
     it("8. Dropdown Functionality To Unchecked Visible Widget", function () {
-      cy.togglebarDisable(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
       cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
         "not.exist",

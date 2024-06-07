@@ -32,8 +32,9 @@ describe(
         expect(tabData).to.eq("#2");
       });
       // Disable Client Search
-      cy.togglebarDisable(
+      _.agHelper.CheckUncheck(
         ".t--property-control-clientsidesearch input[type='checkbox']",
+        false,
       );
       cy.wait(1000); //wait & then read the table value
       // Verify Client Search doesnt work

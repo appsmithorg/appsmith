@@ -59,7 +59,7 @@ describe(
     it("3. Image Widget Functionality To Check/Uncheck Visible Widget", function () {
       deployMode.NavigateBacktoEditor();
       cy.openPropertyPane("imagewidget");
-      cy.togglebarDisable(commonlocators.visibleCheckbox);
+      agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       deployMode.DeployApp();
       cy.get(publish.imageWidget).should("not.exist");
       deployMode.NavigateBacktoEditor();

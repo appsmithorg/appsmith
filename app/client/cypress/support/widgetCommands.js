@@ -1180,7 +1180,7 @@ Cypress.Commands.add("ExportVerify", (togglecss, name) => {
   cy.get(".t--draggable-tablewidget button")
     .invoke("attr", "aria-label")
     .should("contain", name);
-  cy.togglebarDisable(togglecss);
+  agHelper.CheckUncheck(togglecss, false);
 });
 
 Cypress.Commands.add("getTableDataSelector", (rowNum, colNum) => {
