@@ -3,12 +3,12 @@ import { APP_MODE } from "entities/App";
 import type { Match, TokensToRegexpOptions } from "path-to-regexp";
 import { match } from "path-to-regexp";
 
-export const BUILDER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
-export const BUILDER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId/edit`;
-export const VIEWER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId`;
-export const VIEWER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId`;
-export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
-export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
+const BUILDER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
+const BUILDER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId/edit`;
+const VIEWER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId`;
+const VIEWER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId`;
+const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
+const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
 
 interface TMatchResult {
   pageId?: string;
@@ -226,27 +226,27 @@ export class PrefetchApiCacheStrategy {
     // Wait for the lock to be released
     await this.waitForUnlock(request);
     const prefetchApiCache = await caches.open(this.cacheName);
-    // Check if the response is already in cache
-    const cachedResponse = await prefetchApiCache.match(request);
+    // Fetch the cached response for the request
+    // if it is a miss, assign null to the cachedResponse
+    let cachedResponse: Response | null =
+      (await prefetchApiCache.match(request)) || null;
 
     if (cachedResponse) {
       const dateHeader = cachedResponse.headers.get("date");
       const cachedTime = dateHeader ? new Date(dateHeader).getTime() : 0;
       const currentTime = Date.now();
-
+      // Check if the cache is valid
       const isCacheValid = currentTime - cachedTime < this.cacheMaxAge;
 
-      if (isCacheValid) {
-        // Delete the cache as this is a one-time cache
-        await prefetchApiCache.delete(request);
-        // Return the cached response
-        return cachedResponse;
+      // If the cache is not valid, assign null to the cachedResponse
+      if (!isCacheValid) {
+        cachedResponse = null;
       }
 
-      // If the cache is not valid, delete the cache
+      // Delete the cache as this is a one time read cache
       await prefetchApiCache.delete(request);
     }
 
-    return null;
+    return cachedResponse;
   }
 }
