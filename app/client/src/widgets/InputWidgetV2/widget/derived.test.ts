@@ -168,6 +168,14 @@ describe("Derived property - ", () => {
           inputText: "test@appsmith.com",
           isRequired: true,
         },
+        null,
+        _,
+      );
+
+      expect(isValid).toBeFalsy();
+
+      //Email input with required true and valid value
+      isValid = derivedProperty.isValid(
         {
           inputType: InputTypes.EMAIL,
           inputText: "test@test.school",
