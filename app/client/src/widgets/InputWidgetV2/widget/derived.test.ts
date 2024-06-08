@@ -168,6 +168,11 @@ describe("Derived property - ", () => {
           inputText: "test@appsmith.com",
           isRequired: true,
         },
+        {
+          inputType: InputTypes.EMAIL,
+          inputText: "test@test.school",
+          isRequired: true,
+        },
         null,
         _,
       );
