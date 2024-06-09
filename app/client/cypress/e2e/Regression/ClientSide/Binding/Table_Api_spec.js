@@ -70,10 +70,7 @@ describe(
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
         "Container3",
       ]);
-      agHelper.CheckUncheck(
-        ".t--property-control-enableclientsidesearch input[type='checkbox']",
-        false,
-      );
+      agHelper.CheckUncheck(commonlocators.enableClientSideSearch, false);
 
       cy.get(".t--widget-tablewidget .t--search-input").first().type("Currey");
       cy.wait(3000);
