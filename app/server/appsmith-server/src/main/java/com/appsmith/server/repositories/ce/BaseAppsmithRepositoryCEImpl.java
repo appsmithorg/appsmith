@@ -372,7 +372,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     public BridgeUpdate buildUpdateFromSparseResource(T resource) {
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
-        if (resource.getPolicies().isEmpty()) {
+        if (CollectionUtils.isEmpty(resource.getPolicies())) {
             resource.setPolicies(null);
         }
 
