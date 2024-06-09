@@ -378,11 +378,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
         final BridgeUpdate update = Bridge.update();
 
-        final Set<String> skip = Set.of(BaseDomain.Fields.id, BaseDomain.Fields.policies);
         ReflectionUtils.doWithFields(
                 resource.getClass(),
                 field -> {
-                    if (skip.contains(field.getName()) || field.isAnnotationPresent(Transient.class)) {
+                    if (field.isAnnotationPresent(Transient.class) || BaseDomain.Fields.id.equals(field.getName())) {
                         return;
                     }
 
@@ -399,8 +398,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 },
                 null);
 
-        resource.setUpdatedAt(Instant.now());
-        return update;
+        return update.set(BaseDomain.Fields.updatedAt, Instant.now());
     }
 
     /**
