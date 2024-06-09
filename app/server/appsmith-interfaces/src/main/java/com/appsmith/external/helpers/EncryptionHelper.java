@@ -22,11 +22,11 @@ public final class EncryptionHelper {
         return Encryptors.delux(password, saltInHex);
     }
 
-    public static String encryptString(String plaintext) {
+    public static String encrypt(String plaintext) {
         return textEncryptor.encrypt(plaintext);
     }
 
-    public static String decryptString(String encryptedText) {
+    public static String decrypt(String encryptedText) {
         return textEncryptor.decrypt(encryptedText);
     }
 }

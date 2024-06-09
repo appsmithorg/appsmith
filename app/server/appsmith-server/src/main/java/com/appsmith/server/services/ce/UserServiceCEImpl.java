@@ -222,7 +222,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     String resetUrl = String.format(
                             FORGOT_PASSWORD_CLIENT_URL_FORMAT,
                             resetUserPasswordDTO.getBaseUrl(),
-                            EncryptionHelper.encryptString(urlParams));
+                            EncryptionHelper.encrypt(urlParams));
 
                     log.debug("Password reset url for email: {}: {}", passwordResetToken.getEmail(), resetUrl);
 
@@ -692,7 +692,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     }
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {
-        String decryptString = EncryptionHelper.decryptString(encryptedToken);
+        String decryptString = EncryptionHelper.decrypt(encryptedToken);
         List<NameValuePair> nameValuePairs = WWWFormCodec.parse(decryptString, StandardCharsets.UTF_8);
         Map<String, String> params = new HashMap<>();
 
@@ -777,7 +777,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     String verificationUrl = String.format(
                             EMAIL_VERIFICATION_CLIENT_URL_FORMAT,
                             resendEmailVerificationDTO.getBaseUrl(),
-                            EncryptionHelper.encryptString(urlParams),
+                            EncryptionHelper.encrypt(urlParams),
                             URLEncoder.encode(emailVerificationToken.getEmail(), StandardCharsets.UTF_8),
                             redirectUrlCopy);
 

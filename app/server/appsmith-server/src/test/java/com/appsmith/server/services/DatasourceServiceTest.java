@@ -1092,7 +1092,7 @@ public class DatasourceServiceTest {
                     DBAuth authentication = (DBAuth)
                             datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(EncryptionHelper.decryptString(authentication.getPassword()))
+                    assertThat(EncryptionHelper.decrypt(authentication.getPassword()))
                             .isEqualTo(password);
                 })
                 .verifyComplete();
@@ -1223,7 +1223,7 @@ public class DatasourceServiceTest {
                             datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
 
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(password).isEqualTo(EncryptionHelper.decryptString(authentication.getPassword()));
+                    assertThat(password).isEqualTo(EncryptionHelper.decrypt(authentication.getPassword()));
                 })
                 .verifyComplete();
     }

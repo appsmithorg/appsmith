@@ -549,7 +549,7 @@ public class UserServiceTest {
         nameValuePairs.add(new BasicNameValuePair("email", emailAddress));
         nameValuePairs.add(new BasicNameValuePair("token", token));
         String urlParams = WWWFormCodec.format(nameValuePairs, StandardCharsets.UTF_8);
-        return EncryptionHelper.encryptString(urlParams);
+        return EncryptionHelper.encrypt(urlParams);
     }
 
     @Test

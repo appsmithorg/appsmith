@@ -17,7 +17,7 @@ public class EncryptionMongoEventListener<E> extends AbstractMongoEventListener<
     public void onBeforeConvert(BeforeConvertEvent<E> event) {
         E source = event.getSource();
 
-        encryptionHandler.convertEncryption(source, EncryptionHelper::encryptString);
+        encryptionHandler.convertEncryption(source, EncryptionHelper::encrypt);
     }
 
     // This lifecycle event is after we retrieve a document from the DB,
@@ -26,6 +26,6 @@ public class EncryptionMongoEventListener<E> extends AbstractMongoEventListener<
     public void onAfterConvert(AfterConvertEvent<E> event) {
         E source = event.getSource();
 
-        encryptionHandler.convertEncryption(source, EncryptionHelper::decryptString);
+        encryptionHandler.convertEncryption(source, EncryptionHelper::decrypt);
     }
 }

@@ -284,7 +284,7 @@ public class DatasourceContextServiceTest {
                     DBAuth encryptedAuthentication = (DBAuth) savedDatasourceStorageDTO
                             .getDatasourceConfiguration()
                             .getAuthentication();
-                    assertEquals(password, EncryptionHelper.decryptString(encryptedAuthentication.getPassword()));
+                    assertEquals(password, EncryptionHelper.decrypt(encryptedAuthentication.getPassword()));
                 })
                 .verifyComplete();
     }
