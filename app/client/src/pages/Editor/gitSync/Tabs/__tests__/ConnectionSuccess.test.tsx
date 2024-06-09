@@ -51,7 +51,7 @@ describe("Connection Success Modal", () => {
     expect(getByTestId("t--git-success-modal-open-settings-cta")).toBeTruthy();
   });
 
-  it("go to settings cta button is working", () => {
+  it("'Settings' cta button is working", () => {
     const store = mockStore(initialState);
     const { queryByTestId } = render(
       <Provider store={store}>
@@ -68,11 +68,11 @@ describe("Connection Success Modal", () => {
     });
     expect(dispatch).toHaveBeenNthCalledWith(4, {
       type: ReduxActionTypes.GIT_SET_SETTINGS_MODAL_OPEN,
-      payload: { open: true, tab: GitSettingsTab.GENERAL },
+      payload: { open: true, tab: GitSettingsTab.BRANCH },
     });
   });
 
-  it("start using git cta button is working", () => {
+  it("'Continue' cta button is working", () => {
     const store = mockStore(initialState);
     const { queryByTestId } = render(
       <Provider store={store}>

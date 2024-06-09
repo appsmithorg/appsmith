@@ -37,7 +37,6 @@ import type {
 } from "actions/gitSyncActions";
 import {
   fetchGitProtectedBranchesInit,
-  updateGitProtectedBranchesInit,
   clearCommitSuccessfulState,
   setShowBranchPopupAction,
 } from "actions/gitSyncActions";
@@ -227,13 +226,6 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     if (isValidResponse) {
       // @ts-expect-error: response is of type unknown
       yield put(connectToGitSuccess(response?.data));
-      const defaultBranch = response?.data?.gitApplicationMetadata?.branchName;
-
-      yield put(
-        updateGitProtectedBranchesInit({
-          protectedBranches: defaultBranch ? [defaultBranch] : [],
-        }),
-      );
 
       yield put(fetchPage(currentPageId));
       if (action.onSuccessCallback) {
