@@ -1018,13 +1018,6 @@ Cypress.Commands.add("getAlert", (eventName, value = "hello") => {
   );
 });
 
-Cypress.Commands.add("togglebar", (value) => {
-  cy.get(value).check({ force: true }).should("be.checked");
-});
-Cypress.Commands.add("togglebarDisable", (value) => {
-  cy.get(value).uncheck({ force: true }).should("not.checked");
-});
-
 Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
