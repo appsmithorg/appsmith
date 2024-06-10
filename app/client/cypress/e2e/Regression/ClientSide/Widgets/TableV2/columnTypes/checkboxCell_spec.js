@@ -62,23 +62,24 @@ describe(
       cy.moveToStyleTab();
       // Check horizontal alignment
       cy.get("[data-value='CENTER']").first().click();
+      function verifyJustifyContent(selector) {
+        return cy
+          .get(selector + " div")
+          .should("have.css", "justify-content", "center");
+      }
 
-      cy.getTableV2DataSelector("0", "4").then((selector) => {
-        cy.get(selector + " div").should(
-          "have.css",
-          "justify-content",
-          "center",
-        );
-        cy.get(`${selector} div`)
-          .children()
-          .first()
-          .then(($el) => {
-            cy.wrap($el).then(($el) => {
-              // Ensure the width is 'auto' by checking it doesn't have an explicit value
-              expect($el[0].style.width).to.be.empty;
-            });
-          });
-      });
+      function verifyWidthAuto($el) {
+        // Ensure the width is 'auto' by checking it doesn't have an explicit value
+        expect($el[0].style.width).to.be.empty;
+      }
+      cy.getTableV2DataSelector("0", "4")
+        .then((selector) => {
+          verifyJustifyContent(selector);
+          return cy.get(`${selector} div`).children().first();
+        })
+        .then(($el) => {
+          verifyWidthAuto($el);
+        });
 
       // Check vertical alignment
       cy.get("[data-value='BOTTOM']").first().click();
