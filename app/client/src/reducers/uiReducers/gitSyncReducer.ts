@@ -55,6 +55,7 @@ const initialState: GitSyncReducerState = {
 
   isAutocommitModalOpen: false,
   togglingAutocommit: false,
+  triggeringAutocommit: false,
   pollingAutocommitStatus: false,
 
   gitMetadata: null,
@@ -619,6 +620,18 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     togglingAutocommit: false,
   }),
+  [ReduxActionTypes.GIT_AUTOCOMMIT_TRIGGER_INIT]: (state) => ({
+    ...state,
+    triggeringAutocommit: true,
+  }),
+  [ReduxActionTypes.GIT_AUTOCOMMIT_TRIGGER_SUCCESS]: (state) => ({
+    ...state,
+    triggeringAutocommit: false,
+  }),
+  [ReduxActionErrorTypes.GIT_AUTOCOMMIT_TRIGGER_ERROR]: (state) => ({
+    ...state,
+    triggeringAutocommit: false,
+  }),
   [ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING]: (state) => ({
     ...state,
     pollingAutocommitStatus: true,
@@ -833,6 +846,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   isAutocommitModalOpen: boolean;
   togglingAutocommit: boolean;
+  triggeringAutocommit: boolean;
   pollingAutocommitStatus: boolean;
 
   gitMetadata: GitMetadata | null;

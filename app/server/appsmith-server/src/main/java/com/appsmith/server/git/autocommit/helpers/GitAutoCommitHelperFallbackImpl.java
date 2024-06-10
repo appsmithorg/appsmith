@@ -1,6 +1,6 @@
 package com.appsmith.server.git.autocommit.helpers;
 
-import com.appsmith.server.dtos.AutoCommitProgressDTO;
+import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.AutoCommitTriggerDTO;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
@@ -19,12 +19,12 @@ public class GitAutoCommitHelperFallbackImpl implements GitAutoCommitHelper {
     }
 
     @Override
-    public Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId) {
-        return Mono.empty();
+    public Mono<AutoCommitResponseDTO> getAutoCommitProgress(String defaultApplicationId, String branchName) {
+        return Mono.just(new AutoCommitResponseDTO(AutoCommitResponseDTO.AutoCommitResponse.IDLE));
     }
 
     @Override
-    public Mono<Boolean> autoCommitApplication(
+    public Mono<Boolean> publishAutoCommitEvent(
             AutoCommitTriggerDTO autoCommitTriggerDTO, String defaultApplicationId, String branchName) {
         return Mono.just(Boolean.FALSE);
     }
