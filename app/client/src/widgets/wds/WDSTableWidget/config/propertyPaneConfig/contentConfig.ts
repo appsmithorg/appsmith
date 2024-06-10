@@ -27,6 +27,7 @@ export const contentConfig = [
         controlType: "ONE_CLICK_BINDING_CONTROL",
         controlConfig: {
           searchableColumn: true,
+          maxHeight: "300px",
         },
         placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",

@@ -198,10 +198,16 @@ app/client/src/ee/ActionExecution/ActionExecutionSagas.ts @ApekshaBhosale
 app/client/src/ce/JSFunctionExecutionSaga.ts @ApekshaBhosale
 app/client/src/ee/JSFunctionExecutionSaga.ts @ApekshaBhosale
 
+# Enterprise Success
+app/server/appsmith-server/src/main/java/com/appsmith/server/migrations/**/* @sharat87 @vivonk @abhvsn
+
 # DevOps & Shri
 deploy/**/* @sharat87 @pratapaprasanna
 .github/workflows/*.yml @sharat87
 app/server/**/pom.xml @sharat87
 app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/BaseAppsmithRepositoryCEImpl.java @sharat87
 app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/params/QueryAllParams.java @sharat87
-app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/ce/bridge/Bridge.java @sharat87
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/ce/bridge/**/* @sharat87
+
+#Cypress
+app/client/cypress/**/* @ApekshaBhosale

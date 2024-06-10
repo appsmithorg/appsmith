@@ -61,6 +61,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { ApiEditorContext } from "./ApiEditorContext";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
+import RunHistory from "@appsmith/components/RunHistory";
 
 const Form = styled.form`
   position: relative;
@@ -746,6 +747,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 responseDisplayFormat={responseDisplayFormat}
                 theme={theme}
               />
+              <RunHistory />
             </SecondaryWrapper>
           </div>
           <ActionRightPane

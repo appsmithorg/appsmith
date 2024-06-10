@@ -35,7 +35,7 @@ describe(
       // select the green color
 
       cy.wait("@updateLayout");
-      cy.assertPageSave();
+      _.agHelper.AssertAutoSave();
       _.deployMode.DeployApp();
       cy.wait(4000);
 
@@ -56,7 +56,7 @@ describe(
         .clear({ force: true })
         .type("purple", { force: true, delay: 0 });
       cy.wait("@updateLayout");
-      cy.assertPageSave();
+      _.agHelper.AssertAutoSave();
       _.deployMode.DeployApp();
       cy.wait(4000);
 

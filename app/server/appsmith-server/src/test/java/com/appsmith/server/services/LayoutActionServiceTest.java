@@ -1023,13 +1023,13 @@ public class LayoutActionServiceTest {
 
         for (int i = 0; i < testPages.size(); i++) {
             PageDTO page = testPages.get(i);
-            Layout layout = page.getLayouts().get(0);
-            layout.setDsl(createTestDslWithTestWidget("Layout" + (i + 1)));
+            final UpdateMultiplePageLayoutDTO.LayoutDTO layout =
+                    new UpdateMultiplePageLayoutDTO.LayoutDTO(createTestDslWithTestWidget("Layout" + (i + 1)));
 
             UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayoutDTO =
                     new UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO();
             pageLayoutDTO.setPageId(page.getId());
-            pageLayoutDTO.setLayoutId(layout.getId());
+            pageLayoutDTO.setLayoutId(page.getLayouts().get(0).getId());
             pageLayoutDTO.setLayout(layout);
             multiplePageLayoutDTO.getPageLayouts().add(pageLayoutDTO);
         }

@@ -26,11 +26,13 @@ const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
 
+type MakeRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+
 export interface Completion<
   T = {
     doc: string;
   },
-> extends Hint {
+> extends MakeRequired<Hint, "displayText"> {
   origin: string;
   type: AutocompleteDataType | string;
   data: T;

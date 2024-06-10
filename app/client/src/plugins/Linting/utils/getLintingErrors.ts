@@ -35,6 +35,7 @@ import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import setters from "workers/Evaluation/setters";
 import { isMemberExpressionNode } from "@shared/ast/src";
 import { generate } from "astring";
+import getInvalidModuleInputsError from "@appsmith/plugins/Linting/utils/getInvalidModuleInputsError";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -437,6 +438,14 @@ function getCustomErrorsFromScript(
       data,
     });
 
+  const moduleInputErrors = getInvalidModuleInputsError({
+    memberCallExpressions,
+    originalBinding,
+    scriptPos,
+    data,
+    script,
+  });
+
   const invalidActionModalErrors = getActionModalStringValueErrors({
     callExpressions,
     script,
@@ -449,6 +458,7 @@ function getCustomErrorsFromScript(
     ...invalidWidgetPropertySetterErrors,
     ...invalidAppsmithStorePropertyErrors,
     ...invalidActionModalErrors,
+    ...moduleInputErrors,
   ];
 }
 

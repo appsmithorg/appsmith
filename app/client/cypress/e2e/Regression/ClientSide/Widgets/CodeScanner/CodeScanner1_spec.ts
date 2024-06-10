@@ -51,7 +51,7 @@ describe(
                   cy.moveToContentTab();
 
                   // Disable and publish
-                  cy.togglebar(commonlocators.disableCheckbox);
+                  _.agHelper.CheckUncheck(commonlocators.disableCheckbox);
                   _.deployMode.DeployApp();
                   // Disabled icon should be there
                   cy.get(codeScannerDisabledSVGIconOnPublishPage).should(
@@ -79,7 +79,10 @@ describe(
                   cy.moveToContentTab();
 
                   // Enable and publish
-                  cy.togglebarDisable(commonlocators.disableCheckbox);
+                  _.agHelper.CheckUncheck(
+                    commonlocators.disableCheckbox,
+                    false,
+                  );
                   _.deployMode.DeployApp();
 
                   // Disabled icon should NOT be visible
@@ -109,7 +112,7 @@ describe(
               cy.moveToContentTab();
 
               // Visibilty OFF and publish
-              cy.togglebarDisable(commonlocators.visibleCheckbox);
+              _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
               _.deployMode.DeployApp();
 
               // Video should NOT be streaming
@@ -124,7 +127,7 @@ describe(
               cy.moveToContentTab();
 
               // Visibilty ON and publish
-              cy.togglebar(commonlocators.visibleCheckbox);
+              _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
               _.deployMode.DeployApp();
 
               // Video should be streaming
@@ -189,7 +192,7 @@ describe(
               cy.moveToContentTab();
 
               // Disable and publish
-              cy.togglebar(commonlocators.disableCheckbox);
+              _.agHelper.CheckUncheck(commonlocators.disableCheckbox);
               _.deployMode.DeployApp();
 
               // Button should be disabled
@@ -206,7 +209,7 @@ describe(
               cy.moveToContentTab();
 
               // Enable and publish
-              cy.togglebarDisable(commonlocators.disableCheckbox);
+              _.agHelper.CheckUncheck(commonlocators.disableCheckbox, false);
               _.deployMode.DeployApp();
 
               // Button should be enabled
@@ -229,7 +232,7 @@ describe(
               cy.moveToContentTab();
 
               // Visibilty OFF and publish
-              cy.togglebarDisable(commonlocators.visibleCheckbox);
+              _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
               _.deployMode.DeployApp();
 
               // Button should NOT be visible
@@ -246,7 +249,7 @@ describe(
               cy.moveToContentTab();
 
               // Visibilty ON and publish
-              cy.togglebar(commonlocators.visibleCheckbox);
+              _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
               _.deployMode.DeployApp();
 
               // Button should be visible
