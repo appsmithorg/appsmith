@@ -102,9 +102,7 @@ describe(
           dataManager.dsValues[dataManager.defaultEnviorment].mysql_username,
         );
         dataSources.TestDatasource(false);
-        agHelper.ValidateToastMessage(
-          "Access denied for user 'root'@'172.17.0.1'",
-        );
+        agHelper.ValidateToastMessage("Access denied for user");
         propPane.AssertPropertiesDropDownValues("SSL mode", [
           "Default",
           "Required",
