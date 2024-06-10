@@ -461,9 +461,6 @@ export const PAGE_CLIENT_ERROR_DESCRIPTION = () =>
 
 export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
 
-// Modules
-export const CONVERT_MODULE_TO_NEW_PKG_OPTION = () => "Add to a new package";
-
 // cloudHosting used in EE
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) =>
