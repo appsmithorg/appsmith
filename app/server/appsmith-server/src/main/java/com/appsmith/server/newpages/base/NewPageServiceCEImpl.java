@@ -693,4 +693,23 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             return Mono.just(count.toString());
         });
     }
+
+    @Override
+    public Flux<PageDTO> findByApplicationIdAndApplicationMode(
+            String applicationId, AclPermission permission, ApplicationMode applicationMode) {
+        Boolean viewMode = ApplicationMode.PUBLISHED.equals(applicationMode);
+        return findNewPagesByApplicationId(applicationId, permission)
+                .filter(page -> {
+                    PageDTO pageDTO;
+                    if (ApplicationMode.PUBLISHED.equals(applicationMode)) {
+                        pageDTO = page.getPublishedPage();
+                    } else {
+                        pageDTO = page.getUnpublishedPage();
+                    }
+
+                    boolean isDeletedOrNull = pageDTO == null || pageDTO.getDeletedAt() != null;
+                    return !isDeletedOrNull;
+                })
+                .flatMap(page -> getPageByViewMode(page, viewMode));
+    }
 }

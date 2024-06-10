@@ -13,7 +13,7 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.ApplicationImportDTO;
-import com.appsmith.server.dtos.AutoCommitProgressDTO;
+import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.BranchProtectionRequestDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
@@ -22,6 +22,7 @@ import com.appsmith.server.dtos.GitDocsDTO;
 import com.appsmith.server.dtos.GitMergeDTO;
 import com.appsmith.server.dtos.GitPullDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.git.autocommit.AutoCommitService;
 import com.appsmith.server.git.common.CommonGitService;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -53,6 +54,7 @@ import java.util.Map;
 public class GitControllerCE {
 
     private final CommonGitService service;
+    private final AutoCommitService autoCommitService;
 
     /**
      * applicationId is the defaultApplicationId
@@ -333,16 +335,18 @@ public class GitControllerCE {
 
     @JsonView(Views.Public.class)
     @PostMapping("/auto-commit/app/{defaultApplicationId}")
-    public Mono<ResponseDTO<Boolean>> autoCommit(
-            @PathVariable String defaultApplicationId, @RequestParam String branchName) {
-        return service.autoCommitApplication(defaultApplicationId, branchName, ArtifactType.APPLICATION)
+    public Mono<ResponseDTO<AutoCommitResponseDTO>> autoCommitApplication(
+            @PathVariable String defaultApplicationId, @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
+        return autoCommitService
+                .autoCommitApplication(defaultApplicationId, branchName)
                 .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
 
     @JsonView(Views.Public.class)
     @GetMapping("/auto-commit/progress/app/{defaultApplicationId}")
-    public Mono<ResponseDTO<AutoCommitProgressDTO>> getAutoCommitProgress(@PathVariable String defaultApplicationId) {
-        return service.getAutoCommitProgress(defaultApplicationId, ArtifactType.APPLICATION)
+    public Mono<ResponseDTO<AutoCommitResponseDTO>> getAutoCommitProgress(
+            @PathVariable String defaultApplicationId, @RequestHeader(name = FieldName.BRANCH_NAME) String branchName) {
+        return service.getAutoCommitProgress(defaultApplicationId, branchName, ArtifactType.APPLICATION)
                 .map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
 

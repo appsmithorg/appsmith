@@ -34,9 +34,6 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.git.autocommit.helpers.AutoCommitEligibilityHelper;
-import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
-import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitUtils;
@@ -124,8 +121,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final DatasourceRepositoryCake datasourceRepository;
     private final DatasourcePermission datasourcePermission;
     private final DSLMigrationUtils dslMigrationUtils;
-    private final GitAutoCommitHelper gitAutoCommitHelper;
-    private final AutoCommitEligibilityHelper autoCommitEligibilityHelper;
     private final ClonePageService<NewAction> actionClonePageService;
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
 
@@ -296,76 +291,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return newPageService
                 .findNewPagesByApplicationId(branchedApplication.getId(), pagePermission.getReadPermission())
                 .filter(newPage -> pageIds.contains(newPage.getId()))
-                .collectList()
-                .flatMap(newPageList -> {
-                    if (Boolean.TRUE.equals(viewMode)) {
-                        return Mono.just(newPageList);
-                    }
-
-                    // autocommit if migration is required
-                    return migrateSchemasForGitConnectedApps(branchedApplication, newPageList)
-                            .onErrorResume(error -> {
-                                log.debug(
-                                        "Skipping the autocommit for applicationId : {} due to error; {}",
-                                        branchedApplication.getId(),
-                                        error.getMessage());
-
-                                return Mono.just(Boolean.FALSE);
-                            })
-                            .thenReturn(newPageList);
-                });
-    }
-
-    /**
-     * Publishes the autocommit if it's eligible for one
-     * @param application : the branched application which requires schemaMigration
-     * @param newPages : list of pages from db
-     * @return : a boolean publisher
-     */
-    private Mono<Boolean> migrateSchemasForGitConnectedApps(Application application, List<NewPage> newPages) {
-
-        if (CollectionUtils.isNullOrEmpty(newPages)) {
-            return Mono.just(Boolean.FALSE);
-        }
-
-        GitArtifactMetadata gitMetadata = application.getGitArtifactMetadata();
-
-        if (application.getGitArtifactMetadata() == null) {
-            return Mono.just(Boolean.FALSE);
-        }
-
-        String defaultApplicationId = gitMetadata.getDefaultArtifactId();
-        String branchName = gitMetadata.getBranchName();
-        String workspaceId = application.getWorkspaceId();
-
-        if (!StringUtils.hasText(branchName)) {
-            log.debug(
-                    "Skipping the autocommit for applicationId : {}, branch name is not present", application.getId());
-            return Mono.just(Boolean.FALSE);
-        }
-
-        if (!StringUtils.hasText(defaultApplicationId)) {
-            log.debug(
-                    "Skipping the autocommit for applicationId : {}, defaultApplicationId is not present",
-                    application.getId());
-            return Mono.just(Boolean.FALSE);
-        }
-
-        // since this method is only called when the app is in edit mode
-        Mono<PageDTO> pageDTOMono = getPage(newPages.get(0), false);
-
-        return pageDTOMono.flatMap(pageDTO -> {
-            return autoCommitEligibilityHelper
-                    .isAutoCommitRequired(workspaceId, gitMetadata, pageDTO)
-                    .flatMap(autoCommitTriggerDTO -> {
-                        if (Boolean.TRUE.equals(autoCommitTriggerDTO.getIsAutoCommitRequired())) {
-                            return gitAutoCommitHelper.autoCommitApplication(
-                                    autoCommitTriggerDTO, defaultApplicationId, branchName);
-                        }
-
-                        return Mono.just(Boolean.FALSE);
-                    });
-        });
+                .collectList();
     }
 
     @Override

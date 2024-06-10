@@ -43,17 +43,17 @@ public class Theme extends BaseDomain {
     @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     private Object config;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     private Object properties;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     private Map<String, Object> stylesheet;
