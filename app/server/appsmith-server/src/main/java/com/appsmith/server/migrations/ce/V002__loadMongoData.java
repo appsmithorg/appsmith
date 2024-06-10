@@ -40,7 +40,7 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
 
     private static Path findEffectiveDataPath() {
         // MongoDB export placed in Stacks volume, in Docker container.
-        final Path mongoDataInStacks = Path.of("appsmith-stacks", MONGO_DATA_NAME);
+        final Path mongoDataInStacks = Path.of("/", "appsmith-stacks", MONGO_DATA_NAME);
         if (Files.exists(mongoDataInStacks)) {
             return mongoDataInStacks;
         }
@@ -48,7 +48,7 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
         // Find where `opt/appsmith` folder is located.
         // In Docker container, we'll find it at `/opt/appsmith`.
         // In dev systems, we look for the `deploy` folder, navigating upwards.
-        Path optAppsmith = Path.of("opt", "appsmith");
+        Path optAppsmith = Path.of("/", "opt", "appsmith");
         if (!Files.exists(optAppsmith)) {
             Path current = Path.of(".").toAbsolutePath();
             while (!Files.exists(current.resolve("deploy"))) {
