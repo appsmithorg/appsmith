@@ -53,7 +53,7 @@ describe(
     it("3. toggle of allow clear selection", () => {
       cy.openPropertyPane("singleselecttreewidget");
       // toggle off allow clear selection
-      cy.togglebarDisable(commonlocators.allowclearingValueInput);
+      _.agHelper.CheckUncheck(commonlocators.allowclearingValueInput, false);
       // assert if cancel icon does not exists on the widget input
       cy.get(formWidgetsPage.singleselecttreeWidget)
         .find(".rc-tree-select-clear")

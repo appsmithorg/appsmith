@@ -100,7 +100,7 @@ describe(
       cy.openPropertyPane("tablewidget");
       // Disable isSortable
       // Confirm if isSortable is false
-      cy.togglebarDisable(commonlocators.isSortable_tablev1);
+      _.agHelper.CheckUncheck(commonlocators.isSortable_tablev1, false);
 
       // Publish App
       _.deployMode.DeployApp();
