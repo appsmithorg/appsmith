@@ -11,6 +11,9 @@ import { unitTestBaseMockStore } from "layoutSystems/common/dropTarget/unitTestU
 
 const defaultStoreState = {
   ...unitTestBaseMockStore,
+  tenant: {
+    tenantConfiguration: {},
+  },
   entities: {
     ...unitTestBaseMockStore.entities,
     plugins: {
