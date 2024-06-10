@@ -1,7 +1,8 @@
-package com.appsmith.server.git;
+package com.appsmith.server.git.autocommit;
 
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.configurations.ProjectProperties;
+import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.RedisUtils;

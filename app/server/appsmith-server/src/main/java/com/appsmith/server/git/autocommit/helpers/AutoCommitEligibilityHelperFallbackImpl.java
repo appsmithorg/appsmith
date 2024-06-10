@@ -24,6 +24,12 @@ public class AutoCommitEligibilityHelperFallbackImpl implements AutoCommitEligib
     }
 
     @Override
+    public Mono<Boolean> isClientMigrationRequiredFSOps(
+            String workspaceId, GitArtifactMetadata gitMetadata, PageDTO pageDTO) {
+        return Mono.just(FALSE);
+    }
+
+    @Override
     public Mono<AutoCommitTriggerDTO> isAutoCommitRequired(
             String workspaceId, GitArtifactMetadata gitArtifactMetadata, PageDTO pageDTO) {
         return Mono.just(new AutoCommitTriggerDTO(FALSE, FALSE, FALSE));
