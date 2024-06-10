@@ -182,6 +182,7 @@ class CodeMirrorTernService {
   recentEntities: string[] = [];
   cm?: CodeMirror.Editor = undefined;
   tooltipContainerClicked: boolean = false;
+  isJsonViewClick = false;
 
   constructor(options: { async: boolean }) {
     this.options = options;
@@ -408,11 +409,19 @@ class CodeMirrorTernService {
     this.server.deleteDefs(name);
   }
 
+  jsonViewClicked = () => {
+    this.isJsonViewClick = true;
+  };
+
   tooltipClickHandler = debounce((event: MouseEvent) => {
     event.stopPropagation();
     event.preventDefault();
     if (!this.cm) return;
-    if ((event.target as HTMLElement).closest(".CodeMirror-Tern-tooltip")) {
+    if (
+      (event.target as HTMLElement).closest(".CodeMirror-Tern-tooltip") ||
+      this.isJsonViewClick
+    ) {
+      this.isJsonViewClick = false;
       this.cm.focus();
       this.tooltipContainerClicked = true;
     } else {
@@ -612,7 +621,11 @@ class CodeMirrorTernService {
         this.active = cur;
         this.remove(tooltip);
         const docTooltipContainer = this.elt("div", "flex flex-col pb-1");
-        renderTernTooltipContent(docTooltipContainer, cur);
+        renderTernTooltipContent(
+          docTooltipContainer,
+          cur,
+          this.jsonViewClicked.bind(this),
+        );
         tooltip = this.makeTooltip(
           node.parentNode.getBoundingClientRect().right + window.pageXOffset,
           node.getBoundingClientRect().top + window.pageYOffset + 2,

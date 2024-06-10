@@ -13,8 +13,15 @@ import { reactJsonProps } from "components/editorComponents/CodeEditor/PeekOverl
 export function renderTernTooltipContent(
   element: HTMLElement,
   completion: Completion<TernCompletionResult>,
+  jsonViewClicked?: () => void,
 ) {
-  ReactDOM.render(<TernDocToolTip completion={completion} />, element);
+  ReactDOM.render(
+    <TernDocToolTip
+      completion={completion}
+      jsonViewClicked={jsonViewClicked}
+    />,
+    element,
+  );
 }
 
 function getEvaluatedValue(fullPath: string) {
@@ -34,6 +41,7 @@ const getDataTypeHeader = (data: unknown) => {
 
 export function TernDocToolTip(props: {
   completion: Completion<TernCompletionResult>;
+  jsonViewClicked?: () => void;
 }) {
   const { completion } = props;
   const {
@@ -67,7 +75,10 @@ export function TernDocToolTip(props: {
         )}
       </div>
 
-      <pre className="px-2 p-1 text-xs whitespace-normal">
+      <pre
+        className="px-2 p-1 text-xs whitespace-normal"
+        onClick={props.jsonViewClicked}
+      >
         {(dataType === "object" || dataType === "array") && value !== null && (
           <ReactJson src={value} {...reactJsonProps} />
         )}
