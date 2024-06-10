@@ -30,7 +30,7 @@ Cypress.Commands.add("enterDatasource", (datasource) => {
     .type(datasource, { parseSpecialCharSequences: false });
   //.type("{esc}}");
   cy.wait(2000);
-  cy.assertPageSave();
+  agHelper.AssertAutoSave();
 });
 
 Cypress.Commands.add("ResponseStatusCheck", (statusCode) => {

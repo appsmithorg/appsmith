@@ -49,7 +49,6 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
@@ -1024,13 +1023,13 @@ public class LayoutActionServiceTest {
 
         for (int i = 0; i < testPages.size(); i++) {
             PageDTO page = testPages.get(i);
-            Layout layout = page.getLayouts().get(0);
-            layout.setDsl(createTestDslWithTestWidget("Layout" + (i + 1)));
+            final UpdateMultiplePageLayoutDTO.LayoutDTO layout =
+                    new UpdateMultiplePageLayoutDTO.LayoutDTO(createTestDslWithTestWidget("Layout" + (i + 1)));
 
             UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayoutDTO =
                     new UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO();
             pageLayoutDTO.setPageId(page.getId());
-            pageLayoutDTO.setLayoutId(layout.getId());
+            pageLayoutDTO.setLayoutId(page.getLayouts().get(0).getId());
             pageLayoutDTO.setLayout(layout);
             multiplePageLayoutDTO.getPageLayouts().add(pageLayoutDTO);
         }
@@ -1222,7 +1221,6 @@ public class LayoutActionServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    @Disabled
     public void introduceCyclicDependencyAndRemoveLater() {
 
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))

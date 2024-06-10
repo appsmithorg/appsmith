@@ -1662,7 +1662,9 @@ function* handleUpdateActionData(
     EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
     actionDataPayload,
   );
-  endSpan(parentSpan);
+  if (parentSpan) {
+    endSpan(parentSpan);
+  }
 }
 
 export function* watchPluginActionExecutionSagas() {

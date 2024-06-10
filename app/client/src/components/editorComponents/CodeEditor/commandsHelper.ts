@@ -32,6 +32,7 @@ export const getShowHintOptions = (
     data: {},
     text: "",
     shortcut: "",
+    displayText: "",
   };
   const cursor = editor.getCursor();
   return {

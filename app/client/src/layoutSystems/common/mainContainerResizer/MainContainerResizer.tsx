@@ -60,17 +60,17 @@ export function MainContainerResizer({
   enableMainCanvasResizer,
   isPageInitiated,
   isPreview,
+  navigationHeight,
 }: {
   isPageInitiated: boolean;
-  shouldHaveTopMargin: boolean;
   isPreview: boolean;
   currentPageId: string;
   enableMainCanvasResizer: boolean;
+  navigationHeight?: number;
 }) {
   const appLayout = useSelector(getCurrentApplicationLayout);
   const ref = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
-  const topHeaderHeight = "48px";
   useEffect(() => {
     const ele: HTMLElement | null = document.getElementById(CANVAS_VIEWPORT);
 
@@ -170,8 +170,8 @@ export function MainContainerResizer({
       }}
       ref={ref}
       style={{
-        top: isPreview ? topHeaderHeight : "0",
-        height: isPreview ? `calc(100% - ${topHeaderHeight})` : "100%",
+        top: isPreview ? navigationHeight : "0",
+        height: isPreview ? `calc(100% - ${navigationHeight})` : "100%",
       }}
     >
       <div className="canvas-resizer-icon">

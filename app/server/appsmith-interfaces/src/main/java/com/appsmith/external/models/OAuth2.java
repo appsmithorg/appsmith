@@ -9,13 +9,13 @@ import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.data.annotation.Transient;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 

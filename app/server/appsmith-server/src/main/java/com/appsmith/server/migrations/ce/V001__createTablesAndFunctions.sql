@@ -525,7 +525,3 @@ create table workspace
     tenant_id text,
     website text
 );
-
-create function jsonb_minus(l jsonb, r text) returns jsonb
-  language sql
-RETURN (l - r);

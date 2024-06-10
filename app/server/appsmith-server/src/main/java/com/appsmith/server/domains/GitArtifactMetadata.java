@@ -4,9 +4,9 @@ import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Transient;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.annotation.Transient;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
@@ -107,8 +107,18 @@ public class GitArtifactMetadata implements AppsmithDomain {
 
     @JsonView(Views.Public.class)
     public String getDefaultArtifactId() {
-        if (StringUtils.hasText(defaultApplicationId)) {
-            return defaultApplicationId;
-        } else return defaultArtifactId;
+        if (StringUtils.hasText(defaultArtifactId)) {
+            return defaultArtifactId;
+        } else return defaultApplicationId;
+    }
+
+    // TODO : Set to private to prevent direct access unless migration is performed
+    private void setDefaultArtifactId(String defaultArtifactId) {
+        this.defaultArtifactId = defaultArtifactId;
+    }
+
+    public void setDefaultApplicationId(String defaultApplicationId) {
+        this.defaultApplicationId = defaultApplicationId;
+        this.defaultArtifactId = defaultApplicationId;
     }
 }

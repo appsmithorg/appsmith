@@ -585,40 +585,38 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Mono<Workspace> archiveById(String workspaceId) {
-        return applicationRepository
-                .countByWorkspaceIdAndDeletedAtNull(workspaceId)
-                .flatMap(appCount -> {
-                    if (appCount == 0) { // no application found under this workspace
-                        // fetching the workspace first to make sure user has permission to archive
-                        return repository
-                                .findById(workspaceId, workspacePermission.getDeletePermission())
-                                .switchIfEmpty(Mono.error(new AppsmithException(
-                                        AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
-                                .flatMap(workspace -> {
+        return applicationRepository.countByWorkspaceId(workspaceId).flatMap(appCount -> {
+            if (appCount == 0) { // no application found under this workspace
+                // fetching the workspace first to make sure user has permission to archive
+                return repository
+                        .findById(workspaceId, workspacePermission.getDeletePermission())
+                        .switchIfEmpty(Mono.error(new AppsmithException(
+                                AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, workspaceId)))
+                        .flatMap(workspace -> {
 
-                                    // Delete permission groups associated with this workspace before deleting the
-                                    // workspace
-                                    // Since we have already asserted that the user has the delete permission on the
-                                    // workspace,
-                                    // lets go ahead with the cleanup without permissions for the default permission
-                                    // groups
-                                    // (roles)
-                                    // since we can't leave the permission groups in a state where they are not
-                                    // associated with
-                                    // any workspace
+                            // Delete permission groups associated with this workspace before deleting the
+                            // workspace
+                            // Since we have already asserted that the user has the delete permission on the
+                            // workspace,
+                            // lets go ahead with the cleanup without permissions for the default permission
+                            // groups
+                            // (roles)
+                            // since we can't leave the permission groups in a state where they are not
+                            // associated with
+                            // any workspace
 
-                                    Set<String> defaultPermissionGroups = workspace.getDefaultPermissionGroups();
-                                    return Flux.fromIterable(defaultPermissionGroups)
-                                            .flatMap(permissionGroupService::deleteWithoutPermission)
-                                            .then(Mono.just(workspace));
-                                })
-                                .flatMap(this::archiveWorkspaceDependents)
-                                .flatMap(repository::archive)
-                                .flatMap(analyticsService::sendDeleteEvent);
-                    } else {
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
-                });
+                            Set<String> defaultPermissionGroups = workspace.getDefaultPermissionGroups();
+                            return Flux.fromIterable(defaultPermissionGroups)
+                                    .flatMap(permissionGroupService::deleteWithoutPermission)
+                                    .then(Mono.just(workspace));
+                        })
+                        .flatMap(this::archiveWorkspaceDependents)
+                        .flatMap(repository::archive)
+                        .flatMap(analyticsService::sendDeleteEvent);
+            } else {
+                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+            }
+        });
     }
 
     protected Mono<Workspace> archiveWorkspaceDependents(Workspace workspace) {
