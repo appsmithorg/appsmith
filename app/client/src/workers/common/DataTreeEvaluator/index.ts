@@ -137,6 +137,7 @@ import {
   profileFn,
   type WebworkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
+import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import generateOverrideContext from "@appsmith/workers/Evaluation/generateOverrideContext";
 
@@ -233,7 +234,7 @@ export default class DataTreeEvaluator {
   setupFirstTree(
     unEvalTree: any,
     configTree: ConfigTree,
-    webworkerTelemetry: Record<string, WebworkerSpanData> = {},
+    webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
   ): {
     jsUpdates: Record<string, JSUpdate>;
     evalOrder: string[];
@@ -489,7 +490,7 @@ export default class DataTreeEvaluator {
   setupUpdateTree(
     unEvalTree: any,
     configTree: ConfigTree,
-    webworkerTelemetry: Record<string, WebworkerSpanData> = {},
+    webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
     affectedJSObjects: AffectedJSObjects = { isAllAffected: false, ids: [] },
   ): {
     unEvalUpdates: DataTreeDiff[];
