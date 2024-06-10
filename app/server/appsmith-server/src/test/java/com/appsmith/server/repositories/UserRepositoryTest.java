@@ -40,9 +40,9 @@ public class UserRepositoryTest {
 
     @AfterEach
     public void cleanUp() {
-        // for (User savedUser : savedUsers) {
-        //     userRepository.deleteById(savedUser.getId()).block();
-        // }
+        for (User savedUser : savedUsers) {
+            userRepository.deleteById(savedUser.getId()).block();
+        }
     }
 
     @Test

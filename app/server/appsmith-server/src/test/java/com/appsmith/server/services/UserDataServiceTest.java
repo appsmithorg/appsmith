@@ -9,6 +9,7 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.extensions.AfterAllCleanUpExtension;
+import com.appsmith.server.git.common.CommonGitService;
 import com.appsmith.server.repositories.cakes.AssetRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
 import org.assertj.core.api.AssertionsForClassTypes;
@@ -60,7 +61,7 @@ public class UserDataServiceTest {
     private AssetRepositoryCake assetRepository;
 
     @Autowired
-    private GitService gitService;
+    private CommonGitService commonGitService;
 
     private Mono<User> userMono;
 
@@ -441,7 +442,7 @@ public class UserDataServiceTest {
         GitProfile gitGlobalConfigDTO = createGitProfile(null, "Test 1");
 
         Mono<Map<String, GitProfile>> userDataMono =
-                gitService.updateOrCreateGitProfileForCurrentUser(gitGlobalConfigDTO);
+                commonGitService.updateOrCreateGitProfileForCurrentUser(gitGlobalConfigDTO);
         StepVerifier.create(userDataMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Author Email")))
@@ -454,7 +455,7 @@ public class UserDataServiceTest {
         GitProfile gitProfileDTO = createGitProfile(null, null);
 
         Mono<Map<String, GitProfile>> userDataMono =
-                gitService.updateOrCreateGitProfileForCurrentUser(gitProfileDTO, "defaultAppId");
+                commonGitService.updateOrCreateGitProfileForCurrentUser(gitProfileDTO, "defaultAppId");
         StepVerifier.create(userDataMono)
                 .assertNext(gitProfileMap -> {
                     AssertionsForClassTypes.assertThat(gitProfileMap).isNotNull();
@@ -476,7 +477,7 @@ public class UserDataServiceTest {
         GitProfile gitGlobalConfigDTO = createGitProfile("test@appsmith.com", null);
 
         Mono<Map<String, GitProfile>> userDataMono =
-                gitService.updateOrCreateGitProfileForCurrentUser(gitGlobalConfigDTO);
+                commonGitService.updateOrCreateGitProfileForCurrentUser(gitGlobalConfigDTO);
         StepVerifier.create(userDataMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().contains(AppsmithError.INVALID_PARAMETER.getMessage("Author Name")))
@@ -487,7 +488,7 @@ public class UserDataServiceTest {
     @WithUserDetails(value = "api_user")
     public void getAndUpdateDefaultGitProfile_fallbackValueFromUserProfileIfEmpty_updateWithProfile() {
 
-        Mono<GitProfile> gitConfigMono = gitService.getDefaultGitProfileOrCreateIfEmpty();
+        Mono<GitProfile> gitConfigMono = commonGitService.getDefaultGitProfileOrCreateIfEmpty();
 
         Mono<User> userData = userDataService
                 .getForCurrentUser()
@@ -504,7 +505,7 @@ public class UserDataServiceTest {
 
         GitProfile gitGlobalConfigDTO = createGitProfile("test@appsmith.com", "Test 1");
         Mono<Map<String, GitProfile>> gitProfilesMono =
-                gitService.updateOrCreateGitProfileForCurrentUser(gitGlobalConfigDTO);
+                commonGitService.updateOrCreateGitProfileForCurrentUser(gitGlobalConfigDTO);
 
         StepVerifier.create(gitProfilesMono)
                 .assertNext(gitProfileMap -> {

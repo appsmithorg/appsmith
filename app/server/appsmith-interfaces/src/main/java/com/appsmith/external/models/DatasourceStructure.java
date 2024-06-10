@@ -2,6 +2,8 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.google.gson.InstanceCreator;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -62,6 +64,15 @@ public class DatasourceStructure {
         }
     }
 
+    /**
+     * this JsonTypeInfo annotation is used to determine the type of key while deserializing the JSON.
+     * JsonSubTypes is required because the key can be of two types - PrimaryKey and ForeignKey and Key is an interface so jackson needs this information for deserialization.
+     */
+    @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+    @JsonSubTypes({
+        @JsonSubTypes.Type(value = DatasourceStructure.PrimaryKey.class, name = "primary key"),
+        @JsonSubTypes.Type(value = DatasourceStructure.ForeignKey.class, name = "foreign key")
+    })
     public interface Key extends Comparable<Key> {
         String getType();
 
@@ -89,6 +100,7 @@ public class DatasourceStructure {
 
     @Data
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class PrimaryKey implements Key {
         String name;
         List<String> columnNames;
@@ -100,6 +112,7 @@ public class DatasourceStructure {
 
     @Data
     @AllArgsConstructor
+    @NoArgsConstructor
     public static class ForeignKey implements Key {
         String name;
         List<String> fromColumns;

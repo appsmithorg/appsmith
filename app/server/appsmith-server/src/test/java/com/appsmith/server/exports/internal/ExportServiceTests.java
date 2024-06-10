@@ -106,6 +106,7 @@ import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -1813,8 +1814,15 @@ public class ExportServiceTests {
                 .assertNext(applicationJson -> {
                     List<NewPage> pages = applicationJson.getPageList();
                     assertThat(pages).hasSize(2);
-                    assertThat(pages.get(1).getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
-                    assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");
+
+                    NewPage page = pages.stream()
+                            .filter(page1 ->
+                                    page1.getUnpublishedPage().getName().equals("page_" + randomId))
+                            .findFirst()
+                            .orElse(null);
+                    assertThat(page).isNotNull();
+                    assertThat(page.getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
+                    assertThat(page.getUnpublishedPage().getIcon()).isEqualTo("flight");
                 })
                 .verifyComplete();
     }
@@ -1856,7 +1864,7 @@ public class ExportServiceTests {
                     assertEquals(jsLib.getUrl(), exportedJSLib.getUrl());
                     assertEquals(jsLib.getDocsUrl(), exportedJSLib.getDocsUrl());
                     assertEquals(jsLib.getVersion(), exportedJSLib.getVersion());
-                    assertEquals(jsLib.getDefs(), exportedJSLib.getDefs());
+                    assertArrayEquals(jsLib.getDefs(), exportedJSLib.getDefs());
                     assertEquals(
                             getDTOFromCustomJSLib(jsLib),
                             exportedAppJson
@@ -2027,6 +2035,7 @@ public class ExportServiceTests {
                     ds1.setName("DS_FOR_RENAME_TEST");
                     ds1.setWorkspaceId(workspaceId);
                     ds1.setPluginId(installedPlugin.getId());
+                    ds1.setCreatedAt(Instant.now());
                     final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
                     datasourceConfiguration.setUrl("http://example.org/get");
                     datasourceConfiguration.setHeaders(List.of(new Property("X-Answer", "42")));

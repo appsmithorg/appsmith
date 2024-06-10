@@ -11,11 +11,13 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Transient;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.jpa.repository.Modifying;
@@ -24,7 +26,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -72,8 +76,15 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                         entity.setId(generateId());
                     }
                     try {
-                        repository.save(entity);
-                        return entity;
+                        T savedEntity = repository.save(entity);
+                        // Get all non-transient field names
+                        List<String> nonTransientFields = getAllFields(entity.getClass()).stream()
+                                .filter(field -> field.getAnnotation(Transient.class) == null)
+                                .map(Field::getName)
+                                .toList();
+                        // merge latest database updated entity object with the transient fields
+                        BeanUtils.copyProperties(entity, savedEntity, nonTransientFields.toArray(new String[0]));
+                        return savedEntity;
                     } catch (DataIntegrityViolationException e) {
                         // save wasn't successful, reset the id if it was generated
                         if (isNew) {
@@ -83,6 +94,14 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                     }
                 })
                 .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    public static List<Field> getAllFields(Class<?> type) {
+        List<Field> fields = new ArrayList<>();
+        for (Class<?> c = type; c != null; c = c.getSuperclass()) {
+            fields.addAll(Arrays.asList(c.getDeclaredFields()));
+        }
+        return fields;
     }
 
     private String generateId() {

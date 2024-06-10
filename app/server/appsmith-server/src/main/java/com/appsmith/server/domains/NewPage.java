@@ -15,6 +15,8 @@ import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -46,6 +48,22 @@ public class NewPage extends BranchAwareDomain implements Context {
             this.getPublishedPage().sanitiseToExportDBObject();
         }
         super.sanitiseToExportDBObject();
+    }
+
+    @JsonView(Views.Internal.class)
+    @Override
+    public String getArtifactId() {
+        return this.applicationId;
+    }
+
+    @JsonView(Views.Internal.class)
+    @Override
+    public Layout getLayout() {
+        if (this.getUnpublishedPage() == null || this.getUnpublishedPage().getLayouts() == null) {
+            return null;
+        }
+        List<Layout> layouts = this.getUnpublishedPage().getLayouts();
+        return !layouts.isEmpty() ? layouts.get(0) : null;
     }
 
     public static class Fields extends BranchAwareDomain.Fields {

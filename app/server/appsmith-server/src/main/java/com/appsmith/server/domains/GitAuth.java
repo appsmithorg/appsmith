@@ -4,8 +4,8 @@ import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.models.AppsmithDomain;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Transient;
 import lombok.Data;
-import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
 

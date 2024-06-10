@@ -15,9 +15,12 @@ import {
 import React, { useMemo } from "react";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import BuildingBlockExplorerDropTarget from "../buildingBlockExplorerDropTarget";
+import { useSelector } from "react-redux";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 
 function Onboarding() {
   const appState = useCurrentAppState();
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAirgappedInstance = isAirgapped();
   const { segment } = useCurrentEditorState();
 
@@ -33,11 +36,13 @@ function Onboarding() {
       !isAirgappedInstance &&
       isEditorState &&
       isUISegment &&
+      !isPreviewMode &&
       releaseDragDropBuildingBlocksEnabled,
     [
       isEditorState,
       releaseDragDropBuildingBlocksEnabled,
       isUISegment,
+      isPreviewMode,
       isAirgappedInstance,
     ],
   );

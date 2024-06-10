@@ -462,7 +462,7 @@ class RefactoringServiceCETest {
         refactorActionNameDTO.setLayoutId(firstLayout.getId());
         refactorActionNameDTO.setOldName("Query1");
         refactorActionNameDTO.setNewName("NewActionName");
-        refactorActionNameDTO.setActionId(firstAction.getId());
+        refactorActionNameDTO.setActionId(secondAction.getId());
 
         refactoringService.refactorEntityName(refactorActionNameDTO, null).block();
 

@@ -26,11 +26,13 @@ const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
 
+type MakeRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+
 export interface Completion<
   T = {
     doc: string;
   },
-> extends Hint {
+> extends MakeRequired<Hint, "displayText"> {
   origin: string;
   type: AutocompleteDataType | string;
   data: T;
@@ -112,6 +114,25 @@ export function isCustomKeywordType(
   );
 }
 
+// Define the regex for extracting the final object path
+const FINAL_OBJECT_PATH_REGEX = /(?:\w+\.)*\w+$/;
+
+/**
+ * Extracts the final object path from a given input string.
+ * The final object path is the rightmost dot-separated path in the string.
+ *
+ * @param {string} input - The input string from which to extract the object path.
+ * @returns {string|null} - The extracted object path or null if no match is found.
+ *
+ * Example:
+ *   Input: '\tconst k = PageQuery.run'
+ *   Output: 'PageQuery.run'
+ */
+export function extractFinalObjectPath(input: string) {
+  const match = (input || "")?.trim().match(FINAL_OBJECT_PATH_REGEX);
+  return match ? match[0] : null;
+}
+
 export function getDataType(type: string): AutocompleteDataType {
   if (type === "?") return AutocompleteDataType.UNKNOWN;
   else if (type === "number") return AutocompleteDataType.NUMBER;
@@ -177,12 +198,14 @@ class CodeMirrorTernService {
     string,
     DataTreeDefEntityInformation
   >();
+  entityDef: Def;
   options: { async: boolean };
   recentEntities: string[] = [];
 
   constructor(options: { async: boolean }) {
     this.options = options;
     this.server = new TernWorkerServer(this);
+    this.entityDef = {};
   }
 
   resetServer = () => {
@@ -397,6 +420,7 @@ class CodeMirrorTernService {
       this.server.deleteDefs(name);
     }
 
+    this.entityDef = def || {};
     if (entityInfo) this.defEntityInformation = entityInfo;
   }
 
@@ -455,9 +479,21 @@ class CodeMirrorTernService {
         completion.origin === "DATA_TREE" &&
         this.defEntityInformation.has(completion.name);
       let completionText = completion.name + after;
+      const completedLine = lineValue.substring(0, from.ch) + completion.name;
+      const entityPath = extractFinalObjectPath(completedLine);
+
       if (dataType === "FUNCTION" && !completion.origin?.startsWith("LIB/")) {
         if (token.type !== "string" && token.string !== "[") {
-          completionText = completionText + "()";
+          const entityDef = entityPath && this.entityDef[entityPath];
+          if (
+            entityDef &&
+            typeof entityDef === "object" &&
+            "!fnParams" in entityDef
+          ) {
+            completionText = completionText + `(${entityDef["!fnParams"]})`;
+          } else {
+            completionText = completionText + "()";
+          }
         }
       }
       const codeMirrorCompletion: Completion<TernCompletionResult> = {
@@ -1204,7 +1240,10 @@ export default new CodeMirrorTernService({
 function dotToBracketNotationAtToken(token: CodeMirror.Token) {
   return (cm: CodeMirror.Editor, hints: Hints, curr: Hint) => {
     let completion = curr.text;
-    if (token.type === "string") {
+    if (
+      token.type === "string" ||
+      ("type" in curr && curr.type === AutocompleteDataType.FUNCTION)
+    ) {
       // | represents the cursor
       // Cases like JSObject1["myV|"]
       cm.replaceRange(completion, hints.from, hints.to);

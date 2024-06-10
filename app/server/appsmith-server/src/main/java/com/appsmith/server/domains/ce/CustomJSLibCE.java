@@ -4,9 +4,12 @@ import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.google.gson.TypeAdapter;
+import com.google.gson.annotations.JsonAdapter;
+import com.google.gson.stream.JsonReader;
+import com.google.gson.stream.JsonWriter;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -16,6 +19,8 @@ import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -66,29 +71,53 @@ public class CustomJSLibCE extends BranchAwareDomain {
     feature i.e. the function name showing up as suggestion when user has partially typed it. */
     @Column(columnDefinition = "text")
     @JsonView({Views.Public.class, Git.class})
+    @JsonAdapter(DefsAdapter.class)
     byte[] defs;
 
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public CustomJSLibCE(
-            @JsonProperty("name") String name,
-            @JsonProperty("accessor") Set<String> accessor,
-            @JsonProperty("url") String url,
-            @JsonProperty("docsUrl") String docsUrl,
-            @JsonProperty("version") String version,
-            @JsonProperty("defs") byte[] defs) {
-        this.name = name;
-        this.accessor = accessor;
-        this.url = url;
-        this.docsUrl = docsUrl;
-        this.defs = defs;
-        this.version = version;
-        setUidString();
+    public static class DefsAdapter extends TypeAdapter<byte[]> {
+        @Override
+        public void write(JsonWriter out, byte[] value) throws IOException {
+            out.value(new String(value, StandardCharsets.UTF_8));
+        }
+
+        @Override
+        public byte[] read(JsonReader in) throws IOException {
+            return in.nextString().getBytes(StandardCharsets.UTF_8);
+        }
     }
 
-    public void setUidString() {
-        List<String> accessorList = new ArrayList(this.accessor);
-        Collections.sort(accessorList);
-        this.uidString = String.join("_", accessorList) + "_" + this.url;
+    public CustomJSLibCE(String name, Set<String> accessor, String url, String docsUrl, String version, byte[] defs) {
+        setName(name);
+        setAccessor(accessor);
+        setUrl(url);
+        setDocsUrl(docsUrl);
+        setDefs(defs);
+        setVersion(version);
+    }
+
+    public void setAccessor(Set<String> value) {
+        accessor = value;
+        recomputeUid();
+    }
+
+    public void setUrl(String value) {
+        url = value;
+        recomputeUid();
+    }
+
+    private void recomputeUid() {
+        final List<String> items = new ArrayList<>();
+
+        // Add all accessor items, sorted.
+        if (!CollectionUtils.isNullOrEmpty(accessor)) {
+            items.addAll(accessor);
+            Collections.sort(items);
+        }
+
+        // Add URL to the end of sorted accessors list.
+        items.add(url);
+
+        setUidString(String.join("_", items));
     }
 
     /**

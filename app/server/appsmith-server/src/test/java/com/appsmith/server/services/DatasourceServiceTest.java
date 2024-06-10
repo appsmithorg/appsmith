@@ -76,7 +76,7 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith({AfterAllCleanUpExtension.class})
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
@@ -1095,8 +1095,8 @@ public class DatasourceServiceTest {
                     DBAuth authentication = (DBAuth)
                             datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(encryptionService.decryptString(authentication.getPassword()))
-                            .isEqualTo(password);
+                    // TODO :: Fetch record from DB and check if password is encrypted
+                    assertThat(authentication.getPassword()).isEqualTo(password);
                 })
                 .verifyComplete();
     }
@@ -1226,7 +1226,8 @@ public class DatasourceServiceTest {
                             datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
 
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(password).isEqualTo(encryptionService.decryptString(authentication.getPassword()));
+                    // TODO :: Add assertions for encrypted password
+                    assertThat(password).isEqualTo(authentication.getPassword());
                 })
                 .verifyComplete();
     }

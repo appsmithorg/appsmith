@@ -121,7 +121,7 @@ Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", (isOAuth2) => {
   cy.get(datasource.useCertInAuth).should("not.exist");
   cy.get(datasource.certificateDetails).should("not.exist");
   // cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
-  cy.togglebar(datasource.useSelfSignedCert);
+  agHelper.CheckUncheck(datasource.useSelfSignedCert);
   cy.get(datasource.useSelfSignedCert).should("be.checked");
   if (isOAuth2) {
     cy.get(datasource.useCertInAuth).should("exist");
@@ -444,10 +444,6 @@ Cypress.Commands.add("DeleteWorkspaceByApi", () => {
   }
 });
 
-Cypress.Commands.add("togglebar", (value) => {
-  cy.get(value).check({ force: true }).should("be.checked");
-});
-
 Cypress.Commands.add("NavigateToJSEditor", () => {
   PageLeftPane.switchSegment(PagePaneSegment.JS);
   PageLeftPane.switchToAddNew();
@@ -485,7 +481,7 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousemove", x, y, option)
     .trigger("mousemove", x, y, option)
     .trigger("mouseup", x, y, option);
-  cy.assertPageSave();
+  agHelper.AssertAutoSave();
 });
 
 Cypress.Commands.add(
@@ -917,16 +913,6 @@ Cypress.Commands.add("CheckForPageSaveError", () => {
       cy.reload();
     }
   });
-});
-
-Cypress.Commands.add("assertPageSave", (validateSavedState = true) => {
-  if (validateSavedState) {
-    cy.CheckForPageSaveError();
-    cy.get(commonlocators.saveStatusContainer).should("not.exist", {
-      timeout: 30000,
-    });
-  }
-  //assertHelper.AssertNetworkStatus("@sucessSave", 200);
 });
 
 Cypress.Commands.add(

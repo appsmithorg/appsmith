@@ -670,7 +670,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
         return datasourceStorageMono
                 .flatMap(datasourceStorage -> {
-                    if (!StringUtils.hasLength(String.valueOf(datasourceStorage.getDatasourceId()))) {
+                    if (!StringUtils.hasLength(datasourceStorage.getDatasourceId())) {
                         return Mono.just(new HashMap<>());
                     }
 

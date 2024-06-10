@@ -284,6 +284,7 @@ export function* loadBuildingBlocksIntoApplication(
       }
     }
   } catch (error) {
+    log.error("Error loading building blocks into application", error);
     yield put({
       type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
       payload: {
@@ -420,8 +421,6 @@ export function* pasteBuildingBlockWidgetsSaga(
   const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   try {
-    const isThereACollision = false;
-
     if (
       // to avoid invoking old way of copied widgets implementaion
       !Array.isArray(copiedWidgetGroups) ||
@@ -458,6 +457,7 @@ export function* pasteBuildingBlockWidgetsSaga(
       topMostWidget.topRow,
       leftMostWidget.leftColumn,
       { gridPosition },
+      pastingIntoWidgetId,
     );
     for (const widgetGroup of copiedWidgetGroups) {
       //This is required when you cut the widget as CanvasWidgetState doesn't have the widget anymore
@@ -507,7 +507,7 @@ export function* pasteBuildingBlockWidgetsSaga(
             nextAvailableRow,
             newPastingPositionMap,
             true,
-            isThereACollision,
+            false,
             false,
           );
 

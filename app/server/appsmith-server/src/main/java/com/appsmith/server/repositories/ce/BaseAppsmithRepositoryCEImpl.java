@@ -6,7 +6,6 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -223,8 +222,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return Optional.of(count);
     }
 
-    protected Set<String> getCurrentUserPermissionGroupsIfRequired(Optional<AclPermission> permission) {
-        return getCurrentUserPermissionGroupsIfRequired(permission, true);
+    protected Set<String> getCurrentUserPermissionGroupsIfRequired(AclPermission permission) {
+        return getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission), true);
     }
 
     protected Set<String> getCurrentUserPermissionGroupsIfRequired(
@@ -262,10 +261,14 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @SuppressWarnings("unchecked")
     public <P> List<P> queryAllExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(() -> Mono.just(
-                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
+                .switchIfEmpty(
+                        Mono.defer(() -> Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission()))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
+                    if (params.getPermission() != null && permissionGroups.isEmpty()) {
+                        return Mono.just(Collections.<P>emptyList());
+                    }
+
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
                     CriteriaQuery<?> cq = cb.createQuery(projectionClass);
 
@@ -282,8 +285,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     if (!specifications.isEmpty()) {
                         predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
-                    predicate =
-                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
+
+                    final Predicate permissionGroupsPredicate =
+                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
+                    if (permissionGroupsPredicate != null) {
+                        predicate = cb.and(predicate, permissionGroupsPredicate);
+                    }
 
                     cq.where(predicate);
 
@@ -322,7 +329,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                                 }
                                 return map((List<Object[]>) tuple, projectionClass);
                             })
-                            .onErrorResume(NoResultException.class, e -> Mono.empty());
+                            .onErrorResume(NoResultException.class, e -> Mono.just(Collections.emptyList()));
                 })
                 .block();
     }
@@ -336,10 +343,14 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @SuppressWarnings("unchecked")
     public <P> Optional<P> queryOneExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(() -> Mono.just(
-                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
+                .switchIfEmpty(
+                        Mono.defer(() -> Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission()))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
+                    if (params.getPermission() != null && permissionGroups.isEmpty()) {
+                        return Mono.empty();
+                    }
+
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
                     CriteriaQuery<?> cq = cb.createQuery(projectionClass);
                     // We are creating the query with generic return type as Object[] and then mapping it to the
@@ -356,8 +367,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     if (!specifications.isEmpty()) {
                         predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
-                    predicate =
-                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
+
+                    final Predicate permissionGroupsPredicate =
+                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
+                    if (permissionGroupsPredicate != null) {
+                        predicate = cb.and(predicate, permissionGroupsPredicate);
+                    }
 
                     cq.where(predicate);
                     if (!projectionClass.getSimpleName().equals(genericDomain.getSimpleName())) {
@@ -388,10 +403,14 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     public Optional<Long> countExecute(QueryAllParams<T> params) {
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(() -> Mono.just(
-                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
+                .switchIfEmpty(
+                        Mono.defer(() -> Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission()))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
+                    if (params.getPermission() != null && permissionGroups.isEmpty()) {
+                        return Mono.just(0L);
+                    }
+
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
                     final CriteriaQuery<Long> cq = cb.createQuery(Long.class);
                     final Root<T> root = cq.from(genericDomain);
@@ -403,8 +422,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     if (!specifications.isEmpty()) {
                         predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
-                    predicate =
-                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
+
+                    final Predicate permissionGroupsPredicate =
+                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
+                    if (permissionGroupsPredicate != null) {
+                        predicate = cb.and(predicate, permissionGroupsPredicate);
+                    }
 
                     cq.where(predicate);
                     cq.select(cb.count(root));
@@ -466,8 +489,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         ArrayList<String> permissionGroups;
 
         if (CollectionUtils.isEmpty(permissionGroupsSet)) {
-            permissionGroups = new ArrayList<>(
-                    getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())));
+            permissionGroups = new ArrayList<>(getCurrentUserPermissionGroupsIfRequired(params.getPermission()));
         } else {
             permissionGroups = new ArrayList<>(permissionGroupsSet);
         }
@@ -485,7 +507,16 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         if (!specifications.isEmpty()) {
             predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
         }
-        predicate = getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
+
+        if (params.getPermission() != null && permissionGroups.isEmpty()) {
+            return 0;
+        }
+
+        final Predicate permissionGroupsPredicate =
+                getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root);
+        if (permissionGroupsPredicate != null) {
+            predicate = cb.and(predicate, permissionGroupsPredicate);
+        }
 
         cu.where(predicate);
 
@@ -676,43 +707,33 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return cacheableRepositoryHelper.getPermissionGroupsOfAnonymousUser();
     }
 
-    private Predicate getPermissionGroupsPredicate(
+    private static Predicate getPermissionGroupsPredicate(
             ArrayList<String> permissionGroups,
             AclPermission permission,
             CriteriaBuilder cb,
-            Root<T> root,
-            Predicate predicate) {
+            Root<? extends BaseDomain> root) {
         if (permission == null) {
-            return predicate;
-        }
-
-        if (permissionGroups.isEmpty()) {
-            // TODO(Shri): Yes, this is an "always-fail" condition. We're working on whether we need it at all, on
-            // `release` branch.
-            return cb.and(cb.literal(1).isNull());
+            return null;
         }
 
         Map<String, String> fnVars = new HashMap<>();
         fnVars.put("p", permission.getValue());
         final List<String> conditions = new ArrayList<>();
-        for (var i = 0; i < permissionGroups.size(); i++) {
+        for (int i = 0; i < permissionGroups.size(); i++) {
             fnVars.put("g" + i, permissionGroups.get(i));
             conditions.add("@ == $g" + i);
         }
 
         try {
-            return cb.and(
-                    predicate,
-                    cb.isTrue(cb.function(
-                            "jsonb_path_exists",
-                            Boolean.class,
-                            root.get(PermissionGroup.Fields.policies),
-                            cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
-                                    + String.join(" || ", conditions) + ")))"),
-                            cb.literal(objectMapper.writeValueAsString(fnVars)))));
+            return cb.isTrue(cb.function(
+                    "jsonb_path_exists",
+                    Boolean.class,
+                    root.get(BaseDomain.Fields.policies),
+                    cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
+                            + String.join(" || ", conditions) + ")))"),
+                    cb.literal(objectMapper.writeValueAsString(fnVars))));
         } catch (JsonProcessingException e) {
-            // This should never happen, were serializing a Map<String, String>, which ideally should
-            // never fail.
+            // This should never happen, were serializing a Map<String, String>, which ideally should never fail.
             throw new RuntimeException(e);
         }
     }
@@ -733,10 +754,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      */
     @Transactional
     @Modifying
-    public T updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission) {
-        int modifiedCount =
-                queryBuilder().byId(id).permission(permission.orElse(null)).updateFirst(updateObj);
-        return queryBuilder().byId(id).permission(permission.orElse(null)).one().orElse(null);
+    public T updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission) {
+        int modifiedCount = queryBuilder().byId(id).permission(permission).updateFirst(updateObj);
+        return queryBuilder().byId(id).permission(permission).one().orElse(null);
     }
 
     public Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> entities) {
