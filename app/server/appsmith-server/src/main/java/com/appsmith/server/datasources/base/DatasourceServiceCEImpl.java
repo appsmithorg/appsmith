@@ -687,7 +687,16 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> findByIdWithStorages(String id) {
-        return findById(id);
+        return findById(id).flatMap(datasource -> {
+            return datasourceStorageService
+                    .findByDatasource(datasource)
+                    .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
+                    .collectMap(DatasourceStorageDTO::getEnvironmentId)
+                    .map(storages -> {
+                        datasource.setDatasourceStorages(storages);
+                        return datasource;
+                    });
+        });
     }
 
     @Override
