@@ -134,19 +134,26 @@ export const getConsolidatedApiPrefetchRequest = (
 };
 
 /**
- * Function to get the prefetch request for module apis
+ * Function to get the prefetch requests for an application
  */
-export const getPrefetchModuleApiRequests = (
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  applicationProps: TApplicationParams,
+export const getPrefetchRequests = (
+  applicationParams: TApplicationParams,
 ): Request[] => {
-  return [];
+  const prefetchRequests: Request[] = [];
+  const consolidatedApiPrefetchRequest =
+    getConsolidatedApiPrefetchRequest(applicationParams);
+
+  if (consolidatedApiPrefetchRequest) {
+    prefetchRequests.push(consolidatedApiPrefetchRequest);
+  }
+
+  return prefetchRequests;
 };
 
 /**
  * Cache strategy for Appsmith API
  */
-export class PrefetchApiCacheStrategy {
+export class PrefetchApiService {
   cacheName = "prefetch-cache-v1";
   cacheMaxAge = 2 * 60 * 1000; // 2 minutes in milliseconds
   // Mutex to lock the fetch and cache operation

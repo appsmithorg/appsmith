@@ -7,7 +7,7 @@ import {
   getConsolidatedApiPrefetchRequest,
   getApplicationParamsFromUrl,
   getPrefetchModuleApiRequests,
-  PrefetchApiCacheStrategy,
+  PrefetchApiService,
 } from "./serviceWorkerUtils";
 import { Mutex } from "async-mutex";
 import { Request as NFRequest, Response as NFResponse } from "node-fetch";
@@ -408,12 +408,12 @@ describe("serviceWorkerUtils", () => {
     });
   });
 
-  describe("PrefetchApiCacheStrategy", () => {
-    let cacheStrategy: PrefetchApiCacheStrategy;
+  describe("PrefetchApiService", () => {
+    let prefetchApiService: PrefetchApiService;
     let mockCache: any;
 
     beforeEach(() => {
-      cacheStrategy = new PrefetchApiCacheStrategy();
+      prefetchApiService = new PrefetchApiService();
       mockCache = {
         put: jest.fn(),
         match: jest.fn(),
@@ -434,7 +434,7 @@ describe("serviceWorkerUtils", () => {
           method: "GET",
         });
         request.headers.append("branchname", "main");
-        const key = cacheStrategy.getRequestKey(request);
+        const key = prefetchApiService.getRequestKey(request);
         expect(key).toBe("GET:https://app.appsmith.com/:branchname:main");
       });
     });
@@ -445,7 +445,7 @@ describe("serviceWorkerUtils", () => {
           method: "GET",
         });
         const acquireSpy = jest.spyOn(Mutex.prototype, "acquire");
-        await cacheStrategy.aqcuireFetchMutex(request);
+        await prefetchApiService.aqcuireFetchMutex(request);
         expect(acquireSpy).toHaveBeenCalled();
       });
 
@@ -454,12 +454,12 @@ describe("serviceWorkerUtils", () => {
           method: "GET",
         });
         const mutex = new Mutex();
-        cacheStrategy.prefetchFetchMutexMap.set(
-          cacheStrategy.getRequestKey(request),
+        prefetchApiService.prefetchFetchMutexMap.set(
+          prefetchApiService.getRequestKey(request),
           mutex,
         );
         const acquireSpy = jest.spyOn(mutex, "acquire");
-        await cacheStrategy.aqcuireFetchMutex(request);
+        await prefetchApiService.aqcuireFetchMutex(request);
         expect(acquireSpy).toHaveBeenCalled();
       });
     });
@@ -470,12 +470,12 @@ describe("serviceWorkerUtils", () => {
           method: "GET",
         });
         const mutex = new Mutex();
-        cacheStrategy.prefetchFetchMutexMap.set(
-          cacheStrategy.getRequestKey(request),
+        prefetchApiService.prefetchFetchMutexMap.set(
+          prefetchApiService.getRequestKey(request),
           mutex,
         );
         const waitForUnlockSpy = jest.spyOn(mutex, "waitForUnlock");
-        await cacheStrategy.waitForUnlock(request);
+        await prefetchApiService.waitForUnlock(request);
         expect(waitForUnlockSpy).toHaveBeenCalled();
       });
 
@@ -484,7 +484,7 @@ describe("serviceWorkerUtils", () => {
           method: "GET",
         });
         await expect(
-          cacheStrategy.waitForUnlock(request),
+          prefetchApiService.waitForUnlock(request),
         ).resolves.not.toThrow();
       });
     });
@@ -495,12 +495,12 @@ describe("serviceWorkerUtils", () => {
           method: "GET",
         });
         const mutex = new Mutex();
-        cacheStrategy.prefetchFetchMutexMap.set(
-          cacheStrategy.getRequestKey(request),
+        prefetchApiService.prefetchFetchMutexMap.set(
+          prefetchApiService.getRequestKey(request),
           mutex,
         );
         const releaseSpy = jest.spyOn(mutex, "release");
-        cacheStrategy.releaseFetchMutex(request);
+        prefetchApiService.releaseFetchMutex(request);
         expect(releaseSpy).toHaveBeenCalled();
       });
 
@@ -508,7 +508,9 @@ describe("serviceWorkerUtils", () => {
         const request = new Request("https://app.appsmith.com", {
           method: "GET",
         });
-        expect(() => cacheStrategy.releaseFetchMutex(request)).not.toThrow();
+        expect(() =>
+          prefetchApiService.releaseFetchMutex(request),
+        ).not.toThrow();
       });
     });
 
@@ -527,7 +529,7 @@ describe("serviceWorkerUtils", () => {
         const acquireSpy = jest.spyOn(Mutex.prototype, "acquire");
         const releaseSpy = jest.spyOn(Mutex.prototype, "release");
 
-        await cacheStrategy.cacheApi(request);
+        await prefetchApiService.cacheApi(request);
 
         expect(acquireSpy).toHaveBeenCalled();
         expect((global as any).fetch).toHaveBeenCalledWith(request);
@@ -550,7 +552,7 @@ describe("serviceWorkerUtils", () => {
         const acquireSpy = jest.spyOn(Mutex.prototype, "acquire");
         const releaseSpy = jest.spyOn(Mutex.prototype, "release");
 
-        await cacheStrategy.cacheApi(request);
+        await prefetchApiService.cacheApi(request);
 
         expect(acquireSpy).toHaveBeenCalled();
         expect(mockCache.delete).toHaveBeenCalledWith(request);
@@ -568,13 +570,14 @@ describe("serviceWorkerUtils", () => {
         });
         mockCache.match.mockResolvedValue(response);
         const mutex = new Mutex();
-        cacheStrategy.prefetchFetchMutexMap.set(
-          cacheStrategy.getRequestKey(request),
+        prefetchApiService.prefetchFetchMutexMap.set(
+          prefetchApiService.getRequestKey(request),
           mutex,
         );
         const waitForUnlockSpy = jest.spyOn(Mutex.prototype, "waitForUnlock");
 
-        const cachedResponse = await cacheStrategy.getCachedResponse(request);
+        const cachedResponse =
+          await prefetchApiService.getCachedResponse(request);
 
         expect(waitForUnlockSpy).toHaveBeenCalled();
         expect(mockCache.match).toHaveBeenCalledWith(request);
@@ -591,7 +594,8 @@ describe("serviceWorkerUtils", () => {
         });
         mockCache.match.mockResolvedValue(response);
 
-        const cachedResponse = await cacheStrategy.getCachedResponse(request);
+        const cachedResponse =
+          await prefetchApiService.getCachedResponse(request);
 
         expect(mockCache.match).toHaveBeenCalledWith(request);
         expect(mockCache.delete).toHaveBeenCalledWith(request);
@@ -604,7 +608,8 @@ describe("serviceWorkerUtils", () => {
         });
         mockCache.match.mockResolvedValue(null);
 
-        const cachedResponse = await cacheStrategy.getCachedResponse(request);
+        const cachedResponse =
+          await prefetchApiService.getCachedResponse(request);
 
         expect(mockCache.match).toHaveBeenCalledWith(request);
         expect(cachedResponse).toBeNull();

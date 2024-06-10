@@ -9,9 +9,8 @@ import {
 import {
   cachedApiUrlRegex,
   getApplicationParamsFromUrl,
-  getConsolidatedApiPrefetchRequest,
-  getPrefetchModuleApiRequests,
-  PrefetchApiCacheStrategy,
+  getPrefetchRequests,
+  PrefetchApiService,
 } from "@appsmith/utils/serviceWorkerUtils";
 import type { RouteHandlerCallback } from "workbox-core/types";
 
@@ -43,7 +42,7 @@ self.__WB_DISABLE_DEV_LOGS = false;
 skipWaiting();
 clientsClaim();
 
-const prefetchApiCacheStrategy = new PrefetchApiCacheStrategy();
+const prefetchApiService = new PrefetchApiService();
 
 /**
  * Route handler callback for HTML pages.
@@ -59,24 +58,10 @@ const htmlRouteHandlerCallback: RouteHandlerCallback = async ({
 
   // If application params are present, prefetch the API requests for the application
   if (applicationParams) {
-    // Prefetch the consolidated API request
-    const consolidatedApiPrefetchRequest =
-      getConsolidatedApiPrefetchRequest(applicationParams);
+    const prefetchRequests = getPrefetchRequests(applicationParams);
 
-    if (consolidatedApiPrefetchRequest) {
-      prefetchApiCacheStrategy
-        .cacheApi(consolidatedApiPrefetchRequest)
-        .catch(() => {
-          // Silently fail
-        });
-    }
-
-    // Prefetch the module API requests
-    const moduleApiPrefetchRequests =
-      getPrefetchModuleApiRequests(applicationParams);
-
-    moduleApiPrefetchRequests.forEach((prefetchRequest) => {
-      prefetchApiCacheStrategy.cacheApi(prefetchRequest).catch(() => {
+    prefetchRequests.forEach((prefetchRequest) => {
+      prefetchApiService.cacheApi(prefetchRequest).catch(() => {
         // Silently fail
       });
     });
@@ -115,8 +100,7 @@ registerRoute(
   cachedApiUrlRegex,
   async ({ event, request }) => {
     // Check for cached response
-    const cachedResponse =
-      await prefetchApiCacheStrategy.getCachedResponse(request);
+    const cachedResponse = await prefetchApiService.getCachedResponse(request);
 
     // If the response is cached, return the response
     if (cachedResponse) {
