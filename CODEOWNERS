@@ -208,3 +208,6 @@ app/server/**/pom.xml @sharat87
 app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/BaseAppsmithRepositoryCEImpl.java @sharat87
 app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/params/QueryAllParams.java @sharat87
 app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/ce/bridge/**/* @sharat87
+
+#Cypress
+app/client/cypress/**/* @ApekshaBhosale
