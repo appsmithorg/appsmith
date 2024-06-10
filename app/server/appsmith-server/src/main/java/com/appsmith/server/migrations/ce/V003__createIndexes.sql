@@ -1,8 +1,9 @@
-create unique index if not exists u_name_config on config(name);
-create unique index if not exists u_email_pass_reset_token on password_reset_token(email);
-create unique index if not exists u_email_user on "user"(email);
-create unique index if not exists u_name_sequence on sequence(name);
-create unique index if not exists plugin_name_package_name_version_index on plugin(plugin_name, package_name, version);
+create unique index if not exists u_name on config(name);
+create unique index if not exists u_email on password_reset_token(email);
+create unique index if not exists u_email on "user"(email);
+create unique index if not exists u_name on sequence(name);
+create unique index if not exists u_email on password_reset_token(email);
+create unique index if not exists plugin_name_package_name_version_index on plugin(plugin_name, package_name, version) NULLS NOT DISTINCT;
 create unique index if not exists u_user_id on user_data(user_id);
 create unique index if not exists u_workspace_datasource_deleted on datasource(workspace_id, name, deleted_at);
 CREATE UNIQUE INDEX if not exists u_workspace_datasource ON datasource (workspace_id, name) WHERE deleted_at IS NULL;
