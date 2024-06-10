@@ -151,7 +151,7 @@ export const getPrefetchRequests = (
 };
 
 /**
- * Cache strategy for Appsmith API
+ * Service to fetch and cache prefetch requests
  */
 export class PrefetchApiService {
   cacheName = "prefetch-cache-v1";
