@@ -1,4 +1,4 @@
-package com.appsmith.server.git;
+package com.appsmith.server.git.autocommit;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.ModifiedResources;
@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
