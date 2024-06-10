@@ -1,3 +1,3 @@
-package com.appsmith.server.git;
+package com.appsmith.server.git.autocommit;
 
 public interface AutoCommitEventHandler extends AutoCommitEventHandlerCE {}

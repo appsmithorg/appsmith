@@ -7,7 +7,6 @@ import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CompareDslActionDTO;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -50,7 +49,6 @@ public class Layout {
 
     // this attribute will be used to display errors caused white calculating allOnLoadAction
     // PageLoadActionsUtilCEImpl.java
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView({Views.Public.class, Views.Export.class})
     List<ErrorDTO> layoutOnLoadActionErrors;
 

@@ -12,6 +12,6 @@ import lombok.Getter;
  */
 @Getter
 public class JsonSchemaVersions {
-    public static final Integer serverVersion = 7;
+    public static final Integer serverVersion = 8;
     public static final Integer clientVersion = 1;
 }

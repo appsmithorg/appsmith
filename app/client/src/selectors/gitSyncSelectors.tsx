@@ -257,6 +257,9 @@ export const getIsAutocommitToggling = (state: AppState) =>
 export const getIsAutocommitModalOpen = (state: AppState) =>
   state.ui.gitSync.isAutocommitModalOpen;
 
+export const getIsTriggeringAutocommit = (state: AppState) =>
+  state.ui.gitSync.triggeringAutocommit;
+
 export const getIsPollingAutocommit = (state: AppState) =>
   state.ui.gitSync.pollingAutocommitStatus;
 

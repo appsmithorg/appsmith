@@ -14,8 +14,6 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.featureflags.CachedFeatures;
-import com.appsmith.server.git.AutoCommitEventHandler;
-import com.appsmith.server.git.AutoCommitEventHandlerImpl;
 import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
@@ -54,7 +52,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.git.AutoCommitEventHandlerCEImpl.AUTO_COMMIT_MSG_FORMAT;
+import static com.appsmith.server.git.autocommit.AutoCommitEventHandlerCEImpl.AUTO_COMMIT_MSG_FORMAT;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -498,12 +496,12 @@ public class AutoCommitEventHandlerImplTest {
                         autoCommitEvent.getBranchName());
 
         CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_cleanup_feature_enabled.name(), FALSE));
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), FALSE));
         Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
                 .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 
         gitFileSystemTestHelper.setupGitRepository(autoCommitEvent, applicationJson);
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_cleanup_feature_enabled.name(), TRUE));
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
 
         StepVerifier.create(autoCommitEventHandler
                         .autoCommitServerMigration(autoCommitEvent)
@@ -536,7 +534,7 @@ public class AutoCommitEventHandlerImplTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
 
         CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_cleanup_feature_enabled.name(), FALSE));
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), FALSE));
         Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
                 .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 

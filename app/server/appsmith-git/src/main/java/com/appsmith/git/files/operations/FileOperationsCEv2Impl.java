@@ -70,7 +70,7 @@ public class FileOperationsCEv2Impl extends FileOperationsCEImpl implements File
         this.observationHelper = observationHelper;
     }
 
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_cleanup_feature_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     @Override
     public void saveMetadataResource(ApplicationGitReference applicationGitReference, Path baseRepo) {
         ObjectNode metadata = objectMapper.valueToTree(applicationGitReference.getMetadata());
@@ -78,7 +78,7 @@ public class FileOperationsCEv2Impl extends FileOperationsCEImpl implements File
         saveResource(metadata, baseRepo.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION));
     }
 
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_cleanup_feature_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     @Override
     public void saveWidgets(JSONObject sourceEntity, String resourceName, Path path) {
         Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
@@ -98,7 +98,7 @@ public class FileOperationsCEv2Impl extends FileOperationsCEImpl implements File
         }
     }
 
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_cleanup_feature_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     @Override
     public boolean writeToFile(Object sourceEntity, Path path) throws IOException {
         Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
@@ -123,7 +123,7 @@ public class FileOperationsCEv2Impl extends FileOperationsCEImpl implements File
      * @param filePath file on which the read operation will be performed
      * @return resource stored in the JSON file
      */
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_cleanup_feature_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     @Override
     public Object readFile(Path filePath) {
         Span span = observationHelper.createSpan(GitSpan.FILE_READ);
@@ -147,7 +147,7 @@ public class FileOperationsCEv2Impl extends FileOperationsCEImpl implements File
      * @param directoryPath directory path for files on which read operation will be performed
      * @return resources stored in the directory
      */
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_cleanup_feature_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     @Override
     public Map<String, Object> readFiles(Path directoryPath, String keySuffix) {
         Map<String, Object> resource = new HashMap<>();
@@ -168,7 +168,7 @@ public class FileOperationsCEv2Impl extends FileOperationsCEImpl implements File
         return resource;
     }
 
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_cleanup_feature_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     @Override
     public Integer getFileFormatVersion(Object metadata) {
         if (metadata == null) {
@@ -179,7 +179,7 @@ public class FileOperationsCEv2Impl extends FileOperationsCEImpl implements File
         return fileFormatVersion;
     }
 
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_cleanup_feature_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     @Override
     public JSONObject getMainContainer(Object pageJson) {
         JsonNode pageJSON = objectMapper.valueToTree(pageJson);

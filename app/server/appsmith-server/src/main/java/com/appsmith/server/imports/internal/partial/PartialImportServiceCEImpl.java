@@ -94,13 +94,15 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     @Override
     public Mono<Application> importResourceInPage(
             String workspaceId, String applicationId, String pageId, String branchName, Part file) {
+        Mono<User> currUserMono = sessionUserService.getCurrentUser();
         return importService
                 .extractArtifactExchangeJson(file)
                 .flatMap(artifactExchangeJson -> {
                     if (artifactExchangeJson instanceof ApplicationJson
                             && isImportableResource((ApplicationJson) artifactExchangeJson)) {
-                        return importResourceInPage(
-                                workspaceId, applicationId, pageId, branchName, (ApplicationJson) artifactExchangeJson);
+                        return importResourceInPage(workspaceId, applicationId, pageId, branchName, (ApplicationJson)
+                                        artifactExchangeJson)
+                                .zipWith(currUserMono);
                     } else {
                         return Mono.error(
                                 new AppsmithException(
@@ -108,7 +110,21 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                         "The file is not compatible with the current partial import operation. Please check the file and try again."));
                     }
                 })
-                .map(BuildingBlockImportDTO::getApplication);
+                .flatMap(tuple -> {
+                    final BuildingBlockImportDTO buildingBlockImportDTO = tuple.getT1();
+                    final User user = tuple.getT2();
+                    final Map<String, Object> eventData =
+                            Map.of(FieldName.APPLICATION, buildingBlockImportDTO.getApplication());
+                    final Map<String, Object> data = Map.of(
+                            FieldName.APPLICATION_ID, applicationId,
+                            FieldName.WORKSPACE_ID,
+                                    buildingBlockImportDTO.getApplication().getWorkspaceId(),
+                            FieldName.EVENT_DATA, eventData);
+
+                    return analyticsService
+                            .sendEvent(AnalyticsEvents.PARTIAL_IMPORT.getEventName(), user.getUsername(), data)
+                            .thenReturn(buildingBlockImportDTO.getApplication());
+                });
     }
 
     private boolean isImportableResource(ApplicationJson artifactExchangeJson) {
@@ -127,8 +143,6 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
 
         Mono<String> branchedPageIdMono =
                 newPageService.findBranchedPageId(branchName, pageId, AclPermission.MANAGE_PAGES);
-
-        Mono<User> currUserMono = sessionUserService.getCurrentUser();
 
         // Extract file and get App Json
         Mono<Application> partiallyImportedAppMono = getImportApplicationPermissions()
@@ -273,25 +287,13 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 })
                 .as(transactionalOperator::transactional);
 
-        // Send Analytics event
-        return partiallyImportedAppMono.zipWith(currUserMono).flatMap(tuple -> {
-            Application application = tuple.getT1();
-            User user = tuple.getT2();
-            final Map<String, Object> eventData = Map.of(FieldName.APPLICATION, application);
-
-            final Map<String, Object> data = Map.of(
-                    FieldName.APPLICATION_ID, application.getId(),
-                    FieldName.WORKSPACE_ID, application.getWorkspaceId(),
-                    FieldName.EVENT_DATA, eventData);
+        return partiallyImportedAppMono.map(application -> {
             BuildingBlockImportDTO buildingBlockImportDTO = new BuildingBlockImportDTO();
             buildingBlockImportDTO.setApplication(application);
             buildingBlockImportDTO.setWidgetDsl(applicationJson.getWidgets());
             buildingBlockImportDTO.setRefactoredEntityNameMap(
                     mappedImportableResourcesDTO.getRefactoringNameReference());
-
-            return analyticsService
-                    .sendEvent(AnalyticsEvents.PARTIAL_IMPORT.getEventName(), user.getUsername(), data)
-                    .thenReturn(buildingBlockImportDTO);
+            return buildingBlockImportDTO;
         });
     }
 

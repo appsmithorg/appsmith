@@ -230,12 +230,12 @@ describe(
 
       // name.required -> true
       cy.openFieldConfiguration("name");
-      cy.togglebar(`${propertyControlPrefix}-required input`);
+      agHelper.CheckUncheck(`${propertyControlPrefix}-required input`);
       cy.get(backBtn).click({ force: true }).wait(500);
 
       // age.disabled -> true
       cy.openFieldConfiguration("age");
-      cy.togglebar(`${propertyControlPrefix}-disabled input`);
+      agHelper.CheckUncheck(`${propertyControlPrefix}-disabled input`);
       cy.get(backBtn).click({ force: true }).wait(500);
 
       // migrant.visible -> false
@@ -246,7 +246,7 @@ describe(
       // address.street.required -> true
       cy.openFieldConfiguration("address", false);
       cy.openFieldConfiguration("street", false);
-      cy.togglebar(`${propertyControlPrefix}-required input`);
+      agHelper.CheckUncheck(`${propertyControlPrefix}-required input`);
       cy.get(backBtn).click({ force: true }).wait(500);
       cy.get(backBtn).click({ force: true }).wait(500);
 
@@ -255,7 +255,7 @@ describe(
       cy.openFieldConfiguration("education");
       cy.openFieldConfiguration("__array_item__", false);
       cy.openFieldConfiguration("college", false);
-      cy.togglebar(`${propertyControlPrefix}-required input`);
+      agHelper.CheckUncheck(`${propertyControlPrefix}-required input`);
       cy.get(backBtn).click({ force: true }).wait(500);
       cy.openFieldConfiguration("year", false);
       cy.togglebarDisable(`${propertyControlPrefix}-visible input`);

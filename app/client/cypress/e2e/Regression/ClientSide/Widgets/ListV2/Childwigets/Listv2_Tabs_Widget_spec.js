@@ -20,7 +20,7 @@ describe("List v2- Tabs Widget", { tags: ["@tag.Widget", "@tag.List"] }, () => {
     cy.get(".t--page-switch-tab.is-active").contains("Tab 1");
 
     // Enable Scroll Content
-    cy.togglebar(commonlocators.scrollView);
+    _.agHelper.CheckUncheck(commonlocators.scrollView);
     // Check if enabled
     cy.get(commonlocators.scrollView).should("be.checked");
     // Check if Tab 1 still selected

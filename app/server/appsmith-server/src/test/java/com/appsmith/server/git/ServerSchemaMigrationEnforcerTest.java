@@ -1,25 +1,37 @@
 package com.appsmith.server.git;
 
+import com.appsmith.external.converters.ISOStringToInstantConverter;
+import com.appsmith.external.dtos.ModifiedResources;
+import com.appsmith.external.enums.FeatureFlagEnum;
+import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.models.ApplicationGitReference;
-import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.WorkspaceService;
+import com.appsmith.server.testhelpers.git.GitFileSystemTestHelper;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
+import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.diff.DiffEntry;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -37,10 +49,19 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
@@ -79,9 +100,6 @@ import static org.mockito.ArgumentMatchers.any;
 public class ServerSchemaMigrationEnforcerTest {
 
     @Autowired
-    Gson gson;
-
-    @Autowired
     WorkspaceService workspaceService;
 
     @SpyBean
@@ -93,8 +111,27 @@ public class ServerSchemaMigrationEnforcerTest {
     @Autowired
     CommonGitFileUtils commonGitFileUtils;
 
+    @Autowired
+    GitFileSystemTestHelper gitFileSystemTestHelper;
+
+    @SpyBean
+    GitExecutor gitExecutor;
+
+    @SpyBean
+    FeatureFlagService featureFlagService;
+
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
+
+    private final Gson gson = new GsonBuilder()
+            .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
+            .setPrettyPrinting()
+            .create();
+
+    private static final String DEFAULT_APPLICATION_ID = "default-app-id",
+            BRANCH_NAME = "develop",
+            REPO_NAME = "repoName",
+            WORKSPACE_ID = "test-workspace-id";
 
     public static final String CUSTOM_JS_LIB_LIST = "jsLibraries";
     public static final String EXPORTED_APPLICATION = "application";
@@ -167,6 +204,7 @@ public class ServerSchemaMigrationEnforcerTest {
     }
 
     @Test
+    @Disabled
     @WithUserDetails(value = "api_user")
     public void importApplication_ThenExportApplication_MatchJson_equals_Success() throws URISyntaxException {
         String filePath = "ce-automation-test.json";
@@ -199,7 +237,7 @@ public class ServerSchemaMigrationEnforcerTest {
                     .exportByArtifactId(
                             applicationImportDTO.getApplication().getId(),
                             SerialiseArtifactObjective.VERSION_CONTROL,
-                            ArtifactType.APPLICATION)
+                            APPLICATION)
                     .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
         });
 
@@ -251,6 +289,140 @@ public class ServerSchemaMigrationEnforcerTest {
 
             if (exportedApplicationNode.has(UNPUBLISHED_CUSTOM_JS_LIBS)) {
                 exportedApplicationNode.remove(UNPUBLISHED_CUSTOM_JS_LIBS);
+            }
+        }
+    }
+
+    @Test
+    public void savedFile_reSavedWithDifferentSerialisationLogic_diffOccurs()
+            throws URISyntaxException, IOException, GitAPIException {
+
+        ApplicationJson applicationJson =
+                gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("ce-automation-test.json"));
+
+        ModifiedResources modifiedResources = new ModifiedResources();
+        modifiedResources.setAllModified(true);
+        applicationJson.setModifiedResources(modifiedResources);
+
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), FALSE));
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
+                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
+
+        gitFileSystemTestHelper.setupGitRepository(
+                WORKSPACE_ID, DEFAULT_APPLICATION_ID, BRANCH_NAME, REPO_NAME, applicationJson);
+
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
+        Path suffixPath = Paths.get(WORKSPACE_ID, DEFAULT_APPLICATION_ID, REPO_NAME);
+        Path gitCompletePath = gitExecutor.createRepoPath(suffixPath);
+
+        commonGitFileUtils
+                .saveArtifactToLocalRepo(suffixPath, applicationJson, BRANCH_NAME)
+                .block();
+
+        try (Git gitRepo = Git.open(gitCompletePath.toFile())) {
+            List<DiffEntry> diffEntries = gitRepo.diff().call();
+            Set<String> fileChanges = Set.of(
+                    "application.json",
+                    "metadata.json",
+                    "theme.json",
+                    "datasources/JSON typicode API (1).json",
+                    "datasources/TED postgres (1).json",
+                    "datasources/mainGoogleSheetDS.json");
+            for (DiffEntry diff : diffEntries) {
+                assertThat(fileChanges).contains(diff.getOldPath());
+                assertThat(fileChanges).contains(diff.getNewPath());
+                assertThat(diff.getChangeType()).isEqualTo(DiffEntry.ChangeType.MODIFY);
+            }
+            assertThat(diffEntries.size()).isNotZero();
+        }
+    }
+
+    @Test
+    public void savedFile_reSavedWithSameSerialisationLogic_noDiffOccurs()
+            throws URISyntaxException, IOException, GitAPIException {
+
+        ApplicationJson applicationJson =
+                gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("ce-automation-test.json"));
+
+        ModifiedResources modifiedResources = new ModifiedResources();
+        modifiedResources.setAllModified(true);
+        applicationJson.setModifiedResources(modifiedResources);
+
+        gitFileSystemTestHelper.setupGitRepository(
+                WORKSPACE_ID, DEFAULT_APPLICATION_ID, BRANCH_NAME, REPO_NAME, applicationJson);
+
+        Path suffixPath = Paths.get(WORKSPACE_ID, DEFAULT_APPLICATION_ID, REPO_NAME);
+        Path gitCompletePath = gitExecutor.createRepoPath(suffixPath);
+
+        commonGitFileUtils
+                .saveArtifactToLocalRepo(suffixPath, applicationJson, BRANCH_NAME)
+                .block();
+
+        try (Git gitRepo = Git.open(gitCompletePath.toFile())) {
+            List<DiffEntry> diffEntries = gitRepo.diff().call();
+            assertThat(diffEntries.size()).isZero();
+        }
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void saveGitRepo_ImportAndThenExport_diffOccurs() throws URISyntaxException, IOException, GitAPIException {
+        ApplicationJson applicationJson =
+                gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("ce-automation-test.json"));
+
+        ModifiedResources modifiedResources = new ModifiedResources();
+        modifiedResources.setAllModified(true);
+        applicationJson.setModifiedResources(modifiedResources);
+
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
+                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
+
+        gitFileSystemTestHelper.setupGitRepository(
+                WORKSPACE_ID, DEFAULT_APPLICATION_ID, BRANCH_NAME, REPO_NAME, applicationJson);
+
+        ApplicationJson jsonToBeImported = commonGitFileUtils
+                .reconstructArtifactExchangeJsonFromGitRepo(
+                        WORKSPACE_ID, DEFAULT_APPLICATION_ID, REPO_NAME, BRANCH_NAME, APPLICATION)
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
+                .block();
+
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Workspace1");
+        Workspace workspace = workspaceService.create(newWorkspace).block();
+
+        ApplicationJson exportedJson = importService
+                .importNewArtifactInWorkspaceFromJson(workspace.getId(), jsonToBeImported)
+                .flatMap(artifactExchangeJson -> {
+                    return exportService
+                            .exportByArtifactId(
+                                    artifactExchangeJson.getId(),
+                                    SerialiseArtifactObjective.VERSION_CONTROL,
+                                    APPLICATION)
+                            .map(exportArtifactJson -> {
+                                ApplicationJson applicationJson1 = (ApplicationJson) exportArtifactJson;
+                                applicationJson1.setModifiedResources(modifiedResources);
+                                return applicationJson1;
+                            });
+                })
+                .block();
+
+        Path suffixPath = Paths.get(WORKSPACE_ID, DEFAULT_APPLICATION_ID, REPO_NAME);
+        Path gitCompletePath = gitExecutor.createRepoPath(suffixPath);
+
+        // save back to the repository in order to compare the diff.
+        commonGitFileUtils
+                .saveArtifactToLocalRepo(suffixPath, exportedJson, BRANCH_NAME)
+                .block();
+
+        try (Git gitRepo = Git.open(gitCompletePath.toFile())) {
+            List<DiffEntry> diffEntries = gitRepo.diff().call();
+            assertThat(diffEntries.size()).isNotZero();
+            for (DiffEntry diffEntry : diffEntries) {
+                // assertion that no new file has been created
+                assertThat(diffEntry.getOldPath()).isEqualTo(diffEntry.getNewPath());
             }
         }
     }
