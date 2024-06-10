@@ -11,6 +11,8 @@ public interface AutoCommitEligibilityHelper {
 
     Mono<Boolean> isClientMigrationRequired(PageDTO pageDTO);
 
+    Mono<Boolean> isClientMigrationRequiredFSOps(String workspaceId, GitArtifactMetadata gitMetadata, PageDTO pageDTO);
+
     Mono<AutoCommitTriggerDTO> isAutoCommitRequired(
             String workspaceId, GitArtifactMetadata gitArtifactMetadata, PageDTO pageDTO);
 }

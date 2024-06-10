@@ -92,8 +92,6 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 datasourceRepository,
                 datasourcePermission,
                 dslMigrationUtils,
-                gitAutoCommitHelper,
-                autoCommitEligibilityHelper,
                 actionClonePageService,
                 actionCollectionClonePageService);
     }
