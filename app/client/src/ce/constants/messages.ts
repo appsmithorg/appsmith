@@ -462,7 +462,6 @@ export const PAGE_CLIENT_ERROR_DESCRIPTION = () =>
 export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
 
 // Modules
-export const CONVERT_MODULE_CTA_TEXT = () => "Create module";
 export const CONVERT_MODULE_TO_NEW_PKG_OPTION = () => "Add to a new package";
 
 // cloudHosting used in EE
@@ -1461,7 +1460,6 @@ export const AVAILABLE_ON_ENTERPRISE = () => "Available on Appsmith Enterprise";
 
 // Audit logs begin
 export const AUDIT_LOGS = () => "Audit logs";
-export const TRY_AGAIN_WITH_YOUR_FILTER = () => "Try again with your filter";
 
 // Audit logs Upgrade page begin
 export const INTRODUCING = (featureName: string) =>
