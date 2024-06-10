@@ -199,6 +199,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         id))); // */
     }
 
+    @Transactional
+    @Modifying
     public int updateByIdWithoutPermissionCheck(@NonNull String id, BridgeUpdate update) {
         return queryBuilder().byId(id).updateFirst(update);
     }
