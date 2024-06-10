@@ -89,6 +89,10 @@ const EditorTabs = () => {
     tabClickHandler(tab);
   };
 
+  const newTabClickHandler = () => {
+    setShowListView(false);
+  };
+
   return (
     <>
       <Container>
@@ -103,6 +107,7 @@ const EditorTabs = () => {
         <FileTabs
           currentTab={activeTab}
           navigateToTab={onTabClick}
+          newTabClickCallback={newTabClickHandler}
           onClose={closeClickHandler}
           tabs={files}
         />
@@ -137,19 +142,17 @@ const EditorTabs = () => {
           />
         </Tooltip>
       </Container>
-      {showListView &&
-        ideViewMode === EditorViewMode.SplitScreen &&
-        segmentMode !== EditorEntityTabState.Add && (
-          <ListContainer
-            bg="var(--ads-v2-color-bg)"
-            className="absolute top-[78px]"
-            h="calc(100% - 78px)"
-            w="100%"
-            zIndex="10"
-          >
-            <ListQuery />
-          </ListContainer>
-        )}
+      {showListView && ideViewMode === EditorViewMode.SplitScreen && (
+        <ListContainer
+          bg="var(--ads-v2-color-bg)"
+          className="absolute top-[78px] albin"
+          h="calc(100% - 78px)"
+          w="100%"
+          zIndex="10"
+        >
+          <ListQuery />
+        </ListContainer>
+      )}
       {ideViewMode === EditorViewMode.SplitScreen && <Announcement />}
     </>
   );

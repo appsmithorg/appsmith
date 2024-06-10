@@ -19,12 +19,14 @@ interface Props {
   navigateToTab: (tab: EntityItem) => void;
   onClose: (actionId?: string) => void;
   currentTab: string;
+  newTabClickCallback?: () => void;
 }
 
 const FILE_TABS_CONTAINER_ID = "file-tabs-container";
 
 const FileTabs = (props: Props) => {
-  const { currentTab, navigateToTab, onClose, tabs } = props;
+  const { currentTab, navigateToTab, newTabClickCallback, onClose, tabs } =
+    props;
   const { segment, segmentMode } = useCurrentEditorState();
 
   useEffect(() => {
@@ -86,6 +88,7 @@ const FileTabs = (props: Props) => {
           <StyledTab
             className={clsx("editor-tab", currentTab === "add" && "active")}
             data-testid={`t--ide-tab-new`}
+            onClick={newTabClickCallback}
           >
             <TabTextContainer>
               New {segment === EditorEntityTab.JS ? "JS" : "Query"}
