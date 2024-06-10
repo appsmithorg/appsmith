@@ -216,6 +216,8 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
                 });
     }
 
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     public Mono<Boolean> publishAutoCommitEvent(
             AutoCommitTriggerDTO autoCommitTriggerDTO, String defaultApplicationId, String branchName) {
 

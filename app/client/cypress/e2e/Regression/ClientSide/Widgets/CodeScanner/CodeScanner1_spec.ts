@@ -79,7 +79,10 @@ describe(
                   cy.moveToContentTab();
 
                   // Enable and publish
-                  cy.togglebarDisable(commonlocators.disableCheckbox);
+                  _.agHelper.CheckUncheck(
+                    commonlocators.disableCheckbox,
+                    false,
+                  );
                   _.deployMode.DeployApp();
 
                   // Disabled icon should NOT be visible
@@ -109,7 +112,7 @@ describe(
               cy.moveToContentTab();
 
               // Visibilty OFF and publish
-              cy.togglebarDisable(commonlocators.visibleCheckbox);
+              _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
               _.deployMode.DeployApp();
 
               // Video should NOT be streaming
@@ -206,7 +209,7 @@ describe(
               cy.moveToContentTab();
 
               // Enable and publish
-              cy.togglebarDisable(commonlocators.disableCheckbox);
+              _.agHelper.CheckUncheck(commonlocators.disableCheckbox, false);
               _.deployMode.DeployApp();
 
               // Button should be enabled
@@ -229,7 +232,7 @@ describe(
               cy.moveToContentTab();
 
               // Visibilty OFF and publish
-              cy.togglebarDisable(commonlocators.visibleCheckbox);
+              _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
               _.deployMode.DeployApp();
 
               // Button should NOT be visible
