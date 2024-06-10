@@ -68,7 +68,6 @@ export class HomePage {
   _applicationName = ".t--application-name";
   private _editAppName = "bp3-editable-text-editing";
   private _appMenu = ".ads-v2-menu__menu-item-children";
-  _buildFromDataTableActionCard = "[data-testid='generate-app']";
   private _selectRole = "//span[text()='Select a role']/ancestor::div";
   private _searchInput = "input[type='text']";
   _appHoverIcon = (action: string) => ".t--application-" + action + "-link";
