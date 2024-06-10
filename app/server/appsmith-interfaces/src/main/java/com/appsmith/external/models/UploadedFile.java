@@ -26,7 +26,7 @@ public class UploadedFile implements AppsmithDomain {
     @JsonView(Views.Public.class)
     String name;
 
-    @Encrypted @JsonView({Views.Public.class, FromRequest.class})
+    @Encrypted @JsonView({Views.Internal.class, FromRequest.class})
     String base64Content;
 
     @JsonView(Views.Internal.class)
