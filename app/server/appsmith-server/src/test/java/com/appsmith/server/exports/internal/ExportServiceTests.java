@@ -1814,7 +1814,6 @@ public class ExportServiceTests {
                 .assertNext(applicationJson -> {
                     List<NewPage> pages = applicationJson.getPageList();
                     assertThat(pages).hasSize(2);
-
                     NewPage page = pages.stream()
                             .filter(page1 ->
                                     page1.getUnpublishedPage().getName().equals("page_" + randomId))
