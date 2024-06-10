@@ -18,6 +18,7 @@ describe("FileTabs", () => {
   it("renders tabs correctly", () => {
     const { getByTestId, getByText } = render(
       <FileTabs
+        currentTab={mockTabs[0].key}
         navigateToTab={mockNavigateToTab}
         onClose={mockOnClose}
         tabs={mockTabs}
@@ -40,6 +41,7 @@ describe("FileTabs", () => {
   it("check tab click", () => {
     const { getByTestId } = render(
       <FileTabs
+        currentTab={mockTabs[0].key}
         navigateToTab={mockNavigateToTab}
         onClose={mockOnClose}
         tabs={mockTabs}
@@ -54,6 +56,7 @@ describe("FileTabs", () => {
   it("check for close click", () => {
     const { getByTestId } = render(
       <FileTabs
+        currentTab={mockTabs[1].key}
         navigateToTab={mockNavigateToTab}
         onClose={mockOnClose}
         tabs={mockTabs}

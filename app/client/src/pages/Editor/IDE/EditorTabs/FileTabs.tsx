@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { useLocation } from "react-router";
 import clsx from "classnames";
 import { Flex, Icon, ScrollArea } from "design-system";
 
@@ -13,24 +12,20 @@ import {
   TabIconContainer,
   TabTextContainer,
 } from "./StyledComponents";
-import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { useCurrentEditorState } from "../hooks";
 
 interface Props {
   tabs: EntityItem[];
   navigateToTab: (tab: EntityItem) => void;
   onClose: (actionId?: string) => void;
+  currentTab: string;
 }
 
 const FILE_TABS_CONTAINER_ID = "file-tabs-container";
 
 const FileTabs = (props: Props) => {
-  const { navigateToTab, onClose, tabs } = props;
+  const { currentTab, navigateToTab, onClose, tabs } = props;
   const { segment, segmentMode } = useCurrentEditorState();
-
-  const location = useLocation();
-
-  const currentEntity = identifyEntityFromPath(location.pathname);
 
   useEffect(() => {
     const activetab = document.querySelector(".editor-tab.active");
@@ -70,10 +65,7 @@ const FileTabs = (props: Props) => {
       <Flex gap="spaces-2" height="100%" id={FILE_TABS_CONTAINER_ID}>
         {tabs.map((tab: EntityItem) => (
           <StyledTab
-            className={clsx(
-              "editor-tab",
-              currentEntity.id === tab.key && "active",
-            )}
+            className={clsx("editor-tab", currentTab === tab.key && "active")}
             data-testid={`t--ide-tab-${tab.title}`}
             key={tab.key}
             onClick={() => navigateToTab(tab)}
@@ -92,7 +84,7 @@ const FileTabs = (props: Props) => {
         {/* New Tab */}
         {segmentMode === EditorEntityTabState.Add ? (
           <StyledTab
-            className={clsx("editor-tab", "active")}
+            className={clsx("editor-tab", currentTab === "add" && "active")}
             data-testid={`t--ide-tab-new`}
           >
             <TabTextContainer>
