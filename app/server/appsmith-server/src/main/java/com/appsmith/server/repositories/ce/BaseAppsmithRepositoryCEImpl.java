@@ -401,8 +401,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     public Optional<T> queryFirstExecute(QueryAllParams<T> params) {
+        // TODO: We should mandate that `.sort` has been set in `params`.
         params.limit(1);
-        return queryOneExecute(params);
+        final List<T> result = queryAllExecute(params);
+        return result.isEmpty() ? Optional.empty() : Optional.of(result.get(0));
     }
 
     public Optional<Long> countExecute(QueryAllParams<T> params) {
