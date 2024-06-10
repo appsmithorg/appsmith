@@ -1138,6 +1138,8 @@ export const GIT_CONNECT_SUCCESS_PROTECTION_MSG = () =>
   "We recommend protecting your default branch to have a seamless collaboration.";
 export const GIT_CONNECT_SUCCESS_REPO_NAME = () => "Repository name";
 export const GIT_CONNECT_SUCCESS_DEFAULT_BRANCH = () => "Default branch";
+export const GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP = () =>
+  "This is the base branch of the app. Users launching the app from the dashboard will see the deployed version from this branch.";
 export const GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA = () =>
   "Learn more about branch protection";
 // Git Connection Success end

@@ -12,6 +12,7 @@ import {
   GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA,
   GIT_CONNECT_SUCCESS_DEFAULT_BRANCH,
   GIT_CONNECT_SUCCESS_REPO_NAME,
+  GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP,
 } from "@appsmith/constants/messages";
 import {
   Button,
@@ -20,6 +21,7 @@ import {
   ModalFooter,
   Text,
   Link,
+  Tooltip,
 } from "design-system";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -28,8 +30,14 @@ import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelecto
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
+import { importRemixIcon } from "design-system-old";
 
-const Container = styled.div``;
+const GitRepositoryLineIcon = importRemixIcon(
+  async () => import("remixicon-react/GitRepositoryLineIcon"),
+);
+const GitBranchLineIcon = importRemixIcon(
+  async () => import("remixicon-react/GitBranchLineIcon"),
+);
 
 const TitleContainer = styled.div`
   display: flex;
@@ -78,7 +86,7 @@ function ConnectionSuccessBody() {
       <div className="flex gap-x-4 mb-6">
         <DetailContainer>
           <div className="flex items-center">
-            <Icon className="mr-1" name="file-list-line" size="md" />
+            <GitRepositoryLineIcon className="mr-1" size={18} />
             <Text isBold renderAs="p">
               {createMessage(GIT_CONNECT_SUCCESS_REPO_NAME)}
             </Text>
@@ -87,10 +95,22 @@ function ConnectionSuccessBody() {
         </DetailContainer>
         <DetailContainer>
           <div className="flex items-center">
-            <InlineIcon className="mr-1" name="git-branch" size="md" />
+            <GitBranchLineIcon className="mr-1" size={18} />
             <Text isBold renderAs="p">
               {createMessage(GIT_CONNECT_SUCCESS_DEFAULT_BRANCH)}
             </Text>
+            <Tooltip
+              content={createMessage(
+                GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP,
+              )}
+              trigger="hover"
+            >
+              <InlineIcon
+                className="ml-1 cursor-pointer"
+                name="info"
+                size="md"
+              />
+            </Tooltip>
           </div>
           <Text renderAs="p">{gitMetadata?.defaultBranchName || "-"}</Text>
         </DetailContainer>
@@ -170,10 +190,8 @@ function ConnectionSuccess() {
   return (
     <>
       <ModalBody data-testid="t--git-success-modal-body">
-        <Container>
-          <ConnectionSuccessTitle />
-          <ConnectionSuccessBody />
-        </Container>
+        <ConnectionSuccessTitle />
+        <ConnectionSuccessBody />
       </ModalBody>
       <ModalFooter>
         <ConnectionSuccessActions />
