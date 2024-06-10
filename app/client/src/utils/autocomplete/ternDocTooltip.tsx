@@ -61,7 +61,10 @@ export function TernDocToolTip(props: {
 
   return (
     <div className="flex flex-col pb-1 t--tern-doc w-80">
-      <div className="flex items-center justify-between px-2 p-1 border-b border-mercury text-sm font-semibold">
+      <div
+        className="flex items-center justify-between px-2 p-1 border-b border-mercury text-sm font-semibold sticky top-0 z-1"
+        style={{ background: "var(--ads-v2-color-bg)" }}
+      >
         {displayText}
         {url && (
           <Link

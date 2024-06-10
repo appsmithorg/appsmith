@@ -464,10 +464,10 @@ export class AutocompleteSorter {
     );
 
     return [
-      ...widgetCompletionsList,
       ...actionCompletionsList,
       ...jsObjectCompletionsList,
       ...appsmithCompletionsList,
+      ...widgetCompletionsList,
       ...miscList,
     ];
   }
