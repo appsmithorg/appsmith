@@ -23,6 +23,7 @@ for i in "$@"; do
   fi
 done
 
+
 if $is_tests_enabled; then
   # If tests will be run, let's pull some required images that often fail to be pulled from inside Maven's test run.
   docker image pull testcontainers/ryuk:0.3.0
