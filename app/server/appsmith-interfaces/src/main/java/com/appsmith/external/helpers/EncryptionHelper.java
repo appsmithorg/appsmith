@@ -1,5 +1,6 @@
 package com.appsmith.external.helpers;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.crypto.encrypt.Encryptors;
 import org.springframework.security.crypto.encrypt.TextEncryptor;
 
@@ -7,9 +8,9 @@ import java.util.HexFormat;
 
 public final class EncryptionHelper {
 
-    private static final String salt = System.getProperty("encrypt.salt");
+    private static final String salt = requireEnv("APPSMITH_ENCRYPTION_SALT");
 
-    private static final String password = System.getProperty("encrypt.password");
+    private static final String password = requireEnv("APPSMITH_ENCRYPTION_PASSWORD");
 
     private static final HexFormat hexFormat = HexFormat.of();
 
@@ -28,5 +29,13 @@ public final class EncryptionHelper {
 
     public static String decrypt(String encryptedText) {
         return textEncryptor.decrypt(encryptedText);
+    }
+
+    private static String requireEnv(String name) {
+        final String value = System.getenv(name);
+        if (StringUtils.isBlank(value)) {
+            throw new RuntimeException("Environment variable '%s' is required".formatted(name));
+        }
+        return value;
     }
 }
