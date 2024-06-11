@@ -155,11 +155,11 @@ describe(
 
       // hide education field
       cy.openFieldConfiguration("education");
-      cy.togglebarDisable(widgetsPage.visible);
+      agHelper.CheckUncheck(widgetsPage.visible, false);
       cy.get(backBtn).click({ force: true }).wait(500);
       // hide name field
       cy.openFieldConfiguration("name");
-      cy.togglebarDisable(widgetsPage.visible);
+      agHelper.CheckUncheck(widgetsPage.visible, false);
 
       // publish the app
       deployMode.DeployApp();

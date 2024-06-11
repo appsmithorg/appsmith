@@ -146,7 +146,10 @@ describe(
         cy.get(commonlocators.listPaginateActivePage).should("have.text", "1"),
       );
 
-      cy.togglebarDisable(commonlocators.serverSidePaginationCheckbox);
+      _.agHelper.CheckUncheck(
+        commonlocators.serverSidePaginationCheckbox,
+        false,
+      );
     });
   },
 );

@@ -194,7 +194,7 @@ describe(
       cy.get(`${fieldPrefix}-radio input`).should("have.value", "Y");
 
       // hides field when visible switched off"
-      cy.togglebarDisable(widgetsLocators.visible);
+      agHelper.CheckUncheck(widgetsLocators.visible, false);
       cy.get(`${fieldPrefix}-radio`).should("not.exist");
       cy.wait(500);
       agHelper.CheckUncheck(widgetsLocators.visible);

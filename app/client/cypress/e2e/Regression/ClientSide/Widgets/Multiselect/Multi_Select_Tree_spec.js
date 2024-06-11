@@ -100,7 +100,7 @@ describe(
     });
 
     it("5. To Unchecked Visible Widget", function () {
-      cy.togglebarDisable(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
       cy.get(
         publish.multiselecttreewidget + " " + ".rc-tree-select-multiple",

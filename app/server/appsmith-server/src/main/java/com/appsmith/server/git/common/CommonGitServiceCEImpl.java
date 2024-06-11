@@ -34,7 +34,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ArtifactImportDTO;
-import com.appsmith.server.dtos.AutoCommitProgressDTO;
+import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
@@ -3377,8 +3377,9 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
     }
 
     @Override
-    public Mono<AutoCommitProgressDTO> getAutoCommitProgress(String artifactId, ArtifactType artifactType) {
-        return gitAutoCommitHelper.getAutoCommitProgress(artifactId);
+    public Mono<AutoCommitResponseDTO> getAutoCommitProgress(
+            String artifactId, String branchName, ArtifactType artifactType) {
+        return gitAutoCommitHelper.getAutoCommitProgress(artifactId, branchName);
     }
 
     @Override

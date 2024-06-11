@@ -288,8 +288,10 @@ public class FileUtilsCEImpl implements FileInterface {
 
         // Save JS Libs if there's at least one change
         if (modifiedResources != null
-                && !CollectionUtils.isEmpty(
-                        modifiedResources.getModifiedResourceMap().get(CUSTOM_JS_LIB_LIST))) {
+                && (modifiedResources.isAllModified()
+                        || !CollectionUtils.isEmpty(
+                                modifiedResources.getModifiedResourceMap().get(CUSTOM_JS_LIB_LIST)))) {
+
             Path jsLibDirectory = baseRepo.resolve(JS_LIB_DIRECTORY);
             Set<Map.Entry<String, Object>> jsLibEntries =
                     applicationGitReference.getJsLibraries().entrySet();
@@ -953,24 +955,62 @@ public class FileUtilsCEImpl implements FileInterface {
 
     @Override
     public Mono<Object> reconstructMetadataFromGitRepo(
-            String workspaceId, String defaultArtifactId, String repoName, String branchName, Path baseRepoSuffix) {
+            String workspaceId,
+            String defaultArtifactId,
+            String repoName,
+            String branchName,
+            Path baseRepoSuffix,
+            Boolean isResetToLastCommitRequired) {
         Mono<Object> metadataMono;
         try {
-            // instead of checking out to last branch we are first cleaning the git repo,
-            // then checking out to the desired branch
-            metadataMono = gitExecutor
-                    .resetToLastCommit(baseRepoSuffix, branchName)
-                    .map(isSwitched -> {
-                        Path baseRepoPath =
-                                Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
-                        Object metadata = fileOperations.readFile(
-                                baseRepoPath.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION));
-                        return metadata;
-                    });
+            Mono<Boolean> gitResetMono = Mono.just(Boolean.TRUE);
+            if (Boolean.TRUE.equals(isResetToLastCommitRequired)) {
+                // instead of checking out to last branch we are first cleaning the git repo,
+                // then checking out to the desired branch
+                gitResetMono = gitExecutor.resetToLastCommit(baseRepoSuffix, branchName);
+            }
+
+            metadataMono = gitResetMono.map(isSwitched -> {
+                Path baseRepoPath = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
+                Object metadata = fileOperations.readFile(
+                        baseRepoPath.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION));
+                return metadata;
+            });
         } catch (GitAPIException | IOException exception) {
             metadataMono = Mono.error(exception);
         }
 
         return metadataMono.subscribeOn(scheduler);
+    }
+
+    @Override
+    public Mono<Object> reconstructPageFromGitRepo(
+            String pageName, String branchName, Path baseRepoSuffixPath, Boolean resetToLastCommitRequired) {
+        Mono<Object> pageObjectMono;
+        try {
+            Mono<Boolean> resetToLastCommit = Mono.just(Boolean.TRUE);
+
+            if (Boolean.TRUE.equals(resetToLastCommitRequired)) {
+                // instead of checking out to last branch we are first cleaning the git repo,
+                // then checking out to the desired branch
+                resetToLastCommit = gitExecutor.resetToLastCommit(baseRepoSuffixPath, branchName);
+            }
+
+            pageObjectMono = resetToLastCommit.map(isSwitched -> {
+                Path pageSuffix = Paths.get(PAGE_DIRECTORY, pageName);
+                Path repoPath = Paths.get(gitServiceConfig.getGitRootPath())
+                        .resolve(baseRepoSuffixPath)
+                        .resolve(pageSuffix);
+
+                Object pageObject =
+                        fileOperations.readFile(repoPath.resolve(pageName + CommonConstants.JSON_EXTENSION));
+
+                return pageObject;
+            });
+        } catch (GitAPIException | IOException exception) {
+            pageObjectMono = Mono.error(exception);
+        }
+
+        return pageObjectMono.subscribeOn(scheduler);
     }
 }
