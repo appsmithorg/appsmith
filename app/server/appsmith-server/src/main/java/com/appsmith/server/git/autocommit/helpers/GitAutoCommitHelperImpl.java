@@ -6,10 +6,10 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitProfile;
-import com.appsmith.server.dtos.AutoCommitProgressDTO;
+import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.AutoCommitTriggerDTO;
 import com.appsmith.server.events.AutoCommitEvent;
-import com.appsmith.server.git.AutoCommitEventHandler;
+import com.appsmith.server.git.autocommit.AutoCommitEventHandler;
 import com.appsmith.server.git.common.CommonGitService;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
@@ -22,6 +22,10 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
+
+import static com.appsmith.server.dtos.AutoCommitResponseDTO.AutoCommitResponse.IDLE;
+import static com.appsmith.server.dtos.AutoCommitResponseDTO.AutoCommitResponse.IN_PROGRESS;
+import static com.appsmith.server.dtos.AutoCommitResponseDTO.AutoCommitResponse.LOCKED;
 
 @Slf4j
 @Primary
@@ -53,17 +57,26 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
     }
 
     @Override
-    public Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId) {
+    public Mono<AutoCommitResponseDTO> getAutoCommitProgress(String defaultApplicationId, String branchName) {
         return redisUtils
-                .getRunningAutoCommitBranchName(applicationId)
-                .zipWith(redisUtils.getAutoCommitProgress(applicationId))
+                .getRunningAutoCommitBranchName(defaultApplicationId)
+                .zipWith(redisUtils.getAutoCommitProgress(defaultApplicationId))
                 .map(tuple2 -> {
-                    AutoCommitProgressDTO autoCommitProgressDTO = new AutoCommitProgressDTO(Boolean.TRUE);
-                    autoCommitProgressDTO.setBranchName(tuple2.getT1());
-                    autoCommitProgressDTO.setProgress(tuple2.getT2());
-                    return autoCommitProgressDTO;
+                    String branchNameFromRedis = tuple2.getT1();
+
+                    AutoCommitResponseDTO autoCommitResponseDTO = new AutoCommitResponseDTO();
+                    autoCommitResponseDTO.setProgress(tuple2.getT2());
+                    autoCommitResponseDTO.setBranchName(branchNameFromRedis);
+
+                    if (branchNameFromRedis.equals(branchName)) {
+                        autoCommitResponseDTO.setAutoCommitResponse(IN_PROGRESS);
+                    } else {
+                        autoCommitResponseDTO.setAutoCommitResponse(LOCKED);
+                    }
+
+                    return autoCommitResponseDTO;
                 })
-                .defaultIfEmpty(new AutoCommitProgressDTO(Boolean.FALSE));
+                .defaultIfEmpty(new AutoCommitResponseDTO(IDLE));
     }
 
     /**
@@ -114,7 +127,7 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
     }
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_server_autocommit_feature_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
     public Mono<Boolean> autoCommitServerMigration(String defaultApplicationId, String branchName) {
         return autoCommitApplication(defaultApplicationId, branchName, Boolean.FALSE);
     }
@@ -203,7 +216,9 @@ public class GitAutoCommitHelperImpl extends GitAutoCommitHelperFallbackImpl imp
                 });
     }
 
-    public Mono<Boolean> autoCommitApplication(
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
+    public Mono<Boolean> publishAutoCommitEvent(
             AutoCommitTriggerDTO autoCommitTriggerDTO, String defaultApplicationId, String branchName) {
 
         if (!Boolean.TRUE.equals(autoCommitTriggerDTO.getIsAutoCommitRequired())) {

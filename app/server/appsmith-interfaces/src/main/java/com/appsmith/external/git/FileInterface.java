@@ -54,10 +54,19 @@ public interface FileInterface {
      * @param repoName
      * @param branchName
      * @param repoSuffixPath
+     * @param isResetToLastCommitRequired
      * @return
      */
     Mono<Object> reconstructMetadataFromGitRepo(
-            String workspaceId, String defaultApplicationId, String repoName, String branchName, Path repoSuffixPath);
+            String workspaceId,
+            String defaultApplicationId,
+            String repoName,
+            String branchName,
+            Path repoSuffixPath,
+            Boolean isResetToLastCommitRequired);
+
+    Mono<Object> reconstructPageFromGitRepo(
+            String pageName, String branchName, Path repoSuffixPath, Boolean checkoutRequired);
 
     /**
      * Once the user connects the existing application to a remote repo, we will initialize the repo with Readme.md -

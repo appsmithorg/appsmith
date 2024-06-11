@@ -51,13 +51,13 @@ describe(
     });
     it("Checkbox Functionality To Check Enabled Widget", function () {
       cy.openPropertyPane("checkboxwidget");
-      cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
+      _.agHelper.CheckUncheck(commonlocators.Disablejs + " " + "input", false);
       _.deployMode.DeployApp();
       cy.get(publish.checkboxWidget + " " + "input").should("be.enabled");
     });
     it("Checkbox Functionality To Unchecked Visible Widget", function () {
       cy.openPropertyPane("checkboxwidget");
-      cy.togglebarDisable(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
       cy.get(publish.checkboxWidget + " " + "input").should("not.exist");
     });

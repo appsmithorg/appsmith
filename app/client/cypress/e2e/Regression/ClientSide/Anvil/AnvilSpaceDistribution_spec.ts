@@ -1,4 +1,8 @@
-import { agHelper, anvilLayout } from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  anvilLayout,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
@@ -146,6 +150,52 @@ describe(
       // move distribution handle to adjust space between zones
       anvilLayout.sections.moveDistributionHandle("right", "Section1", 1, 7);
       anvilLayout.sections.verifySectionDistribution("Section1", [10, 2]);
+    });
+    it("4. Verify visual check for background less zones and resize indicators", () => {
+      // create a new section with a button widget
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSBUTTON,
+        10,
+        10,
+        {
+          skipWidgetSearch: true,
+        },
+      );
+      // create a new zone within the section
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.ZONE,
+        10,
+        10,
+        {
+          skipWidgetSearch: true,
+          dropTargetDetails: {
+            name: "Section1",
+          },
+        },
+      );
+
+      const zone1Selector = anvilLocators.anvilWidgetNameSelector("Zone1");
+      anvilLayout.sections.mouseDownSpaceDistributionHandle("Section1", 1);
+      // outline color of zone while distributing space should be transparent
+      cy.get(zone1Selector).should(
+        "have.css",
+        "outline-color",
+        "rgba(0, 0, 0, 0)",
+      );
+      anvilLayout.sections.mouseUpSpaceDistributionHandle("Section1", 1);
+      // select zone1
+      agHelper.GetNClick(zone1Selector);
+      // go to style tab
+      propPane.MoveToTab("Style");
+      // toggle visual separation off on property pane
+      propPane.TogglePropertyState("Visual Separation", "Off");
+      anvilLayout.sections.mouseDownSpaceDistributionHandle("Section1", 1);
+      // outline color of background less zone while distributing space should not be transparent
+      cy.get(zone1Selector).should(
+        "not.have.css",
+        "outline-color",
+        "rgba(0, 0, 0, 0)",
+      );
     });
   },
 );

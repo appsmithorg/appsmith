@@ -9,6 +9,8 @@ import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelecto
 import BranchList from "../components/BranchList";
 import {
   getGitStatus,
+  getIsPollingAutocommit,
+  getIsTriggeringAutocommit,
   protectedModeSelector,
   showBranchPopupSelector,
 } from "selectors/gitSyncSelectors";
@@ -28,6 +30,10 @@ const ButtonContainer = styled(Button)`
   margin: 0 ${(props) => props.theme.spaces[4]}px;
   max-width: 122px;
   min-width: unset !important;
+
+  :active {
+    border: 1px solid var(--ads-v2-color-border-muted);
+  }
 `;
 
 function BranchButton() {
@@ -38,6 +44,9 @@ function BranchButton() {
   const labelTarget = useRef<HTMLSpanElement>(null);
   const status = useSelector(getGitStatus);
   const isOpen = useSelector(showBranchPopupSelector);
+  const triggeringAutocommit = useSelector(getIsTriggeringAutocommit);
+  const pollingAutocommit = useSelector(getIsPollingAutocommit);
+  const isBranchChangeDisabled = triggeringAutocommit || pollingAutocommit;
 
   const setIsOpen = (isOpen: boolean) => {
     dispatch(setShowBranchPopupAction(isOpen));
@@ -47,6 +56,7 @@ function BranchButton() {
     <Popover2
       content={<BranchList setIsPopupOpen={setIsOpen} />}
       data-testid={"t--git-branch-button-popover"}
+      disabled={isBranchChangeDisabled}
       hasBackdrop
       isOpen={isOpen}
       minimal
@@ -69,6 +79,7 @@ function BranchButton() {
         <ButtonContainer
           className="t--branch-button"
           data-testid={"t--branch-button-currentBranch"}
+          isDisabled={isBranchChangeDisabled}
           kind="secondary"
         >
           {isProtectedMode ? (

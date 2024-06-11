@@ -83,6 +83,8 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   }
 
   onFocusChange = (focusState: boolean) => {
+    if (this.props.isReadOnly) return;
+
     if (focusState) {
       this.props.updateWidgetMetaProperty("isFocused", focusState, {
         triggerPropertyName: "onFocus",

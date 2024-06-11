@@ -237,5 +237,8 @@
   "allowclearingValueInput": ".t--property-control-allowclearingvalue input[type='checkbox']",
   "allowcountrycodechangeInput": ".t--property-control-allowcountrycodechange input[type='checkbox']",
   "allowsearchingInput": ".t--property-control-allowsearching input",
-  "allowsearchingInputTypeCheckbox": ".t--property-control-allowsearching input[type='checkbox']"
+  "allowsearchingInputTypeCheckbox": ".t--property-control-allowsearching input[type='checkbox']",
+  "clientSideSearch": ".t--property-control-clientsidesearch input[type='checkbox']",
+  "enableClientSideSearch": ".t--property-control-enableclientsidesearch input[type='checkbox']",
+  "fixedFooterInput": ".t--property-control-fixedfooter input"
 }
