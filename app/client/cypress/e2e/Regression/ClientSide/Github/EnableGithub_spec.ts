@@ -13,7 +13,7 @@ describe(
   function () {
     it("1. Go to admin settings and enable Github with not all mandatory fields filled", function () {
       homePage.Signout();
-      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       adminSettings.NavigateToAdminSettings();
       // click authentication tab
       agHelper.GetNClick(adminSettingsLocators.authenticationTab);
@@ -35,7 +35,7 @@ describe(
 
     it("2. Go to admin settings and enable Github", function () {
       homePage.Signout();
-      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       adminSettings.NavigateToAdminSettings();
       // click authentication tab
       agHelper.GetNClick(adminSettingsLocators.authenticationTab);
@@ -71,7 +71,7 @@ describe(
     });
 
     it("3. Go to admin settings and disable Github", function () {
-      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       adminSettings.NavigateToAdminSettings();
       // click authentication tab
       agHelper.GetNClick(adminSettingsLocators.authenticationTab);
