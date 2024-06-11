@@ -286,7 +286,10 @@ export class GracefulWorkerService {
         log.debug(` Transfer ${method} took ${transferTime}ms`);
       }
 
-      if (webworkerTelemetryResponse) {
+      if (
+        webworkerTelemetryResponse &&
+        webworkerTelemetryResponse.__spanAttributes
+      ) {
         setAttributesToSpan(
           rootSpan,
           webworkerTelemetryResponse.__spanAttributes as SpanAttributes,

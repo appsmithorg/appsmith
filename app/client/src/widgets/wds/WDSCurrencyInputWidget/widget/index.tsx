@@ -110,13 +110,13 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   static getDerivedPropertiesMap() {
     return {
       isValid: `{{(()=>{${derivedProperties.isValid}})()}}`,
-      rawText: `{{(()=>{${derivedProperties.value}})()}}`,
     };
   }
 
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
-      text: undefined,
+      rawText: "",
+      parsedText: "",
       currencyCode: undefined,
     });
   }
@@ -124,6 +124,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return _.merge(super.getDefaultPropertiesMap(), {
       currencyCode: "defaultCurrencyCode",
+      rawText: "defaultText",
+      parsedText: "defaultText",
     });
   }
 
