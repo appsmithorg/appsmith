@@ -3,16 +3,18 @@ import type { Saga } from "redux-saga";
 
 import ActionAPI from "api/ActionAPI";
 import { PostgresFactory } from "test/factories/Actions/Postgres";
-import {
-  updateActionAPICall,
-  updateJSCollectionAPICall,
-} from "@appsmith/sagas/ApiCallerSagas";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Action } from "entities/Action";
 import { JSObjectFactory } from "test/factories/Actions/JSObject";
-import JSActionAPI from "@appsmith/api/JSActionAPI";
+// Since this is a ce test, importing from @appsmith might lead to unexpected results
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
+import JSActionAPI from "ce/api/JSActionAPI";
+import {
+  updateActionAPICall,
+  updateJSCollectionAPICall,
+} from "./ApiCallerSagas";
 
-jest.mock("@appsmith/api/JSActionAPI");
+jest.mock("ce/api/JSActionAPI");
 jest.mock("api/ActionAPI");
 
 const successResponse = <T = any>(data: T) => {
