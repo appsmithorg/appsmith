@@ -6,7 +6,7 @@ import type { ISDCodeProps } from "constants/ISDCodes_v2";
 import { ISDCodeOptions } from "constants/ISDCodes_v2";
 
 export function validateInput(props: any) {
-  const value = props.text ?? "";
+  const value = props.parsedText ?? "";
   const isInvalid = "isValid" in props && !props.isValid && !!props.isDirty;
 
   const conditionalProps: any = {};
