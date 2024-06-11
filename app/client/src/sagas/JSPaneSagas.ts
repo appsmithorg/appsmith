@@ -58,6 +58,7 @@ import {
   createNewJSCollection,
   jsSaveActionComplete,
   jsSaveActionStart,
+  refactorJSCollectionAction,
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -205,21 +206,22 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
     const parsedBody = update.parsedBody;
     if (parsedBody && !!jsAction) {
       const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
-      // jsActionTobeUpdated.body = jsAction.body;
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
+
       if (data.nameChangedActions.length) {
         for (let i = 0; i < data.nameChangedActions.length; i++) {
-          yield call(
-            handleRefactorJSActionNameSaga,
-            {
-              actionId: data.nameChangedActions[i].id,
-              collectionName: jsAction.name,
-              pageId: data.nameChangedActions[i].pageId,
-              moduleId: data.nameChangedActions[i].moduleId,
-              oldName: data.nameChangedActions[i].oldName,
-              newName: data.nameChangedActions[i].newName,
-            },
-            jsActionTobeUpdated,
+          yield put(
+            refactorJSCollectionAction({
+              refactorAction: {
+                actionId: data.nameChangedActions[i].id,
+                collectionName: jsAction.name,
+                pageId: data.nameChangedActions[i].pageId || "",
+                moduleId: data.nameChangedActions[i].moduleId,
+                oldName: data.nameChangedActions[i].oldName,
+                newName: data.nameChangedActions[i].newName,
+              },
+              actionCollection: jsActionTobeUpdated,
+            }),
           );
         }
       } else {
@@ -640,9 +642,12 @@ function* handleUpdateJSCollectionBody(
 }
 
 function* handleRefactorJSActionNameSaga(
-  refactorAction: RefactorAction,
-  actionCollection: JSCollection,
+  data: ReduxAction<{
+    refactorAction: RefactorAction;
+    actionCollection: JSCollection;
+  }>,
 ) {
+  const { actionCollection, refactorAction } = data.payload;
   const { pageId } = refactorAction;
   const layoutId: string | undefined = yield select(getCurrentLayoutId);
   if (!pageId || !layoutId) {
@@ -828,6 +833,10 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.START_EXECUTE_JS_FUNCTION,
       handleStartExecuteJSFunctionSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
+      handleRefactorJSActionNameSaga,
     ),
     debounce(
       100,
