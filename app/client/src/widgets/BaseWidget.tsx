@@ -368,12 +368,6 @@ abstract class BaseWidget<
     return this.props.layoutSystemType === LayoutSystemTypes.AUTO;
   }
 
-  get isEditMode() {
-    return (
-      this.props.renderMode === RenderModes.CANVAS && !this.props.isPreviewMode
-    );
-  }
-
   updateOneClickBindingOptionsVisibility(visibility: boolean) {
     const { updateOneClickBindingOptionsVisibility } = this.context;
     if (visibility) {
@@ -555,7 +549,6 @@ export interface WidgetProps
     DataTreeEvaluationProps {
   key?: string;
   isDefaultClickDisabled?: boolean;
-  disableWidgetInteraction?: boolean;
 
   [key: string]: any;
 }
