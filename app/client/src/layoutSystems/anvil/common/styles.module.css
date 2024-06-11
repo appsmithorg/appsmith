@@ -27,8 +27,22 @@
     margin-inline: var(--outer-spacing-3);
   }
 
+  [elevation="2"] {
+    /** Font size is necessary for the compensator(margins) since they use em values */
+    font-size: var(--body-font-size);
+    /** We make min-block-size the same as of all the main widgets (buttons, toggles) so that the zones do not jump when dropping widgets. */
+    min-block-size: calc(
+      var(--body-line-height) + var(--body-margin-start) +
+        var(--body-margin-end) + var(--inner-spacing-3) * 2 +
+        var(--outer-spacing-3) * 2
+    );
+  }
+
   [data-elevation="false"][elevation="2"] {
-    min-height: var(--sizing-8);
+    min-block-size: calc(
+      var(--body-line-height) + var(--body-margin-start) +
+        var(--body-margin-end) + var(--inner-spacing-3) * 2
+    );
   }
 
   /** by default, sections/zone/cards with elevation have styles 1 */

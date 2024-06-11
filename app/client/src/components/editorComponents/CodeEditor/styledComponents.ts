@@ -5,6 +5,7 @@ import {
   EditorSize,
   EditorTheme,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import { CodeEditorColors } from "components/editorComponents/CodeEditor/constants";
 import type { Theme } from "constants/DefaultTheme";
 import { Skin } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
@@ -29,17 +30,6 @@ const getBorderStyle = (
   return "transparent";
 };
 
-export const CodeEditorColors = {
-  KEYWORD: "#304eaa",
-  FOLD_MARKER: "#442334",
-  STRING: "#1659df",
-  OPERATOR: "#009595",
-  NUMBER: "#555",
-  COMMENT: "var(--ads-v2-color-gray-400)",
-  FUNCTION_ARGS: "hsl(288, 44%, 44%)",
-  TOOLTIP_FN_ARGS: "#DB6E33",
-};
-
 export const EditorWrapper = styled.div<{
   editorTheme?: EditorTheme;
   hasError: boolean;
@@ -60,6 +50,7 @@ export const EditorWrapper = styled.div<{
   removeHoverAndFocusStyle?: boolean;
   AIEnabled?: boolean;
   mode: string;
+  maxHeight?: string | number;
 }>`
   // Bottom border was getting clipped
   .CodeMirror.cm-s-duotone-light.CodeMirror-wrap {
@@ -78,6 +69,7 @@ export const EditorWrapper = styled.div<{
   `
       : `position: relative;`}
   min-height: 36px;
+  max-height: ${(props) => props.maxHeight || "auto"};
   height: ${(props) => props.height || "auto"};
   background-color: ${(props) =>
     props.disabled ? "var(--ads-v2-color-bg-muted)" : "var(--ads-v2-color-bg)"};
@@ -137,7 +129,7 @@ export const EditorWrapper = styled.div<{
         }
       }
       .cm-property {
-        color: hsl(21, 70%, 53%);
+        color: ${CodeEditorColors.PROPERTY};
       }
       .cm-keyword {
         color: ${CodeEditorColors.KEYWORD};
@@ -172,7 +164,7 @@ export const EditorWrapper = styled.div<{
 
       /* json response in the debugger */
       .cm-string.cm-property {
-        color: hsl(21, 70%, 53%);
+        color: ${CodeEditorColors.PROPERTY};
       }
 
       // /* +, =>, -, etc. operators */

@@ -226,5 +226,9 @@
   "codeScannerScanButton": "//*[text()='Scan a QR/Barcode']/parent::button",
   "codeScannerNewScanButton": "//*[text()='Scan Code']/parent::button",
   "codeScannerClose": ".code-scanner-close",
-  "codeScannerModal": ".code-scanner-content"
+  "codeScannerModal": ".code-scanner-content",
+  "showResult": ".t--property-control-showresult input[type='checkbox']",
+  "infiniteLoading": ".t--property-control-infiniteloading input[type='checkbox']",
+  "counterclockwise": ".t--property-control-counterclockwise input[type='checkbox']",
+  "serversideFilteringInput": ".t--property-control-serversidefiltering input[type='checkbox']"
 }

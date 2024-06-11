@@ -233,5 +233,12 @@
   "discard": "button:contains('Discard')",
   "heightProperty": ".rc-select-single input",
   "heightPropertyOption": ".rc-select-item-option-content span",
-  "filePickerMaxNoOfFiles": ".t--property-control-maxno\\.offiles .CodeMirror-code"
+  "filePickerMaxNoOfFiles": ".t--property-control-maxno\\.offiles .CodeMirror-code",
+  "allowclearingValueInput": ".t--property-control-allowclearingvalue input[type='checkbox']",
+  "allowcountrycodechangeInput": ".t--property-control-allowcountrycodechange input[type='checkbox']",
+  "allowsearchingInput": ".t--property-control-allowsearching input",
+  "allowsearchingInputTypeCheckbox": ".t--property-control-allowsearching input[type='checkbox']",
+  "clientSideSearch": ".t--property-control-clientsidesearch input[type='checkbox']",
+  "enableClientSideSearch": ".t--property-control-enableclientsidesearch input[type='checkbox']",
+  "fixedFooterInput": ".t--property-control-fixedfooter input"
 }
