@@ -297,19 +297,7 @@ export function* makeUpdateJSCollection(
 
   yield all(
     Object.keys(jsUpdates).map((key) =>
-      put(jsSaveActionStart({ id: jsUpdates[key].id })),
-    ),
-  );
-
-  yield all(
-    Object.keys(jsUpdates).map((key) =>
       call(handleEachUpdateJSCollection, jsUpdates[key]),
-    ),
-  );
-
-  yield all(
-    Object.keys(jsUpdates).map((key) =>
-      put(jsSaveActionComplete({ id: jsUpdates[key].id })),
     ),
   );
 }
@@ -328,6 +316,7 @@ function* updateJSCollection(data: {
   try {
     const { deletedActions, jsCollection, newActions } = data;
     if (jsCollection) {
+      yield put(jsSaveActionStart({ id: jsCollection.id }));
       const response: JSCollectionCreateUpdateResponse = yield call(
         updateJSCollectionAPICall,
         jsCollection,
@@ -367,6 +356,8 @@ function* updateJSCollection(data: {
       type: ReduxActionErrorTypes.UPDATE_JS_ACTION_ERROR,
       payload: { error, data: jsAction },
     });
+  } finally {
+    yield put(jsSaveActionComplete({ id: data.jsCollection.id }));
   }
 }
 
@@ -661,6 +652,7 @@ function* handleRefactorJSActionNameSaga(
   };
   // call to refactor action
   try {
+    yield put(jsSaveActionStart({ id: actionCollection.id }));
     const refactorResponse: ApiResponse =
       yield JSActionAPI.updateJSCollectionActionRefactor(requestData);
 
@@ -688,6 +680,8 @@ function* handleRefactorJSActionNameSaga(
       type: ReduxActionErrorTypes.REFACTOR_JS_ACTION_NAME_ERROR,
       payload: { collectionId: actionCollection.id },
     });
+  } finally {
+    yield put(jsSaveActionComplete({ id: actionCollection.id }));
   }
 }
 
