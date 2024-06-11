@@ -25,6 +25,7 @@ import type {
 import { getCopiedWidgets } from "utils/storage";
 import { getDestinedParent } from "layoutSystems/anvil/utils/paste/destinationUtils";
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
+import type { PasteWidgetReduxAction } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "WidgetProvider/factory";
 import { getIsAnvilLayout } from "../../selectors";
@@ -63,26 +64,10 @@ function* pasteAnvilModalWidgets(
 export function* pasteWidgetSagas() {
   try {
     const {
-      layoutSystemType,
       widgets: copiedWidgets,
     }: {
-      layoutSystemType?: LayoutSystemTypes;
       widgets: CopiedWidgetData[];
     } = yield getCopiedWidgets();
-
-    const currentLayoutSystemType: LayoutSystemTypes =
-      yield select(getLayoutSystemType);
-    if (
-      isLayoutSystemConflictingForPaste(
-        currentLayoutSystemType,
-        layoutSystemType,
-      )
-    ) {
-      toast.show(createMessage(ERROR_PASTE_LAYOUT_SYSTEM_CONFLICT), {
-        kind: "info",
-      });
-      return;
-    }
 
     const modalWidgets = copiedWidgets.filter(
       (widget) => widget.hierarchy === widgetHierarchy.WDS_MODAL_WIDGET,
@@ -189,6 +174,33 @@ export function* pasteWidgetSagas() {
   }
 }
 
+function* verifyPasteFeasibilitySaga(
+  action: ReduxAction<PasteWidgetReduxAction>,
+) {
+  const {
+    layoutSystemType,
+  }: {
+    layoutSystemType?: LayoutSystemTypes;
+  } = yield getCopiedWidgets();
+
+  const currentLayoutSystemType: LayoutSystemTypes =
+    yield select(getLayoutSystemType);
+
+  if (
+    isLayoutSystemConflictingForPaste(currentLayoutSystemType, layoutSystemType)
+  ) {
+    toast.show(createMessage(ERROR_PASTE_LAYOUT_SYSTEM_CONFLICT), {
+      kind: "info",
+    });
+    return;
+  }
+
+  yield put({
+    type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+    payload: action.payload,
+  });
+}
+
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
   if (isAnvilLayout) {
@@ -202,6 +214,10 @@ export default function* pasteSagas() {
       ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
       shouldCallSaga,
       pasteWidgetSagas,
+    ),
+    takeLeading(
+      ReduxActionTypes.VERIFY_LAYOUT_SYSTEM_AND_PASTE_WIDGETS,
+      verifyPasteFeasibilitySaga,
     ),
   ]);
 }

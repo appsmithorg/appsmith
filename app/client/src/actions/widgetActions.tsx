@@ -102,7 +102,7 @@ export const pasteWidget = ({
   mouseLocation,
 }: PasteWidgetReduxAction) => {
   return {
-    type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+    type: ReduxActionTypes.VERIFY_LAYOUT_SYSTEM_AND_PASTE_WIDGETS,
     payload: {
       groupWidgets,
       mouseLocation,

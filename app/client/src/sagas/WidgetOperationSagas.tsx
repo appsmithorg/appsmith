@@ -74,7 +74,6 @@ import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 
 import { builderURL } from "@appsmith/RouteBuilder";
 import {
-  ERROR_PASTE_LAYOUT_SYSTEM_CONFLICT,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
   ERROR_WIDGET_CUT_NOT_ALLOWED,
@@ -141,7 +140,6 @@ import {
   getWidgetDescendantToReset,
   groupWidgetsIntoContainer,
   handleSpecificCasesWhilePasting,
-  isLayoutSystemConflictingForPaste,
   isSelectedWidgetsColliding,
   mergeDynamicPropertyPaths,
   purgeOrphanedDynamicPaths,
@@ -1142,25 +1140,11 @@ export function calculateNewWidgetPosition(
 function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
   const {
     flexLayers,
-    layoutSystemType,
     widgets: copiedWidgets,
   }: {
-    layoutSystemType?: LayoutSystemTypes;
     widgets: CopiedWidgetGroup[];
     flexLayers: FlexLayer[];
   } = yield getCopiedWidgets();
-
-  const currentLayoutSystemType: LayoutSystemTypes =
-    yield select(getLayoutSystemType);
-
-  if (
-    isLayoutSystemConflictingForPaste(currentLayoutSystemType, layoutSystemType)
-  ) {
-    toast.show(createMessage(ERROR_PASTE_LAYOUT_SYSTEM_CONFLICT), {
-      kind: "info",
-    });
-    return;
-  }
 
   let copiedWidgetGroups = copiedWidgets ? [...copiedWidgets] : [];
   const shouldGroup: boolean = action.payload.groupWidgets;
