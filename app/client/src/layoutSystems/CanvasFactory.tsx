@@ -1,10 +1,17 @@
 import React, { memo, useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+
 import { getRenderMode } from "selectors/editorSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import withWidgetProps from "widgets/withWidgetProps";
 import { getLayoutSystem } from "./withLayoutSystemWidgetHOC";
+
+import { sendAnalyticsForSideBySideHover } from "actions/analyticsActions";
+
+import { LAYOUT_WRAPPER_ID } from "./constants";
+import styles from "./styles.module.css";
+import useIsInSideBySideEditor from "utils/hooks/useIsInSideBySideEditor";
 
 // ToDo(#27615): destructure withWidgetProps to withCanvasProps by picking only necessary props of a canvas.
 
@@ -15,6 +22,8 @@ import { getLayoutSystem } from "./withLayoutSystemWidgetHOC";
  */
 
 const LayoutSystemBasedCanvas = memo((props: WidgetProps) => {
+  const dispatch = useDispatch();
+
   const renderMode = useSelector(getRenderMode);
   const layoutSystemType = useSelector(getLayoutSystemType);
   const { canvasSystem } = useMemo(
@@ -27,7 +36,27 @@ const LayoutSystemBasedCanvas = memo((props: WidgetProps) => {
     ],
   );
   const { Canvas, propertyEnhancer } = canvasSystem;
-  return <Canvas {...propertyEnhancer(props)} />;
+
+  const isInSideBySideEditor = useIsInSideBySideEditor();
+  const handleMouseLeave: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    if (
+      isInSideBySideEditor &&
+      e.relatedTarget instanceof Element &&
+      e.relatedTarget.contains(document.getElementById(LAYOUT_WRAPPER_ID))
+    ) {
+      dispatch(sendAnalyticsForSideBySideHover());
+    }
+  };
+
+  return (
+    <div
+      className={styles.root}
+      id={LAYOUT_WRAPPER_ID}
+      onMouseLeave={handleMouseLeave}
+    >
+      <Canvas {...propertyEnhancer(props)} />
+    </div>
+  );
 });
 
 const HydratedLayoutSystemBasedCanvas = withWidgetProps(
