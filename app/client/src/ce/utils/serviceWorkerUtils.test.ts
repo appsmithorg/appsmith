@@ -6,7 +6,7 @@ import {
   getSearchQuery,
   getConsolidatedApiPrefetchRequest,
   getApplicationParamsFromUrl,
-  getPrefetchModuleApiRequests,
+  getPrefetchRequests,
   PrefetchApiService,
 } from "./serviceWorkerUtils";
 import { Mutex } from "async-mutex";
@@ -394,17 +394,23 @@ describe("serviceWorkerUtils", () => {
     });
   });
 
-  describe("getPrefetchModuleApiRequests", () => {
-    it("should return empty array", () => {
+  describe("getPrefetchRequests", () => {
+    it("should return prefetch requests with consolidated api request", () => {
       const params: TApplicationParams = {
         origin: "https://app.appsmith.com",
         branchName: "main",
         appMode: APP_MODE.EDIT,
         pageId: "page123",
-        applicationId: "app123",
       };
-      const requests = getPrefetchModuleApiRequests(params);
-      expect(requests).toHaveLength(0);
+      const requests = getPrefetchRequests(params);
+      expect(requests).toHaveLength(1);
+      const [consolidatedAPIRequest] = requests;
+      expect(consolidatedAPIRequest).toBeInstanceOf(Request);
+      expect(consolidatedAPIRequest?.url).toBe(
+        `https://app.appsmith.com/api/${ConsolidatedPageLoadApi.consolidatedApiEditUrl}?defaultPageId=page123`,
+      );
+      expect(consolidatedAPIRequest?.method).toBe("GET");
+      expect(consolidatedAPIRequest?.headers.get("Branchname")).toBe("main");
     });
   });
 
