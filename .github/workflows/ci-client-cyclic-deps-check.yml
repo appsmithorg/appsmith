@@ -27,6 +27,19 @@ jobs:
         with:
           ref: refs/pull/${{ inputs.pr }}/merge
 
+      - name: Check for changes in app/client/src
+        id: changed-files
+        uses: tj-actions/changed-files@v41
+        with:
+          files: |
+            app/client/src/**
+
+      - name: Exit if no changes
+        if: steps.changed-files.outputs.any_changed == 'false'
+        run: |
+          echo "No changes in app/client/src. Exiting workflow."
+          exit 0
+
       - name: Count circular dependencies on PR branch
         id: count-cyclic-deps-in-pr
         run: |
@@ -45,6 +58,16 @@ jobs:
           npx dpdm ./src/* --circular --warning=false --tree=false > release_circular_deps.txt
           release_count=$(cat release_circular_deps.txt | wc -l)
           echo "release_count=$release_count" >> $GITHUB_OUTPUT
+
+      - name: Log the cyclic dependencies in PR branch
+        run: |
+          echo "Cyclic dependencies in PR branch:"
+          cat pr_circular_deps.txt
+
+      - name: Log the cyclic dependencies in release branch
+        run: |
+          echo "Cyclic dependencies in release branch:"
+          cat release_circular_deps.txt
 
       - name: Compare circular dependencies
         id: compare-deps
