@@ -197,3 +197,4 @@ jobs:
     with:
       tags: ${{ needs.parse-tags.outputs.tags}}
       matrix: ${{ needs.parse-tags.outputs.matrix}}
+      is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
