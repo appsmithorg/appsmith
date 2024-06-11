@@ -69,9 +69,7 @@ describe(
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [
         "Container3",
       ]);
-      cy.togglebarDisable(
-        ".t--property-control-clientsidesearch input[type='checkbox']",
-      );
+      agHelper.CheckUncheck(commonlocators.clientSideSearch, false);
       cy.get(".t--widget-tablewidgetv2 .t--search-input")
         .first()
         .type("Currey");

@@ -1,10 +1,8 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.CacheableApplicationJson;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -45,14 +43,13 @@ public class CacheableTemplateHelperTemplateJsonDataTest {
     @MockBean
     ApplicationPermission applicationPermission;
 
-    @MockBean
-    private CloudServicesConfig cloudServicesConfig;
-
     @Autowired
     CacheableTemplateHelper cacheableTemplateHelper;
 
     @SpyBean
     CacheableTemplateHelper spyCacheableTemplateHelper;
+
+    String baseUrl;
 
     @BeforeAll
     public static void setUp() throws IOException {
@@ -67,28 +64,18 @@ public class CacheableTemplateHelperTemplateJsonDataTest {
 
     @BeforeEach
     public void initialize() {
-        String baseUrl = String.format("http://localhost:%s", mockCloudServices.getPort());
-
-        // mock the cloud services config so that it returns mock server url as cloud
-        // service base url
-        Mockito.when(cloudServicesConfig.getBaseUrl()).thenReturn(baseUrl);
-    }
-
-    private ApplicationTemplate create(String id, String title) {
-        ApplicationTemplate applicationTemplate = new ApplicationTemplate();
-        applicationTemplate.setId(id);
-        applicationTemplate.setTitle(title);
-        return applicationTemplate;
+        baseUrl = String.format("http://localhost:%s", mockCloudServices.getPort());
     }
 
     /* Scenarios covered via this test:
-     * 1. CacheableTemplateHelper doesn't have the POJO or has an empty POJO.
-     * 2. Fetch the templates via the normal flow by mocking CS.
-     * 3. Check if the CacheableTemplateHelper.getApplicationTemplateList() is the same as the object returned by the normal flow function. This will ensure that the cache is being set correctly.
-     * 4. From the above steps we now have the cache set.
-     * 5. Fetch the templates again, verify the data is the same as the one fetched in step 2.
-     * 6. Verify the cache is used and not the mock. This is done by asserting the lastUpdated time of the cache.
-     */
+        * 1. CacheableTemplateHelper doesn't have the POJO or has an empty POJO.
+        * 2. Fetch the templates via the normal flow by mocking CS.
+        * 3. Check if the CacheableTemplateHelper.getApplicationTemplateList() is the same as the object returned by
+    the normal flow function. This will ensure that the cache is being set correctly.
+        * 4. From the above steps we now have the cache set.
+        * 5. Fetch the templates again, verify the data is the same as the one fetched in step 2.
+        * 6. Verify the cache is used and not the mock. This is done by asserting the lastUpdated time of the cache.
+        */
     @Test
     public void getApplicationJson_cacheIsEmpty_VerifyDataSavedInCache() throws JsonProcessingException {
         ApplicationJson applicationJson = new ApplicationJson();
@@ -104,7 +91,7 @@ public class CacheableTemplateHelperTemplateJsonDataTest {
                 .addHeader("Content-Type", "application/json"));
 
         Mono<CacheableApplicationJson> templateListMono =
-                cacheableTemplateHelper.getApplicationByTemplateId("templateId", cloudServicesConfig.getBaseUrl());
+                cacheableTemplateHelper.getApplicationByTemplateId("templateId", baseUrl);
 
         final Instant[] timeFromCache = {Instant.now()};
         // make sure we've received the response returned by the mockCloudServices
@@ -116,8 +103,7 @@ public class CacheableTemplateHelperTemplateJsonDataTest {
                 .verifyComplete();
 
         // Fetch the same application json again and verify the time stamp to confirm value is coming from POJO
-        StepVerifier.create(cacheableTemplateHelper.getApplicationByTemplateId(
-                        "templateId", cloudServicesConfig.getBaseUrl()))
+        StepVerifier.create(cacheableTemplateHelper.getApplicationByTemplateId("templateId", baseUrl))
                 .assertNext(cacheableApplicationJson1 -> {
                     assertThat(cacheableApplicationJson1.getApplicationJson()).isNotNull();
                     assertThat(cacheableApplicationJson1.getCacheExpiryTime()).isEqualTo(timeFromCache[0]);
@@ -147,8 +133,7 @@ public class CacheableTemplateHelperTemplateJsonDataTest {
         Mockito.doReturn(false).when(spyCacheableTemplateHelper).isCacheValid(any());
 
         // make sure we've received the response returned by the mock
-        StepVerifier.create(spyCacheableTemplateHelper.getApplicationByTemplateId(
-                        "templateId", cloudServicesConfig.getBaseUrl()))
+        StepVerifier.create(spyCacheableTemplateHelper.getApplicationByTemplateId("templateId", baseUrl))
                 .assertNext(cacheableApplicationJson1 -> {
                     assertThat(cacheableApplicationJson1.getApplicationJson()).isNotNull();
                     assertThat(cacheableApplicationJson1
@@ -176,8 +161,7 @@ public class CacheableTemplateHelperTemplateJsonDataTest {
                 .addHeader("Content-Type", "application/json"));
 
         // make sure we've received the response returned by the mock
-        StepVerifier.create(cacheableTemplateHelper.getApplicationByTemplateId(
-                        "templateId1", cloudServicesConfig.getBaseUrl()))
+        StepVerifier.create(cacheableTemplateHelper.getApplicationByTemplateId("templateId1", baseUrl))
                 .assertNext(cacheableApplicationJson1 -> {
                     assertThat(cacheableApplicationJson1.getApplicationJson()).isNotNull();
                     assertThat(cacheableApplicationJson1

@@ -381,7 +381,10 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
   );
   yield call(
     loadBuildingBlocksIntoApplication,
-    actionPayload.payload.newWidget,
+    {
+      ...actionPayload.payload.newWidget,
+      widgetId: actionPayload.payload.canvasId,
+    },
     skeletonWidget.widgetId,
   );
 }

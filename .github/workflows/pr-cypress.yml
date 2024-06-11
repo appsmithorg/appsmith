@@ -174,7 +174,7 @@ jobs:
 
       - name: Modify test response in the PR with new CI failures
         if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '1'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
           content: |
             <!-- This is an auto-generated comment: Cypress test results  -->
@@ -195,7 +195,7 @@ jobs:
 
       - name: Modify test response in the PR when ci-test is failed but no specs found
         if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '0'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
           content: |
             <!-- This is an auto-generated comment: Cypress test results  -->
@@ -213,7 +213,7 @@ jobs:
 
       - name: Modify test response in the PR when ci-test is success
         if: needs.ci-test.result == 'success' && steps.combine_ci.outputs.specs_failed == '0'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
           content: |
             <!-- This is an auto-generated comment: Cypress test results  -->

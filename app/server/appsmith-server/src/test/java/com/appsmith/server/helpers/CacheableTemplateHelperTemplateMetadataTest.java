@@ -1,6 +1,5 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.CacheableApplicationTemplate;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -39,14 +38,13 @@ public class CacheableTemplateHelperTemplateMetadataTest {
     @MockBean
     ApplicationPermission applicationPermission;
 
-    @MockBean
-    private CloudServicesConfig cloudServicesConfig;
-
     @Autowired
     CacheableTemplateHelper cacheableTemplateHelper;
 
     @SpyBean
     CacheableTemplateHelper spyCacheableTemplateHelper;
+
+    String baseUrl;
 
     @BeforeAll
     public static void setUp() throws IOException {
@@ -61,11 +59,7 @@ public class CacheableTemplateHelperTemplateMetadataTest {
 
     @BeforeEach
     public void initialize() {
-        String baseUrl = String.format("http://localhost:%s", mockCloudServices.getPort());
-
-        // mock the cloud services config so that it returns mock server url as cloud
-        // service base url
-        Mockito.when(cloudServicesConfig.getBaseUrl()).thenReturn(baseUrl);
+        baseUrl = String.format("http://localhost:%s", mockCloudServices.getPort());
     }
 
     private ApplicationTemplate create(String id, String title) {
@@ -97,7 +91,7 @@ public class CacheableTemplateHelperTemplateMetadataTest {
                 .addHeader("Content-Type", "application/json"));
 
         Mono<CacheableApplicationTemplate> templateListMono =
-                cacheableTemplateHelper.getTemplates("recently-used", cloudServicesConfig.getBaseUrl());
+                cacheableTemplateHelper.getTemplates("recently-used", baseUrl);
 
         final Instant[] timeFromCache = {Instant.now()};
         StepVerifier.create(templateListMono)
@@ -112,7 +106,7 @@ public class CacheableTemplateHelperTemplateMetadataTest {
                 .verifyComplete();
 
         // Fetch again and verify the time stamp to confirm value is coming from POJO
-        StepVerifier.create(cacheableTemplateHelper.getTemplates("recently-used", cloudServicesConfig.getBaseUrl()))
+        StepVerifier.create(cacheableTemplateHelper.getTemplates("recently-used", baseUrl))
                 .assertNext(cacheableApplicationTemplate1 -> {
                     assertThat(cacheableApplicationTemplate1.getApplicationTemplateList())
                             .hasSize(3);
@@ -139,7 +133,7 @@ public class CacheableTemplateHelperTemplateMetadataTest {
                 .setBody(objectMapper.writeValueAsString(List.of(templateFour, templateFive, templateSix)))
                 .addHeader("Content-Type", "application/json"));
 
-        StepVerifier.create(spyCacheableTemplateHelper.getTemplates("recently-used", cloudServicesConfig.getBaseUrl()))
+        StepVerifier.create(spyCacheableTemplateHelper.getTemplates("recently-used", baseUrl))
                 .assertNext(cacheableApplicationTemplate1 -> {
                     assertThat(cacheableApplicationTemplate1.getApplicationTemplateList())
                             .hasSize(3);
