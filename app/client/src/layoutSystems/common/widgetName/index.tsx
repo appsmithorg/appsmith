@@ -1,9 +1,11 @@
+import React, { useEffect, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import memoize from "micro-memoize";
+import styled from "styled-components";
+
 import type { AppState } from "@appsmith/reducers";
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import type { WidgetType } from "constants/WidgetConstants";
-import React, { useMemo } from "react";
-// import type { CSSProperties } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { hideErrors } from "selectors/debuggerSelectors";
@@ -13,7 +15,6 @@ import {
   snipingModeSelector,
 } from "selectors/editorSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
-import styled from "styled-components";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -32,8 +33,9 @@ import {
 } from "selectors/widgetSelectors";
 import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
 import { Layers } from "constants/Layers";
-import memoize from "micro-memoize";
 import { NavigationMethod } from "utils/history";
+import { recordAnalyticsForSideBySideWidgetHover } from "actions/analyticsActions";
+import useIsInSideBySideEditor from "utils/hooks/useIsInSideBySideEditor";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 export const WidgetNameComponentHeight = theme.spaces[10];
@@ -78,6 +80,16 @@ interface WidgetNameComponentProps {
 }
 
 export function WidgetNameComponent(props: WidgetNameComponentProps) {
+  const {
+    errorCount,
+    showControls,
+    topRow,
+    type: widgetType,
+    widgetId,
+    widgetName,
+    widgetWidth,
+  } = props;
+
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
@@ -89,61 +101,60 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
   const isAutoLayout = useSelector(getIsAutoLayout);
+
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
-
-  const isFocused = useSelector(isWidgetFocused(props.widgetId));
-
+  const isFocused = useSelector(isWidgetFocused(widgetId));
   const shouldHideErrors = useSelector(hideErrors);
-
   const isTableFilterPaneVisible = useSelector(getIsTableFilterPaneVisible);
 
   // True if the selected widget's property pane is open.
   const isActiveInPropertyPane = useSelector(
-    isCurrentWidgetActiveInPropertyPane(props.widgetId),
+    isCurrentWidgetActiveInPropertyPane(widgetId),
   );
 
   const togglePropertyEditor = memoize((e: any) => {
     if (isSnipingMode) {
       dispatch(
         bindDataToWidget({
-          widgetId: props.widgetId,
+          widgetId: widgetId,
         }),
       );
     } else if (!isActiveInPropertyPane) {
       PerformanceTracker.startTracking(
         PerformanceTransactionName.OPEN_PROPERTY_PANE,
-        { widgetId: props.widgetId },
+        { widgetId: widgetId },
         true,
-        [{ name: "widget_type", value: props.type }],
+        [{ name: "widget_type", value: widgetType }],
       );
       AnalyticsUtil.logEvent("PROPERTY_PANE_OPEN_CLICK", {
-        widgetType: props.type,
-        widgetId: props.widgetId,
+        widgetType: widgetType,
+        widgetId: widgetId,
       });
       // hide table filter pane if open
       isTableFilterPaneVisible && showTableFilterPane && showTableFilterPane();
       selectWidget &&
         selectWidget(
           SelectionRequestType.One,
-          [props.widgetId],
+          [widgetId],
           NavigationMethod.CanvasClick,
         );
     } else {
       AnalyticsUtil.logEvent("PROPERTY_PANE_CLOSE_CLICK", {
-        widgetType: props.type,
-        widgetId: props.widgetId,
+        widgetType: widgetType,
+        widgetId: widgetId,
       });
     }
 
     e.preventDefault();
     e.stopPropagation();
   });
-  const showAsSelected = useSelector(showWidgetAsSelected(props.widgetId));
 
-  const isMultiSelected = useSelector(isMultiSelectedWidget(props.widgetId));
+  const showAsSelected = useSelector(showWidgetAsSelected(widgetId));
+  const isMultiSelected = useSelector(isMultiSelectedWidget(widgetId));
   // True when any widget is dragging or resizing, including this one
   const resizingOrDragging = useSelector(isResizingOrDragging);
+
   const shouldShowWidgetName = () => {
     return (
       !isAutoCanvasResizing &&
@@ -153,7 +164,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
       !isMultiSelected &&
       (isSnipingMode
         ? isFocused
-        : props.showControls ||
+        : showControls ||
           ((isFocused || showAsSelected) && !resizingOrDragging))
     );
   };
@@ -162,10 +173,10 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   // in case of widget selection in sniping mode, if it's successful we bind the data else carry on
   // with sniping mode.
   const showWidgetName = shouldShowWidgetName();
-  const isModalWidget = props.type === WidgetTypes.MODAL_WIDGET;
+  const isModalWidget = widgetType === WidgetTypes.MODAL_WIDGET;
   const getCurrentActivity = () => {
     let activity =
-      props.type === WidgetTypes.MODAL_WIDGET
+      widgetType === WidgetTypes.MODAL_WIDGET
         ? Activities.HOVERING
         : Activities.NONE;
     if (isFocused) activity = Activities.HOVERING;
@@ -180,6 +191,13 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     isModalWidget,
     showAsSelected,
   ]);
+
+  const isInSideBySideEditor = useIsInSideBySideEditor();
+  useEffect(() => {
+    if (isInSideBySideEditor && currentActivity === Activities.HOVERING) {
+      dispatch(recordAnalyticsForSideBySideWidgetHover(widgetType));
+    }
+  }, [currentActivity, isInSideBySideEditor, widgetType]);
 
   const getPositionOffset = (): [number, number] => {
     if (isSnipingMode) {
@@ -196,38 +214,22 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     isAutoLayout,
   ]);
 
-  // const positionStyle: CSSProperties = useMemo(() => {
-  //   return {
-  //     top:
-  //       props.topRow > 2
-  //         ? `${-1 * WidgetNameComponentHeight + 1 + positionOffset[0]}px`
-  //         : `calc(100% - ${1 + positionOffset[0]}px)`,
-  //     height: WidgetNameComponentHeight + "px",
-  //     marginLeft: positionOffset[1] + "px",
-  //     zIndex: Layers.widgetName,
-  //   };
-  // }, [
-  //   Layers?.widgetName,
-  //   props.topRow,
-  //   positionOffset,
-  //   WidgetNameComponentHeight,
-  // ]);
   return showWidgetName ? (
     <PositionStyle
       className={isSnipingMode ? "t--settings-sniping-control" : ""}
       data-testid="t--settings-controls-positioned-wrapper"
-      id={"widget_name_" + props.widgetId}
+      id={"widget_name_" + widgetId}
       positionOffset={positionOffset}
-      topRow={props.topRow}
+      topRow={topRow}
     >
       <ControlGroup>
         <SettingsControl
           activity={currentActivity}
-          errorCount={shouldHideErrors ? 0 : props.errorCount}
-          inverted={props.topRow <= 2}
-          name={props.widgetName}
+          errorCount={shouldHideErrors ? 0 : errorCount}
+          inverted={topRow <= 2}
+          name={widgetName}
           toggleSettings={togglePropertyEditor}
-          widgetWidth={props.widgetWidth}
+          widgetWidth={widgetWidth}
         />
       </ControlGroup>
     </PositionStyle>

@@ -1,4 +1,4 @@
-import WidgetNameComponent from "layoutSystems/common/widgetName";
+import WidgetNameComponent from "./";
 import React from "react";
 import { getErrorCount } from "./utils";
 
