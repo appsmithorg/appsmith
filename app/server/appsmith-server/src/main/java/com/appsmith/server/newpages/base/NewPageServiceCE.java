@@ -101,4 +101,7 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
             Application branchedApplication, List<NewPage> newPages, boolean viewMode, boolean isRecentlyAccessed);
 
     Mono<String> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap, String branchName);
+
+    Flux<PageDTO> findByApplicationIdAndApplicationMode(
+            String applicationId, AclPermission permission, ApplicationMode applicationMode);
 }

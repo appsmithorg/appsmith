@@ -1018,13 +1018,6 @@ Cypress.Commands.add("getAlert", (eventName, value = "hello") => {
   );
 });
 
-Cypress.Commands.add("togglebar", (value) => {
-  cy.get(value).check({ force: true }).should("be.checked");
-});
-Cypress.Commands.add("togglebarDisable", (value) => {
-  cy.get(value).uncheck({ force: true }).should("not.checked");
-});
-
 Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
   cy.get(commonlocators.dropdownSelectButton)
     .first()
@@ -1180,7 +1173,7 @@ Cypress.Commands.add("ExportVerify", (togglecss, name) => {
   cy.get(".t--draggable-tablewidget button")
     .invoke("attr", "aria-label")
     .should("contain", name);
-  cy.togglebarDisable(togglecss);
+  agHelper.CheckUncheck(togglecss, false);
 });
 
 Cypress.Commands.add("getTableDataSelector", (rowNum, colNum) => {

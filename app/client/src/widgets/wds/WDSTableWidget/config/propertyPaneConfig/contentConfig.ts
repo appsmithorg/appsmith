@@ -150,7 +150,12 @@ export const contentConfig = [
         isBindProperty: true,
         isTriggerProperty: false,
         min: 1,
-        validation: { type: ValidationTypes.NUMBER },
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: {
+            min: 1,
+          },
+        },
       },
       {
         propertyName: "isVisiblePagination",

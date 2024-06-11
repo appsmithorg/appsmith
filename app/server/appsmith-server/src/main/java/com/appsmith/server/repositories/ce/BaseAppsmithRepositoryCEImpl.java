@@ -12,8 +12,6 @@ import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.WriteModel;
 import lombok.NonNull;
@@ -21,18 +19,20 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Modifier;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -81,9 +81,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     protected final Class<T> genericDomain;
 
     @Autowired
-    private MongoConverter mongoConverter;
-
-    @Autowired
     private CacheableRepositoryHelper cacheableRepositoryHelper;
 
     public static final int NO_RECORD_LIMIT = -1;
@@ -116,12 +113,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                         .is(permission.getValue()));
     }
 
-    protected DBObject getDbObject(Object o) {
-        BasicDBObject basicDBObject = new BasicDBObject();
-        mongoConverter.write(o, basicDBObject);
-        return basicDBObject;
-    }
-
     public Mono<T> findById(String id, AclPermission permission) {
         return queryBuilder().byId(id).permission(permission).one();
     }
@@ -137,13 +128,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     public Mono<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission) {
         // Set policies to null in the update object
         resource.setPolicies(null);
-        resource.setUpdatedAt(Instant.now());
 
-        DBObject update = getDbObject(resource);
-        Update updateObj = new Update();
-        update.keySet().forEach(entry -> updateObj.set(entry, update.get(entry)));
-
-        return queryBuilder().byId(id).permission(permission).updateFirstAndFind(updateObj);
+        return queryBuilder()
+                .byId(id)
+                .permission(permission)
+                .updateFirstAndFind(buildUpdateFromSparseResource(resource));
     }
 
     public Mono<Integer> updateByIdWithoutPermissionCheck(@NonNull String id, BridgeUpdate update) {
@@ -331,20 +320,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Mono<Integer> updateExecute(@NonNull QueryAllParams<T> params, @NonNull T resource) {
-        final Update update = new Update();
-
-        // In case the update is not used to update the policies, then set the policies to null to ensure that the
-        // existing policies are not overwritten.
-        if (resource.getPolicies().isEmpty()) {
-            resource.setPolicies(null);
-        }
-
-        final Map<String, Object> updateMap = getDbObject(resource).toMap();
-        for (Map.Entry<String, Object> entry : updateMap.entrySet()) {
-            update.set(entry.getKey(), entry.getValue());
-        }
-
-        return updateExecute(params, update);
+        return updateExecute(params, buildUpdateFromSparseResource(resource));
     }
 
     public Mono<Integer> updateExecute(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
@@ -391,6 +367,38 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         } else {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
         }
+    }
+
+    public BridgeUpdate buildUpdateFromSparseResource(T resource) {
+        // In case the update is not used to update the policies, then set the policies to null to ensure that the
+        // existing policies are not overwritten.
+        if (CollectionUtils.isEmpty(resource.getPolicies())) {
+            resource.setPolicies(null);
+        }
+
+        final BridgeUpdate update = Bridge.update();
+
+        ReflectionUtils.doWithFields(
+                resource.getClass(),
+                field -> {
+                    if (field.isAnnotationPresent(Transient.class) || BaseDomain.Fields.id.equals(field.getName())) {
+                        return;
+                    }
+
+                    final int modifiers = field.getModifiers();
+                    if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)) {
+                        return;
+                    }
+
+                    field.setAccessible(true);
+                    final Object value = field.get(resource);
+                    if (value != null) {
+                        update.set(field.getName(), value);
+                    }
+                },
+                null);
+
+        return update.set(BaseDomain.Fields.updatedAt, Instant.now());
     }
 
     /**
