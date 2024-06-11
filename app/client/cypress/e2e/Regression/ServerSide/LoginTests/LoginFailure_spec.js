@@ -24,7 +24,7 @@ describe("Login failure", function () {
           );
         }),
       );
-    cy.LoginUser("user@error.com", "pwd_error", false);
+    cy.LoginFromAPI("user@error.com", "pwd_error");
     cy.GetUrlQueryParams().then((queryParams) => {
       expect(decodeURIComponent(queryParams.error)).to.eq("true");
       expect(decodeURIComponent(queryParams.redirectUrl)).to.eq(
@@ -36,7 +36,7 @@ describe("Login failure", function () {
           true,
         ),
       );
-      cy.LoginUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     }),
       cy.url().then((url) => {
         agHelper.AssertElementVisibility(locators._emptyPageTxt);
