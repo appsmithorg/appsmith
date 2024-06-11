@@ -45,7 +45,7 @@ jest.mock("selectors/layoutSystemSelectors", () => ({
   getLayoutSystemType: jest.fn(),
 }));
 describe("pasteSagas", () => {
-  const pageId = "pageId";
+  const pageId = "0123456789abcdef00000000";
 
   beforeAll(() => {
     registerLayoutComponents();
