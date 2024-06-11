@@ -771,7 +771,12 @@ public class AmazonS3Plugin extends BasePlugin {
                                 requestParams.add(
                                         new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
-                                deleteMultipleObjects(connection, bucketName, path);
+                                List<Property> properties = datasourceConfiguration.getProperties();
+                                String s3Provider = (String) properties
+                                        .get(S3_SERVICE_PROVIDER_PROPERTY_INDEX)
+                                        .getValue();
+
+                                deleteMultipleObjects(s3Provider, connection, bucketName, path);
                                 actionResult = Map.of("status", "All files deleted successfully");
                                 break;
                                 /**
@@ -830,7 +835,7 @@ public class AmazonS3Plugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private void deleteMultipleObjects(AmazonS3 connection, String bucketName, String path)
+        private void deleteMultipleObjects(String s3Provider, AmazonS3 connection, String bucketName, String path)
                 throws AppsmithPluginException {
             List<String> listOfFiles;
             try {
@@ -844,7 +849,13 @@ public class AmazonS3Plugin extends BasePlugin {
 
             DeleteObjectsRequest deleteObjectsRequest = getDeleteObjectsRequest(bucketName, listOfFiles);
             try {
-                connection.deleteObjects(deleteObjectsRequest);
+                if (GOOGLE_CLOUD_SERVICE_PROVIDER.equals(s3Provider)) {
+                    for (String filePath : listOfFiles) {
+                        connection.deleteObject(bucketName, filePath);
+                    }
+                } else {
+                    connection.deleteObjects(deleteObjectsRequest);
+                }
             } catch (SdkClientException e) {
                 throw new AppsmithPluginException(
                         S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
