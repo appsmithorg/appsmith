@@ -1823,3 +1823,31 @@ const updateListWidgetBindings = (
 
   return widgets;
 };
+
+/**
+ * A function to check if paste of widgets can work without conflicts by checking the source and target layout systems
+ * @param sourceLayoutSystem The layout system from which the widgets to be pasted were copied/cut
+ * @param targetLayoutSystem The layout system to which the copied/cut widgets are pasted
+ * @returns boolean: Is there a conflict?
+ */
+export function isLayoutSystemConflictingForPaste(
+  targetLayoutSystem: LayoutSystemTypes,
+  sourceLayoutSystem?: LayoutSystemTypes,
+) {
+  // If source is not ANVIL and the target is ANVIL, we will have a conflict
+  if (
+    sourceLayoutSystem !== LayoutSystemTypes.ANVIL &&
+    targetLayoutSystem === LayoutSystemTypes.ANVIL
+  ) {
+    return true;
+  }
+  // If source is ANVIL and target is not ANVIL, we will have a conflict
+  if (
+    sourceLayoutSystem === LayoutSystemTypes.ANVIL &&
+    targetLayoutSystem !== LayoutSystemTypes.ANVIL
+  ) {
+    return true;
+  }
+  // All other scenarios should work fine.
+  return false;
+}

@@ -1,7 +1,10 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLeading } from "redux-saga/effects";
-import { getSelectedWidgetWhenPasting } from "sagas/WidgetOperationUtils";
+import {
+  getSelectedWidgetWhenPasting,
+  isLayoutSystemConflictingForPaste,
+} from "sagas/WidgetOperationUtils";
 import { getWidgets } from "sagas/selectors";
 import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
 import { builderURL } from "@appsmith/RouteBuilder";
@@ -26,6 +29,13 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "WidgetProvider/factory";
 import { getIsAnvilLayout } from "../../selectors";
 import { widgetHierarchy } from "layoutSystems/anvil/utils/constants";
+import type { LayoutSystemTypes } from "layoutSystems/types";
+import {
+  ERROR_PASTE_LAYOUT_SYSTEM_CONFLICT,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { toast } from "design-system";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 function* pasteAnvilModalWidgets(
   allWidgets: CanvasWidgetsReduxState,
@@ -53,10 +63,27 @@ function* pasteAnvilModalWidgets(
 export function* pasteWidgetSagas() {
   try {
     const {
+      layoutSystemType,
       widgets: copiedWidgets,
     }: {
+      layoutSystemType?: LayoutSystemTypes;
       widgets: CopiedWidgetData[];
     } = yield getCopiedWidgets();
+
+    const currentLayoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
+    if (
+      isLayoutSystemConflictingForPaste(
+        currentLayoutSystemType,
+        layoutSystemType,
+      )
+    ) {
+      toast.show(createMessage(ERROR_PASTE_LAYOUT_SYSTEM_CONFLICT), {
+        kind: "info",
+      });
+      return;
+    }
+
     const modalWidgets = copiedWidgets.filter(
       (widget) => widget.hierarchy === widgetHierarchy.WDS_MODAL_WIDGET,
     );
