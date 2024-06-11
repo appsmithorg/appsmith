@@ -14,6 +14,7 @@ export function sanitizeScript(js: string, evaluationVersion: number) {
   return evaluationVersion > 1 ? trimmedJS : unescapeJS(trimmedJS);
 }
 
+
 // For the times when you need to know if something truly an object like { a: 1, b: 2}
 // typeof, lodash.isObject and others will return false positives for things like array, null, etc
 export const isTrueObject = (
