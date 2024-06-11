@@ -124,9 +124,6 @@ public class JsonSchemaMigration {
             case 6:
                 MigrationHelperMethods.ensureXmlParserPresenceInCustomJsLibList(applicationJson);
                 applicationJson.setServerSchemaVersion(7);
-            case 7:
-                applicationJson.setServerSchemaVersion(8);
-
             default:
                 // Unable to detect the serverSchema
         }

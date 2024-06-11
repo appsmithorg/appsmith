@@ -3,7 +3,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { all, call, put, select, takeLeading } from "redux-saga/effects";
 import { getSelectedWidgetWhenPasting } from "sagas/WidgetOperationUtils";
 import { getWidgets } from "sagas/selectors";
-import { updateAndSaveAnvilLayout } from "../../utils/anvilChecksUtils";
+import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import {
@@ -18,13 +18,13 @@ import type {
   CopiedWidgetData,
   PasteDestinationInfo,
   PastePayload,
-} from "../../utils/paste/types";
+} from "../../../utils/paste/types";
 import { getCopiedWidgets } from "utils/storage";
 import { getDestinedParent } from "layoutSystems/anvil/utils/paste/destinationUtils";
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "WidgetProvider/factory";
-import { getIsAnvilLayout } from "../selectors";
+import { getIsAnvilLayout } from "../../selectors";
 import { widgetHierarchy } from "layoutSystems/anvil/utils/constants";
 
 function* pasteAnvilModalWidgets(
@@ -50,7 +50,7 @@ function* pasteAnvilModalWidgets(
   return res;
 }
 
-function* pasteWidgetSagas() {
+export function* pasteWidgetSagas() {
   try {
     const {
       widgets: copiedWidgets,
@@ -69,7 +69,6 @@ function* pasteWidgetSagas() {
 
     const selectedWidget: FlattenedWidgetProps =
       yield getSelectedWidgetWhenPasting();
-
     if (!selectedWidget) return;
 
     let allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -117,7 +116,6 @@ function* pasteWidgetSagas() {
       widgetIdMap = res.widgetIdMap;
       reverseWidgetIdMap = res.reverseWidgetIdMap;
     }
-
     if (modalWidgets.length > 0) {
       // paste into main canvas
       const res: PastePayload = yield call(

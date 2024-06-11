@@ -91,7 +91,7 @@ describe(
 
       //isSpellCheck: false
       cy.openPropertyPane("inputwidgetv2");
-      cy.togglebarDisable(commonlocators.spellCheck + " " + "input");
+      _.agHelper.CheckUncheck(commonlocators.spellCheck + " " + "input", false);
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input")
         .invoke("attr", "spellcheck")
@@ -108,14 +108,14 @@ describe(
 
       //Input Widget Functionality To Check Enabled Widget
       cy.openPropertyPane("inputwidgetv2");
-      cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
+      _.agHelper.CheckUncheck(commonlocators.Disablejs + " " + "input", false);
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input").should("be.enabled");
       _.deployMode.NavigateBacktoEditor();
     });
     it("5. Input Functionality To Unchecked Visible Widget", function () {
       cy.openPropertyPane("inputwidgetv2");
-      cy.togglebarDisable(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input").should("not.exist");
       _.deployMode.NavigateBacktoEditor();
