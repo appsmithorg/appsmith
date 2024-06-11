@@ -18,8 +18,7 @@ public class Migration056AddBranchNameAndDefaultArtifactIndexToApplication {
 
     private final MongoTemplate mongoTemplate;
 
-    public static final String BRANCH_NAME_DEFAULT_ARTIFACT_ID_INDEX =
-            "branchName_defaultArtifactId_deletedAt_deleted";
+    public static final String BRANCH_NAME_DEFAULT_ARTIFACT_ID_INDEX = "branchName_defaultArtifactId_deletedAt_deleted";
 
     public Migration056AddBranchNameAndDefaultArtifactIndexToApplication(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
