@@ -8,6 +8,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
@@ -28,6 +29,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -90,6 +92,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final ApplicationPageService applicationPageService;
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
+    private final DatasourceService datasourceService;
+    private final CustomJSLibService customJSLibService;
 
     @Override
     public Mono<Application> importResourceInPage(
@@ -469,17 +473,31 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                         }
                                     });
                                 });
+                        // Fetch the datasource and customJsLibs
+                        Mono<List<Datasource>> datasourceList = datasourceService
+                                .getAllByWorkspaceIdWithStorages(
+                                        buildingBlockDTO.getWorkspaceId(), AclPermission.MANAGE_DATASOURCES)
+                                .collectList();
+                        Mono<List<CustomJSLib>> customJSLibs = customJSLibService.getAllJSLibsInContext(
+                                buildingBlockDTO.getApplicationId(), CreatorContextType.APPLICATION, branchName, false);
 
                         // Fetch all actions and action collections and update the onPageLoadActions with correct ids
-                        return actionCollectionService
-                                .findByPageId(buildingBlockDTO.getPageId())
-                                .collectList()
-                                .zipWith(newActionService
-                                        .findByPageId(buildingBlockDTO.getPageId())
-                                        .collectList())
+                        return Mono.zip(
+                                        actionCollectionService
+                                                .findByPageId(buildingBlockDTO.getPageId())
+                                                .collectList(),
+                                        newActionService
+                                                .findByPageId(buildingBlockDTO.getPageId())
+                                                .collectList(),
+                                        datasourceList,
+                                        customJSLibs)
                                 .flatMap(tuple -> {
                                     List<ActionCollection> actionCollections = tuple.getT1();
                                     List<NewAction> newActions = tuple.getT2();
+                                    buildingBlockResponseDTO.setNewActionList(newActions);
+                                    buildingBlockResponseDTO.setActionCollectionList(actionCollections);
+                                    buildingBlockResponseDTO.setDatasourceList(tuple.getT3());
+                                    buildingBlockResponseDTO.setCustomJSLibList(tuple.getT4());
 
                                     actionCollections.forEach(actionCollection -> {
                                         if (newOnPageLoadActionNames.contains(actionCollection
