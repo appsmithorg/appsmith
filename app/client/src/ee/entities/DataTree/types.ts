@@ -9,3 +9,24 @@ export const ENTITY_TYPE = {
 
 type ValueOf<T> = T[keyof T];
 export type EntityTypeValue = ValueOf<typeof ENTITY_TYPE>;
+
+export type JSFunctionProperty = {
+  type: 'function';
+  key: string;
+  value: string;
+  arguments?: Array<{ paramName: string; defaultValue: unknown }>;
+};
+
+export type JSLiteralProperty = {
+  type: 'literal';
+  key: string;
+  value: unknown;
+};
+
+export type JSVariableProperty = {
+  type: 'variable';
+  key: string;
+  value: unknown;
+};
+
+export type JSParsedElement = JSFunctionProperty | JSLiteralProperty | JSVariableProperty;

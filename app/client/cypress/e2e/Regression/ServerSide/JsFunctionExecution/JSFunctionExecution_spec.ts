@@ -202,14 +202,22 @@ describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
       highlightedLintText: string,
     ) => {
       // create jsObject that doesn't start with 'export default'
-      jsEditor.CreateJSObject(jsCode, {
+      jsEditor.CreateJSObject(jsCode.trim(), {
         paste: true,
         completeReplace: true,
         toRun: false,
         shouldCreateNewJSObj: true,
       });
 
-      
+      // Assert presence of lint error at the start line
+      if (!jsCode.startsWith('export default')) {
+        agHelper.GetNAssertElementText(
+          locators._lintErrorElement,
+          highlightedLintText,
+          "contain.text",
+          -1,
+        );
+      }
       
       // Assert presence of lint error at the start line
       agHelper.GetNAssertElementText(

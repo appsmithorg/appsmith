@@ -1,5 +1,5 @@
 import { get, isEmpty, isUndefined, set } from "lodash";
-import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity,SFunctionProperty, JSLiteralProperty, JSVariableProperty, JSParsedElement } from "@appsmith/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
 import type { JSUpdate, ParsedJSSubAction } from "utils/JSPaneUtils";
@@ -85,23 +85,30 @@ export function saveResolvedFunctionsAndJSUpdates(
   entityName: string,
 ) {
   jsPropertiesState.delete(entityName);
+
+  let bodyTrimmed = "";
+  if (entity.hasOwnProperty("body") && typeof entity.body === "string") {
+    bodyTrimmed = entity.body.trim();
+  }
+
   const correctFormat =
     entity.hasOwnProperty("body") &&
-    !isUndefined(entity.body) &&
-    validJSBodyRegex.test(entity.body);
+    typeof entity.body === "string" &&
+    validJSBodyRegex.test(bodyTrimmed);
+
   const isEmptyBody =
     entity.hasOwnProperty("body") &&
-    !isUndefined(entity.body) &&
-    entity?.body.trim() === "";
+    typeof entity.body === "string" &&
+    bodyTrimmed === "";
 
-  if (!isUndefined(entity.body) && (correctFormat || isEmptyBody || entity.body.trim() === "")) { {
+  if (typeof entity.body === "string" && (correctFormat || isEmptyBody)) {
     try {
       JSObjectCollection.deleteResolvedFunction(entityName);
       JSObjectCollection.deleteUnEvalState(entityName);
       JSObjectCollection.clearCachedVariablesForEvaluationContext(entityName);
 
       const parseStartTime = performance.now();
-      const { parsedObject, success } = parseJSObject(entity.body);
+      const { parsedObject, success } = parseJSObject(bodyTrimmed);
       const parseEndTime = performance.now();
       const JSObjectASTParseTime = getFixedTimeDifference(
         parseEndTime,
@@ -116,7 +123,7 @@ export function saveResolvedFunctionsAndJSUpdates(
       if (success) {
         if (!!parsedObject) {
           jsPropertiesState.update(entityName, parsedObject);
-          parsedObject.forEach((parsedElement) => {
+          parsedObject.forEach((parsedElement: JSParsedElement) => {
             if (isJSFunctionProperty(parsedElement)) {
               try {
                 ExecutionMetaData.setExecutionMetaData({
@@ -138,7 +145,7 @@ export function saveResolvedFunctionsAndJSUpdates(
 
                   if (parsedElement.arguments) {
                     params = parsedElement.arguments.map(
-                      ({ defaultValue, paramName }) => ({
+                      ({ defaultValue, paramName }: { defaultValue: unknown, paramName: string }) => ({
                         name: paramName,
                         value: defaultValue,
                       }),
@@ -200,7 +207,7 @@ export function saveResolvedFunctionsAndJSUpdates(
         }
       }
     } catch (e) {
-      //if we need to push error as popup in case
+      // if we need to push error as popup in case
     }
   } else {
     const parsedBody = {
@@ -214,7 +221,7 @@ export function saveResolvedFunctionsAndJSUpdates(
     });
   }
 
-  if (!correctFormat && !isUndefined(entity.body)) {
+  if (!correctFormat && typeof entity.body === "string") {
     const errors = {
       type: EvalErrorTypes.PARSE_JS_ERROR,
       context: {
@@ -361,4 +368,5 @@ export function updateEvalTreeValueFromContext(paths: string[][]) {
       );
     }
   }
+}
 }

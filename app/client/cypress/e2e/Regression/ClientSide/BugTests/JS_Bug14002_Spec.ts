@@ -16,7 +16,7 @@ describe(
 
       const INVALID_START_STATEMENT = "Start object with export default";
 
-      _.jsEditor.CreateJSObject(JSObjectWithInvalidExport, {
+      _.jsEditor.CreateJSObject(JSObjectWithInvalidExport.trim(), {
         paste: true,
         completeReplace: true,
         toRun: false,
