@@ -13,7 +13,7 @@ describe("getQueryEntityItemUrl", () => {
       key: "abc",
     };
 
-    expect(() => getQueryEntityItemUrl(item, "testPage")).toThrow();
+    expect(() => getQueryEntityItemUrl(item, "")).toThrow();
   });
 
   it("returns url for a query type plugin", () => {
@@ -23,14 +23,14 @@ describe("getQueryEntityItemUrl", () => {
       key: "abc",
     };
 
-    expect(getQueryEntityItemUrl(item, "testPage")).toEqual(
-      "/app/application/page-testPage/edit/queries/abc",
+    expect(getQueryEntityItemUrl(item, "0123456789abcdef00000000")).toEqual(
+      "/app/application/page-0123456789abcdef00000000/edit/queries/abc",
     );
   });
 });
 
 describe("getQueryUrl", () => {
-  urlBuilder.setCurrentPageId("testPage");
+  urlBuilder.setCurrentPageId("0123456789abcdef00000000");
   it("gets the correct SAAS plugin url", () => {
     const focusEntity: FocusEntityInfo = {
       entity: FocusEntity.QUERY,
@@ -44,12 +44,12 @@ describe("getQueryUrl", () => {
 
     const url = getQueryUrl(focusEntity, false);
     expect(url).toEqual(
-      "/app/application/page-testPage/edit/saas/google-sheets-plugin/api/abc",
+      "/app/application/page-0123456789abcdef00000000/edit/saas/google-sheets-plugin/api/abc",
     );
 
     const addUrl = getQueryUrl(focusEntity);
     expect(addUrl).toEqual(
-      "/app/application/page-testPage/edit/saas/google-sheets-plugin/api/abc/add",
+      "/app/application/page-0123456789abcdef00000000/edit/saas/google-sheets-plugin/api/abc/add",
     );
   });
 
@@ -64,10 +64,14 @@ describe("getQueryUrl", () => {
     };
 
     const url = getQueryUrl(focusEntity, false);
-    expect(url).toEqual("/app/application/page-testPage/edit/api/abc");
+    expect(url).toEqual(
+      "/app/application/page-0123456789abcdef00000000/edit/api/abc",
+    );
 
     const addUrl = getQueryUrl(focusEntity);
-    expect(addUrl).toEqual("/app/application/page-testPage/edit/api/abc/add");
+    expect(addUrl).toEqual(
+      "/app/application/page-0123456789abcdef00000000/edit/api/abc/add",
+    );
   });
 
   it("gets the correct Query Plugin url", () => {
@@ -81,11 +85,13 @@ describe("getQueryUrl", () => {
     };
 
     const url = getQueryUrl(focusEntity, false);
-    expect(url).toEqual("/app/application/page-testPage/edit/queries/abc");
+    expect(url).toEqual(
+      "/app/application/page-0123456789abcdef00000000/edit/queries/abc",
+    );
 
     const addUrl = getQueryUrl(focusEntity);
     expect(addUrl).toEqual(
-      "/app/application/page-testPage/edit/queries/abc/add",
+      "/app/application/page-0123456789abcdef00000000/edit/queries/abc/add",
     );
   });
 
@@ -100,7 +106,9 @@ describe("getQueryUrl", () => {
     };
 
     const url = getQueryUrl(focusEntity);
-    expect(url).toEqual("/app/application/page-testPage/edit/queries");
+    expect(url).toEqual(
+      "/app/application/page-0123456789abcdef00000000/edit/queries",
+    );
   });
 
   it("returns query url even if the focus is on another entity type", () => {
@@ -114,9 +122,13 @@ describe("getQueryUrl", () => {
     };
 
     const url = getQueryUrl(focusEntity, false);
-    expect(url).toEqual("/app/application/page-testPage/edit/queries");
+    expect(url).toEqual(
+      "/app/application/page-0123456789abcdef00000000/edit/queries",
+    );
 
     const addUrl = getQueryUrl(focusEntity);
-    expect(addUrl).toEqual("/app/application/page-testPage/edit/queries/add");
+    expect(addUrl).toEqual(
+      "/app/application/page-0123456789abcdef00000000/edit/queries/add",
+    );
   });
 });
