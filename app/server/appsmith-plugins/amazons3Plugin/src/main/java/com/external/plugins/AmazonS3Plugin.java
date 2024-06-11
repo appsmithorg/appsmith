@@ -5,7 +5,6 @@ import com.amazonaws.SdkClientException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.AmazonS3Exception;
 import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -842,22 +841,16 @@ public class AmazonS3Plugin extends BasePlugin {
                         e.getMessage());
             }
 
-            DeleteObjectsRequest deleteObjectsRequest = getDeleteObjectsRequest(bucketName, listOfFiles);
-            try {
-                connection.deleteObjects(deleteObjectsRequest);
-            } catch (SdkClientException e) {
-                throw new AppsmithPluginException(
-                        S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
-                        S3ErrorMessages.FILE_CANNOT_BE_DELETED_ERROR_MSG,
-                        e.getMessage());
+            for (String filePath : listOfFiles) {
+                try {
+                    connection.deleteObject(bucketName, filePath);
+                } catch (SdkClientException e) {
+                    throw new AppsmithPluginException(
+                            S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
+                            S3ErrorMessages.FILE_CANNOT_BE_DELETED_ERROR_MSG,
+                            e.getMessage());
+                }
             }
-        }
-
-        private DeleteObjectsRequest getDeleteObjectsRequest(String bucketName, List<String> listOfFiles) {
-            DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName);
-
-            /* Ref: https://stackoverflow.com/questions/9863742/how-to-pass-an-arraylist-to-a-varargs-method-parameter */
-            return deleteObjectsRequest.withKeys(listOfFiles.toArray(new String[0]));
         }
 
         @Override
