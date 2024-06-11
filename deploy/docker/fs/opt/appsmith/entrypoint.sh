@@ -51,7 +51,7 @@ init_env_file() {
   tlog "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
     # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
-    echo "Generating default configuration file"
+    tlog "Generating default configuration file"
     mkdir -p "$CONF_PATH"
     local default_appsmith_mongodb_user="appsmith"
     local generated_appsmith_mongodb_password=$(
