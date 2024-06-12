@@ -22,6 +22,7 @@ require("dotenv").config({ path: APPLICATION_CONFIG_PATH });
 // AGAIN: Check if APPSMITH_DB_URL is set, if not set, fall back to APPSMITH_MONGODB_URI
 if (!process.env.APPSMITH_DB_URL) {
   process.env.APPSMITH_DB_URL = process.env.APPSMITH_MONGODB_URI;
+  delete process.env.APPSMITH_MONGODB_URI;
 }
 
 const command = process.argv[2];
