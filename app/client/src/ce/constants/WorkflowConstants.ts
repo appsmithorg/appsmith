@@ -1,3 +1,5 @@
+import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
+
 type ID = string;
 
 // Type for the workflow object.
@@ -14,6 +16,7 @@ export interface Workflow {
   slug: string; // Slug of the workflow (Not in use currently).
   mainJsObjectId: string; // ID of the main JS object.
   tokenGenerated: boolean;
+  evaluationVersion?: EvaluationVersion;
   token?: string;
 }
 
