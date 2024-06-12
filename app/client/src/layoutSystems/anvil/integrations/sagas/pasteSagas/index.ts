@@ -1,10 +1,7 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLeading } from "redux-saga/effects";
-import {
-  getSelectedWidgetWhenPasting,
-  isLayoutSystemConflictingForPaste,
-} from "sagas/WidgetOperationUtils";
+import { getSelectedWidgetWhenPasting } from "sagas/WidgetOperationUtils";
 import { getWidgets } from "sagas/selectors";
 import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
 import { builderURL } from "@appsmith/RouteBuilder";
@@ -25,18 +22,10 @@ import type {
 import { getCopiedWidgets } from "utils/storage";
 import { getDestinedParent } from "layoutSystems/anvil/utils/paste/destinationUtils";
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
-import type { PasteWidgetReduxAction } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "WidgetProvider/factory";
 import { getIsAnvilLayout } from "../../selectors";
 import { widgetHierarchy } from "layoutSystems/anvil/utils/constants";
-import type { LayoutSystemTypes } from "layoutSystems/types";
-import {
-  ERROR_PASTE_LAYOUT_SYSTEM_CONFLICT,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { toast } from "design-system";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 function* pasteAnvilModalWidgets(
   allWidgets: CanvasWidgetsReduxState,
@@ -68,7 +57,6 @@ export function* pasteWidgetSagas() {
     }: {
       widgets: CopiedWidgetData[];
     } = yield getCopiedWidgets();
-
     const modalWidgets = copiedWidgets.filter(
       (widget) => widget.hierarchy === widgetHierarchy.WDS_MODAL_WIDGET,
     );
@@ -174,33 +162,6 @@ export function* pasteWidgetSagas() {
   }
 }
 
-function* verifyPasteFeasibilitySaga(
-  action: ReduxAction<PasteWidgetReduxAction>,
-) {
-  const {
-    layoutSystemType,
-  }: {
-    layoutSystemType?: LayoutSystemTypes;
-  } = yield getCopiedWidgets();
-
-  const currentLayoutSystemType: LayoutSystemTypes =
-    yield select(getLayoutSystemType);
-
-  if (
-    isLayoutSystemConflictingForPaste(currentLayoutSystemType, layoutSystemType)
-  ) {
-    toast.show(createMessage(ERROR_PASTE_LAYOUT_SYSTEM_CONFLICT), {
-      kind: "info",
-    });
-    return;
-  }
-
-  yield put({
-    type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
-    payload: action.payload,
-  });
-}
-
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
   if (isAnvilLayout) {
@@ -214,10 +175,6 @@ export default function* pasteSagas() {
       ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
       shouldCallSaga,
       pasteWidgetSagas,
-    ),
-    takeLeading(
-      ReduxActionTypes.VERIFY_LAYOUT_SYSTEM_AND_PASTE_WIDGETS,
-      verifyPasteFeasibilitySaga,
     ),
   ]);
 }

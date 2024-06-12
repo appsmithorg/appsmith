@@ -403,7 +403,7 @@ export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
 export const ERROR_WIDGET_CUT_NOT_ALLOWED = () =>
   `This selected widget cannot be cut.`;
 export const ERROR_PASTE_LAYOUT_SYSTEM_CONFLICT = () =>
-  `The copied widgets are not compatible with this layout system, and cannot be pasted. Please check the layout system type of the source of the copied widgets, and make sure that it is the same as this application`;
+  `The widgets are not compatible with this layout system, and cannot be added to the page. Please check the layout system type of the source of the widgets, and make sure that it is the same as this application`;
 export const SELECT_ALL_WIDGETS_MSG = () =>
   `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
