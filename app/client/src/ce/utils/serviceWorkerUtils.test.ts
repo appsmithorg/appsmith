@@ -11,7 +11,6 @@ import {
 } from "./serviceWorkerUtils";
 import { Mutex } from "async-mutex";
 import { Request as NFRequest, Response as NFResponse } from "node-fetch";
-import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
 
 (global as any).fetch = jest.fn() as jest.Mock;
 (global as any).caches = {
@@ -324,7 +323,7 @@ describe("serviceWorkerUtils", () => {
       const request = getConsolidatedApiPrefetchRequest(params);
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
-        `https://app.appsmith.com/api/${ConsolidatedPageLoadApi.consolidatedApiEditUrl}?defaultPageId=page123&applicationId=app123`,
+        `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=page123&applicationId=app123`,
       );
       expect(request?.method).toBe("GET");
       expect(request?.headers.get("Branchname")).toBe("main");
@@ -342,7 +341,7 @@ describe("serviceWorkerUtils", () => {
       const request = getConsolidatedApiPrefetchRequest(params);
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
-        `https://app.appsmith.com/api/${ConsolidatedPageLoadApi.consolidatedApiViewUrl}?defaultPageId=page123&applicationId=app123`,
+        `https://app.appsmith.com/api/v1/consolidated-api/view?defaultPageId=page123&applicationId=app123`,
       );
       expect(request?.method).toBe("GET");
       expect(request?.headers.get("Branchname")).toBe("main");
@@ -359,7 +358,7 @@ describe("serviceWorkerUtils", () => {
       const request = getConsolidatedApiPrefetchRequest(params);
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
-        `https://app.appsmith.com/api/${ConsolidatedPageLoadApi.consolidatedApiEditUrl}?defaultPageId=page123`,
+        `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=page123`,
       );
       expect(request?.method).toBe("GET");
       expect(request?.headers.get("Branchname")).toBe("main");
@@ -376,7 +375,7 @@ describe("serviceWorkerUtils", () => {
       const request = getConsolidatedApiPrefetchRequest(params);
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
-        `https://app.appsmith.com/api/${ConsolidatedPageLoadApi.consolidatedApiViewUrl}?defaultPageId=page123`,
+        `https://app.appsmith.com/api/v1/consolidated-api/view?defaultPageId=page123`,
       );
       expect(request?.method).toBe("GET");
       expect(request?.headers.get("Branchname")).toBe("main");
@@ -407,7 +406,7 @@ describe("serviceWorkerUtils", () => {
       const [consolidatedAPIRequest] = requests;
       expect(consolidatedAPIRequest).toBeInstanceOf(Request);
       expect(consolidatedAPIRequest?.url).toBe(
-        `https://app.appsmith.com/api/${ConsolidatedPageLoadApi.consolidatedApiEditUrl}?defaultPageId=page123`,
+        `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=page123`,
       );
       expect(consolidatedAPIRequest?.method).toBe("GET");
       expect(consolidatedAPIRequest?.headers.get("Branchname")).toBe("main");

@@ -1,4 +1,3 @@
-import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
 import { Mutex } from "async-mutex";
 import { APP_MODE } from "entities/App";
 import type { Match, TokensToRegexpOptions } from "path-to-regexp";
@@ -118,14 +117,14 @@ export const getConsolidatedApiPrefetchRequest = (
 
   // If the URL matches the builder path
   if (appMode === APP_MODE.EDIT) {
-    const requestUrl = `${origin}/api/${ConsolidatedPageLoadApi.consolidatedApiEditUrl}?${searchParams.toString()}`;
+    const requestUrl = `${origin}/api/${"v1/consolidated-api/edit"}?${searchParams.toString()}`;
     const request = new Request(requestUrl, { method: "GET", headers });
     return request;
   }
 
   // If the URL matches the viewer path
   if (appMode === APP_MODE.PUBLISHED) {
-    const requestUrl = `${origin}/api/${ConsolidatedPageLoadApi.consolidatedApiViewUrl}?${searchParams.toString()}`;
+    const requestUrl = `${origin}/api/v1/consolidated-api/view?${searchParams.toString()}`;
     const request = new Request(requestUrl, { method: "GET", headers });
     return request;
   }
