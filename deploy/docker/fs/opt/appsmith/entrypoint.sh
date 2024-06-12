@@ -363,6 +363,7 @@ configure_supervisord() {
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
     fi
+    echo "Run Embedded Postgres: $runEmbeddedPostgres"
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
     fi
