@@ -15,11 +15,15 @@ public class BuildingBlockResponseDTO {
 
     List<DslExecutableDTO> onPageLoadActions;
 
+    // New actions created in the current flow
     List<NewAction> newActionList;
 
+    // New actionCollection created in the current flow
     List<ActionCollection> actionCollectionList;
 
+    // All datasource in the workspace
     List<Datasource> datasourceList;
 
+    // All libraries used in the current application
     List<CustomJSLib> customJSLibList;
 }

@@ -494,10 +494,24 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 .flatMap(tuple -> {
                                     List<ActionCollection> actionCollections = tuple.getT1();
                                     List<NewAction> newActions = tuple.getT2();
-                                    buildingBlockResponseDTO.setNewActionList(newActions);
-                                    buildingBlockResponseDTO.setActionCollectionList(actionCollections);
+
                                     buildingBlockResponseDTO.setDatasourceList(tuple.getT3());
                                     buildingBlockResponseDTO.setCustomJSLibList(tuple.getT4());
+                                    // Filter the newly created actions and actionCollection
+                                    buildingBlockResponseDTO.setNewActionList(newActions.stream()
+                                            .filter(newAction -> buildingBlockImportDTO
+                                                    .getRefactoredEntityNameMap()
+                                                    .containsValue(newAction
+                                                            .getUnpublishedAction()
+                                                            .getName()))
+                                            .toList());
+                                    buildingBlockResponseDTO.setActionCollectionList(actionCollections.stream()
+                                            .filter(actionCollection -> buildingBlockImportDTO
+                                                    .getRefactoredEntityNameMap()
+                                                    .containsValue(actionCollection
+                                                            .getUnpublishedCollection()
+                                                            .getName()))
+                                            .toList());
 
                                     actionCollections.forEach(actionCollection -> {
                                         if (newOnPageLoadActionNames.contains(actionCollection
