@@ -82,11 +82,9 @@ jobs:
 
       - name: Set base image tag
         id: set_base_tag
-        env:
-          IS_PG_BUILD: ${{ inputs.is-pg-build }}
         run: |
           if [[ "${{ inputs.pr }}" != 0 || "${{ github.ref_name }}" != master ]]; then
-            if [[ $IS_PG_BUILD == 'true' || "${{ github.ref_name }}" == pg ]]; then
+            if [[ ${{ inputs.is-pg-build }} == 'true' || "${{ github.ref_name }}" == pg ]]; then
               base_tag=pg
             else
               base_tag=release
