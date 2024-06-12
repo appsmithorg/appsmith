@@ -28,6 +28,7 @@ type CardProps = PropsWithChildren<{
   titleTestId: string;
   isSelected?: boolean;
   hasEditPermission?: boolean;
+  showAnvilTag: boolean;
 }>;
 
 interface NameWrapperProps {
@@ -187,6 +188,7 @@ const Wrapper = styled(
       hasReadPermission?: boolean;
       backgroundColor: string;
       isMobile?: boolean;
+      $showAnvilTag: boolean;
     },
   ) => (
     <BlueprintCard
@@ -220,6 +222,26 @@ const Wrapper = styled(
     `
     width: 100% !important;
     height: 126px !important;
+  `}
+
+  ${({ $showAnvilTag }) =>
+    $showAnvilTag &&
+    `
+    &::after {
+      content: "New Layout System (BETA)";
+      background: teal;
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 22px;
+      border-radius: 4px 4px 0px 0px;
+      width: 100%;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      text-align: center;
+      
+    }
   `}
 `;
 
@@ -321,6 +343,7 @@ function Card({
   moreActionItems,
   primaryAction,
   setShowOverlay,
+  showAnvilTag,
   showGitBadge,
   showOverlay,
   testId,
@@ -345,6 +368,7 @@ function Card({
         testId={testId}
       >
         <Wrapper
+          $showAnvilTag={showAnvilTag}
           backgroundColor={backgroundColor}
           className={isFetching ? Classes.SKELETON : `${testId}-background`}
           hasReadPermission={hasReadPermission}
