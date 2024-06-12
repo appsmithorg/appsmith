@@ -153,7 +153,7 @@ describe(
     it("Dropdown Functionality To Check disabled Widget", function () {
       cy.openPropertyPane("selectwidget");
       // Disable the visible JS
-      cy.togglebarDisable(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
       // Verify the disabled visible JS
       cy.get(publish.selectwidget + " " + "input").should("not.exist");

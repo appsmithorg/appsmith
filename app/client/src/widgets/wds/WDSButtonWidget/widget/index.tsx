@@ -153,15 +153,13 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     return (
       <ButtonComponent
         color={this.props.buttonColor}
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         handleRecaptchaV2Loading={this.handleRecaptchaV2Loading}
-        iconName={this.props.iconName}
+        icon={this.props.iconName}
         iconPosition={this.props.iconAlign}
         isDisabled={isDisabled}
         isLoading={this.props.isLoading || this.state.isLoading}
         key={this.props.widgetId}
-        maxWidth={this.props.maxWidth}
-        minHeight={this.props.minHeight}
-        minWidth={this.props.minWidth}
         onPress={onPress}
         onRecaptchaSubmitError={this.onRecaptchaSubmitError}
         onRecaptchaSubmitSuccess={this.onRecaptchaSubmitSuccess}
@@ -169,7 +167,6 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
         recaptchaType={this.props.recaptchaType}
         text={this.props.text}
         tooltip={this.props.tooltip}
-        type={this.props.buttonType || "button"}
         variant={this.props.buttonVariant}
       />
     );

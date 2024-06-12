@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.PluginConstants;
+import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnectionFactory;
 import com.appsmith.external.helpers.restApiUtils.connections.BearerTokenAuthentication;
@@ -17,7 +18,6 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
@@ -74,9 +74,6 @@ import static org.mockito.Mockito.spy;
 @SpringBootTest
 @Slf4j
 public class DatasourceContextServiceTest {
-
-    @Autowired
-    EncryptionService encryptionService;
 
     @Autowired
     WorkspaceRepositoryCake workspaceRepository;
@@ -294,7 +291,7 @@ public class DatasourceContextServiceTest {
                     DBAuth encryptedAuthentication = (DBAuth) savedDatasourceStorageDTO
                             .getDatasourceConfiguration()
                             .getAuthentication();
-                    assertEquals(password, encryptionService.decryptString(encryptedAuthentication.getPassword()));
+                    assertEquals(password, EncryptionHelper.decrypt(encryptedAuthentication.getPassword()));
                      */
                 })
                 .verifyComplete();

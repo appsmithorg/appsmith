@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.helpers.UserServiceHelper;
@@ -37,7 +36,6 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
             PolicySolution policySolution,
             CommonConfig commonConfig,
             EmailConfig emailConfig,
-            EncryptionService encryptionService,
             UserDataService userDataService,
             TenantService tenantService,
             PermissionGroupService permissionGroupService,
@@ -57,7 +55,6 @@ public class UserServiceImpl extends UserServiceCECompatibleImpl implements User
                 passwordResetTokenRepository,
                 passwordEncoder,
                 commonConfig,
-                encryptionService,
                 userDataService,
                 tenantService,
                 userUtils,

@@ -136,7 +136,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       cy.openFieldConfiguration("name");
-      cy.togglebarDisable(widgetsLocators.selectWidgetDisabled);
+      agHelper.CheckUncheck(widgetsLocators.selectWidgetDisabled, false);
       validateAutocompleteAttributeInJSONForm();
     });
 
@@ -175,7 +175,7 @@ describe(
       cy.get(`${fieldPrefix}-check input`).should("be.checked");
 
       // hides field when visible switched off
-      cy.togglebarDisable(widgetsLocators.visible);
+      agHelper.CheckUncheck(widgetsLocators.visible, false);
       deployMode.DeployApp();
       cy.get(`${fieldPrefix}-check`).should("not.exist");
       deployMode.NavigateBacktoEditor();

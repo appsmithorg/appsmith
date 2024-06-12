@@ -17,13 +17,15 @@ import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgets
 import type { DSLWidget } from "WidgetProvider/constants";
 import { nestDSL } from "@shared/dsl";
 
+const pageId = "0123456789abcdef00000000";
+
 export const useMockDsl = (dsl: any, mode?: APP_MODE) => {
   const dispatch = useDispatch();
   dispatch(setAppMode(mode || APP_MODE.EDIT));
   const mockResp: any = {
     data: {
-      id: "page_id",
-      pageId: "page_id",
+      id: pageId,
+      pageId: pageId,
       name: "Page1",
       applicationId: "app_id",
       isDefault: true,
@@ -151,13 +153,13 @@ export const syntheticTestMouseEvent = (
 export function MockApplication({ children }: any) {
   editorInitializer();
   const dispatch = useDispatch();
-  dispatch(initEditor({ pageId: "page_id", mode: APP_MODE.EDIT }));
+  dispatch(initEditor({ pageId: pageId, mode: APP_MODE.EDIT }));
   const mockResp: any = {
     workspaceId: "workspace_id",
     pages: [
       {
-        id: "page_id",
-        pageId: "page_id",
+        id: pageId,
+        pageId: pageId,
         name: "Page1",
         isDefault: true,
         slug: "page-1",
@@ -201,7 +203,7 @@ export function MockApplication({ children }: any) {
   dispatch({
     type: ReduxActionTypes.SWITCH_CURRENT_PAGE_ID,
     payload: {
-      id: "page_id",
+      id: pageId,
       slug: "page-1",
       permissions: [
         "read:pages",
