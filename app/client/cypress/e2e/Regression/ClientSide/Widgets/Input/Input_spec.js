@@ -82,7 +82,7 @@ describe(
 
     it("3. isSpellCheck: true", function () {
       cy.openPropertyPane("inputwidgetv2");
-      cy.togglebar(commonlocators.spellCheck + " " + "input");
+      _.agHelper.CheckUncheck(commonlocators.spellCheck + " " + "input");
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input")
         .invoke("attr", "spellcheck")
@@ -91,7 +91,7 @@ describe(
 
       //isSpellCheck: false
       cy.openPropertyPane("inputwidgetv2");
-      cy.togglebarDisable(commonlocators.spellCheck + " " + "input");
+      _.agHelper.CheckUncheck(commonlocators.spellCheck + " " + "input", false);
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input")
         .invoke("attr", "spellcheck")
@@ -101,28 +101,28 @@ describe(
 
     it("4. Input Widget Functionality To Check Disabled Widget", function () {
       cy.openPropertyPane("inputwidgetv2");
-      cy.togglebar(commonlocators.Disablejs + " " + "input");
+      _.agHelper.CheckUncheck(commonlocators.Disablejs + " " + "input");
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input").should("be.disabled");
       _.deployMode.NavigateBacktoEditor();
 
       //Input Widget Functionality To Check Enabled Widget
       cy.openPropertyPane("inputwidgetv2");
-      cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
+      _.agHelper.CheckUncheck(commonlocators.Disablejs + " " + "input", false);
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input").should("be.enabled");
       _.deployMode.NavigateBacktoEditor();
     });
     it("5. Input Functionality To Unchecked Visible Widget", function () {
       cy.openPropertyPane("inputwidgetv2");
-      cy.togglebarDisable(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input").should("not.exist");
       _.deployMode.NavigateBacktoEditor();
 
       //Input Functionality To Check Visible Widget
       cy.openPropertyPane("inputwidgetv2");
-      cy.togglebar(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input").should("be.visible");
       _.deployMode.NavigateBacktoEditor();

@@ -177,6 +177,18 @@ public class GitUtils {
         return isMigrationRequired;
     }
 
+    public static boolean isMigrationRequired(org.json.JSONObject layoutDsl, Integer latestDslVersion) {
+        boolean isMigrationRequired = true;
+        String versionKey = "version";
+        if (layoutDsl.has(versionKey)) {
+            int currentDslVersion = layoutDsl.getInt(versionKey);
+            if (currentDslVersion >= latestDslVersion) {
+                isMigrationRequired = false;
+            }
+        }
+        return isMigrationRequired;
+    }
+
     public static boolean isAutoCommitEnabled(GitArtifactMetadata gitArtifactMetadata) {
         return gitArtifactMetadata.getAutoCommitConfig() == null
                 || gitArtifactMetadata.getAutoCommitConfig().getEnabled();

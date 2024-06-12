@@ -10,7 +10,7 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.ArtifactImportDTO;
-import com.appsmith.server.dtos.AutoCommitProgressDTO;
+import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
 import com.appsmith.server.dtos.GitDocsDTO;
@@ -105,7 +105,8 @@ public interface CommonGitServiceCE {
 
     Mono<Boolean> toggleAutoCommitEnabled(String defaultArtifactId, ArtifactType artifactType);
 
-    Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId, ArtifactType artifactType);
+    Mono<AutoCommitResponseDTO> getAutoCommitProgress(
+            String applicationId, String branchName, ArtifactType artifactType);
 
     Mono<Boolean> autoCommitApplication(String defaultApplicationId, String branchName, ArtifactType artifactType);
 

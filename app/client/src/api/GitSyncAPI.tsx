@@ -43,6 +43,27 @@ interface GitRemoteStatusParam {
   branch: string;
 }
 
+export enum AutocommitResponseEnum {
+  IN_PROGRESS = "IN_PROGRESS",
+  LOCKED = "LOCKED",
+  PUBLISHED = "PUBLISHED",
+  IDLE = "IDLE",
+  NOT_REQUIRED = "NOT_REQUIRED",
+  NON_GIT_APP = "NON_GIT_APP",
+}
+
+export interface GitAutocommitProgressResponse {
+  autoCommitResponse: AutocommitResponseEnum;
+  progress: number;
+  branchName: string;
+}
+
+export interface GitTriggerAutocommitResponse {
+  autoCommitResponse: AutocommitResponseEnum;
+  progress: number;
+  branchName: string;
+}
+
 class GitSyncAPI extends Api {
   static baseURL = `/v1/git`;
 
@@ -224,6 +245,12 @@ class GitSyncAPI extends Api {
   static async toggleAutocommit(applicationId: string) {
     return Api.patch(
       `${GitSyncAPI.baseURL}/auto-commit/toggle/app/${applicationId}`,
+    );
+  }
+
+  static async triggerAutocommit(applicationId: string, branchName: string) {
+    return Api.post(
+      `${GitSyncAPI.baseURL}/auto-commit/app/${applicationId}?branchName=${branchName}`,
     );
   }
 

@@ -29,6 +29,22 @@ export class AnvilSectionsZonesHelper {
     });
   }
 
+  public mouseDownSpaceDistributionHandle(
+    sectionName: string,
+    distributionHandleIndex: number,
+  ) {
+    const distributionHandleSelector = `${anvilLocators.anvilWidgetNameSelector(sectionName)} ${anvilLocators.anvilSectionDistributionHandle}:nth-child(${distributionHandleIndex})`;
+    cy.get(distributionHandleSelector).trigger("mousedown");
+  }
+
+  public mouseUpSpaceDistributionHandle(
+    sectionName: string,
+    distributionHandleIndex: number,
+  ) {
+    const distributionHandleSelector = `${anvilLocators.anvilWidgetNameSelector(sectionName)} ${anvilLocators.anvilSectionDistributionHandle}:nth-child(${distributionHandleIndex})`;
+    cy.get(distributionHandleSelector).trigger("mouseup");
+  }
+
   public verifyZoneCount(
     sectionOrZoneName: string,
     zoneCount: number,

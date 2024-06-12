@@ -1,20 +1,12 @@
-import { RenderModes } from "constants/WidgetConstants";
 import React from "react";
 import { useSelector } from "react-redux";
-import { previewModeSelector } from "selectors/editorSelectors";
+import { isEditOnlyModeSelector } from "selectors/editorSelectors";
 import { FlexLayout, type FlexLayoutProps } from "../FlexLayout";
 
 export const SectionRow = (props: FlexLayoutProps) => {
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isEditOnlyMode = useSelector(isEditOnlyModeSelector);
   return (
-    <FlexLayout
-      {...props}
-      wrap={
-        !isPreviewMode && props.renderMode === RenderModes.CANVAS
-          ? "nowrap"
-          : "wrap"
-      }
-    >
+    <FlexLayout {...props} wrap={isEditOnlyMode ? "nowrap" : "wrap"}>
       {props.children}
     </FlexLayout>
   );

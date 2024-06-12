@@ -16,6 +16,8 @@ import { JSObjectFactory } from "test/factories/Actions/JSObject";
 const FeatureFlags = {
   rollout_side_by_side_enabled: true,
 };
+
+const pageId = "0123456789abcdef00000000";
 describe("IDE Render: JS", () => {
   localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   describe("JS Blank State", () => {
@@ -25,7 +27,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects`,
           featureFlags: FeatureFlags,
         },
       );
@@ -49,7 +51,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -74,7 +76,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/add`,
           featureFlags: FeatureFlags,
         },
       );
@@ -98,7 +100,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -135,7 +137,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -185,7 +187,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id2",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id2`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -233,7 +235,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id3/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id3/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -271,7 +273,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id4/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id4/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -319,7 +321,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id`,
           initialState: state,
           featureFlags: FeatureFlags,
         },

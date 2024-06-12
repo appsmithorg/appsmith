@@ -43,9 +43,8 @@ describe("useGetPageFocusUrl", () => {
     const { result } = renderHook(() => useGetPageFocusUrl(pages[0].pageId), {
       wrapper,
     });
-
     expect(result.current).toEqual(
-      "/app/application/page-page_id_1/edit/jsObjects/js_id",
+      `/app/application/page-${pages[0].pageId}/edit/jsObjects/js_id`,
     );
   });
 
@@ -53,9 +52,8 @@ describe("useGetPageFocusUrl", () => {
     const { result } = renderHook(() => useGetPageFocusUrl(pages[1].pageId), {
       wrapper,
     });
-
     expect(result.current).toEqual(
-      "/app/application/page-page_id_2/edit/widgets/widgetId",
+      `/app/application/page-${pages[1].pageId}/edit/widgets/widgetId`,
     );
   });
 
@@ -63,9 +61,8 @@ describe("useGetPageFocusUrl", () => {
     const { result } = renderHook(() => useGetPageFocusUrl(pages[2].pageId), {
       wrapper,
     });
-
     expect(result.current).toEqual(
-      "/app/application/page-page_id_3/edit/queries/query_id",
+      `/app/application/page-${pages[2].pageId}/edit/queries/query_id`,
     );
   });
 
@@ -73,8 +70,9 @@ describe("useGetPageFocusUrl", () => {
     const { result } = renderHook(() => useGetPageFocusUrl(pages[3].pageId), {
       wrapper,
     });
-
-    expect(result.current).toEqual("/app/application/page-page_id_4/edit");
+    expect(result.current).toEqual(
+      `/app/application/page-${pages[3].pageId}/edit`,
+    );
   });
 
   it("returns correct state when branches exist", () => {
@@ -104,7 +102,7 @@ describe("useGetPageFocusUrl", () => {
     });
 
     expect(result.current).toEqual(
-      "/app/application/page-page_id_1/edit/widgets/widgetId2",
+      `/app/application/page-${pages[0].pageId}/edit/widgets/widgetId2`,
     );
   });
 });
