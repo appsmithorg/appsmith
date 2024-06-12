@@ -1,0 +1,36 @@
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+
+// Mock return value of getWidgetByName
+export const skeletonWidget: FlattenedWidgetProps = {
+  needsErrorInfo: false,
+  mobileBottomRow: 69,
+  widgetName: "loading_table_lookup",
+  displayName: "Skeleton",
+  topRow: 6,
+  bottomRow: 69,
+  parentRowSpace: 10,
+  type: "SKELETON_WIDGET",
+  hideCard: true,
+  mobileRightColumn: 46,
+  parentColumnSpace: 13.40625,
+  leftColumn: 15,
+  dynamicBindingPathList: [],
+  key: "k0u7iidinm",
+  isDeprecated: false,
+  rightColumn: 46,
+  widgetId: "ndw2y4zajv",
+  onCanvasUI: {
+    selectionBGCSSVar: "--on-canvas-ui-widget-selection",
+    focusBGCSSVar: "--on-canvas-ui-widget-focus",
+    selectionColorCSSVar: "--on-canvas-ui-widget-focus",
+    focusColorCSSVar: "--on-canvas-ui-widget-selection",
+    disableParentSelection: false,
+  },
+  isVisible: true,
+  version: 1,
+  parentId: "0",
+  isLoading: false,
+  renderMode: "CANVAS",
+  mobileTopRow: 6,
+  mobileLeftColumn: 15,
+};
