@@ -1,4 +1,3 @@
-import type { InlineLabelProps } from "@design-system/headless";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface SwitchWidgetProps extends WidgetProps {
@@ -8,5 +7,5 @@ export interface SwitchWidgetProps extends WidgetProps {
   isDisabled?: boolean;
   onChange?: string;
   isRequired?: boolean;
-  labelPosition?: InlineLabelProps["labelPosition"];
+  labelPosition?: "start" | "end";
 }

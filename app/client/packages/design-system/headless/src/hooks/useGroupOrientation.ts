@@ -6,7 +6,6 @@ import {
   useValueEffect,
 } from "@react-aria/utils";
 import type { Orientation } from "@react-types/shared";
-import type { InlineLabelProps } from "../components/Checkbox";
 
 export interface GroupAria {
   orientation?: Orientation;
@@ -15,7 +14,7 @@ export interface GroupAria {
 export function useGroupOrientation(
   props: {
     orientation?: Orientation;
-    optionsLabelPosition?: InlineLabelProps["labelPosition"];
+    optionsLabelPosition?: "start" | "end";
   },
   ref: RefObject<HTMLDivElement>,
 ): GroupAria {
