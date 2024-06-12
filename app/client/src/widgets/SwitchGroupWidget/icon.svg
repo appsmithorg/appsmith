@@ -1,8 +1,1 @@
-<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M21 17H9C5.68629 17 3 19.6863 3 23C3 26.3137 5.68629 29 9 29H21C24.3137 29 27 26.3137 27 23C27 19.6863 24.3137 17 21 17Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M21 1H9C5.68629 1 3 3.68629 3 7C3 10.3137 5.68629 13 9 13H21C24.3137 13 27 10.3137 27 7C27 3.68629 24.3137 1 21 1Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M4 5H15" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M4 9H15" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="21" cy="7" r="6" stroke="#364252" stroke-width="2"/>
-<circle cx="9" cy="23" r="6" stroke="#364252" stroke-width="2"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="#000" stroke-linecap="round" stroke-linejoin="round" d="M10.5 8.5h-6a3 3 0 0 0 0 6h6a3 3 0 1 0 0-6ZM10.5.5h-6a3 3 0 0 0 0 6h6a3 3 0 1 0 0-6ZM2 2.5h5.5M2 4.5h5.5"/><circle cx="10.5" cy="3.5" r="3" stroke="#000"/><circle cx="4.5" cy="11.5" r="3" stroke="#000"/></svg>
