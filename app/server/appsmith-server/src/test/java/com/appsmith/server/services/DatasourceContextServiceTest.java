@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.PluginConstants;
-import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnectionFactory;
 import com.appsmith.external.helpers.restApiUtils.connections.BearerTokenAuthentication;

@@ -1,6 +1,6 @@
 package com.appsmith.external.annotations.encryption;
 
-import com.appsmith.external.services.EncryptionService;
+import com.appsmith.external.helpers.EncryptionHelper;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,16 +19,13 @@ import org.springframework.stereotype.Component;
         "SpringJavaAutowiredFieldsWarningInspection")
 public class EncryptionEntityListener {
 
-    @Autowired
-    private EncryptionService encryptionService;
-
     @PrePersist
     public void prePersist(Object entity) {
-        new EncryptionHandler().convertEncryption(entity, encryptionService::encryptString);
+        new EncryptionHandler().convertEncryption(entity, EncryptionHelper::encrypt);
     }
 
     @PostLoad
     public void postLoad(Object entity) {
-        new EncryptionHandler().convertEncryption(entity, encryptionService::decryptString);
+        new EncryptionHandler().convertEncryption(entity, EncryptionHelper::decrypt);
     }
 }

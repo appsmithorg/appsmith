@@ -157,7 +157,6 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
 import static com.appsmith.server.helpers.ReactorUtils.asMono;
-import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -85,22 +85,6 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.updateExecute(this, update);
     }
 
-    @SafeVarargs
-    public final QueryAllParams<T> criteria(Specification<T>... criteria) {
-        if (criteria == null) {
-            return this;
-        }
-        return criteria(List.of(criteria));
-    }
-
-    public QueryAllParams<T> criteria(List<Specification<T>> criteria) {
-        if (criteria == null) {
-            return this;
-        }
-        specifications.addAll(criteria);
-        return this;
-    }
-
     @SuppressWarnings("unchecked") // This should be okay with the way we use this fluent API.
     public QueryAllParams<T> criteria(Specification<? extends BaseDomain> spec) {
         // TODO: Check if we can use reflection to ensure this typecast is valid.

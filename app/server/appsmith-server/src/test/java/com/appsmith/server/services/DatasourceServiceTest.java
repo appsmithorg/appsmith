@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Connection;
