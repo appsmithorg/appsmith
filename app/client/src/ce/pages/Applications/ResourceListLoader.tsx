@@ -35,6 +35,7 @@ function ResourceListLoader({ isMobile, resources }: ResourcesLoaderProps) {
               moreActionItems={[]}
               primaryAction={noop}
               setShowOverlay={noop}
+              showAnvilTag={false}
               showGitBadge={false}
               showOverlay={false}
               testId="t--package-card"

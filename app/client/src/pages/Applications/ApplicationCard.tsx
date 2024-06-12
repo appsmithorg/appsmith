@@ -53,6 +53,7 @@ import { getCurrentUser } from "actions/authActions";
 import Card, { ContextMenuTrigger } from "components/common/Card";
 import { generateEditedByText } from "./helpers";
 import { noop } from "lodash";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 interface ApplicationCardProps {
   application: ApplicationPayload;
@@ -117,6 +118,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const applicationId = props.application?.id;
   const showGitBadge = props.application?.gitApplicationMetadata?.branchName;
+
+  const hasAnvilLayout =
+    props.application.applicationDetail?.appPositioning?.type ===
+    LayoutSystemTypes.ANVIL;
 
   useEffect(() => {
     let colorCode;
@@ -464,6 +469,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       moreActionItems={moreActionItems}
       primaryAction={props.isMobile ? launchMobileApp : noop}
       setShowOverlay={setShowOverlay}
+      showAnvilTag={hasAnvilLayout}
       showGitBadge={Boolean(showGitBadge)}
       showOverlay={showOverlay}
       testId={`t--application-card ${props.application.name}`}
