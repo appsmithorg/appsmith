@@ -3,7 +3,6 @@ package com.appsmith.external.annotations.encryption;
 import com.appsmith.external.helpers.EncryptionHelper;
 import jakarta.persistence.PostLoad;
 import jakarta.persistence.PrePersist;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
