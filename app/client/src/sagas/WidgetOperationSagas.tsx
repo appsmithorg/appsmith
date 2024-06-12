@@ -74,6 +74,7 @@ import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 
 import { builderURL } from "@appsmith/RouteBuilder";
 import {
+  ERROR_PASTE_LAYOUT_SYSTEM_CONFLICT,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
   ERROR_WIDGET_CUT_NOT_ALLOWED,
@@ -140,6 +141,7 @@ import {
   getWidgetDescendantToReset,
   groupWidgetsIntoContainer,
   handleSpecificCasesWhilePasting,
+  isLayoutSystemConflictingForPaste,
   isSelectedWidgetsColliding,
   mergeDynamicPropertyPaths,
   purgeOrphanedDynamicPaths,
@@ -974,6 +976,8 @@ function* createSelectedWidgetsCopy(
   flexLayers: FlexLayer[],
 ) {
   if (!selectedWidgets || !selectedWidgets.length) return;
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+
   const widgetListsToStore: {
     widgetId: string;
     parentId: string;
@@ -983,6 +987,7 @@ function* createSelectedWidgetsCopy(
 
   const saveResult: boolean = yield saveCopiedWidgets(
     JSON.stringify({
+      layoutSystemType,
       widgets: widgetListsToStore,
       flexLayers,
     }),
@@ -1838,6 +1843,33 @@ function* widgetBatchUpdatePropertySaga() {
   }
 }
 
+function* verifyPasteFeasibilitySaga(
+  action: ReduxAction<PasteWidgetReduxAction>,
+) {
+  const {
+    layoutSystemType,
+  }: {
+    layoutSystemType?: LayoutSystemTypes;
+  } = yield getCopiedWidgets();
+
+  const currentLayoutSystemType: LayoutSystemTypes =
+    yield select(getLayoutSystemType);
+
+  if (
+    isLayoutSystemConflictingForPaste(currentLayoutSystemType, layoutSystemType)
+  ) {
+    toast.show(createMessage(ERROR_PASTE_LAYOUT_SYSTEM_CONFLICT), {
+      kind: "info",
+    });
+    return;
+  }
+
+  yield put({
+    type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+    payload: action.payload,
+  });
+}
+
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
   if (!isAnvilLayout) {
@@ -1887,6 +1919,10 @@ export default function* widgetOperationSagas() {
       ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
       shouldCallSaga,
       pasteWidgetSaga,
+    ),
+    takeLeading(
+      ReduxActionTypes.VERIFY_LAYOUT_SYSTEM_AND_PASTE_WIDGETS,
+      verifyPasteFeasibilitySaga,
     ),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
