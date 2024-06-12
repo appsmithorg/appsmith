@@ -139,10 +139,9 @@ jobs:
           java-version: "17"
 
       - name: Conditionally start PostgreSQL
-        env:
-          IS_PG_BUILD: ${{ inputs.is-pg-build }}
         run: |
-          if [[ $IS_PG_BUILD == 'true' ]]; then
+          if [[ ${{ inputs.is-pg-build }} == 'true' ]]; then
+            echo "Requesting PostgreSQL container to be started for pg specific build."
             docker run --name appsmith-pg -p 5432:5432 -d -e POSTGRES_PASSWORD=password postgres:alpine postgres -N 1500
           fi
 
