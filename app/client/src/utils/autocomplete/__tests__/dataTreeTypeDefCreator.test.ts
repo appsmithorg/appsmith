@@ -58,6 +58,7 @@ describe("dataTreeTypeDefCreator", () => {
       widgetName: "Input1",
       type: "INPUT_WIDGET_V2",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      dependencyMap: {},
     };
     const { def, entityInfo } = dataTreeTypeDefCreator(
       {

@@ -88,6 +88,9 @@ export function getWidgetDependencies(
   for (const bindingPath of dynamicBindingPathList) {
     const propertyPath = bindingPath.key;
     const fullPropertyPath = `${widgetName}.${propertyPath}`;
+
+    if (dependencyMap.hasOwnProperty(propertyPath)) continue;
+
     const dynamicPathDependencies = getDependencyFromEntityPath(
       propertyPath,
       widgetEntity,

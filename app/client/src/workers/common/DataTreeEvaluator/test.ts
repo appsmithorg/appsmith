@@ -26,6 +26,7 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import generateOverrideContext from "@appsmith/workers/Evaluation/generateOverrideContext";
 import { klona } from "klona";
+import DependencyMap from "entities/DependencyMap";
 
 const widgetConfigMap: Record<
   string,
@@ -796,6 +797,7 @@ describe("isDataField", () => {
       dynamicTriggerPathList: [],
       isMetaPropDirty: false,
       widgetId: "0",
+      dependencyMap: {},
     },
     Button1: {
       defaultProps: {},
@@ -917,8 +919,10 @@ describe("isDataField", () => {
       dynamicTriggerPathList: [],
       isMetaPropDirty: false,
       widgetId: "19ih8rt2eo",
+      dependencyMap: {},
     },
     Button2: {
+      dependencyMap: {},
       defaultProps: {},
       defaultMetaProps: ["recaptchaToken"],
       dynamicBindingPathList: [
@@ -1046,6 +1050,7 @@ describe("isDataField", () => {
       widgetId: "vss3w1eecd",
     },
     Button3: {
+      dependencyMap: {},
       defaultProps: {},
       defaultMetaProps: ["recaptchaToken"],
       dynamicBindingPathList: [

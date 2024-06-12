@@ -150,7 +150,7 @@ export interface EntityConfig {
   reactivePaths?: Record<string, EvaluationSubstitutionType>;
   validationPaths?: Record<string, ValidationConfig>;
   dynamicBindingPathList?: DynamicPath[];
-  dependencyMap?: Record<string, string[]>;
+  dependencyMap: DependencyMap;
 }
 
 //data factory types
