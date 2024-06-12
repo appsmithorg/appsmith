@@ -236,6 +236,7 @@ def generate_cake_class(domain):
     import com.appsmith.server.newactions.projections.*;
     import com.appsmith.server.projections.*;
     import com.appsmith.server.repositories.*;
+    import com.appsmith.server.repositories.ce.params.QueryAllParams;
     import org.springframework.stereotype.Component;
     import org.springframework.data.domain.Sort;
     import reactor.core.publisher.Flux;
@@ -260,6 +261,9 @@ def generate_cake_class(domain):
             super(repository);
             this.repository = repository;
         }}
+
+        { f"public QueryAllParams<{domain}> queryBuilder() {{ return repository.queryBuilder(); }}"
+            if "AppsmithRepository" in extra_repo_interfaces else ""}
 
         // From CrudRepository
         public Flux<{domain}> saveAll(Iterable<{domain}> entities) {{
