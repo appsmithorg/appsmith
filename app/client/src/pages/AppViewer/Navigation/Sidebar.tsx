@@ -37,6 +37,7 @@ import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettings
 import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
 import MenuItemContainer from "./components/MenuItemContainer";
 import BackToAppsButton from "./components/BackToAppsButton";
+import { getIsEditingAllowedBasedOnLayoutSystem } from "layoutSystems/anvil/integrations/selectors";
 
 interface SidebarProps {
   currentApplicationDetails?: ApplicationPayload;
@@ -87,6 +88,7 @@ export function Sidebar(props: SidebarProps) {
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
+  const shouldAllowEdit = useSelector(getIsEditingAllowedBasedOnLayoutSystem);
 
   useEffect(() => {
     setQuery(window.location.search);
@@ -222,14 +224,16 @@ export function Sidebar(props: SidebarProps) {
                 isMinimal={isMinimal}
               />
 
-              <PrimaryCTA
-                className="t--back-to-editor"
-                insideSidebar
-                isMinimal={isMinimal}
-                navColorStyle={navColorStyle}
-                primaryColor={primaryColor}
-                url={editorURL}
-              />
+              {shouldAllowEdit && (
+                <PrimaryCTA
+                  className="t--back-to-editor"
+                  insideSidebar
+                  isMinimal={isMinimal}
+                  navColorStyle={navColorStyle}
+                  primaryColor={primaryColor}
+                  url={editorURL}
+                />
+              )}
 
               <BackToAppsButton
                 currentApplicationDetails={currentApplicationDetails}

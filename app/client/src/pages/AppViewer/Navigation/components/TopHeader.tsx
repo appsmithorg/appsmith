@@ -23,6 +23,7 @@ import { HeaderRow, StyledNav } from "./TopHeader.styled";
 import TopInline from "../TopInline";
 import NavigationLogo from "@appsmith/pages/AppViewer/NavigationLogo";
 import BackToAppsButton from "./BackToAppsButton";
+import { getIsEditingAllowedBasedOnLayoutSystem } from "layoutSystems/anvil/integrations/selectors";
 
 interface TopHeaderProps {
   currentApplicationDetails?: ApplicationPayload;
@@ -61,6 +62,8 @@ const TopHeader = (props: TopHeaderProps) => {
   );
   const pageId = useSelector(getCurrentPageId);
   const editorURL = useHref(builderURL, { pageId });
+
+  const shouldAllowEdit = useSelector(getIsEditingAllowedBasedOnLayoutSystem);
 
   return (
     <StyledNav
@@ -119,12 +122,14 @@ const TopHeader = (props: TopHeaderProps) => {
                 />
 
                 <HeaderRightItemContainer>
-                  <PrimaryCTA
-                    className="t--back-to-editor"
-                    navColorStyle={navColorStyle}
-                    primaryColor={primaryColor}
-                    url={editorURL}
-                  />
+                  {shouldAllowEdit && (
+                    <PrimaryCTA
+                      className="t--back-to-editor"
+                      navColorStyle={navColorStyle}
+                      primaryColor={primaryColor}
+                      url={editorURL}
+                    />
+                  )}
 
                   <BackToAppsButton
                     currentApplicationDetails={currentApplicationDetails}

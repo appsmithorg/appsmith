@@ -47,6 +47,8 @@ import ReconfigureCDKeyModal from "@appsmith/components/gitComponents/Reconfigur
 import DisableCDModal from "@appsmith/components/gitComponents/DisableCDModal";
 import { PartialExportModal } from "components/editorComponents/PartialImportExport/PartialExportModal";
 import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
+import { getIsEditingAllowedBasedOnLayoutSystem } from "layoutSystems/anvil/integrations/selectors";
+import history from "utils/history";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -68,6 +70,7 @@ interface EditorProps {
   pageLevelSocketRoomId: string;
   isMultiPane: boolean;
   widgetConfigBuildSuccess: () => void;
+  shouldAllowEditBasedOnLayoutSystem: boolean;
 }
 
 type Props = EditorProps & RouteComponentProps<BuilderRouteParams>;
@@ -141,6 +144,12 @@ class Editor extends Component<Props> {
         urlBuilder.setCurrentPageId(pageId);
       }
     }
+
+    const viewerURL = urlBuilder.build(
+      { pageId, params: {} },
+      APP_MODE.PUBLISHED,
+    );
+    if (!this.props.shouldAllowEditBasedOnLayoutSystem) history.push(viewerURL);
   }
 
   componentWillUnmount() {
@@ -201,6 +210,8 @@ const mapStateToProps = (state: AppState) => ({
   user: getCurrentUser(state),
   currentApplicationName: state.ui.applications.currentApplication?.name,
   currentPageId: getCurrentPageId(state),
+  shouldAllowEditBasedOnLayoutSystem:
+    getIsEditingAllowedBasedOnLayoutSystem(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => {

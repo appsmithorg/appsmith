@@ -24,6 +24,7 @@ import { StyledCtaContainer } from "./Navigation/Sidebar.styled";
 import ShareButton from "./Navigation/components/ShareButton";
 import BackToAppsButton from "./Navigation/components/BackToAppsButton";
 import { getHideWatermark } from "@appsmith/selectors/tenantSelectors";
+import { getIsEditingAllowedBasedOnLayoutSystem } from "layoutSystems/anvil/integrations/selectors";
 
 interface NavigationProps {
   isOpen?: boolean;
@@ -41,7 +42,9 @@ export function PageMenu(props: NavigationProps) {
   const workspaceID = useSelector(getCurrentWorkspaceId);
   const headerHeight = useSelector(getAppViewHeaderHeight);
   const [query, setQuery] = useState("");
-  const hideWatermark = useSelector(getHideWatermark);
+  const hideWatermark: boolean = useSelector(getHideWatermark);
+  const shouldAllowEdit = useSelector(getIsEditingAllowedBasedOnLayoutSystem);
+
   const navColorStyle =
     application?.applicationDetail?.navigationSetting?.colorStyle ||
     NAVIGATION_SETTINGS.COLOR_STYLE.LIGHT;
@@ -130,7 +133,7 @@ export function PageMenu(props: NavigationProps) {
                 insideSidebar
               />
 
-              {isOpen && (
+              {isOpen && shouldAllowEdit && (
                 <PrimaryCTA
                   className="t--back-to-editor--mobile"
                   insideSidebar

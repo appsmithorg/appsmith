@@ -131,6 +131,7 @@ import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/Cr
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -498,6 +499,7 @@ export function ApplicationsSection(props: any) {
   const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
+  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
   const isSavingWorkspaceInfo = useSelector(getIsSavingWorkspaceInfo);
   const isFetchingWorkspaces = useSelector(getIsFetchingWorkspaces);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
@@ -750,7 +752,17 @@ export function ApplicationsSection(props: any) {
       ) {
         anvilApplications.push(application);
       } else {
-        nonAnvilApplications.push(application);
+        const _application = Object.assign({}, application);
+        // TODO(abhinav): Messing with permissions is obviously bad and not bullet proof.
+        // This is just a PoC and will likely need a new prop for ApplicationCard
+        // to handle this.
+        if (isAnvilEnabled) {
+          _application.userPermissions = [
+            "export:applications",
+            "read:applications",
+          ];
+        }
+        nonAnvilApplications.push(_application);
       }
     });
 
@@ -856,21 +868,23 @@ export function ApplicationsSection(props: any) {
                 updateApplicationDispatch={updateApplicationDispatch}
                 workspaceId={activeWorkspace.id}
               />
-              <ApplicationCardList
-                applications={anvilApplications}
-                canInviteToWorkspace={canInviteToWorkspace}
-                deleteApplication={deleteApplication}
-                enableImportExport={enableImportExport}
-                hasCreateNewApplicationPermission={
-                  hasCreateNewApplicationPermission
-                }
-                hasManageWorkspacePermissions={hasManageWorkspacePermissions}
-                isMobile={isMobile}
-                onClickAddNewButton={onClickAddNewAppButton}
-                title={createMessage(ANVIL_APPLICATIONS)}
-                updateApplicationDispatch={updateApplicationDispatch}
-                workspaceId={activeWorkspace.id}
-              />
+              {isAnvilEnabled && (
+                <ApplicationCardList
+                  applications={anvilApplications}
+                  canInviteToWorkspace={canInviteToWorkspace}
+                  deleteApplication={deleteApplication}
+                  enableImportExport={enableImportExport}
+                  hasCreateNewApplicationPermission={
+                    hasCreateNewApplicationPermission
+                  }
+                  hasManageWorkspacePermissions={hasManageWorkspacePermissions}
+                  isMobile={isMobile}
+                  onClickAddNewButton={onClickAddNewAppButton}
+                  title={createMessage(ANVIL_APPLICATIONS)}
+                  updateApplicationDispatch={updateApplicationDispatch}
+                  workspaceId={activeWorkspace.id}
+                />
+              )}
               <PackageCardList
                 isMobile={isMobile}
                 packages={packages}

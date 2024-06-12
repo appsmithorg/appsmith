@@ -22,6 +22,17 @@ export const getIsAnvilLayout = (state: AppState) => {
   return layoutSystemType === LayoutSystemTypes.ANVIL;
 };
 
+export const getIsEditingAllowedBasedOnLayoutSystem = (state: AppState) => {
+  const isAnvilEnabled = selectFeatureFlagCheck(
+    state,
+    FEATURE_FLAG.release_anvil_enabled,
+  );
+  if (!isAnvilEnabled) return true;
+  const isAnvilLayout = getIsAnvilLayout(state);
+  if (isAnvilLayout) return true;
+  return false;
+};
+
 // ToDo: This is a placeholder implementation this is bound to change
 export function getDropTargetLayoutId(state: AppState, canvasId: string) {
   const layout: LayoutProps[] = state.entities.canvasWidgets[canvasId].layout;

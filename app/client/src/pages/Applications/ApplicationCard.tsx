@@ -164,6 +164,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const appIcon = (props.application?.icon ||
     getApplicationIcon(applicationId)) as AppIconName;
+
   const hasEditPermission = isPermitted(
     props.application?.userPermissions ?? [],
     PERMISSION_TYPE.MANAGE_APPLICATION,
