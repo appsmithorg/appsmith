@@ -26,7 +26,6 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import generateOverrideContext from "@appsmith/workers/Evaluation/generateOverrideContext";
 import { klona } from "klona";
-import DependencyMap from "entities/DependencyMap";
 
 const widgetConfigMap: Record<
   string,
