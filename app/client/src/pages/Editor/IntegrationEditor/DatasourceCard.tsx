@@ -56,6 +56,7 @@ import {
   hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useEditorType } from "@appsmith/hooks";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -172,6 +173,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   );
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
 
   const editorType = useEditorType(history.location.pathname);
 
@@ -322,21 +324,23 @@ function DatasourceCard(props: DatasourceCardProps) {
             </Queries>
           </div>
           <ButtonsWrapper className="action-wrapper">
-            {supportTemplateGeneration && !showReconnectButton && (
-              <Button
-                className={"t--generate-template"}
-                isDisabled={!canGeneratePage}
-                kind="secondary"
-                onClick={(e: any) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  routeToGeneratePage();
-                }}
-                size="md"
-              >
-                {createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)}
-              </Button>
-            )}
+            {supportTemplateGeneration &&
+              !showReconnectButton &&
+              !isAnvilEnabled && (
+                <Button
+                  className={"t--generate-template"}
+                  isDisabled={!canGeneratePage}
+                  kind="secondary"
+                  onClick={(e: any) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    routeToGeneratePage();
+                  }}
+                  size="md"
+                >
+                  {createMessage(GENERATE_NEW_PAGE_BUTTON_TEXT)}
+                </Button>
+              )}
             {showReconnectButton && (
               <Button
                 className={"t--reconnect-btn"}

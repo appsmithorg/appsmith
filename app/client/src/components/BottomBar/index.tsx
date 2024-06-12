@@ -11,10 +11,12 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useDispatch } from "react-redux";
 import { softRefreshActions } from "actions/pluginActionActions";
 import { START_SWITCH_ENVIRONMENT } from "@appsmith/constants/messages";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 
 export default function BottomBar({ viewMode }: { viewMode: boolean }) {
   const appId = useSelector(getCurrentApplicationId) || "";
   const dispatch = useDispatch();
+  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
 
   const onChangeEnv = () => {
     dispatch(softRefreshActions());
@@ -31,7 +33,7 @@ export default function BottomBar({ viewMode }: { viewMode: boolean }) {
             viewMode={viewMode}
           />
         )}
-        {!viewMode && <QuickGitActions />}
+        {!viewMode && !isAnvilEnabled && <QuickGitActions />}
       </Wrapper>
       {!viewMode && (
         <Wrapper>

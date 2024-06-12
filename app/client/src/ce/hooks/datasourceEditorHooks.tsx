@@ -29,6 +29,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { isEnabledForPreviewData } from "utils/editorContextUtils";
 import { getPlugin } from "@appsmith/selectors/entitiesSelector";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 
 export interface HeaderActionProps {
   datasource: Datasource | ApiDatasourceForm | undefined;
@@ -57,6 +58,7 @@ export const useHeaderActions = (
   const showGenerateButton = useShowPageGenerationOnHeader(
     datasource as Datasource,
   );
+  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
 
   const plugin = useSelector((state: AppState) =>
     getPlugin(state, datasource?.pluginId || ""),
@@ -105,7 +107,7 @@ export const useHeaderActions = (
     );
 
     const generatePageButton =
-      showGenerateButton && !showReconnectButton ? (
+      showGenerateButton && !showReconnectButton && !isAnvilEnabled ? (
         <Button
           className={"t--generate-template"}
           isDisabled={!canGeneratePage}

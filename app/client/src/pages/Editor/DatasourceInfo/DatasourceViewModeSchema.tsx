@@ -52,6 +52,7 @@ import { useEditorType } from "@appsmith/hooks";
 import history from "utils/history";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import { setDatasourcePreviewSelectedTableName } from "actions/datasourceActions";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 
 interface Props {
   datasource: Datasource;
@@ -77,6 +78,7 @@ const DatasourceViewModeSchema = (props: Props) => {
   );
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
 
   const editorType = useEditorType(history.location.pathname);
 
@@ -236,7 +238,8 @@ const DatasourceViewModeSchema = (props: Props) => {
     !failedFetchingPreviewData &&
     tableName &&
     canCreateDatasourceActions &&
-    canCreatePages;
+    canCreatePages &&
+    !isAnvilEnabled;
 
   return (
     <ViewModeSchemaContainer>

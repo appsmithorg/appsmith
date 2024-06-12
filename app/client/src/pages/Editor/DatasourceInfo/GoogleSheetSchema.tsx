@@ -51,6 +51,7 @@ import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import { useEditorType } from "@appsmith/hooks";
 import history from "utils/history";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 
 interface Props {
   datasourceId: string;
@@ -77,6 +78,8 @@ function GoogleSheetSchema(props: Props) {
     setSelectedDatasourceTableOptions: setSpreadsheetOptions,
     setSelectedDatasourceIsInvalid,
   });
+
+  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
 
   const toggleOnUnmountRefObject = useRef<{
     selectedSheet?: string;
@@ -376,7 +379,8 @@ function GoogleSheetSchema(props: Props) {
     !isError &&
     sheetData?.length &&
     canCreateDatasourceActions &&
-    canCreatePages;
+    canCreatePages &&
+    !isAnvilEnabled;
 
   const filteredSpreadsheets = spreadsheetOptions.filter((option) =>
     (option.label || "").toLowerCase()?.includes(searchString),
