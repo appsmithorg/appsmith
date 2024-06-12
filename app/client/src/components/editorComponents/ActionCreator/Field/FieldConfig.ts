@@ -141,6 +141,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
       return objectSetter(value, currentValue, 1);
     },
     view: ViewTypes.TEXT_VIEW,
+    isDefaultOpen: false,
   },
   [FieldType.NAVIGATION_TARGET_FIELD]: {
     label: () => "Target",

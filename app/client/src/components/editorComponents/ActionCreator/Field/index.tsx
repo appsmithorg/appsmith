@@ -54,6 +54,7 @@ export function Field(props: FieldProps) {
   const options = FIELD_CONFIG[fieldType].options(props);
   const toolTip = FIELD_CONFIG[fieldType].toolTip;
   const exampleText = FIELD_CONFIG[fieldType].exampleText;
+  const isDefaultOpen = FIELD_CONFIG[fieldType].isDefaultOpen;
 
   switch (fieldType) {
     case FieldType.ACTION_SELECTOR_FIELD:
@@ -218,6 +219,7 @@ export function Field(props: FieldProps) {
         value: value,
         additionalAutoComplete: props.additionalAutoComplete,
         dataTreePath: props.dataTreePath,
+        isDefaultOpen: isDefaultOpen,
       });
       break;
     case FieldType.CALLBACK_FUNCTION_API_AND_QUERY:

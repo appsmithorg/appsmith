@@ -57,6 +57,7 @@ export type TextViewProps = ViewProps & {
   additionalAutoComplete?: AdditionalDynamicDataTree;
   toolTip?: string;
   dataTreePath?: string | undefined;
+  isDefaultOpen?: boolean;
 };
 
 export type TabViewProps = Omit<ViewProps, "get" | "set"> & SwitcherProps;
@@ -153,6 +154,7 @@ export interface AppsmithFunctionConfigValues {
   view: ViewType;
   exampleText: string;
   toolTip?: string;
+  isDefaultOpen?: boolean;
 }
 
 export interface AppsmithFunctionConfigType {

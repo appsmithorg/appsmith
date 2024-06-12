@@ -15,6 +15,11 @@ import {
   evaluateActionSelectorField,
 } from "actions/actionSelectorActions";
 import { isFunctionPresent } from "@shared/ast";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleHeader,
+} from "design-system";
 
 export function TextView(props: TextViewProps) {
   const id = useMemo(() => generateReactKey(), []);
@@ -51,8 +56,8 @@ export function TextView(props: TextViewProps) {
   const value = evaluatedCodeValue?.value || codeWithoutMoustache;
 
   return (
-    <FieldWrapper className="text-view">
-      <ControlWrapper isAction key={props.label}>
+    <Collapsible isOpen={props.isDefaultOpen} key={props.label}>
+      <CollapsibleHeader>
         {props.label && (
           <label
             className="!text-gray-600 !text-xs"
@@ -62,28 +67,34 @@ export function TextView(props: TextViewProps) {
             {props.label}
           </label>
         )}
-        <InputText
-          additionalAutocomplete={props.additionalAutoComplete}
-          dataTreePath={props.dataTreePath}
-          enableAI={false}
-          evaluatedValue={value}
-          expected={{
-            type: "string",
-            example: props.exampleText,
-            autocompleteDataType: AutocompleteDataType.STRING,
-            openExampleTextByDefault: true,
-          }}
-          label={props.label}
-          onChange={(event: any) => {
-            if (event.target) {
-              props.set(event.target.value, true);
-            } else {
-              props.set(event, true);
-            }
-          }}
-          value={textValue}
-        />
-      </ControlWrapper>
-    </FieldWrapper>
+      </CollapsibleHeader>
+      <CollapsibleContent>
+        <FieldWrapper className="text-view">
+          <ControlWrapper isAction key={props.label}>
+            <InputText
+              additionalAutocomplete={props.additionalAutoComplete}
+              dataTreePath={props.dataTreePath}
+              enableAI={false}
+              evaluatedValue={value}
+              expected={{
+                type: "string",
+                example: props.exampleText,
+                autocompleteDataType: AutocompleteDataType.STRING,
+                openExampleTextByDefault: true,
+              }}
+              label={props.label}
+              onChange={(event: any) => {
+                if (event.target) {
+                  props.set(event.target.value, true);
+                } else {
+                  props.set(event, true);
+                }
+              }}
+              value={textValue}
+            />
+          </ControlWrapper>
+        </FieldWrapper>
+      </CollapsibleContent>
+    </Collapsible>
   );
 }
