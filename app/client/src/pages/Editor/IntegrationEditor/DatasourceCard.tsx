@@ -56,7 +56,7 @@ import {
   hasCreateDSActionPermissionInApp,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useEditorType } from "@appsmith/hooks";
-import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 
 const Wrapper = styled.div`
   padding: 15px;
@@ -173,7 +173,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   );
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
+  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
   const editorType = useEditorType(history.location.pathname);
 
