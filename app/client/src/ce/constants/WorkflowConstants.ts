@@ -18,7 +18,7 @@ export interface Workflow {
   tokenGenerated: boolean;
   // Evaluation version of the application. Used to ensure the escape characters are properly evaluated.
   // PR for reference: https://github.com/appsmithorg/appsmith/pull/8796
-  evaluationVersion?: EvaluationVersion;
+  evaluationVersion: EvaluationVersion;
   token?: string;
 }
 
