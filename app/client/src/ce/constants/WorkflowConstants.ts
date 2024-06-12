@@ -1,4 +1,4 @@
-import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
+import type { EvaluationVersion } from "constants/EvalConstants";
 
 type ID = string;
 
