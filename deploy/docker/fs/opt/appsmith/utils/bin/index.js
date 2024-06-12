@@ -10,10 +10,16 @@ const mongo_shell_utils = require("./mongo_shell_utils.js");
 
 const APPLICATION_CONFIG_PATH = "/appsmith-stacks/configuration/docker.env";
 
+// Check if APPSMITH_DB_URL is set, if not set, fall back to APPSMITH_MONGODB_URI
+if (!process.env.APPSMITH_DB_URL) {
+  process.env.APPSMITH_DB_URL = process.env.APPSMITH_MONGODB_URI;
+  delete process.env.APPSMITH_MONGODB_URI;
+}
+
 // Loading latest application configuration
 require("dotenv").config({ path: APPLICATION_CONFIG_PATH });
 
-// Check if APPSMITH_DB_URL is set, if not set, fall back to APPSMITH_MONGODB_URI
+// AGAIN: Check if APPSMITH_DB_URL is set, if not set, fall back to APPSMITH_MONGODB_URI
 if (!process.env.APPSMITH_DB_URL) {
   process.env.APPSMITH_DB_URL = process.env.APPSMITH_MONGODB_URI;
 }
