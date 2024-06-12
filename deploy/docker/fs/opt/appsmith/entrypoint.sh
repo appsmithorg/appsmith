@@ -2,7 +2,7 @@
 
 set -e
 
-echo "Running as: $(id)"
+tlog "Running as: $(id)"
 
 stacks_path=/appsmith-stacks
 
@@ -48,10 +48,10 @@ init_env_file() {
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
   printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TMP/pre-define.env"
 
-  echo "Initialize .env file"
+  tlog "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
     # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
-    echo "Generating default configuration file"
+    tlog "Generating default configuration file"
     mkdir -p "$CONF_PATH"
     local default_appsmith_mongodb_user="appsmith"
     local generated_appsmith_mongodb_password=$(
@@ -74,7 +74,7 @@ init_env_file() {
   fi
 
 
-  echo "Load environment configuration"
+  tlog "Load environment configuration"
   set -o allexport
   . "$ENV_PATH"
   . "$TMP/pre-define.env"
@@ -111,20 +111,20 @@ if [[ -n "${FILESTORE_IP_ADDRESS-}" ]]; then
   FILESTORE_IP_ADDRESS="$(echo "$FILESTORE_IP_ADDRESS" | xargs)"
   FILE_SHARE_NAME="$(echo "$FILE_SHARE_NAME" | xargs)"
 
-  echo "Running appsmith for cloudRun"
-  echo "creating mount point"
+  tlog "Running appsmith for cloudRun"
+  tlog "creating mount point"
   mkdir -p "$stacks_path"
-  echo "Mounting File Sytem"
+  tlog "Mounting File Sytem"
   mount -t nfs -o nolock "$FILESTORE_IP_ADDRESS:/$FILE_SHARE_NAME" /appsmith-stacks
-  echo "Mounted File Sytem"
-  echo "Setting HOSTNAME for Cloudrun"
+  tlog "Mounted File Sytem"
+  tlog "Setting HOSTNAME for Cloudrun"
   export HOSTNAME="cloudrun"
 fi
 
 
 function get_maximum_heap() {
     resource=$(ulimit -u)
-    echo "Resource : $resource"
+    tlog "Resource : $resource"
     if [[ "$resource" -le 256 ]]; then
         maximum_heap=128
     elif [[ "$resource" -le 512 ]]; then
@@ -140,7 +140,7 @@ function setup_backend_heap_arg() {
 
 unset_unused_variables() {
   # Check for enviroment vairalbes
-  echo "Checking environment configuration"
+  tlog "Checking environment configuration"
   if [[ -z "${APPSMITH_MAIL_ENABLED}" ]]; then
     unset APPSMITH_MAIL_ENABLED # If this field is empty is might cause application crash
   fi
@@ -168,18 +168,35 @@ unset_unused_variables() {
   fi
 }
 
-check_mongodb_uri() {
-  echo "Checking APPSMITH_MONGODB_URI"
+configure_database_connection_url() {
+  tlog "Configuring database connection URL"
+  isPostgresUrl=0
+  isMongoUrl=0
+  # Check if APPSMITH_DB_URL is not set
+  if [[ -z "${APPSMITH_DB_URL}" ]]; then
+    # If APPSMITH_DB_URL is not set, fall back to APPSMITH_MONGODB_URI
+    export APPSMITH_DB_URL="${APPSMITH_MONGODB_URI}"
+  fi
+
+  if [[ "${APPSMITH_DB_URL}" == "postgresql:"* ]]; then
+    isPostgresUrl=1
+  elif [[ "${APPSMITH_DB_URL}" == "mongodb"* ]]; then
+    isMongoUrl=1
+  fi
+}
+
+check_db_uri() {
+  tlog "Checking APPSMITH_DB_URL"
   isUriLocal=1
-  if [[ $APPSMITH_MONGODB_URI == *"localhost"* || $APPSMITH_MONGODB_URI == *"127.0.0.1"* ]]; then
-    echo "Detected local MongoDB"
+  if [[ $APPSMITH_DB_URL == *"localhost"* || $APPSMITH_DB_URL == *"127.0.0.1"* ]]; then
+    tlog "Detected local DB"
     isUriLocal=0
   fi
 }
 
 init_mongodb() {
   if [[ $isUriLocal -eq 0 ]]; then
-    echo "Initializing local database"
+    tlog "Initializing local database"
     MONGO_DB_PATH="$stacks_path/data/mongodb"
     MONGO_LOG_PATH="$MONGO_DB_PATH/log"
     MONGO_DB_KEY="$MONGO_DB_PATH/key"
@@ -196,7 +213,7 @@ init_mongodb() {
 }
 
 init_replica_set() {
-  echo "Checking initialized database"
+  tlog "Checking initialized database"
   shouldPerformInitdb=1
   for path in \
     "$MONGO_DB_PATH/WiredTiger" \
@@ -210,21 +227,21 @@ init_replica_set() {
   done
 
   if [[ $isUriLocal -gt 0 && -f /proc/cpuinfo ]] && ! grep --quiet avx /proc/cpuinfo; then
-    echo "====================================================================================================" >&2
-    echo "==" >&2
-    echo "== AVX instruction not found in your CPU. Appsmith's embedded MongoDB may not start. Please use an external MongoDB instance instead." >&2
-    echo "== See https://docs.appsmith.com/getting-started/setup/instance-configuration/custom-mongodb-redis#custom-mongodb for instructions." >&2
-    echo "==" >&2
-    echo "====================================================================================================" >&2
+    tlog "====================================================================================================" >&2
+    tlog "==" >&2
+    tlog "== AVX instruction not found in your CPU. Appsmith's embedded MongoDB may not start. Please use an external MongoDB instance instead." >&2
+    tlog "== See https://docs.appsmith.com/getting-started/setup/instance-configuration/custom-mongodb-redis#custom-mongodb for instructions." >&2
+    tlog "==" >&2
+    tlog "====================================================================================================" >&2
   fi
 
   if [[ $shouldPerformInitdb -gt 0 && $isUriLocal -eq 0 ]]; then
-    echo "Initializing Replica Set for local database"
+    tlog "Initializing Replica Set for local database"
     # Start installed MongoDB service - Dependencies Layer
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH"
-    echo "Waiting 10s for MongoDB to start"
+    tlog "Waiting 10s for MongoDB to start"
     sleep 10
-    echo "Creating MongoDB user"
+    tlog "Creating MongoDB user"
     mongosh "127.0.0.1/appsmith" --eval "db.createUser({
         user: '$APPSMITH_MONGODB_USER',
         pwd: '$APPSMITH_MONGODB_PASSWORD',
@@ -234,20 +251,20 @@ init_replica_set() {
         }, 'readWrite']
       }
     )"
-    echo "Enabling Replica Set"
+    tlog "Enabling Replica Set"
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
     mongod --fork --port 27017 --dbpath "$MONGO_DB_PATH" --logpath "$MONGO_LOG_PATH" --replSet mr1 --keyFile "$MONGODB_TMP_KEY_PATH" --bind_ip localhost
-    echo "Waiting 10s for MongoDB to start with Replica Set"
+    tlog "Waiting 10s for MongoDB to start with Replica Set"
     sleep 10
-    mongosh "$APPSMITH_MONGODB_URI" --eval 'rs.initiate()'
+    mongosh "$APPSMITH_DB_URL" --eval 'rs.initiate()'
     mongod --dbpath "$MONGO_DB_PATH" --shutdown || true
   fi
 
   if [[ $isUriLocal -gt 0 ]]; then
-    echo "Checking Replica Set of external MongoDB"
+    tlog "Checking Replica Set of external MongoDB"
 
     if appsmithctl check-replica-set; then
-      echo "MongoDB ReplicaSet is enabled"
+      tlog "MongoDB ReplicaSet is enabled"
     else
       echo -e "\033[0;31m***************************************************************************************\033[0m"
       echo -e "\033[0;31m*      MongoDB Replica Set is not enabled                                             *\033[0m"
@@ -284,7 +301,7 @@ check_setup_custom_ca_certificates() {
       if is_empty_directory "$container_ca_certs_path"; then
         rmdir -v "$container_ca_certs_path"
       else
-        echo "The 'ca-certificates' directory inside the container is not empty. Please clear it and restart to use certs from 'stacks/ca-certs' directory." >&2
+        tlog "The 'ca-certificates' directory inside the container is not empty. Please clear it and restart to use certs from 'stacks/ca-certs' directory." >&2
         return
       fi
     fi
@@ -308,11 +325,11 @@ setup-custom-ca-certificates() (
   rm -f "$store" "$opts_file"
 
   if [[ -n "$(ls "$stacks_ca_certs_path"/*.pem 2>/dev/null)" ]]; then
-    echo "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up automatically.".
+    tlog "Looks like you have some '.pem' files in your 'ca-certs' folder. Please rename them to '.crt' to be picked up automatically.".
   fi
 
   if ! [[ -d "$stacks_ca_certs_path" && "$(find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' | wc -l)" -gt 0 ]]; then
-    echo "No custom CA certificates found."
+    tlog "No custom CA certificates found."
     return
   fi
 
@@ -372,7 +389,7 @@ check_redis_compatible_page_size() {
       --data '{ "userId": "'"$HOSTNAME"'", "event":"RedisCompile" }' \
       https://api.segment.io/v1/track \
       || true
-    echo "Compile Redis stable with page size of $page_size"
+    tlog "Compile Redis stable with page size of $page_size"
     apt-get update
     apt-get install --yes build-essential
     curl --connect-timeout 5 --location https://download.redis.io/redis-stable.tar.gz | tar -xz -C /tmp
@@ -382,15 +399,14 @@ check_redis_compatible_page_size() {
     popd
     rm -rf /tmp/redis-stable
   else
-    echo "Redis is compatible with page size of $page_size"
+    tlog "Redis is compatible with page size of $page_size"
   fi
 }
 
 init_postgres() {
   # Initialize embedded postgres by default; set APPSMITH_ENABLE_EMBEDDED_DB to 0, to use existing cloud postgres mockdb instance
   if [[ ${APPSMITH_ENABLE_EMBEDDED_DB: -1} != 0 ]]; then
-    echo ""
-    echo "Checking initialized local postgres"
+    tlog "Checking initialized local postgres"
     POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
 
     mkdir -p "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
@@ -399,9 +415,9 @@ init_postgres() {
     chown -R postgres:postgres "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
 
     if [[ -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
-      echo "Found existing Postgres, Skipping initialization"
+      tlog "Found existing Postgres, Skipping initialization"
     else
-      echo "Initializing local postgresql database"
+      tlog "Initializing local postgresql database"
       mkdir -p "$POSTGRES_DB_PATH"
 
       # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
@@ -447,13 +463,21 @@ runEmbeddedPostgres=1
 init_postgres || runEmbeddedPostgres=0
 }
 
+setup_caddy() {
+  if [[ "$APPSMITH_RATE_LIMIT" == "disabled" ]]; then
+    export _APPSMITH_CADDY="/opt/caddy/caddy_vanilla"
+  else
+    export _APPSMITH_CADDY="/opt/caddy/caddy"
+  fi
+}
+
 init_loading_pages(){
   export XDG_DATA_HOME=/appsmith-stacks/data  # so that caddy saves tls certs and other data under stacks/data/caddy
   export XDG_CONFIG_HOME=/appsmith-stacks/configuration
   mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
   cp templates/loading.html "$WWW_PATH"
   node caddy-reconfigure.mjs
-  /opt/caddy/caddy start --config "$TMP/Caddyfile"
+  "$_APPSMITH_CADDY" start --config "$TMP/Caddyfile"
 }
 
 function setup_auto_heal(){
@@ -474,14 +498,23 @@ function capture_infra_details(){
 
 # Main Section
 print_appsmith_info
+setup_caddy
 init_loading_pages
 unset_unused_variables
 
-check_mongodb_uri
+configure_database_connection_url
+check_db_uri
+# Don't run MongoDB if running in a Heroku dyno.
 if [[ -z "${DYNO}" ]]; then
-  # Don't run MongoDB if running in a Heroku dyno.
-  init_mongodb
-  init_replica_set
+  if [[ $isMongoUrl -eq 1 ]]; then
+    # Setup MongoDB and initialize replica set
+    tlog "Initializing MongoDB"
+    init_mongodb
+    init_replica_set
+  elif [[ $isPostgresUrl -eq 1 ]]; then
+    tlog "Initializing Postgres"
+    # init_postgres
+  fi
 else
   # These functions are used to limit heap size for Backend process when deployed on Heroku
   get_maximum_heap

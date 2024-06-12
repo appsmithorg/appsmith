@@ -34,6 +34,7 @@ import {
   profileFn,
   newWebWorkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
+import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
@@ -63,6 +64,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
   let isNewWidgetAdded = false;
 
   const {
+    affectedJSObjects,
     allActionValidationConfig,
     appMode,
     forceEvaluation,
@@ -84,6 +86,9 @@ export function evalTree(request: EvalWorkerSyncRequest) {
   let isNewTree = false;
 
   try {
+    (webworkerTelemetry.__spanAttributes as SpanAttributes)["firstEvaluation"] =
+      !dataTreeEvaluator;
+
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
       replayMap = replayMap || {};
@@ -182,6 +187,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
             unevalTree,
             configTree,
             webworkerTelemetry,
+            affectedJSObjects,
           ),
       );
 

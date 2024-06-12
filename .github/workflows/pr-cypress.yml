@@ -156,7 +156,7 @@ jobs:
           path: ~/combined_failed_spec_ci
           overwrite: true
 
-      - name: Get Latest flaky Tests
+      - name: Get latest flaky tests
         shell: bash
         run: |
           curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
@@ -174,7 +174,7 @@ jobs:
 
       - name: Modify test response in the PR with new CI failures
         if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '1'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
           content: |
             <!-- This is an auto-generated comment: Cypress test results  -->
@@ -195,7 +195,7 @@ jobs:
 
       - name: Modify test response in the PR when ci-test is failed but no specs found
         if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '0'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
           content: |
             <!-- This is an auto-generated comment: Cypress test results  -->
@@ -213,7 +213,7 @@ jobs:
 
       - name: Modify test response in the PR when ci-test is success
         if: needs.ci-test.result == 'success' && steps.combine_ci.outputs.specs_failed == '0'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
           content: |
             <!-- This is an auto-generated comment: Cypress test results  -->

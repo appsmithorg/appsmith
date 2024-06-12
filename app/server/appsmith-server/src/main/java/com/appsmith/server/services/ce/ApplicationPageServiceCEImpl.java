@@ -34,13 +34,11 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
-import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
-import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -89,6 +87,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -110,7 +109,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final NewPageService newPageService;
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
-    private final GitFileUtils gitFileUtils;
+    private final CommonGitFileUtils commonGitFileUtils;
     private final ThemeService themeService;
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
@@ -126,11 +125,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final DatasourceRepository datasourceRepository;
     private final DatasourcePermission datasourcePermission;
     private final DSLMigrationUtils dslMigrationUtils;
-    private final GitAutoCommitHelper gitAutoCommitHelper;
     private final ClonePageService<NewAction> actionClonePageService;
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
-
-    public static final Integer EVALUATION_VERSION = 2;
 
     @Override
     public Mono<PageDTO> createPage(PageDTO page) {
@@ -297,84 +293,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return newPageService
                 .findNewPagesByApplicationId(branchedApplication.getId(), pagePermission.getReadPermission())
                 .filter(newPage -> pageIds.contains(newPage.getId()))
-                .collectList()
-                .flatMap(newPageList -> {
-                    if (Boolean.TRUE.equals(viewMode)) {
-                        return Mono.just(newPageList);
-                    }
-
-                    // autocommit if migration is required
-                    return migrateSchemasForGitConnectedApps(branchedApplication, newPageList)
-                            .onErrorResume(error -> {
-                                log.debug(
-                                        "Skipping the autocommit for applicationId : {} due to error; {}",
-                                        branchedApplication.getId(),
-                                        error.getMessage());
-
-                                return Mono.just(Boolean.FALSE);
-                            })
-                            .thenReturn(newPageList);
-                });
-    }
-
-    /**
-     * Publishes the autocommit if it's eligible for one
-     * @param application : the branched application which requires schemaMigration
-     * @param newPages : list of pages from db
-     * @return : a boolean publisher
-     */
-    private Mono<Boolean> migrateSchemasForGitConnectedApps(Application application, List<NewPage> newPages) {
-
-        if (CollectionUtils.isNullOrEmpty(newPages)) {
-            return Mono.just(Boolean.FALSE);
-        }
-
-        if (application.getGitArtifactMetadata() == null) {
-            return Mono.just(Boolean.FALSE);
-        }
-
-        GitArtifactMetadata gitMetadata = application.getGitArtifactMetadata();
-        String defaultApplicationId = gitMetadata.getDefaultArtifactId();
-        String branchName = gitMetadata.getBranchName();
-
-        if (!StringUtils.hasText(branchName)) {
-            log.debug(
-                    "Skipping the autocommit for applicationId : {}, branch name is not present", application.getId());
-            return Mono.just(Boolean.FALSE);
-        }
-
-        if (!StringUtils.hasText(defaultApplicationId)) {
-            log.debug(
-                    "Skipping the autocommit for applicationId : {}, defaultApplicationId is not present",
-                    application.getId());
-            return Mono.just(Boolean.FALSE);
-        }
-
-        // since this method is only called when the app is in edit mode
-        Mono<PageDTO> pageDTOMono = getPage(newPages.get(0), false);
-        return pageDTOMono
-                .zipWith(dslMigrationUtils.getLatestDslVersion())
-                .onErrorMap(throwable -> {
-                    log.error("Error fetching latest DSL version", throwable);
-                    return new AppsmithException(AppsmithError.RTS_SERVER_ERROR, "Error fetching latest DSL version");
-                })
-                .flatMap(tuple2 -> {
-                    PageDTO pageDTO = tuple2.getT1();
-                    Integer latestDslVersion = tuple2.getT2();
-                    // ensuring that the page has only one layout, as we don't support multiple layouts yet
-                    // when multiple layouts are supported, this code will have to be updated
-                    assert pageDTO.getLayouts().size() == 1;
-                    Layout layout = pageDTO.getLayouts().get(0);
-                    JSONObject layoutDsl = layout.getDsl();
-
-                    boolean isMigrationRequired = GitUtils.isMigrationRequired(layoutDsl, latestDslVersion);
-                    if (isMigrationRequired) {
-                        // Triggering the autocommit
-                        return gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName);
-                    }
-
-                    return Mono.just(Boolean.FALSE);
-                });
+                .collectList();
     }
 
     @Override
@@ -609,7 +528,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     if (GitUtils.isApplicationConnectedToGit(application)) {
                         return applicationService.findAllApplicationsByDefaultApplicationId(
-                                gitData.getDefaultApplicationId(), applicationPermission.getDeletePermission());
+                                gitData.getDefaultArtifactId(), applicationPermission.getDeletePermission());
                     }
                     return Flux.fromIterable(List.of(application));
                 })
@@ -621,13 +540,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(application -> {
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     if (gitData != null
-                            && !StringUtils.isEmpty(gitData.getDefaultApplicationId())
+                            && !StringUtils.isEmpty(gitData.getDefaultArtifactId())
                             && !StringUtils.isEmpty(gitData.getRepoName())) {
                         String repoName = gitData.getRepoName();
                         Path repoPath =
-                                Paths.get(application.getWorkspaceId(), gitData.getDefaultApplicationId(), repoName);
+                                Paths.get(application.getWorkspaceId(), gitData.getDefaultArtifactId(), repoName);
                         // Delete git repo from local
-                        return gitFileUtils.deleteLocalRepo(repoPath).then(Mono.just(application));
+                        return commonGitFileUtils.deleteLocalRepo(repoPath).then(Mono.just(application));
                     }
                     return Mono.just(application);
                 });
@@ -747,7 +666,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 DefaultResources defaults = new DefaultResources();
                                 GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                                 if (gitData != null) {
-                                    defaults.setApplicationId(gitData.getDefaultApplicationId());
+                                    defaults.setApplicationId(gitData.getDefaultArtifactId());
                                     defaults.setBranchName(gitData.getBranchName());
                                 } else {
                                     defaults.setApplicationId(applicationId);

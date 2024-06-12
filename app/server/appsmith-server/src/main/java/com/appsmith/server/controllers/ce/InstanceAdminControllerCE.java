@@ -36,13 +36,6 @@ public class InstanceAdminControllerCE {
         return envManager.getAllNonEmpty().map(data -> new ResponseDTO<>(HttpStatus.OK.value(), data, null));
     }
 
-    @JsonView(Views.Public.class)
-    @GetMapping("/env/download")
-    public Mono<Void> download(ServerWebExchange exchange) {
-        log.debug("Getting all env configuration");
-        return envManager.download(exchange);
-    }
-
     @Deprecated
     @JsonView(Views.Public.class)
     @PutMapping(

@@ -1,0 +1,6 @@
+.popover {
+  background-color: var(--color-bg-elevation-3);
+  border-radius: var(--border-radius-elevation-3);
+  z-index: var(--z-index-99);
+  box-shadow: var(--box-shadow-1);
+}

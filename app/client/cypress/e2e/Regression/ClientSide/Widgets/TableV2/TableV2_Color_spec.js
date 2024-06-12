@@ -43,7 +43,7 @@ describe(
       // select the green color
 
       cy.wait("@updateLayout");
-      cy.assertPageSave();
+      _.agHelper.AssertAutoSave();
       _.deployMode.DeployApp();
       cy.wait(4000);
 

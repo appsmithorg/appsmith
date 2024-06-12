@@ -4,9 +4,9 @@ import { getAllDetachedWidgetIds, getWidgetsMeta } from "sagas/selectors";
 
 const getCurrentlyOpenWidgets = memoize(
   (allExistingDetachedWidgets: string[], metaWidgets: Record<string, any>) => {
-    return allExistingDetachedWidgets.filter((modalId) => {
-      const modal = metaWidgets[modalId];
-      return modal && modal.isVisible;
+    return allExistingDetachedWidgets.filter((detachedWidgetId) => {
+      const detachedWidget = metaWidgets[detachedWidgetId];
+      return detachedWidget && detachedWidget.isVisible;
     });
   },
 );

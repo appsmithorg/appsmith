@@ -7,9 +7,8 @@ import {
   Flex,
   Icon,
   IconButton,
-  Item,
   Menu,
-  MenuList,
+  MenuTrigger,
   Text,
 } from "@design-system/widgets";
 
@@ -47,7 +46,7 @@ interface HeaderProps {
 }
 
 const HeaderCellComponent = (props: HeaderProps) => {
-  const { column, editMode, isSortable } = props;
+  const { column, isSortable } = props;
 
   const headerProps = { ...column.getHeaderProps() };
   headerProps["style"] = {
@@ -69,20 +68,12 @@ const HeaderCellComponent = (props: HeaderProps) => {
     props.sortTableColumn(columnIndex, sortOrder);
   };
 
-  const disableSort = editMode === false && isSortable === false;
+  const disableSort = isSortable === false;
 
   const isColumnEditable =
     column.columnProperties.isCellEditable &&
     column.columnProperties.isEditable &&
     isColumnTypeEditable(column.columnProperties.columnType);
-
-  const toggleColumnFreeze = (value: StickyType) => {
-    props.handleColumnFreeze &&
-      props.handleColumnFreeze(
-        props.column.id,
-        props.column.sticky !== value ? value : StickyType.NONE,
-      );
-  };
 
   const onDragStart = useCallback(
     (e) => {
@@ -133,12 +124,6 @@ const HeaderCellComponent = (props: HeaderProps) => {
       case "sort-desc":
         props.sortTableColumn(props.columnIndex, false);
         break;
-      case "freeze-left":
-        toggleColumnFreeze(StickyType.LEFT);
-        break;
-      case "freeze-right":
-        toggleColumnFreeze(StickyType.RIGHT);
-        break;
       default:
         break;
     }
@@ -158,7 +143,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
           (props.column.sticky === StickyType.NONE && !props.isHidden) ||
           undefined
         }
-        onClick={!disableSort && props ? handleSortColumn : undefined}
+        onClick={!disableSort ? handleSortColumn : undefined}
         onDrag={props.onDrag}
         onDragEnd={props.onDragEnd}
         onDragEnter={onDragEnter}
@@ -168,10 +153,11 @@ const HeaderCellComponent = (props: HeaderProps) => {
         onDrop={onDrop}
         style={
           {
-            "--padding-inline-end":
-              props.isAscOrder !== undefined
+            "--padding-inline-end": isSortable
+              ? props.isAscOrder !== undefined
                 ? "calc((var(--outer-spacing-2) * 2) + (2 *var(--sizing-7)))"
-                : "calc((var(--outer-spacing-2) * 2) + var(--sizing-7))",
+                : "calc((var(--outer-spacing-2) * 2) + var(--sizing-7))"
+              : "calc(var(--outer-spacing-2) * 2)",
             justifyContent: column.columnProperties.horizontalAlignment,
           } as React.CSSProperties
         }
@@ -187,26 +173,33 @@ const HeaderCellComponent = (props: HeaderProps) => {
           </Text>
         </Flex>
       </div>
-      <Flex alignItems="center" gap="spacing-1">
-        {props.isAscOrder !== undefined && (
-          <Icon
-            name={props.isAscOrder ? "arrow-up" : "arrow-down"}
-            size="small"
-          />
-        )}
-        <Menu disabledKeys={["separator"]} onAction={onActionOnMenu}>
-          <IconButton
-            color="neutral"
-            icon="chevron-down"
-            size="small"
-            variant="ghost"
-          />
-          <MenuList>
-            <Item key="sort-asc">Sort column ascending</Item>
-            <Item key="sort-desc">Sort column descending</Item>
-          </MenuList>
-        </Menu>
-      </Flex>
+      {isSortable && (
+        <Flex alignItems="center" gap="spacing-1">
+          {props.isAscOrder !== undefined && (
+            <span style={{ pointerEvents: "none" }}>
+              <Icon
+                name={props.isAscOrder ? "arrow-up" : "arrow-down"}
+                size="small"
+              />
+            </span>
+          )}
+          <MenuTrigger>
+            <IconButton
+              color="neutral"
+              icon="chevron-down"
+              size="small"
+              variant="ghost"
+            />
+            <Menu
+              items={[
+                { id: "sort-asc", label: "Sort column ascending" },
+                { id: "sort-desc", label: "Sort column descending" },
+              ]}
+              onAction={onActionOnMenu}
+            />
+          </MenuTrigger>
+        </Flex>
+      )}
       <div
         {...column.getResizerProps()}
         data-resizor=""

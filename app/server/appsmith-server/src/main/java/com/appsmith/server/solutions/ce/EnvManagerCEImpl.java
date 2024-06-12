@@ -35,28 +35,20 @@ import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -801,28 +793,6 @@ public class EnvManagerCEImpl implements EnvManagerCE {
                 return Mono.error(new AppsmithException(AppsmithError.GENERIC_BAD_REQUEST, mailException.getMessage()));
             }
             return Mono.just(TRUE);
-        });
-    }
-
-    @Override
-    public Mono<Void> download(ServerWebExchange exchange) {
-        return verifyCurrentUserIsSuper().flatMap(user -> {
-            try {
-                File envFile = Path.of(commonConfig.getEnvFilePath()).toFile();
-                FileInputStream envFileInputStream = new FileInputStream(envFile);
-                InputStream resourceFile = new ClassPathResource("docker-compose.yml").getInputStream();
-                byte[] byteArray = fileUtils.createZip(
-                        new FileUtils.ZipSourceFile(envFileInputStream, "stacks/configuration/docker.env"),
-                        new FileUtils.ZipSourceFile(resourceFile, "docker-compose.yml"));
-                final ServerHttpResponse response = exchange.getResponse();
-                response.setStatusCode(HttpStatus.OK);
-                response.getHeaders().set(HttpHeaders.CONTENT_TYPE, "application/zip");
-                response.getHeaders().set("Content-Disposition", "attachment; filename=\"appsmith-config.zip\"");
-                return response.writeWith(Mono.just(new DefaultDataBufferFactory().wrap(byteArray)));
-            } catch (IOException e) {
-                log.error("failed to generate zip file", e);
-                return Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR));
-            }
         });
     }
 }

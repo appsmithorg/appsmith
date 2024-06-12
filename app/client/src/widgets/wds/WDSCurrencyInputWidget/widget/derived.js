@@ -52,7 +52,7 @@ export default {
   },
   //
   value: (props, moment, _) => {
-    const text = props.text;
+    const text = props.parsedText;
 
     function getLocale() {
       return navigator.languages?.[0] || "en-US";

@@ -796,7 +796,8 @@ export function getPageNameByPageId(state: AppState, pageId: string): string {
 }
 
 const getQueryPaneSavingMap = (state: AppState) => state.ui.queryPane.isSaving;
-const getApiPaneSavingMap = (state: AppState) => state.ui.apiPane.isSaving;
+export const getApiPaneSavingMap = (state: AppState) =>
+  state.ui.apiPane.isSaving;
 const getActionDirtyState = (state: AppState) => state.ui.apiPane.isDirty;
 
 export const isActionSaving = (id: string) =>

@@ -1,6 +1,7 @@
 /// <reference types="Cypress" />
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
+const widgetsPage = require("../../../../../locators/Widgets.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 import data from "../../../../../fixtures/TestDataSet1.json";
@@ -69,9 +70,7 @@ describe(
 
     it("3. Clears the search field when widget is closed and serverSideFiltering is off", () => {
       // Turn on the filterable for the widget
-      cy.togglebar(
-        '.t--property-control-allowsearching input[type="checkbox"]',
-      );
+      _.agHelper.CheckUncheck(commonlocators.allowsearchingInputTypeCheckbox);
       // open the widget
       cy.get(formWidgetsPage.multiselectwidgetv2)
         .find(".rc-select-selection-search-input")
@@ -105,9 +104,7 @@ describe(
 
     it("4. Does not clear the search field when widget is closed and serverSideFiltering is on", () => {
       // Turn on server side filtering for the widget
-      cy.togglebar(
-        '.t--property-control-serversidefiltering input[type="checkbox"]',
-      );
+      _.agHelper.CheckUncheck(widgetsPage.serversideFilteringInput);
       // open the widget
       cy.get(formWidgetsPage.multiselectwidgetv2)
         .find(".rc-select-selection-search-input")
@@ -133,13 +130,12 @@ describe(
         .invoke("val")
         .should("not.be.empty");
       // Turn off the filterable property for the widget
-      cy.togglebarDisable(
-        '.t--property-control-allowsearching input[type="checkbox"]',
+      _.agHelper.CheckUncheck(
+        commonlocators.allowsearchingInputTypeCheckbox,
+        false,
       );
       // Turn off server side filtering for the widget
-      cy.togglebarDisable(
-        '.t--property-control-serversidefiltering input[type="checkbox"]',
-      );
+      _.agHelper.CheckUncheck(widgetsPage.serversideFilteringInput, false);
     });
 
     it("5. Dropdown Functionality To Validate Options", function () {
@@ -153,7 +149,7 @@ describe(
         .should("not.have.text", "Select all");
       // enable select all option from property pane
       cy.openPropertyPane("multiselectwidgetv2");
-      cy.togglebar(commonlocators.allowSelectAllCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.allowSelectAllCheckbox);
 
       // press select all option
       cy.get(formWidgetsPage.multiselectwidgetv2)
@@ -303,7 +299,7 @@ describe(
     });
 
     it("8. Dropdown Functionality To Unchecked Visible Widget", function () {
-      cy.togglebarDisable(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
       cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
         "not.exist",
@@ -311,7 +307,7 @@ describe(
       _.deployMode.NavigateBacktoEditor();
       // Dropdown Functionality To Check Visible Widget", function () {
       cy.openPropertyPane("multiselectwidgetv2");
-      cy.togglebar(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
       cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(
         "be.visible",

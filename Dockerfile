@@ -10,10 +10,15 @@ ENV APPSMITH_CLOUD_SERVICES_BASE_URL=${APPSMITH_CLOUD_SERVICES_BASE_URL}
 
 ARG APPSMITH_SEGMENT_CE_KEY
 ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
-#Create the plugins directory
-RUN mkdir -p ./editor ./rts ./backend/plugins
 
 COPY deploy/docker/fs /
+
+RUN <<END
+  mkdir -p ./editor ./rts ./backend/plugins
+
+  # Ensure all *.sh scripts are executable.
+  find . -name node_modules -prune -or -type f -name '*.sh' -print -exec chmod +x '{}' ';'
+END
 
 #Add the jar to the container
 COPY ${JAR_FILE} backend/server.jar
@@ -25,10 +30,10 @@ COPY ./app/client/build editor/
 # Add RTS - Application Layer
 COPY ./app/client/packages/rts/dist rts/
 
-ENV PATH /opt/appsmith/utils/node_modules/.bin:/opt/java/bin:/opt/node/bin:$PATH
+ENV PATH /opt/bin:/opt/appsmith/utils/node_modules/.bin:/opt/java/bin:/opt/node/bin:$PATH
 
 RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
-  && chmod +x *.sh /watchtower-hooks/*.sh \
+  && chmod +x /opt/bin/* *.sh /watchtower-hooks/*.sh \
   # Disable setuid/setgid bits for the files inside container.
   && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true \
   && mkdir -p /.mongodb/mongosh /appsmith-stacks \

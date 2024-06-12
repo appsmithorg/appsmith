@@ -25,8 +25,10 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ce.ArtifactGitFileUtilsCE;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.google.gson.Gson;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -40,6 +42,8 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -70,6 +74,7 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
     private final Gson gson;
     private final NewActionService newActionService;
     private final FileInterface fileUtils;
+    private final JsonSchemaMigration jsonSchemaMigration;
     private final ActionCollectionService actionCollectionService;
 
     // Only include the application helper fields in metadata object
@@ -337,21 +342,40 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
         removeUnwantedFieldsFromBaseDomain(actionCollection);
     }
 
-    // reconstruct applicationJson
-
+    /**
+     * this method checkouts to the given branch name, and creates the ApplicationJson
+     * from the contents of repository
+     * @param workspaceId : workspaceId of the concerned application
+     * @param defaultArtifactId : main branch id of the application
+     * @param repoName : repository name, it's mostly the app/package name/repository name of the git project
+     * @param branchName : git branch from which the json has to be reconstructed
+     * @return : ApplicationJson
+     */
     @Override
     public Mono<ArtifactExchangeJson> reconstructArtifactExchangeJsonFromFilesInRepository(
             String workspaceId, String defaultArtifactId, String repoName, String branchName) {
+
         Mono<ApplicationGitReference> appReferenceMono = fileUtils.reconstructApplicationReferenceFromGitRepo(
                 workspaceId, defaultArtifactId, repoName, branchName);
-        return appReferenceMono.map(applicationReference -> {
+        return appReferenceMono.flatMap(applicationReference -> {
             // Extract application metadata from the json
             ApplicationJson metadata =
                     getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
             ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
             copyNestedNonNullProperties(metadata, applicationJson);
-            return applicationJson;
+            return jsonSchemaMigration.migrateApplicationJsonToLatestSchema(applicationJson);
         });
+    }
+
+    protected <T> List<T> getApplicationResource(Map<String, Object> resources, Type type) {
+
+        List<T> deserializedResources = new ArrayList<>();
+        if (!CollectionUtils.isNullOrEmpty(resources)) {
+            for (Map.Entry<String, Object> resource : resources.entrySet()) {
+                deserializedResources.add(getApplicationResource(resource.getValue(), type));
+            }
+        }
+        return deserializedResources;
     }
 
     public <T> T getApplicationResource(Object resource, Type type) {
@@ -533,5 +557,12 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
             newPage.setPublishedPage(gson.fromJson(gson.toJson(newPage.getUnpublishedPage()), PageDTO.class));
         });
         applicationJson.setPageList(pages);
+    }
+
+    @Override
+    public Path getRepoSuffixPath(String workspaceId, String artifactId, String repoName, @NonNull String... args) {
+        List<String> varargs = new ArrayList<>(List.of(artifactId, repoName));
+        varargs.addAll(List.of(args));
+        return Paths.get(workspaceId, varargs.toArray(new String[0]));
     }
 }

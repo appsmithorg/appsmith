@@ -1,7 +1,7 @@
 import _ from "lodash";
 import configureStore from "redux-mock-store";
 
-const PAGE_ID = 2;
+const PAGE_ID = "0123456789abcdef00000000";
 export const initialState: any = {
   entities: {
     pageList: {

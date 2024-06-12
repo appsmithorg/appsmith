@@ -1,8 +1,9 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.git.operations.FileOperations;
+import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.files.FileUtilsImpl;
-import com.appsmith.server.applications.git.ApplicationGitFileUtilsImpl;
 import com.appsmith.server.helpers.ce.CommonGitFileUtilsCE;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -17,11 +18,12 @@ import org.springframework.stereotype.Component;
 public class CommonGitFileUtils extends CommonGitFileUtilsCE {
 
     public CommonGitFileUtils(
-            ApplicationGitFileUtilsImpl applicationGitFileUtils,
+            ArtifactGitFileUtils<ApplicationGitReference> applicationGitFileUtils,
             FileInterface fileUtils,
+            FileOperations fileOperations,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             Gson gson) {
-        super(applicationGitFileUtils, fileUtils, analyticsService, sessionUserService, gson);
+        super(applicationGitFileUtils, fileUtils, fileOperations, analyticsService, sessionUserService);
     }
 }

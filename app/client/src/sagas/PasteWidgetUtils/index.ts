@@ -1,10 +1,13 @@
 import type { EitherMouseLocationORGridPosition } from "constants/WidgetConstants";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, select } from "redux-saga/effects";
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getWidgets } from "../selectors";
+import { getWidget, getWidgets } from "../selectors";
 
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { WidgetSpace } from "constants/CanvasEditorConstants";
@@ -48,6 +51,7 @@ export /**
  * @param copiedTopMostRow top row of the top most copied widget
  * @param copiedLeftMostColumn left column of the left most copied widget
  * @param gridPosition left and top canvas grid position values
+ * @param pastingIntoWidgetId - The ID of the widget where the new widgets should be pasted into.
  * @returns
  */
 const getNewPositions = function* (
@@ -56,6 +60,7 @@ const getNewPositions = function* (
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
   whereToPasteWidget: EitherMouseLocationORGridPosition,
+  pastingIntoWidgetId?: string,
 ) {
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -107,6 +112,7 @@ const getNewPositions = function* (
     copiedTopMostRow,
     copiedLeftMostColumn,
     whereToPasteWidget,
+    pastingIntoWidgetId,
   );
   return newPastingPositionDetails;
 };
@@ -124,6 +130,7 @@ const getNewPositions = function* (
  * @param copiedTopMostRow top row of the top most copied widget
  * @param copiedLeftMostColumn left column of the left most copied widget
  * @param gridPosition left and top canvas grid position values
+ * @param pastingIntoWidgetId - The ID of the widget where the new widgets should be pasted into. If this is known we don't need to calculate it. In addition, the container widget and dom queries will be different.
  * @returns
  */
 function* getNewPositionsBasedOnMousePositions(
@@ -134,14 +141,32 @@ function* getNewPositionsBasedOnMousePositions(
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
   whereToPasteWidget: EitherMouseLocationORGridPosition,
+  pastingIntoWidgetId?: string,
 ) {
-  let { canvasDOM, canvasId, containerWidget } =
-    getDefaultCanvas(canvasWidgets);
+  let {
+    canvasDOM,
+    canvasId,
+    containerWidget,
+  }: {
+    canvasDOM: Element | null | undefined;
+    canvasId: string | undefined;
+    containerWidget: FlattenedWidgetProps | undefined;
+  } = getDefaultCanvas(canvasWidgets);
 
   //if the selected widget is a layout widget then change the pasting canvas.
   if (selectedWidgets.length === 1 && isDropTarget(selectedWidgets[0].type)) {
     containerWidget = selectedWidgets[0];
     ({ canvasDOM, canvasId } = getCanvasIdForContainer(containerWidget));
+  }
+  if (pastingIntoWidgetId && pastingIntoWidgetId !== MAIN_CONTAINER_WIDGET_ID) {
+    // For building block we already know the widget where we want to paste the new widgets
+    // no need to calculate it
+    const containerWidgetId = getContainerIdForCanvas(pastingIntoWidgetId);
+    if (!containerWidgetId) return {};
+    containerWidget = yield select(getWidget, containerWidgetId);
+    ({ canvasDOM, canvasId } = getCanvasIdForContainer(
+      containerWidget as WidgetProps,
+    ));
   }
 
   if (!canvasDOM || !containerWidget || !canvasId) return {};
@@ -442,4 +467,15 @@ export function accessNestedObjectValue(
       newValue,
     ),
   );
+}
+
+export function handleButtonDynamicTriggerPathList(
+  widgetNameMap: Record<string, string>,
+  widget: FlattenedWidgetProps,
+) {
+  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
+    widget.dynamicTriggerPathList?.forEach((path: { key: string }) => {
+      accessNestedObjectValue(widget, path.key, oldWidgetName, newWidgetName);
+    });
+  });
 }

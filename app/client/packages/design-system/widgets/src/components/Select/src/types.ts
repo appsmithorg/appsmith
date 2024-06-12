@@ -1,3 +1,4 @@
+import type { Key } from "@react-types/shared";
 import type { ReactNode } from "react";
 import type {
   SelectProps as SpectrumSelectProps,
@@ -5,7 +6,8 @@ import type {
 } from "react-aria-components";
 import type { IconProps, SIZES } from "@design-system/widgets";
 
-export interface SelectProps<T extends object> extends SpectrumSelectProps<T> {
+export interface SelectProps<T extends object>
+  extends Omit<SpectrumSelectProps<T>, "slot"> {
   /** Item objects in the collection. */
   items: Iterable<SelectItem>;
   /** The content to display as the label. */
@@ -26,7 +28,7 @@ export interface SelectProps<T extends object> extends SpectrumSelectProps<T> {
 }
 
 export interface SelectItem {
-  name: string;
-  key: number;
+  id: Key;
+  label: string;
   icon?: IconProps["name"];
 }

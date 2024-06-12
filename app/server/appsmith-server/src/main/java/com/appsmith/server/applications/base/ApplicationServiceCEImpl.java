@@ -301,10 +301,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             GitArtifactMetadata gitData = application.getGitApplicationMetadata();
             if (gitData != null
                     && !StringUtils.isEmpty(gitData.getBranchName())
-                    && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
+                    && !StringUtils.isEmpty(gitData.getDefaultArtifactId())) {
                 applicationIdMono = this.findByBranchNameAndDefaultApplicationId(
                                 gitData.getBranchName(),
-                                gitData.getDefaultApplicationId(),
+                                gitData.getDefaultArtifactId(),
                                 applicationPermission.getEditPermission())
                         .map(Application::getId);
             } else {
@@ -690,8 +690,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     // Check if the current application is the root application
 
                     if (gitData != null
-                            && !StringUtils.isEmpty(gitData.getDefaultApplicationId())
-                            && applicationId.equals(gitData.getDefaultApplicationId())) {
+                            && !StringUtils.isEmpty(gitData.getDefaultArtifactId())
+                            && applicationId.equals(gitData.getDefaultArtifactId())) {
                         // This is the root application with update SSH key request
                         gitAuth.setRegeneratedKey(true);
                         gitData.setGitAuth(gitAuth);
@@ -707,7 +707,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     // Children application with update SSH key request for root application
                     // Fetch root application and then make updates. We are storing the git metadata only in root
                     // application
-                    if (StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
+                    if (StringUtils.isEmpty(gitData.getDefaultArtifactId())) {
                         throw new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION,
                                 "Unable to find root application, please connect your application to remote repo to resolve this issue.");
@@ -715,7 +715,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     gitAuth.setRegeneratedKey(true);
 
                     return repository
-                            .findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
+                            .findById(gitData.getDefaultArtifactId(), applicationPermission.getEditPermission())
                             .flatMap(defaultApplication -> {
                                 GitArtifactMetadata gitArtifactMetadata =
                                         defaultApplication.getGitApplicationMetadata();
@@ -770,7 +770,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                 "Can't find valid SSH key. Please configure the application with git"));
                     }
                     // Check if the application is root application
-                    if (applicationId.equals(gitData.getDefaultApplicationId())) {
+                    if (applicationId.equals(gitData.getDefaultArtifactId())) {
                         gitData.getGitAuth().setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
                         GitAuthDTO gitAuthDTO = new GitAuthDTO();
                         gitAuthDTO.setPublicKey(gitData.getGitAuth().getPublicKey());
@@ -779,14 +779,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
                         return Mono.just(gitAuthDTO);
                     }
-                    if (gitData.getDefaultApplicationId() == null) {
+                    if (gitData.getDefaultArtifactId() == null) {
                         throw new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION,
                                 "Can't find root application. Please configure the application with git");
                     }
 
                     return repository
-                            .findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
+                            .findById(gitData.getDefaultArtifactId(), applicationPermission.getEditPermission())
                             .map(rootApplication -> {
                                 GitAuthDTO gitAuthDTO = new GitAuthDTO();
                                 GitAuth gitAuth = rootApplication

@@ -20,10 +20,25 @@ export interface JSUpdate {
   parsedBody: ParsedBody | undefined;
 }
 
+export interface JSCollectionDifference {
+  newActions: Partial<JSAction>[];
+  updateActions: JSAction[];
+  deletedActions: JSAction[];
+  nameChangedActions: Array<{
+    id: string;
+    collectionId?: string;
+    oldName: string;
+    newName: string;
+    pageId: string;
+    moduleId?: string;
+  }>;
+  changedVariables: Variable[];
+}
+
 export const getDifferenceInJSCollection = (
   parsedBody: ParsedBody,
   jsAction: JSCollection,
-) => {
+): JSCollectionDifference => {
   const newActions: ParsedJSSubAction[] = [];
   const toBearchivedActions: JSAction[] = [];
   const toBeUpdatedActions: JSAction[] = [];

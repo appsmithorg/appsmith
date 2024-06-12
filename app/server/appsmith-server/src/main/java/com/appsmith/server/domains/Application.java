@@ -428,12 +428,13 @@ public class Application extends BaseDomain implements Artifact {
      */
     @Data
     @NoArgsConstructor
+    @AllArgsConstructor
     public static class AppPositioning {
         @JsonView({Views.Public.class, Git.class})
         Type type;
 
-        public AppPositioning(Type type) {
-            this.type = type;
+        public AppPositioning(String type) {
+            setType(Type.valueOf(type));
         }
 
         public enum Type {
@@ -488,6 +489,9 @@ public class Application extends BaseDomain implements Artifact {
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.gitAuth);
         public static final String gitApplicationMetadata_defaultApplicationId =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultApplicationId);
+
+        public static final String gitApplicationMetadata_defaultArtifactId =
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultArtifactId);
         public static final String gitApplicationMetadata_isAutoDeploymentEnabled =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isAutoDeploymentEnabled);
         public static final String gitApplicationMetadata_branchName =

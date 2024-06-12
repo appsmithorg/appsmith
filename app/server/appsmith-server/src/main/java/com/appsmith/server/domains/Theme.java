@@ -38,13 +38,13 @@ public class Theme extends BaseDomain {
     @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     private Object config;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     private Object properties;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     private Map<String, Object> stylesheet;
 
     @JsonProperty("isSystemTheme") // manually setting property name to make sure it's compatible with Gson

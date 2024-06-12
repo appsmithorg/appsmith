@@ -3,17 +3,17 @@ import type { SetterConfig } from "entities/AppTheming";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import * as config from "../config";
-import type { ButtonGroupWidgetProps } from "./types";
+import type { ToolbarButtonsWidgetProps } from "./types";
 import { ToolbarButtonsComponent } from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { AnvilConfig } from "WidgetProvider/constants";
 
 class WDSToolbarButtonsWidget extends BaseWidget<
-  ButtonGroupWidgetProps,
+  ToolbarButtonsWidgetProps,
   WidgetState
 > {
-  constructor(props: ButtonGroupWidgetProps) {
+  constructor(props: ToolbarButtonsWidgetProps) {
     super(props);
   }
 
@@ -70,15 +70,16 @@ class WDSToolbarButtonsWidget extends BaseWidget<
   };
 
   getWidgetView() {
+    const { alignment, buttonsList, color, variant, widgetId } = this.props;
+
     return (
       <ToolbarButtonsComponent
-        alignment={this.props.alignment}
-        buttonsList={this.props.buttonsList}
-        color={this.props.buttonColor}
-        density={this.props.density}
-        key={this.props.widgetId}
+        alignment={alignment}
+        buttonsList={buttonsList}
+        color={color}
+        key={widgetId}
         onButtonClick={this.onButtonClick}
-        variant={this.props.buttonVariant}
+        variant={variant}
       />
     );
   }

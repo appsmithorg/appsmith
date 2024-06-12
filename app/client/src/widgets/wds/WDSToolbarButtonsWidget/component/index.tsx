@@ -1,6 +1,6 @@
 import type { Key } from "react";
 import React, { useState } from "react";
-import { ActionGroup, Item } from "@design-system/widgets";
+import { ToolbarButtons } from "@design-system/widgets";
 import type {
   ToolbarButtonsComponentProps,
   ToolbarButtonsItemComponentProps,
@@ -14,19 +14,21 @@ export const ToolbarButtonsComponent = (
     Array<ToolbarButtonsItemComponentProps["id"]>
   >([]);
 
+  const { alignment, buttonsList, color, onButtonClick, variant } = props;
+
   const sortedButtons = sortBy(
-    Object.keys(props.buttonsList)
-      .map((key) => props.buttonsList[key])
+    Object.keys(buttonsList)
+      .map((key) => buttonsList[key])
       .filter((button) => {
         return button.isVisible === true;
       }),
     ["index"],
   );
 
-  const disabledKeys = Object.keys(props.buttonsList)
-    .map((key) => props.buttonsList[key])
+  const disabledKeys = Object.keys(buttonsList)
+    .map((key) => buttonsList[key])
     .filter((button) => {
-      return button.isDisabled === true;
+      return button.isDisabled;
     })
     .map((button) => button.id);
 
@@ -42,37 +44,23 @@ export const ToolbarButtonsComponent = (
   };
 
   const onAction = (key: Key) => {
-    if (props.buttonsList[key].onClick) {
+    if (buttonsList[key].onClick) {
       setLoadingButtonIds([...loadingButtonIds, key as string]);
 
-      props.onButtonClick(props.buttonsList[key].onClick, () =>
-        onActionComplete(props.buttonsList[key]),
+      onButtonClick(buttonsList[key].onClick, () =>
+        onActionComplete(buttonsList[key]),
       );
     }
   };
 
   return (
-    <ActionGroup
-      alignment={props.alignment}
-      color={props.color}
-      density={props.density}
+    <ToolbarButtons
+      alignment={alignment}
+      color={color}
       disabledKeys={disabledKeys}
+      items={sortedButtons}
       onAction={onAction}
-      variant={props.variant}
-    >
-      {sortedButtons.map((button: ToolbarButtonsItemComponentProps) => {
-        return (
-          <Item
-            icon={button.iconName}
-            iconPosition={button.iconAlign}
-            isLoading={loadingButtonIds.includes(button.id)}
-            isSeparator={button.itemType === "SEPARATOR"}
-            key={button.id}
-          >
-            {button.label}
-          </Item>
-        );
-      })}
-    </ActionGroup>
+      variant={variant}
+    />
   );
 };

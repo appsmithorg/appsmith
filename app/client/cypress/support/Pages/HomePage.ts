@@ -3,11 +3,6 @@ import HomePageLocators from "../../locators/HomePage";
 import SignupPageLocators from "../../locators/SignupPage.json";
 import { ObjectsRegistry } from "../Objects/Registry";
 import { AppSidebar, PageLeftPane } from "./EditorNavigation";
-import {
-  createMessage,
-  IMPORT_APP_SUCCESSFUL,
-  UNABLE_TO_IMPORT_APP,
-} from "../../../src/ce/constants/messages";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -73,7 +68,6 @@ export class HomePage {
   _applicationName = ".t--application-name";
   private _editAppName = "bp3-editable-text-editing";
   private _appMenu = ".ads-v2-menu__menu-item-children";
-  _buildFromDataTableActionCard = "[data-testid='generate-app']";
   private _selectRole = "//span[text()='Select a role']/ancestor::div";
   private _searchInput = "input[type='text']";
   _appHoverIcon = (action: string) => ".t--application-" + action + "-link";
@@ -646,7 +640,9 @@ export class HomePage {
       HomePageLocators.workspaceImportAppModal,
     );
     this.agHelper.AssertElementAbsence(
-      this.locator._specificToast(createMessage(UNABLE_TO_IMPORT_APP)),
+      this.locator._specificToast(
+        Cypress.env("MESSAGES").UNABLE_TO_IMPORT_APP(),
+      ),
     );
   }
 
@@ -738,7 +734,9 @@ export class HomePage {
   }
 
   public AssertImportToast(timeout = 5000) {
-    this.agHelper.AssertContains(createMessage(IMPORT_APP_SUCCESSFUL));
+    this.agHelper.AssertContains(
+      Cypress.env("MESSAGES").IMPORT_APP_SUCCESSFUL(),
+    );
     this.agHelper.Sleep(timeout); //for imported app to settle!
     cy.get(this.locator._loading).should("not.exist");
   }

@@ -354,7 +354,8 @@ public class ImportServiceTests {
                 .map(data -> {
                     return gson.fromJson(data, ApplicationJson.class);
                 })
-                .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
+                .map(JsonSchemaMigration::migrateArtifactToLatestSchema)
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
     private Workspace createTemplateWorkspace() {
@@ -983,8 +984,7 @@ public class ImportServiceTests {
                     final List<CustomJSLib> importedJSLibList = tuple.getT6();
 
                     // although the imported list had only one jsLib entry, the other entry comes from ensuring an xml
-                    // parser entry
-                    // for backward compatibility
+                    // parser entry for backward compatibility
                     assertEquals(2, importedJSLibList.size());
                     CustomJSLib importedJSLib = (CustomJSLib) importedJSLibList.toArray()[0];
                     CustomJSLib expectedJSLib = new CustomJSLib(
@@ -996,8 +996,7 @@ public class ImportServiceTests {
                     assertEquals(expectedJSLib.getVersion(), importedJSLib.getVersion());
                     assertEquals(expectedJSLib.getDefs(), importedJSLib.getDefs());
                     // although the imported list had only one jsLib entry, the other entry comes from ensuring an xml
-                    // parser entry
-                    // for backward compatibility
+                    // parser entry for backward compatibility
                     assertEquals(2, application.getUnpublishedCustomJSLibs().size());
 
                     assertThat(application.getName()).isEqualTo("valid_application");
@@ -2714,7 +2713,7 @@ public class ImportServiceTests {
         Mono<ApplicationJson> migratedApplicationMono = v1ApplicationMono.map(applicationJson -> {
             ApplicationJson applicationJson1 = new ApplicationJson();
             AppsmithBeanUtils.copyNestedNonNullProperties(applicationJson, applicationJson1);
-            return JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson1);
+            return (ApplicationJson) JsonSchemaMigration.migrateArtifactToLatestSchema(applicationJson1);
         });
 
         StepVerifier.create(Mono.zip(v1ApplicationMono, migratedApplicationMono))
@@ -4593,8 +4592,14 @@ public class ImportServiceTests {
                 .assertNext(applicationJson -> {
                     List<NewPage> pages = applicationJson.getPageList();
                     assertThat(pages).hasSize(2);
-                    assertThat(pages.get(1).getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
-                    assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");
+                    NewPage page = pages.stream()
+                            .filter(page1 ->
+                                    page1.getUnpublishedPage().getName().equals("page_" + randomId))
+                            .findFirst()
+                            .orElse(null);
+                    assertThat(page).isNotNull();
+                    assertThat(page.getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
+                    assertThat(page.getUnpublishedPage().getIcon()).isEqualTo("flight");
                 })
                 .verifyComplete();
     }

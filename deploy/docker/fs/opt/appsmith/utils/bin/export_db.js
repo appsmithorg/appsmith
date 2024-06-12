@@ -5,7 +5,7 @@ const Constants = require('./constants');
 function export_database() {
   console.log('export_database  ....');
   shell.mkdir('-p', [Constants.BACKUP_PATH]);
-  const cmd = `mongodump --uri='${process.env.APPSMITH_MONGODB_URI}' --archive='${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`;
+  const cmd = `mongodump --uri='${process.env.APPSMITH_DB_URL}' --archive='${Constants.BACKUP_PATH}/${Constants.DUMP_FILE_NAME}' --gzip`;
   shell.exec(cmd);
   console.log('export_database done');
 }

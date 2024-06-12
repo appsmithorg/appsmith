@@ -1,11 +1,19 @@
 .link {
+  position: relative;
   text-decoration: underline;
-  text-decoration-color: currentColor;
   text-underline-offset: 2px;
   color: currentColor;
+  text-decoration-color: var(--color-bd-accent);
+  text-decoration-thickness: 0.5px;
 
-  &:hover {
-    color: currentColor;
-    text-decoration-color: currentColor;
+  &[data-hovered] {
+    text-decoration: none;
+  }
+
+  &[data-focus-visible] {
+    border-radius: var(--border-radius-elevation-3);
+    outline: 2px solid var(--color-bd-focus);
+    outline-offset: 4px;
+    text-decoration: none;
   }
 }

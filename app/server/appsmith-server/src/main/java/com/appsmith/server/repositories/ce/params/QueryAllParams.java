@@ -92,25 +92,6 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.updateExecuteAndFind(this, update);
     }
 
-    @Deprecated(forRemoval = true)
-    public QueryAllParams<T> criteria(Criteria... criteria) {
-        if (criteria == null) {
-            return this;
-        }
-        return criteria(List.of(criteria));
-    }
-
-    @Deprecated(forRemoval = true)
-    public QueryAllParams<T> criteria(List<Criteria> criteria) {
-        if (criteria == null) {
-            return this;
-        }
-        for (Criteria c : criteria) {
-            criteria(c);
-        }
-        return this;
-    }
-
     public QueryAllParams<T> criteria(Criteria c) {
         if (c == null) {
             return this;

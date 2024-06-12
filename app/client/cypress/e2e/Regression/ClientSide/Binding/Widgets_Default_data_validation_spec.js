@@ -9,6 +9,7 @@ import {
   entityExplorer,
   agHelper,
   propPane,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -35,7 +36,7 @@ describe(
     });
 
     it("2. validation of default data displayed in all widgets based on row selected", function () {
-      cy.isSelectRow(1);
+      table.SelectTableRow(1);
       cy.readTabledataPublish("1", "0").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("2736212");

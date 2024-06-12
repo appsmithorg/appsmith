@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.caching.components.CacheManager;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.LicensePlan;
@@ -9,11 +10,13 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.EnvManager;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +24,8 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
@@ -30,7 +35,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.UUID;
 
 import static com.appsmith.external.enums.FeatureFlagEnum.TENANT_TEST_FEATURE;
@@ -42,6 +46,8 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -62,6 +68,15 @@ class TenantServiceCETest {
     @Autowired
     UserUtils userUtils;
 
+    @Autowired
+    ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;
+
+    @SpyBean
+    CacheManager cacheManager;
+
+    @SpyBean
+    CacheableRepositoryHelper cacheableRepositoryHelper;
+
     @MockBean
     FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
@@ -74,8 +89,7 @@ class TenantServiceCETest {
         originalTenantConfiguration = tenant.getTenantConfiguration();
 
         tenantRepository
-                .updateAndReturn(
-                        tenant.getId(), Bridge.update().set(Tenant.Fields.tenantConfiguration, null), Optional.empty())
+                .updateAndReturn(tenant.getId(), Bridge.update().set(Tenant.Fields.tenantConfiguration, null), null)
                 .block();
 
         // Make api_user super-user to test tenant admin functionality
@@ -84,16 +98,19 @@ class TenantServiceCETest {
                 .findByEmail("api_user")
                 .flatMap(user -> userUtils.makeSuperUser(List.of(user)))
                 .block();
+        doReturn(Mono.empty()).when(cacheManager).get(anyString(), anyString());
     }
 
     @AfterEach
     public void cleanup() {
+        Tenant updatedTenant = new Tenant();
+        updatedTenant.setTenantConfiguration(originalTenantConfiguration);
         tenantService
-                .getDefaultTenant()
-                .flatMap(tenant -> tenantRepository.updateAndReturn(
-                        tenant.getId(),
-                        Bridge.update().set(Tenant.Fields.tenantConfiguration, originalTenantConfiguration),
-                        Optional.empty()))
+                .getDefaultTenantId()
+                .flatMap(tenantId -> tenantService.update(tenantId, updatedTenant))
+                .doOnError(error -> {
+                    System.err.println("Error during cleanup: " + error.getMessage());
+                })
                 .block();
     }
 
@@ -360,6 +377,23 @@ class TenantServiceCETest {
                     assertThat(tenantConfiguration.getIsStrongPasswordPolicyEnabled())
                             .isFalse();
                 })
+                .verifyComplete();
+    }
+
+    /**
+     * This test checks that the tenant cache is created and data is fetched without any deserialization errors
+     * This will ensure if any new nested user-defined classes are created in the tenant object in the future, and
+     * implements serializable is missed for that class, the deserialization will fail leads this test to fail.
+     */
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testDeserializationErrors() {
+        String tenantId = tenantService.getDefaultTenantId().block();
+        Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedTenant(tenantId);
+        Mono<Boolean> hasKeyMono = reactiveRedisTemplate.hasKey("tenant:" + tenantId);
+        Mono<Tenant> cachedTenant = tenantService.getDefaultTenant();
+        StepVerifier.create(evictTenantCache.then(cachedTenant).then(hasKeyMono))
+                .assertNext(Assertions::assertTrue)
                 .verifyComplete();
     }
 }

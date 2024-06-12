@@ -238,7 +238,7 @@ describe(
             });
         });
       cy.wait("@blockImport").then(() => {
-        cy.assertPageSave();
+        agHelper.AssertAutoSave();
         // check that the widgets are present on the canvas
         agHelper.AssertElementVisibility('[data-testid="t--ide-list"]');
         agHelper

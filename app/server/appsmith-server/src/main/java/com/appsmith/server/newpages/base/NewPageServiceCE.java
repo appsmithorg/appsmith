@@ -14,6 +14,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface NewPageServiceCE extends CrudService<NewPage, String> {
@@ -98,4 +99,9 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<ApplicationPagesDTO> createApplicationPagesDTO(
             Application branchedApplication, List<NewPage> newPages, boolean viewMode, boolean isRecentlyAccessed);
+
+    Mono<String> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap, String branchName);
+
+    Flux<PageDTO> findByApplicationIdAndApplicationMode(
+            String applicationId, AclPermission permission, ApplicationMode applicationMode);
 }
