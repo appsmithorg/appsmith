@@ -59,6 +59,7 @@ describe("filterInternalProperties tests", () => {
       widgetName: "Input1",
       type: "INPUT_WIDGET_V2",
       ENTITY_TYPE: ENTITY_TYPE.WIDGET,
+      dependencyMap: {},
     };
     const dataTree = {
       Input1: dataTreeEntity,
