@@ -8,6 +8,8 @@ import {
 } from "@appsmith/actions/workspaceActions";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import {
+  ANVIL_APPLICATIONS,
+  APPLICATIONS,
   CREATE_A_NEW_WORKSPACE,
   createMessage,
   INVITE_USERS_PLACEHOLDER,
@@ -128,6 +130,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -738,6 +741,19 @@ export function ApplicationsSection(props: any) {
       }
     };
 
+    const anvilApplications: ApplicationPayload[] = [];
+    const nonAnvilApplications: ApplicationPayload[] = [];
+    applications.forEach((application: ApplicationPayload) => {
+      if (
+        application.applicationDetail?.appPositioning?.type ===
+        LayoutSystemTypes.ANVIL
+      ) {
+        anvilApplications.push(application);
+      } else {
+        nonAnvilApplications.push(application);
+      }
+    });
+
     workspacesListComponent = (
       <React.Fragment key={activeWorkspace.id}>
         <WorkspaceSection className="t--workspace-section" isMobile={isMobile}>
@@ -826,7 +842,7 @@ export function ApplicationsSection(props: any) {
           ) : (
             <>
               <ApplicationCardList
-                applications={applications}
+                applications={nonAnvilApplications}
                 canInviteToWorkspace={canInviteToWorkspace}
                 deleteApplication={deleteApplication}
                 enableImportExport={enableImportExport}
@@ -836,6 +852,22 @@ export function ApplicationsSection(props: any) {
                 hasManageWorkspacePermissions={hasManageWorkspacePermissions}
                 isMobile={isMobile}
                 onClickAddNewButton={onClickAddNewAppButton}
+                title={createMessage(APPLICATIONS)}
+                updateApplicationDispatch={updateApplicationDispatch}
+                workspaceId={activeWorkspace.id}
+              />
+              <ApplicationCardList
+                applications={anvilApplications}
+                canInviteToWorkspace={canInviteToWorkspace}
+                deleteApplication={deleteApplication}
+                enableImportExport={enableImportExport}
+                hasCreateNewApplicationPermission={
+                  hasCreateNewApplicationPermission
+                }
+                hasManageWorkspacePermissions={hasManageWorkspacePermissions}
+                isMobile={isMobile}
+                onClickAddNewButton={onClickAddNewAppButton}
+                title={createMessage(ANVIL_APPLICATIONS)}
                 updateApplicationDispatch={updateApplicationDispatch}
                 workspaceId={activeWorkspace.id}
               />

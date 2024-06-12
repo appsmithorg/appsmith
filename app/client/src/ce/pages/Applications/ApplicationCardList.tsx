@@ -9,7 +9,6 @@ import ApplicationCard from "pages/Applications/ApplicationCard";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import {
-  APPLICATIONS,
   APPLICATION_CARD_LIST_ZERO_STATE,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -31,6 +30,7 @@ interface ApplicationCardListProps {
     id: string,
     data: UpdateApplicationPayload,
   ) => void;
+  title: string;
 }
 
 function ApplicationCardList({
@@ -41,6 +41,7 @@ function ApplicationCardList({
   hasCreateNewApplicationPermission,
   hasManageWorkspacePermissions,
   isMobile,
+  title,
   updateApplicationDispatch,
   workspaceId,
 }: ApplicationCardListProps) {
@@ -50,7 +51,7 @@ function ApplicationCardList({
     <CardList
       isLoading={isFetchingApplications}
       isMobile={isMobile}
-      title={createMessage(APPLICATIONS)}
+      title={title}
     >
       {applications.map((application: any) => {
         return (

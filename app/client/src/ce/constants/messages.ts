@@ -210,6 +210,7 @@ export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
   `Learn about Appsmith Partner Program`;
 export const NEW_APPLICATION = () => `New application`;
 export const APPLICATIONS = () => `Applications`;
+export const ANVIL_APPLICATIONS = () => `Applications (Anvil Layout System)`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
