@@ -1,5 +1,12 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+cypress/e2e/Regression/ClientSide/Fork/ForkApplicationInDeployedMode_spec.ts
+cypress/e2e/Regression/ClientSide/Fork/ForkApplication_spec.ts
+cypress/e2e/Regression/ClientSide/OtherUIFeatures/ExportApplication_spec.js
+cypress/e2e/Regression/ClientSide/ProductRamps/PrivateEmbedRamp_spec.ts
+cypress/e2e/Regression/ClientSide/Workspace/DeleteWorkspace_spec.ts
+cypress/e2e/Regression/ClientSide/Workspace/LeaveWorkspaceTest_spec.js
+cypress/e2e/Regression/ClientSide/Workspace/MemberRoles_Spec.ts
+cypress/e2e/Regression/ClientSide/Workspace/ShareAppTests_Spec.ts
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
