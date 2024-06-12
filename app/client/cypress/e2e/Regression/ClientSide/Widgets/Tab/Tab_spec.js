@@ -63,7 +63,7 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
 
   it("3. Tab Widget Functionality To Unchecked Visible Widget", function () {
     cy.openPropertyPane("tabswidget");
-    cy.togglebarDisable(commonlocators.visibleCheckbox);
+    agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
     deployMode.DeployApp();
     cy.get(publish.tabWidget).should("not.exist");
     deployMode.NavigateBacktoEditor();

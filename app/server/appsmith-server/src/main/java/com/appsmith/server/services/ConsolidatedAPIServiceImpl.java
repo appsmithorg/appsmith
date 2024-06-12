@@ -258,9 +258,8 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
 
         if (!isBlank(defaultPageId)) {
             /* Get current page */
-            fetches.add(pagesFromCurrentApplicationMonoCached
-                    .then(applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                            defaultPageId, branchName, isViewMode, true))
+            fetches.add(applicationPageService
+                    .getPageAndMigrateDslByBranchAndDefaultPageId(defaultPageId, branchName, isViewMode, true)
                     .as(this::toResponseDTO)
                     .doOnSuccess(consolidatedAPIResponseDTO::setPageWithMigratedDsl)
                     .name(getQualifiedSpanName(CURRENT_PAGE_SPAN, mode))

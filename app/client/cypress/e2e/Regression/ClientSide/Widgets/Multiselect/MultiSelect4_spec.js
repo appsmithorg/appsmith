@@ -108,9 +108,7 @@ describe(
 
     it("4. multi Select widget selection is not cleared when the widget is server side filtered", () => {
       // Turn off server side filtering for the widget
-      cy.togglebarDisable(
-        '.t--property-control-serversidefiltering input[type="checkbox"]',
-      );
+      _.agHelper.CheckUncheck(widgetsPage.serversideFilteringInput, false);
 
       _.propPane.UpdatePropertyFieldValue("Source Data", "");
 

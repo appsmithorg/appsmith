@@ -55,14 +55,14 @@ describe(
 
       //Switch Functionality To Check Enabled Widget
       cy.openPropertyPane("switchwidget");
-      cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
+      _.agHelper.CheckUncheck(commonlocators.Disablejs + " " + "input", false);
       _.deployMode.DeployApp();
       cy.get(publish.switchwidget + " " + "input").should("be.enabled");
       _.deployMode.NavigateBacktoEditor();
 
       //Switch Functionality To Unchecked Visible Widget
       cy.openPropertyPane("switchwidget");
-      cy.togglebarDisable(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
       cy.get(publish.switchwidget + " " + "input").should("not.exist");
       _.deployMode.NavigateBacktoEditor();

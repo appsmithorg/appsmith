@@ -42,9 +42,11 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.ReflectionUtils;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -171,7 +173,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         // Set policies to null in the update object
         resource.setPolicies(null);
-        resource.setUpdatedAt(Instant.now());
 
         final User user = permission != null ? permission.getUser() : null;
 
@@ -467,6 +468,38 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         }
 
         throw new RuntimeException("Not implemented yet!"); //*/
+    }
+
+    public BridgeUpdate buildUpdateFromSparseResource(T resource) {
+        // In case the update is not used to update the policies, then set the policies to null to ensure that the
+        // existing policies are not overwritten.
+        if (CollectionUtils.isEmpty(resource.getPolicies())) {
+            resource.setPolicies(null);
+        }
+
+        final BridgeUpdate update = Bridge.update();
+
+        ReflectionUtils.doWithFields(
+                resource.getClass(),
+                field -> {
+                    if (field.isAnnotationPresent(Transient.class) || BaseDomain.Fields.id.equals(field.getName())) {
+                        return;
+                    }
+
+                    final int modifiers = field.getModifiers();
+                    if (Modifier.isStatic(modifiers) || Modifier.isFinal(modifiers)) {
+                        return;
+                    }
+
+                    field.setAccessible(true);
+                    final Object value = field.get(resource);
+                    if (value != null) {
+                        update.set(field.getName(), value);
+                    }
+                },
+                null);
+
+        return update.set(BaseDomain.Fields.updatedAt, Instant.now());
     }
 
     /**

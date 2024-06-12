@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce_compatible;
 
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
@@ -33,7 +32,6 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
             PasswordResetTokenRepositoryCake passwordResetTokenRepository,
             PasswordEncoder passwordEncoder,
             CommonConfig commonConfig,
-            EncryptionService encryptionService,
             UserDataService userDataService,
             TenantService tenantService,
             UserUtils userUtils,
@@ -52,7 +50,6 @@ public class UserServiceCECompatibleImpl extends UserServiceCEImpl implements Us
                 passwordResetTokenRepository,
                 passwordEncoder,
                 commonConfig,
-                encryptionService,
                 userDataService,
                 tenantService,
                 userUtils,

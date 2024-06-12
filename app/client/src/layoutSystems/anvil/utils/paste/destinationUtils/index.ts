@@ -1,12 +1,12 @@
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { CopiedWidgetData, PasteDestinationInfo } from "./types";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { getWidgetHierarchy } from "./utils";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
+import type { CopiedWidgetData, PasteDestinationInfo } from "../types";
+import { getWidgetHierarchy } from "../utils";
+import type { LayoutProps, WidgetLayoutProps } from "../../anvilTypes";
 
 export function* getDestinedParent(
   allWidgets: CanvasWidgetsReduxState,
