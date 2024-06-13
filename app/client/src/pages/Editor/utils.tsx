@@ -33,6 +33,11 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { Icon } from "design-system";
+import {
+  EditorEntityTab,
+  EditorEntityTabState,
+} from "@appsmith/entities/IDE/constants";
+import { FocusEntity } from "navigation/FocusEntity";
 
 export const draggableElement = (
   id: string,
@@ -414,4 +419,65 @@ export function getPluginImagesFromPlugins(plugins: Plugin[]) {
     pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
   });
   return pluginImages;
+}
+
+/**
+ * Resolve segment and segmentMode based on entity type.
+ */
+export function getCurrentEntityInfo(entity: FocusEntity) {
+  switch (entity) {
+    case FocusEntity.QUERY:
+    case FocusEntity.API:
+    case FocusEntity.QUERY_MODULE_INSTANCE:
+      return {
+        segment: EditorEntityTab.QUERIES,
+        segmentMode: EditorEntityTabState.Edit,
+      };
+    case FocusEntity.QUERY_LIST:
+      return {
+        segment: EditorEntityTab.QUERIES,
+        segmentMode: EditorEntityTabState.List,
+      };
+    case FocusEntity.QUERY_ADD:
+      return {
+        segment: EditorEntityTab.QUERIES,
+        segmentMode: EditorEntityTabState.Add,
+      };
+    case FocusEntity.JS_OBJECT:
+    case FocusEntity.JS_MODULE_INSTANCE:
+      return {
+        segment: EditorEntityTab.JS,
+        segmentMode: EditorEntityTabState.Edit,
+      };
+    case FocusEntity.JS_OBJECT_ADD:
+      return {
+        segment: EditorEntityTab.JS,
+        segmentMode: EditorEntityTabState.Add,
+      };
+    case FocusEntity.JS_OBJECT_LIST:
+      return {
+        segment: EditorEntityTab.JS,
+        segmentMode: EditorEntityTabState.List,
+      };
+    case FocusEntity.CANVAS:
+      return {
+        segment: EditorEntityTab.UI,
+        segmentMode: EditorEntityTabState.Add,
+      };
+    case FocusEntity.PROPERTY_PANE:
+      return {
+        segment: EditorEntityTab.UI,
+        segmentMode: EditorEntityTabState.Edit,
+      };
+    case FocusEntity.WIDGET_LIST:
+      return {
+        segment: EditorEntityTab.UI,
+        segmentMode: EditorEntityTabState.List,
+      };
+    default:
+      return {
+        segment: EditorEntityTab.UI,
+        segmentMode: EditorEntityTabState.Add,
+      };
+  }
 }
