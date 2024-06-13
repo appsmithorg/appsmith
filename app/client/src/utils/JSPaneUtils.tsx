@@ -219,7 +219,7 @@ export const createDummyJSCollectionActions = (
       workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
-        body: "function (){\n\t\t//\twrite code here\n\t\t//\tthis.myVar1 = [1,2,3]\n\t}",
+        body: "function () {}",
         timeoutInMillisecond: 0,
         jsArguments: [],
       },
@@ -231,7 +231,7 @@ export const createDummyJSCollectionActions = (
       workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
-        body: "async function () {\n\t\t//\tuse async-await or promises\n\t\t//\tawait storeValue('varName', 'hello world')\n\t}",
+        body: "async function () {}",
         timeoutInMillisecond: 0,
         jsArguments: [],
       },
@@ -243,11 +243,11 @@ export const createDummyJSCollectionActions = (
   const variables = [
     {
       name: "myVar1",
-      value: [],
+      value: "[]",
     },
     {
       name: "myVar2",
-      value: {},
+      value: "{}",
     },
   ];
 
@@ -271,7 +271,7 @@ export const createSingleFunctionJsCollection = (
       workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
-        body: "function (){\n\t\t//\twrite code here\n\t}",
+        body: "function () {}",
         timeoutInMillisecond: 0,
         jsArguments: [],
       },
