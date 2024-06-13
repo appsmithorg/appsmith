@@ -147,7 +147,7 @@ import {
 import { widgetSelectionSagas } from "./WidgetSelectionSagas";
 
 import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constants";
-import { shouldShowSlashCommandMenu } from "components/editorComponents/CodeEditor/codeEditorUtils";
+// import { shouldShowSlashCommandMenu } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { addSuggestedWidgetAnvilAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
@@ -588,9 +588,9 @@ export function* setWidgetDynamicPropertySaga(
   if (!propertyValue && isDynamic) {
     // Empty binding should not be set for table and json widgets' data property
     // As these are getting populated with slash command menu on focus
-    if (!shouldShowSlashCommandMenu(widget.type, propertyPath)) {
-      set(widget, propertyPath, EMPTY_BINDING);
-    }
+    // if (!shouldShowSlashCommandMenu(widget.type, propertyPath)) {
+    set(widget, propertyPath, EMPTY_BINDING);
+    // }
   }
 
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);

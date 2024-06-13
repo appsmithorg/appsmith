@@ -148,6 +148,13 @@ const PropertyControl = memo((props: Props) => {
       }, focusTimeout);
     }
   }, [shouldFocusPropertyPath]);
+
+  useEffect(() => {
+    if (props.showAutocompleteMenuByDefault) {
+      toggleDynamicProperty(propertyName, false);
+    }
+  }, []);
+
   /**
    * A property's stylesheet value can be fetched in 2 ways
    * 1. If a method is defined on the property config (getStylesheetValue), then

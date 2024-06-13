@@ -27,7 +27,7 @@ import "codemirror/mode/css/css";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/mode/htmlmixed/htmlmixed";
 import { getDataTreeForAutocomplete } from "selectors/dataTreeSelectors";
-import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
+// import EvaluatedValuePopup from "components/editorComponents/CodeEditor/EvaluatedValuePopup";
 import type { WrappedFieldInputProps } from "redux-form";
 import _, { debounce, isEqual, isNumber } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
@@ -662,7 +662,38 @@ class CodeEditor extends Component<Props, State> {
     if (prevProps.height !== this.props.height) {
       this.editor.setSize("100%", this.props.height);
     }
+
+    if (
+      this.state.isFocused &&
+      this.editor?.getValue() === EMPTY_BINDING &&
+      !this.state.hinterOpen
+    ) {
+      this.showAutoCompleteHintOptionsOnFocus();
+    }
   }
+
+  showAutoCompleteHintOptionsOnFocus = () => {
+    const entityInformation = this.getEntityInformation();
+    const { blockCompletions } = this.props;
+    let hinterOpen = false;
+    for (let i = 0; i < this.hinters.length; i++) {
+      if (this.hinters[0].fireOnFocus) {
+        hinterOpen = this.hinters[i].showHint(this.editor, entityInformation, {
+          blockCompletions,
+          datasources: this.props.datasources.list,
+          pluginIdToPlugin: this.props.pluginIdToPlugin,
+          recentEntities: this.props.recentEntities,
+          featureFlags: this.props.featureFlags,
+          enableAIAssistance: this.AIEnabled,
+          focusEditor: this.focusEditor,
+          executeCommand: this.props.executeCommand,
+          isJsEditor: this.props.mode === EditorModes.JAVASCRIPT,
+        });
+        if (hinterOpen) break;
+      }
+    }
+    this.setState({ hinterOpen });
+  };
 
   setEditorInput = (value: string) => {
     this.editor.setValue(value);
@@ -1133,25 +1164,9 @@ class CodeEditor extends Component<Props, State> {
     if (!cm.state.completionActive) {
       updateCustomDef(this.props.additionalDynamicData);
 
-      const entityInformation = this.getEntityInformation();
-      const { blockCompletions } = this.props;
-      this.hinters
-        .filter((hinter) => hinter.fireOnFocus)
-        .forEach(
-          (hinter) =>
-            hinter.showHint &&
-            hinter.showHint(cm, entityInformation, {
-              blockCompletions,
-              datasources: this.props.datasources.list,
-              pluginIdToPlugin: this.props.pluginIdToPlugin,
-              recentEntities: this.props.recentEntities,
-              featureFlags: this.props.featureFlags,
-              enableAIAssistance: this.AIEnabled,
-              focusEditor: this.focusEditor,
-              executeCommand: this.props.executeCommand,
-              isJsEditor: this.props.mode === EditorModes.JAVASCRIPT,
-            }),
-        );
+      if (this.state.isFocused) {
+        this.showAutoCompleteHintOptionsOnFocus();
+      }
     }
 
     const value = this.editor?.getValue() || "";
@@ -1568,56 +1583,56 @@ class CodeEditor extends Component<Props, State> {
       codeEditorVisibleOverflow,
       dataTreePath,
       disabled,
-      evaluatedPopUpLabel,
-      evaluatedValue,
-      evaluationSubstitutionType,
-      expected,
+      // evaluatedPopUpLabel,
+      // evaluatedValue,
+      // evaluationSubstitutionType,
+      // expected,
       fill,
       height,
-      hideEvaluatedValue,
+      // hideEvaluatedValue,
       hoverInteraction,
       maxHeight,
       showLightningMenu,
       size,
-      theme,
-      useValidationMessage,
+      // theme,
+      // useValidationMessage,
     } = this.props;
 
     const entityInformation = this.getEntityInformation();
 
-    const { evalErrors, pathEvaluatedValue } = this.getPropertyValidation(
+    const { evalErrors } = this.getPropertyValidation(
       dataTreePath,
       entityInformation?.isTriggerPath,
     );
 
-    let errors = evalErrors,
-      isInvalid = evalErrors.length > 0,
-      evaluated = evaluatedValue;
+    // let errors = evalErrors,
+    const isInvalid = evalErrors.length > 0;
+    //   evaluated = evaluatedValue;
 
-    if (dataTreePath) {
-      evaluated =
-        pathEvaluatedValue !== undefined ? pathEvaluatedValue : evaluated;
-    }
+    // if (dataTreePath) {
+    //   evaluated =
+    //     pathEvaluatedValue !== undefined ? pathEvaluatedValue : evaluated;
+    // }
 
     const showSlashCommandButton =
       showLightningMenu !== false &&
       !this.state.isFocused &&
       !this.state.showAIWindow;
     /* Evaluation results for snippet arguments. The props below can be used to set the validation errors when computed from parent component */
-    if (this.props.errors) {
-      errors = this.props.errors;
-    }
-    if (this.props.isInvalid !== undefined) {
-      isInvalid = Boolean(this.props.isInvalid);
-    }
+    // if (this.props.errors) {
+    //   errors = this.props.errors;
+    // }
+    // if (this.props.isInvalid !== undefined) {
+    //   isInvalid = Boolean(this.props.isInvalid);
+    // }
 
-    const showEvaluatedValue =
-      this.showFeatures() &&
-      (this.state.isDynamic || isInvalid) &&
-      !this.state.showAIWindow &&
-      !this.state.peekOverlayProps &&
-      !this.editor.state.completionActive &&
-      !this.state.ternToolTipActive;
+    // const showEvaluatedValue =
+    //   this.showFeatures() &&
+    //   (this.state.isDynamic || isInvalid) &&
+    //   !this.state.showAIWindow &&
+    //   !this.state.peekOverlayProps &&
+    //   !this.editor.state.completionActive &&
+    //   !this.state.ternToolTipActive;
 
     return (
       <DynamicAutocompleteInputWrapper
@@ -1658,7 +1673,7 @@ class CodeEditor extends Component<Props, State> {
           />
         </div>
 
-        <EvaluatedValuePopup
+        {/* <EvaluatedValuePopup
           dataTreePath={this.props.dataTreePath}
           editorRef={this.codeEditorTarget}
           entity={entityInformation}
@@ -1674,98 +1689,98 @@ class CodeEditor extends Component<Props, State> {
           popperZIndex={this.props.popperZIndex}
           theme={theme || EditorTheme.LIGHT}
           useValidationMessage={useValidationMessage}
+        > */}
+        <AIWindow
+          currentValue={this.props.input.value}
+          dataTreePath={dataTreePath}
+          editor={this.editor}
+          enableAIAssistance={this.AIEnabled}
+          entitiesForNavigation={this.props.entitiesForNavigation}
+          entity={entityInformation}
+          isOpen={this.state.showAIWindow}
+          mode={this.props.mode}
+          onOpenChanged={(showAIWindow: boolean) => {
+            this.setState({ showAIWindow });
+          }}
+          triggerContext={this.props.expected}
+          update={this.updateValueWithAIResponse}
         >
-          <AIWindow
-            currentValue={this.props.input.value}
-            dataTreePath={dataTreePath}
-            editor={this.editor}
-            enableAIAssistance={this.AIEnabled}
-            entitiesForNavigation={this.props.entitiesForNavigation}
-            entity={entityInformation}
-            isOpen={this.state.showAIWindow}
+          <EditorWrapper
+            AIEnabled
+            border={border}
+            borderLess={borderLess}
+            className={`${className} ${replayHighlightClass} ${
+              isInvalid ? "t--codemirror-has-error" : ""
+            } w-full`}
+            codeEditorVisibleOverflow={codeEditorVisibleOverflow}
+            ctrlPressed={this.state.ctrlPressed}
+            disabled={disabled}
+            editorTheme={this.props.theme}
+            fillUp={fill}
+            hasError={isInvalid}
+            height={height}
+            hoverInteraction={hoverInteraction}
+            isFocused={this.state.isFocused}
+            isNotHover={this.state.isFocused || this.state.isOpened}
+            isRawView={this.props.isRawView}
+            isReadOnly={this.props.isReadOnly}
+            maxHeight={maxHeight}
             mode={this.props.mode}
-            onOpenChanged={(showAIWindow: boolean) => {
-              this.setState({ showAIWindow });
-            }}
-            triggerContext={this.props.expected}
-            update={this.updateValueWithAIResponse}
+            onMouseMove={this.handleLintTooltip}
+            onMouseOver={this.handleMouseMove}
+            ref={this.editorWrapperRef}
+            removeHoverAndFocusStyle={this.props?.removeHoverAndFocusStyle}
+            size={size}
           >
-            <EditorWrapper
-              AIEnabled
-              border={border}
-              borderLess={borderLess}
-              className={`${className} ${replayHighlightClass} ${
-                isInvalid ? "t--codemirror-has-error" : ""
-              } w-full`}
-              codeEditorVisibleOverflow={codeEditorVisibleOverflow}
-              ctrlPressed={this.state.ctrlPressed}
-              disabled={disabled}
-              editorTheme={this.props.theme}
-              fillUp={fill}
-              hasError={isInvalid}
-              height={height}
-              hoverInteraction={hoverInteraction}
-              isFocused={this.state.isFocused}
-              isNotHover={this.state.isFocused || this.state.isOpened}
-              isRawView={this.props.isRawView}
-              isReadOnly={this.props.isReadOnly}
-              maxHeight={maxHeight}
-              mode={this.props.mode}
-              onMouseMove={this.handleLintTooltip}
-              onMouseOver={this.handleMouseMove}
-              ref={this.editorWrapperRef}
-              removeHoverAndFocusStyle={this.props?.removeHoverAndFocusStyle}
-              size={size}
+            {this.state.peekOverlayProps && (
+              <PeekOverlayPopUp
+                hidePeekOverlay={() => this.hidePeekOverlay()}
+                {...this.state.peekOverlayProps}
+              />
+            )}
+            {this.props.leftIcon && (
+              <IconContainer>{this.props.leftIcon}</IconContainer>
+            )}
+
+            {this.props.leftImage && (
+              <img
+                alt="img"
+                className="leftImageStyles"
+                src={getAssetUrl(this.props.leftImage)}
+              />
+            )}
+            <div
+              className="CodeEditorTarget"
+              data-testid="code-editor-target"
+              ref={this.codeEditorTarget}
+              tabIndex={0}
             >
-              {this.state.peekOverlayProps && (
-                <PeekOverlayPopUp
-                  hidePeekOverlay={() => this.hidePeekOverlay()}
-                  {...this.state.peekOverlayProps}
-                />
-              )}
-              {this.props.leftIcon && (
-                <IconContainer>{this.props.leftIcon}</IconContainer>
-              )}
+              <CodeEditorSignPosting
+                editorTheme={this.props.theme}
+                forComp="editor"
+                isOpen={this.isBindingPromptOpen()}
+                mode={this.props.mode}
+                promptMessage={this.props.promptMessage}
+                showLightningMenu={this.props.showLightningMenu}
+              />
+            </div>
 
-              {this.props.leftImage && (
-                <img
-                  alt="img"
-                  className="leftImageStyles"
-                  src={getAssetUrl(this.props.leftImage)}
-                />
-              )}
-              <div
-                className="CodeEditorTarget"
-                data-testid="code-editor-target"
-                ref={this.codeEditorTarget}
-                tabIndex={0}
+            {this.props.link && (
+              <a
+                className="linkStyles"
+                href={this.props.link}
+                rel="noopener noreferrer"
+                target="_blank"
               >
-                <CodeEditorSignPosting
-                  editorTheme={this.props.theme}
-                  forComp="editor"
-                  isOpen={this.isBindingPromptOpen()}
-                  mode={this.props.mode}
-                  promptMessage={this.props.promptMessage}
-                  showLightningMenu={this.props.showLightningMenu}
-                />
-              </div>
-
-              {this.props.link && (
-                <a
-                  className="linkStyles"
-                  href={this.props.link}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                >
-                  API documentation
-                </a>
-              )}
-              {this.props.rightIcon && (
-                <IconContainer>{this.props.rightIcon}</IconContainer>
-              )}
-            </EditorWrapper>
-          </AIWindow>
-        </EvaluatedValuePopup>
+                API documentation
+              </a>
+            )}
+            {this.props.rightIcon && (
+              <IconContainer>{this.props.rightIcon}</IconContainer>
+            )}
+          </EditorWrapper>
+        </AIWindow>
+        {/* </EvaluatedValuePopup> */}
       </DynamicAutocompleteInputWrapper>
     );
   }
