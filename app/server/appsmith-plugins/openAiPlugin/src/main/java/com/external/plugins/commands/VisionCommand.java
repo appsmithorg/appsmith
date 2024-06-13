@@ -136,12 +136,12 @@ public class VisionCommand implements OpenAICommand {
                     UserTextContent userContent = new UserTextContent();
                     userContent.setType(TEXT_TYPE);
                     userContent.setText(userQuery.getContent());
-                    visionMessage.getContent().add(userContent);
+                    ((List<Object>) visionMessage.getContent()).add(userContent);
                 } else if (QueryType.IMAGE.equals(userQuery.getType())) {
                     UserImageContent userContent = new UserImageContent();
                     userContent.setType(IMAGE_TYPE);
                     userContent.setImageUrl(new UserImageContent.ImageUrl(userQuery.getContent()));
-                    visionMessage.getContent().add(userContent);
+                    ((List<Object>) visionMessage.getContent()).add(userContent);
                 }
             }
             return List.of(visionMessage);
@@ -169,7 +169,7 @@ public class VisionCommand implements OpenAICommand {
                 VisionMessage visionMessage = new VisionMessage();
                 if (StringUtils.hasText(systemMessageMap.get(CONTENT))) {
                     visionMessage.setRole(Role.system);
-                    visionMessage.setContent(List.of(systemMessageMap.get(CONTENT)));
+                    visionMessage.setContent(systemMessageMap.get(CONTENT));
                     visionMessages.add(visionMessage);
                 }
             }
