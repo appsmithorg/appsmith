@@ -36,6 +36,8 @@ import { Icon } from "design-system";
 import {
   EditorEntityTab,
   EditorEntityTabState,
+  EditorState,
+  EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
 import { FocusEntity } from "navigation/FocusEntity";
 
@@ -480,4 +482,23 @@ export function getCurrentEntityInfo(entity: FocusEntity) {
         segmentMode: EditorEntityTabState.Add,
       };
   }
+}
+
+/**
+ * Check if use is currently working is side-by-side editor mode.
+ */
+export function isInSideBySideEditor({
+  appState,
+  segment,
+  viewMode,
+}: {
+  viewMode: EditorViewMode;
+  appState: EditorState;
+  segment: EditorEntityTab;
+}) {
+  return (
+    viewMode === EditorViewMode.SplitScreen &&
+    appState === EditorState.EDITOR &&
+    segment !== EditorEntityTab.UI
+  );
 }
