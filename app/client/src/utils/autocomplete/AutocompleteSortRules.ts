@@ -130,7 +130,9 @@ class NoDeepNestedSuggestionsRule implements AutocompleteRule {
   static threshold = -Infinity;
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
-    if (completion.text.split(".").length > 2)
+    const text = completion.displayText || "";
+
+    if (text.split(".").length > 2)
       score = NoDeepNestedSuggestionsRule.threshold;
     return score;
   }

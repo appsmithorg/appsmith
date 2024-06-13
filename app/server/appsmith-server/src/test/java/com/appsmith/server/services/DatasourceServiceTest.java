@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Connection;
@@ -14,7 +15,6 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
@@ -102,9 +102,6 @@ public class DatasourceServiceTest {
 
     @Autowired
     ApplicationPageService applicationPageService;
-
-    @Autowired
-    EncryptionService encryptionService;
 
     @Autowired
     LayoutActionService layoutActionService;
@@ -1095,7 +1092,7 @@ public class DatasourceServiceTest {
                     DBAuth authentication = (DBAuth)
                             datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(encryptionService.decryptString(authentication.getPassword()))
+                    assertThat(EncryptionHelper.decrypt(authentication.getPassword()))
                             .isEqualTo(password);
                 })
                 .verifyComplete();
@@ -1226,7 +1223,7 @@ public class DatasourceServiceTest {
                             datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
 
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(password).isEqualTo(encryptionService.decryptString(authentication.getPassword()));
+                    assertThat(password).isEqualTo(EncryptionHelper.decrypt(authentication.getPassword()));
                 })
                 .verifyComplete();
     }

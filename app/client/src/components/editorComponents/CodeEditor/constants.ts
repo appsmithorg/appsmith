@@ -13,9 +13,23 @@ export const VALID_JS_OBJECT_BINDING_POSITION: Position = {
   ch: JS_OBJECT_START_STATEMENT.length,
 };
 
+export const CodeEditorColors = {
+  KEYWORD: "#304eaa",
+  FOLD_MARKER: "#442334",
+  STRING: "#1659df",
+  OPERATOR: "#009595",
+  NUMBER: "#555",
+  COMMENT: "var(--ads-v2-color-gray-400)",
+  FUNCTION_ARGS: "hsl(288, 44%, 44%)",
+  TOOLTIP_FN_ARGS: "#DB6E33",
+  PROPERTY: "hsl(21, 70%, 53%)",
+};
+
 // For now we want to enable this functionality only for table and json widget for data property
 // In future we can modify this object for other widgets and props too
 export const SlashCommandMenuOnFocusWidgetProps: { [key: string]: string[] } = {
   TABLE_WIDGET_V2: ["tableData"],
   JSON_FORM_WIDGET: ["sourceData"],
 };
+
+export const CURSOR_CLASS_NAME = "CodeMirror-cursor";

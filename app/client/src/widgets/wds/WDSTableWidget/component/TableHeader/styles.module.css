@@ -48,7 +48,8 @@
 
 @container table-header (inline-size <= 320px) {
   [data-layout] {
-    flex-wrap: wrap;
+    /* This needs to be wrap once we have actions implemented */
+    flex-wrap: nowrap;
   }
 
   [data-layout] [data-field] {

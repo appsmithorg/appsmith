@@ -1,4 +1,5 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
+const { agHelper } = require("../../../../../support/Objects/ObjectsCore");
 
 const widgetName = "inputwidgetv2";
 
@@ -17,7 +18,7 @@ describe(
       cy.get(widgetsPage.inputStepArrows).should("not.exist"); // This is the step arrows
       //Validate that dataType - NUMBER, stepArrows should be visible when showStepArrows is set to true
       // Enable showStepArrows to true
-      cy.togglebar(widgetsPage.showStepArrowsToggleCheckBox);
+      agHelper.CheckUncheck(widgetsPage.showStepArrowsToggleCheckBox);
 
       cy.get(widgetsPage.inputStepArrows).should("exist"); // step arrows should be visible
       //Toggle test case to validate that dataType - NUMBER, stepArrows should be hidden when toggle value is false

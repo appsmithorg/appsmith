@@ -9,6 +9,11 @@ on:
       matrix:
         required: true
         type: string
+      is-pg-build:
+        description: "This is a boolean value in case the workflow is being called for a PG build"
+        required: false
+        type: string
+        default: "false"
 
 jobs:
   server-build:
@@ -19,6 +24,7 @@ jobs:
     with:
       pr: ${{ github.event.number }}
       skip-tests: true
+      is-pg-build: ${{ inputs.is-pg-build }}
 
   client-build:
     if: success()
@@ -53,6 +59,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.number }}
+      is-pg-build: ${{ inputs.is-pg-build }}
 
   ci-test:
     needs: [build-docker-image]
@@ -174,7 +181,7 @@ jobs:
 
       - name: Modify test response in the PR with new CI failures
         if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '1'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
           content: |
             <!-- This is an auto-generated comment: Cypress test results  -->
@@ -195,7 +202,7 @@ jobs:
 
       - name: Modify test response in the PR when ci-test is failed but no specs found
         if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '0'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
           content: |
             <!-- This is an auto-generated comment: Cypress test results  -->
@@ -213,7 +220,7 @@ jobs:
 
       - name: Modify test response in the PR when ci-test is success
         if: needs.ci-test.result == 'success' && steps.combine_ci.outputs.specs_failed == '0'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
           content: |
             <!-- This is an auto-generated comment: Cypress test results  -->

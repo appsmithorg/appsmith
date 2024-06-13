@@ -2,8 +2,6 @@ package com.appsmith.server.git.autocommit.helpers;
 
 import com.appsmith.external.annotations.FeatureFlagged;
 import com.appsmith.external.enums.FeatureFlagEnum;
-import com.appsmith.external.git.constants.GitConstants.GitCommandConstants;
-import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.AutoCommitTriggerDTO;
@@ -20,6 +18,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
+import static com.appsmith.external.git.constants.GitConstants.GitCommandConstants.AUTO_COMMIT_ELIGIBILITY;
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 
@@ -35,16 +35,14 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
     private final GitRedisUtils gitRedisUtils;
 
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_server_autocommit_feature_enabled)
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_eligibility_enabled)
     public Mono<Boolean> isServerAutoCommitRequired(String workspaceId, GitArtifactMetadata gitMetadata) {
 
         String defaultApplicationId = gitMetadata.getDefaultArtifactId();
         String branchName = gitMetadata.getBranchName();
-        String repoName = gitMetadata.getRepoName();
 
         Mono<Boolean> isServerMigrationRequiredMonoCached = commonGitFileUtils
-                .getMetadataServerSchemaMigrationVersion(
-                        workspaceId, defaultApplicationId, repoName, branchName, ArtifactType.APPLICATION)
+                .getMetadataServerSchemaMigrationVersion(workspaceId, gitMetadata, FALSE, APPLICATION)
                 .map(serverSchemaVersion -> {
                     log.info(
                             "server schema for application id : {}  and branch name : {} is : {}",
@@ -56,22 +54,27 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
                 .defaultIfEmpty(FALSE)
                 .cache();
 
-        return Mono.defer(() -> gitRedisUtils.addFileLock(defaultApplicationId, GitCommandConstants.METADATA, false))
-                .then(Mono.defer(() -> isServerMigrationRequiredMonoCached))
-                .then(Mono.defer(() -> gitRedisUtils.releaseFileLock(defaultApplicationId)))
-                .then(Mono.defer(() -> isServerMigrationRequiredMonoCached))
-                .onErrorResume(error -> {
-                    log.debug(
-                            "error while retrieving the metadata for defaultApplicationId : {}, branchName : {} error : {}",
-                            defaultApplicationId,
-                            branchName,
-                            error.getMessage());
-                    return gitRedisUtils.releaseFileLock(defaultApplicationId).then(Mono.just(FALSE));
-                });
+        return Mono.defer(() -> isServerMigrationRequiredMonoCached).onErrorResume(error -> {
+            log.debug(
+                    "error while retrieving the metadata for defaultApplicationId : {}, branchName : {} error : {}",
+                    defaultApplicationId,
+                    branchName,
+                    error.getMessage());
+            return Mono.just(FALSE);
+        });
     }
 
+    /**
+     * This method has been deprecated and is not being used anymore.
+     * It's been deprecated because, we are using the absolute source of truth
+     * that is the version key in the layout.
+     * /pages/<Page-Name>.json in file system for the finding out the Dsl in layout.
+     * @param pageDTO : pageDTO for the page for which migration was required.
+     * @return : a boolean whether the client requires a migration or not
+     */
     @Override
-    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
+    @Deprecated
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_eligibility_enabled)
     public Mono<Boolean> isClientMigrationRequired(PageDTO pageDTO) {
         return dslMigrationUtils
                 .getLatestDslVersion()
@@ -91,25 +94,71 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
     }
 
     @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_eligibility_enabled)
+    public Mono<Boolean> isClientMigrationRequiredFSOps(
+            String workspaceId, GitArtifactMetadata gitMetadata, PageDTO pageDTO) {
+        String defaultApplicationId = gitMetadata.getDefaultArtifactId();
+        String branchName = gitMetadata.getBranchName();
+
+        Mono<Integer> latestDslVersionMono = dslMigrationUtils.getLatestDslVersion();
+
+        Mono<Boolean> isClientMigrationRequired = latestDslVersionMono
+                .zipWith(commonGitFileUtils.getPageDslVersionNumber(
+                        workspaceId, gitMetadata, pageDTO, TRUE, APPLICATION))
+                .map(tuple2 -> {
+                    Integer latestDslVersion = tuple2.getT1();
+                    org.json.JSONObject pageDSL = tuple2.getT2();
+                    log.info("page dsl retrieved from file system");
+                    return GitUtils.isMigrationRequired(pageDSL, latestDslVersion);
+                })
+                .defaultIfEmpty(FALSE)
+                .cache();
+
+        return Mono.defer(() -> isClientMigrationRequired).onErrorResume(error -> {
+            log.debug(
+                    "error while fetching the dsl version for page : {}, defaultApplicationId : {}, branchName : {} error : {}",
+                    pageDTO.getName(),
+                    defaultApplicationId,
+                    branchName,
+                    error.getMessage());
+            return Mono.just(FALSE);
+        });
+    }
+
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_eligibility_enabled)
     public Mono<AutoCommitTriggerDTO> isAutoCommitRequired(
             String workspaceId, GitArtifactMetadata gitArtifactMetadata, PageDTO pageDTO) {
 
+        String defaultApplicationId = gitArtifactMetadata.getDefaultApplicationId();
+
         Mono<Boolean> isClientAutocommitRequiredMono =
-                isClientMigrationRequired(pageDTO).defaultIfEmpty(FALSE);
+                isClientMigrationRequiredFSOps(workspaceId, gitArtifactMetadata, pageDTO);
 
-        Mono<Boolean> isServerAutocommitRequiredMono = isServerAutoCommitRequired(workspaceId, gitArtifactMetadata);
+        Mono<Boolean> isServerAutocommitRequiredMono =
+                isServerAutoCommitRequired(workspaceId, gitArtifactMetadata).cache();
 
-        return isServerAutocommitRequiredMono
-                .zipWith(isClientAutocommitRequiredMono)
-                .map(tuple2 -> {
-                    Boolean serverFlag = tuple2.getT1();
-                    Boolean clientFlag = tuple2.getT2();
+        return Mono.defer(() -> gitRedisUtils.addFileLock(defaultApplicationId, AUTO_COMMIT_ELIGIBILITY))
+                .then(isClientAutocommitRequiredMono.zipWhen(clientFlag -> {
+                    Mono<Boolean> serverFlagMono = isServerAutocommitRequiredMono;
+                    // if client is required to migrate then,
+                    // there is no requirement to fetch server flag as server is subset of client migration.
+                    if (Boolean.TRUE.equals(clientFlag)) {
+                        serverFlagMono = Mono.just(TRUE);
+                    }
+
+                    return serverFlagMono;
+                }))
+                .flatMap(tuple2 -> {
+                    Boolean clientFlag = tuple2.getT1();
+                    Boolean serverFlag = tuple2.getT2();
 
                     AutoCommitTriggerDTO autoCommitTriggerDTO = new AutoCommitTriggerDTO();
                     autoCommitTriggerDTO.setIsClientAutoCommitRequired(TRUE.equals(clientFlag));
                     autoCommitTriggerDTO.setIsServerAutoCommitRequired(TRUE.equals(serverFlag));
                     autoCommitTriggerDTO.setIsAutoCommitRequired((TRUE.equals(serverFlag) || TRUE.equals(clientFlag)));
-                    return autoCommitTriggerDTO;
+
+                    return gitRedisUtils.releaseFileLock(defaultApplicationId).then(Mono.just(autoCommitTriggerDTO));
                 });
     }
 }

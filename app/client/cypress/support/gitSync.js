@@ -20,7 +20,7 @@ Cypress.Commands.add("latestDeployPreview", () => {
   // Wait before publish
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(2000);
-  cy.assertPageSave();
+  agHelper.AssertAutoSave();
 
   // Stubbing window.open to open in the same tab
   cy.window().then((window) => {

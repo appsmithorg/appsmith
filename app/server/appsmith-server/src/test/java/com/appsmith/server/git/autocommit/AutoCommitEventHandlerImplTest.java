@@ -14,12 +14,9 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.featureflags.CachedFeatures;
-import com.appsmith.server.git.AutoCommitEventHandler;
-import com.appsmith.server.git.AutoCommitEventHandlerImpl;
 import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
-import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.migrations.JsonSchemaVersions;
@@ -55,7 +52,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.git.AutoCommitEventHandlerCEImpl.AUTO_COMMIT_MSG_FORMAT;
+import static com.appsmith.server.git.autocommit.AutoCommitEventHandlerCEImpl.AUTO_COMMIT_MSG_FORMAT;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,9 +79,6 @@ public class AutoCommitEventHandlerImplTest {
 
     @MockBean
     DSLMigrationUtils dslMigrationUtils;
-
-    @SpyBean
-    GitFileUtils gitFileUtils;
 
     @SpyBean
     FileInterface fileUtils;
@@ -120,7 +114,6 @@ public class AutoCommitEventHandlerImplTest {
                 gitRedisUtils,
                 redisUtils,
                 dslMigrationUtils,
-                gitFileUtils,
                 commonGitFileUtils,
                 gitExecutor,
                 projectProperties,
@@ -221,8 +214,8 @@ public class AutoCommitEventHandlerImplTest {
         Mockito.when(dslMigrationUtils.migratePageDsl(any(JSONObject.class))).thenReturn(Mono.just(dslAfterMigration));
 
         doReturn(Mono.just(baseRepoSuffix))
-                .when(gitFileUtils)
-                .saveApplicationToLocalRepo(
+                .when(commonGitFileUtils)
+                .saveArtifactToLocalRepo(
                         autoCommitEvent.getWorkspaceId(),
                         autoCommitEvent.getApplicationId(),
                         autoCommitEvent.getRepoName(),
@@ -319,8 +312,8 @@ public class AutoCommitEventHandlerImplTest {
                         ArtifactType.APPLICATION);
 
         doReturn(Mono.just(baseRepoSuffix))
-                .when(gitFileUtils)
-                .saveApplicationToLocalRepo(
+                .when(commonGitFileUtils)
+                .saveArtifactToLocalRepo(
                         autoCommitEvent.getWorkspaceId(),
                         autoCommitEvent.getApplicationId(),
                         autoCommitEvent.getRepoName(),
@@ -394,8 +387,8 @@ public class AutoCommitEventHandlerImplTest {
                         ArtifactType.APPLICATION);
 
         doReturn(Mono.just(baseRepoSuffix))
-                .when(gitFileUtils)
-                .saveApplicationToLocalRepo(
+                .when(commonGitFileUtils)
+                .saveArtifactToLocalRepo(
                         autoCommitEvent.getWorkspaceId(),
                         autoCommitEvent.getApplicationId(),
                         autoCommitEvent.getRepoName(),
@@ -440,8 +433,8 @@ public class AutoCommitEventHandlerImplTest {
                         autoCommitEvent.getBranchName());
 
         doReturn(Mono.just(baseRepoSuffix))
-                .when(gitFileUtils)
-                .saveApplicationToLocalRepo(
+                .when(commonGitFileUtils)
+                .saveArtifactToLocalRepo(
                         anyString(), anyString(), anyString(), any(ApplicationJson.class), anyString());
 
         ApplicationJson applicationJson1 = new ApplicationJson();
@@ -503,12 +496,12 @@ public class AutoCommitEventHandlerImplTest {
                         autoCommitEvent.getBranchName());
 
         CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_cleanup_feature_enabled.name(), FALSE));
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), FALSE));
         Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
                 .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 
         gitFileSystemTestHelper.setupGitRepository(autoCommitEvent, applicationJson);
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_cleanup_feature_enabled.name(), TRUE));
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
 
         StepVerifier.create(autoCommitEventHandler
                         .autoCommitServerMigration(autoCommitEvent)
@@ -541,7 +534,7 @@ public class AutoCommitEventHandlerImplTest {
                 gitFileSystemTestHelper.getApplicationJson(this.getClass().getResource("application.json"));
 
         CachedFeatures cachedFeatures = new CachedFeatures();
-        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_cleanup_feature_enabled.name(), FALSE));
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), FALSE));
         Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
                 .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 

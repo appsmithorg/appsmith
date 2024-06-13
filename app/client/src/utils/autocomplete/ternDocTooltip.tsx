@@ -2,7 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import { ternDocsInfo } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import type { Completion, TernCompletionResult } from "./CodemirrorTernService";
-import { CodeEditorColors } from "components/editorComponents/CodeEditor/styledComponents";
+import { CodeEditorColors } from "components/editorComponents/CodeEditor/constants";
 import { Link } from "design-system";
 import store from "store";
 import type { AppState } from "@appsmith/reducers";

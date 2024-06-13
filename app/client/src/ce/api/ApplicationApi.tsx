@@ -14,8 +14,7 @@ import type {
   LayoutSystemTypes,
 } from "layoutSystems/types";
 import type { BaseAction } from "entities/Action";
-
-export type EvaluationVersion = number;
+import type { EvaluationVersion } from "constants/EvalConstants";
 
 export interface PublishApplicationRequest {
   applicationId: string;
@@ -204,6 +203,7 @@ export interface UpdateApplicationResponse {
   isPublic: boolean;
   pages: PageDefaultMeta[];
   appIsExample: boolean;
+  unreadCommentThreads: number;
   color: string;
   icon: IconNames;
   slug: string;
