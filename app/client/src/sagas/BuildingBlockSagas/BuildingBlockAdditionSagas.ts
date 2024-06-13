@@ -66,16 +66,21 @@ import ApplicationApi, {
   type ImportBuildingBlockToApplicationRequest,
   type ImportBuildingBlockToApplicationResponse,
 } from "@appsmith/api/ApplicationApi";
+import { getAction } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { WidgetAddChild } from "actions/pageActions";
 import { runAction } from "actions/pluginActionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Template } from "api/TemplatesApi";
+import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { race } from "redux-saga/effects";
+import { apiCallToSaveAction } from "sagas/ActionSagas";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
 import {
   getCurrentApplicationId,
@@ -90,8 +95,6 @@ import { postPageAdditionSaga } from "../TemplatesSagas";
 import { addChildSaga } from "../WidgetAdditionSagas";
 import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
 import { getDragDetails, getWidgetByName } from "../selectors";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -218,13 +221,26 @@ export function* loadBuildingBlocksIntoApplication(
           isShortcut: false,
         },
       });
-
+      // TODO: REMOVE THIS @jacquesikot, when we have proper response fromt the block API call.
+      const extractedActions: Action[] = response.data.newActionList.map(
+        (action) => ({
+          ...action.unpublishedAction,
+          applicationId: action.applicationId,
+          id: action.id,
+          new: action.new,
+          pluginId: action.pluginId,
+          pluginType: action.pluginType,
+          userPermissions: action.userPermissions,
+          workspaceId: action.workspaceId,
+        }),
+      );
       yield pasteBuildingBlockWidgetsSaga(
         {
           top: topRow,
           left: leftColumn,
         },
         buildingBlockWidget.widgetId,
+        extractedActions,
       );
 
       const timeTakenToDropWidgetsInSeconds =
@@ -405,6 +421,7 @@ export function* pasteBuildingBlockWidgetsSaga(
     left: number;
   },
   pastingIntoWidgetId: string,
+  newActions: Action[] = [],
 ) {
   const {
     flexLayers,
@@ -559,6 +576,13 @@ export function* pasteBuildingBlockWidgetsSaga(
               oldWidgetName,
               newWidgetName,
             );
+            if (oldWidgetName !== newWidgetName) {
+              newActions = updateWidgetsNameInNewQueries(
+                oldWidgetName,
+                newWidgetName,
+                newActions,
+              );
+            }
 
             // If it is the copied widget, update position properties
             if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
@@ -690,6 +714,8 @@ export function* pasteBuildingBlockWidgetsSaga(
         }),
       ),
     );
+
+    yield addNewlyAddedActionsToRedux(newActions);
 
     //calculate the new positions of the reflowed widgets
     let reflowedWidgets = getReflowedPositions(
@@ -852,4 +878,40 @@ function handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
       break;
   }
   return widgets;
+}
+
+function updateWidgetsNameInNewQueries(
+  oldWidgetName: string,
+  newWidgetName: string,
+  queries: any[],
+) {
+  return queries
+    .filter((query) => !!query)
+    .map((query) => {
+      query.actionConfiguration.body =
+        query.actionConfiguration.body.replaceAll(oldWidgetName, newWidgetName);
+      query.jsonPathKeys = query.jsonPathKeys.map((path: string) =>
+        path.replaceAll(oldWidgetName, newWidgetName),
+      );
+      return query;
+    });
+}
+
+function* addNewlyAddedActionsToRedux(actions: Action[]) {
+  for (const action of actions) {
+    if (action) {
+      try {
+        const existingAction: Action = yield select(getAction, action.id);
+        if (existingAction) continue;
+
+        yield put({
+          type: ReduxActionTypes.APPEND_ACTION_AFTER_BUILDING_BLOCK_DROP,
+          payload: { data: action },
+        });
+        yield call(apiCallToSaveAction, action);
+      } catch (error) {
+        log.error("Error adding newly added actions to redux", error);
+      }
+    }
+  }
 }
