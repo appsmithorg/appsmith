@@ -55,7 +55,9 @@ export interface PropertyPaneControlConfig {
   // Serves in the tooltip
   helpText?: string;
   //Dynamic text serves below the property pane inputs
-  helperText?: ((props: any) => React.ReactNode) | React.ReactNode;
+  helperText?:
+    | ((props: any, propertyName?: string) => React.ReactNode)
+    | React.ReactNode;
   isJSConvertible?: boolean;
   customJSControl?: string;
   controlType: ControlType;

@@ -183,6 +183,7 @@ export interface SelectCellProperties {
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
   selectOptions?: DropdownOption[];
+  selectDisplayAs?: string;
 }
 
 export interface ImageCellProperties {
@@ -385,6 +386,7 @@ export interface ColumnProperties
   menuItemsSource?: MenuItemsSource;
   configureMenuItems?: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
+  selectDisplayAs?: SelectCellProperties["selectDisplayAs"];
 }
 
 export const ConditionFunctions: {
@@ -571,3 +573,8 @@ export const noOfItemsToDisplay = 4;
 
 // 12px for the (noOfItemsToDisplay+ 1) item to let the user know there are more items to scroll
 export const extraSpace = 12;
+
+export enum SelectOptionAccessor {
+  LABEL = "label",
+  VALUE = "value",
+}

@@ -554,6 +554,16 @@ export class Table {
     if (tableVersion == "v2") this.propPane.NavigateBackToPropertyPane();
   }
 
+  public ChangeColumnTypeWithoutNavigatingBackToPropertyPane(
+    columnName: string,
+    newDataType: columnTypeValues,
+    tableVersion: "v1" | "v2" = "v1",
+  ) {
+    this.EditColumn(columnName, tableVersion);
+    this.propPane.SelectPropertiesDropDown("Column type", newDataType);
+    this.assertHelper.AssertNetworkStatus("@updateLayout");
+  }
+
   public AssertURLColumnNavigation(
     row: number,
     col: number,

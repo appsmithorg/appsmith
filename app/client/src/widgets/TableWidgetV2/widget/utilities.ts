@@ -517,6 +517,11 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
+      selectDisplayAs: getPropertyValue(
+        columnProperties.selectDisplayAs,
+        rowIndex,
+        true,
+      ),
       decimals: columnProperties.decimals,
       thousandSeparator: getBooleanPropertyValue(
         columnProperties.thousandSeparator,

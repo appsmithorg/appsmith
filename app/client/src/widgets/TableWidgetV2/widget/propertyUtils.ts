@@ -18,6 +18,7 @@ import type { PropertyUpdates } from "WidgetProvider/constants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
+import { SelectOptionAccessor } from "../component/Constants";
 
 export function totalRecordsCountValidation(
   value: unknown,
@@ -773,6 +774,22 @@ export const updateMenuItemsSource = (
 
   return propertiesToUpdate?.length ? propertiesToUpdate : undefined;
 };
+export const updateSelectColumnDisplayAsValue = (
+  props: TableWidgetProps,
+  propertyPath: string,
+  propertyValue: string,
+) => {
+  const basePropertyPath = getBasePropertyPath(propertyPath);
+  const selectDisplayAs = get(props, `${basePropertyPath}.selectDisplayAs`, "");
+  if (propertyValue === ColumnTypes.SELECT && !selectDisplayAs) {
+    return [
+      {
+        propertyPath: `${basePropertyPath}.selectDisplayAs`,
+        propertyValue: SelectOptionAccessor.LABEL,
+      },
+    ];
+  }
+};
 
 export const updateCurrencyDefaultValues = (
   props: TableWidgetProps,
@@ -821,16 +838,30 @@ export const updateCurrencyDefaultValues = (
 export function selectColumnOptionsValidation(
   value: unknown,
   props: TableWidgetProps,
+  moment?: any,
+  propertyPath?: any,
   _?: any,
 ) {
   let _isValid = true,
     _parsed,
-    _message = "";
+    _message: string | { name: string; message: string } = "";
   let uniqueValues: Set<unknown>;
   const invalidArrayValueMessage = `This value does not evaluate to type: { "label": string | number, "value": string | number | boolean }`;
   const invalidMessage = `This value does not evaluate to type Array<{ "label": string | number, "value": string | number | boolean }>`;
   const allowedValueTypes = ["string", "number", "boolean"];
   const allowedLabelTypes = ["string", "number"];
+
+  const getBasePropertyPath = (propertyPath: string): string | undefined => {
+    const propertyPathRegex = /^(.*)\.\w+$/g;
+    const matches = propertyPath
+      ? Array.from(propertyPath.matchAll(propertyPathRegex))[0]
+      : "";
+    if (matches && _.isArray(matches) && matches.length === 2) {
+      return matches[1];
+    } else {
+      return;
+    }
+  };
 
   const generateErrorMessagePrefix = (
     rowIndex: number | null,
@@ -1006,7 +1037,36 @@ export function selectColumnOptionsValidation(
     _isValid = false;
     _message = invalidMessage;
   }
+  const basePropertyPath = getBasePropertyPath(propertyPath);
+  const allowSameOptionsInNewRow = _.get(
+    props,
+    `${basePropertyPath}.allowSameOptionsInNewRow`,
+  );
+  const computedValue = _.get(props, `${basePropertyPath}.computedValue`);
+  const DYNAMIC_BINDING_REGEX = /{{([\s\S]*?)}}/;
+  if (
+    _isValid &&
+    allowSameOptionsInNewRow &&
+    !DYNAMIC_BINDING_REGEX.test(computedValue)
+  ) {
+    const isComputedValueNotInOptions = computedValue
+      .map((cellValue: unknown, index: number) => {
+        const regexValueExp = new RegExp(`${cellValue}"`, "gi");
+        if (!JSON.stringify(value).match(regexValueExp)) {
+          return index + 1;
+        }
+      })
+      .filter((v: unknown) => v !== undefined);
 
+    if (isComputedValueNotInOptions.length > 0) {
+      _isValid = false;
+      _parsed = value;
+      _message = {
+        name: "ValidationError",
+        message: `Computed Value at row: [${isComputedValueNotInOptions}] is not present in the select options.`,
+      };
+    }
+  }
   return {
     isValid: _isValid,
     parsed: _parsed,

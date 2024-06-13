@@ -41,6 +41,7 @@ import {
   SORT_ORDER,
   SortOrderTypes,
   StickyType,
+  SelectOptionAccessor,
 } from "../component/Constants";
 import type {
   EditableCell,
@@ -2130,6 +2131,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             placeholderText={cellProperties.placeholderText}
             resetFilterTextOnClose={cellProperties.resetFilterTextOnClose}
             rowIndex={rowIndex}
+            selectDisplayAs={
+              cellProperties.selectDisplayAs ?? SelectOptionAccessor.VALUE
+            }
             serverSideFiltering={cellProperties.serverSideFiltering}
             tableWidth={this.props.componentWidth}
             textColor={cellProperties.textColor}

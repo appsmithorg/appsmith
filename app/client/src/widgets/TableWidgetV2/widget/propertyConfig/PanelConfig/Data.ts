@@ -1,6 +1,10 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes, DateInputFormat } from "widgets/TableWidgetV2/constants";
+import {
+  ColumnTypes,
+  DateInputFormat,
+  COMPUTED_VALUE_SELECT_HELPER_TEXT,
+} from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import {
   getBasePropertyPath,
@@ -9,12 +13,14 @@ import {
   uniqueColumnAliasValidation,
   updateCurrencyDefaultValues,
   updateMenuItemsSource,
+  updateSelectColumnDisplayAsValue,
   updateNumberColumnTypeTextAlignment,
   updateThemeStylesheetsInColumns,
 } from "../../propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 export default {
   sectionName: "Data",
@@ -84,6 +90,7 @@ export default {
         updateThemeStylesheetsInColumns,
         updateMenuItemsSource,
         updateCurrencyDefaultValues,
+        updateSelectColumnDisplayAsValue,
       ]),
       dependencies: ["primaryColumns", "columnOrder", "childStylesheet"],
       isBindProperty: false,
@@ -155,6 +162,13 @@ export default {
       helpText:
         "The value computed & shown in each cell. Use {{currentRow}} to reference each row in the table. This property is not accessible outside the column settings.",
       propertyName: "computedValue",
+      helperText: (props: WidgetProps, propertyPath: string) => {
+        const basePropertyPath = getBasePropertyPath(propertyPath);
+        const columnType = get(props, `${basePropertyPath}.columnType`);
+        return columnType === ColumnTypes.SELECT
+          ? COMPUTED_VALUE_SELECT_HELPER_TEXT
+          : "";
+      },
       label: "Computed value",
       controlType: "TABLE_COMPUTE_VALUE",
       additionalControlData: {
