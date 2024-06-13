@@ -1,3 +1,10 @@
+import {
+  apiEditorIdURL,
+  builderURL,
+  integrationEditorURL,
+  queryEditorIdURL,
+  saasEditorApiIdURL,
+} from "@appsmith/RouteBuilder";
 import type {
   EvaluationReduxAction,
   ReduxAction,
@@ -7,31 +14,50 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
-  all,
-  call,
-  delay,
-  fork,
-  put,
-  race,
-  select,
-  take,
-  takeEvery,
-  takeLatest,
-} from "redux-saga/effects";
-import type { Datasource, DatasourceStructure } from "entities/Datasource";
-import type { ActionCreateUpdateResponse } from "api/ActionAPI";
-import ActionAPI from "api/ActionAPI";
-import type { ApiResponse } from "api/ApiResponses";
-import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
-import PageApi from "api/PageApi";
+  API_EDITOR_FORM_NAME,
+  QUERY_EDITOR_FORM_NAME,
+} from "@appsmith/constants/forms";
+import {
+  ACTION_COPY_SUCCESS,
+  ACTION_MOVE_SUCCESS,
+  ERROR_ACTION_COPY_FAIL,
+  ERROR_ACTION_MOVE_FAIL,
+  ERROR_ACTION_RENAME_FAIL,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import { EditorViewMode, IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
+import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
+import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
+import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
+import {
+  getAction,
+  getCurrentPageNameByActionId,
+  getDatasource,
+  getDatasourceStructureById,
+  getDatasources,
+  getEditorConfig,
+  getNewEntityName,
+  getPageNameByPageId,
+  getPlugin,
+  getSettingConfig,
+} from "@appsmith/selectors/entitiesSelector";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import {
+  createNewApiAction,
+  createNewQueryAction,
+} from "actions/apiPaneActions";
+import { fetchDatasourceStructure } from "actions/datasourceActions";
+import {
+  setIdeEditorViewMode,
+  setShowQueryCreateNewModal,
+} from "actions/ideActions";
 import {
   closeQueryActionTab,
   closeQueryActionTabSuccess,
-  type FetchActionsPayload,
-  type SetActionPropertyPayload,
-} from "actions/pluginActionActions";
-import {
   copyActionError,
   copyActionSuccess,
   createActionInit,
@@ -45,12 +71,25 @@ import {
   updateActionData,
   updateActionProperty,
   updateActionSuccess,
+  type FetchActionsPayload,
+  type SetActionPropertyPayload,
 } from "actions/pluginActionActions";
-import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
-import { validateResponse } from "./ErrorSagas";
-import { transformRestAction } from "transformers/RestActionTransformer";
-import { getCurrentPageId } from "selectors/editorSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
+import type { ActionCreateUpdateResponse } from "api/ActionAPI";
+import ActionAPI from "api/ActionAPI";
+import type { ApiResponse } from "api/ApiResponses";
+import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
+import PageApi from "api/PageApi";
+import type { Plugin } from "api/PluginApi";
+import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import {
+  fixActionPayloadForMongoQuery,
+  getConfigInitialValues,
+} from "components/formControls/utils";
+import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
+import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
+import { INTEGRATION_TABS } from "constants/routes";
+import { toast } from "design-system";
 import type {
   Action,
   ActionViewMode,
@@ -60,93 +99,53 @@ import type {
   CreateActionDefaultsParams,
   SlashCommandPayload,
 } from "entities/Action";
-import { isGraphqlPlugin, ActionCreationSourceTypeEnum } from "entities/Action";
 import {
-  isAPIAction,
+  ActionCreationSourceTypeEnum,
   PluginPackageName,
   PluginType,
   SlashCommand,
+  isAPIAction,
+  isGraphqlPlugin,
 } from "entities/Action";
-import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
+import LOG_TYPE from "entities/AppsmithConsole/logtype";
+import type { Datasource, DatasourceStructure } from "entities/Datasource";
+import { get, isEmpty, merge } from "lodash";
+import * as log from "loglevel";
+import { getFormValues } from "redux-form";
 import {
-  getAction,
-  getCurrentPageNameByActionId,
-  getDatasource,
-  getDatasourceStructureById,
-  getDatasources,
-  getEditorConfig,
-  getPageNameByPageId,
-  getPlugin,
-  getSettingConfig,
-  getNewEntityName,
-} from "@appsmith/selectors/entitiesSelector";
-import history from "utils/history";
-import { INTEGRATION_TABS } from "constants/routes";
+  all,
+  call,
+  delay,
+  fork,
+  put,
+  race,
+  select,
+  take,
+  takeEvery,
+  takeLatest,
+} from "redux-saga/effects";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { transformRestAction } from "transformers/RestActionTransformer";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import {
-  ACTION_COPY_SUCCESS,
-  ACTION_MOVE_SUCCESS,
-  createMessage,
-  ERROR_ACTION_COPY_FAIL,
-  ERROR_ACTION_MOVE_FAIL,
-  ERROR_ACTION_RENAME_FAIL,
-} from "@appsmith/constants/messages";
-import { get, isEmpty, merge } from "lodash";
-import {
-  fixActionPayloadForMongoQuery,
-  getConfigInitialValues,
-} from "components/formControls/utils";
-import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
-import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import {
-  createNewApiAction,
-  createNewQueryAction,
-} from "actions/apiPaneActions";
-import type { Plugin } from "api/PluginApi";
-import * as log from "loglevel";
+import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 import { shouldBeDefined } from "utils/helpers";
-import {
-  apiEditorIdURL,
-  builderURL,
-  integrationEditorURL,
-  queryEditorIdURL,
-  saasEditorApiIdURL,
-} from "@appsmith/RouteBuilder";
+import history from "utils/history";
+import { setAIPromptTriggered } from "utils/storage";
+import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
+import { validateResponse } from "./ErrorSagas";
+import FocusRetention from "./FocusRetentionSaga";
+import { handleQueryEntityRedirect } from "./IDESaga";
 import {
   RequestPayloadAnalyticsPath,
   checkAndLogErrorsIfCyclicDependency,
   enhanceRequestPayloadWithEventData,
   getFromServerWhenNoPrefetchedResult,
 } from "./helper";
-import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
-import { toast } from "design-system";
-import { getFormValues } from "redux-form";
-import {
-  API_EDITOR_FORM_NAME,
-  QUERY_EDITOR_FORM_NAME,
-} from "@appsmith/constants/forms";
-import { DEFAULT_GRAPHQL_ACTION_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
-import { DEFAULT_API_ACTION_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
-import { fetchDatasourceStructure } from "actions/datasourceActions";
-import { setAIPromptTriggered } from "utils/storage";
-import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
-import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
-import FocusRetention from "./FocusRetentionSaga";
-import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
-import { handleQueryEntityRedirect } from "./IDESaga";
-import { EditorViewMode, IDE_TYPE } from "@appsmith/entities/IDE/constants";
-import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
-import {
-  setIdeEditorViewMode,
-  setShowQueryCreateNewModal,
-} from "actions/ideActions";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
-import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -539,18 +538,12 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
       // @ts-expect-error: Types are not available
       action = fixActionPayloadForMongoQuery(action);
     }
-    const response: ApiResponse<Action> = yield call(
-      updateActionAPICall,
-      action,
-    );
-
-    const isValidResponse: boolean = yield validateResponse(response);
+    const { isValidResponse, response } = yield apiCallToSaveAction(action);
     if (isValidResponse) {
       const pageName: string = yield select(
         getCurrentPageNameByActionId,
         response.data.id,
       );
-
       yield sendAnalyticsEventSaga(actionPayload.type, {
         action,
         pageName,
@@ -558,11 +551,6 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
 
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.UPDATE_ACTION_API,
-      );
-
-      yield put(updateActionSuccess({ data: response.data }));
-      checkAndLogErrorsIfCyclicDependency(
-        (response.data as Action).errorReports,
       );
     }
   } catch (error) {
@@ -575,6 +563,17 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
       payload: { error, id: actionPayload.payload.id, show: false },
     });
   }
+}
+
+export function* apiCallToSaveAction(action: Action) {
+  const response: ApiResponse<Action> = yield call(updateActionAPICall, action);
+
+  const isValidResponse: boolean = yield validateResponse(response);
+  if (isValidResponse) {
+    yield put(updateActionSuccess({ data: response.data }));
+    checkAndLogErrorsIfCyclicDependency((response.data as Action).errorReports);
+  }
+  return { isValidResponse, response };
 }
 
 export function* deleteActionSaga(
