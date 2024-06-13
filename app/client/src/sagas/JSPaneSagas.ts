@@ -58,6 +58,7 @@ import {
   createNewJSCollection,
   jsSaveActionComplete,
   jsSaveActionStart,
+  refactorJSCollectionAction,
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -205,21 +206,22 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
     const parsedBody = update.parsedBody;
     if (parsedBody && !!jsAction) {
       const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
-      // jsActionTobeUpdated.body = jsAction.body;
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
+
       if (data.nameChangedActions.length) {
         for (let i = 0; i < data.nameChangedActions.length; i++) {
-          yield call(
-            handleRefactorJSActionNameSaga,
-            {
-              actionId: data.nameChangedActions[i].id,
-              collectionName: jsAction.name,
-              pageId: data.nameChangedActions[i].pageId,
-              moduleId: data.nameChangedActions[i].moduleId,
-              oldName: data.nameChangedActions[i].oldName,
-              newName: data.nameChangedActions[i].newName,
-            },
-            jsActionTobeUpdated,
+          yield put(
+            refactorJSCollectionAction({
+              refactorAction: {
+                actionId: data.nameChangedActions[i].id,
+                collectionName: jsAction.name,
+                pageId: data.nameChangedActions[i].pageId || "",
+                moduleId: data.nameChangedActions[i].moduleId,
+                oldName: data.nameChangedActions[i].oldName,
+                newName: data.nameChangedActions[i].newName,
+              },
+              actionCollection: jsActionTobeUpdated,
+            }),
           );
         }
       } else {
@@ -295,19 +297,7 @@ export function* makeUpdateJSCollection(
 
   yield all(
     Object.keys(jsUpdates).map((key) =>
-      put(jsSaveActionStart({ id: jsUpdates[key].id })),
-    ),
-  );
-
-  yield all(
-    Object.keys(jsUpdates).map((key) =>
       call(handleEachUpdateJSCollection, jsUpdates[key]),
-    ),
-  );
-
-  yield all(
-    Object.keys(jsUpdates).map((key) =>
-      put(jsSaveActionComplete({ id: jsUpdates[key].id })),
     ),
   );
 }
@@ -326,6 +316,7 @@ function* updateJSCollection(data: {
   try {
     const { deletedActions, jsCollection, newActions } = data;
     if (jsCollection) {
+      yield put(jsSaveActionStart({ id: jsCollection.id }));
       const response: JSCollectionCreateUpdateResponse = yield call(
         updateJSCollectionAPICall,
         jsCollection,
@@ -365,6 +356,8 @@ function* updateJSCollection(data: {
       type: ReduxActionErrorTypes.UPDATE_JS_ACTION_ERROR,
       payload: { error, data: jsAction },
     });
+  } finally {
+    yield put(jsSaveActionComplete({ id: data.jsCollection.id }));
   }
 }
 
@@ -640,9 +633,12 @@ function* handleUpdateJSCollectionBody(
 }
 
 function* handleRefactorJSActionNameSaga(
-  refactorAction: RefactorAction,
-  actionCollection: JSCollection,
+  data: ReduxAction<{
+    refactorAction: RefactorAction;
+    actionCollection: JSCollection;
+  }>,
 ) {
+  const { actionCollection, refactorAction } = data.payload;
   const { pageId } = refactorAction;
   const layoutId: string | undefined = yield select(getCurrentLayoutId);
   if (!pageId || !layoutId) {
@@ -656,6 +652,7 @@ function* handleRefactorJSActionNameSaga(
   };
   // call to refactor action
   try {
+    yield put(jsSaveActionStart({ id: actionCollection.id }));
     const refactorResponse: ApiResponse =
       yield JSActionAPI.updateJSCollectionActionRefactor(requestData);
 
@@ -683,6 +680,8 @@ function* handleRefactorJSActionNameSaga(
       type: ReduxActionErrorTypes.REFACTOR_JS_ACTION_NAME_ERROR,
       payload: { collectionId: actionCollection.id },
     });
+  } finally {
+    yield put(jsSaveActionComplete({ id: actionCollection.id }));
   }
 }
 
@@ -828,6 +827,10 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.START_EXECUTE_JS_FUNCTION,
       handleStartExecuteJSFunctionSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
+      handleRefactorJSActionNameSaga,
     ),
     debounce(
       100,
