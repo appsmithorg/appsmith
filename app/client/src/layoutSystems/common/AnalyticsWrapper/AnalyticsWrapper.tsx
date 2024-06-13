@@ -12,11 +12,14 @@ export const AnalyticsWrapper: React.FC = ({ children }) => {
   const layoutSystemType = useSelector(getLayoutSystemType);
 
   const handleMouseLeave: React.MouseEventHandler<HTMLDivElement> = (e) => {
+    const wrapperElement = document.getElementById(LAYOUT_WRAPPER_ID);
+
     if (
       isInSideBySideEditor &&
-      ((e.relatedTarget instanceof Element &&
-        e.relatedTarget.contains(document.getElementById(LAYOUT_WRAPPER_ID))) ||
-        layoutSystemType === LayoutSystemTypes.ANVIL)
+      (layoutSystemType === LayoutSystemTypes.ANVIL ||
+        (wrapperElement &&
+          e.relatedTarget instanceof Element &&
+          e.relatedTarget.contains(wrapperElement)))
     ) {
       dispatch(sendAnalyticsForSideBySideHover());
     }
