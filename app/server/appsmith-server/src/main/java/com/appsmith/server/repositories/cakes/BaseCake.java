@@ -74,14 +74,8 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                         entity.setId(generateId());
                     }
                     try {
-                        T savedEntity = repository.save(entity);
-                        // Get all non-transient field names
-                        List<String> nonTransientFields = getAllFields(entity.getClass()).stream()
-                                .filter(field -> field.getAnnotation(Transient.class) == null)
-                                .map(Field::getName)
-                                .toList();
-                        // merge latest database updated entity object with the transient fields
-                        BeanUtils.copyProperties(entity, savedEntity, nonTransientFields.toArray(new String[0]));
+                        final T savedEntity = repository.save(entity);
+                        copyTransientFieldValues(entity, savedEntity, 1);
                         return savedEntity;
                     } catch (DataIntegrityViolationException e) {
                         // save wasn't successful, reset the id if it was generated
@@ -89,9 +83,44 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                             entity.setId(null);
                         }
                         throw e;
+                    } catch (IllegalAccessException e) {
+                        // This can only happen when classes loaded in the JVM have been corrupted at runtime.
+                        // Very unlikely.
+                        throw new RuntimeException(e);
                     }
                 })
                 .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    /**
+     * Copy the values of fields marked with {@link Transient} annotation from {@code source} to {@code target}.
+     * This is also done recursively, for nested object fields as well, unless {@code nest} is 0.
+     */
+    private static <T> void copyTransientFieldValues(T source, T target, int nest) throws IllegalAccessException {
+        final Class<?> cls = source.getClass();
+
+        // Get all non-transient field names
+        final List<Field> nonTransientFields = getAllFields(cls).stream()
+                .filter(field -> field.getAnnotation(Transient.class) == null)
+                .toList();
+
+        final List<String> nonTransientFieldNames =
+                nonTransientFields.stream().map(Field::getName).toList();
+
+        // merge latest database updated source object with the transient fields
+        BeanUtils.copyProperties(source, target, nonTransientFieldNames.toArray(new String[0]));
+
+        if (nest > 0) {
+            --nest;
+            for (final Field nonTransientField : nonTransientFields) {
+                nonTransientField.setAccessible(true);
+                final Object sourceValue = nonTransientField.get(source);
+                if (sourceValue == null) {
+                    continue;
+                }
+                copyTransientFieldValues(sourceValue, nonTransientField.get(target), nest);
+            }
+        }
     }
 
     public static List<Field> getAllFields(Class<?> type) {

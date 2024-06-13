@@ -162,40 +162,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @Deprecated
     @Transactional
     @Modifying
-    public Optional<T> updateById(String id, T resource, AclPermission permission) {
-        if (id == null) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
-        }
-        if (resource == null) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "resource");
-        }
+    public Optional<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission) {
+        final QueryAllParams<T> q = queryBuilder().byId(id).permission(permission);
 
-        // Set policies to null in the update object
-        resource.setPolicies(null);
+        q.updateFirst(buildUpdateFromSparseResource(resource));
 
-        final User user = ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
-                .block();
-
-        final Set<String> permissionGroups = permission != null ? getCurrentUserPermissionGroups(true) : Set.of();
-
-        return Optional.of(findById(id, permission)
-                .map(entityFromDB -> {
-                    // If the update flow is triggered within the server without any user context, then user object will
-                    // be null
-                    if (user != null) {
-                        entityFromDB.setModifiedBy(user.getUsername());
-                    }
-                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(
-                            resource, entityFromDB, Set.of(FieldName.ID, "policies"));
-                    entityFromDB.setUpdatedAt(Instant.now());
-                    entityManager.persist(entityFromDB);
-                    return setUserPermissionsInObject(entityFromDB, permissionGroups);
-                })
-                .orElseThrow(() -> new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND,
-                        genericDomain.getSimpleName().toLowerCase(),
-                        id))); // */
+        return q.one();
     }
 
     @Transactional
@@ -445,29 +417,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     public int updateExecute(@NonNull QueryAllParams<T> params, @NonNull T resource) {
-        final BridgeUpdate update = new BridgeUpdate();
-
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
         if (resource.getPolicies().isEmpty()) {
             resource.setPolicies(null);
         }
 
-        getDbObject(resource).forEach(update::set);
-        return updateExecute(params, update);
-
-        /*
-        if (QueryAllParams.Scope.FIRST == params.getScope()) {
-            final Optional<T> dbEntity = queryFirstExecute(params);
-            if (dbEntity.isEmpty()) {
-                return 0;
-            }
-            AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, dbEntity.get());
-            entityManager.persist(dbEntity);
-            return 1;
-        }
-
-        throw new RuntimeException("Not implemented yet!"); //*/
+        return updateExecute(params, buildUpdateFromSparseResource(resource));
     }
 
     public BridgeUpdate buildUpdateFromSparseResource(T resource) {
