@@ -65,10 +65,7 @@ done
 echo 'RTS started.'
 
 if [[ ! -z "${APPSMITH_NEW_RELIC_APM_LICENSE_KEY}" ]] && [[ ! -z "${APPSMITH_NEW_RELIC_APM_NAME}" ]]; then
-  echo "all variable set for license key"
   export APPSMITH_JAVA_ARGS+=" -javaagent:/opt/newrelic/newrelic.jar"
-else
-  echo "license key isn't set in run java"
 fi
 
 sh /opt/appsmith/run-starting-page-init.sh &
