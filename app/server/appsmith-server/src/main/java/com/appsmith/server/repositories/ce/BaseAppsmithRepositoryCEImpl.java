@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.CustomJsonType;
+import com.appsmith.external.helpers.JsonForDatabase;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -17,7 +18,6 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -100,8 +100,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     @Autowired
     private CacheableRepositoryHelper cacheableRepositoryHelper;
-
-    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static final int NO_RECORD_LIMIT = -1;
 
@@ -595,7 +593,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         }
                         nestedFieldModifications
                                 .get(field)
-                                .add(Pair.of(path, cb.literal(objectMapper.writeValueAsString(value))));
+                                .add(Pair.of(path, cb.literal(JsonForDatabase.writeValueAsString(value))));
                     } catch (JsonProcessingException e) {
                         throw new RuntimeException(e);
                     }
@@ -607,7 +605,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         // Without it, we see a compile error.
                         cu.<Object>set(
                                 root.get(key),
-                                cb.function("json", Object.class, cb.literal(objectMapper.writeValueAsString(value))));
+                                cb.function(
+                                        "json", Object.class, cb.literal(JsonForDatabase.writeValueAsString(value))));
                     } catch (JsonProcessingException e) {
                         throw new RuntimeException(e);
                     }
@@ -770,7 +769,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     root.get(BaseDomain.Fields.policies),
                     cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
                             + String.join(" || ", conditions) + ")))"),
-                    cb.literal(objectMapper.writeValueAsString(fnVars))));
+                    cb.literal(JsonForDatabase.writeValueAsString(fnVars))));
         } catch (JsonProcessingException e) {
             // This should never happen, were serializing a Map<String, String>, which ideally should never fail.
             throw new RuntimeException(e);
