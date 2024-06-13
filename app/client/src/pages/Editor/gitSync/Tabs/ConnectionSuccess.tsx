@@ -30,32 +30,10 @@ import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelecto
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
-import { importRemixIcon } from "design-system-old";
-
-const GitRepositoryLineIcon = importRemixIcon(
-  async () => import("remixicon-react/GitRepositoryLineIcon"),
-);
-const GitBranchLineIcon = importRemixIcon(
-  async () => import("remixicon-react/GitBranchLineIcon"),
-);
-
-const TitleContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
-`;
 
 const TitleText = styled(Text)`
   flex: 1;
   font-weight: 600;
-`;
-
-const InlineIcon = styled(Icon)`
-  display: inline-flex;
-`;
-
-const DetailContainer = styled.div`
-  width: 172px;
 `;
 
 const LinkText = styled(Text)`
@@ -66,7 +44,7 @@ const LinkText = styled(Text)`
 
 function ConnectionSuccessTitle() {
   return (
-    <TitleContainer>
+    <div className="flex items-center mb-4">
       <Icon className="mr-1" color="#059669" name="oval-check" size="lg" />
       <TitleText
         data-testid="t--git-success-modal-title"
@@ -75,7 +53,7 @@ function ConnectionSuccessTitle() {
       >
         {createMessage(GIT_CONNECT_SUCCESS_TITLE)}
       </TitleText>
-    </TitleContainer>
+    </div>
   );
 }
 
@@ -84,18 +62,18 @@ function ConnectionSuccessBody() {
   return (
     <>
       <div className="flex gap-x-4 mb-6">
-        <DetailContainer>
+        <div className="w-44">
           <div className="flex items-center">
-            <GitRepositoryLineIcon className="mr-1" size={18} />
+            <Icon className="mr-1" name="git-repository" size="md" />
             <Text isBold renderAs="p">
               {createMessage(GIT_CONNECT_SUCCESS_REPO_NAME)}
             </Text>
           </div>
           <Text renderAs="p">{gitMetadata?.repoName || "-"}</Text>
-        </DetailContainer>
-        <DetailContainer>
+        </div>
+        <div className="w-44">
           <div className="flex items-center">
-            <GitBranchLineIcon className="mr-1" size={18} />
+            <Icon className="mr-1" name="git-branch" size="md" />
             <Text isBold renderAs="p">
               {createMessage(GIT_CONNECT_SUCCESS_DEFAULT_BRANCH)}
             </Text>
@@ -105,15 +83,15 @@ function ConnectionSuccessBody() {
               )}
               trigger="hover"
             >
-              <InlineIcon
-                className="ml-1 cursor-pointer"
+              <Icon
+                className="inline-fix ml-1 cursor-pointer"
                 name="info"
                 size="md"
               />
             </Tooltip>
           </div>
           <Text renderAs="p">{gitMetadata?.defaultBranchName || "-"}</Text>
-        </DetailContainer>
+        </div>
       </div>
       <div className="mb-1">
         <Text renderAs="p">
