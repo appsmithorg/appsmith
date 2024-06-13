@@ -21,6 +21,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
@@ -37,6 +38,7 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
     private static final String MONGO_DATA_NAME = "mongo-data";
 
     final Map<String, String> idMap = new HashMap<>();
+    private static final List<String> NON_BASE_DOMAIN_TABLES = List.of("sequence");
 
     private static Path findEffectiveDataPath() {
         // MongoDB export placed in Stacks volume, in Docker container.
@@ -143,6 +145,9 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
                         data.put(snakeKey, value);
                     }
                 }
+                if (shouldUpdateTimestamps(isCustomerExistingDataPresent, tableName)) {
+                    updateTimestamps(data);
+                }
 
                 // Build the INSERT query to only have the columns that are present in the JSON document. This allows
                 // the rest of the columns to take on their default value, if configured, instead of `null`.
@@ -219,5 +224,14 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
         // Convert "customJSLib" to "customjslib".
         // Convert "assignedToUserIds" to "assigned_to_user_ids".
         return str.replaceAll("([a-z])([A-Z](?=[a-z]))", "$1_$2").toLowerCase(Locale.ENGLISH);
+    }
+
+    private boolean shouldUpdateTimestamps(boolean isCustomerExistingDataPresent, String tableName) {
+        return !isCustomerExistingDataPresent && !NON_BASE_DOMAIN_TABLES.contains(tableName);
+    }
+
+    private void updateTimestamps(Map<String, Object> data) {
+        data.put("created_at", Instant.now().toString());
+        data.put("updated_at", null);
     }
 }
