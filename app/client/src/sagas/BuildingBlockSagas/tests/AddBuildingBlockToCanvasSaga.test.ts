@@ -11,7 +11,7 @@ import { addChildSaga } from "sagas/WidgetAdditionSagas";
 import { getDragDetails, getWidgetByName } from "sagas/selectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
-import { skeletonWidget } from "./fixtures";
+import { addEntityAction, skeletonWidget } from "./fixtures";
 
 type GeneratorType = Generator<
   CallEffect | SelectEffect | PutEffect,
@@ -20,22 +20,6 @@ type GeneratorType = Generator<
 >;
 
 describe("addBuildingBlockToCanvasSaga", () => {
-  const addEntityAction: ReduxAction<WidgetAddChild> = {
-    type: "WIDGET_ADD_CHILD",
-    payload: {
-      widgetId: "0",
-      type: "BUILDING_BLOCK",
-      leftColumn: 15,
-      topRow: 6,
-      columns: 31,
-      rows: 63,
-      parentRowSpace: 10,
-      parentColumnSpace: 13.40625,
-      newWidgetId: "ndw2y4zajv",
-      tabId: "0",
-    },
-  };
-
   it("1. should add a skeleton widget and initiate a building block drop", () => {
     const generator: GeneratorType =
       addBuildingBlockToCanvasSaga(addEntityAction);
