@@ -17,6 +17,7 @@ import { getIdeCanvasSideBySideHoverState } from "selectors/analyticsSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import {
   recordAnalyticsForSideBySideNavigation,
+  recordAnalyticsForSideBySideWidgetHover,
   resetAnalyticsForSideBySideHover,
 } from "actions/analyticsActions";
 
@@ -28,6 +29,10 @@ import {
   JS_COLLECTION_EDITOR_PATH,
   WIDGETS_EDITOR_BASE_PATH,
 } from "constants/routes";
+import type { focusWidget } from "actions/widgetActions";
+import { getEntities } from "@appsmith/selectors/entitiesSelector";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { getCurrentEntityInfo, isInSideBySideEditor } from "pages/Editor/utils";
 
 export function* sendAnalyticsEventSaga(
   type: ReduxActionType,
@@ -94,12 +99,11 @@ function* routeChangeInSideBySideModeSaga({
     yield select(getIDEViewMode);
 
   const {
-    location: {
-      pathname: pathName,
-      state: { invokedBy },
-    },
+    location: { pathname: pathName, state },
     prevLocation: { pathname: prevPathName },
   } = payload;
+
+  const invokedBy = state?.invokedBy;
 
   if (
     invokedBy === NavigationMethod.CanvasClick &&
@@ -112,6 +116,33 @@ function* routeChangeInSideBySideModeSaga({
   }
 }
 
+function* focusWidgetInSideBySideModeSaga({
+  payload,
+}: ReturnType<typeof focusWidget>) {
+  const { widgetId } = payload;
+
+  if (widgetId) {
+    const viewMode: ReturnType<typeof getIDEViewMode> =
+      yield select(getIDEViewMode);
+
+    const { appState, entity } = identifyEntityFromPath(
+      window.location.pathname,
+    );
+
+    const { segment } = getCurrentEntityInfo(entity);
+
+    if (isInSideBySideEditor({ appState, segment, viewMode })) {
+      const entities: ReturnType<typeof getEntities> =
+        yield select(getEntities);
+      const widget = entities.canvasWidgets[widgetId];
+
+      if (widget) {
+        yield put(recordAnalyticsForSideBySideWidgetHover(widget.type));
+      }
+    }
+  }
+}
+
 export default function* root() {
   yield all([
     takeEvery(
@@ -120,5 +151,6 @@ export default function* root() {
     ),
 
     takeEvery(ReduxActionTypes.ROUTE_CHANGED, routeChangeInSideBySideModeSaga),
+    takeEvery(ReduxActionTypes.FOCUS_WIDGET, focusWidgetInSideBySideModeSaga),
   ]);
 }
