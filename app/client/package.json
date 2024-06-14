@@ -374,6 +374,7 @@
     "xlsx": "https://cdn.sheetjs.com/xlsx-0.19.3/xlsx-0.19.3.tgz"
   },
   "resolutions": {
+    "braces": "3.0.3",
     "browserslist": "4.20.3",
     "chokidar": "3.5.3",
     "css-select": "4.1.3",
