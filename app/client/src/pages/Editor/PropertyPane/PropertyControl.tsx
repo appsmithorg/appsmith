@@ -988,7 +988,10 @@ const PropertyControl = memo((props: Props) => {
                           "!h-[20px]": experimentalJSToggle,
                         })}
                         icon="js-toggle-v2"
-                        isDisabled={isToggleDisabled}
+                        isDisabled={
+                          isToggleDisabled ||
+                          props.showAutocompleteMenuByDefault
+                        }
                         isSelected={isDynamic}
                         onClick={() =>
                           toggleDynamicProperty(
