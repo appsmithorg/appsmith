@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { ternDocsInfo } from "@appsmith/utils/autocomplete/EntityDefinitions";
+// import { ternDocsInfo } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import type { Completion, TernCompletionResult } from "./CodemirrorTernService";
-import { CodeEditorColors } from "components/editorComponents/CodeEditor/constants";
-import { Link } from "design-system";
+// import { CodeEditorColors } from "components/editorComponents/CodeEditor/constants";
+// import { Link } from "design-system";
 import store from "store";
 import type { AppState } from "@appsmith/reducers";
 import get from "lodash/get";
@@ -44,18 +44,14 @@ export function TernDocToolTip(props: {
   jsonViewClicked?: () => void;
 }) {
   const { completion } = props;
-  const {
-    data: { doc, url },
-    displayText,
-    fullPath,
-  } = completion;
+  const { displayText, fullPath } = completion;
 
   const value = (fullPath && getEvaluatedValue(fullPath)) || "";
 
-  const examples =
-    displayText && displayText in ternDocsInfo
-      ? ternDocsInfo[displayText].exampleArgs
-      : null;
+  // const examples =
+  //   displayText && displayText in ternDocsInfo
+  //     ? ternDocsInfo[displayText].exampleArgs
+  //     : null;
 
   const dataType = getDataTypeHeader(value);
 
@@ -66,7 +62,7 @@ export function TernDocToolTip(props: {
         style={{ background: "var(--ads-v2-color-bg)" }}
       >
         {displayText}
-        {url && (
+        {/* {url && (
           <Link
             className="text-xs doc-link"
             kind="primary"
@@ -75,7 +71,7 @@ export function TernDocToolTip(props: {
           >
             [docs]
           </Link>
-        )}
+        )} */}
       </div>
 
       <pre
@@ -103,14 +99,14 @@ export function TernDocToolTip(props: {
           </div>
         )}
       </pre>
-      {doc && (
+      {/* {doc && (
         <pre
           className="px-2 p-1 text-xs whitespace-normal"
           dangerouslySetInnerHTML={{ __html: doc }}
         />
-      )}
+      )} */}
 
-      {examples && (
+      {/* {examples && (
         <div className="flex px-2 py-[2px] text-xs font-semibold">Example</div>
       )}
       {examples && (
@@ -133,7 +129,7 @@ export function TernDocToolTip(props: {
             );
           })}
         </div>
-      )}
+      )} */}
     </div>
   );
 }
