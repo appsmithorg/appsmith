@@ -45,6 +45,11 @@ init_env_file() {
   ENV_PATH="$CONF_PATH/docker.env"
   TEMPLATES_PATH="/opt/appsmith/templates"
 
+  if [[ -n "$APPSMITH_MONGODB_URI" ]]; then
+    export APPSMITH_DB_URL="$APPSMITH_MONGODB_URI"
+    unset APPSMITH_MONGODB_URI
+  fi
+
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
   printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TMP/pre-define.env"
 
@@ -75,8 +80,19 @@ init_env_file() {
 
 
   tlog "Load environment configuration"
+
+  # Load the ones in `docker.env` in the stacks folder.
   set -o allexport
   . "$ENV_PATH"
+  set +o allexport
+
+  if [[ -n "$APPSMITH_MONGODB_URI" ]]; then
+    export APPSMITH_DB_URL="$APPSMITH_MONGODB_URI"
+    unset APPSMITH_MONGODB_URI
+  fi
+
+  # Load the ones set from outside, should take precedence, and so will overwrite anything from `docker.env` above.
+  set -o allexport
   . "$TMP/pre-define.env"
   set +o allexport
 }
@@ -172,11 +188,6 @@ configure_database_connection_url() {
   tlog "Configuring database connection URL"
   isPostgresUrl=0
   isMongoUrl=0
-  # Check if APPSMITH_DB_URL is not set
-  if [[ -z "${APPSMITH_DB_URL}" ]]; then
-    # If APPSMITH_DB_URL is not set, fall back to APPSMITH_MONGODB_URI
-    export APPSMITH_DB_URL="${APPSMITH_MONGODB_URI}"
-  fi
 
   if [[ "${APPSMITH_DB_URL}" == "postgresql:"* ]]; then
     isPostgresUrl=1

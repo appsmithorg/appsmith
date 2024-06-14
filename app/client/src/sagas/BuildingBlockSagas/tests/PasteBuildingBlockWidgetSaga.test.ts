@@ -5,7 +5,7 @@ import type {
   SelectEffect,
 } from "redux-saga/effects";
 import { call, select } from "redux-saga/effects";
-import { pasteBuildingBlockWidgetsSaga } from "./BuildingBlockAdditionSagas";
+import { pasteBuildingBlockWidgetsSaga } from "../BuildingBlockAdditionSagas";
 import { getCopiedWidgets } from "utils/storage";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import { getWidgets } from "sagas/selectors";
@@ -21,7 +21,7 @@ import {
   copiedWidgets,
   leftMostWidget,
   topMostWidget,
-} from "./pasteWidgetAddition.fixture";
+} from "../pasteWidgetAddition.fixture";
 import type { NewPastePositionVariables } from "sagas/WidgetOperationUtils";
 
 // Mock data for testing
