@@ -1,10 +1,10 @@
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import useIsInSideBySideEditor from "utils/hooks/useIsInSideBySideEditor";
 import { LAYOUT_WRAPPER_ID } from "./constants";
 import { sendAnalyticsForSideBySideHover } from "actions/analyticsActions";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import { useIsInSideBySideEditor } from "IDE/hooks";
 
 export const AnalyticsWrapper: React.FC = ({ children }) => {
   const dispatch = useDispatch();

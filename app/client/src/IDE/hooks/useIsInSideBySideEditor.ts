@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
-import { getIDEViewMode } from "selectors/ideSelectors";
+import { getIDEViewMode } from "../../selectors/ideSelectors";
 import { identifyEntityFromPath } from "../../navigation/FocusEntity";
 import {
   getCurrentEntityInfo,
@@ -11,7 +11,7 @@ import {
 /**
  * Checks if current component is in side-by-side editor mode.
  */
-const useIsInSideBySideEditor = () => {
+export const useIsInSideBySideEditor = () => {
   const { pathname } = useLocation();
   const viewMode = useSelector(getIDEViewMode);
   const { appState, entity } = identifyEntityFromPath(pathname);
@@ -19,5 +19,3 @@ const useIsInSideBySideEditor = () => {
 
   return isInSideBySideEditor({ appState, segment, viewMode });
 };
-
-export default useIsInSideBySideEditor;
