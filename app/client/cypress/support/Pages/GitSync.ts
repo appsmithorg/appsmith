@@ -387,7 +387,8 @@ export class GitSync {
     this.assertHelper.AssertNetworkStatus("@getBranch", 200);
     this.agHelper.WaitUntilEleAppear(this._mergeBranchDropdownmenu);
     this.agHelper.GetNClick(this._mergeBranchDropdownmenu, 0, true);
-    this.agHelper.GetNClickByContains(this._mergeBranchDropdownmenu, destinationBranch);
+    this.agHelper.AssertContains(destinationBranch);
+    this.agHelper.GetNClickByContains(this._dropdownmenu, destinationBranch);
     this.agHelper.AssertElementAbsence(this._checkMergeability, 35000);
   }
 
