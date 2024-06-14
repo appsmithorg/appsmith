@@ -1,4 +1,8 @@
-import { agHelper, anvilLayout } from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  anvilLayout,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
 import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
@@ -77,6 +81,21 @@ describe(
       });
       anvilLayout.verifyWidgetDoesNotExist("Section1");
       anvilLayout.sections.verifyZoneCount("Section2", 2);
+    });
+
+    it("3. Verify removing a section through the property pane of a section", () => {
+      // create a new section with a Zone widget
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.ZONE,
+        10,
+        10,
+        {
+          skipWidgetSearch: true,
+        },
+      );
+      // delete the section via the property pane
+      propPane.DeleteWidgetFromPropertyPane("Section1");
+      anvilLayout.verifyWidgetDoesNotExist("Section1");
     });
   },
 );

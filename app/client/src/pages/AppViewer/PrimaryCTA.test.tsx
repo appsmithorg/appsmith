@@ -26,10 +26,10 @@ export const initialState: any = {
   entities: {
     pageList: {
       applicationId: 1,
-      currentPageId: 1,
+      currentPageId: "0123456789abcdef00000000",
       pages: [
         {
-          pageId: 1,
+          pageId: "0123456789abcdef00000000",
           slug: "pageSlug",
         },
       ],

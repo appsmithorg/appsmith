@@ -89,7 +89,7 @@ describe(
       //Changing the text on the Button
       cy.testJsontext("label", this.dataSet.ButtonLabel);
 
-      cy.assertPageSave();
+      _.agHelper.AssertAutoSave();
 
       //Verify the Button name and label
       cy.get(widgetsPage.buttonWidget).trigger("mouseover");

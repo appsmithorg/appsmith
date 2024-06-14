@@ -11,6 +11,8 @@ import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -47,7 +49,7 @@ import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIds
 @RequiredArgsConstructor
 public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Application> {
 
-    private final CommonGitFileUtils gitFileUtils;
+    private final CommonGitFileUtils commonGitFileUtils;
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
 
     private final ApplicationService applicationService;
@@ -178,9 +180,9 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     }
 
     @Override
-    public Mono<Application> publishArtifact(Artifact artifact) {
+    public Mono<Application> publishArtifact(Artifact artifact, Boolean isPublishedManually) {
         Application application = (Application) artifact;
-        return applicationPageService.publish(application.getId(), true).then(Mono.just(application));
+        return applicationPageService.publish(application.getId(), isPublishedManually);
     }
 
     // TODO: scope for improvement
@@ -204,7 +206,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
         String editModeUrl = Paths.get(viewModeUrl, "edit").toString();
         // Initialize the repo with readme file
 
-        return gitFileUtils
+        return commonGitFileUtils
                 .initializeReadme(readMePath, originHeader + viewModeUrl, originHeader + editModeUrl)
                 .onErrorMap(throwable -> {
                     log.error("Error while initialising git repo, {0}", throwable);
@@ -304,5 +306,24 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     @Override
     public Application updateArtifactWithDefaultReponseUtils(Artifact artifact) {
         return responseUtils.updateApplicationWithDefaultResources((Application) artifact);
+    }
+
+    @Override
+    public Mono<Application> createArtifactForImport(String workspaceId, String repoName) {
+        Application newApplication = new Application();
+        newApplication.setName(repoName);
+        newApplication.setWorkspaceId(workspaceId);
+        newApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        return applicationPageService.createOrUpdateSuffixedApplication(newApplication, newApplication.getName(), 0);
+    }
+
+    @Override
+    public Mono<Application> deleteArtifact(String artifactId) {
+        return applicationPageService.deleteApplication(artifactId);
+    }
+
+    @Override
+    public Boolean isContextInArtifactEmpty(ArtifactExchangeJson artifactExchangeJson) {
+        return CollectionUtils.isNullOrEmpty(((ApplicationJson) artifactExchangeJson).getPageList());
     }
 }

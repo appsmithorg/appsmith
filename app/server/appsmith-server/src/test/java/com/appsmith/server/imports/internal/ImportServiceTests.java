@@ -4592,8 +4592,14 @@ public class ImportServiceTests {
                 .assertNext(applicationJson -> {
                     List<NewPage> pages = applicationJson.getPageList();
                     assertThat(pages).hasSize(2);
-                    assertThat(pages.get(1).getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
-                    assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");
+                    NewPage page = pages.stream()
+                            .filter(page1 ->
+                                    page1.getUnpublishedPage().getName().equals("page_" + randomId))
+                            .findFirst()
+                            .orElse(null);
+                    assertThat(page).isNotNull();
+                    assertThat(page.getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
+                    assertThat(page.getUnpublishedPage().getIcon()).isEqualTo("flight");
                 })
                 .verifyComplete();
     }

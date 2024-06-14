@@ -908,7 +908,7 @@ export const GIT_UPSTREAM_CHANGES = () =>
 export const GIT_CONFLICTING_INFO = () =>
   "Please resolve the merge conflicts manually on your repository.";
 export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
-  "You have uncommitted changes. Please commit before pulling the remote changes.";
+  "You have uncommitted changes. Please commit or discard before pulling the remote changes.";
 export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
   "Your current branch has uncommitted changes. Please commit them before proceeding to merge.";
 
@@ -1771,9 +1771,6 @@ export const WIDGET_USED = () => "Widgets";
 export const SIMILAR_TEMPLATES = () => "Similar templates";
 export const VIEW_ALL_TEMPLATES = () => "View all templates";
 export const FILTERS = () => "Filters";
-export const TEMPLATE_CARD_TITLE = () => "Start from a template";
-export const TEMPLATE_CARD_DESCRIPTION = () =>
-  "Create app from template by selecting pages";
 export const FILTER_SELECTALL = () => "Select all";
 export const FILTER_SELECT_PAGE = () => "Add selected page";
 export const FILTER_SELECT_PAGES = () => "Add selected pages";
@@ -1826,9 +1823,6 @@ export const SEARCH_USERS = (
 
 export const CREATE_PAGE = () => "New blank page";
 export const CANVAS_NEW_PAGE_CARD = () => "Create new page";
-export const GENERATE_PAGE = () => "Generate page from data table";
-export const GENERATE_PAGE_DESCRIPTION = () =>
-  "Start app with a simple CRUD UI and customize it";
 export const ADD_PAGE_FROM_TEMPLATE = () => "Add page from template";
 export const INVALID_URL = () =>
   "Please enter a valid URL, for example, https://example.com";

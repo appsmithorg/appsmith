@@ -60,7 +60,7 @@ jobs:
       # In case of missing tags, guides towards correct usage in test response
       - name: Add test response with tags documentation link
         if: steps.parseTags.outputs.outcome != 'success'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
@@ -95,7 +95,7 @@ jobs:
       # In case of incorrect tags, guides towards correct tags
       - name: Add test response with tags list link
         if: steps.checkTags.outputs.outcome == 'failure'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
@@ -131,7 +131,7 @@ jobs:
       # In case of incorrect usage for all test cases, inform the PR author of correct usage
       - name: Add test response to use correct @tag.All format
         if: steps.checkAll.outputs.invalid_tags_all != ''
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
@@ -153,7 +153,7 @@ jobs:
       # In case of a run with all test cases, inform the PR author of better usage
       - name: Add test response to use @tag.All
         if: steps.checkAll.outputs.tags == ''
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
@@ -171,7 +171,7 @@ jobs:
 
       # In case of a runnable command, update the PR with run details
       - name: Add test response with link to workflow run
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
@@ -197,3 +197,4 @@ jobs:
     with:
       tags: ${{ needs.parse-tags.outputs.tags}}
       matrix: ${{ needs.parse-tags.outputs.matrix}}
+      is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}

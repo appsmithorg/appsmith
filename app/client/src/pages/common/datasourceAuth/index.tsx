@@ -121,6 +121,7 @@ const SaveButtonContainer = styled.div<{
   border-color: var(--ads-v2-color-border);
   align-items: center;
   height: 68px;
+  flex-shrink: ${(props) => (props.isInsideReconnectModal ? "unset" : "0")};
 `;
 
 const StyledAuthMessage = styled.div`

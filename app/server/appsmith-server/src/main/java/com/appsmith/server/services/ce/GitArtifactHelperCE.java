@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Artifact;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.GitAuthDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -57,5 +58,11 @@ public interface GitArtifactHelperCE<T extends Artifact> {
 
     Mono<T> isPrivateRepoLimitReached(Artifact artifact, boolean isClearCache);
 
-    Mono<T> publishArtifact(Artifact artifact);
+    Mono<T> publishArtifact(Artifact artifact, Boolean publishedManually);
+
+    Mono<T> createArtifactForImport(String workspaceId, String repoName);
+
+    Mono<T> deleteArtifact(String artifactId);
+
+    Boolean isContextInArtifactEmpty(ArtifactExchangeJson artifactExchangeJson);
 }
