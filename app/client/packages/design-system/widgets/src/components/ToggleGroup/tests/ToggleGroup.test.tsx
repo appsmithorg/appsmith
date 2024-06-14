@@ -2,17 +2,23 @@ import React from "react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";
 import { render, screen } from "@testing-library/react";
+import { ToggleGroup, Checkbox } from "@design-system/widgets";
 
-import { CheckboxGroup } from "../";
-import { Checkbox } from "../../Checkbox";
+describe("@design-system/widgets/ToggleGroup", () => {
+  const items = [
+    { label: "Value 1", value: "value-1" },
+    { label: "Value 2", value: "value-2" },
+  ];
 
-describe("@design-system/widgets/CheckboxGroup", () => {
   it("should render the checkbox group", async () => {
     const { container } = render(
-      <CheckboxGroup label="Checkbox Group">
-        <Checkbox value="value-1">Value 1</Checkbox>
-        <Checkbox value="value-2">Value 2</Checkbox>
-      </CheckboxGroup>,
+      <ToggleGroup items={items} label="Checkbox Group">
+        {({ label, value }) => (
+          <Checkbox key={value} value={value}>
+            {label}
+          </Checkbox>
+        )}
+      </ToggleGroup>,
     );
 
     expect(screen.getByText("Value 1")).toBeInTheDocument();
@@ -22,9 +28,9 @@ describe("@design-system/widgets/CheckboxGroup", () => {
     const label = container.querySelector("label") as HTMLElement;
     expect(label).toHaveTextContent("Checkbox Group");
 
-    const checkboxGroup = screen.getByRole("group");
-    expect(checkboxGroup).toHaveAttribute("aria-labelledby");
-    expect(checkboxGroup.getAttribute("aria-labelledby")).toBe(label.id);
+    const toggleGroup = screen.getByRole("group");
+    expect(toggleGroup).toHaveAttribute("aria-labelledby");
+    expect(toggleGroup.getAttribute("aria-labelledby")).toBe(label.id);
 
     const checkboxes = screen.getAllByRole("checkbox");
     expect(checkboxes[0]).toHaveAttribute("value", "value-1");
@@ -42,28 +48,36 @@ describe("@design-system/widgets/CheckboxGroup", () => {
 
   it("should support custom props", () => {
     render(
-      <CheckboxGroup
+      <ToggleGroup
         data-testid="t--checkbox-group"
+        items={items}
         label="Checkbox Group Label"
       >
-        <Checkbox value="value-1">Value 1</Checkbox>
-        <Checkbox value="value-2">Value 2</Checkbox>
-      </CheckboxGroup>,
+        {({ label, value }) => (
+          <Checkbox key={value} value={value}>
+            {label}
+          </Checkbox>
+        )}
+      </ToggleGroup>,
     );
 
-    const checkboxGroup = screen.getByTestId("t--checkbox-group");
-    expect(checkboxGroup).toBeInTheDocument();
+    const toggleGroup = screen.getByTestId("t--checkbox-group");
+    expect(toggleGroup).toBeInTheDocument();
   });
 
   it("should render checked checkboxes when value is passed", () => {
     render(
-      <CheckboxGroup
+      <ToggleGroup
+        items={items}
         label="Checkbox Group Label"
         value={["value-1", "value-2"]}
       >
-        <Checkbox value="value-1">Value 1</Checkbox>
-        <Checkbox value="value-2">Value 2</Checkbox>
-      </CheckboxGroup>,
+        {({ label, value }) => (
+          <Checkbox key={value} value={value}>
+            {label}
+          </Checkbox>
+        )}
+      </ToggleGroup>,
     );
 
     const checkboxes = screen.getAllByRole("checkbox");
@@ -75,10 +89,17 @@ describe("@design-system/widgets/CheckboxGroup", () => {
     const onChangeSpy = jest.fn();
 
     render(
-      <CheckboxGroup label="Checkbox Group Label" onChange={onChangeSpy}>
-        <Checkbox value="value-1">Value 1</Checkbox>
-        <Checkbox value="value-2">Value 2</Checkbox>
-      </CheckboxGroup>,
+      <ToggleGroup
+        items={items}
+        label="Checkbox Group Label"
+        onChange={onChangeSpy}
+      >
+        {({ label, value }) => (
+          <Checkbox key={value} value={value}>
+            {label}
+          </Checkbox>
+        )}
+      </ToggleGroup>,
     );
 
     const checkboxes = screen.getAllByRole("checkbox");
@@ -88,10 +109,13 @@ describe("@design-system/widgets/CheckboxGroup", () => {
 
   it("should be able to render disabled checkboxes", () => {
     render(
-      <CheckboxGroup isDisabled label="Checkbox Group Label">
-        <Checkbox value="value-1">Value 1</Checkbox>
-        <Checkbox value="value-2">Value 2</Checkbox>
-      </CheckboxGroup>,
+      <ToggleGroup isDisabled items={items} label="Checkbox Group Label">
+        {({ label, value }) => (
+          <Checkbox key={value} value={value}>
+            {label}
+          </Checkbox>
+        )}
+      </ToggleGroup>,
     );
 
     const checkboxes = screen.getAllByRole("checkbox");
