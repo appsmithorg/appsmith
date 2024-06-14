@@ -31,8 +31,13 @@ import java.util.Set;
 @Slf4j
 public class WebClientUtils {
 
-    private static final Set<String> DISALLOWED_HOSTS =
-            Set.of("169.254.169.254", "0:0:0:0:0:0:a9fe:a9fe", "fd00:ec2:0:0:0:0:0:254", "metadata.google.internal");
+    private static final Set<String> DISALLOWED_HOSTS = Set.of(
+            "127.0.0.1",
+            "0:0:0:0:0:0:0:1",
+            "169.254.169.254",
+            "0:0:0:0:0:0:a9fe:a9fe",
+            "fd00:ec2:0:0:0:0:0:254",
+            "metadata.google.internal");
 
     public static final String HOST_NOT_ALLOWED = "Host not allowed.";
 
