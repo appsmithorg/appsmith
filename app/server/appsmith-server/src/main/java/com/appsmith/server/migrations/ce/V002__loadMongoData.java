@@ -30,7 +30,9 @@ import java.util.stream.Stream;
 @Slf4j
 public class V002__loadMongoData extends AppsmithJavaMigration {
     final ObjectMapper objectMapper = new ObjectMapper();
-    final ObjectReader objectReader = objectMapper.readerForMapOf(Object.class);
+
+    // Use a `LinkedHashMap` so we get the same order when iterating over keys or values.
+    final ObjectReader objectReader = objectMapper.readerFor(LinkedHashMap.class);
 
     private static final Pattern UUID_OR_OBJECTID_PATTERN =
             Pattern.compile("([\":])([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}|[0-9a-f]{24})(\")");
@@ -81,10 +83,6 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
                 if (!name.endsWith(".jsonl")) {
                     return;
                 }
-                if ("mongockChangeLog.jsonl".equals(name) || "mongockLock.jsonl".equals(name)) {
-                    // Ignore these collections.
-                    return;
-                }
                 moveForTable(item, jdbcTemplate, isCustomerExistingDataPresent);
             });
         }
@@ -95,6 +93,11 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
 
         final String collectionName = jsonlPath.toFile().getName().replace(".jsonl", "");
         final String tableName = camelToSnakeCase(collectionName);
+
+        if (!isTableExists(jdbcTemplate, tableName)) {
+            log.warn("Ignoring jsonl file as table doesn't exist: {}", jsonlPath);
+            return;
+        }
 
         try {
             jdbcTemplate.query("SELECT * FROM \"" + tableName + "\" LIMIT 1", rs -> {
@@ -216,6 +219,20 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private boolean isTableExists(JdbcTemplate jdbcTemplate, String tableName) {
+        //noinspection DataFlowIssue  // false positive
+        return jdbcTemplate.query(
+                """
+                SELECT exists(SELECT FROM information_schema.tables
+                    WHERE table_schema = current_schema AND table_name = ?)
+                """,
+                ps -> ps.setString(1, tableName),
+                rs -> {
+                    rs.next();
+                    return rs.getBoolean(1);
+                });
     }
 
     private String camelToSnakeCase(String str) {
