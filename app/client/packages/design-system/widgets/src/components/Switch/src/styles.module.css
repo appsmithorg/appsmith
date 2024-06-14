@@ -8,10 +8,6 @@
     --gutter: 2px;
     --knob-size: var(--sizing-4);
 
-    /**
-      Checkbox icon are positioned absolutely because we need to align the elements along the baseline
-      but icon takes more space than the text content.
-    */
     position: relative;
     width: var(--sizing-8);
     height: var(--sizing-5);

@@ -1,10 +1,10 @@
 import { useCallback, type RefObject, useMemo } from "react";
-
 import {
   useLayoutEffect,
   useResizeObserver,
   useValueEffect,
 } from "@react-aria/utils";
+import type { POSITION } from "@design-system/widgets";
 import type { Orientation } from "@react-types/shared";
 
 export interface GroupAria {
@@ -14,7 +14,7 @@ export interface GroupAria {
 export function useGroupOrientation(
   props: {
     orientation?: Orientation;
-    optionsLabelPosition?: "start" | "end";
+    optionsLabelPosition?: keyof typeof POSITION;
   },
   ref: RefObject<HTMLDivElement>,
 ): GroupAria {
