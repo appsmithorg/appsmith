@@ -45,7 +45,7 @@ const FlexBox = styled.div`
 `;
 
 const ErrorMessageBox = styled.div`
-  color: red;
+  color: ${props => props.theme.colors.error};
 `;
 
 const StyledBox = styled.div`
@@ -202,8 +202,8 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     <>
       {renderPairs.map((pair: SegmentedControlOptionWithKey, index) => {
         return (
-          <FlexBox>
-            <ControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
+          <FlexBox key={pair.key}>
+            <ControlWrapper orientation={"HORIZONTAL"}>
               <StyledInputGroup
                 dataType={"text"}
                 onBlur={onInputBlur}
