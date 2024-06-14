@@ -1164,7 +1164,7 @@ class CodeEditor extends Component<Props, State> {
     if (!cm.state.completionActive) {
       updateCustomDef(this.props.additionalDynamicData);
 
-      if (this.state.isFocused) {
+      if (this.state.isFocused && !this.state.hinterOpen) {
         this.showAutoCompleteHintOptionsOnFocus();
       }
     }
