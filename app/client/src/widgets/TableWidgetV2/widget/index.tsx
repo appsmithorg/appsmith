@@ -372,44 +372,11 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
    */
   static getDependencyMap(): Record<string, string[]> {
     return {
-      updatedRow: [
-        "updatedRowIndex",
-        "filteredTableData",
-        "processedTableData",
-      ],
-      updatedRows: [
-        "updatedRowIndices",
-        "filteredTableData",
-        "processedTableData",
-      ],
-      selectedRow: [
-        "selectedRowIndex",
-        "filteredTableData",
-        "multiRowSelection",
-        "selectedRowIndices",
-        "processedTableData",
-      ],
-      selectedRows: [
-        "selectedRowIndices",
-        "filteredTableData",
-        "processedTableData",
-      ],
-      triggeredRow: ["triggeredRowIndex", "filteredTableData"],
-      pageSize: ["compactMode", "componentHeight", "tableData"],
-      processedTableData: [
-        "transientTableData",
-        "tableData",
-        "primaryColumnId",
-      ],
-      filteredTableData: [
-        "processedTableData",
-        "searchText",
-        "filters",
-        "enableServerSideFiltering",
-        "enableClientSideSearch",
-        "sortOrder",
-      ],
-      updatedRowIndices: ["transientTableData"],
+      updatedRow: ["updatedRowIndex"],
+      updatedRows: ["updatedRowIndices"],
+      selectedRow: ["selectedRowIndex"],
+      selectedRows: ["selectedRowIndices"],
+      triggeredRow: ["triggeredRowIndex"],
     };
   }
 
