@@ -6,8 +6,9 @@ import configureStore from "redux-mock-store";
 import IDE from ".";
 import { BrowserRouter } from "react-router-dom";
 import "@testing-library/jest-dom";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-const getMockStore = (override: Record<string, any> = {}) => {
+const getMockStore = (override: Record<string, any> = {}): any => {
   const slice = {
     ui: {
       applications: {
@@ -39,7 +40,16 @@ jest.mock("./RightPane", () => () => <div />);
 jest.mock("./Sidebar", () => () => <div />);
 jest.mock("components/BottomBar", () => () => <div />);
 
-describe("Protected view for IDE", () => {
+const dispatch = jest.fn();
+jest.mock("react-redux", () => {
+  const originalModule = jest.requireActual("react-redux");
+  return {
+    ...originalModule,
+    useDispatch: () => dispatch,
+  };
+});
+
+describe("Protected callout test cases", () => {
   it("should render the protected view for IDE", () => {
     const store = getMockStore();
     const { getByTestId } = render(
@@ -77,5 +87,33 @@ describe("Protected view for IDE", () => {
     expect(
       queryByTestId("t--git-protected-branch-callout"),
     ).not.toBeInTheDocument();
+  });
+  it("should unprotect only the current branch if clicked on unprotect cta", () => {
+    const store = getMockStore({
+      ui: {
+        applications: {
+          currentApplication: {
+            gitApplicationMetadata: {
+              branchName: "branch-1",
+            },
+          },
+        },
+        gitSync: {
+          protectedBranches: ["main", "branch-1", "branch-2"],
+        },
+      },
+    });
+    const { queryByTestId } = render(
+      <Provider store={store}>
+        <BrowserRouter>
+          <IDE />
+        </BrowserRouter>
+      </Provider>,
+    );
+    queryByTestId("t--git-protected-unprotect-branch-cta")?.click();
+    expect(dispatch).lastCalledWith({
+      type: ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT,
+      payload: { protectedBranches: ["main", "branch-2"] },
+    });
   });
 });
