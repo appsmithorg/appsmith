@@ -32,6 +32,9 @@ const ErrorMessage = styled.div`
 class DropDownControl extends BaseControl<DropDownControlProps> {
   containerRef = React.createRef<HTMLDivElement>();
 
+  state = {
+    previousValue: this.props.propertyValue,
+  };
   componentDidMount() {
     this.containerRef.current?.addEventListener(
       DS_EVENT,
@@ -55,6 +58,24 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
         key: e.detail.meta.key,
       });
       e.stopPropagation();
+    }
+  };
+
+  handleOnClick = () => {
+    this.updateProperty(this.props.propertyName, "");
+  };
+
+  handleFocus = () => {
+    this.setState({ previousValue: this.props.propertyValue });
+    if (this.containerRef && this.containerRef.current) {
+      const activeElement = document.activeElement as HTMLElement;
+      activeElement.style.caretColor = "transparent";
+    }
+  };
+
+  handleBlur = () => {
+    if (!this.props.propertyValue) {
+      this.updateProperty(this.props.propertyName, this.state.previousValue);
     }
   };
 
@@ -123,6 +144,9 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
           isMultiSelect={this.props.isMultiSelect}
           isValid={!errors.length}
           onDeselect={this.onDeselect}
+          onFocus={this.handleFocus}
+          onClick={this.handleOnClick}
+          onBlur={this.handleBlur}
           onSelect={this.onSelect}
           optionFilterProp="label"
           optionLabelProp={this.props.hideSubText ? "label" : "children"}
@@ -201,6 +225,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
         selectedValue = value;
       }
       this.updateProperty(this.props.propertyName, selectedValue);
+      this.setState({ previousValue: selectedValue });
     }
   };
 
