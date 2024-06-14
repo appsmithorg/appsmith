@@ -25,19 +25,15 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 @Slf4j
 public class WebClientUtils {
 
-    private static final Set<String> DISALLOWED_HOSTS = Set.of(
-            "127.0.0.1",
-            "0:0:0:0:0:0:0:1",
-            "169.254.169.254",
-            "0:0:0:0:0:0:a9fe:a9fe",
-            "fd00:ec2:0:0:0:0:0:254",
-            "metadata.google.internal");
+    private static final Set<String> DISALLOWED_HOSTS = computeDisallowedHosts();
 
     public static final String HOST_NOT_ALLOWED = "Host not allowed.";
 
@@ -49,6 +45,18 @@ public class WebClientUtils {
             ExchangeFilterFunction.ofRequestProcessor(WebClientUtils::requestFilterFn);
 
     private WebClientUtils() {}
+
+    private static Set<String> computeDisallowedHosts() {
+        final Set<String> hosts = new HashSet<>(Set.of(
+                "169.254.169.254", "0:0:0:0:0:0:a9fe:a9fe", "fd00:ec2:0:0:0:0:0:254", "metadata.google.internal"));
+
+        if ("1".equals(System.getenv("IN_DOCKER"))) {
+            hosts.add("127.0.0.1");
+            hosts.add("0:0:0:0:0:0:0:1");
+        }
+
+        return Collections.unmodifiableSet(hosts);
+    }
 
     public static WebClient create() {
         return builder().build();
