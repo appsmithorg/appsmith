@@ -144,6 +144,13 @@ public class V002__loadMongoData extends AppsmithJavaMigration {
                     }
                 }
 
+                if (columnTypes.containsKey("created_at")) {
+                    data.put("created_at", Instant.now().toString());
+                }
+                if (columnTypes.containsKey("updated_at")) {
+                    data.put("updated_at", null);
+                }
+
                 // Build the INSERT query to only have the columns that are present in the JSON document. This allows
                 // the rest of the columns to take on their default value, if configured, instead of `null`.
                 final String sql = String.join(
