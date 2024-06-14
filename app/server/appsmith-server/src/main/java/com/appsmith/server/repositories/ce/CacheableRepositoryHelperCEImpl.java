@@ -26,7 +26,7 @@ import reactor.core.publisher.Mono;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.spans.TenantSpan.FETCH_TENANT_FROM_DB;
+import static com.appsmith.external.constants.spans.TenantSpan.FETCH_TENANT_FROM_DB_SPAN;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
@@ -197,7 +197,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                     }
                     return tenant;
                 })
-                .name(FETCH_TENANT_FROM_DB)
+                .name(FETCH_TENANT_FROM_DB_SPAN)
                 .tap(Micrometer.observation(observationRegistry));
     }
 

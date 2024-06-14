@@ -29,8 +29,8 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
-import static com.appsmith.external.constants.spans.TenantSpan.FETCHING_DEFAULT_TENANT;
-import static com.appsmith.external.constants.spans.TenantSpan.FETCH_TENANT_CACHE_POST_ERROR;
+import static com.appsmith.external.constants.spans.TenantSpan.FETCH_DEFAULT_TENANT_SPAN;
+import static com.appsmith.external.constants.spans.TenantSpan.FETCH_TENANT_CACHE_POST_DESERIALIZATION_ERROR_SPAN;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static java.lang.Boolean.TRUE;
 
@@ -182,7 +182,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         // Fetching Tenant from redis cache
         return getDefaultTenantId()
                 .flatMap(tenantId -> cacheableRepositoryHelper.fetchDefaultTenant(tenantId))
-                .name(FETCHING_DEFAULT_TENANT)
+                .name(FETCH_DEFAULT_TENANT_SPAN)
                 .tap(Micrometer.observation(observationRegistry))
                 .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)))
                 .onErrorResume(e -> {
@@ -200,7 +200,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                                 }
                                 return tenant;
                             }))
-                            .name(FETCH_TENANT_CACHE_POST_ERROR)
+                            .name(FETCH_TENANT_CACHE_POST_DESERIALIZATION_ERROR_SPAN)
                             .tap(Micrometer.observation(observationRegistry))
                             .flatMap(tenant -> repository
                                     .setUserPermissionsInObject(tenant)
