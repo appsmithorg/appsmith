@@ -67,7 +67,7 @@ class DropDownControl extends BaseControl<DropDownControlProps> {
 
   handleFocus = () => {
     this.setState({ previousValue: this.props.propertyValue });
-    if (this.containerRef && this.containerRef.current) {
+    if (this.containerRef?.current) {
       const activeElement = document.activeElement as HTMLElement;
       activeElement.style.caretColor = "transparent";
     }
