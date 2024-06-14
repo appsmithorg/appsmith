@@ -2,21 +2,22 @@ import { useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
 import { getIDEViewMode } from "selectors/ideSelectors";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import { JS_COLLECTION_EDITOR_PATH } from "constants/routes";
+import { identifyEntityFromPath } from "../../navigation/FocusEntity";
+import {
+  getCurrentEntityInfo,
+  isInSideBySideEditor,
+} from "../../pages/Editor/utils";
 
 /**
- * Hook to check if current component is in side-by-side editor mode.
+ * Checks if current component is in side-by-side editor mode.
  */
 const useIsInSideBySideEditor = () => {
   const { pathname } = useLocation();
-  const ideViewMode = useSelector(getIDEViewMode);
+  const viewMode = useSelector(getIDEViewMode);
+  const { appState, entity } = identifyEntityFromPath(pathname);
+  const { segment } = getCurrentEntityInfo(entity);
 
-  const isInSideBySideEditor =
-    ideViewMode === EditorViewMode.SplitScreen &&
-    pathname.includes(JS_COLLECTION_EDITOR_PATH);
-
-  return isInSideBySideEditor;
+  return isInSideBySideEditor({ appState, segment, viewMode });
 };
 
 export default useIsInSideBySideEditor;
