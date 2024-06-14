@@ -6,19 +6,21 @@ export class AnvilSnapshot {
   private deployMode = ObjectsRegistry.DeployMode;
 
 
+
   private locators = {
-    ...ObjectsRegistry.CommonLocators,
+    enterPreviewMode: ObjectsRegistry.CommonLocators._enterPreviewMode,
+    exitPreviewMode: ObjectsRegistry.CommonLocators._exitPreviewMode,
     canvas: "[data-testid=t--canvas-artboard]",
     colorMode: "[data-testid=t--anvil-theme-settings-color-mode]",
-    appViewerPage: "[data-testid=t--app-viewer-page]",
+    appViewerPage: "[data-testid=t--app-viewer-page-body]",
   }
 
   public verifyCanvasMode = (widgetName: string) => {
-    cy.get(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}LightMode`);
+    cy.get(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}Canvas`);
 
     this.setTheme("dark");
 
-    cy.get(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}DarkMode`);
+    cy.get(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}CanvasDark`);
 
     this.setTheme("light");
   }
@@ -26,7 +28,9 @@ export class AnvilSnapshot {
   public verifyPreviewMode = (widgetName: string) => {
     this.enterPreviewMode();
 
-    cy.get(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}PreviewMode`);
+    cy.get(this.locators.canvas).click();
+
+    cy.get(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}Preview`);
 
     this.exitPreviewMode();
   }
@@ -41,16 +45,18 @@ export class AnvilSnapshot {
     devices.forEach(device => {
       cy.viewport(device);
 
-      cy.get(this.locators.appViewerPage).matchImageSnapshot(`anvil${widgetName}${device}`);
+      cy.get(this.locators.appViewerPage).matchImageSnapshot(`anvil${widgetName}Deploy${device}`, {
+        capture: "fullPage"
+      });
     });
   }
 
   private enterPreviewMode = (shouldOpen = true) => {
-    this.agHelper.GetNClick(this.locators._enterPreviewMode);
+    this.agHelper.GetNClick(this.locators.enterPreviewMode);
   }
 
   private exitPreviewMode = () => {
-    this.agHelper.GetNClick(this.locators._exitPreviewMode);
+    this.agHelper.GetNClick(this.locators.exitPreviewMode);
   }
 
   private setTheme = (theme: "light" | "dark") => {
