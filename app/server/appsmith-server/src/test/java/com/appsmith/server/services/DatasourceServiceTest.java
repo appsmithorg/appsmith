@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Connection;
@@ -49,15 +50,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -83,6 +90,8 @@ public class DatasourceServiceTest {
 
     @Autowired
     DatasourceService datasourceService;
+
+    ObjectMapper objectMapper = new ObjectMapper();
 
     @SpyBean
     DatasourceService spyDatasourceService;
@@ -125,6 +134,9 @@ public class DatasourceServiceTest {
 
     @Autowired
     ApplicationPermission applicationPermission;
+
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
     String workspaceId = "";
     private String defaultEnvironmentId;
@@ -1086,15 +1098,39 @@ public class DatasourceServiceTest {
 
         StepVerifier.create(datasourceMono)
                 .assertNext(savedDatasource -> {
-                    DatasourceStorageDTO datasourceStorageDTO =
-                            savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+                    // fetch datasource storage directly from the database to check if the password is encrypted
+                    // correctly
+                    // since fetching through repository methods leads to password returned decrypted
+                    DatasourceStorage datasourceStorage =
+                            getDatasourceStorage(savedDatasource.getId(), defaultEnvironmentId);
                     DBAuth authentication = (DBAuth)
-                            datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
+                            datasourceStorage.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    // TODO :: Fetch record from DB and check if password is encrypted
-                    assertThat(authentication.getPassword()).isEqualTo(password);
+                    assertThat(EncryptionHelper.decrypt(authentication.getPassword()))
+                            .isEqualTo(password);
                 })
                 .verifyComplete();
+    }
+
+    private DatasourceStorage getDatasourceStorage(String datasourceId, String envId) {
+        String sql = "SELECT * FROM datasource_storage WHERE datasource_id = ? AND environment_id = ?";
+        RowMapper<DatasourceStorage> datasourceStorageRowMapper = new RowMapper<DatasourceStorage>() {
+            @Override
+            public DatasourceStorage mapRow(ResultSet rs, int rowNum) throws SQLException {
+                DatasourceStorage ds = new DatasourceStorage();
+                ds.setId(rs.getString("id"));
+                String dsConfig = rs.getString("datasource_configuration");
+                try {
+                    DatasourceConfiguration datasourceConfiguration;
+                    datasourceConfiguration = objectMapper.readValue(dsConfig, DatasourceConfiguration.class);
+                    ds.setDatasourceConfiguration(datasourceConfiguration);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                return ds;
+            }
+        };
+        return jdbcTemplate.queryForObject(sql, datasourceStorageRowMapper, datasourceId, envId);
     }
 
     @Test
@@ -1216,14 +1252,17 @@ public class DatasourceServiceTest {
 
         StepVerifier.create(datasourceMono)
                 .assertNext(updatedDatasource -> {
-                    DatasourceStorageDTO datasourceStorageDTO =
-                            updatedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
+                    // fetch datasource storage directly from the database to check if the password is encrypted
+                    // correctly
+                    // since fetching through repository methods leads to password returned decrypted
+                    DatasourceStorage datasourceStorage =
+                            getDatasourceStorage(updatedDatasource.getId(), defaultEnvironmentId);
                     DBAuth authentication = (DBAuth)
-                            datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
+                            datasourceStorage.getDatasourceConfiguration().getAuthentication();
 
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    // TODO :: Add assertions for encrypted password
-                    assertThat(password).isEqualTo(authentication.getPassword());
+                    assertThat(EncryptionHelper.decrypt(authentication.getPassword()))
+                            .isEqualTo(password);
                 })
                 .verifyComplete();
     }
