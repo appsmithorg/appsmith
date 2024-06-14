@@ -140,7 +140,8 @@ jobs:
 
       - name: Conditionally start PostgreSQL
         run: |
-          if [[ inputs.is-pg-build == 'true' ]]; then
+          if [[ ${{ inputs.is-pg-build }} == 'true' ]]; then
+            echo "Requesting PostgreSQL container to be started for pg specific build."
             docker run --name appsmith-pg -p 5432:5432 -d -e POSTGRES_PASSWORD=password postgres:alpine postgres -N 1500
           fi
 

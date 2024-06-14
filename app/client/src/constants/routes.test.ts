@@ -14,7 +14,7 @@ describe("builderURL", () => {
       },
       [
         {
-          pageId: ":pageId",
+          pageId: "0123456789abcdef00000000",
           pageSlug: ":pageSlug",
         },
       ],
@@ -24,7 +24,7 @@ describe("builderURL", () => {
   it("persists embed query param", () => {
     (window as any).location = new URL("https://example.com?embed=true");
     const pageURL = builderURL({
-      pageId: ":pageId",
+      pageId: "0123456789abcdef00000000",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
     expect(pageURLObject.searchParams.get("embed")).toBe("true");
@@ -33,7 +33,7 @@ describe("builderURL", () => {
   it("does not append embed query param when it does not exist", () => {
     (window as any).location = new URL("https://example.com");
     const pageURL = builderURL({
-      pageId: ":pageId",
+      pageId: "0123456789abcdef00000000",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
     expect(pageURLObject.searchParams.get("embed")).toBe(null);
@@ -57,7 +57,7 @@ describe("viewerURL", () => {
       },
       [
         {
-          pageId: ":pageId",
+          pageId: "0123456789abcdef00000000",
           pageSlug: ":pageSlug",
         },
       ],
@@ -67,7 +67,7 @@ describe("viewerURL", () => {
   it("persists embed query param", () => {
     (window as any).location = new URL("https://example.com?embed=true");
     const pageURL = viewerURL({
-      pageId: ":pageId",
+      pageId: "0123456789abcdef00000000",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
     expect(pageURLObject.searchParams.get("embed")).toBe("true");
@@ -76,7 +76,7 @@ describe("viewerURL", () => {
   it("does not append embed query param when it does not exist", () => {
     (window as any).location = new URL("https://example.com");
     const pageURL = viewerURL({
-      pageId: ":pageId",
+      pageId: "0123456789abcdef00000000",
     });
     const pageURLObject = new URL(`${window.origin}${pageURL}`);
     expect(pageURLObject.searchParams.get("embed")).toBe(null);

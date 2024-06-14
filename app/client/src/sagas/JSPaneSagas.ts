@@ -101,6 +101,7 @@ import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { setIdeEditorViewMode } from "actions/ideActions";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { updateJSCollectionAPICall } from "@appsmith/sagas/ApiCallerSagas";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -316,8 +317,10 @@ function* updateJSCollection(data: {
     const { deletedActions, jsCollection, newActions } = data;
     if (jsCollection) {
       yield put(jsSaveActionStart({ id: jsCollection.id }));
-      const response: JSCollectionCreateUpdateResponse =
-        yield JSActionAPI.updateJSCollection(jsCollection);
+      const response: JSCollectionCreateUpdateResponse = yield call(
+        updateJSCollectionAPICall,
+        jsCollection,
+      );
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         if (newActions && newActions.length) {
@@ -723,7 +726,8 @@ function* handleUpdateJSFunctionPropertySaga(
       });
       collection.actions = updatedActions;
       const response: ApiResponse<JSCollectionCreateUpdateResponse> =
-        yield JSActionAPI.updateJSCollection(collection);
+        yield call(updateJSCollectionAPICall, collection);
+
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         yield put({
