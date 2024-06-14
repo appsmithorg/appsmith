@@ -14,16 +14,19 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.TenantSpan.FETCH_TENANT_FROM_DB;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
@@ -35,12 +38,15 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelperCE {
     private final ReactiveMongoOperations mongoOperations;
     private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
+    private final ObservationRegistry observationRegistry;
 
     public CacheableRepositoryHelperCEImpl(
             ReactiveMongoOperations mongoOperations,
-            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
+            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper,
+            ObservationRegistry observationRegistry) {
         this.mongoOperations = mongoOperations;
         this.inMemoryCacheableRepositoryHelper = inMemoryCacheableRepositoryHelper;
+        this.observationRegistry = observationRegistry;
     }
 
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
@@ -182,13 +188,17 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         BridgeQuery<Tenant> andCriteria = Bridge.and(defaultTenantCriteria, notDeletedCriteria);
         Query query = new Query();
         query.addCriteria(andCriteria);
-
-        return mongoOperations.findOne(query, Tenant.class).map(tenant -> {
-            if (tenant.getTenantConfiguration() == null) {
-                tenant.setTenantConfiguration(new TenantConfiguration());
-            }
-            return tenant;
-        });
+        log.info("FETCHING TENANT FROM DATABASE AS NOT PRESENT IN CACHE!");
+        return mongoOperations
+                .findOne(query, Tenant.class)
+                .map(tenant -> {
+                    if (tenant.getTenantConfiguration() == null) {
+                        tenant.setTenantConfiguration(new TenantConfiguration());
+                    }
+                    return tenant;
+                })
+                .name(FETCH_TENANT_FROM_DB)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @CacheEvict(cacheName = "tenant", key = "{#tenantId}")
