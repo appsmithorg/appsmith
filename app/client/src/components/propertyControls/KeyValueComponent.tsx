@@ -38,6 +38,15 @@ function updateOptionValue<T>(
     };
   });
 }
+const FlexBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const ErrorMessageBox = styled.div`
+  color: red;
+`;
 
 const StyledBox = styled.div`
   width: 10px;
@@ -69,6 +78,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     SegmentedControlOptionWithKey[]
   >([]);
   const [typing, setTyping] = useState<boolean>(false);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const { pairs } = props;
   useEffect(() => {
     let { pairs } = props;
@@ -84,6 +94,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     );
 
     pairs.length !== 0 && !typing && setRenderPairs(newRenderPairs);
+    validatePairs(newRenderPairs);
   }, [props, pairs.length, renderPairs.length]);
 
   const debouncedUpdatePairs = useCallback(
@@ -105,6 +116,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
     setRenderPairs(updatedRenderPairs);
     debouncedUpdatePairs(updatedPairs);
+    validatePairs(updatedRenderPairs);
   }
 
   function updateValue(index: number, updatedValue: string) {
@@ -119,6 +131,17 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
     setRenderPairs(updatedRenderPairs);
     debouncedUpdatePairs(updatedPairs);
+    validatePairs(updatedRenderPairs);
+  }
+
+  function validatePairs(pairs: SegmentedControlOptionWithKey[]) {
+    const newErrorMessages = pairs.map((pair) => {
+      if (!pair.label && !pair.value) {
+        return "Both Name and Value can't be empty";
+      }
+      return "";
+    });
+    setErrorMessages(newErrorMessages);
   }
 
   function deletePair(index: number, isUpdatedViaKeyboard = false) {
@@ -129,6 +152,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     const newRenderPairs = renderPairs.filter((o, i) => i !== index);
 
     setRenderPairs(newRenderPairs);
+    validatePairs(newRenderPairs);
     props.updatePairs(newPairs, isUpdatedViaKeyboard);
   }
 
@@ -162,6 +186,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     });
 
     setRenderPairs(updatedRenderPairs);
+    validatePairs(updatedRenderPairs);
     props.updatePairs(pairs, e.detail === 0);
   }
 
@@ -177,40 +202,47 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     <>
       {renderPairs.map((pair: SegmentedControlOptionWithKey, index) => {
         return (
-          <ControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
-            <StyledInputGroup
-              dataType={"text"}
-              onBlur={onInputBlur}
-              onChange={(value: string) => {
-                updateKey(index, value);
-              }}
-              onFocus={onInputFocus}
-              placeholder={"Name"}
-              value={pair.label}
-            />
-            <StyledBox />
-            <StyledInputGroup
-              dataType={"text"}
-              onBlur={onInputBlur}
-              onChange={(value: string) => {
-                updateValue(index, value);
-              }}
-              onFocus={onInputFocus}
-              placeholder={"Value"}
-              value={pair.value}
-            />
-            <StyledBox />
-            <Button
-              isIconButton
-              kind="tertiary"
-              onClick={(e: React.MouseEvent) => {
-                deletePair(index, e.detail === 0);
-              }}
-              size="sm"
-              startIcon="delete-bin-line"
-              style={{ width: "50px" }}
-            />
-          </ControlWrapper>
+          <FlexBox>
+            <ControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
+              <StyledInputGroup
+                dataType={"text"}
+                onBlur={onInputBlur}
+                onChange={(value: string) => {
+                  updateKey(index, value);
+                }}
+                onFocus={onInputFocus}
+                placeholder={"Name"}
+                value={pair.label}
+              />
+              <StyledBox />
+              <StyledInputGroup
+                dataType={"text"}
+                onBlur={onInputBlur}
+                onChange={(value: string) => {
+                  updateValue(index, value);
+                }}
+                onFocus={onInputFocus}
+                placeholder={"Value"}
+                value={pair.value}
+              />
+              <StyledBox />
+              <Button
+                isIconButton
+                kind="tertiary"
+                onClick={(e: React.MouseEvent) => {
+                  deletePair(index, e.detail === 0);
+                }}
+                size="sm"
+                startIcon="delete-bin-line"
+                style={{ width: "50px" }}
+              />
+            </ControlWrapper>
+            {errorMessages[index] && (
+              <ErrorMessageBox>
+                {errorMessages[index]}
+              </ErrorMessageBox>
+            )}
+          </FlexBox>
         );
       })}
 
