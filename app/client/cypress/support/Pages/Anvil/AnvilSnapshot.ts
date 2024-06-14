@@ -10,6 +10,7 @@ export class AnvilSnapshot {
     ...ObjectsRegistry.CommonLocators,
     canvas: "[data-testid=t--canvas-artboard]",
     colorMode: "[data-testid=t--anvil-theme-settings-color-mode]",
+    appViewerPage: "[data-testid=t--app-viewer-page]",
   }
 
   public verifyCanvasMode = (widgetName: string) => {
@@ -18,30 +19,38 @@ export class AnvilSnapshot {
     this.setTheme("dark");
 
     cy.get(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}DarkMode`);
+
+    this.setTheme("light");
   }
 
   public verifyPreviewMode = (widgetName: string) => {
-    this.openPreviewMode();
+    this.enterPreviewMode();
 
     cy.get(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}PreviewMode`);
+
+    this.exitPreviewMode();
   }
 
   public verifyDeployMode = (widgetName: string) => {
-    this.deployMode.DeployApp();
+    this.deployMode.DeployApp(this.locators.appViewerPage);
 
-    this.verifyForDifferentDevices(widgetName, ["ipad-2", "iphone-6", "macbook-13"]);
+    this.verifyForDifferentDevices(widgetName, ["macbook-13", "iphone-6", "ipad-2"]);
   }
 
   private verifyForDifferentDevices = (widgetName: string, devices: Cypress.ViewportPreset[]) => {
     devices.forEach(device => {
       cy.viewport(device);
 
-      cy.get(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}${device}`);
+      cy.get(this.locators.appViewerPage).matchImageSnapshot(`anvil${widgetName}${device}`);
     });
   }
 
-  private openPreviewMode = () => {
+  private enterPreviewMode = (shouldOpen = true) => {
     this.agHelper.GetNClick(this.locators._enterPreviewMode);
+  }
+
+  private exitPreviewMode = () => {
+    this.agHelper.GetNClick(this.locators._exitPreviewMode);
   }
 
   private setTheme = (theme: "light" | "dark") => {
