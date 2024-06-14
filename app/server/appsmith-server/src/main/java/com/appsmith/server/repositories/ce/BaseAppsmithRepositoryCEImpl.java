@@ -3,6 +3,8 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.helpers.JsonForDatabase;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -18,6 +20,23 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
+import jakarta.persistence.Transient;
+import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
+import jakarta.transaction.Transactional;
+import lombok.Getter;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -100,6 +119,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     @Autowired
     private CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public static final int NO_RECORD_LIMIT = -1;
 
