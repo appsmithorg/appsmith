@@ -276,6 +276,10 @@ interface ImportBuildingBlockOnPageActions extends BaseAction {
 export interface ImportBuildingBlockToApplicationResponse {
   widgetDsl: string;
   onPageLoadActions: ImportBuildingBlockOnPageActions[];
+  newActionList: any[];
+  actionCollectionList: any[];
+  datasourceList: any[];
+  customJSLibList: any[];
 }
 
 export class ApplicationApi extends Api {
