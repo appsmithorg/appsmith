@@ -3,7 +3,6 @@ import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import type {
   AppEmbedSetting,
   ApplicationPagePayload,
-  EvaluationVersion,
   GitApplicationMetadata,
 } from "@appsmith/api/ApplicationApi";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
@@ -17,6 +16,7 @@ import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { LayoutSystemTypeConfig } from "layoutSystems/types";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
+import type { EvaluationVersion } from "constants/EvalConstants";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -131,8 +131,8 @@ const ActionTypes = {
   GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT: "GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT",
   GIT_TOGGLE_AUTOCOMMIT_ENABLED_SUCCESS:
     "GIT_TOGGLE_AUTOCOMMIT_ENABLED_SUCCESS",
-  GIT_AUTOCOMMIT_INITIATE_PROGRESS_POLLING:
-    "GIT_AUTOCOMMIT_INITIATE_PROGRESS_POLLING",
+  GIT_AUTOCOMMIT_TRIGGER_INIT: "GIT_AUTOCOMMIT_TRIGGER_INIT",
+  GIT_AUTOCOMMIT_TRIGGER_SUCCESS: "GIT_AUTOCOMMIT_TRIGGER_SUCCESS",
   GIT_AUTOCOMMIT_START_PROGRESS_POLLING:
     "GIT_AUTOCOMMIT_START_PROGRESS_POLLING",
   GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING: "GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING",
@@ -962,6 +962,7 @@ export const ReduxActionErrorTypes = {
   GIT_TOGGLE_AUTOCOMMIT_ENABLED_ERROR: "GIT_TOGGLE_AUTOCOMMIT_ENABLED_ERROR",
   GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR:
     "GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR",
+  GIT_AUTOCOMMIT_TRIGGER_ERROR: "GIT_AUTOCOMMIT_TRIGGER_ERROR",
   GIT_GET_METADATA_ERROR: "GIT_GET_METADATA_ERROR",
   FETCH_FEATURE_FLAGS_ERROR: "FETCH_FEATURE_FLAGS_ERROR",
   FETCH_NOTIFICATIONS_ERROR: "FETCH_NOTIFICATIONS_ERROR",

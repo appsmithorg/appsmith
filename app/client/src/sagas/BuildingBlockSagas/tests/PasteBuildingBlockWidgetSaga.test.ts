@@ -5,7 +5,7 @@ import type {
   SelectEffect,
 } from "redux-saga/effects";
 import { call, select } from "redux-saga/effects";
-import { pasteBuildingBlockWidgetsSaga } from "./BuildingBlockAdditionSagas";
+import { pasteBuildingBlockWidgetsSaga } from "../BuildingBlockAdditionSagas";
 import { getCopiedWidgets } from "utils/storage";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import { getWidgets } from "sagas/selectors";
@@ -21,7 +21,7 @@ import {
   copiedWidgets,
   leftMostWidget,
   topMostWidget,
-} from "./pasteWidgetAddition.fixture";
+} from "../pasteWidgetAddition.fixture";
 import type { NewPastePositionVariables } from "sagas/WidgetOperationUtils";
 
 // Mock data for testing
@@ -130,7 +130,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
 
     // Step 7: mock the entire copied widget handling logic
     for (let i = 0; i < newWidgetList.length; i++) {
-      result = generator.next({ pageId: "pageId" });
+      result = generator.next("0123456789abcdef00000000");
     }
 
     result = generator.next();

@@ -128,7 +128,7 @@ Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", (isOAuth2) => {
   } else {
     cy.get(datasource.useCertInAuth).should("not.exist");
   }
-  cy.togglebarDisable(datasource.useSelfSignedCert);
+  agHelper.CheckUncheck(datasource.useSelfSignedCert, false);
 });
 
 Cypress.Commands.add("addBasicProfileDetails", (username, password) => {
