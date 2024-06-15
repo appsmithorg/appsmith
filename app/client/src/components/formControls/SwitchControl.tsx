@@ -38,6 +38,7 @@ export class SwitchField extends React.Component<SwitchFieldProps, any> {
       <SwitchWrapped data-testid={this.props.input.name}>
         {/* TODO: refactor so that the label of the field props is also passed down and a part of Switch.*/}
         <Switch
+          aria-label={this.props.label}
           className="switch-control"
           isDisabled={this.props.disabled}
           isSelected={this.value}
