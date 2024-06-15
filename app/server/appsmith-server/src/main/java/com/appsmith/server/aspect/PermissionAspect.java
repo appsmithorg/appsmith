@@ -11,6 +11,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 import static com.appsmith.server.helpers.UserPermissionUtils.updateAclWithUserContext;
 
@@ -23,8 +24,14 @@ public class PermissionAspect {
     public Object handlePermission(ProceedingJoinPoint joinPoint) throws Throwable {
 
         AclPermission permissionWithoutUserContext = Arrays.stream(joinPoint.getArgs())
-                .filter(arg -> arg instanceof AclPermission)
-                .map(arg -> (AclPermission) arg)
+                .filter(arg -> arg instanceof AclPermission
+                        || (arg instanceof Optional && ((Optional<?>) arg).orElse(null) instanceof AclPermission))
+                .map(arg -> {
+                    if (arg instanceof AclPermission) {
+                        return (AclPermission) arg;
+                    }
+                    return (AclPermission) ((Optional<?>) arg).orElse(null);
+                })
                 // We expect only one permission object to be passed to the repository methods.
                 .findFirst()
                 .orElse(null);
