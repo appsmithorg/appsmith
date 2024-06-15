@@ -39,6 +39,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -281,7 +282,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                     return Mono.just(createdAction);
                 })
-                .flatMap(repository::setUserPermissionsInObject)
+                .zipWith(ReactiveContextUtils.getCurrentUser())
+                .flatMap(tuple -> repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                 .flatMap(this::setTransientFieldsInUnpublishedAction);
     }
 
@@ -579,7 +581,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 action != null ? action.getId() : null,
                 id);
 
-        return updateUnpublishedActionWithoutAnalytics(id, action, Optional.of(actionPermission.getEditPermission()))
+        return updateUnpublishedActionWithoutAnalytics(id, action, actionPermission.getEditPermission())
                 .zipWhen(zippedActions -> {
                     ActionDTO updatedActionDTO = zippedActions.getT1();
                     if (updatedActionDTO.getDatasource() != null
@@ -626,7 +628,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      */
     @Override
     public Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
-            String id, ActionDTO action, Optional<AclPermission> permission) {
+            String id, ActionDTO action, AclPermission permission) {
         log.debug(
                 "Updating unpublished action without analytics with action id: {} ",
                 action != null ? action.getId() : null);
@@ -736,11 +738,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> permission) {
-        return repository.findByPageId(pageId, permission).flatMap(this::sanitizeAction);
-    }
-
-    @Override
     public Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission) {
         return repository.findByPageIdAndViewMode(pageId, viewMode, permission).flatMap(this::sanitizeAction);
     }
@@ -771,7 +768,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Flux<NewAction> findAllByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort) {
         return repository
-                .findByApplicationId(applicationId, permission, sort)
+                .findByApplicationId(applicationId, permission.orElse(null), sort)
                 // In case of view mode being true, filter out all the actions which haven't been published
                 .flatMap(action -> {
                     if (Boolean.TRUE.equals(viewMode)) {
@@ -848,12 +845,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
-        return deleteUnpublishedActionWithOptionalPermission(id, Optional.of(actionPermission.getDeletePermission()));
+        return deleteUnpublishedAction(id, actionPermission.getDeletePermission());
     }
 
-    @Override
-    public Mono<ActionDTO> deleteUnpublishedActionWithOptionalPermission(
-            String id, Optional<AclPermission> newActionDeletePermission) {
+    public Mono<ActionDTO> deleteUnpublishedAction(String id, AclPermission newActionDeletePermission) {
         Mono<NewAction> actionMono = repository
                 .findById(id, newActionDeletePermission)
                 .switchIfEmpty(
@@ -1710,14 +1705,13 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Flux<NewAction> findByPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
-        return repository.findByPageIds(unpublishedPages, optionalPermission);
+    public Flux<NewAction> findByPageIds(List<String> unpublishedPages, AclPermission permission) {
+        return repository.findByPageIds(unpublishedPages, permission);
     }
 
     @Override
-    public Flux<NewAction> findByPageIdsForExport(
-            List<String> unpublishedPages, Optional<AclPermission> optionalPermission) {
-        return repository.findByPageIds(unpublishedPages, optionalPermission).doOnNext(newAction -> {
+    public Flux<NewAction> findByPageIdsForExport(List<String> unpublishedPages, AclPermission permission) {
+        return repository.findByPageIds(unpublishedPages, permission).doOnNext(newAction -> {
             this.setCommonFieldsFromNewActionIntoAction(newAction, newAction.getUnpublishedAction());
             this.setCommonFieldsFromNewActionIntoAction(newAction, newAction.getPublishedAction());
         });

@@ -37,12 +37,14 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitUtils;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.projections.IdPoliciesOnly;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -909,12 +911,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * @return
      */
     @Override
-    public Mono<PageDTO> deleteUnpublishedPageWithOptionalPermission(
+    public Mono<PageDTO> deleteUnpublishedPage(
             String id,
-            Optional<AclPermission> deletePagePermission,
-            Optional<AclPermission> readApplicationPermission,
-            Optional<AclPermission> deleteCollectionPermission,
-            Optional<AclPermission> deleteActionPermission) {
+            AclPermission deletePagePermission,
+            AclPermission readApplicationPermission,
+            AclPermission deleteCollectionPermission,
+            AclPermission deleteActionPermission) {
         return deleteUnpublishedPageEx(
                 id,
                 deletePagePermission,
@@ -926,10 +928,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<PageDTO> deleteUnpublishedPage(String id) {
 
-        Optional<AclPermission> deletePagePermission = Optional.of(pagePermission.getDeletePermission());
-        Optional<AclPermission> readApplicationPermission = Optional.of(applicationPermission.getReadPermission());
-        Optional<AclPermission> deleteCollectionPermission = Optional.of(actionPermission.getDeletePermission());
-        Optional<AclPermission> deleteActionPermission = Optional.of(actionPermission.getDeletePermission());
+        AclPermission deletePagePermission = pagePermission.getDeletePermission();
+        AclPermission readApplicationPermission = applicationPermission.getReadPermission();
+        AclPermission deleteCollectionPermission = actionPermission.getDeletePermission();
+        AclPermission deleteActionPermission = actionPermission.getDeletePermission();
         return deleteUnpublishedPageEx(
                 id,
                 deletePagePermission,
@@ -955,10 +957,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      */
     private Mono<PageDTO> deleteUnpublishedPageEx(
             String id,
-            Optional<AclPermission> deletePagePermission,
-            Optional<AclPermission> readApplicationPermission,
-            Optional<AclPermission> deleteCollectionPermission,
-            Optional<AclPermission> deleteActionPermission) {
+            AclPermission deletePagePermission,
+            AclPermission readApplicationPermission,
+            AclPermission deleteCollectionPermission,
+            AclPermission deleteActionPermission) {
 
         return newPageService
                 .findById(id, deletePagePermission)
@@ -969,7 +971,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     // Application is accessed without any application permission over here.
                     // previously it was getting accessed only with read permission.
                     Mono<Application> applicationMono = applicationService
-                            .findById(page.getApplicationId(), readApplicationPermission.orElse(null))
+                            .findById(page.getApplicationId(), readApplicationPermission)
                             .switchIfEmpty(Mono.error(
                                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                             .flatMap(application -> {
@@ -1008,8 +1010,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                     newAction.getUnpublishedAction().getCollectionId()))
                             .flatMap(action -> {
                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
-                                return newActionService.deleteUnpublishedActionWithOptionalPermission(
-                                        action.getId(), deleteActionPermission);
+                                return newActionService.deleteUnpublishedAction(action.getId(), deleteActionPermission);
                             })
                             .collectList();
 
@@ -1449,6 +1450,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private Mono<Boolean> validateAllObjectsForPermissions(
             Mono<Application> applicationMono, AppsmithError expectedError) {
+        Mono<User> currentUserMono = ReactiveContextUtils.getCurrentUser().cache();
         Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
@@ -1457,7 +1459,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newPage.setPolicies(idPoliciesOnly.getPolicies());
                     return newPage;
                 })
-                .flatMap(newPageRepository::setUserPermissionsInObject));
+                .zipWith(currentUserMono)
+                .flatMap(tuple -> newPageRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
         Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
@@ -1466,7 +1469,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newAction.setPolicies(idPoliciesOnly.getPolicies());
                     return newAction;
                 })
-                .flatMap(newActionRepository::setUserPermissionsInObject));
+                .zipWith(currentUserMono)
+                .flatMap(tuple -> newActionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
         Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
@@ -1475,7 +1479,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     actionCollection.setPolicies(idPoliciesOnly.getPolicies());
                     return actionCollection;
                 })
-                .flatMap(actionCollectionRepository::setUserPermissionsInObject));
+                .zipWith(currentUserMono)
+                .flatMap(tuple -> actionCollectionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
 
         Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
                 pageFlux,
@@ -1519,11 +1524,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .flatMapMany(datasourceIds -> datasourceRepository
                         .findIdsAndPoliciesByIdIn(datasourceIds)
-                        .flatMap(idPolicy -> {
+                        .zipWith(ReactiveContextUtils.getCurrentUser())
+                        .flatMap(tuple2 -> {
+                            IdPoliciesOnly idPolicy = tuple2.getT1();
+                            User user = tuple2.getT2();
+                            ;
                             Datasource datasource = new Datasource();
                             datasource.setId(idPolicy.getId());
                             datasource.setPolicies(idPolicy.getPolicies());
-                            return datasourceRepository.setUserPermissionsInObject(datasource);
+                            return datasourceRepository.setUserPermissionsInObject(datasource, user);
                         }));
 
         return UserPermissionUtils.validateDomainObjectPermissionsOrError(

@@ -16,8 +16,10 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PageUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -124,11 +126,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission) {
-        return repository.findById(pageId, aclPermission);
-    }
-
-    @Override
     public Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view) {
         return findNewPagesByApplicationId(applicationId, permission).flatMap(page -> getPageByViewMode(page, view));
     }
@@ -182,7 +179,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     }
                     return Mono.just(savedPage);
                 })
-                .flatMap(repository::setUserPermissionsInObject)
+                .zipWith(ReactiveContextUtils.getCurrentUser())
+                .flatMap(tuple -> repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                 .flatMap(page -> getPageByViewMode(page, false));
     }
 
@@ -522,12 +520,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> archiveWithoutPermissionById(String id) {
-        return archiveByIdEx(id, Optional.empty());
+        return archiveByIdEx(id, null);
     }
 
     @Override
     public Mono<NewPage> archiveById(String id) {
-        return archiveByIdEx(id, Optional.of(pagePermission.getDeletePermission()));
+        return archiveByIdEx(id, pagePermission.getDeletePermission());
     }
 
     @Override
@@ -535,7 +533,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return repository.archiveAllById(idList);
     }
 
-    public Mono<NewPage> archiveByIdEx(String id, Optional<AclPermission> permission) {
+    public Mono<NewPage> archiveByIdEx(String id, AclPermission permission) {
         Mono<NewPage> pageMono = this.findById(id, permission)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
@@ -596,12 +594,13 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            getPageMono = repository
-                    .queryBuilder()
-                    .byId(defaultPageId)
-                    .fields(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES)
-                    .permission(pagePermission.getReadPermission())
-                    .one();
+            getPageMono = UserPermissionUtils.updateAclWithUserContext(pagePermission.getReadPermission())
+                    .flatMap(permission -> repository
+                            .queryBuilder()
+                            .byId(defaultPageId)
+                            .fields(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES)
+                            .permission(permission)
+                            .one());
         } else {
             getPageMono = repository.findPageByBranchNameAndDefaultPageId(
                     branchName, defaultPageId, pagePermission.getReadPermission());

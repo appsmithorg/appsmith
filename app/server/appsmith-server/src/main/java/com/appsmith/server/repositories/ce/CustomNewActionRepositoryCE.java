@@ -21,8 +21,6 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission);
 
-    Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission);
-
     Flux<NewAction> findByPageId(String pageId);
 
     Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission);
@@ -37,8 +35,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
 
-    Flux<NewAction> findByApplicationId(
-            String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort);
+    Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Optional<Sort> sort);
 
     Flux<NewAction> findByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission);
 
@@ -47,11 +44,9 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Mono<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, Boolean viewMode, AclPermission permission);
 
-    Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
+    Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
     Flux<NewAction> findByPageIds(List<String> pageIds, AclPermission permission);
-
-    Flux<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
 
     Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission);

@@ -30,7 +30,7 @@ public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<Pe
     Flux<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission);
 
-    Mono<Set<String>> getCurrentUserPermissionGroups();
+    Mono<Set<String>> getPermissionGroupsForUser(User user);
 
     Mono<Set<String>> getAllPermissionGroupsIdsForUser(User user);
 }

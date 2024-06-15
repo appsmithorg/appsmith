@@ -26,6 +26,7 @@ import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -56,7 +57,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -298,21 +298,23 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     }
 
     private Mono<ImportArtifactPermissionProvider> getImportApplicationPermissions() {
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportArtifactPermissionProvider permissionProvider = ImportArtifactPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
-                    .requiredPermissionOnTargetArtifact(applicationPermission.getEditPermission())
-                    .permissionRequiredToCreateDatasource(true)
-                    .permissionRequiredToEditDatasource(true)
-                    .currentUserPermissionGroups(userPermissionGroups)
-                    .build();
-            return Mono.just(permissionProvider);
-        });
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
+                .flatMap(userPermissionGroups -> {
+                    ImportArtifactPermissionProvider permissionProvider = ImportArtifactPermissionProvider.builder(
+                                    applicationPermission,
+                                    pagePermission,
+                                    actionPermission,
+                                    datasourcePermission,
+                                    workspacePermission)
+                            .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
+                            .requiredPermissionOnTargetArtifact(applicationPermission.getEditPermission())
+                            .permissionRequiredToCreateDatasource(true)
+                            .permissionRequiredToEditDatasource(true)
+                            .currentUserPermissionGroups(userPermissionGroups)
+                            .build();
+                    return Mono.just(permissionProvider);
+                });
     }
 
     private Mono<Void> getApplicationImportableEntities(
@@ -371,7 +373,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
             ApplicationJson applicationJson,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         return branchedPageIdMono.flatMap(
-                pageId -> newPageService.findById(pageId, Optional.empty()).flatMap(newPage -> {
+                pageId -> newPageService.findById(pageId, null).flatMap(newPage -> {
                     String pageName = newPage.getUnpublishedPage().getName();
                     // update page name reference with newPage
                     Map<String, NewPage> pageNameMap = new HashMap<>();

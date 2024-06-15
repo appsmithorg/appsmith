@@ -65,7 +65,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -282,7 +281,7 @@ public class PartialImportServiceTest {
                 .block();
 
         String pageId = newPageService
-                .findById(testApplication.getPages().get(0).getId(), Optional.empty())
+                .findById(testApplication.getPages().get(0).getId(), null)
                 .block()
                 .getId();
 
@@ -291,9 +290,8 @@ public class PartialImportServiceTest {
         Mono<Tuple3<Application, List<NewAction>, List<ActionCollection>>> result = partialImportService
                 .importResourceInPage(workspaceId, testApplication.getId(), pageId, null, filePart)
                 .flatMap(application -> {
-                    Mono<List<NewAction>> actionList = newActionService
-                            .findByPageId(pageId, Optional.empty())
-                            .collectList();
+                    Mono<List<NewAction>> actionList =
+                            newActionService.findByPageId(pageId).collectList();
                     Mono<List<ActionCollection>> actionCollectionList =
                             actionCollectionService.findByPageId(pageId).collectList();
 
@@ -350,7 +348,7 @@ public class PartialImportServiceTest {
                 .importResourceInPage(workspaceId, application.getId(), savedPage.getId(), "master", filePart)
                 .flatMap(application1 -> {
                     Mono<List<NewAction>> actionList = newActionService
-                            .findByPageId(finalSavedPage.getId(), Optional.empty())
+                            .findByPageId(finalSavedPage.getId())
                             .collectList();
                     Mono<List<ActionCollection>> actionCollectionList = actionCollectionService
                             .findByPageId(finalSavedPage.getId())
@@ -400,7 +398,7 @@ public class PartialImportServiceTest {
                 .block();
 
         String pageId = newPageService
-                .findById(testApplication.getPages().get(0).getId(), Optional.empty())
+                .findById(testApplication.getPages().get(0).getId(), null)
                 .block()
                 .getId();
 
@@ -411,9 +409,8 @@ public class PartialImportServiceTest {
                 .then(partialImportService.importResourceInPage(
                         workspaceId, testApplication.getId(), pageId, null, filePart))
                 .flatMap(application -> {
-                    Mono<List<NewAction>> actionList = newActionService
-                            .findByPageId(pageId, Optional.empty())
-                            .collectList();
+                    Mono<List<NewAction>> actionList =
+                            newActionService.findByPageId(pageId).collectList();
                     Mono<List<ActionCollection>> actionCollectionList =
                             actionCollectionService.findByPageId(pageId).collectList();
 
@@ -481,7 +478,7 @@ public class PartialImportServiceTest {
                 .block();
 
         String pageId = newPageService
-                .findById(testApplication.getPages().get(0).getId(), Optional.empty())
+                .findById(testApplication.getPages().get(0).getId(), null)
                 .block()
                 .getId();
         BuildingBlockDTO buildingBlockDTO = new BuildingBlockDTO();
@@ -503,9 +500,7 @@ public class PartialImportServiceTest {
                     return Mono.zip(
                             Mono.just(buildingBlockResponseDTO),
                             actionCollectionService.findByPageId(pageId).collectList(),
-                            newActionService
-                                    .findByPageId(pageId, Optional.empty())
-                                    .collectList());
+                            newActionService.findByPageId(pageId).collectList());
                 });
 
         StepVerifier.create(result)

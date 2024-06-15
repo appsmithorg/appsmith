@@ -21,6 +21,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.helpers.ImportExportUtils;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
@@ -175,8 +176,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
         ArtifactBasedImportService<?, ?, ?> contextBasedImportService =
                 getArtifactBasedImportService(artifactExchangeJson);
-        return permissionGroupRepository
-                .getCurrentUserPermissionGroups()
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                 .zipWhen(userPermissionGroup -> {
                     return Mono.just(contextBasedImportService.getImportArtifactPermissionProviderForImportingArtifact(
                             userPermissionGroup));
@@ -225,8 +226,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
             } else {
                 contextBasedImportService.setJsonArtifactNameToNullBeforeUpdate(artifactId, artifactExchangeJson);
-                return permissionGroupRepository
-                        .getCurrentUserPermissionGroups()
+                return ReactiveContextUtils.getCurrentUser()
+                        .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                         .zipWhen(userPermissionGroup -> {
                             return Mono.just(
                                     contextBasedImportService.getImportArtifactPermissionProviderForUpdatingArtifact(
@@ -273,8 +274,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
         ArtifactBasedImportService<?, ?, ?> artifactBasedImportService =
                 getArtifactBasedImportService(artifactExchangeJson);
-        return permissionGroupRepository
-                .getCurrentUserPermissionGroups()
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                 .zipWhen(userPermissionGroups -> {
                     return Mono.just(artifactBasedImportService.getImportArtifactPermissionProviderForConnectingToGit(
                             userPermissionGroups));
@@ -303,8 +304,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
          */
         ArtifactBasedImportService<?, ?, ?> contextBasedImportService =
                 getArtifactBasedImportService(artifactExchangeJson);
-        return permissionGroupRepository
-                .getCurrentUserPermissionGroups()
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                 .zipWhen(userPermissionGroups -> {
                     return Mono.just(contextBasedImportService.getImportArtifactPermissionProviderForRestoringSnapshot(
                             userPermissionGroups));
@@ -348,8 +349,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 getArtifactBasedImportService(artifactExchangeJson);
         contextBasedImportService.updateArtifactExchangeJsonWithEntitiesToBeConsumed(
                 artifactExchangeJson, entitiesToImport);
-        return permissionGroupRepository
-                .getCurrentUserPermissionGroups()
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                 .zipWhen(userPermissionGroups -> {
                     return Mono.just(
                             contextBasedImportService.getImportArtifactPermissionProviderForMergingJsonWithArtifact(

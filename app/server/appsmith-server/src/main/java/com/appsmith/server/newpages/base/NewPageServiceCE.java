@@ -23,8 +23,6 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<NewPage> findById(String pageId, AclPermission aclPermission);
 
-    Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission);
-
     Mono<PageDTO> findPageById(String pageId, AclPermission aclPermission, Boolean view);
 
     Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view);

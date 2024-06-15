@@ -48,7 +48,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Mono<ActionDTO> updateUnpublishedAction(String id, ActionDTO action);
 
     Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
-            String id, ActionDTO action, Optional<AclPermission> permission);
+            String id, ActionDTO action, AclPermission permission);
 
     Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission);
 
@@ -66,8 +66,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<NewAction> findByPageId(String pageId, AclPermission permission);
 
-    Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> permission);
-
     Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission);
 
     Flux<NewAction> findAllByApplicationIdAndViewMode(
@@ -84,8 +82,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
-    Mono<ActionDTO> deleteUnpublishedActionWithOptionalPermission(
-            String id, Optional<AclPermission> newActionDeletePermission);
+    Mono<ActionDTO> deleteUnpublishedAction(String id, AclPermission newActionDeletePermission);
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, Boolean includeJsActions);
 
@@ -150,9 +147,9 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 
-    Flux<NewAction> findByPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+    Flux<NewAction> findByPageIds(List<String> unpublishedPages, AclPermission permission);
 
-    Flux<NewAction> findByPageIdsForExport(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+    Flux<NewAction> findByPageIdsForExport(List<String> unpublishedPages, AclPermission permission);
 
     Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
             String contextId,

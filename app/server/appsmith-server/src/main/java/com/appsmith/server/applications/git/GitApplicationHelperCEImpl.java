@@ -40,7 +40,6 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds;
 
@@ -255,7 +254,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
         // Update all the resources to replace defaultResource Ids with the resource Ids as branchName
         // will be deleted
         Flux<NewPage> newPageFlux = Flux.fromIterable(defaultApplication.getPages())
-                .flatMap(page -> newPageService.findById(page.getId(), Optional.empty()))
+                .flatMap(page -> newPageService.findById(page.getId(), null))
                 .map(newPage -> {
                     newPage.setDefaultResources(null);
                     return createDefaultIdsOrUpdateWithGivenResourceIds(newPage, null);
@@ -266,7 +265,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
 
         Flux<NewAction> newActionFlux = newPageFlux.flatMap(newPage -> {
             return newActionService
-                    .findByPageId(newPage.getId(), Optional.empty())
+                    .findByPageId(newPage.getId())
                     .map(newAction -> {
                         newAction.setDefaultResources(null);
                         if (newAction.getUnpublishedAction() != null) {

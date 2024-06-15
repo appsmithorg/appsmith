@@ -29,6 +29,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.fork.forkable.ForkableService;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.imports.internal.ImportService;
@@ -192,7 +193,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     return createForkedPageMono.flatMap(savedPage -> {
                         clonedPages.add(savedPage);
                         Flux<NewAction> sourceActionFlux = newActionService
-                                .findByPageIdsForExport(List.of(templatePageId), Optional.empty())
+                                .findByPageIdsForExport(List.of(templatePageId), null)
                                 .cache();
 
                         forkingSourceToForkableActionsFluxMap.put(sourceMetaForPage, sourceActionFlux);
@@ -598,6 +599,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
                     .cache();
 
+            Mono<User> currentUserMono = ReactiveContextUtils.getCurrentUser();
             // Normal Application forking with developer/edit access
             Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
                     .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
@@ -607,7 +609,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         newPage.setPolicies(idPoliciesOnly.getPolicies());
                         return newPage;
                     })
-                    .flatMap(newPageRepository::setUserPermissionsInObject));
+                    .zipWith(currentUserMono)
+                    .flatMap(tuple -> newPageRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
 
             Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
                     .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
@@ -617,16 +620,20 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         newAction.setPolicies(idPoliciesOnly.getPolicies());
                         return newAction;
                     })
-                    .flatMap(newActionRepository::setUserPermissionsInObject));
+                    .zipWith(currentUserMono)
+                    .flatMap(tuple -> newActionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
 
             Flux<BaseDomain> actionCollectionFlux =
                     applicationMono.flatMapMany(application -> actionCollectionRepository
                             .findByApplicationId(application.getId(), Optional.empty(), Optional.empty())
-                            .flatMap(actionCollectionRepository::setUserPermissionsInObject));
+                            .zipWith(currentUserMono)
+                            .flatMap(tuple -> actionCollectionRepository.setUserPermissionsInObject(
+                                    tuple.getT1(), tuple.getT2())));
 
             Flux<BaseDomain> workspaceFlux = Flux.from(workspaceRepository
                     .findById(targetWorkspaceId)
-                    .flatMap(workspaceRepository::setUserPermissionsInObject));
+                    .zipWith(currentUserMono)
+                    .flatMap(tuple -> workspaceRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
 
             Mono<Set<String>> permissionGroupIdsMono =
                     permissionGroupService.getSessionUserPermissionGroupIds().cache();

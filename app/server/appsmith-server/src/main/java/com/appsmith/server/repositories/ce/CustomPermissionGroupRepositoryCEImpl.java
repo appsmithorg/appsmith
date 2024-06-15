@@ -72,8 +72,8 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public Mono<Set<String>> getCurrentUserPermissionGroups() {
-        return super.getCurrentUserPermissionGroups();
+    public Mono<Set<String>> getPermissionGroupsForUser(User user) {
+        return super.getPermissionGroupsForUser(user);
     }
 
     @Override

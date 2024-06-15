@@ -13,6 +13,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -174,8 +175,10 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     public Mono<Tenant> getDefaultTenant() {
         // Fetching Tenant from redis cache
         return getDefaultTenantId()
-                .flatMap(tenantId -> cacheableRepositoryHelper.fetchDefaultTenant(tenantId))
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)))
+                .flatMap(cacheableRepositoryHelper::fetchDefaultTenant)
+                .flatMap(tenant -> ReactiveContextUtils.getCurrentUser()
+                        .flatMap(user -> repository.setUserPermissionsInObject(tenant, user))
+                        .switchIfEmpty(Mono.just(tenant)))
                 .onErrorResume(e -> {
                     log.error("Error fetching default tenant from redis!", e);
                     // If there is an error fetching the tenant from the cache, then evict the cache and fetching from
@@ -191,8 +194,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                                 }
                                 return tenant;
                             }))
-                            .flatMap(tenant -> repository
-                                    .setUserPermissionsInObject(tenant)
+                            .flatMap(tenant -> ReactiveContextUtils.getCurrentUser()
+                                    .flatMap(user -> repository.setUserPermissionsInObject(tenant, user))
                                     .switchIfEmpty(Mono.just(tenant)));
                 });
     }

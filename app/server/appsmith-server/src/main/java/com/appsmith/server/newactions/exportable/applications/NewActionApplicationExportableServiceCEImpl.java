@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
 import java.util.List;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -26,7 +25,7 @@ public class NewActionApplicationExportableServiceCEImpl extends ApplicationExpo
 
     @Override
     public Flux<NewAction> findByContextIdsForExport(List<String> contextIds, AclPermission permission) {
-        return newActionService.findByPageIdsForExport(contextIds, Optional.ofNullable(permission));
+        return newActionService.findByPageIdsForExport(contextIds, null);
     }
 
     @Override

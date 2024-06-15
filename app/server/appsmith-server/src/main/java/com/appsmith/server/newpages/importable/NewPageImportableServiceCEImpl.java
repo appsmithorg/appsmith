@@ -359,12 +359,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         // This does not apply to the traditional import via file approach
                         return Flux.fromIterable(invalidPageIds)
                                 .flatMap(pageId -> {
-                                    return applicationPageService.deleteUnpublishedPageWithOptionalPermission(
-                                            pageId,
-                                            Optional.empty(),
-                                            Optional.empty(),
-                                            Optional.empty(),
-                                            Optional.empty());
+                                    return applicationPageService.deleteUnpublishedPage(pageId, null, null, null, null);
                                 })
                                 .flatMap(page -> newPageService
                                         .archiveWithoutPermissionById(page.getId())

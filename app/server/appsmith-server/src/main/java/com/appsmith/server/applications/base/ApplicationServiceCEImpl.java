@@ -29,6 +29,7 @@ import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -813,15 +814,15 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             String defaultApplicationId,
             List<String> projectionFieldNames,
             AclPermission aclPermission) {
-        if (StringUtils.isEmpty(branchName)) {
-            return repository
+        if (!StringUtils.hasLength(branchName)) {
+            return UserPermissionUtils.updateAclWithUserContext(aclPermission).flatMap(permission -> repository
                     .queryBuilder()
                     .byId(defaultApplicationId)
                     .fields(projectionFieldNames)
-                    .permission(aclPermission)
+                    .permission(permission)
                     .one()
                     .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));
+                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))));
         }
         return repository
                 .getApplicationByGitBranchAndDefaultApplicationId(
