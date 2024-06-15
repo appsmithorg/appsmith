@@ -1,0 +1,12 @@
+.label {
+  display: flex;
+  align-items: center;
+  height: var(--sizing-3);
+  margin-block-end: var(--inner-spacing-3);
+  gap: var(--inner-spacing-1);
+}
+
+.necessityIndicator {
+  color: var(--color-fg-negative);
+  margin-inline-start: var(--inner-spacing-1);
+}

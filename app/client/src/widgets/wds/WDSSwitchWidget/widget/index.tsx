@@ -96,11 +96,10 @@ class WDSSwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
       <Switch
         id={this.props.widgetId}
         isDisabled={this.props.isDisabled}
-        isSelected={!!this.props.isSwitchedOn}
+        isInvalid={this.props.isValid === "invalid"}
         key={this.props.widgetId}
         labelPosition={this.props.labelPosition}
         onChange={this.onChange}
-        validationState={this.props.isValid ? "valid" : "invalid"}
       >
         {this.props.label}
       </Switch>

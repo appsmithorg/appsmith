@@ -119,10 +119,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         // Set policies to null in the update object
         resource.setPolicies(null);
 
-        return queryBuilder()
-                .byId(id)
-                .permission(permission)
-                .updateFirstAndFind(buildUpdateFromSparseResource(resource));
+        final QueryAllParams<T> q = queryBuilder().byId(id).permission(permission);
+
+        return q.updateFirst(buildUpdateFromSparseResource(resource)).then(Mono.defer(q::one));
     }
 
     public Mono<Integer> updateByIdWithoutPermissionCheck(@NonNull String id, BridgeUpdate update) {
@@ -345,19 +344,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
             }
         }));
-    }
-
-    public Mono<T> updateExecuteAndFind(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
-        if (QueryAllParams.Scope.ALL.equals(params.getScope())) {
-            // Not implemented yet, since not needed yet.
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
-
-        } else if (QueryAllParams.Scope.FIRST.equals(params.getScope())) {
-            return updateExecute(params, update).then(Mono.defer(() -> queryOneExecute(params)));
-
-        } else {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
-        }
     }
 
     public BridgeUpdate buildUpdateFromSparseResource(T resource) {

@@ -11038,6 +11038,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/node-fetch@npm:^2.6.11":
+  version: 2.6.11
+  resolution: "@types/node-fetch@npm:2.6.11"
+  dependencies:
+    "@types/node": "*"
+    form-data: ^4.0.0
+  checksum: 180e4d44c432839bdf8a25251ef8c47d51e37355ddd78c64695225de8bc5dc2b50b7bb855956d471c026bb84bd7295688a0960085e7158cbbba803053492568b
+  languageName: node
+  linkType: hard
+
 "@types/node-forge@npm:^0.10.0":
   version: 0.10.0
   resolution: "@types/node-forge@npm:0.10.0"
@@ -13131,6 +13141,7 @@ __metadata:
     "@types/moment-timezone": ^0.5.10
     "@types/nanoid": ^2.0.0
     "@types/node": ^10.12.18
+    "@types/node-fetch": ^2.6.11
     "@types/node-forge": ^0.10.0
     "@types/object-hash": ^2.2.1
     "@types/pg": ^8.10.2
