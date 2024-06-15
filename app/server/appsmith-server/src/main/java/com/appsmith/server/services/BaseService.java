@@ -3,8 +3,10 @@ package com.appsmith.server.services;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.AppsmithRepository;
@@ -124,13 +126,18 @@ public abstract class BaseService<
             criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
         }
 
-        Flux<T> result = repository
-                .queryBuilder()
-                .criteria(Bridge.or(criteria))
-                .permission(permission)
-                .sort(sort)
-                .includeAnonymousUserPermissions(false)
-                .all();
+        Mono<User> currentUserMono = ReactiveContextUtils.getCurrentUser();
+
+        Flux<T> result = currentUserMono.flatMapMany(user -> {
+            permission.setUser(user);
+            return repository
+                    .queryBuilder()
+                    .criteria(Bridge.or(criteria))
+                    .permission(permission)
+                    .sort(sort)
+                    .includeAnonymousUserPermissions(false)
+                    .all();
+        });
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }

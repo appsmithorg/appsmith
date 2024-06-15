@@ -2,19 +2,17 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 public interface AppsmithRepository<T extends BaseDomain> {
 
     Mono<T> findById(String id, AclPermission permission);
-
-    Mono<T> findById(String id, Optional<AclPermission> permission);
 
     Mono<T> updateById(String id, T resource, AclPermission permission);
 
@@ -24,7 +22,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     Mono<T> setUserPermissionsInObject(T obj, Set<String> permissionGroups);
 
-    Mono<T> setUserPermissionsInObject(T obj);
+    Mono<T> setUserPermissionsInObject(T obj, User user);
 
     Mono<T> updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission);
 

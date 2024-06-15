@@ -26,7 +26,6 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.mongodb.core.query.UpdateDefinition;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
 import reactor.core.publisher.Flux;
@@ -40,7 +39,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -117,14 +115,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return queryBuilder().byId(id).permission(permission).one();
     }
 
-    /**
-     * @deprecated using `Optional` for function arguments is an anti-pattern.
-     */
-    @Deprecated
-    public Mono<T> findById(String id, Optional<AclPermission> permission) {
-        return findById(id, permission.orElse(null));
-    }
-
     public Mono<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission) {
         // Set policies to null in the update object
         resource.setPolicies(null);
@@ -168,19 +158,20 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             AclPermission permission, boolean includeAnonymousUserPermissions) {
         return permission == null
                 ? Mono.just(Set.of())
-                : getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
+                : getPermissionGroupsForUser(includeAnonymousUserPermissions, permission.getUser());
     }
 
-    public Mono<Set<String>> getCurrentUserPermissionGroups() {
-        return getCurrentUserPermissionGroups(true);
+    public Mono<Set<String>> getPermissionGroupsForUser(User user) {
+        return getPermissionGroupsForUser(true, user);
     }
 
-    protected Mono<Set<String>> getCurrentUserPermissionGroups(boolean includeAnonymousUserPermissions) {
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
-                .flatMap(user -> includeAnonymousUserPermissions
-                        ? getAllPermissionGroupsForUser(user)
-                        : getStrictPermissionGroupsForUser(user));
+    protected Mono<Set<String>> getPermissionGroupsForUser(boolean includeAnonymousUserPermissions, User user) {
+        if (user == null) {
+            return Mono.just(Collections.emptySet());
+        }
+        return includeAnonymousUserPermissions
+                ? getAllPermissionGroupsForUser(user)
+                : getStrictPermissionGroupsForUser(user);
     }
 
     protected Query createQueryWithPermission(
@@ -420,8 +411,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .then();
     }
 
-    public Mono<T> setUserPermissionsInObject(T obj) {
-        return getCurrentUserPermissionGroups()
+    public Mono<T> setUserPermissionsInObject(T obj, User user) {
+        return getPermissionGroupsForUser(true, user)
                 .flatMap(permissionGroups -> setUserPermissionsInObject(obj, permissionGroups));
     }
 
