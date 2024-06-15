@@ -19,7 +19,7 @@
     "stack": "container",
     "env": {
       "APPSMITH_DB_URL": {
-        "description": "Your Mongo Database URI. Since Heroku doesn't support a managed MongoDB instance, you'll have to create a Mongo DB instance on another service such as https://cloud.mongodb.com",
+        "description": "Your Database URI. Since Heroku doesn't support a managed MongoDB instance, you'll have to create a Mongo DB instance on another service such as https://cloud.mongodb.com",
         "value": ""
       },
       "APPSMITH_ENCRYPTION_PASSWORD": {
