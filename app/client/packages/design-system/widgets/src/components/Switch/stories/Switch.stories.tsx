@@ -28,7 +28,6 @@ export const States: Story = {
       <Switch defaultSelected isDisabled>
         Disabled checked
       </Switch>
-      <Switch validationState="invalid">Error</Switch>
     </Flex>
   ),
 };
@@ -40,7 +39,7 @@ export const LabelPosition: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-4">
       <Switch>Label Position — end</Switch>
-      <Switch labelPosition="end">Label Position — start</Switch>
+      <Switch labelPosition="start">Label Position — start</Switch>
     </Flex>
   ),
 };

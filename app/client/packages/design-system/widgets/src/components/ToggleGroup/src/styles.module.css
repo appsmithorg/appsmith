@@ -1,0 +1,26 @@
+.toggleGroup {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  &[data-disabled] {
+    cursor: not-allowed;
+  }
+
+  &[data-disabled] .label {
+    cursor: not-allowed;
+    opacity: var(--opacity-disabled);
+  }
+
+  &[data-orientation="horizontal"] [data-label-position="end"] {
+    margin-inline-end: 0;
+  }
+
+  &[data-orientation="horizontal"] [data-label-position="start"] {
+    width: fit-content;
+  }
+}
+
+.error {
+  margin-block-start: var(--inner-spacing-2);
+}
