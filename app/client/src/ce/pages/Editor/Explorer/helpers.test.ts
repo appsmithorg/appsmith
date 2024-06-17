@@ -3,12 +3,14 @@ import {
   getJSCollectionIdFromURL,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 
+const pageId = "0123456789abcdef00000000";
+
 describe("getActionIdFromUrl", () => {
   it("getsApiId", () => {
     window.history.pushState(
       {},
       "Api",
-      "/app/applicationSlugName/pageSlugName-pageId/edit/api/apiId",
+      `/app/applicationSlugName/pageSlugName-${pageId}/edit/api/apiId`,
     );
     const response = getActionIdFromURL();
     expect(response).toBe("apiId");
@@ -17,7 +19,7 @@ describe("getActionIdFromUrl", () => {
     window.history.pushState(
       {},
       "Query",
-      "/app/applicationSlugName/pageSlugName-pageId/edit/queries/queryId",
+      `/app/applicationSlugName/pageSlugName-${pageId}/edit/queries/queryId`,
     );
     const response = getActionIdFromURL();
     expect(response).toBe("queryId");
@@ -27,7 +29,7 @@ describe("getActionIdFromUrl", () => {
     window.history.pushState(
       {},
       "Query",
-      "/app/applicationSlugName/pageSlugName-pageId/edit/saas/:pluginPackageName/api/saasActionId",
+      `/app/applicationSlugName/pageSlugName-${pageId}/edit/saas/:pluginPackageName/api/saasActionId`,
     );
     const response = getActionIdFromURL();
     expect(response).toBe("saasActionId");
@@ -39,7 +41,7 @@ describe("getJSCollectionIdFromURL", () => {
     window.history.pushState(
       {},
       "Query",
-      "/applications/appId/pages/pageId/edit/jsObjects/collectionId",
+      `/applications/appId/pages/${pageId}/edit/jsObjects/collectionId`,
     );
     const response = getJSCollectionIdFromURL();
     expect(response).toBe("collectionId");
@@ -49,7 +51,7 @@ describe("getJSCollectionIdFromURL", () => {
     window.history.pushState(
       {},
       "Query",
-      "/applications/appId/pages/pageId/edit/jsObjects",
+      `/applications/appId/pages/${pageId}/edit/jsObjects`,
     );
     const response = getJSCollectionIdFromURL();
     expect(response).toBe(undefined);

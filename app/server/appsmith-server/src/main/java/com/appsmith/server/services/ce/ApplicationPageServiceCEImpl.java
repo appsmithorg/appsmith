@@ -87,6 +87,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -126,8 +127,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final DSLMigrationUtils dslMigrationUtils;
     private final ClonePageService<NewAction> actionClonePageService;
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
-
-    public static final Integer EVALUATION_VERSION = 2;
 
     @Override
     public Mono<PageDTO> createPage(PageDTO page) {

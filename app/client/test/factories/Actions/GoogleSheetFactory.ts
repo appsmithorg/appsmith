@@ -3,6 +3,7 @@ import type { SaaSAction } from "entities/Action";
 import { PluginPackageName, PluginType } from "entities/Action";
 import { PluginIDs } from "test/factories/MockPluginsState";
 
+const pageId = "0123456789abcdef00000000";
 export const GoogleSheetFactory = Factory.Sync.makeFactory<SaaSAction>({
   dynamicBindingPathList: [],
   id: "api_id",
@@ -15,7 +16,7 @@ export const GoogleSheetFactory = Factory.Sync.makeFactory<SaaSAction>({
     name: "SheetsExampleDatabase",
     pluginId: PluginIDs[PluginPackageName.GOOGLE_SHEETS],
   },
-  pageId: "page_id",
+  pageId: pageId,
   actionConfiguration: {
     timeoutInMillisecond: 10000,
     paginationType: "NONE",

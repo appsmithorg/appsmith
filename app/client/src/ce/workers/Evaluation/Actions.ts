@@ -8,7 +8,7 @@ import type {
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
 import type { EvalContext } from "workers/Evaluation/evaluate";
-import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
+import type { EvaluationVersion } from "constants/EvalConstants";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 import {
   getEntityFunctions,

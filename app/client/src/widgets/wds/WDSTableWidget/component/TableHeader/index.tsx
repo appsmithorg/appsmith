@@ -32,14 +32,16 @@ function TableHeader(props: TableHeaderProps) {
           onSearch={onSearch}
           searchKey={searchKey}
         />
-        <Flex flexGrow={1} gap="spacing-1" justifyContent="space-between">
-          <Pagination
-            columns={columns}
-            isVisiblePagination={isVisiblePagination}
-            tableData={tableData}
-            {...rest}
-          />
-        </Flex>
+        {isVisiblePagination && columns.length > 0 && (
+          <Flex flexGrow={1} gap="spacing-1" justifyContent="space-between">
+            <Pagination
+              columns={columns}
+              isVisiblePagination={isVisiblePagination}
+              tableData={tableData}
+              {...rest}
+            />
+          </Flex>
+        )}
       </>
     );
   })();
