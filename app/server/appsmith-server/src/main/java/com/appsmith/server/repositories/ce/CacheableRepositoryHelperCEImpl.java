@@ -15,6 +15,7 @@ import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import io.micrometer.observation.ObservationRegistry;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -35,19 +36,11 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelperCE {
     private final ReactiveMongoOperations mongoOperations;
     private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
     private final ObservationRegistry observationRegistry;
-
-    public CacheableRepositoryHelperCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper,
-            ObservationRegistry observationRegistry) {
-        this.mongoOperations = mongoOperations;
-        this.inMemoryCacheableRepositoryHelper = inMemoryCacheableRepositoryHelper;
-        this.observationRegistry = observationRegistry;
-    }
 
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
     @Override
@@ -188,7 +181,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         BridgeQuery<Tenant> andCriteria = Bridge.and(defaultTenantCriteria, notDeletedCriteria);
         Query query = new Query();
         query.addCriteria(andCriteria);
-        log.info("FETCHING TENANT FROM DATABASE AS NOT PRESENT IN CACHE!");
+        log.info("Fetching tenant from database as it couldn't be found in the cache!");
         return mongoOperations
                 .findOne(query, Tenant.class)
                 .map(tenant -> {
