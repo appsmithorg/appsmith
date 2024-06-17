@@ -56,7 +56,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -86,8 +85,6 @@ public class DatasourceServiceTest {
 
     @Autowired
     DatasourceService datasourceService;
-
-    ObjectMapper objectMapper = new ObjectMapper();
 
     @SpyBean
     DatasourceService spyDatasourceService;
