@@ -30,7 +30,7 @@ import {
   WIDGETS_EDITOR_BASE_PATH,
 } from "constants/routes";
 import type { focusWidget } from "actions/widgetActions";
-import { getEntities } from "@appsmith/selectors/entitiesSelector";
+import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { getCurrentEntityInfo, isInSideBySideEditor } from "pages/Editor/utils";
 
@@ -132,9 +132,9 @@ function* focusWidgetInSideBySideModeSaga({
     const { segment } = getCurrentEntityInfo(entity);
 
     if (isInSideBySideEditor({ appState, segment, viewMode })) {
-      const entities: ReturnType<typeof getEntities> =
-        yield select(getEntities);
-      const widget = entities.canvasWidgets[widgetId];
+      const widgets: ReturnType<typeof getCanvasWidgets> =
+        yield select(getCanvasWidgets);
+      const widget = widgets[widgetId];
 
       if (widget) {
         yield put(recordAnalyticsForSideBySideWidgetHover(widget.type));
