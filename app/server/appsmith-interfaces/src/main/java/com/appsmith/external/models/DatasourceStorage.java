@@ -73,6 +73,7 @@ public class DatasourceStorage extends BaseDomain {
     String workspaceId;
 
     @Transient
+    @JsonView(Git.class)
     String templateName;
 
     @Transient
