@@ -425,47 +425,14 @@ init_postgres() {
     # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
     chown -R postgres:postgres "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
 
-    if [[ -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
-      tlog "Found existing Postgres, Skipping initialization"
-    else
-      tlog "Initializing local postgresql database"
-      mkdir -p "$POSTGRES_DB_PATH"
-
-      # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-      chown postgres:postgres "$POSTGRES_DB_PATH"
-
-      # Initialize the postgres db file system
+    if [[ ! -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
+      tlog "Initializing local Postgres data folder"
       su postgres -c "initdb -D $POSTGRES_DB_PATH"
-      sed -Ei "s,^#(unix_socket_directories =).*,\\1 '$TMP/pg-runtime'," "$POSTGRES_DB_PATH/postgresql.conf"
-
-      # Start the postgres server in daemon mode
-      su postgres -c "pg_ctl -D $POSTGRES_DB_PATH start"
-
-      # Create mockdb db and user and populate it with the data
-      seed_embedded_postgres
-      # Stop the postgres daemon
-      su postgres -c "pg_ctl stop -D $POSTGRES_DB_PATH"
     fi
   else
     runEmbeddedPostgres=0
   fi
 
-}
-
-seed_embedded_postgres(){
-    # Create mockdb database
-    psql -U postgres -c "CREATE DATABASE mockdb;"
-    # Create mockdb superuser
-    su postgres -c "createuser mockdb -s"
-    # Dump the sql file containing mockdb data
-    psql -U postgres -d mockdb --file='/opt/appsmith/templates/mockdb_postgres.sql'
-
-    # Create users database
-    psql -U postgres -c "CREATE DATABASE users;"
-    # Create users superuser
-    su postgres -c "createuser users -s"
-    # Dump the sql file containing mockdb data
-    psql -U postgres -d users --file='/opt/appsmith/templates/users_postgres.sql'
 }
 
 safe_init_postgres(){
