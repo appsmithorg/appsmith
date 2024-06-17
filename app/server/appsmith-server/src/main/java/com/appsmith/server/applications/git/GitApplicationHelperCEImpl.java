@@ -256,7 +256,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
         // Update all the resources to replace defaultResource Ids with the resource Ids as branchName
         // will be deleted
         Flux<NewPage> newPageFlux = Flux.fromIterable(defaultApplication.getPages())
-                .flatMap(page -> newPageService.findById(page.getId(), Optional.empty()))
+                .flatMap(page -> newPageService.findById(page.getId(), null))
                 .map(newPage -> {
                     newPage.setDefaultResources(null);
                     return createDefaultIdsOrUpdateWithGivenResourceIds(newPage, null);
