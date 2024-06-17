@@ -13,8 +13,8 @@ import MainPane from "./MainPane";
 import RightPane from "./RightPane";
 import classNames from "classnames";
 import { tailwindLayers } from "constants/Layers";
-import ProtectedCallout from "./ProtectedCallout";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import ProtectedCallout from "./ProtectedCallout";
 
 /**
  * OldName: MainContainer
