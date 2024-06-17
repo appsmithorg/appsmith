@@ -59,7 +59,7 @@ import styled from "styled-components";
 import { importSvg } from "design-system-old";
 import classNames from "classnames";
 import type { PropertyUpdates } from "WidgetProvider/constants";
-import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
+// import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { savePropertyInSessionStorageIfRequired } from "./helpers";
@@ -212,7 +212,7 @@ const PropertyControl = memo((props: Props) => {
     updateDataTreePathFn: childWidgetDataTreePathEnhancementFn,
   } = enhancementFns || {};
 
-  const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);
+  // const connectDataClicked = useSelector(getIsOneClickBindingOptionsVisibility);
 
   const toggleDynamicProperty = useCallback(
     (
@@ -285,7 +285,7 @@ const PropertyControl = memo((props: Props) => {
   const {
     isTriggerProperty,
     postUpdateAction,
-    shouldSwitchToNormalMode,
+    // shouldSwitchToNormalMode,
     updateHook,
     updateRelatedWidgetProperties,
   } = props;
@@ -867,16 +867,16 @@ const PropertyControl = memo((props: Props) => {
       };
     }
 
-    if (shouldSwitchToNormalMode) {
-      const switchMode = shouldSwitchToNormalMode(
-        isDynamic,
-        isToggleDisabled,
-        connectDataClicked,
-      );
-      if (switchMode) {
-        toggleDynamicProperty(propertyName, true);
-      }
-    }
+    // if (shouldSwitchToNormalMode) {
+    //   const switchMode = shouldSwitchToNormalMode(
+    //     isDynamic,
+    //     isToggleDisabled,
+    //     connectDataClicked,
+    //   );
+    //   if (switchMode) {
+    //     toggleDynamicProperty(propertyName, true);
+    //   }
+    // }
 
     const JSToggleTooltip = isToggleDisabled
       ? JS_TOGGLE_DISABLED_MESSAGE
