@@ -1,6 +1,7 @@
 import { dataTreeEvaluator } from "./evalTree";
 import type { EvalWorkerASyncRequest } from "../types";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
+import { evaluateAndPushUpdatesToMainThread } from "../evalTreeWithChanges";
 
 export default async function (request: EvalWorkerASyncRequest) {
   const { data } = request;
@@ -26,14 +27,13 @@ export default async function (request: EvalWorkerASyncRequest) {
       //TODO: the evalTrigger can be optimised to not diff all JS actions
       { isAllAffected: true, ids: [] },
     );
-
-    dataTreeEvaluator.evalAndValidateSubTree(
-      evalOrder,
-      unEvalTree.configTree,
-      unEvalUpdates,
+    evaluateAndPushUpdatesToMainThread(
+      dataTreeEvaluator,
+      { evalOrder, unEvalUpdates, jsUpdates: {} },
+      [],
+      [],
     );
   }
-
   return dataTreeEvaluator.evaluateTriggers(
     dynamicTrigger,
     dataTreeEvaluator.getEvalTree(),
