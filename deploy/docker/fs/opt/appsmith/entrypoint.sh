@@ -4,6 +4,9 @@ set -e
 
 tlog "Running as: $(id)"
 
+# Temporary, remove after this change goes into `base.dockerfile`.
+export PATH="/usr/lib/postgresql/13/bin:${PATH}"
+
 stacks_path=/appsmith-stacks
 
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
@@ -427,7 +430,7 @@ init_postgres() {
 
     if [[ ! -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
       tlog "Initializing local Postgres data folder"
-      su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
+      su postgres -c "initdb -D $POSTGRES_DB_PATH"
     fi
   else
     runEmbeddedPostgres=0
