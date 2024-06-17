@@ -6,6 +6,7 @@ import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import { BrowserRouter } from "react-router-dom";
 
 const initialState = {
   ui: {
@@ -36,14 +37,20 @@ jest.mock("react-redux", () => {
   };
 });
 
-describe("Connection Success Modal", () => {
-  it("is rendered properly", () => {
-    const store = mockStore(initialState);
-    const { getByTestId } = render(
+const renderComponent = () => {
+  const store = mockStore(initialState);
+  return render(
+    <BrowserRouter>
       <Provider store={store}>
         <ConnectionSuccess />
-      </Provider>,
-    );
+      </Provider>
+    </BrowserRouter>,
+  );
+};
+
+describe("Connection Success Modal", () => {
+  it("is rendered properly", () => {
+    const { getByTestId } = renderComponent();
     expect(getByTestId("t--git-success-modal-body")).toBeTruthy();
     expect(
       getByTestId("t--git-success-modal-start-using-git-cta"),
@@ -51,13 +58,8 @@ describe("Connection Success Modal", () => {
     expect(getByTestId("t--git-success-modal-open-settings-cta")).toBeTruthy();
   });
 
-  it("go to settings cta button is working", () => {
-    const store = mockStore(initialState);
-    const { queryByTestId } = render(
-      <Provider store={store}>
-        <ConnectionSuccess />
-      </Provider>,
-    );
+  it("'Settings' cta button is working", () => {
+    const { queryByTestId } = renderComponent();
     expect(dispatch).toHaveBeenNthCalledWith(1, {
       type: ReduxActionTypes.FETCH_BRANCHES_INIT,
     });
@@ -68,17 +70,12 @@ describe("Connection Success Modal", () => {
     });
     expect(dispatch).toHaveBeenNthCalledWith(4, {
       type: ReduxActionTypes.GIT_SET_SETTINGS_MODAL_OPEN,
-      payload: { open: true, tab: GitSettingsTab.GENERAL },
+      payload: { open: true, tab: GitSettingsTab.BRANCH },
     });
   });
 
-  it("start using git cta button is working", () => {
-    const store = mockStore(initialState);
-    const { queryByTestId } = render(
-      <Provider store={store}>
-        <ConnectionSuccess />
-      </Provider>,
-    );
+  it("'Continue' cta button is working", () => {
+    const { queryByTestId } = renderComponent();
     expect(dispatch).toHaveBeenNthCalledWith(1, {
       type: ReduxActionTypes.FETCH_BRANCHES_INIT,
     });

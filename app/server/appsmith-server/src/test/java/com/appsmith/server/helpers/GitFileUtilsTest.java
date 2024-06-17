@@ -63,6 +63,9 @@ public class GitFileUtilsTest {
     @Autowired
     Gson gson;
 
+    @Autowired
+    JsonSchemaMigration jsonSchemaMigration;
+
     private Mono<ApplicationJson> createAppJson(String filePath) {
         FilePart filePart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils.read(
@@ -83,7 +86,7 @@ public class GitFileUtilsTest {
                 .map(data -> {
                     return gson.fromJson(data, ApplicationJson.class);
                 })
-                .map(JsonSchemaMigration::migrateArtifactToLatestSchema)
+                .map(jsonSchemaMigration::migrateArtifactToLatestSchema)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 

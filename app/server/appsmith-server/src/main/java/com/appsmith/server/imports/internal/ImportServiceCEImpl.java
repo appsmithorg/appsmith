@@ -63,6 +63,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     private final ImportableService<Datasource> datasourceImportableService;
     private final GsonBuilder gsonBuilder;
     private final ArtifactExchangeJsonAdapter artifactExchangeJsonAdapter;
+    private final JsonSchemaMigration jsonSchemaMigration;
 
     /**
      * This method provides the importService specific to the artifact based on the ArtifactType.
@@ -418,7 +419,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         String artifactContextString = artifactSpecificConstantsMap.get(FieldName.ARTIFACT_CONTEXT);
 
         // step 1: Schema Migration
-        ArtifactExchangeJson importedDoc = JsonSchemaMigration.migrateArtifactToLatestSchema(artifactExchangeJson);
+        ArtifactExchangeJson importedDoc = jsonSchemaMigration.migrateArtifactToLatestSchema(artifactExchangeJson);
 
         // Step 2: Validation of artifact Json
         // check for validation error and raise exception if error found

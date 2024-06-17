@@ -38,6 +38,9 @@ public class ResponseUtilsTest {
     @Autowired
     ResponseUtils responseUtils;
 
+    @Autowired
+    JsonSchemaVersions jsonSchemaVersions;
+
     Gson gson = new Gson();
 
     @SneakyThrows
@@ -184,13 +187,13 @@ public class ResponseUtilsTest {
 
         application.setIsAutoUpdate(null);
         application.setClientSchemaVersion(1000);
-        application.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        application.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
         responseUtils.updateApplicationWithDefaultResources(application);
         assertEquals(application.getIsAutoUpdate(), true);
 
         application.setIsAutoUpdate(null);
-        application.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
-        application.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        application.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
+        application.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
         responseUtils.updateApplicationWithDefaultResources(application);
         assertEquals(application.getIsAutoUpdate(), false);
     }

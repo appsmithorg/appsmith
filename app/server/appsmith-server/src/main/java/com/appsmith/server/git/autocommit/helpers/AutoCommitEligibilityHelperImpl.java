@@ -33,6 +33,7 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
     private final CommonGitFileUtils commonGitFileUtils;
     private final DSLMigrationUtils dslMigrationUtils;
     private final GitRedisUtils gitRedisUtils;
+    private final JsonSchemaVersions jsonSchemaVersions;
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_eligibility_enabled)
@@ -49,7 +50,7 @@ public class AutoCommitEligibilityHelperImpl extends AutoCommitEligibilityHelper
                             defaultApplicationId,
                             branchName,
                             serverSchemaVersion);
-                    return JsonSchemaVersions.serverVersion > serverSchemaVersion ? TRUE : FALSE;
+                    return jsonSchemaVersions.getServerVersion() > serverSchemaVersion ? TRUE : FALSE;
                 })
                 .defaultIfEmpty(FALSE)
                 .cache();

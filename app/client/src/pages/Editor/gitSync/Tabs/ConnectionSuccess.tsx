@@ -4,74 +4,110 @@ import {
   setIsGitSyncModalOpen,
 } from "actions/gitSyncActions";
 import {
-  BRANCH_PROTECTION_CHANGE_RULE,
-  BRANCH_PROTECTION_RULES_AS_FOLLOWS,
-  BRANCH_PROTECTION_RULE_1,
-  BRANCH_PROTECTION_RULE_2,
-  BRANCH_PROTECTION_RULE_3,
+  GIT_CONNECT_SUCCESS_PROTECTION_MSG,
   GIT_CONNECT_SUCCESS_TITLE,
-  OPEN_GIT_SETTINGS,
-  START_USING_GIT,
+  GIT_CONNECT_SUCCESS_ACTION_SETTINGS,
+  GIT_CONNECT_SUCCESS_ACTION_CONTINUE,
   createMessage,
+  GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA,
+  GIT_CONNECT_SUCCESS_DEFAULT_BRANCH,
+  GIT_CONNECT_SUCCESS_REPO_NAME,
+  GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { Button, Icon, ModalBody, ModalFooter, Tag, Text } from "design-system";
+import {
+  Button,
+  Icon,
+  ModalBody,
+  ModalFooter,
+  Text,
+  Link,
+  Tooltip,
+} from "design-system";
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
-
-const Container = styled.div``;
-
-const TitleContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 16px;
-`;
+import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 
 const TitleText = styled(Text)`
   flex: 1;
   font-weight: 600;
 `;
 
-const StyledIcon = styled(Icon)`
-  margin-right: 8px;
+const LinkText = styled(Text)`
+  span {
+    font-weight: 500;
+  }
 `;
 
-const FeatureList = styled.ul`
-  margin-bottom: 16px;
-`;
-const FeatureItem = styled.li`
-  display: flex;
-  margin-bottom: 4px;
-`;
+function ConnectionSuccessTitle() {
+  return (
+    <div className="flex items-center mb-4">
+      <Icon className="mr-1" color="#059669" name="oval-check" size="lg" />
+      <TitleText
+        data-testid="t--git-success-modal-title"
+        kind="heading-s"
+        renderAs="h3"
+      >
+        {createMessage(GIT_CONNECT_SUCCESS_TITLE)}
+      </TitleText>
+    </div>
+  );
+}
 
-const FeatureIcon = styled(Icon)`
-  display: inline-flex;
-  align-items: center;
-  margin-right: 4px;
-`;
+function ConnectionSuccessBody() {
+  const gitMetadata = useSelector(getCurrentAppGitMetaData);
+  return (
+    <>
+      <div className="flex gap-x-4 mb-6">
+        <div className="w-44">
+          <div className="flex items-center">
+            <Icon className="mr-1" name="git-repository" size="md" />
+            <Text isBold renderAs="p">
+              {createMessage(GIT_CONNECT_SUCCESS_REPO_NAME)}
+            </Text>
+          </div>
+          <Text renderAs="p">{gitMetadata?.repoName || "-"}</Text>
+        </div>
+        <div className="w-44">
+          <div className="flex items-center">
+            <Icon className="mr-1" name="git-branch" size="md" />
+            <Text isBold renderAs="p">
+              {createMessage(GIT_CONNECT_SUCCESS_DEFAULT_BRANCH)}
+            </Text>
+            <Tooltip
+              content={createMessage(
+                GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP,
+              )}
+              trigger="hover"
+            >
+              <Icon
+                className="inline-fix ml-1 cursor-pointer"
+                name="info"
+                size="md"
+              />
+            </Tooltip>
+          </div>
+          <Text renderAs="p">{gitMetadata?.defaultBranchName || "-"}</Text>
+        </div>
+      </div>
+      <div className="mb-1">
+        <Text renderAs="p">
+          {createMessage(GIT_CONNECT_SUCCESS_PROTECTION_MSG)}
+        </Text>
+      </div>
+      <LinkText isBold renderAs="p">
+        <Link href={DOCS_BRANCH_PROTECTION_URL}>
+          {createMessage(GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA)}
+        </Link>
+      </LinkText>
+    </>
+  );
+}
 
-const BranchTag = styled(Tag)`
-  display: inline-flex;
-`;
-
-const DefaultBranchMessage = styled(Text)`
-  margin-bottom: 16px;
-`;
-
-const ProtectionRulesTitle = styled(Text)`
-  margin-bottom: 8px;
-`;
-
-const features = [
-  createMessage(BRANCH_PROTECTION_RULE_1),
-  createMessage(BRANCH_PROTECTION_RULE_2),
-  createMessage(BRANCH_PROTECTION_RULE_3),
-];
-
-function ConnectionSuccess() {
+function ConnectionSuccessActions() {
   const gitMetadata = useSelector(getCurrentAppGitMetaData);
   const dispatch = useDispatch();
 
@@ -99,7 +135,7 @@ function ConnectionSuccess() {
     dispatch(
       setGitSettingsModalOpenAction({
         open: true,
-        tab: GitSettingsTab.GENERAL,
+        tab: GitSettingsTab.BRANCH,
       }),
     );
     AnalyticsUtil.logEvent("GS_OPEN_GIT_SETTINGS", {
@@ -107,76 +143,37 @@ function ConnectionSuccess() {
     });
   };
 
-  const branchProtectionContent = () => {
-    return (
-      <>
-        <DefaultBranchMessage renderAs="p">
-          Right now,{" "}
-          <BranchTag isClosable={false}>
-            {gitMetadata?.defaultBranchName}
-          </BranchTag>{" "}
-          is set as the default branch and it is protected.
-        </DefaultBranchMessage>
-        <ProtectionRulesTitle renderAs="p">
-          {createMessage(BRANCH_PROTECTION_RULES_AS_FOLLOWS)}
-        </ProtectionRulesTitle>
-        <FeatureList>
-          {features.map((feature) => (
-            <FeatureItem key={feature}>
-              <FeatureIcon
-                color="var(--ads-v2-color-blue-600)"
-                name="oval-check"
-                size="md"
-              />
-              <Text>{feature}</Text>
-            </FeatureItem>
-          ))}
-        </FeatureList>
-        <Text>{createMessage(BRANCH_PROTECTION_CHANGE_RULE)}</Text>
-      </>
-    );
-  };
+  return (
+    <>
+      <Button
+        data-testid="t--git-success-modal-open-settings-cta"
+        kind="secondary"
+        onClick={handleOpenSettings}
+        size="md"
+      >
+        {createMessage(GIT_CONNECT_SUCCESS_ACTION_SETTINGS)}
+      </Button>
+      <Button
+        data-testid="t--git-success-modal-start-using-git-cta"
+        onClick={handleStartGit}
+        size="md"
+      >
+        {createMessage(GIT_CONNECT_SUCCESS_ACTION_CONTINUE)}
+      </Button>
+    </>
+  );
+}
 
-  const branchProtectionActions = () => {
-    return (
-      <>
-        <Button
-          data-testid="t--git-success-modal-start-using-git-cta"
-          kind="secondary"
-          onClick={handleStartGit}
-          size="md"
-        >
-          {createMessage(START_USING_GIT)}
-        </Button>
-        <Button
-          data-testid="t--git-success-modal-open-settings-cta"
-          onClick={handleOpenSettings}
-          size="md"
-        >
-          {createMessage(OPEN_GIT_SETTINGS)}
-        </Button>
-      </>
-    );
-  };
-
+function ConnectionSuccess() {
   return (
     <>
       <ModalBody data-testid="t--git-success-modal-body">
-        <Container>
-          <TitleContainer>
-            <StyledIcon color="#059669" name="oval-check" size="lg" />
-            <TitleText
-              data-testid="t--git-success-modal-title"
-              kind="heading-s"
-              renderAs="h3"
-            >
-              {createMessage(GIT_CONNECT_SUCCESS_TITLE)}
-            </TitleText>
-          </TitleContainer>
-          {branchProtectionContent()}
-        </Container>
+        <ConnectionSuccessTitle />
+        <ConnectionSuccessBody />
       </ModalBody>
-      <ModalFooter>{branchProtectionActions()}</ModalFooter>
+      <ModalFooter>
+        <ConnectionSuccessActions />
+      </ModalFooter>
     </>
   );
 }
