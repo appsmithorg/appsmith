@@ -51,6 +51,7 @@ const ListJSObjects = () => {
   return (
     <JSContainer
       className="ide-editor-left-pane__content-js"
+      flex="1"
       flexDirection="column"
       gap="spaces-3"
       overflow="hidden"

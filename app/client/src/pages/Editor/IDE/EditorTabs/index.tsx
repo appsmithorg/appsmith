@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { Button, Flex, ToggleButton, Tooltip } from "design-system";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import { ToggleButton } from "design-system";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import {
@@ -8,37 +8,18 @@ import {
   EditorEntityTabState,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
-import { setIdeEditorViewMode } from "actions/ideActions";
 import FileTabs from "./FileTabs";
 import Container from "./Container";
 import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
 import { TabSelectors } from "./constants";
-import {
-  MAXIMIZE_BUTTON_TOOLTIP,
-  MINIMIZE_BUTTON_TOOLTIP,
-  createMessage,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { AddButton } from "./AddButton";
 import { Announcement } from "../EditorPane/components/Announcement";
-import ListQuery from "../EditorPane/Query/List";
-import styled from "styled-components";
 import { useLocation } from "react-router";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-
-const ListContainer = styled(Flex)`
-  & .t--entity-item {
-    grid-template-columns: 0 auto 1fr auto auto auto auto auto;
-    height: 32px;
-
-    & .t--entity-name {
-      padding-left: var(--ads-v2-spaces-3);
-    }
-  }
-`;
+import { List } from "./List";
+import { ScreenModeToggle } from "./ScreenModeToggle";
 
 const EditorTabs = () => {
-  const dispatch = useDispatch();
   const [showListView, setShowListView] = useState(false);
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const ideViewMode = useSelector(getIDEViewMode);
@@ -64,25 +45,13 @@ const EditorTabs = () => {
     }
   }, [files, segmentMode]);
 
-  const toggleEditorMode = useCallback(() => {
-    const newMode =
-      ideViewMode === EditorViewMode.SplitScreen
-        ? EditorViewMode.FullScreen
-        : EditorViewMode.SplitScreen;
-
-    AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
-      to: newMode,
-    });
-    dispatch(setIdeEditorViewMode(newMode));
-  }, [ideViewMode, dispatch]);
+  if (!isSideBySideEnabled) return null;
+  if (segment === EditorEntityTab.UI) return null;
 
   const handleHamburgerClick = () => {
     if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) return;
     setShowListView(!showListView);
   };
-
-  if (!isSideBySideEnabled) return null;
-  if (segment === EditorEntityTab.UI) return null;
 
   const onTabClick = (tab: EntityItem) => {
     setShowListView(false);
@@ -112,47 +81,15 @@ const EditorTabs = () => {
           tabs={files}
         />
         {files.length > 0 ? <AddButton /> : null}
-        <Tooltip
-          content={
-            ideViewMode === EditorViewMode.SplitScreen
-              ? createMessage(MAXIMIZE_BUTTON_TOOLTIP)
-              : createMessage(MINIMIZE_BUTTON_TOOLTIP)
-          }
-        >
-          <Button
-            className="ml-auto !min-w-[24px]"
-            data-testid={
-              ideViewMode === EditorViewMode.SplitScreen
-                ? "t--ide-maximize"
-                : "t--ide-minimize"
-            }
-            id={
-              ideViewMode === EditorViewMode.SplitScreen
-                ? "editor-mode-maximize"
-                : "editor-mode-minimize"
-            }
-            isIconButton
-            kind="tertiary"
-            onClick={toggleEditorMode}
-            startIcon={
-              ideViewMode === EditorViewMode.SplitScreen
-                ? "maximize-v3"
-                : "minimize-v3"
-            }
-          />
-        </Tooltip>
+
+        {/* Switch screen mode button */}
+        <ScreenModeToggle />
       </Container>
-      {showListView && ideViewMode === EditorViewMode.SplitScreen && (
-        <ListContainer
-          bg="var(--ads-v2-color-bg)"
-          className="absolute top-[78px] albin"
-          h="calc(100% - 78px)"
-          w="100%"
-          zIndex="10"
-        >
-          <ListQuery />
-        </ListContainer>
-      )}
+
+      {/* Overflow list */}
+      {showListView && ideViewMode === EditorViewMode.SplitScreen && <List />}
+
+      {/* Announcement modal */}
       {ideViewMode === EditorViewMode.SplitScreen && <Announcement />}
     </>
   );
