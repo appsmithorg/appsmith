@@ -8,7 +8,7 @@ describe(
     const widgetName = "ButtonWidget";
 
     before(() => {
-      agHelper.AddDsl(`anvil{${widgetName}`);
+      agHelper.AddDsl(`anvil${widgetName}`);
     });
 
     it("1. Canvas Mode", () => {
