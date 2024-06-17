@@ -1,14 +1,35 @@
-function parseTags({core, context}) {
-  const body = context.payload.pull_request.body;
+module.exports = function ({core, context}) {
+  let tags;
+  try {
+    tags = parseTags(context.payload.pull_request.body);
+  } catch (error) {
+    core.setFailure(error.message);
+    core.setOutput("outcome", "failure");
+  }
+
+  core.setOutput("tags", tags);
+  core.setOutput("outcome", "success");
+}
+
+function parseTags(body) {
+  const allTags = require(process.env.GITHUB_WORKSPACE + "/app/client/cypress/tags.js").Tag;
 
   // "/ok-to-test" matcher. Takes precedence over the "/test" matcher.
   const strictMatch = body.match(/\/ok-to-test tags="(.+?)"/)?.[1];
   if (strictMatch) {
+    if (strictMatch === "@tag.All") {
+      return strictMatch;
+    }
+    const parts = strictMatch.split(/\s*,\s*/);
+    for (const part of parts) {
+      if (!allTags.includes(part)) {
+        throw new Error("Unknown tag: " + part);
+      }
+    }
     return strictMatch;
   }
 
   // "/test" matcher.
-  const allTags = require(process.env.GITHUB_WORKSPACE + "/app/client/cypress/tags.js").Tag;
   const config = body.match(/^\**\/test\s+(.+?)\**$/m)?.[1] ?? "";
   const concreteTags = [];
 
@@ -38,14 +59,14 @@ function parseTags({core, context}) {
     // More smart matchers?
 
     // No match, fail.
-    core.setFailed("\tNo match found for tag:", rawTag);
+    throw new Error("No match found for tag:", rawTag);
 
     // We still process the rest, so we report all invalid tags in the input in a single run.
   }
 
-  return concreteTags.join(", ");
-}
+  if (concreteTags.length === 0) {
+    throw new Error("Tags were not found!")
+  }
 
-module.exports = {
-  parseTags,
+  return concreteTags.join(", ");
 }

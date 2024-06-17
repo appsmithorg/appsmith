@@ -35,27 +35,14 @@ jobs:
               fi
 
       # Reads the PR description to retrieve the /ok-to-test or, if that's absent, the /test command
-      - name: Get tags
+      - name: Read tags from PR description
         uses: actions/github-script@v7
-        id: getTags
+        id: parseTags
         env:
           NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
         with:
           script: |
-            const testTagParser = require("test-tag-parser.js")
-            core.setOutput("tags", testTagParser.parseTags({core, context}))
-
-      # Parses the retrieved /ok-to-test slash command to retrieve tags
-      - name: Parse tags
-        id: parseTags
-        run: |
-              if [[ '${{ steps.getTags.outputs.tags }}' != '' ]]; then
-                echo "tags=${{ steps.getTags.outputs.tags }}" >> $GITHUB_OUTPUT
-                echo "outcome=success" >> $GITHUB_OUTPUT
-              else
-                echo "Tags were not found!"
-                echo "outcome=failure" >> $GITHUB_OUTPUT
-              fi
+            require("test-tag-parser.js")({core, context})
 
       # In case of missing tags, guides towards correct usage in test response
       - name: Add test response with tags documentation link
@@ -77,20 +64,6 @@ jobs:
       - name: Stop the workflow run if tags are not present
         if: steps.parseTags.outputs.outcome != 'success'
         run: exit 1
-
-      - name: Check Tags
-        env:
-          TAG_LIST: ${{ steps.getTags.outputs.tags }}
-        id: checkTags
-        run: |
-                export IFS=","
-                for tag in ${TAG_LIST//[[:blank:]]/}; do
-                    if [[ `cat app/client/cypress/tags.js|grep -w $tag|wc -l` != 1  &&  $tag != "@tag.All" ]]; then
-                        echo "Incorrect Tags"
-                        echo "outcome=failure" >> $GITHUB_OUTPUT
-                    fi
-                done
-        shell: bash
 
       # In case of incorrect tags, guides towards correct tags
       - name: Add test response with tags list link
