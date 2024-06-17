@@ -51,7 +51,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.LinkedMultiValueMap;
@@ -62,9 +61,6 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
 
-import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1098,39 +1094,22 @@ public class DatasourceServiceTest {
 
         StepVerifier.create(datasourceMono)
                 .assertNext(savedDatasource -> {
-                    // fetch datasource storage directly from the database to check if the password is encrypted
-                    // correctly
-                    // since fetching through repository methods leads to password returned decrypted
-                    DatasourceStorage datasourceStorage =
-                            getDatasourceStorage(savedDatasource.getId(), defaultEnvironmentId);
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            savedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     DBAuth authentication = (DBAuth)
-                            datasourceStorage.getDatasourceConfiguration().getAuthentication();
+                            datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(EncryptionHelper.decrypt(authentication.getPassword()))
+                    assertThat(EncryptionHelper.decrypt(
+                                    getDatasourcePassword(savedDatasource.getId(), defaultEnvironmentId)))
                             .isEqualTo(password);
                 })
                 .verifyComplete();
     }
 
-    private DatasourceStorage getDatasourceStorage(String datasourceId, String envId) {
-        String sql = "SELECT * FROM datasource_storage WHERE datasource_id = ? AND environment_id = ?";
-        RowMapper<DatasourceStorage> datasourceStorageRowMapper = new RowMapper<DatasourceStorage>() {
-            @Override
-            public DatasourceStorage mapRow(ResultSet rs, int rowNum) throws SQLException {
-                DatasourceStorage ds = new DatasourceStorage();
-                ds.setId(rs.getString("id"));
-                String dsConfig = rs.getString("datasource_configuration");
-                try {
-                    DatasourceConfiguration datasourceConfiguration;
-                    datasourceConfiguration = objectMapper.readValue(dsConfig, DatasourceConfiguration.class);
-                    ds.setDatasourceConfiguration(datasourceConfiguration);
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                return ds;
-            }
-        };
-        return jdbcTemplate.queryForObject(sql, datasourceStorageRowMapper, datasourceId, envId);
+    private String getDatasourcePassword(String datasourceId, String envId) {
+        String sql =
+                "SELECT datasource_configuration -> 'authentication' ->> 'password' FROM datasource_storage WHERE datasource_id = ? AND environment_id = ? LIMIT 1";
+        return jdbcTemplate.queryForObject(sql, String.class, datasourceId, envId);
     }
 
     @Test
@@ -1252,16 +1231,14 @@ public class DatasourceServiceTest {
 
         StepVerifier.create(datasourceMono)
                 .assertNext(updatedDatasource -> {
-                    // fetch datasource storage directly from the database to check if the password is encrypted
-                    // correctly
-                    // since fetching through repository methods leads to password returned decrypted
-                    DatasourceStorage datasourceStorage =
-                            getDatasourceStorage(updatedDatasource.getId(), defaultEnvironmentId);
+                    DatasourceStorageDTO datasourceStorageDTO =
+                            updatedDatasource.getDatasourceStorages().get(defaultEnvironmentId);
                     DBAuth authentication = (DBAuth)
-                            datasourceStorage.getDatasourceConfiguration().getAuthentication();
+                            datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
 
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(EncryptionHelper.decrypt(authentication.getPassword()))
+                    assertThat(EncryptionHelper.decrypt(
+                                    getDatasourcePassword(updatedDatasource.getId(), defaultEnvironmentId)))
                             .isEqualTo(password);
                 })
                 .verifyComplete();
