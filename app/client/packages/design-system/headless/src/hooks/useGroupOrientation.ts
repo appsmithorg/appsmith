@@ -1,12 +1,11 @@
 import { useCallback, type RefObject, useMemo } from "react";
-
 import {
   useLayoutEffect,
   useResizeObserver,
   useValueEffect,
 } from "@react-aria/utils";
+import type { POSITION } from "@design-system/widgets";
 import type { Orientation } from "@react-types/shared";
-import type { InlineLabelProps } from "../components/Checkbox";
 
 export interface GroupAria {
   orientation?: Orientation;
@@ -15,7 +14,7 @@ export interface GroupAria {
 export function useGroupOrientation(
   props: {
     orientation?: Orientation;
-    optionsLabelPosition?: InlineLabelProps["labelPosition"];
+    optionsLabelPosition?: keyof typeof POSITION;
   },
   ref: RefObject<HTMLDivElement>,
 ): GroupAria {
