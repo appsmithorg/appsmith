@@ -30,6 +30,7 @@ import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -56,9 +57,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -93,6 +92,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final ActionCollectionService actionCollectionService;
     private final DatasourceService datasourceService;
     private final CustomJSLibService customJSLibService;
+    private final UpdateLayoutService updateLayoutService;
 
     @Override
     public Mono<Application> importResourceInPage(
@@ -441,117 +441,42 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                         buildingBlockResponseDTO.setWidgetDsl(buildingBlockImportDTO.getWidgetDsl());
                         buildingBlockResponseDTO.setOnPageLoadActions(new ArrayList<>());
 
-                        Set<String> newOnPageLoadActionNames = new HashSet<>();
-                        applicationJson
-                                .getPageList()
-                                .get(0)
-                                .getPublishedPage()
-                                .getLayouts()
-                                .get(0)
-                                .getLayoutOnLoadActions()
-                                .forEach(dslExecutableDTOS -> {
-                                    dslExecutableDTOS.forEach(dslExecutableDTO -> {
-                                        if (dslExecutableDTO.getName() != null) {
-                                            // Use the refactored names to get the correct ids
-                                            if (buildingBlockImportDTO
-                                                            .getRefactoredEntityNameMap()
-                                                            .get(dslExecutableDTO.getName())
-                                                    != null) {
-                                                dslExecutableDTO.setName(buildingBlockImportDTO
-                                                        .getRefactoredEntityNameMap()
-                                                        .get(dslExecutableDTO.getName()));
-                                            }
-                                            newOnPageLoadActionNames.add(
-                                                    dslExecutableDTO.getName().contains(".")
-                                                            ? dslExecutableDTO.getName()
-                                                                    .split("\\.")[0]
-                                                            : dslExecutableDTO.getName());
-                                            buildingBlockResponseDTO
-                                                    .getOnPageLoadActions()
-                                                    .add(dslExecutableDTO);
-                                        }
-                                    });
-                                });
-                        // Fetch the datasource and customJsLibs
-                        Mono<List<Datasource>> datasourceList = datasourceService
-                                .getAllByWorkspaceIdWithStorages(
-                                        buildingBlockDTO.getWorkspaceId(), AclPermission.MANAGE_DATASOURCES)
-                                .collectList();
-                        Mono<List<CustomJSLib>> customJSLibs = customJSLibService.getAllJSLibsInContext(
-                                buildingBlockDTO.getApplicationId(), CreatorContextType.APPLICATION, branchName, false);
+                        return newPageService
+                                .findByBranchNameAndDefaultPageId(
+                                        branchName, buildingBlockDTO.getPageId(), AclPermission.MANAGE_PAGES)
+                                .flatMap(newPage -> {
+                                    String layoutId = newPage.getUnpublishedPage()
+                                            .getLayouts()
+                                            .get(0)
+                                            .getId();
+                                    Layout layout = applicationJson
+                                            .getPageList()
+                                            .get(0)
+                                            .getUnpublishedPage()
+                                            .getLayouts()
+                                            .get(0);
+                                    layout.setDsl(widgetRefactorUtil.convertDslStringToJSONObject(
+                                            buildingBlockImportDTO.getWidgetDsl()));
+                                    // fetch the layout and get the onPageLoadActions
+                                    return updateLayoutService
+                                            .getOnPageLoadActions(
+                                                    buildingBlockDTO.getPageId(),
+                                                    layoutId,
+                                                    layout,
+                                                    buildingBlockImportDTO
+                                                            .getApplication()
+                                                            .getEvaluationVersion(),
+                                                    CreatorContextType.PAGE)
+                                            .map(layoutDTO -> {
+                                                layoutDTO.forEach(actionSet -> {
+                                                    buildingBlockResponseDTO
+                                                            .getOnPageLoadActions()
+                                                            .addAll(actionSet.stream()
+                                                                    .toList());
+                                                });
 
-                        // Fetch all actions and action collections and update the onPageLoadActions with correct ids
-                        return Mono.zip(
-                                        actionCollectionService
-                                                .findByPageId(buildingBlockDTO.getPageId())
-                                                .collectList(),
-                                        newActionService
-                                                .findByPageId(buildingBlockDTO.getPageId())
-                                                .collectList(),
-                                        datasourceList,
-                                        customJSLibs)
-                                .flatMap(tuple -> {
-                                    List<ActionCollection> actionCollections = tuple.getT1();
-                                    List<NewAction> newActions = tuple.getT2();
-
-                                    buildingBlockResponseDTO.setDatasourceList(tuple.getT3());
-                                    buildingBlockResponseDTO.setCustomJSLibList(tuple.getT4());
-                                    // Filter the newly created actions and actionCollection
-                                    buildingBlockResponseDTO.setNewActionList(newActions.stream()
-                                            .filter(newAction -> buildingBlockImportDTO
-                                                    .getRefactoredEntityNameMap()
-                                                    .containsValue(newAction
-                                                            .getUnpublishedAction()
-                                                            .getName()))
-                                            .toList());
-                                    buildingBlockResponseDTO.setActionCollectionList(actionCollections.stream()
-                                            .filter(actionCollection -> buildingBlockImportDTO
-                                                    .getRefactoredEntityNameMap()
-                                                    .containsValue(actionCollection
-                                                            .getUnpublishedCollection()
-                                                            .getName()))
-                                            .toList());
-
-                                    actionCollections.forEach(actionCollection -> {
-                                        if (newOnPageLoadActionNames.contains(actionCollection
-                                                .getUnpublishedCollection()
-                                                .getName())) {
-                                            buildingBlockResponseDTO
-                                                    .getOnPageLoadActions()
-                                                    .forEach(dslExecutableDTO -> {
-                                                        if (dslExecutableDTO.getCollectionId() != null) {
-                                                            String name = dslExecutableDTO.getCollectionId()
-                                                                    .split("_")[1];
-                                                            if (name.equals(actionCollection
-                                                                    .getUnpublishedCollection()
-                                                                    .getName())) {
-                                                                dslExecutableDTO.setId(actionCollection.getId());
-                                                                dslExecutableDTO.setCollectionId(
-                                                                        actionCollection.getId());
-                                                            }
-                                                        }
-                                                    });
-                                        }
-                                    });
-
-                                    newActions.forEach(newAction -> {
-                                        if (newOnPageLoadActionNames.contains(
-                                                newAction.getUnpublishedAction().getName())) {
-                                            buildingBlockResponseDTO
-                                                    .getOnPageLoadActions()
-                                                    .forEach(dslExecutableDTO -> {
-                                                        if (dslExecutableDTO
-                                                                .getName()
-                                                                .equals(newAction
-                                                                        .getUnpublishedAction()
-                                                                        .getName())) {
-                                                            dslExecutableDTO.setId(newAction.getId());
-                                                        }
-                                                    });
-                                        }
-                                    });
-
-                                    return Mono.just(buildingBlockResponseDTO);
+                                                return buildingBlockResponseDTO;
+                                            });
                                 });
                     });
         });
