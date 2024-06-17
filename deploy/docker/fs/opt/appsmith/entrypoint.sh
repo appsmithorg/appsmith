@@ -435,16 +435,16 @@ init_postgres() {
       chown postgres:postgres "$POSTGRES_DB_PATH"
 
       # Initialize the postgres db file system
-      su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
+      su postgres -c "initdb -D $POSTGRES_DB_PATH"
       sed -Ei "s,^#(unix_socket_directories =).*,\\1 '$TMP/pg-runtime'," "$POSTGRES_DB_PATH/postgresql.conf"
 
       # Start the postgres server in daemon mode
-      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
+      su postgres -c "pg_ctl -D $POSTGRES_DB_PATH start"
 
       # Create mockdb db and user and populate it with the data
       seed_embedded_postgres
       # Stop the postgres daemon
-      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
+      su postgres -c "pg_ctl stop -D $POSTGRES_DB_PATH"
     fi
   else
     runEmbeddedPostgres=0
@@ -456,14 +456,14 @@ seed_embedded_postgres(){
     # Create mockdb database
     psql -U postgres -c "CREATE DATABASE mockdb;"
     # Create mockdb superuser
-    su postgres -c "/usr/lib/postgresql/13/bin/createuser mockdb -s"
+    su postgres -c "createuser mockdb -s"
     # Dump the sql file containing mockdb data
     psql -U postgres -d mockdb --file='/opt/appsmith/templates/mockdb_postgres.sql'
 
     # Create users database
     psql -U postgres -c "CREATE DATABASE users;"
     # Create users superuser
-    su postgres -c "/usr/lib/postgresql/13/bin/createuser users -s"
+    su postgres -c "createuser users -s"
     # Dump the sql file containing mockdb data
     psql -U postgres -d users --file='/opt/appsmith/templates/users_postgres.sql'
 }
