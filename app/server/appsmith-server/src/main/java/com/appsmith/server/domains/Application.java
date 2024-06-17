@@ -21,6 +21,7 @@ import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.Where;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -295,6 +296,15 @@ public class Application extends BaseDomain implements Artifact {
             applicationPage.setId(pageIdToNameMap.get(applicationPage.getId() + VIEW));
             applicationPage.setDefaultPageId(null);
         }
+    }
+
+    @Override
+    public String getBaseId() {
+        if (this.getGitArtifactMetadata() != null
+                && StringUtils.hasLength(this.getGitArtifactMetadata().getDefaultArtifactId())) {
+            return this.getGitArtifactMetadata().getDefaultArtifactId();
+        }
+        return Artifact.super.getBaseId();
     }
 
     @JsonView(Views.Internal.class)
