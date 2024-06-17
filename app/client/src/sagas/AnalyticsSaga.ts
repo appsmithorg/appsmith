@@ -12,14 +12,14 @@ import {
 import get from "lodash/get";
 import log from "loglevel";
 import { all, put, select, takeEvery } from "redux-saga/effects";
-import { getIdeCanvasSideBySideHoverState } from "selectors/analyticsSelectors";
+import { getIdeCanvasSideBySideHoverState } from "selectors/ideSelectors";
 
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import {
   recordAnalyticsForSideBySideNavigation,
   recordAnalyticsForSideBySideWidgetHover,
   resetAnalyticsForSideBySideHover,
-} from "actions/analyticsActions";
+} from "actions/ideActions";
 
 import type { routeChanged } from "actions/focusHistoryActions";
 import { NavigationMethod } from "utils/history";
