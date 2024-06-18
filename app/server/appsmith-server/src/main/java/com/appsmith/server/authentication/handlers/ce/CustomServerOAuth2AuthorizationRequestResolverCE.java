@@ -7,6 +7,8 @@ import com.appsmith.server.constants.Security;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.RedirectHelper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -81,6 +83,8 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
 
     private final CustomOauth2ClientRepositoryManager ouath2ClientManager;
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     /**
      * Creates a new instance
      *
@@ -134,7 +138,19 @@ public class CustomServerOAuth2AuthorizationRequestResolverCE implements ServerO
                 .map(ServerWebExchangeMatcher.MatchResult::getVariables)
                 .map(variables -> variables.get(DEFAULT_REGISTRATION_ID_URI_VARIABLE_NAME))
                 .cast(String.class)
-                .flatMap(clientRegistrationId -> resolve(exchange, clientRegistrationId));
+                .flatMap(clientRegistrationId -> resolve(exchange, clientRegistrationId))
+                .map(request -> {
+                    // TODO: Remove this log statement post client debugging.
+                    // @author: nsarupr (nilesh@appsmith.com)
+                    // We are ignoring the exception here because we are only logging for debugging purposes.
+                    try {
+                        log.debug("This log statement is for debugging purposes only. "
+                                + "Please remove this post client debugging.");
+                        log.debug("Resolved OAuth2AuthorizationRequest : {}", objectMapper.writeValueAsString(request));
+                    } catch (JsonProcessingException ignored) {
+                    }
+                    return request;
+                });
     }
 
     @Override
