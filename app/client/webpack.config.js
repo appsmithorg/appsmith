@@ -4,10 +4,12 @@ const common = require("./webpack.common.config.js");
 
 module.exports = merge(common, {
   devServer: {
-    client: {
-      overlay: {
-        warnings: false,
-        errors: false,
+    proxy: {
+      webSocketURL: {
+        hostname: "127.0.0.1",
+        pathname: "/ws",
+        port: 3000,
+        protocol: "ws",
       },
     },
   },

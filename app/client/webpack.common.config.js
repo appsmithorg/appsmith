@@ -12,16 +12,7 @@ module.exports = {
     filename: "[name].js",
     path: __dirname + "/dist",
   },
-  devServer: {
-    client: {
-      webSocketURL: {
-        hostname: "127.0.0.1",
-        pathname: "/ws",
-        port: 3000,
-        protocol: "ws",
-      },
-    },
-  },
+
   //   babel: {
   //     plugins: ["babel-plugin-lodash"],
   //   },
@@ -65,20 +56,11 @@ module.exports = {
         test: /\.(png|jpe?g|gif|svg|json\.txt)$/i,
         type: "asset/resource",
       },
-      // {
-      //   test: /\.json$/,
-      //   loader: "json-loader",
-      // },
       {
         test: /\.m?js$/,
         resolve: { fullySpecified: false },
-        // exclude: /(node_modules|design-system-old|design-system)/,
-        // use: {
-        //   loader: "swc-loader",
-        // },
       },
       {
-        // test: /\.tsx?$/,
         test: /\.(ts|tsx)$/,
         exclude: /(node_modules)/,
         use: {
@@ -91,7 +73,6 @@ module.exports = {
       },
       {
         test: /\.module\.css$/,
-        // test: /\.css$/,
         use: [
           {
             loader: "postcss-loader",

@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
-    "dev": "npx webpack --mode=development --env=development",
+    "dev": "npx webpack serve --mode=development --env=development --host=dev.appsmith.com --port=3000",
     "start": "BROWSER=none REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco --max_old_space_size=4096 start",
     "build": "./build.sh",
     "build-airgap": "node download-assets.js && ./build.sh",
