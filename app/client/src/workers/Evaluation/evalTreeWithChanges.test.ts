@@ -96,7 +96,7 @@ const unEvalTree = {
   ).unEvalEntity,
 };
 
-describe("evaluateAndPushUpdatesToMainThread", () => {
+describe("evaluateAndPushResponse", () => {
   let pushResponseToMainThreadMock: any;
   beforeAll(() => {
     pushResponseToMainThreadMock = jest
@@ -107,7 +107,7 @@ describe("evaluateAndPushUpdatesToMainThread", () => {
     jest.clearAllMocks();
   });
   test("should call pushResponseToMainThread when we evaluate and push updates", () => {
-    evalTreeWithChanges.evaluateAndPushUpdatesToMainThread(
+    evalTreeWithChanges.evaluateAndPushResponse(
       undefined,
       {
         unEvalUpdates: [],
@@ -154,7 +154,7 @@ describe("getAffectedNodesInTheDataTree", () => {
     expect(result).toEqual(["Text1.text"]);
   });
 });
-describe("evaluateAndGenerateWebWorkerResponse", () => {
+describe("evaluateAndGenerateResponse", () => {
   let evaluator: DataTreeEvaluator;
   const UPDATED_LABEL = "updated Label";
 
@@ -176,17 +176,16 @@ describe("evaluateAndGenerateWebWorkerResponse", () => {
   });
 
   test("should respond with default values when dataTreeEvaluator is not provided", () => {
-    const webworkerResponse =
-      evalTreeWithChanges.evaluateAndGenerateWebWorkerResponse(
-        undefined,
-        {
-          unEvalUpdates: [],
-          evalOrder: [],
-          jsUpdates: {},
-        },
-        [],
-        [],
-      );
+    const webworkerResponse = evalTreeWithChanges.evaluateAndGenerateResponse(
+      undefined,
+      {
+        unEvalUpdates: [],
+        evalOrder: [],
+        jsUpdates: {},
+      },
+      [],
+      [],
+    );
     const parsedUpdates = getParsedUpdatesFromWebWorkerResp(webworkerResponse);
 
     expect(parsedUpdates).toEqual([]);
@@ -211,17 +210,16 @@ describe("evaluateAndGenerateWebWorkerResponse", () => {
     });
   });
   test("should generate no updates when the updateTreeResponse is empty", () => {
-    const webworkerResponse =
-      evalTreeWithChanges.evaluateAndGenerateWebWorkerResponse(
-        evaluator,
-        {
-          unEvalUpdates: [],
-          evalOrder: [],
-          jsUpdates: {},
-        },
-        [],
-        [],
-      );
+    const webworkerResponse = evalTreeWithChanges.evaluateAndGenerateResponse(
+      evaluator,
+      {
+        unEvalUpdates: [],
+        evalOrder: [],
+        jsUpdates: {},
+      },
+      [],
+      [],
+    );
     const parsedUpdates = getParsedUpdatesFromWebWorkerResp(webworkerResponse);
 
     expect(parsedUpdates).toEqual([]);
@@ -240,13 +238,12 @@ describe("evaluateAndGenerateWebWorkerResponse", () => {
     // the new unevalTree gets set in setupUpdateTree
     expect(evaluator.getOldUnevalTree()).toEqual(updatedLabelUnevalTree);
 
-    const { unevalTree } =
-      evalTreeWithChanges.evaluateAndGenerateWebWorkerResponse(
-        evaluator,
-        updateTreeResponse,
-        [],
-        [],
-      );
+    const { unevalTree } = evalTreeWithChanges.evaluateAndGenerateResponse(
+      evaluator,
+      updateTreeResponse,
+      [],
+      [],
+    );
     expect(unevalTree).toEqual(updatedLabelUnevalTree);
   });
 
@@ -274,13 +271,12 @@ describe("evaluateAndGenerateWebWorkerResponse", () => {
       // the eval tree should have the uneval update but the diff should not be generated because the unEvalUpdates has been altered
       expect(evaluator.evalTree).toHaveProperty("Text1.text", UPDATED_LABEL);
 
-      const webworkerResponse =
-        evalTreeWithChanges.evaluateAndGenerateWebWorkerResponse(
-          evaluator,
-          updateTreeResponse,
-          [],
-          [],
-        );
+      const webworkerResponse = evalTreeWithChanges.evaluateAndGenerateResponse(
+        evaluator,
+        updateTreeResponse,
+        [],
+        [],
+      );
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
       // Text1.label update should be ignored
@@ -307,13 +303,12 @@ describe("evaluateAndGenerateWebWorkerResponse", () => {
       // expect(updateTreeResponse.evalOrder).toEqual([]);
       updateTreeResponse.evalOrder = [];
 
-      const webworkerResponse =
-        evalTreeWithChanges.evaluateAndGenerateWebWorkerResponse(
-          evaluator,
-          updateTreeResponse,
-          [],
-          [],
-        );
+      const webworkerResponse = evalTreeWithChanges.evaluateAndGenerateResponse(
+        evaluator,
+        updateTreeResponse,
+        [],
+        [],
+      );
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
 
@@ -339,13 +334,12 @@ describe("evaluateAndGenerateWebWorkerResponse", () => {
         configTree,
       );
 
-      const webworkerResponse =
-        evalTreeWithChanges.evaluateAndGenerateWebWorkerResponse(
-          evaluator,
-          updateTreeResponse,
-          [],
-          [],
-        );
+      const webworkerResponse = evalTreeWithChanges.evaluateAndGenerateResponse(
+        evaluator,
+        updateTreeResponse,
+        [],
+        [],
+      );
 
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
@@ -379,13 +373,12 @@ describe("evaluateAndGenerateWebWorkerResponse", () => {
       //set the unEvalUpdates is empty so that evaluation ignores diffing the node
       updateTreeResponse.unEvalUpdates = [];
 
-      const webworkerResponse =
-        evalTreeWithChanges.evaluateAndGenerateWebWorkerResponse(
-          evaluator,
-          updateTreeResponse,
-          [],
-          ["Text1.text"],
-        );
+      const webworkerResponse = evalTreeWithChanges.evaluateAndGenerateResponse(
+        evaluator,
+        updateTreeResponse,
+        [],
+        ["Text1.text"],
+      );
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
       expect(parsedUpdates).toEqual(
@@ -422,7 +415,7 @@ describe("evaluateAndGenerateWebWorkerResponse", () => {
         },
       ];
       const { workerResponse } =
-        evalTreeWithChanges.evaluateAndGenerateWebWorkerResponse(
+        evalTreeWithChanges.evaluateAndGenerateResponse(
           evaluator,
           response,
           metaUpdates,
@@ -450,7 +443,7 @@ describe("evaluateAndGenerateWebWorkerResponse", () => {
         },
       ];
       const { workerResponse } =
-        evalTreeWithChanges.evaluateAndGenerateWebWorkerResponse(
+        evalTreeWithChanges.evaluateAndGenerateResponse(
           evaluator,
           response,
           metaUpdates,
@@ -479,13 +472,12 @@ describe("evaluateAndGenerateWebWorkerResponse", () => {
         configTree,
       );
 
-      const webworkerResponse =
-        evalTreeWithChanges.evaluateAndGenerateWebWorkerResponse(
-          evaluator,
-          updateTreeResponse,
-          [],
-          [],
-        );
+      const webworkerResponse = evalTreeWithChanges.evaluateAndGenerateResponse(
+        evaluator,
+        updateTreeResponse,
+        [],
+        [],
+      );
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
       expect(webworkerResponse.workerResponse.unEvalUpdates).toEqual([
@@ -517,13 +509,12 @@ describe("evaluateAndGenerateWebWorkerResponse", () => {
       //set the evalOrder is empty so that evaluation ignores diffing the node
       updateTreeResponse.unEvalUpdates = [];
 
-      const webworkerResponse =
-        evalTreeWithChanges.evaluateAndGenerateWebWorkerResponse(
-          evaluator,
-          updateTreeResponse,
-          [],
-          [],
-        );
+      const webworkerResponse = evalTreeWithChanges.evaluateAndGenerateResponse(
+        evaluator,
+        updateTreeResponse,
+        [],
+        [],
+      );
       const parsedUpdates =
         getParsedUpdatesFromWebWorkerResp(webworkerResponse);
 

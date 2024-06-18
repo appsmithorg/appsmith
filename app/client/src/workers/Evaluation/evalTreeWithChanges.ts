@@ -44,7 +44,7 @@ export function evalTreeWithChanges(
     updatedValuePaths.map((val) => val.join(".")),
   );
 
-  evaluateAndPushUpdatesToMainThread(
+  evaluateAndPushResponse(
     dataTreeEvaluator,
     setupUpdateTreeResponse,
     metaUpdates,
@@ -69,16 +69,17 @@ export const getAffectedNodesInTheDataTree = (
   const allUnevalUpdates = unEvalUpdates.map(
     (update) => update.payload.propertyPath,
   );
+  // merge unevalUpdate paths and evalOrder paths
   return uniqueOrderUpdatePaths([...allUnevalUpdates, ...evalOrder]);
 };
 
-export const evaluateAndPushUpdatesToMainThread = (
+export const evaluateAndPushResponse = (
   dataTreeEvaluator: DataTreeEvaluator | undefined,
   setupUpdateTreeResponse: UpdateTreeResponse,
   metaUpdates: EvalMetaUpdates,
   additionalPathsAddedAsUpdates: string[],
 ) => {
-  const response = evaluateAndGenerateWebWorkerResponse(
+  const response = evaluateAndGenerateResponse(
     dataTreeEvaluator,
     setupUpdateTreeResponse,
     metaUpdates,
@@ -87,12 +88,13 @@ export const evaluateAndPushUpdatesToMainThread = (
   return pushResponseToMainThread(response);
 };
 
-export const evaluateAndGenerateWebWorkerResponse = (
+export const evaluateAndGenerateResponse = (
   dataTreeEvaluator: DataTreeEvaluator | undefined,
   setupUpdateTreeResponse: UpdateTreeResponse,
   metaUpdates: EvalMetaUpdates,
   additionalPathsAddedAsUpdates: string[],
 ): UpdateDataTreeMessageData => {
+  // generate default response first and later add updates to it
   const defaultResponse = getDefaultEvalResponse();
 
   if (!dataTreeEvaluator) {
@@ -135,10 +137,13 @@ export const evaluateAndGenerateWebWorkerResponse = (
   defaultResponse.staleMetaIds = updateResponse.staleMetaIds;
   const unevalTree = dataTreeEvaluator.getOldUnevalTree();
 
+  // when additional paths are required to be added as updates, we extract the updates from the data tree using these paths.
   const additionalUpdates = getNewDataTreeUpdates(
     additionalPathsAddedAsUpdates,
     dataTree,
   );
+  // the affected paths is a combination of the eval order and the uneval updates
+  // we use this collection to limit the diff between the old and new data tree
   const affectedNodePaths = getAffectedNodesInTheDataTree(
     unEvalUpdates,
     evalOrder,
