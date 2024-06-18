@@ -34,7 +34,7 @@ interface RenderComponentProps {
   isDragging: boolean;
   showCheckbox?: boolean;
   placeholder: string;
-  isDuplicate?: boolean;
+  allowDuplicate?: boolean;
   onDuplicate?: (index: number) => void;
   updateFocus?: (index: number, isFocused: boolean) => void;
   updateOption: (index: number, value: string) => void;
@@ -85,7 +85,7 @@ export function DraggableListCard(props: RenderComponentProps) {
     toggleVisibility,
     updateFocus,
     updateOption,
-    isDuplicate,
+    allowDuplicate,
     onDuplicate,
   } = props;
   const [visibility, setVisibility] = useState(item.isVisible);
@@ -195,7 +195,7 @@ export function DraggableListCard(props: RenderComponentProps) {
         width="100%"
       />
       <StyledActionContainer>
-        {isDuplicate && (
+        {allowDuplicate && (
           <Button
             className="t--edit-column-btn"
             isIconButton

@@ -1,17 +1,14 @@
-const commonlocators = require("../../../../../locators/commonlocators.json");
 const Layoutpage = require("../../../../../locators/Layout.json");
-const widgetsPage = require("../../../../../locators/Widgets.json");
-const publish = require("../../../../../locators/publishWidgetspage.json");
 
 import {
   agHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 
-describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
+describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, ()=> {
   before(() => {
     agHelper.AddDsl("layoutdsl");
   });
-  it("1. Tab Widget Functionality To Check the duplication of a tab", function () {
+  it("1. Tab Widget Functionality To Check the duplication of a tab", ()=> {
     cy.openPropertyPane("tabswidget");
     agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{c}`);
     agHelper.Sleep(500);

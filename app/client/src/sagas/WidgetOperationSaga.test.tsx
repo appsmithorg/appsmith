@@ -28,7 +28,7 @@ const widget1 = {
   ],
 };
 
-const mockCanversWidgets = {
+const mockCanvassWidgets = {
   tabs1234: {
     widgetName: "Tabs1",
     widgetId: "tabs1234",
@@ -394,8 +394,8 @@ describe("Testing duplicateTabChildrensSaga", () => {
     });
 
     gen.next(); // yield select(getWidgets)
-    gen.next(mockCanversWidgets as any); // yield select(getWidget, "tabs1234")
-    gen.next(mockCanversWidgets.tabs1234 as any); // yield call(duplicateTabChildren, mockCanversWidgets, "tabs1234", 0)
+    gen.next(mockCanvassWidgets as any); // yield select(getWidget, "tabs1234")
+    gen.next(mockCanvassWidgets.tabs1234 as any); // yield call(duplicateTabChildren, mockCanvassWidgets, "tabs1234", 0)
     gen.next(evalMockTree as any); // yield select(getDataTree)
     gen.next(); // yield put(updateAndSaveAnvilLayout())
     expect(updateAndSaveLayoutMock).toBeCalled();

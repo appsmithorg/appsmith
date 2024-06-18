@@ -75,6 +75,7 @@ declare namespace Cypress {
       { x: number, y: number },
     );
     changeButtonColor(buttonColor: string);
+    openPropertyPane(widgetName: string);
     closePropertyPane();
     onClickActions(
       forSuccess: string,

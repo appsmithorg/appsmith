@@ -527,7 +527,7 @@ export class PropertyPane {
   }
 
   public OpenTableColumnSettings(column: string, index: number = 0) {
-    this.agHelper.GetNClick(this._tableColumnSettings(column), (index = index));
+    this.agHelper.GetNClick(this._tableColumnSettings(column), index);
   }
 
   public Search(query: string) {

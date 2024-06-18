@@ -40,12 +40,12 @@ function AddTabButtonComponent({ widgetId }: any) {
   );
 }
 
-function DuplicateTabWidget(widgetId: string | undefined) {
+function useTabDuplicate(widgetId: string | undefined) {
   const dispatch = useDispatch();
   if (!widgetId) {
     return (index: number) => {};
   }
-  const addOption = (index: number) => {
+  const onDuplicate = (index: number) => {
     dispatch({
       type: ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD,
       payload: {
@@ -60,7 +60,7 @@ function DuplicateTabWidget(widgetId: string | undefined) {
       },
     });
   };
-  return addOption;
+  return onDuplicate;
 }
 
 function TabControlComponent(props: RenderComponentProps<DroppableItem>) {
@@ -79,8 +79,8 @@ function TabControlComponent(props: RenderComponentProps<DroppableItem>) {
       deleteOption={deleteOption}
       isDelete
       placeholder="Tab title"
-      isDuplicate={true}
-      onDuplicate={DuplicateTabWidget(props.selectedWidgetId)}
+      allowDuplicate
+      onDuplicate={useTabDuplicate(props.selectedWidgetId)}
     />
   );
 }
