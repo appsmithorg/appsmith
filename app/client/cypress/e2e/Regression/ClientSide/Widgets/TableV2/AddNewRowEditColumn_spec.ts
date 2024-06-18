@@ -34,32 +34,35 @@ describe(
       _.propPane.TogglePropertyState("Allow adding a row", "On");
       cy.get(".t--add-new-row").should("exist");
       // enabling the ediatable option for the three columns
-      cy.makeColumnEditable("step");
-      cy.makeColumnEditable("task");
-      cy.makeColumnEditable("Date");
+      _.table.EditColumn("step","v2")
+      _.propPane.TogglePropertyState("Editable", "On");
+      cy.get('[data-testid="t--property-pane-back-btn"]').click()
+      _.table.EditColumn("Date","v2")
+      _.propPane.TogglePropertyState("Editable", "On");
+      cy.get('[data-testid="t--property-pane-back-btn"]').click()
       cy.get(".t--add-new-row").click();
       cy.get(".tableWrap .new-row").should("exist");
 
       // entering the values in the table
-      cy.enterTableCellValue(0, 0, "22");
-      cy.enterTableCellValue(1, 0, "21");
+      _.table.EditTableCell(0,0,"22")
 
       // Click on the date input to open the date picker
-      cy.enterTableCellValue(3, 0);
+      _.table.EditTableCell(0,3,"")
       const now = new Date();
 
-      cy.get(".DayPicker-Day--today > .bp3-datepicker-day-wrapper").click();
+      cy.get(`.DayPicker-Day--today > .bp3-datepicker-day-wrapper`).click();
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
-      cy.openPropertyPane("textwidget");
-      cy.updateCodeInput(".t--property-control-text", "{{Table1.newRow.Date}}");
-
+      // cy.get(".t--property-pane-toggle").first().click();
+      _.propPane.UpdatePropertyFieldValue("Text",`{{Table1.newRow.Date}}`);
+  
       // checking the date selected and the date in the text widget matches correctly
       now.setHours(0, 0, 0, 0); // Reset time to 00:00:00
       const offset = now.getTimezoneOffset() * 60000; // offset in milliseconds
-      const localISOTime = `${new Date(now.getTime() - offset).toISOString().slice(0, 19)}+05:30`; // adjust to the desired timezone// adjust to the desired timezone
+      const localISOTime =
+        new Date(now.getTime() - offset).toISOString().slice(0, 19) + "+05:30"; // adjust to the desired timezone
       cy.get(".t--widget-textwidget .bp3-ui-text").should(
         "contain",
-        `${localISOTime.split("T")[0]}T00:00:00+05:30`,
+        localISOTime.split("T")[0] + "T00:00:00+05:30",
       );
     });
   },
