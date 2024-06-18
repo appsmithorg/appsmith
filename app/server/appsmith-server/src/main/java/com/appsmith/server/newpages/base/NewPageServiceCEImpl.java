@@ -519,7 +519,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<NewPage> archiveWithoutPermissionById(String id) {
+    public Mono<NewPage> archiveByIdWithoutPermission(String id) {
         return archiveByIdEx(id, null);
     }
 
@@ -533,8 +533,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return repository.archiveAllById(idList);
     }
 
-    public Mono<NewPage> archiveByIdEx(String id, AclPermission permission) {
-        Mono<NewPage> pageMono = this.findById(id, permission)
+    private Mono<NewPage> archiveByIdEx(String id, AclPermission permission) {
+        Mono<NewPage> pageMono = findById(id, permission)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
                 .cache();

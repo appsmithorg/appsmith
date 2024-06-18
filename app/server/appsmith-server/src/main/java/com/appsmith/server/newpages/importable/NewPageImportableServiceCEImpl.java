@@ -362,7 +362,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                     return applicationPageService.deleteUnpublishedPage(pageId, null, null, null, null);
                                 })
                                 .flatMap(page -> newPageService
-                                        .archiveWithoutPermissionById(page.getId())
+                                        .archiveByIdWithoutPermission(page.getId())
                                         .onErrorResume(e -> {
                                             log.debug(
                                                     "Unable to archive page {} with error {}",

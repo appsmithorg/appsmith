@@ -907,8 +907,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * which is currently in published state and is being used.
      *
      * @param id                   The pageId which needs to be archived.
-     * @param deletePagePermission
-     * @return
      */
     @Override
     public Mono<PageDTO> deleteUnpublishedPage(
@@ -927,34 +925,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<PageDTO> deleteUnpublishedPage(String id) {
-
-        AclPermission deletePagePermission = pagePermission.getDeletePermission();
-        AclPermission readApplicationPermission = applicationPermission.getReadPermission();
-        AclPermission deleteCollectionPermission = actionPermission.getDeletePermission();
-        AclPermission deleteActionPermission = actionPermission.getDeletePermission();
         return deleteUnpublishedPageEx(
                 id,
-                deletePagePermission,
-                readApplicationPermission,
-                deleteCollectionPermission,
-                deleteActionPermission);
+                pagePermission.getDeletePermission(),
+                applicationPermission.getReadPermission(),
+                actionPermission.getDeletePermission(),
+                actionPermission.getDeletePermission());
     }
 
-    /**
-     * This function archives the unpublished page. This also archives the unpublished action. The reason that the
-     * entire action is not deleted at this point is to handle the following edge case :
-     * An application is published with 1 page and 1 action.
-     * Post publish, create a new page and move the action from the existing page to the new page. Now delete this newly
-     * created page.
-     * In this scenario, if we were to delete all actions associated with the page, we would end up deleting an action
-     * which is currently in published state and is being used.
-     *
-     * @param id                         The pageId which needs to be archived.
-     * @param readApplicationPermission
-     * @param deleteCollectionPermission
-     * @param deleteActionPermission
-     * @return
-     */
     private Mono<PageDTO> deleteUnpublishedPageEx(
             String id,
             AclPermission deletePagePermission,
@@ -999,11 +977,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             })
                             .flatMap(newPage -> newPageService.getPageByViewMode(newPage, false));
 
-                    /**
-                     *  Only delete unpublished action and not the entire action. Also filter actions embedded in
-                     *  actionCollection which will be deleted while deleting the collection, this will avoid the race
-                     *  condition for delete action
-                     */
+                    // Only delete unpublished action and not the entire action. Also filter actions embedded in
+                    // actionCollection which will be deleted while deleting the collection, this will avoid the race
+                    // condition for delete action
                     Mono<List<ActionDTO>> archivedActionsMono = newActionService
                             .findByPageId(page.getId(), deleteActionPermission)
                             .filter(newAction -> !StringUtils.hasLength(
@@ -1014,9 +990,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             })
                             .collectList();
 
-                    /**
-                     *  Only delete unpublished action collection and not the entire action collection.
-                     */
+                    //  Only delete unpublished action collection and not the entire action collection.
                     Mono<List<ActionCollectionDTO>> archivedActionCollectionsMono = actionCollectionService
                             .findByPageId(page.getId())
                             .flatMap(actionCollection -> {
@@ -1024,7 +998,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                         "Going to archive actionCollectionId: {} for applicationId: {}",
                                         actionCollection.getId(),
                                         id);
-                                return actionCollectionService.deleteUnpublishedActionCollectionWithOptionalPermission(
+                                return actionCollectionService.deleteUnpublishedActionCollection(
                                         actionCollection.getId(), deleteCollectionPermission, deleteActionPermission);
                             })
                             .collectList();

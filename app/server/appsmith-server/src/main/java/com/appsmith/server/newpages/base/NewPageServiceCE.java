@@ -71,7 +71,7 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<Boolean> archiveByIds(Collection<String> idList);
 
-    Mono<NewPage> archiveWithoutPermissionById(String id);
+    Mono<NewPage> archiveByIdWithoutPermission(String id);
 
     Flux<NewPage> saveAll(List<NewPage> pages);
 

@@ -344,22 +344,17 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollectionDTO> deleteWithoutPermissionUnpublishedActionCollection(String id) {
-        return deleteUnpublishedActionCollectionEx(id, null, actionPermission.getDeletePermission());
+        return deleteUnpublishedActionCollection(id, null, actionPermission.getDeletePermission());
     }
 
     @Override
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id) {
-        return deleteUnpublishedActionCollectionEx(
+        return deleteUnpublishedActionCollection(
                 id, actionPermission.getDeletePermission(), actionPermission.getDeletePermission());
     }
 
     @Override
-    public Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionWithOptionalPermission(
-            String id, AclPermission deleteCollectionPermission, AclPermission deleteActionPermission) {
-        return deleteUnpublishedActionCollectionEx(id, deleteCollectionPermission, deleteActionPermission);
-    }
-
-    public Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionEx(
+    public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(
             String id, AclPermission permission, AclPermission deleteActionPermission) {
         Mono<ActionCollection> actionCollectionMono = repository
                 .findById(id, permission)
