@@ -7,7 +7,15 @@ Before raising a pull request, ensure you have raised a corresponding issue and 
 
 ### Good First Issues
 
-Looking for issues to contribute? [Good First Issues](https://github.com/appsmithorg/appsmith/issues?page=3&q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22) is a great place to begin your contribution journey with Appsmith!
+Looking for issues to contribute? [Good First Issues](https://github.com/appsmithorg/appsmith/issues?page=3&q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22) is a great place to begin your contribution journey with Appsmith! If you are choosing to pick issues outside this criteria, kindly collabrate with us closely. Failing to informing us first can lead to the rejection of the contribution you are trying to make and waste time on both ends. 
+
+#### What not to do:
+1. Work on issues without informing the maintainer. Please get them assigned to yourself first. Comment on the issue if you are intrested. 
+2. Naming lengthy branches. 
+3. Create PR(s) without proper proper description. 
+4. Requesting for review without latest release pull on PR. 
+5. Raising PR(s) without tests.  
+6. Not going though the code contibution guidelines before first contribution. Just kidding, you are already here 
 
 ### 🍴 Git Workflow
 
@@ -19,7 +27,9 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
 4. Once you are confident in your code changes, create a pull request in your fork to the release branch in the appsmithorg/appsmith base repository.
 5. If you've changed any APIs, please call this out in the pull request and ensure backward compatibility.
 6. Link the issue of the base repository in your Pull request description. [Guide](https://docs.github.com/en/free-pro-team@latest/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue)
-7. When you raise a pull request, we automatically run tests on our CI. Please ensure that all the tests are passing for your code change. We will not be able to accept your change if the test suite doesn't pass.
+7. When you raise a pull request, tag the maintainer you are collabrating to start the build process.
+8. If changes are requested, work on them, commit them back and tag the reviewer again. 
+9. Once all changes have been approved by the reviewer and the CI has run successfully, your PR will be merged into the base branch. Congratulations! 
 
 ### 🏡 Setup for local development
 
