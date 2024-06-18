@@ -27,7 +27,7 @@ jest.mock("klona/full", () => ({
   },
 }));
 
-const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
+export const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   CONTAINER_WIDGET: {
     defaultProperties: {},
     derivedProperties: {},
@@ -231,7 +231,7 @@ const WIDGET_CONFIG_MAP: WidgetTypeConfigMap = {
   },
 };
 
-const BASE_WIDGET = {
+export const BASE_WIDGET = {
   widgetId: "randomID",
   widgetName: "randomWidgetName",
   bottomRow: 0,
@@ -249,7 +249,7 @@ const BASE_WIDGET = {
   meta: {},
 } as unknown as WidgetEntity;
 
-const BASE_WIDGET_CONFIG = {
+export const BASE_WIDGET_CONFIG = {
   logBlackList: {},
   widgetId: "randomID",
   type: "SKELETON_WIDGET",
