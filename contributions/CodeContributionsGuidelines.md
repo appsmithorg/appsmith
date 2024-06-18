@@ -27,8 +27,8 @@ We use [Github Flow](https://guides.github.com/introduction/flow/index.html), so
 4. Once you are confident in your code changes, create a pull request in your fork to the release branch in the appsmithorg/appsmith base repository.
 5. If you've changed any APIs, please call this out in the pull request and ensure backward compatibility.
 6. Link the issue of the base repository in your Pull request description. [Guide](https://docs.github.com/en/free-pro-team@latest/github/managing-your-work-on-github/linking-a-pull-request-to-an-issue)
-7. When you raise a pull request, tag the maintainer you are collabrating to start the build process.
-8. If changes are requested, work on them, commit them back and tag the reviewer again. 
+7. When you raise a pull request, tag the maintainer you are collaborating with to start the build process.
+8. If changes are requested, work on them, commit them back, and tag the reviewer again. 
 9. Once all changes have been approved by the reviewer and the CI has run successfully, your PR will be merged into the base branch. Congratulations! 
 
 ### 🏡 Setup for local development
