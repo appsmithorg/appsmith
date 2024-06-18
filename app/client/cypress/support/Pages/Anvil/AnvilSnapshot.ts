@@ -4,16 +4,13 @@ export class AnvilSnapshot {
   private appSettings = ObjectsRegistry.AppSettings;
   private agHelper = ObjectsRegistry.AggregateHelper;
   private deployMode = ObjectsRegistry.DeployMode;
-
-
-
   private locators = {
     enterPreviewMode: ObjectsRegistry.CommonLocators._enterPreviewMode,
     exitPreviewMode: ObjectsRegistry.CommonLocators._exitPreviewMode,
     canvas: "[data-testid=t--canvas-artboard]",
     colorMode: "[data-testid=t--anvil-theme-settings-color-mode]",
     appViewerPage: "[data-testid=t--app-viewer-page-body]",
-  }
+  };
 
   public verifyCanvasMode = (widgetName: string) => {
     cy.get(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}Canvas`);

@@ -1,5 +1,5 @@
-import { agHelper, anvilSnapshot, deployMode, locators } from "../../../../../../support/Objects/ObjectsCore";
-import { ANVIL_EDITOR_TEST, modifierKey } from "../../../../../../support/Constants";
+import { ANVIL_EDITOR_TEST } from "../../../../../../support/Constants";
+import { agHelper, anvilSnapshot } from "../../../../../../support/Objects/ObjectsCore";
 
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Icon Button Widget`,

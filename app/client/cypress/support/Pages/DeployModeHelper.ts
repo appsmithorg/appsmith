@@ -8,7 +8,8 @@ export class DeployMode {
   _jsonFieldName = (fieldName: string) => `//p[text()='${fieldName}']`;
   _jsonFormFieldByName = (fieldName: string, input = true) =>
     this._jsonFieldName(fieldName) +
-    `/ancestor::div[@direction='column']//div[@data-testid='input-container']//${input ? "input" : "textarea"
+    `/ancestor::div[@direction='column']//div[@data-testid='input-container']//${
+      input ? "input" : "textarea"
     }`;
   _jsonFormRadioFieldByName = (fieldName: string) =>
     `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='radiogroup-container']//input`;
@@ -18,7 +19,8 @@ export class DeployMode {
     fieldName: string,
     direction: "up" | "down" = "up",
   ) =>
-    `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='input-container']// ${direction == "up" ? this.locator._chevronUp : this.locator._chevronDown
+    `//p[text()='${fieldName}']/ancestor::div[@direction='column']//div[@data-testid='input-container']// ${
+      direction == "up" ? this.locator._chevronUp : this.locator._chevronDown
     }`;
   _jsonSelectDropdown = "button.select-button";
   private _jsonFormMultiSelectByName = (fieldName: string) =>
@@ -94,9 +96,10 @@ export class DeployMode {
         updatedUrl = `${Cypress.config().baseUrl + url.substring(1)}`;
         originalOpen.call(
           window,
-          `${updatedUrl}${addDebugFlag
-            ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
-            : ""
+          `${updatedUrl}${
+            addDebugFlag
+              ? (updatedUrl.indexOf("?") > -1 ? "&" : "?") + "debug=true"
+              : ""
           }`,
           "_self",
         );
