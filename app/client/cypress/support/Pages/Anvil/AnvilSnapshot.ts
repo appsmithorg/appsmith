@@ -17,49 +17,65 @@ export class AnvilSnapshot {
 
     this.setTheme("dark");
 
-    cy.get(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}CanvasDark`);
+    cy.get(this.locators.canvas).matchImageSnapshot(
+      `anvil${widgetName}CanvasDark`,
+    );
 
     this.setTheme("light");
-  }
+  };
 
   public verifyPreviewMode = (widgetName: string) => {
     this.enterPreviewMode();
 
     cy.get(this.locators.canvas).click();
 
-    cy.get(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}Preview`);
+    cy.get(this.locators.canvas).matchImageSnapshot(
+      `anvil${widgetName}Preview`,
+    );
 
     this.exitPreviewMode();
-  }
+  };
 
   public verifyDeployMode = (widgetName: string) => {
     this.deployMode.DeployApp(this.locators.appViewerPage);
 
-    this.verifyForDifferentDevices(widgetName, ["macbook-13", "iphone-6", "ipad-2"]);
-  }
+    this.verifyForDifferentDevices(widgetName, [
+      "macbook-13",
+      "iphone-6",
+      "ipad-2",
+    ]);
+  };
 
-  private verifyForDifferentDevices = (widgetName: string, devices: Cypress.ViewportPreset[]) => {
-    devices.forEach(device => {
+  private verifyForDifferentDevices = (
+    widgetName: string,
+    devices: Cypress.ViewportPreset[],
+  ) => {
+    devices.forEach((device) => {
       cy.viewport(device);
 
-      cy.get(this.locators.appViewerPage).matchImageSnapshot(`anvil${widgetName}Deploy${device}`, {
-        capture: "fullPage"
-      });
+      cy.get(this.locators.appViewerPage).matchImageSnapshot(
+        `anvil${widgetName}Deploy${device}`,
+        {
+          capture: "fullPage",
+        },
+      );
     });
-  }
+  };
 
   private enterPreviewMode = (shouldOpen = true) => {
     this.agHelper.GetNClick(this.locators.enterPreviewMode);
-  }
+  };
 
   private exitPreviewMode = () => {
     this.agHelper.GetNClick(this.locators.exitPreviewMode);
-  }
+  };
 
   private setTheme = (theme: "light" | "dark") => {
     this.appSettings.OpenAppSettings();
     this.appSettings.GoToThemeSettings();
 
-    cy.get(`${this.locators.colorMode} [data-value=${theme.toUpperCase()}]`).click();
-  }
+    cy.get(
+      `${this.locators.colorMode} [data-value=${theme.toUpperCase()}]`,
+    ).click();
+  };
 }
