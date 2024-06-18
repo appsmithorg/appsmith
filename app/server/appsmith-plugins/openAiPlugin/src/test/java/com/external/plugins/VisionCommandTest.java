@@ -144,7 +144,7 @@ public class VisionCommandTest {
                 "curie",
                 "davinci",
                 "gpt-4-vision-preview",
-                "gpt-4.5-vision-preview");
+                "gpt-4o");
         int counter = 0;
         for (String model : models) {
             JSONObject jsonObject = new JSONObject(String.format("{\"%s\": \"%s\" }", ID, model));

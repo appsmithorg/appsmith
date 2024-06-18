@@ -7,6 +7,7 @@ import { Provider } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import { BrowserRouter } from "react-router-dom";
+import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 
 const initialState = {
   ui: {
@@ -72,6 +73,20 @@ describe("Connection Success Modal", () => {
       type: ReduxActionTypes.GIT_SET_SETTINGS_MODAL_OPEN,
       payload: { open: true, tab: GitSettingsTab.BRANCH },
     });
+  });
+
+  it("'Learn more' link has proper URL", () => {
+    const { queryByTestId } = renderComponent();
+    expect(
+      queryByTestId("t--git-success-modal-learn-more-link")?.getAttribute(
+        "href",
+      ),
+    ).toBe(DOCS_BRANCH_PROTECTION_URL);
+    expect(
+      queryByTestId("t--git-success-modal-learn-more-link")?.getAttribute(
+        "target",
+      ),
+    ).toBe("_blank");
   });
 
   it("'Continue' cta button is working", () => {
