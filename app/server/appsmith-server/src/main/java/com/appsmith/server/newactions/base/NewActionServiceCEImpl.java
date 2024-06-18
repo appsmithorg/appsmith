@@ -579,7 +579,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 action != null ? action.getId() : null,
                 id);
 
-        return updateUnpublishedActionWithoutAnalytics(id, action, Optional.of(actionPermission.getEditPermission()))
+        return updateUnpublishedActionWithoutAnalytics(id, action, actionPermission.getEditPermission())
                 .zipWhen(zippedActions -> {
                     ActionDTO updatedActionDTO = zippedActions.getT1();
                     if (updatedActionDTO.getDatasource() != null
@@ -626,7 +626,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      */
     @Override
     public Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
-            String id, ActionDTO action, Optional<AclPermission> permission) {
+            String id, ActionDTO action, AclPermission permission) {
         log.debug(
                 "Updating unpublished action without analytics with action id: {} ",
                 action != null ? action.getId() : null);
@@ -848,12 +848,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
-        return deleteUnpublishedActionWithOptionalPermission(id, Optional.of(actionPermission.getDeletePermission()));
+        return deleteUnpublishedAction(id, actionPermission.getDeletePermission());
     }
 
     @Override
-    public Mono<ActionDTO> deleteUnpublishedActionWithOptionalPermission(
-            String id, Optional<AclPermission> newActionDeletePermission) {
+    public Mono<ActionDTO> deleteUnpublishedAction(String id, AclPermission newActionDeletePermission) {
         Mono<NewAction> actionMono = repository
                 .findById(id, newActionDeletePermission)
                 .switchIfEmpty(
