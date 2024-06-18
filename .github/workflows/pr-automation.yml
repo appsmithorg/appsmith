@@ -171,22 +171,19 @@ jobs:
 
       # In case of a runnable command, update the PR with run details
       - name: Add test response with link to workflow run
-        uses: nefrob/pr-description@v1.1.2
+        uses: actions/github-script@v7
+        env:
+          NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
+          BODY: |
+            > [!IMPORTANT]
+            > 🟣 🟣 🟣 Your tests are running.
+            > Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+            > Commit: ${{ github.event.pull_request.head.sha }}
+            > Workflow: `${{ github.workflow }}`
+            > Tags: `${{ steps.checkAll.outputs.tags }}`
         with:
-            content: |
-              <!-- This is an auto-generated comment: Cypress test results  -->
-              > [!IMPORTANT]
-              > 🟣 🟣 🟣 Your tests are running.
-              > Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
-              > Commit: ${{ github.event.pull_request.head.sha }}
-              > Workflow: `${{ github.workflow }}`
-              > Tags: `${{ steps.checkAll.outputs.tags }}`
-
-              <!-- end of auto-generated comment: Cypress test results  -->
-
-            regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
-            regexFlags: ims
-            token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            require("write-cypress-comment.js")({core, context, github}, process.env.BODY))
 
   # Call the workflow to run Cypress tests
   perform-test:
