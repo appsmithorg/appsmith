@@ -6,7 +6,6 @@ import {
   RadioGroup,
   Switch,
   Checkbox,
-  Radio,
 } from "@design-system/widgets";
 import { StoryGrid } from "@design-system/storybook";
 
@@ -28,11 +27,7 @@ const items = [
 export const LightMode: Story = {
   render: () => (
     <StoryGrid>
-      <RadioGroup defaultValue="1">
-        <Radio value="1">Option 1</Radio>
-        <Radio value="2">Option 2</Radio>
-        <Radio value="3">Opion 3</Radio>
-      </RadioGroup>
+      <RadioGroup defaultValue="1" items={items} />
       <ToggleGroup defaultValue={["1"]} items={items}>
         {({ label, value }) => (
           <Checkbox key={value} value={value}>
