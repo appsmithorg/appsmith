@@ -40,7 +40,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -115,14 +114,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     public Mono<T> findById(String id, AclPermission permission) {
         return queryBuilder().byId(id).permission(permission).one();
-    }
-
-    /**
-     * @deprecated using `Optional` for function arguments is an anti-pattern.
-     */
-    @Deprecated(forRemoval = true)
-    public Mono<T> findById(String id, Optional<AclPermission> permission) {
-        return findById(id, permission.orElse(null));
     }
 
     public Mono<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission) {
