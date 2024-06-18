@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 
 import BottomBar from "components/BottomBar";
@@ -24,17 +24,33 @@ function IDE() {
   const isCombinedPreviewMode = useSelector(combinedPreviewModeSelector);
   const isProtectedMode = useSelector(protectedModeSelector);
 
+  const leftRef = useRef<HTMLDivElement>(null);
+  const rightRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (leftRef.current && rightRef.current) {
+      if (isCombinedPreviewMode) {
+        leftRef.current.style.marginRight = `-${leftRef.current.getBoundingClientRect().width}px`;
+        rightRef.current.style.marginLeft = `-${rightRef.current.getBoundingClientRect().width}px`;
+      } else {
+        leftRef.current.style.marginRight = "0px";
+        rightRef.current.style.marginLeft = "0px";
+      }
+    }
+  }, [isCombinedPreviewMode]);
+
   return (
     <>
       {isProtectedMode && <ProtectedCallout />}
       <EditorWrapperContainer>
         <div
           className={classNames({
-            [`transition-transform transform duration-400 flex ${tailwindLayers.entityExplorer}`]:
+            [`transition-all transform duration-400 flex ${tailwindLayers.entityExplorer}`]:
               true,
-            relative: !isCombinedPreviewMode,
-            "-translate-x-full fixed": isCombinedPreviewMode,
+            // relative: !isCombinedPreviewMode,
+            "-translate-x-full": isCombinedPreviewMode,
           })}
+          ref={leftRef}
         >
           <Sidebar />
           <LeftPane />
@@ -42,11 +58,12 @@ function IDE() {
         <MainPane id="app-body" />
         <div
           className={classNames({
-            [`transition-transform transform duration-400 h-full ${tailwindLayers.propertyPane}`]:
+            [`transition-all transform duration-400 h-full flex ${tailwindLayers.propertyPane}`]:
               true,
-            relative: !isCombinedPreviewMode,
-            "translate-x-full fixed right-0": isCombinedPreviewMode,
+            // relative: !isCombinedPreviewMode,
+            "translate-x-full": isCombinedPreviewMode,
           })}
+          ref={rightRef}
         >
           <RightPane />
         </div>
