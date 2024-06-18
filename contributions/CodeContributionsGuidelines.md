@@ -7,7 +7,7 @@ Before raising a pull request, ensure you have raised a corresponding issue and 
 
 ### Good First Issues
 
-Looking for issues to contribute? [Good First Issues](https://github.com/appsmithorg/appsmith/issues?page=3&q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22) is a great place to begin your contribution journey with Appsmith! If you are choosing to pick issues outside this criteria, kindly collabrate with us closely. Failing to informing us first can lead to the rejection of the contribution you are trying to make and waste time on both ends. 
+Looking for issues to contribute to? Check out our [Good First Issues](https://github.com/appsmithorg/appsmith/issues?page=3&q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22) – a great starting point for your contribution journey with Appsmith! Tag @contributor-support to have an issue assigned to you. If you choose to work on issues outside this list, please collaborate closely with us. Failure to inform and get the issue assigned beforehand may result in your contribution being rejected, leading to wasted effort for both parties.
 
 #### What not to do:
 1. Work on issues without informing the maintainer. Please get them assigned to yourself first. Comment on the issue if you are intrested. 
@@ -15,7 +15,7 @@ Looking for issues to contribute? [Good First Issues](https://github.com/appsmit
 3. Create PR(s) without proper proper description. 
 4. Requesting for review without latest release pull on PR. 
 5. Raising PR(s) without tests.  
-6. Not going though the code contibution guidelines before first contribution. Just kidding, you are already here 
+6. Not going though the code contibution guidelines before first contribution. Just kidding, you are already here 😉
 
 ### 🍴 Git Workflow
 
