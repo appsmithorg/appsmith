@@ -12,7 +12,6 @@
     "directory": "deploy/docker"
   },
   "dependencies": {
-    "braces": "3.0.3",
     "dotenv": "10.0.0",
     "mongodb": "^5.8.0",
     "nodemailer": "6.9.9",
