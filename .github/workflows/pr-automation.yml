@@ -183,7 +183,7 @@ jobs:
             > Tags: `${{ steps.checkAll.outputs.tags }}`
         with:
           script: |
-            require("write-cypress-comment.js")({core, context, github}, process.env.BODY))
+            require("write-cypress-comment.js")({core, context, github}, process.env.BODY)
 
   # Call the workflow to run Cypress tests
   perform-test:
