@@ -39,9 +39,11 @@ import EditorNavigation, {
   
         // check for the position alignment
         cy.get(commonlocators.optionposition).last().click({ force: true });
-        cy.wait(200);
+        cy.get('.t--jsonformfield-customField1.switch')
+        .should('have.attr', 'direction', 'row-reverse');
         cy.get(commonlocators.optionpositionL).last().click({ force: true });
-        cy.wait(200);
+        cy.get('.t--jsonformfield-customField1.switch')
+        .should('have.attr', 'direction', 'row');
         cy.closePropertyPane();
   
         const sourceData = {
