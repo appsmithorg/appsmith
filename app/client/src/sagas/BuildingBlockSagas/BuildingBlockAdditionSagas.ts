@@ -47,6 +47,7 @@ import {
   getBoundaryWidgetsFromCopiedGroups,
   getNextWidgetName,
   getReflowedPositions,
+  handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
 } from "../WidgetOperationUtils";
 
@@ -851,5 +852,7 @@ function handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
       );
       break;
   }
+  widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
+
   return widgets;
 }

@@ -139,6 +139,7 @@ import {
   getValueFromTree,
   getWidgetDescendantToReset,
   groupWidgetsIntoContainer,
+  handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
   isSelectedWidgetsColliding,
   mergeDynamicPropertyPaths,
@@ -1546,6 +1547,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
               widgetNameMap,
               newWidgetList,
             );
+            widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
           }
         }),
       ),
