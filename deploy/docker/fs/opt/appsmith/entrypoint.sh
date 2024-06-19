@@ -418,18 +418,18 @@ init_postgres() {
   # Initialize embedded postgres by default; set APPSMITH_ENABLE_EMBEDDED_DB to 0, to use existing cloud postgres mockdb instance
   if [[ ${APPSMITH_ENABLE_EMBEDDED_DB: -1} != 0 ]]; then
     tlog "Checking initialized local postgres"
-    local postgres_db_path="$stacks_path/data/postgres/main"
+    POSTGRES_DB_PATH="$stacks_path/data/postgres/main"
 
-    mkdir -p "$postgres_db_path" "$TMP/pg-runtime"
+    mkdir -p "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
 
     # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-    chown -R postgres:postgres "$postgres_db_path" "$TMP/pg-runtime"
+    chown -R postgres:postgres "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
 
-    if [[ -e "$postgres_db_path/PG_VERSION" ]]; then
+    if [[ -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
       /opt/appsmith/pg-upgrade.sh
     else
       tlog "Initializing local Postgres data folder"
-      su postgres -c "env PATH='$PATH' initdb -D $postgres_db_path"
+      su postgres -c "env PATH='$PATH' initdb -D $POSTGRES_DB_PATH"
     fi
   else
     runEmbeddedPostgres=0
