@@ -31,10 +31,6 @@
     --radio-box-shadow: 0px 0px 0px var(--radio-border-width)
       var(--radio-border-color) inset;
 
-    /**
-      Radio icon are positioned absolutely because we need to align the elements along the baseline
-      but icon takes more space than the text content.
-    */
     content: "";
     width: var(--sizing-5);
     height: var(--sizing-5);
