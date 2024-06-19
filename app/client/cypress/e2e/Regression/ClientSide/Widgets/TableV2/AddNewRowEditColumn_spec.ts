@@ -40,11 +40,11 @@ describe(
       toggle: "On" | "Off" = "On",
     ) {
       _.propPane.TogglePropertyState(propertyName, toggle);
-      cy.get(commonlocators.editPropBackButton).click({ force: true });
+      _.agHelper.GetNClick(commonlocators.editPropBackButton)
     }
     it("1. Verify Date column is visible and editable", () => {
       _.propPane.TogglePropertyState("Allow adding a row", "On");
-      cy.get(table._addNewRow).should("exist");
+      _.agHelper.AssertElementExist(table._addNewRow)
   
       _.table.EditColumn("step", "v2");
 
@@ -53,20 +53,19 @@ describe(
      
       togglePropertyAndGoBack("Editable", "On");
       _.agHelper.GetNClick(table._addNewRow)
-      cy.get(".tableWrap .new-row").should("exist");
+      _.agHelper.AssertElementExist(".tableWrap .new-row")
 
       _.table.EditTableCell(0, 0, "22");
 
       _.table.EditTableCell(0, 3, "");
 
       _.agHelper.GetNClick(".DayPicker-Day--today")
-      cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
-     
+
+      _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 300,600);
       _.propPane.UpdatePropertyFieldValue("Text", `{{Table1.newRow.Date}}`);
 
       const localISOTime = getCurrentDateISO();
-      cy.get(".t--widget-textwidget").should("contain", localISOTime.split("T")[0] + "T00:00:00+05:30");
-    
+      _.agHelper.GetNAssertContains(commonlocators.textWidgetName,localISOTime.split("T")[0] + "T00:00:00+05:30")
     });
   },
 );
