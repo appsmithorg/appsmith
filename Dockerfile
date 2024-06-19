@@ -40,6 +40,9 @@ RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd 
   && chmod ugo+w /etc /appsmith-stacks \
   && chmod -R ugo+w /var/run /.mongodb /etc/ssl /usr/local/share
 
+LABEL com.centurylinklabs.watchtower.lifecycle.pre-check=/watchtower-hooks/pre-check.sh
+LABEL com.centurylinklabs.watchtower.lifecycle.pre-update=/watchtower-hooks/pre-update.sh
+
 # Temporary, until we can change Postgres version in `base.dockerfile`.
 RUN <<END
   apt update
@@ -47,9 +50,6 @@ RUN <<END
   apt clean
 END
 ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
-
-LABEL com.centurylinklabs.watchtower.lifecycle.pre-check=/watchtower-hooks/pre-check.sh
-LABEL com.centurylinklabs.watchtower.lifecycle.pre-update=/watchtower-hooks/pre-update.sh
 
 EXPOSE 80
 EXPOSE 443
