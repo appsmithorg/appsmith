@@ -39,7 +39,6 @@ import {
   isDropTarget,
 } from "../WidgetOperationUtils";
 import _ from "lodash";
-import { isString } from "utils/helpers";
 
 export /**
  * Method to provide the new positions where the widgets can be pasted.
@@ -394,45 +393,6 @@ function* getNewPositionsBasedOnSelectedWidgets(
     reflowedMovementMap,
     canvasId: parentId,
   };
-}
-
-export function handleTextWidgetWhenPasting(
-  widgetNameMap: Record<string, string>,
-  widget: FlattenedWidgetProps,
-) {
-  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
-    if (isString(widget.text) && widget.text.includes(oldWidgetName)) {
-      widget.text = widget.text.replaceAll(oldWidgetName, newWidgetName);
-    }
-  });
-}
-
-export function handleImageWidgetWhenPasting(
-  widgetNameMap: Record<string, string>,
-  widget: FlattenedWidgetProps,
-) {
-  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
-    if (isString(widget.image) && widget.image.includes(oldWidgetName)) {
-      widget.image = widget.image.replaceAll(oldWidgetName, newWidgetName);
-    }
-  });
-}
-
-export function handleJSONFormWidgetWhenPasting(
-  widgetNameMap: Record<string, string>,
-  widget: FlattenedWidgetProps,
-) {
-  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
-    if (
-      isString(widget.sourceData) &&
-      widget.sourceData.includes(oldWidgetName)
-    ) {
-      widget.sourceData = widget.sourceData.replaceAll(
-        oldWidgetName,
-        newWidgetName,
-      );
-    }
-  });
 }
 
 export function handleJSONFormPropertiesListedInDynamicBindingPath(

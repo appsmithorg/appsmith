@@ -56,11 +56,10 @@ import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUt
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import {
   getNewPositions,
-  handleButtonDynamicTriggerPathList,
-  handleImageWidgetWhenPasting,
+  handleWidgetDynamicBindingPathList,
+  handleWidgetDynamicPropertyPathList,
+  handleWidgetDynamicTriggerPathList,
   handleJSONFormPropertiesListedInDynamicBindingPath,
-  handleJSONFormWidgetWhenPasting,
-  handleTextWidgetWhenPasting,
 } from "../PasteWidgetUtils";
 
 import ApplicationApi, {
@@ -830,27 +829,22 @@ function handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
   widgetNameMap: Record<string, string>,
   newWidgetList: FlattenedWidgetProps[],
 ) {
-  switch (widget?.type) {
-    case "JSON_FORM_WIDGET":
-      handleJSONFormWidgetWhenPasting(widgetNameMap, widget);
-      break;
-    case "TEXT_WIDGET":
-      handleTextWidgetWhenPasting(widgetNameMap, widget);
-      break;
-    case "IMAGE_WIDGET":
-      handleImageWidgetWhenPasting(widgetNameMap, widget);
-      break;
-    case "BUTTON_WIDGET":
-      handleButtonDynamicTriggerPathList(widgetNameMap, widget);
-      break;
-    default:
-      widgets = handleSpecificCasesWhilePasting(
-        widget,
-        widgets,
-        widgetNameMap,
-        newWidgetList,
-      );
-      break;
+  if (["LIST_WIDGET", "LIST_WIDGET_V2", "MODAL_WIDGET"].includes(widget.type)) {
+    widgets = handleSpecificCasesWhilePasting(
+      widget,
+      widgets,
+      widgetNameMap,
+      newWidgetList,
+    );
+  }
+  if (!!widget.dynamicTriggerPathList) {
+    handleWidgetDynamicTriggerPathList(widgetNameMap, widget);
+  }
+  if (!!widget.dynamicBindingPathList) {
+    handleWidgetDynamicBindingPathList(widgetNameMap, widget);
+  }
+  if (!!widget.dynamicPropertyPathList) {
+    handleWidgetDynamicPropertyPathList(widgetNameMap, widget);
   }
   widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
 
