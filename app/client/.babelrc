@@ -1,21 +1,36 @@
 {
-  "plugins": [
-    ["module-resolver", {
-      "root": ["./src"],
-      "alias": {
-        "utils": "./src/utils/",
-        "test/*": ["../test/*"],
-        "underscore": "lodash",
-        "constants": "./src/constants/",
-        "components": "./src/components/",
-        "selectors": "./src/selectors/",
-        "reducers": "./src/reducers/",
-        "actions":"./src/actions/",
-        "api": "./src/api/",
-        "assets": "./src/assets/",
-        "sagas": "./src/sagas/",
-        "@appsmith": "./src/ee"
+  "presets": [
+    "@babel/preset-env",
+    [
+      "@babel/preset-react",
+      {
+        "runtime": "automatic"
       }
-    }, "babel-plugin-styled-components"]
+    ],
+    "@babel/preset-typescript"
+  ],
+  "plugins": [
+    // [
+    //   "module-resolver",
+    //   {
+    //     "root": ["./src"],
+    //     "alias": {
+    //       "utils": "./src/utils/",
+    //       "test/*": ["../test/*"],
+    //       "underscore": "lodash",
+    //       "constants": "./src/constants/",
+    //       "components": "./src/components/",
+    //       "selectors": "./src/selectors/",
+    //       "reducers": "./src/reducers/",
+    //       "actions": "./src/actions/",
+    //       "api": "./src/api/",
+    //       "assets": "./src/assets/",
+    //       "sagas": "./src/sagas/",
+    //       "@appsmith": "./src/ee"
+    //     }
+    //   }
+    // ],
+    "babel-plugin-styled-components",
+    ["@babel/plugin-proposal-decorators", { "version": "2023-11" }]
   ]
 }

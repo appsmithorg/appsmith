@@ -45,12 +45,7 @@ module.exports = {
     rules: [
       {
         test: /\.less$/i,
-        use: [
-          // compiles Less to CSS
-          "style-loader",
-          "css-loader",
-          "less-loader",
-        ],
+        use: ["style-loader", "css-loader", "less-loader"],
       },
       {
         test: /\.(png|jpe?g|gif|svg|json\.txt)$/i,
@@ -64,7 +59,8 @@ module.exports = {
         test: /\.(ts|tsx)$/,
         exclude: /(node_modules)/,
         use: {
-          loader: "swc-loader",
+          // loader: "swc-loader",
+          loader: "babel-loader",
         },
       },
       {

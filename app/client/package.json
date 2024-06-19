@@ -9,6 +9,12 @@
     "node": "^20.11.1",
     "yarn": "^3.5.1"
   },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie <= 11",
+    "not op_mini all"
+  ],
   "packageManager": "yarn@3.5.1",
   "cracoConfig": "craco.dev.config.js",
   "workspaces": [
@@ -239,15 +245,13 @@
     "yjs": "^13.5.12",
     "zipcelx": "^1.6.2"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ],
   "devDependencies": {
     "@babel/helper-create-regexp-features-plugin": "^7.18.6",
     "@babel/helper-string-parser": "^7.19.4",
+    "@babel/plugin-proposal-decorators": "^7.24.7",
+    "@babel/preset-env": "^7.24.7",
+    "@babel/preset-react": "^7.24.7",
+    "@babel/preset-typescript": "^7.24.7",
     "@craco/craco": "^7.0.0",
     "@cypress/grep": "^4.0.1",
     "@faker-js/faker": "^7.4.0",
