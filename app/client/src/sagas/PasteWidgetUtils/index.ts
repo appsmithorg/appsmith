@@ -419,14 +419,18 @@ export function accessNestedObjectValue(
   newValue: string,
 ) {
   // this function is a utility for finding and replacing a specific value within a nested object structure, given a path to the value.
-  _.set(
-    obj,
-    path,
-    _.get(obj, path, "").replace(
-      new RegExp(_.escapeRegExp(oldValue), "g"),
-      newValue,
-    ),
-  );
+  // since this replacement can occur multiple times within the object, to prevent unnecessary replacements(& wrong replacements), we check if the value already contains the newValue before replacing it.
+  const currentPathValue = _.get(obj, path, "");
+  if (!currentPathValue.includes(newValue)) {
+    _.set(
+      obj,
+      path,
+      currentPathValue.replace(
+        new RegExp(_.escapeRegExp(oldValue), "g"),
+        newValue,
+      ),
+    );
+  }
 }
 
 export function handleWidgetDynamicTriggerPathList(
