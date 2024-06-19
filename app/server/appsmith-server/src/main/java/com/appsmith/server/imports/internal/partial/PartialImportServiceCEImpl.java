@@ -62,8 +62,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -472,13 +470,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                         params1.add(FieldName.PAGE_ID, branchedPageId);
                         newActionService.getUnpublishedActions(params1, branchName);
 
-                        List<String> newActions = new ArrayList<>();
-                        applicationJson.getActionList().forEach(action -> {
-                            String newName = buildingBlockImportDTO
-                                    .getRefactoredEntityNameMap()
-                                    .get(action.getUnpublishedAction().getName());
-                            newActions.add(newName);
-                        });
+                        List<String> newActions = applicationJson.getActionList().stream()
+                                .map(newAction ->
+                                        newAction.getUnpublishedAction().getName())
+                                .toList();
 
                         return newPageService
                                 .findByBranchNameAndDefaultPageId(
