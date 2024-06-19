@@ -65,6 +65,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
@@ -191,10 +192,10 @@ public class DatasourceContextServiceTest {
 
         doReturn(Mono.just(datasource))
                 .when(datasourceRepository)
-                .findById("id1", datasourcePermission.getDeletePermission());
+                .findById(eq("id1"), eq(datasourcePermission.getDeletePermission()));
         doReturn(Mono.just(datasource))
                 .when(datasourceRepository)
-                .findById("id1", datasourcePermission.getExecutePermission());
+                .findById(eq("id1"), eq(datasourcePermission.getExecutePermission()));
         doReturn(Mono.just(new Plugin())).when(pluginService).findById("mockPlugin");
         doReturn(Mono.just(0L)).when(newActionRepository).countByDatasourceId("id1");
         doReturn(Mono.just(datasource)).when(datasourceRepository).archiveById("id1");
