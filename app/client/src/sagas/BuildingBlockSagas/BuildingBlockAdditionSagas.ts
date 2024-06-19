@@ -222,26 +222,13 @@ export function* loadBuildingBlocksIntoApplication(
         },
       });
 
-      const extractedActions: Action[] = response.data.newActionList.map(
-        (action) => ({
-          ...action.unpublishedAction,
-          applicationId: action.applicationId,
-          id: action.id,
-          new: action.new,
-          pluginId: action.pluginId,
-          pluginType: action.pluginType,
-          userPermissions: action.userPermissions,
-          workspaceId: action.workspaceId,
-        }),
-      );
-
       yield pasteBuildingBlockWidgetsSaga(
         {
           top: topRow,
           left: leftColumn,
         },
         buildingBlockWidget.widgetId,
-        extractedActions,
+        response.data.newActionList,
       );
 
       const timeTakenToDropWidgetsInSeconds =

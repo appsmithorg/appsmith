@@ -8,9 +8,13 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
 import {
   addAndMoveBuildingBlockToCanvasSaga,
+  addBuildingBlockToCanvasSaga,
   loadBuildingBlocksIntoApplication,
 } from "../BuildingBlockAdditionSagas";
-import { actionPayload, skeletonWidget } from "./fixtures";
+import { actionPayload, addEntityAction, skeletonWidget } from "./fixtures";
+import type { WidgetAddChild } from "actions/pageActions";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { addChildSaga } from "sagas/WidgetAdditionSagas";
 
 type GeneratorType = Generator<
   CallEffect | SelectEffect | PutEffect,
@@ -100,9 +104,100 @@ describe("addAndMoveBuildingBlockToCanvasSaga", () => {
     expect(result.done).toBe(true);
   });
 
-  it("2. should handle errors gracefully", () => {
+  it("2. should handle add and move errors gracefully", () => {
     const generator: GeneratorType =
       addAndMoveBuildingBlockToCanvasSaga(actionPayload);
+
+    generator.next();
+    // Introduce an error by throwing one manually
+    const error = new Error("Something went wrong");
+    try {
+      generator.throw(error);
+    } catch (err) {
+      expect(err).toBe(error);
+    }
+  });
+});
+
+describe("addBuildingBlockToCanvasSaga", () => {
+  it("1. should add a skeleton widget and initiate a building block drop", () => {
+    const generator: GeneratorType =
+      addBuildingBlockToCanvasSaga(addEntityAction);
+
+    // Step 1: select getCurrentApplicationId
+    let result = generator.next();
+    expect(result.value).toEqual(select(getCurrentApplicationId));
+
+    // Mock return value of getCurrentApplicationId
+    const applicationId = "app1";
+    result = generator.next(applicationId);
+    expect(result.value).toEqual(select(getCurrentWorkspaceId));
+
+    // Step 2: select getCurrentWorkspaceId
+    const workspaceId = "workspace1";
+    result = generator.next(workspaceId);
+    expect(result.value).toEqual(select(getDragDetails));
+
+    // Step 3: select getDragDetails
+    const dragDetails = {
+      newWidget: {
+        displayName: "TestWidget",
+      },
+    };
+    result = generator.next(dragDetails);
+
+    // Generating the skeletonWidgetName
+    const buildingblockName = dragDetails.newWidget.displayName;
+    const skeletonWidgetName = `loading_${buildingblockName.toLowerCase().replace(/ /g, "_")}`;
+
+    const addSkeletonWidgetAction: ReduxAction<
+      WidgetAddChild & { shouldReplay: boolean }
+    > = {
+      ...addEntityAction,
+      payload: {
+        ...addEntityAction.payload,
+        type: "SKELETON_WIDGET",
+        widgetName: skeletonWidgetName,
+        shouldReplay: false,
+      },
+    };
+
+    // Step 4: call initiateBuildingBlockDropEvent
+    expect(result.value).toEqual(
+      call(initiateBuildingBlockDropEvent, {
+        applicationId,
+        workspaceId,
+        buildingblockName,
+      }),
+    );
+
+    // Step 5: call addChildSaga
+    result = generator.next();
+    expect(result.value).toEqual(call(addChildSaga, addSkeletonWidgetAction));
+
+    // Step 6: select getWidgetByName
+    result = generator.next();
+    expect(result.value).toEqual(select(getWidgetByName, skeletonWidgetName));
+
+    result = generator.next(skeletonWidget);
+
+    // Step 7: call loadBuildingBlocksIntoApplication
+    expect(result.value).toEqual(
+      call(
+        loadBuildingBlocksIntoApplication,
+        addEntityAction.payload,
+        skeletonWidget.widgetId,
+      ),
+    );
+
+    // Complete the generator
+    result = generator.next();
+    expect(result.done).toBe(true);
+  });
+
+  it("2. should handle add errors gracefully", () => {
+    const generator: GeneratorType =
+      addBuildingBlockToCanvasSaga(addEntityAction);
 
     generator.next();
     // Introduce an error by throwing one manually
