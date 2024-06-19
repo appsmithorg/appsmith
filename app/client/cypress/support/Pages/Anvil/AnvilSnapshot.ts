@@ -12,12 +12,12 @@ export class AnvilSnapshot {
     appViewerPage: "[data-testid=t--app-viewer-page-body]",
   };
 
-  public verifyCanvasMode = (widgetName: string) => {
-    cy.get(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}Canvas`);
+  public verifyCanvasMode = async (widgetName: string) => {
+    this.agHelper.GetElement(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}Canvas`);
 
     this.setTheme("dark");
 
-    cy.get(this.locators.canvas).matchImageSnapshot(
+    this.agHelper.GetElement(this.locators.canvas).matchImageSnapshot(
       `anvil${widgetName}CanvasDark`,
     );
 
@@ -30,7 +30,7 @@ export class AnvilSnapshot {
     this.agHelper.GetNClick(this.locators.canvas);
 
 
-    cy.get(this.locators.canvas).matchImageSnapshot(
+    this.agHelper.GetElement(this.locators.canvas).matchImageSnapshot(
       `anvil${widgetName}Preview`,
     );
 
@@ -54,7 +54,7 @@ export class AnvilSnapshot {
     devices.forEach((device) => {
       cy.viewport(device);
 
-      cy.get(this.locators.appViewerPage).matchImageSnapshot(
+      this.agHelper.GetElement(this.locators.appViewerPage).matchImageSnapshot(
         `anvil${widgetName}Deploy${device}`,
         {
           capture: "fullPage",
