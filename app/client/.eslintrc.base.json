@@ -55,6 +55,7 @@
     // enforce `import type` for all type-only imports so the bundler knows to erase them
     "@typescript-eslint/consistent-type-imports": "error",
     "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn",
     "react/jsx-boolean-value": "error",
     "react/self-closing-comp": "error",
     "react/jsx-sort-props": "error",
