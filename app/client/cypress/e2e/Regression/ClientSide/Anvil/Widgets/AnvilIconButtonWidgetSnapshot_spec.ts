@@ -1,14 +1,14 @@
-import { ANVIL_EDITOR_TEST } from "../../../../../../support/Constants";
+import { ANVIL_EDITOR_TEST } from "../../../../../support/Constants";
 import {
   agHelper,
   anvilSnapshot,
-} from "../../../../../../support/Objects/ObjectsCore";
+} from "../../../../../support/Objects/ObjectsCore";
 
 describe(
-  `${ANVIL_EDITOR_TEST}: Anvil tests for Inline Button Widget`,
+  `${ANVIL_EDITOR_TEST}: Anvil tests for Icon Button Widget`,
   { tags: ["@tag.Anvil"] },
   () => {
-    const widgetName = "InlineButtonWidget";
+    const widgetName = "IconButtonWidget";
 
     before(() => {
       agHelper.AddDsl(`anvil${widgetName}`);
