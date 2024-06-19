@@ -285,7 +285,6 @@ export const handleSpecificCasesWhilePasting = (
   }
 
   widgets = handleListWidgetV2Pasting(widget, widgets, widgetNameMap);
-
   return widgets;
 };
 export function getWidgetChildrenIds(
