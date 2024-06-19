@@ -23,10 +23,10 @@
     "plugin:@typescript-eslint/recommended",
     "plugin:cypress/recommended",
     "plugin:testing-library/react",
+    "plugin:react-hooks/recommended",
     // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
     // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
-    "plugin:prettier/recommended",
-    "plugin:react-hooks/recommended"
+    "plugin:prettier/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 2020, // Allows for the parsing of modern ECMAScript features
