@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
-import { ToggleButton } from "design-system";
+import { Flex, ScrollArea, ToggleButton } from "design-system";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import {
@@ -20,6 +20,7 @@ import { List } from "./List";
 import { ScreenModeToggle } from "./ScreenModeToggle";
 
 const EditorTabs = () => {
+  const stickyRef = useRef(null);
   const [showListView, setShowListView] = useState(false);
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const ideViewMode = useSelector(getIDEViewMode);
@@ -73,14 +74,33 @@ const EditorTabs = () => {
             size="md"
           />
         )}
-        <FileTabs
-          currentTab={activeTab}
-          navigateToTab={onTabClick}
-          newTabClickCallback={newTabClickHandler}
-          onClose={closeClickHandler}
-          tabs={files}
-        />
-        {files.length > 0 ? <AddButton /> : null}
+        <ScrollArea
+          className="h-[32px] top-[0.5px]"
+          data-testid="t--editor-tabs"
+          options={{
+            overflow: {
+              x: "scroll",
+              y: "hidden",
+            },
+          }}
+          size={"sm"}
+        >
+          <Flex className="items-center" gap="spaces-2" height="100%">
+            <FileTabs
+              currentTab={activeTab}
+              navigateToTab={onTabClick}
+              onClose={closeClickHandler}
+              tabs={files}
+            />
+            {files.length > 0 ? (
+              <AddButton
+                newTabClickCallback={newTabClickHandler}
+                onClose={closeClickHandler}
+                ref={stickyRef}
+              />
+            ) : null}
+          </Flex>
+        </ScrollArea>
 
         {/* Switch screen mode button */}
         <ScreenModeToggle />

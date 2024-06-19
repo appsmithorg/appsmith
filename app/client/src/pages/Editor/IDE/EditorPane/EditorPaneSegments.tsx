@@ -29,7 +29,6 @@ const EditorPaneSegments = () => {
     <Flex
       className="relative"
       flexDirection="column"
-      gap="spaces-2"
       height="100%"
       overflow="hidden"
     >
