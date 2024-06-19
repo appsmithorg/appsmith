@@ -132,8 +132,6 @@ export class DataSources {
   _selectedActiveTab = "button[aria-selected='true'] " + this._activeTab;
   _contextMenuDSReviewPage = "[data-testid='t--context-menu-trigger']";
   _contextMenuDelete = ".t--datasource-option-delete";
-  _datasourceCardGeneratePageBtn =
-    ".t--generate-template, .t--datasource-generate-page";
   _queryOption = (option: string) =>
     "//div[contains(@class, 'rc-select-item-option-content') and text() = '" +
     option +
@@ -949,12 +947,6 @@ export class DataSources {
       this.cancelIfEditing();
     }
     this.CreateQueryAfterDSSaved(query, queryName);
-  }
-
-  public GeneratePageForDS(datasourceName: string) {
-    EditorNavigation.SelectEntityByName(datasourceName, EntityType.Datasource);
-    this.cancelIfEditing();
-    this.agHelper.GetNClick(this._datasourceCardGeneratePageBtn);
   }
 
   private cancelIfEditing() {

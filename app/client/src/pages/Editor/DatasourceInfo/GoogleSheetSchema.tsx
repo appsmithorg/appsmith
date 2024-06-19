@@ -1,7 +1,17 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { DropdownOption } from "design-system-old";
+import {
+  GSHEET_SEARCH_PLACEHOLDER,
+  createMessage,
+} from "@appsmith/constants/messages";
+import { getDatasource } from "@appsmith/selectors/entitiesSelector";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { setEntityCollapsibleState } from "actions/editorContextActions";
 import { Button, SearchInput } from "design-system";
+import type { DropdownOption } from "design-system-old";
+import { isEmpty } from "lodash";
+import Table from "pages/Editor/QueryEditor/Table";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import Entity from "../Explorer/Entity";
 import {
   useSheetData,
   useSheetsList,
@@ -9,31 +19,11 @@ import {
 } from "../GeneratePage/components/GeneratePageForm/hooks";
 import type { DropdownOptions } from "../GeneratePage/components/constants";
 import { DEFAULT_DROPDOWN_OPTION } from "../GeneratePage/components/constants";
-import { isEmpty } from "lodash";
-import Table from "pages/Editor/QueryEditor/Table";
-import {
-  getCurrentApplicationId,
-  getPagePermissions,
-} from "selectors/editorSelectors";
-import { generateTemplateToUpdatePage } from "actions/pageActions";
-import {
-  createMessage,
-  DATASOURCE_GENERATE_PAGE_BUTTON,
-  GSHEET_SEARCH_PLACEHOLDER,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import type { AppState } from "@appsmith/reducers";
-import { getDatasource } from "@appsmith/selectors/entitiesSelector";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import {
-  getHasCreatePagePermission,
-  hasCreateDSActionPermissionInApp,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import DatasourceField from "./DatasourceField";
+import DatasourceStructureHeader from "./DatasourceStructureHeader";
+import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import RenderInterimDataState from "./RenderInterimDataState";
 import {
-  ButtonContainer,
   DataWrapperContainer,
   DatasourceAttributesWrapper,
   DatasourceDataContainer,
@@ -43,14 +33,6 @@ import {
   TableWrapper,
   ViewModeSchemaContainer,
 } from "./SchemaViewModeCSS";
-import DatasourceStructureHeader from "./DatasourceStructureHeader";
-import Entity from "../Explorer/Entity";
-import DatasourceField from "./DatasourceField";
-import { setEntityCollapsibleState } from "actions/editorContextActions";
-import ItemLoadingIndicator from "./ItemLoadingIndicator";
-import { useEditorType } from "@appsmith/hooks";
-import history from "utils/history";
-import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 
 interface Props {
   datasourceId: string;
@@ -83,8 +65,6 @@ function GoogleSheetSchema(props: Props) {
     selectedSpreadSheet?: string;
   }>({});
 
-  const isGeneratePageLoading = useSelector(getIsGeneratingTemplatePage);
-
   const handleSearch = (value: string) => {
     setSearchString(value.toLowerCase());
 
@@ -110,7 +90,6 @@ function GoogleSheetSchema(props: Props) {
       setSheetData: setSlicedSheetData,
     });
 
-  const applicationId: string = useSelector(getCurrentApplicationId);
   const datasource = useSelector((state) =>
     getDatasource(state, props.datasourceId),
   );
@@ -316,52 +295,6 @@ function GoogleSheetSchema(props: Props) {
   const isLoading =
     isFetchingSpreadsheets || isFetchingSheetsList || isFetchingSheetData;
 
-  const onGsheetGeneratePage = () => {
-    const payload = {
-      applicationId: applicationId || "",
-      pageId: "",
-      columns: sheetData?.length > 0 ? Object.keys(sheetData[0]) : [],
-      searchColumn: "",
-      tableName: selectedSheet?.value || "",
-      datasourceId: props.datasourceId || "",
-      pluginSpecificParams: {
-        sheetName: selectedSheet?.value || "",
-        sheetUrl: selectedSpreadsheet?.value || "",
-        tableHeaderIndex: 1,
-      },
-    };
-
-    AnalyticsUtil.logEvent("GSHEET_GENERATE_PAGE_BUTTON_CLICKED", {
-      datasourceId: props.datasourceId,
-      pluginId: props.pluginId,
-    });
-
-    dispatch(generateTemplateToUpdatePage(payload));
-  };
-
-  const pagePermissions = useSelector(getPagePermissions);
-  const datasourcePermissions = datasource?.userPermissions || [];
-
-  const userAppPermissions = useSelector(
-    (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
-  );
-
-  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-
-  const editorType = useEditorType(history.location.pathname);
-
-  const canCreatePages = getHasCreatePagePermission(
-    isFeatureEnabled,
-    userAppPermissions,
-  );
-
-  const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
-    isEnabled: isFeatureEnabled,
-    dsPermissions: datasourcePermissions,
-    pagePermissions,
-    editorType,
-  });
-
   const refreshSpreadSheetButton = (option: DropdownOption) => (
     <Button
       isIconButton
@@ -370,13 +303,6 @@ function GoogleSheetSchema(props: Props) {
       startIcon="refresh"
     />
   );
-
-  const showGeneratePageBtn =
-    !isLoading &&
-    !isError &&
-    sheetData?.length &&
-    canCreateDatasourceActions &&
-    canCreatePages;
 
   const filteredSpreadsheets = spreadsheetOptions.filter((option) =>
     (option.label || "").toLowerCase()?.includes(searchString),
@@ -497,20 +423,6 @@ function GoogleSheetSchema(props: Props) {
           </TableWrapper>
         </DatasourceDataContainer>
       </DataWrapperContainer>
-      {showGeneratePageBtn && (
-        <ButtonContainer>
-          <Button
-            className="t--datasource-generate-page"
-            isLoading={isGeneratePageLoading}
-            key="datasource-generate-page"
-            kind="primary"
-            onClick={onGsheetGeneratePage}
-            size="md"
-          >
-            {createMessage(DATASOURCE_GENERATE_PAGE_BUTTON)}
-          </Button>
-        </ButtonContainer>
-      )}
     </ViewModeSchemaContainer>
   );
 }
