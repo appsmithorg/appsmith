@@ -27,9 +27,9 @@ export class AnvilSnapshot {
   public verifyPreviewMode = (widgetName: string) => {
     this.enterPreviewMode();
 
-    cy.wait(500);
-
     cy.get(this.locators.canvas).click();
+
+    cy.wait(500);
 
     cy.get(this.locators.canvas).matchImageSnapshot(
       `anvil${widgetName}Preview`,
