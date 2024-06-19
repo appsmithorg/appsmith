@@ -79,6 +79,7 @@ export class AnvilSnapshot {
       `${this.locators.colorMode} [data-value=${theme.toUpperCase()}]`,
     );
 
-    this.agHelper.GetNClick(this.locators.canvas);
+    this.appSettings.ClosePane();
   };
+
 }
