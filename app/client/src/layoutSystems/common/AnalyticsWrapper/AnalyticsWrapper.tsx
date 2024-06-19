@@ -18,12 +18,7 @@ export const AnalyticsWrapper: React.FC = ({ children }) => {
 
     if (
       isInSideBySideEditor &&
-      (isAnvil ||
-        (wrapperElement &&
-          wrapperElement !== e.relatedTarget &&
-          e.relatedTarget instanceof Element &&
-          e.relatedTarget.contains(wrapperElement) &&
-          e.target instanceof Element))
+      (isAnvil || (wrapperElement && wrapperElement === e.target))
     ) {
       dispatch(sendAnalyticsForSideBySideHover());
     }
