@@ -42,6 +42,9 @@ public class PermissionAspect {
         if (permissionWithoutUserContext == null) {
             return joinPoint.proceed(joinPoint.getArgs());
         }
+        // Make sure the user context is not available in the permission object to avoid any static data leaks from the
+        // earlier call.
+        permissionWithoutUserContext.setUser(null);
 
         Mono<AclPermission> permissionMono = updateAclWithUserContext(permissionWithoutUserContext);
         Class<?> returnType =
