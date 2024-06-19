@@ -38,11 +38,13 @@ if [[ -f "$pg_data_dir/postmaster.pid" ]]; then
 	exit 1
 fi
 
+top_available_version="$(postgres --version | grep -o '[[:digit:]]\+' | head -1)"
+
 declare -a to_uninstall
 to_uninstall=()
 
 # 13 to 14
-if [[ "$old_version" == 13 ]]; then
+if [[ "$old_version" == 13 && "$top_available_version" > "$old_version" ]]; then
 	if [[ ! -e "$postgres_path/$old_version" ]]; then
 		apt-get update
 		apt-get install --yes "postgresql-$old_version"
