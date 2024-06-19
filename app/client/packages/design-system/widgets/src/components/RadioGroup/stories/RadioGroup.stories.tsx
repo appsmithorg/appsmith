@@ -1,6 +1,6 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { RadioGroup, Radio, Flex } from "@design-system/widgets";
+import { RadioGroup, Flex } from "@design-system/widgets";
 
 /**
  * Radio group is a component that allows users to select one option from a set of options.
@@ -13,17 +13,18 @@ const meta: Meta<typeof RadioGroup> = {
 export default meta;
 type Story = StoryObj<typeof RadioGroup>;
 
+const items = [
+  { label: "Value 1", value: "value-1" },
+  { label: "Value 2", value: "value-2" },
+];
+
 export const Main: Story = {
   args: {
     label: "Radio Group",
     defaultValue: "value-1",
+    items: items,
   },
-  render: (args) => (
-    <RadioGroup {...args}>
-      <Radio value="value-1">Value 1</Radio>
-      <Radio value="value-2">Value 2</Radio>
-    </RadioGroup>
-  ),
+  render: (args) => <RadioGroup {...args} />,
 };
 
 /**
@@ -32,14 +33,8 @@ export const Main: Story = {
 export const Orientation: Story = {
   render: () => (
     <Flex direction="column" gap="spacing-4">
-      <RadioGroup>
-        <Radio value="value-1">Value 1</Radio>
-        <Radio value="value-2">Value 2</Radio>
-      </RadioGroup>
-      <RadioGroup orientation="vertical">
-        <Radio value="value-1">Value 1</Radio>
-        <Radio value="value-2">Value 2</Radio>
-      </RadioGroup>
+      <RadioGroup items={items} />
+      <RadioGroup items={items} orientation="vertical" />
     </Flex>
   ),
 };
@@ -49,13 +44,9 @@ export const Disabled: Story = {
     label: "Radio Group",
     defaultValue: "value-1",
     isDisabled: true,
+    items: items,
   },
-  render: (args) => (
-    <RadioGroup {...args}>
-      <Radio value="value-1">Value 1</Radio>
-      <Radio value="value-2">Value 2</Radio>
-    </RadioGroup>
-  ),
+  render: (args) => <RadioGroup {...args} />,
 };
 
 export const Required: Story = {
@@ -63,25 +54,17 @@ export const Required: Story = {
     label: "Radio Group",
     defaultValue: "value-1",
     isRequired: true,
+    items: items,
   },
-  render: (args) => (
-    <RadioGroup {...args}>
-      <Radio value="value-1">Value 1</Radio>
-      <Radio value="value-2">Value 2</Radio>
-    </RadioGroup>
-  ),
+  render: (args) => <RadioGroup {...args} />,
 };
 
 export const Invalid: Story = {
   args: {
     label: "Radio Group",
-    validationState: "invalid",
+    isInvalid: true,
     errorMessage: "This is a error message",
+    items: items,
   },
-  render: (args) => (
-    <RadioGroup {...args}>
-      <Radio value="value-1">Value 1</Radio>
-      <Radio value="value-2">Value 2</Radio>
-    </RadioGroup>
-  ),
+  render: (args) => <RadioGroup {...args} />,
 };
