@@ -1,7 +1,6 @@
 package com.appsmith.server.aspect;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -32,12 +31,11 @@ public class PermissionAspect {
 
         AclPermission permissionWithoutUserContext = Arrays.stream(joinPoint.getArgs())
                 .filter(arg -> arg instanceof AclPermission
-                        || (arg instanceof Optional && ((Optional<?>) arg).orElse(null) instanceof AclPermission)
-                        || arg instanceof QueryAllParams<?>)
+                        // TODO (Abhijeet): This is a temporary fix to avoid Optional<AclPermission> in the repository
+                        // methods.
+                        || (arg instanceof Optional && ((Optional<?>) arg).orElse(null) instanceof AclPermission))
                 .map(arg -> {
-                    if (arg instanceof QueryAllParams<?>) {
-                        return ((QueryAllParams<?>) arg).getPermission();
-                    } else if (arg instanceof AclPermission) {
+                    if (arg instanceof AclPermission) {
                         return (AclPermission) arg;
                     }
                     return (AclPermission) ((Optional<?>) arg).orElse(null);

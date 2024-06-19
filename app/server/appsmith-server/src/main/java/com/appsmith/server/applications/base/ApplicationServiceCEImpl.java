@@ -815,14 +815,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             List<String> projectionFieldNames,
             AclPermission aclPermission) {
         if (!StringUtils.hasLength(branchName)) {
-            return UserPermissionUtils.updateAclWithUserContext(aclPermission).flatMap(permission -> repository
+            return UserPermissionUtils.updateAclWithUserContext(aclPermission).then(Mono.defer(() -> repository
                     .queryBuilder()
                     .byId(defaultApplicationId)
                     .fields(projectionFieldNames)
-                    .permission(permission)
+                    .permission(aclPermission)
                     .one()
                     .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId))));
+                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)))));
         }
         return repository
                 .getApplicationByGitBranchAndDefaultApplicationId(
