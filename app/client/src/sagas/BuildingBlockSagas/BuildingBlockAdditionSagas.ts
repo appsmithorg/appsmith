@@ -837,13 +837,13 @@ function handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
       newWidgetList,
     );
   }
-  if (!!widget.dynamicTriggerPathList) {
+  if (widget.dynamicTriggerPathList) {
     handleWidgetDynamicTriggerPathList(widgetNameMap, widget);
   }
-  if (!!widget.dynamicBindingPathList) {
+  if (widget.dynamicBindingPathList) {
     handleWidgetDynamicBindingPathList(widgetNameMap, widget);
   }
-  if (!!widget.dynamicPropertyPathList) {
+  if (widget.dynamicPropertyPathList) {
     handleWidgetDynamicPropertyPathList(widgetNameMap, widget);
   }
   widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
