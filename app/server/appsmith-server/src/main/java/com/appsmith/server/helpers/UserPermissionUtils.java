@@ -47,6 +47,9 @@ public class UserPermissionUtils {
         if (permission == null) {
             return Mono.empty();
         }
+        // Make sure the user context is not available in the permission object to avoid any static data leaks from the
+        // earlier call.
+        permission.setUser(null);
         return getCurrentUser()
                 .map(user -> {
                     permission.setUser(user);

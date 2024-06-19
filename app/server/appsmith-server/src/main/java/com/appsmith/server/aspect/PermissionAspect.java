@@ -24,6 +24,12 @@ public class PermissionAspect {
     @Around("execution(* com.appsmith.server.repositories..*(..))")
     public Object handlePermission(ProceedingJoinPoint joinPoint) throws Throwable {
 
+        Class<?> returnType =
+                ((MethodSignature) joinPoint.getSignature()).getMethod().getReturnType();
+        if (!Mono.class.isAssignableFrom(returnType) && !Flux.class.isAssignableFrom(returnType)) {
+            return joinPoint.proceed(joinPoint.getArgs());
+        }
+
         AclPermission permissionWithoutUserContext = Arrays.stream(joinPoint.getArgs())
                 .filter(arg -> arg instanceof AclPermission
                         || (arg instanceof Optional && ((Optional<?>) arg).orElse(null) instanceof AclPermission)
@@ -42,13 +48,8 @@ public class PermissionAspect {
         if (permissionWithoutUserContext == null) {
             return joinPoint.proceed(joinPoint.getArgs());
         }
-        // Make sure the user context is not available in the permission object to avoid any static data leaks from the
-        // earlier call.
-        permissionWithoutUserContext.setUser(null);
 
         Mono<AclPermission> permissionMono = updateAclWithUserContext(permissionWithoutUserContext);
-        Class<?> returnType =
-                ((MethodSignature) joinPoint.getSignature()).getMethod().getReturnType();
         if (Mono.class.isAssignableFrom(returnType)) {
             return permissionMono.then(Mono.defer(() -> {
                 try {
