@@ -46,8 +46,6 @@ public class UserPermissionUtils {
     public static Mono<AclPermission> updateAclWithUserContext(AclPermission permission) {
         if (permission == null) {
             return Mono.empty();
-        } else if (permission.getUser() != null) {
-            return Mono.just(permission);
         }
         return getCurrentUser()
                 .map(user -> {
