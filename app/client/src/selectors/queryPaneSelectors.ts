@@ -3,7 +3,7 @@ import { getCurrentPageId } from "./editorSelectors";
 import type { FocusEntityInfo } from "../navigation/FocusEntity";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { getQueryEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
-import { selectQuerySegmentEditorTabs } from "@appsmith/selectors/appIDESelectors";
+import { getQuerySegmentItems } from "@appsmith/selectors/entitiesSelector";
 
 export const getQueryPaneConfigSelectedTabIndex = (state: AppState) =>
   state.ui.queryPane.selectedConfigTabIndex;
@@ -24,10 +24,10 @@ export const getQueryIsRunning = (state: AppState, id: string): boolean => {
 export const getLastQueryTab = (
   state: AppState,
 ): FocusEntityInfo | undefined => {
-  const tabs = selectQuerySegmentEditorTabs(state);
+  const queryItems = getQuerySegmentItems(state);
   const pageId = getCurrentPageId(state);
-  if (tabs.length) {
-    const url = getQueryEntityItemUrl(tabs[tabs.length - 1], pageId);
+  if (queryItems.length) {
+    const url = getQueryEntityItemUrl(queryItems[0], pageId);
     const urlWithoutQueryParams = url.split("?")[0];
     return identifyEntityFromPath(urlWithoutQueryParams);
   }
