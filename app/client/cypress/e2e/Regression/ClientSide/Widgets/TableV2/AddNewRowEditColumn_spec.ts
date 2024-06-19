@@ -1,4 +1,10 @@
+import { getCurrentDateISO } from "../../../../../support/Pages/DateHelper";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
+import { table } from "../../../../../support/Objects/ObjectsCore";
+const commonlocators = require("../../../../../locators/commonlocators.json");
+
+// The spec tests the functionality of adding a new row to a table that includes a date field. 
+// It verifies that when selecting a date, the correct date is displayed in a text widget.
 
 const tableData = `[
     {
@@ -29,49 +35,38 @@ describe(
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
       _.propPane.EnterJSContext("Table data", tableData);
     });
-    
-    const togglePropertyAndGoBack = (
+    function togglePropertyAndGoBack(
       propertyName: string,
-      toggle: "On" | "Off" = "On"
-    ) => {
+      toggle: "On" | "Off" = "On",
+    ) {
       _.propPane.TogglePropertyState(propertyName, toggle);
-      cy.get('[data-testid="t--property-pane-back-btn"]').click();
-    };
-
+      cy.get(commonlocators.editPropBackButton).click({ force: true });
+    }
     it("1. Verify Date column is visible and editable", () => {
       _.propPane.TogglePropertyState("Allow adding a row", "On");
-      cy.get(".t--add-new-row").should("exist");
-      // enabling the ediatable option for the three columns
+      cy.get(table._addNewRow).should("exist");
+  
       _.table.EditColumn("step", "v2");
 
       togglePropertyAndGoBack("Editable", "On");
       _.table.EditColumn("Date","v2")
      
       togglePropertyAndGoBack("Editable", "On");
-      cy.get(".t--add-new-row").click();
+      _.agHelper.GetNClick(table._addNewRow)
       cy.get(".tableWrap .new-row").should("exist");
 
-      // entering the values in the table
       _.table.EditTableCell(0, 0, "22");
 
-      // Click on the date input to open the date picker
       _.table.EditTableCell(0, 3, "");
-      const now = new Date();
 
-      cy.get(`.DayPicker-Day--today > .bp3-datepicker-day-wrapper`).click();
+      _.agHelper.GetNClick(".DayPicker-Day--today")
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
-      // cy.get(".t--property-pane-toggle").first().click();
+     
       _.propPane.UpdatePropertyFieldValue("Text", `{{Table1.newRow.Date}}`);
 
-      // checking the date selected and the date in the text widget matches correctly
-      now.setHours(0, 0, 0, 0); // Reset time to 00:00:00
-      const offset = now.getTimezoneOffset() * 60000; // offset in milliseconds
-      const localISOTime =
-        new Date(now.getTime() - offset).toISOString().slice(0, 19) + "+05:30"; // adjust to the desired timezone
-      cy.get(".t--widget-textwidget .bp3-ui-text").should(
-        "contain",
-        localISOTime.split("T")[0] + "T00:00:00+05:30",
-      );
+      const localISOTime = getCurrentDateISO();
+      cy.get(".t--widget-textwidget").should("contain", localISOTime.split("T")[0] + "T00:00:00+05:30");
+    
     });
   },
 );
