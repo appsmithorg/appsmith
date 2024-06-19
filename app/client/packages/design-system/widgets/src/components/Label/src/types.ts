@@ -4,4 +4,5 @@ export interface LabelProps extends HeadlessLabelProps {
   text?: string;
   contextualHelp?: string;
   isRequired?: boolean;
+  isDisabled?: boolean;
 }

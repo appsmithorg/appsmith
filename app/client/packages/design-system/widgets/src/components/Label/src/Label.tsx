@@ -6,11 +6,15 @@ import styles from "./styles.module.css";
 import type { LabelProps } from "./types";
 
 export const Label = (props: LabelProps) => {
-  const { className, contextualHelp, isRequired, text, ...rest } = props;
+  const { className, contextualHelp, isDisabled, isRequired, text, ...rest } =
+    props;
+
+  if (!Boolean(text) && !Boolean(contextualHelp)) return null;
 
   return (
     <HeadlessLabel
       className={clsx(className, styles.label)}
+      data-disabled={isDisabled}
       data-field-label-wrapper
       elementType="label"
       {...rest}

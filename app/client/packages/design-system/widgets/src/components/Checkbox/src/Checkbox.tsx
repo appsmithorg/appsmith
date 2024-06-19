@@ -2,13 +2,8 @@ import React, { forwardRef } from "react";
 import { Checkbox as HeadlessCheckbox } from "react-aria-components";
 import { Text, Icon } from "@design-system/widgets";
 import styles from "./styles.module.css";
-import type { POSITION } from "@design-system/widgets";
 import type { ForwardedRef } from "react";
-import type { CheckboxProps as HeadlessCheckboxProps } from "react-aria-components";
-
-export interface CheckboxProps extends HeadlessCheckboxProps {
-  labelPosition?: keyof typeof POSITION;
-}
+import type { CheckboxProps } from "./types";
 
 const _Checkbox = (
   props: CheckboxProps,
