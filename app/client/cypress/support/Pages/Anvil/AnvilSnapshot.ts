@@ -27,9 +27,8 @@ export class AnvilSnapshot {
   public verifyPreviewMode = (widgetName: string) => {
     this.enterPreviewMode();
 
-    cy.get(this.locators.canvas).click();
+    this.agHelper.GetNClick(this.locators.canvas);
 
-    cy.wait(500);
 
     cy.get(this.locators.canvas).matchImageSnapshot(
       `anvil${widgetName}Preview`,
@@ -76,8 +75,10 @@ export class AnvilSnapshot {
     this.appSettings.OpenAppSettings();
     this.appSettings.GoToThemeSettings();
 
-    cy.get(
+    this.agHelper.GetNClick(
       `${this.locators.colorMode} [data-value=${theme.toUpperCase()}]`,
-    ).click();
+    );
+
+    this.agHelper.GetNClick(this.locators.canvas);
   };
 }
