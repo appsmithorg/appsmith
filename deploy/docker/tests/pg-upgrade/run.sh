@@ -6,8 +6,8 @@ set -o errexit
 set -o nounset
 set -o xtrace
 
-from_tag=release
-to_tag=local
+from_tag=appsmith/appsmith-ce:v1.28
+to_tag=appsmith/appsmith-ce:latest
 
 container_name=appsmith-pg-upgrade-test
 port=20080
@@ -23,7 +23,7 @@ docker run \
   --detach \
   --publish "$port":80 \
   --volume "$container_name":/appsmith-stacks \
-  appsmith/appsmith-ce:"$from_tag"
+  "$from_tag"
 
 wait-for-supervisor() {
   while ! docker exec "$container_name" test -e /tmp/appsmith/supervisor.sock; do
@@ -59,7 +59,7 @@ docker run \
   --detach \
   --publish "$port":80 \
   --volume "$container_name":/appsmith-stacks \
-  appsmith/appsmith-ce:"$to_tag"
+  "$to_tag"
 
 wait-for-supervisor
 
@@ -68,6 +68,24 @@ status=0
 if [[ 14 != "$(docker exec "$container_name" cat /appsmith-stacks/data/postgres/main/PG_VERSION)" ]]; then
   echo "Version isn't 14"
   status=1
+else
+  sample_table_contents="$(su postgres -c 'psql -h 127.0.0.1 -c "select * from t"')"
+  expected_contents=' id | name
+----+-------
+  1 | one
+  2 | two
+  3 | three
+(3 rows)'
+  if ! diff <(echo "$expected_contents") <(su postgres -c 'psql -h 127.0.0.1 -c "select * from t"'); then
+    echo "Table contents mismatch. Found this:"
+    su postgres -c 'psql -h 127.0.0.1 -c "select * from t"'
+    echo "Instead of this:"
+    echo "$expected_contents"
+  fi
+fi
+
+if [[ $status == 0 && su postgres -c 'psql -h 127.0.0.1 -c "select * from t"' ]]; then
+
 fi
 
 docker exec -it "$container_name" bash
