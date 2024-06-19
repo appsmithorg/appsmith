@@ -27,6 +27,7 @@ import { getIDEViewMode } from "selectors/ideSelectors";
 
 import {
   JS_COLLECTION_EDITOR_PATH,
+  QUERIES_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_BASE_PATH,
 } from "constants/routes";
 import type { focusWidget } from "actions/widgetActions";
@@ -109,7 +110,8 @@ function* routeChangeInSideBySideModeSaga({
     invokedBy === NavigationMethod.CanvasClick &&
     viewMode === EditorViewMode.SplitScreen &&
     pathName.includes(WIDGETS_EDITOR_BASE_PATH) &&
-    prevPathName.includes(JS_COLLECTION_EDITOR_PATH)
+    (prevPathName.includes(JS_COLLECTION_EDITOR_PATH) ||
+      prevPathName.includes(QUERIES_EDITOR_BASE_PATH))
   ) {
     yield put(recordAnalyticsForSideBySideNavigation());
     yield sendSideBySideWidgetHoverAnalyticsEventSaga();
