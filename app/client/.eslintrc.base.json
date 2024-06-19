@@ -13,7 +13,6 @@
     "react",
     "@typescript-eslint",
     "prettier",
-    "react-hooks",
     "sort-destructure-keys",
     "cypress",
     "testing-library",
@@ -26,7 +25,8 @@
     "plugin:testing-library/react",
     // Note: Please keep this as the last config to make sure that this (and by extension our .prettierrc file) overrides all configuration above it
     // https://www.npmjs.com/package/eslint-plugin-prettier#recommended-configuration
-    "plugin:prettier/recommended"
+    "plugin:prettier/recommended",
+    "plugin:react-hooks/recommended"
   ],
   "parserOptions": {
     "ecmaVersion": 2020, // Allows for the parsing of modern ECMAScript features
@@ -54,8 +54,6 @@
     "jest/no-disabled-tests": "error",
     // enforce `import type` for all type-only imports so the bundler knows to erase them
     "@typescript-eslint/consistent-type-imports": "error",
-    "react-hooks/rules-of-hooks": "error",
-    "react-hooks/exhaustive-deps": "warn",
     "react/jsx-boolean-value": "error",
     "react/self-closing-comp": "error",
     "react/jsx-sort-props": "error",
