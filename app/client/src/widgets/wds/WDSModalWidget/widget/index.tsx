@@ -24,6 +24,8 @@ import { call } from "redux-saga/effects";
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
 import { ModalLayoutProvider } from "layoutSystems/anvil/layoutComponents/ModalLayoutProvider";
 import styles from "./styles.module.css";
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import { widgetTypeClassname } from "widgets/WidgetUtils";
 
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";
@@ -121,15 +123,22 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return this.props.isVisible;
   };
 
+  getModalClassNames = () => {
+    const { disableWidgetInteraction, type, widgetId, widgetName } = this.props;
+    return `${getAnvilWidgetDOMId(widgetId)} ${widgetTypeClassname(
+      type,
+    )} t--widget-${widgetName?.toLowerCase()} ${
+      disableWidgetInteraction ? styles.disableModalInteraction : ""
+    }`;
+  };
+
   getWidgetView() {
     const closeText = this.props.cancelButtonText || "Cancel";
 
     const submitText = this.props.showSubmitButton
       ? this.props.submitButtonText || "Submit"
       : undefined;
-    const contentClassName = `${this.props.className} ${
-      this.props.disableWidgetInteraction ? styles.disableModalInteraction : ""
-    }`;
+    const modalClassNames = `${this.getModalClassNames()}`;
     return (
       <Modal
         isOpen={this.state.isVisible as boolean}
@@ -138,7 +147,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         size={this.props.size}
       >
         {this.state.isVisible && (
-          <ModalContent className={contentClassName.trim()}>
+          <ModalContent className={modalClassNames.trim()}>
             {this.props.showHeader && (
               <ModalHeader
                 excludeFromTabOrder={this.props.disableWidgetInteraction}
