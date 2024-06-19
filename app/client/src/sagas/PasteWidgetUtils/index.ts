@@ -469,12 +469,33 @@ export function accessNestedObjectValue(
   );
 }
 
-export function handleButtonDynamicTriggerPathList(
+export function handleWidgetDynamicTriggerPathList(
   widgetNameMap: Record<string, string>,
   widget: FlattenedWidgetProps,
 ) {
   Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
     widget.dynamicTriggerPathList?.forEach((path: { key: string }) => {
+      accessNestedObjectValue(widget, path.key, oldWidgetName, newWidgetName);
+    });
+  });
+}
+export function handleWidgetDynamicBindingPathList(
+  widgetNameMap: Record<string, string>,
+  widget: FlattenedWidgetProps,
+) {
+  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
+    widget.dynamicBindingPathList?.forEach((path: { key: string }) => {
+      accessNestedObjectValue(widget, path.key, oldWidgetName, newWidgetName);
+    });
+  });
+}
+
+export function handleWidgetDynamicPropertyPathList(
+  widgetNameMap: Record<string, string>,
+  widget: FlattenedWidgetProps,
+) {
+  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
+    widget.dynamicPropertyPathList?.forEach((path: { key: string }) => {
       accessNestedObjectValue(widget, path.key, oldWidgetName, newWidgetName);
     });
   });

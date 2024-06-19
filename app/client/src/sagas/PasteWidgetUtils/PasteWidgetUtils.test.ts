@@ -5,7 +5,7 @@ import {
   handleJSONFormWidgetWhenPasting,
   handleTextWidgetWhenPasting,
   handleJSONFormPropertiesListedInDynamicBindingPath,
-  handleButtonDynamicTriggerPathList,
+  handleWidgetDynamicTriggerPathList,
 } from ".";
 import {
   widget,
@@ -232,7 +232,7 @@ describe("handleJSONFormPropertiesListedInDynamicBindingPath", () => {
   });
 });
 
-describe("handleButtonDynamicTriggerPathList", () => {
+describe("handleWidgetDynamicTriggerPathList", () => {
   const widget = {
     dynamicTriggerPathList: [{ key: "onClick" }],
     onClick: "{{oldName.val}}",
@@ -242,7 +242,7 @@ describe("handleButtonDynamicTriggerPathList", () => {
       oldName: "newName",
     };
     const button = klona(widget);
-    handleButtonDynamicTriggerPathList(widgetNameMap, button);
+    handleWidgetDynamicTriggerPathList(widgetNameMap, button);
     expect(button.onClick).toEqual("{{newName.val}}");
   });
 
@@ -251,7 +251,7 @@ describe("handleButtonDynamicTriggerPathList", () => {
       oldWidget1: "newWidget1",
     };
     const button = klona(widget);
-    handleButtonDynamicTriggerPathList(widgetNameMap, button);
+    handleWidgetDynamicTriggerPathList(widgetNameMap, button);
     expect(button.onClick).toEqual("{{oldName.val}}");
   });
 });
