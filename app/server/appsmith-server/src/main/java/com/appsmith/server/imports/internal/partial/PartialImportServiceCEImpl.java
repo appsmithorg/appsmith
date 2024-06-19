@@ -470,13 +470,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                         params1.add(FieldName.PAGE_ID, branchedPageId);
                         newActionService.getUnpublishedActions(params1, branchName);
 
-                        List<String> newActions = new ArrayList<>();
-                        applicationJson.getActionList().forEach(action -> {
-                            String newName = buildingBlockImportDTO
-                                    .getRefactoredEntityNameMap()
-                                    .get(action.getUnpublishedAction().getName());
-                            newActions.add(newName);
-                        });
+                        List<String> newActions = applicationJson.getActionList().stream()
+                                .map(newAction ->
+                                        newAction.getUnpublishedAction().getName())
+                                .toList();
 
                         return newPageService
                                 .findByBranchNameAndDefaultPageId(
