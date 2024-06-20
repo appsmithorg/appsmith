@@ -190,10 +190,9 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
                 .flatMap(tenantId -> cacheableRepositoryHelper.fetchDefaultTenant(tenantId))
                 .name(FETCH_DEFAULT_TENANT_SPAN)
                 .tap(Micrometer.observation(observationRegistry))
-                .zipWith(currentUserMono)
-                .flatMap(tuple -> repository
-                        .setUserPermissionsInObject(tuple.getT1(), tuple.getT2())
-                        .switchIfEmpty(Mono.just(tuple.getT1())))
+                .flatMap(tenant -> currentUserMono
+                        .flatMap(user -> repository.setUserPermissionsInObject(tenant, user))
+                        .switchIfEmpty(Mono.just(tenant)))
                 .onErrorResume(e -> {
                     log.error("Error fetching default tenant from redis!", e);
                     // If there is an error fetching the tenant from the cache, then evict the cache and fetching from
@@ -211,10 +210,9 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
                             }))
                             .name(FETCH_TENANT_CACHE_POST_DESERIALIZATION_ERROR_SPAN)
                             .tap(Micrometer.observation(observationRegistry))
-                            .zipWith(currentUserMono)
-                            .flatMap(tuple -> repository
-                                    .setUserPermissionsInObject(tuple.getT1(), tuple.getT2())
-                                    .switchIfEmpty(Mono.just(tuple.getT1())));
+                            .flatMap(tenant -> currentUserMono
+                                    .flatMap(user -> repository.setUserPermissionsInObject(tenant, user))
+                                    .switchIfEmpty(Mono.just(tenant)));
                 });
     }
 

@@ -23,9 +23,12 @@ public class PermissionUtils {
         if (permission.isEmpty()) {
             return Mono.just(permission);
         }
+        // Make sure the user context is not available in the permission object to avoid any static data leaks from the
+        // earlier call.
+        permission.get().setUser(null);
         return getCurrentUser()
                 .map(user -> {
-                    permission.ifPresent(aclPermission -> aclPermission.setUser(user));
+                    permission.get().setUser(user);
                     return permission;
                 })
                 .switchIfEmpty(Mono.just(permission));
@@ -35,6 +38,9 @@ public class PermissionUtils {
         if (permission == null) {
             return Mono.empty();
         }
+        // Make sure the user context is not available in the permission object to avoid any static data leaks from the
+        // earlier call.
+        permission.setUser(null);
         return getCurrentUser()
                 .map(user -> {
                     permission.setUser(user);

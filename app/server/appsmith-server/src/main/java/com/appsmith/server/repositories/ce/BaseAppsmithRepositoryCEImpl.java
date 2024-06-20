@@ -675,7 +675,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      * 3. Return the set of all the permission groups.
      */
     protected Set<String> getAllPermissionGroupsForUser(User user) {
-        if (user.getTenantId() == null) {
+        if (user == null) {
+            return Collections.emptySet();
+        } else if (user.getTenantId() == null) {
             user.setTenantId(cacheableRepositoryHelper.getDefaultTenantId().block());
         }
 
@@ -693,7 +695,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      */
     protected Set<String> getStrictPermissionGroupsForUser(User user) {
 
-        if (user.getTenantId() == null) {
+        if (user == null) {
+            return Collections.emptySet();
+        } else if (user.getTenantId() == null) {
             String tenantId = cacheableRepositoryHelper.getDefaultTenantId().block();
             user.setTenantId(tenantId);
         }
