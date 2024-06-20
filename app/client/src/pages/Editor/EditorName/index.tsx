@@ -13,7 +13,8 @@ import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { Container, StyledIcon } from "./components";
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { useNavigationMenuData } from "./useNavigationMenuData";
+import type { NavigationMenuDataProps } from "./useNavigationMenuData";
+import type { MenuItemData } from "./NavigationMenuItem";
 
 type EditorNameProps = CommonComponentProps & {
   applicationId?: string | undefined;
@@ -31,6 +32,10 @@ type EditorNameProps = CommonComponentProps & {
   isPopoverOpen: boolean;
   setIsPopoverOpen: typeof noop;
   editorName: string;
+  getNavigationMenu: ({
+    editMode,
+    setForkApplicationModalOpen,
+  }: NavigationMenuDataProps) => MenuItemData[];
 };
 
 export function EditorName(props: EditorNameProps) {
@@ -38,6 +43,7 @@ export function EditorName(props: EditorNameProps) {
     defaultSavingState,
     defaultValue,
     editorName,
+    getNavigationMenu,
     isNewEditor,
     isPopoverOpen,
     setIsPopoverOpen,
@@ -92,7 +98,7 @@ export function EditorName(props: EditorNameProps) {
     }
   }, []);
 
-  const navigationMenuData = useNavigationMenuData({
+  const navigationMenuData = getNavigationMenu({
     editMode,
     setForkApplicationModalOpen,
   });
