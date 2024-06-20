@@ -299,7 +299,9 @@ function* addWidgetToGenericLayout(
  * Remove widgets from current parents and layouts.
  * Add to new parent and layout.
  */
-function* moveWidgetsSaga(actionPayload: ReduxAction<AnvilMoveWidgetsPayload>) {
+export function* moveWidgetsSaga(
+  actionPayload: ReduxAction<AnvilMoveWidgetsPayload>,
+) {
   try {
     const start = performance.now();
     const {
