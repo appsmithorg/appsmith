@@ -68,7 +68,11 @@ import MediaQuery from "react-responsive";
 import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
 import { getCurrentUser } from "selectors/usersSelectors";
 import styled, { ThemeContext } from "styled-components";
-import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
+import {
+  getNextEntityName,
+  getNextWorkspaceNameWithRandomString,
+  getRandomPaletteColor,
+} from "utils/AppsmithUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -263,6 +267,7 @@ export function LeftPaneSection(props: {
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const tenantPermissions = useSelector(getTenantPermissions);
   const fetchedWorkspaces = useSelector(getFetchedWorkspaces);
+  const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
 
   const canCreateWorkspace = getHasCreateWorkspacePermission(
     isFeatureEnabled,
@@ -270,9 +275,10 @@ export function LeftPaneSection(props: {
   );
 
   const createNewWorkspace = async () => {
+    setIsButtonDisabled(true);
     await submitCreateWorkspaceForm(
       {
-        name: getNextEntityName(
+        name: getNextWorkspaceNameWithRandomString(
           "Untitled workspace ",
           fetchedWorkspaces.map((el: any) => el.name),
         ),
@@ -280,6 +286,10 @@ export function LeftPaneSection(props: {
       dispatch,
     );
     dispatch(fetchAllWorkspaces());
+
+    setTimeout(() => {
+      setIsButtonDisabled(false);
+    }, 100);
   };
 
   return (
@@ -293,7 +303,7 @@ export function LeftPaneSection(props: {
           >
             <Button
               data-testid="t--workspace-new-workspace-auto-create"
-              isDisabled={props.isFetchingWorkspaces}
+              isDisabled={props.isFetchingWorkspaces || isButtonDisabled}
               kind="tertiary"
               onClick={createNewWorkspace}
               startIcon="add-line"
@@ -816,6 +826,8 @@ export function ApplicationsSection(props: any) {
                       workspace={activeWorkspace}
                       workspaceNameChange={workspaceNameChange}
                       workspaceToOpenMenu={workspaceToOpenMenu}
+                      allWorkSpaces={workspaces}
+                      activeWorkspaceId={activeWorkspaceId}
                     />
                   )}
               </WorkspaceShareUsers>
