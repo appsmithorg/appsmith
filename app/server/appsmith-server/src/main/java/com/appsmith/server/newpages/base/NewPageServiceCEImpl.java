@@ -188,13 +188,13 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Mono<PageDTO> findByIdAndLayoutsId(
             String pageId, String layoutId, AclPermission aclPermission, Boolean view) {
         return repository
-                .findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view)
+                .findByIdAndLayoutsIdAndViewMode(pageId, layoutId, view, aclPermission)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
     public Mono<PageDTO> findByNameAndViewMode(String name, AclPermission permission, Boolean view) {
-        return repository.findByNameAndViewMode(name, permission, view).flatMap(page -> getPageByViewMode(page, view));
+        return repository.findByNameAndViewMode(name, view, permission).flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
@@ -438,7 +438,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Mono<PageDTO> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission permission, Boolean view) {
         return repository
-                .findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view)
+                .findByNameAndApplicationIdAndViewMode(name, applicationId, view, permission)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
@@ -594,13 +594,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
             getPageMono = ReactiveContextUtils.getCurrentUser().flatMap(user -> {
-                AclPermission permission = pagePermission.getReadPermission();
-                permission.setUser(user);
                 return asMono(() -> repositoryDirect
                         .queryBuilder()
                         .byId(defaultPageId)
                         .fields(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES)
-                        .permission(permission)
+                        .permission(pagePermission.getReadPermission())
+                        .user(user)
                         .one());
             });
         } else {

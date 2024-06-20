@@ -26,6 +26,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitUtils;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
@@ -130,7 +131,9 @@ public class ApplicationServiceCEImpl
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return asMono(() -> repositoryDirect.findById(id, applicationPermission.getReadPermission()))
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(user ->
+                        asMono(() -> repositoryDirect.findById(id, applicationPermission.getReadPermission(), user)))
                 .flatMap(this::setTransientFields)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
@@ -509,7 +512,7 @@ public class ApplicationServiceCEImpl
 
         Flux<String> otherApplicationsForThisRoleFlux = repository
                 .getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
-                        application.getWorkspaceId(), READ_APPLICATIONS, permissionGroupId)
+                        application.getWorkspaceId(), permissionGroupId, READ_APPLICATIONS)
                 .filter(applicationId -> !application.getId().equals(applicationId))
                 .cache();
 

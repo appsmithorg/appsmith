@@ -158,7 +158,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                         networkUtils.getExternalAddress(),
                         nonDeletedObjectsCountMono,
                         Mono.justOrEmpty(applicationRepository.getAllApplicationsCountAccessibleToARoleWithPermission(
-                                AclPermission.READ_APPLICATIONS, publicPermissionGroupId))))
+                                publicPermissionGroupId, AclPermission.READ_APPLICATIONS))))
                 .flatMap(statsData -> {
                     Map<String, Object> propertiesMap = new java.util.HashMap<>(Map.ofEntries(
                             entry("instanceId", statsData.getT1()),

@@ -23,30 +23,30 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     private final SessionUserService sessionUserService;
 
     @Override
-    public Optional<Workspace> findByName(String name, AclPermission aclPermission) {
+    public Optional<Workspace> findByName(String name, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.equal(Workspace.Fields.name, name))
-                .permission(aclPermission)
+                .permission(permission)
                 .one();
     }
 
     @Override
     public List<Workspace> findByIdsIn(
-            Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
+            Set<String> workspaceIds, String tenantId, Sort sort, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.<Workspace>in(Workspace.Fields.id, workspaceIds)
                         .equal(Workspace.Fields.tenantId, tenantId))
-                .permission(aclPermission)
+                .permission(permission)
                 .sort(sort)
                 .all();
     }
 
     @Override
-    public List<Workspace> findAll(AclPermission permission) {
-        User user = permission.getUser();
+    public List<Workspace> findAll(AclPermission permission, User currentUser) {
         return Flux.fromIterable(queryBuilder()
-                        .criteria(Bridge.equal(Workspace.Fields.tenantId, user.getTenantId()))
+                        .criteria(Bridge.equal(Workspace.Fields.tenantId, currentUser.getTenantId()))
                         .permission(permission)
+                        .user(currentUser)
                         .all())
                 .collectList()
                 .block();

@@ -12,14 +12,14 @@ import java.util.Optional;
 
 public interface AppsmithRepository<T extends BaseDomain> {
 
-    Optional<T> findById(String id, AclPermission permission);
+    Optional<T> findById(String id, AclPermission permission, User currentUser);
 
     @Deprecated(forRemoval = true)
-    Optional<T> findById(String id, Optional<AclPermission> permission);
+    Optional<T> findById(String id, Optional<AclPermission> permission, User currentUser);
 
-    Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission);
+    Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission, User currentUser);
 
-    Optional<T> updateById(String id, T resource, AclPermission permission);
+    Optional<T> updateById(String id, T resource, AclPermission permission, User currentUser);
 
     int updateByIdWithoutPermissionCheck(String id, BridgeUpdate update);
 
@@ -29,7 +29,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     T setUserPermissionsInObject(T obj, User user);
 
-    T updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission);
+    T updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission, User currentUser);
 
     /**
      * This method uses the mongodb bulk operation to save a list of new actions. When calling this method, please note
