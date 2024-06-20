@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce.params;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
@@ -33,6 +34,7 @@ public class QueryAllParams<T extends BaseDomain> {
     private Sort sort;
     private int limit = NO_RECORD_LIMIT;
     private int skip = NO_SKIP;
+    private User user;
 
     /**
      * When this flag is true, permission checks will include the affects of anonymous user permissions. This is the
@@ -152,6 +154,11 @@ public class QueryAllParams<T extends BaseDomain> {
 
     public QueryAllParams<T> includeAnonymousUserPermissions(boolean value) {
         includeAnonymousUserPermissions = value;
+        return this;
+    }
+
+    public QueryAllParams<T> user(User user) {
+        this.user = user;
         return this;
     }
 
