@@ -106,17 +106,24 @@ class DatasourcesApi extends API {
 
   // Api to update specific datasource storage/environment configuration
   static async updateDatasourceStorage(
-    datasourceConfig: Partial<DatasourceStorage>,
+    datasourceStorage: Partial<DatasourceStorage>,
   ): Promise<any> {
-    datasourceConfig = {
-      ...datasourceConfig,
+    const payload = {
+      ...datasourceStorage,
       isValid: undefined,
       toastMessage: undefined,
+      datasourceConfiguration: {
+        ...datasourceStorage.datasourceConfiguration,
+        connection: {
+          ...datasourceStorage.datasourceConfiguration.connection,
+          ssl: {
+            ...datasourceStorage.datasourceConfiguration.connection.ssl,
+            authTypeControl: undefined,
+          },
+        },
+      },
     };
-    return API.put(
-      DatasourcesApi.url + `/datasource-storages`,
-      datasourceConfig,
-    );
+    return API.put(DatasourcesApi.url + `/datasource-storages`, payload);
   }
 
   static async deleteDatasource(id: string): Promise<any> {
