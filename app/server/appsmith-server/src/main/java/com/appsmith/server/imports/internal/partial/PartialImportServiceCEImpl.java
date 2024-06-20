@@ -470,7 +470,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                         params1.add(FieldName.PAGE_ID, branchedPageId);
                         newActionService.getUnpublishedActions(params1, branchName);
 
-                        List<String> newActions = applicationJson.getActionList().stream()
+                        List<String> newActionNames = applicationJson.getActionList().stream()
                                 .map(newAction ->
                                         newAction.getUnpublishedAction().getName())
                                 .toList();
@@ -511,10 +511,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
 
                                                 return Mono.zip(datasourceList, customJSLibs, actionList);
                                             })
-                                            .map(tuple1 -> {
-                                                buildingBlockResponseDTO.setDatasourceList(tuple1.getT1());
-                                                buildingBlockResponseDTO.setCustomJSLibList(tuple1.getT2());
-                                                buildingBlockResponseDTO.setNewActionList(tuple1.getT3());
+                                            .map(tuple3 -> {
+                                                buildingBlockResponseDTO.setDatasourceList(tuple3.getT1());
+                                                buildingBlockResponseDTO.setCustomJSLibList(tuple3.getT2());
+                                                buildingBlockResponseDTO.setNewActionList(tuple3.getT3());
                                                 return buildingBlockResponseDTO;
                                             });
                                 })
@@ -522,7 +522,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 .flatMap(buildingBlockResponseDTO1 -> {
                                     buildingBlockResponseDTO1
                                             .getNewActionList()
-                                            .removeIf(actionDTO -> !newActions.contains(actionDTO.getName()));
+                                            .removeIf(actionDTO -> !newActionNames.contains(actionDTO.getName()));
                                     return Mono.just(buildingBlockResponseDTO1);
                                 });
                     });
