@@ -10,12 +10,12 @@ import type {
   WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { getWidget, getWidgets } from "sagas/selectors";
-import { addWidgetsToPreset } from "../../utils/layouts/update/additionUtils";
+import { addWidgetsToPreset } from "../../../utils/layouts/update/additionUtils";
 import type {
   AnvilMoveWidgetsPayload,
   AnvilNewWidgetsPayload,
-} from "../actions/actionTypes";
-import { AnvilReduxActionTypes } from "../actions/actionTypes";
+} from "../../actions/actionTypes";
+import { AnvilReduxActionTypes } from "../../actions/actionTypes";
 import { generateDefaultLayoutPreset } from "layoutSystems/anvil/layoutComponents/presets/DefaultLayoutPreset";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
@@ -39,7 +39,7 @@ import {
   addNewWidgetToDsl,
   getCreateWidgetPayload,
 } from "layoutSystems/anvil/utils/widgetAdditionUtils";
-import { updateAndSaveAnvilLayout } from "../../utils/anvilChecksUtils";
+import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
 import { moveWidgetsToZone } from "layoutSystems/anvil/utils/layouts/update/zoneUtils";
 
 // Function to retrieve highlighting information for the last row in the main canvas layout
@@ -201,7 +201,9 @@ export function* addNewChildToDSL(
 }
 
 // function to handle the addition of new widgets to the Anvil layout
-function* addWidgetsSaga(actionPayload: ReduxAction<AnvilNewWidgetsPayload>) {
+export function* addWidgetsSaga(
+  actionPayload: ReduxAction<AnvilNewWidgetsPayload>,
+) {
   try {
     const start = performance.now();
 
