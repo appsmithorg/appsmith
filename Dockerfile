@@ -43,14 +43,6 @@ RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd 
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-check=/watchtower-hooks/pre-check.sh
 LABEL com.centurylinklabs.watchtower.lifecycle.pre-update=/watchtower-hooks/pre-update.sh
 
-# Temporary, until we can change Postgres version in `base.dockerfile`.
-RUN <<END
-  apt update
-  apt install --yes postgresql-14
-  apt clean
-END
-ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
-
 EXPOSE 80
 EXPOSE 443
 ENTRYPOINT [ "/opt/appsmith/entrypoint.sh" ]
