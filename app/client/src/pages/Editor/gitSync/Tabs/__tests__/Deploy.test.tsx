@@ -10,9 +10,6 @@ import {
   fetchGitStatusSuccess,
 } from "actions/gitSyncActions";
 import { COMMITTING_AND_PUSHING_CHANGES } from "@appsmith/constants/messages";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
-import { fetchFeatureFlagsSuccess } from "actions/userActions";
 
 describe("Tests for git deploy modal", () => {
   it("Should show progress bar for JS Library diffs", () => {
@@ -58,12 +55,6 @@ describe("Tests for git deploy modal", () => {
         discardDocUrl:
           "https://docs.appsmith.com/core-concepts/version-control-with-git/pull-and-sync#discard-and-pull-changes",
         migrationMessage: "",
-      }),
-    );
-    store.dispatch(
-      fetchFeatureFlagsSuccess({
-        ...DEFAULT_FEATURE_FLAG_VALUE,
-        [FEATURE_FLAG.release_git_status_granular_enabled]: true,
       }),
     );
     const diffText = component.getByText("1 js lib added");

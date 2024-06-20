@@ -1,9 +1,13 @@
 .checkbox {
-  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: fit-content;
+  cursor: pointer;
 
   [data-icon] {
     --checkbox-border-width: var(--border-width-2);
     --checkbox-border-color: var(--color-bd-neutral);
+    --checkbox-bg-color: var(--color-bg-accent);
     /* Note: we are using box-shadow as the border to avoid the border from
     changing the size of the checkbox and icon */
     --checkbox-box-shadow: 0px 0px 0px var(--checkbox-border-width)
@@ -13,7 +17,6 @@
       Checkbox icon are positioned absolutely because we need to align the elements along the baseline
       but icon takes more space than the text content.
     */
-    position: absolute;
     width: var(--sizing-5);
     height: var(--sizing-5);
     box-shadow: var(--checkbox-box-shadow);
@@ -30,26 +33,31 @@
     --checkbox-border-color: var(--color-bd-neutral-hover);
   }
 
+  & [data-inline-label-necessity-indicator-icon] {
+    color: var(--color-fg-negative);
+    margin-inline-start: var(--inner-spacing-1);
+  }
+
   /**
   * ----------------------------------------------------------------------------
   * LABEL POSITION
   *-----------------------------------------------------------------------------
   */
   &[data-label-position="end"] {
-    padding-inline-start: calc(var(--sizing-5) + var(--inner-spacing-2));
-    justify-content: flex-end;
+    margin-inline-end: auto;
   }
 
   &[data-label-position="end"] [data-icon] {
-    left: 0;
+    margin-inline-end: var(--inner-spacing-2);
   }
 
   &[data-label-position="start"] {
-    padding-inline-end: calc(var(--sizing-5) + var(--inner-spacing-2));
+    flex-direction: row-reverse;
+    justify-content: start;
   }
 
   &[data-label-position="start"] [data-icon] {
-    right: 0;
+    margin-inline-start: var(--inner-spacing-2);
   }
 
   /**
@@ -57,19 +65,22 @@
  * CHECKED  AND INDETERMINATE - BUT NOT DISABLED
  *-----------------------------------------------------------------------------
  */
-  &[data-state="checked"] [data-icon],
-  &[data-state="indeterminate"] [data-icon] {
+  &[data-selected] [data-icon],
+  &[data-indeterminate] [data-icon] {
     --checkbox-border-color: var(--color-bg-accent);
 
-    background-color: var(--color-bg-accent);
+    background-color: var(--checkbox-bg-color);
     color: var(--color-fg-on-accent);
   }
 
-  &[data-hovered][data-state="checked"]:not([data-disabled]) [data-icon],
-  &[data-hovered][data-state="indeterminate"]:not([data-disabled]) [data-icon] {
+  &[data-hovered][data-selected]:not([data-disabled], [data-invalid])
+    [data-icon],
+  &[data-hovered][data-indeterminate]:not([data-disabled], [data-invalid])
+    [data-icon] {
     --checkbox-border-color: var(--color-bg-accent-hover);
+    --checkbox-bg-color: var(--color-bg-accent-hover);
 
-    background-color: var(--color-bg-accent-hover);
+    background-color: var(--checkbox-bg-color);
     color: var(--color-fg-on-accent);
   }
 
@@ -78,7 +89,7 @@
   * FOCUS
   *-----------------------------------------------------------------------------
   */
-  &[data-focused] [data-icon] {
+  &[data-focus-visible] [data-icon] {
     box-shadow:
       var(--checkbox-box-shadow),
       0 0 0 2px var(--color-bg),
@@ -86,15 +97,27 @@
   }
 
   /**
- * ----------------------------------------------------------------------------
- * ERROR ( INVALID )
- *-----------------------------------------------------------------------------
- */
+  * ----------------------------------------------------------------------------
+  * ERROR ( INVALID )
+  *-----------------------------------------------------------------------------
+  */
   &[data-invalid] [data-icon] {
     --checkbox-border-color: var(--color-bd-negative);
+    --checkbox-bg-color: var(--color-bd-negative);
   }
 
   &[data-hovered][data-invalid] [data-icon] {
     --checkbox-border-color: var(--color-bd-negative-hover);
+    --checkbox-bg-color: var(--color-bd-negative-hover);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DISABLED
+  *-----------------------------------------------------------------------------
+  */
+  &[data-disabled] {
+    opacity: var(--opacity-disabled);
+    cursor: not-allowed;
   }
 }

@@ -2,6 +2,7 @@ package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.ArtifactGitReference;
@@ -11,8 +12,10 @@ import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
+import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ArtifactGitFileUtils;
@@ -25,6 +28,7 @@ import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
@@ -37,9 +41,12 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitCommandConstantsCE.CHECKOUT_BRANCH;
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.RECONSTRUCT_PAGE;
 import static com.appsmith.git.constants.CommonConstants.CLIENT_SCHEMA_VERSION;
 import static com.appsmith.git.constants.CommonConstants.FILE_FORMAT_VERSION;
 import static com.appsmith.git.constants.CommonConstants.SERVER_SCHEMA_VERSION;
+import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -49,13 +56,15 @@ public class CommonGitFileUtilsCE {
 
     protected final ArtifactGitFileUtils<ApplicationGitReference> applicationGitFileUtils;
     private final FileInterface fileUtils;
+    private final FileOperations fileOperations;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
-    private final Gson gson;
 
     // Number of seconds after lock file is stale
     @Value("${appsmith.index.lock.file.time}")
     public final int INDEX_LOCK_FILE_STALE_TIME = 300;
+
+    private final JsonSchemaVersions jsonSchemaVersions;
 
     private ArtifactGitFileUtils<?> getArtifactBasedFileHelper(ArtifactType artifactType) {
         if (ArtifactType.APPLICATION.equals(artifactType)) {
@@ -92,8 +101,7 @@ public class CommonGitFileUtilsCE {
     }
 
     public Mono<Path> saveArtifactToLocalRepoWithAnalytics(
-            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName)
-            throws IOException, GitAPIException {
+            Path baseRepoSuffix, ArtifactExchangeJson artifactExchangeJson, String branchName) {
 
         /*
            1. Checkout to branch
@@ -283,11 +291,21 @@ public class CommonGitFileUtilsCE {
     }
 
     public Mono<Map<String, Integer>> reconstructMetadataFromRepo(
-            String workspaceId, String applicationId, String repoName, String branchName, Path baseRepoSuffix) {
+            String workspaceId,
+            String applicationId,
+            String repoName,
+            String branchName,
+            Boolean isResetToLastCommitRequired,
+            ArtifactType artifactType) {
+
+        ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
+        Path baseRepoSuffix = artifactGitFileUtils.getRepoSuffixPath(workspaceId, applicationId, repoName);
+
         return fileUtils
-                .reconstructMetadataFromGitRepo(workspaceId, applicationId, repoName, branchName, baseRepoSuffix)
+                .reconstructMetadataFromGitRepo(
+                        workspaceId, applicationId, repoName, branchName, baseRepoSuffix, isResetToLastCommitRequired)
                 .onErrorResume(error -> Mono.error(
-                        new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", error.getMessage())))
+                        new AppsmithException(AppsmithError.GIT_ACTION_FAILED, CHECKOUT_BRANCH, error.getMessage())))
                 .map(metadata -> {
                     Gson gson = new Gson();
                     JsonObject metadataJsonObject =
@@ -304,9 +322,109 @@ public class CommonGitFileUtilsCE {
                 });
     }
 
+    /**
+     * Provides the server schema version in the application json for the given branch
+     *
+     * @param workspaceId                 : workspaceId of the artifact
+     * @param gitArtifactMetadata         : git artifact metadata of the application
+     * @param isResetToLastCommitRequired : would we need to execute reset command
+     * @param artifactType                : artifact type of this operation
+     * @return the server schema migration version number
+     */
+    public Mono<Integer> getMetadataServerSchemaMigrationVersion(
+            String workspaceId,
+            GitArtifactMetadata gitArtifactMetadata,
+            Boolean isResetToLastCommitRequired,
+            ArtifactType artifactType) {
+
+        String defaultArtifactId = gitArtifactMetadata.getDefaultArtifactId();
+        String branchName = gitArtifactMetadata.getBranchName();
+        String repoName = gitArtifactMetadata.getRepoName();
+
+        if (!hasText(workspaceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
+
+        if (!hasText(defaultArtifactId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ARTIFACT_ID));
+        }
+
+        if (!hasText(branchName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
+        }
+
+        if (!hasText(repoName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.REPO_NAME));
+        }
+
+        Mono<Integer> serverSchemaNumberMono = reconstructMetadataFromRepo(
+                        workspaceId, defaultArtifactId, repoName, branchName, isResetToLastCommitRequired, artifactType)
+                .map(metadataMap -> {
+                    return metadataMap.getOrDefault(
+                            CommonConstants.SERVER_SCHEMA_VERSION, jsonSchemaVersions.getServerVersion());
+                });
+
+        return Mono.create(
+                sink -> serverSchemaNumberMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
+    /**
+     * Provides the server schema version in the application json for the given branch
+     *
+     * @param workspaceId                 : workspace id of the application
+     * @param gitArtifactMetadata         : git artifact metadata
+     * @param isResetToLastCommitRequired : whether git reset hard is required
+     * @param artifactType                : artifact type of this operation
+     * @return the server schema migration version number
+     */
+    public Mono<JSONObject> getPageDslVersionNumber(
+            String workspaceId,
+            GitArtifactMetadata gitArtifactMetadata,
+            PageDTO pageDTO,
+            Boolean isResetToLastCommitRequired,
+            ArtifactType artifactType) {
+
+        String defaultArtifactId = gitArtifactMetadata.getDefaultArtifactId();
+        String branchName = gitArtifactMetadata.getBranchName();
+        String repoName = gitArtifactMetadata.getRepoName();
+
+        if (!hasText(workspaceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
+
+        if (!hasText(defaultArtifactId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ARTIFACT_ID));
+        }
+
+        if (!hasText(branchName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
+        }
+
+        if (!hasText(repoName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.REPO_NAME));
+        }
+
+        if (pageDTO == null) {
+            return Mono.error(new AppsmithException(AppsmithError.PAGE_ID_NOT_GIVEN, FieldName.PAGE));
+        }
+
+        ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
+        Path baseRepoSuffix = artifactGitFileUtils.getRepoSuffixPath(workspaceId, defaultArtifactId, repoName);
+
+        Mono<JSONObject> jsonObjectMono = fileUtils
+                .reconstructPageFromGitRepo(pageDTO.getName(), branchName, baseRepoSuffix, isResetToLastCommitRequired)
+                .onErrorResume(error -> Mono.error(
+                        new AppsmithException(AppsmithError.GIT_ACTION_FAILED, RECONSTRUCT_PAGE, error.getMessage())))
+                .map(pageJson -> {
+                    return fileOperations.getMainContainer(pageJson);
+                });
+
+        return Mono.create(sink -> jsonObjectMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+    }
+
     private Integer getServerSchemaVersion(JsonObject metadataJsonObject) {
         if (metadataJsonObject == null) {
-            return JsonSchemaVersions.serverVersion;
+            return jsonSchemaVersions.getServerVersion();
         }
 
         JsonElement serverSchemaVersion = metadataJsonObject.get(SERVER_SCHEMA_VERSION);

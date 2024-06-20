@@ -6,11 +6,12 @@ import {X509Certificate} from "crypto"
 // The custom domain is expected to only have the domain. So if it has a protocol, we ignore the whole value.
 // This was the effective behaviour before Caddy.
 const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
-
-// Rate limit, numeric value defining the requests-per-second allowed.
-const RATE_LIMIT = parseInt(process.env._APPSMITH_RATE_LIMIT || 100, 10)
-
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
+const AppsmithCaddy = process.env._APPSMITH_CADDY
+
+// Rate limit environment.
+const isRateLimitingEnabled = process.env.APPSMITH_RATE_LIMIT !== "disabled"
+const RATE_LIMIT = parseInt(process.env.APPSMITH_RATE_LIMIT || 100, 10)
 
 let certLocation = null
 if (CUSTOM_DOMAIN !== "") {
@@ -48,7 +49,7 @@ parts.push(`
   servers {
     trusted_proxies static 0.0.0.0/0
   }
-  order rate_limit before basicauth
+  ${isRateLimitingEnabled ? "order rate_limit before basicauth" : ""}
 }
 
 (file_server) {
@@ -131,13 +132,13 @@ parts.push(`
     import reverse_proxy 9001
   }
 
-  rate_limit {
+  ${isRateLimitingEnabled ? `rate_limit {
     zone dynamic_zone {
       key {http.request.remote_ip}
       events ${RATE_LIMIT}
       window 1s
     }
-  }
+  }`: ""}
 
   handle_errors {
     respond "{err.status_code} {err.status_text}" {err.status_code}
@@ -146,7 +147,7 @@ parts.push(`
 }
 
 # We bind to http on 80, so that localhost requests don't get redirected to https.
-:80 {
+:${process.env.PORT || 80} {
   import all-config
 }
 `)
@@ -187,8 +188,8 @@ if (!process.argv.includes("--no-finalize-index-html")) {
 
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
 fs.writeFileSync(CaddyfilePath, parts.join("\n"))
-spawnSync("/opt/caddy/caddy", ["fmt", "--overwrite", CaddyfilePath])
-spawnSync("/opt/caddy/caddy", ["reload", "--config", CaddyfilePath])
+spawnSync(AppsmithCaddy, ["fmt", "--overwrite", CaddyfilePath])
+spawnSync(AppsmithCaddy, ["reload", "--config", CaddyfilePath])
 
 function finalizeIndexHtml() {
   let info = null;
@@ -218,3 +219,4 @@ function isCertExpired(path) {
   console.log(path, cert)
   return new Date(cert.validTo) < new Date()
 }
+

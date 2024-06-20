@@ -1,7 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 const GITHUB_API_BASE = "https://api.github.com";
 //const GITEA_API_BASE = "http://35.154.225.218";
-
 export class GitSync {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
@@ -13,7 +12,7 @@ export class GitSync {
   public _gitSyncModal = "[data-testid=t--git-sync-modal]";
   private _closeGitSyncModal =
     "//div[@data-testid='t--git-sync-modal']//button[@aria-label='Close']";
-  private _closeGitSettingsModal =
+  public _closeGitSettingsModal =
     "//div[@data-testid='t--git-settings-modal']//button[@aria-label='Close']";
   //private _closeGitSyncModal = ".ads-v2-modal__content-header-close-button";
   private _gitRepoInput =
@@ -35,12 +34,15 @@ export class GitSync {
   _checkMergeability = "//span[contains(text(), 'Checking mergeability')]";
   public _branchListItem = "[data-testid=t--branch-list-item]";
   public _bottomBarMergeButton = ".t--bottom-bar-merge";
+  private mergeCTA = "[data-testid=t--git-merge-button]";
   public _mergeBranchDropdownDestination =
     ".t--merge-branch-dropdown-destination";
+  public _mergeBranchDropdownmenu =
+    ".t--merge-branch-dropdown-destination .rc-select-selection-search-input";
   public _dropdownmenu = ".rc-select-item-option-content";
   private _openRepoButton = "[data-testid=t--git-repo-button]";
   public _commitButton = ".t--commit-button";
-  private _commitCommentInput = ".t--commit-comment-input textarea";
+  public _commitCommentInput = ".t--commit-comment-input textarea";
 
   public _discardChanges = ".t--discard-button";
   public _discardCallout = "[data-testid='t--discard-callout']";
@@ -118,7 +120,6 @@ export class GitSync {
     repoName = "Repo",
     assertConnect = true,
     privateFlag = false,
-    removeDefaultBranchProtection = true,
   ) {
     this.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
@@ -157,7 +158,6 @@ export class GitSync {
       cy.get("@guid").then((uid) => {
         cy.wait(`@generateKey-${repoName}`).then((result: any) => {
           let generatedKey = result.response.body.data.publicKey;
-          generatedKey = generatedKey.slice(0, generatedKey.length - 1);
           // fetch the generated key and post to the github repo
           cy.request({
             method: "POST",
@@ -180,19 +180,6 @@ export class GitSync {
         this.assertHelper.AssertNetworkStatus("@connectGitLocalRepo");
         this.agHelper.GetNClick(this.startUsingGitButton);
         this.agHelper.AssertElementExist(this._bottomBarCommit, 0, 30000);
-      }
-
-      if (removeDefaultBranchProtection) {
-        cy.wait([`@protected-${repoName}`, `@branches-${repoName}`]).then(
-          (interceptions) => {
-            if (
-              interceptions[0]?.response?.statusCode === 200 &&
-              interceptions[1]?.response?.statusCode === 200
-            ) {
-              this.clearBranchProtection();
-            }
-          },
-        );
       }
 
       cy.wrap(repoName).as("gitRepoName");
@@ -323,7 +310,7 @@ export class GitSync {
         this.assertHelper.AssertNetworkStatus("createBranch", 201);
       this.agHelper.AssertElementAbsence(
         this.locator._specificToast(
-          "Unable to import application in workspace",
+          Cypress.env("MESSAGES").UNABLE_TO_IMPORT_APP(),
         ),
       );
       this.agHelper.WaitUntilEleAppear(this._branchName(branch + uid));
@@ -381,12 +368,25 @@ export class GitSync {
   CheckMergeConflicts(destinationBranch: string) {
     this.agHelper.AssertElementExist(this._bottomBarPull);
     this.agHelper.GetNClick(this._bottomBarMergeButton);
-    cy.wait(2000);
-    this.agHelper.GetNClick(this._mergeBranchDropdownDestination);
-    // cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
+    this.agHelper.WaitUntilEleAppear(this._mergeBranchDropdownmenu);
+    this.agHelper.WaitUntilEleDisappear(this._mergeLoader);
+    this.assertHelper.AssertNetworkStatus("@getBranch", 200);
+    this.agHelper.GetNClick(this._mergeBranchDropdownmenu, 0, true);
+    this.agHelper.WaitUntilEleAppear(this._dropdownmenu);
     this.agHelper.GetNClickByContains(this._dropdownmenu, destinationBranch);
-
     this.agHelper.AssertElementAbsence(this._checkMergeability, 35000);
+  }
+
+  MergeToMaster() {
+    this.CheckMergeConflicts("master");
+    this.agHelper.AssertElementEnabledDisabled(this.mergeCTA, 0, false);
+    this.agHelper.GetNClick(this.mergeCTA);
+    this.assertHelper.AssertNetworkStatus("@mergeBranch");
+    this.agHelper.AssertContains(
+      Cypress.env("MESSAGES").MERGED_SUCCESSFULLY(),
+      "be.visible",
+    );
+    this.CloseGitSyncModal();
   }
 
   OpenRepositoryAndVerify() {

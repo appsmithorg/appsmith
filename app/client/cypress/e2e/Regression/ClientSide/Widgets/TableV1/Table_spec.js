@@ -55,7 +55,7 @@ describe(
       cy.openPropertyPane("tablewidget");
       cy.editColumn("image");
       cy.changeColumnType("Image", false);
-      cy.isSelectRow(1);
+      _.table.SelectTableRow(1);
 
       const index = 1;
       const imageVal = this.dataSet.TableInput[index].image;
@@ -100,7 +100,7 @@ describe(
       cy.openPropertyPane("tablewidget");
       // Disable isSortable
       // Confirm if isSortable is false
-      cy.togglebarDisable(commonlocators.isSortable_tablev1);
+      _.agHelper.CheckUncheck(commonlocators.isSortable_tablev1, false);
 
       // Publish App
       _.deployMode.DeployApp();
@@ -134,7 +134,7 @@ describe(
 
   it("Table Widget Functionality To Verify The Visiblity mode functionality", function() {
    _.deployMode.NavigateBacktoEditor();
-    cy.isSelectRow(1);
+    _.table.SelectTableRow(1);
     cy.readTabledataPublish("1", "3").then(tabData => {
       const tabValue = tabData;
       expect(tabValue).to.be.equal("Lindsay Ferguson");

@@ -5,7 +5,6 @@ import EditorNavigation, {
 const viewWidgetsPage = require("../../../../../locators/ViewWidgets.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 
 describe(
   "Chart Widget Functionality around custom chart feature",
@@ -76,9 +75,6 @@ describe(
     it("2. Custom Chart Widget Functionality", function () {
       //changing the Chart type
       //cy.get(widgetsPage.toggleChartType).click({ force: true });
-      featureFlagIntercept({
-        deprecate_custom_fusioncharts_enabled: true,
-      });
       cy.UpdateChartType("Custom Fusion Charts (deprecated)");
 
       cy.testJsontext(

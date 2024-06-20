@@ -9,7 +9,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
-import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -54,7 +54,7 @@ public class GlobalExceptionHandler {
 
     private final AnalyticsService analyticsService;
 
-    private final GitFileUtils fileUtils;
+    private final CommonGitFileUtils commonGitFileUtils;
 
     private final SessionUserService sessionUserService;
 
@@ -204,7 +204,18 @@ public class GlobalExceptionHandler {
             ServerWebInputException e, ServerWebExchange exchange) {
         AppsmithError appsmithError = AppsmithError.GENERIC_BAD_REQUEST;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
-        doLog(e);
+
+        StringBuilder builder = new StringBuilder();
+        Throwable t = e;
+        for (int turn = 0; t != null && turn < 10; ++turn) {
+            if (turn > 0) {
+                builder.append(";; ");
+            }
+            builder.append(t.getMessage());
+            t = t.getCause();
+        }
+        log.warn(builder.toString());
+
         String errorMessage = e.getReason();
         if (e.getMethodParameter() != null) {
             errorMessage = "Malformed parameter '" + e.getMethodParameter().getParameterName()
@@ -340,7 +351,7 @@ public class GlobalExceptionHandler {
     }
 
     private Mono<Boolean> deleteLockFileAndSendAnalytics(File file, String urlPath) {
-        return fileUtils.deleteIndexLockFile(Path.of(file.getPath())).flatMap(fileTime -> {
+        return commonGitFileUtils.deleteIndexLockFile(Path.of(file.getPath())).flatMap(fileTime -> {
             Map<String, Object> analyticsProps = new HashMap<>();
             if (urlPath.contains("/git") && urlPath.contains("/app")) {
                 String appId = getAppIdFromUrlPath(urlPath);

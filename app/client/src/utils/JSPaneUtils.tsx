@@ -3,7 +3,6 @@ import type { JSCollection, JSAction, Variable } from "entities/JSCollection";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { isEmpty, isEqual, xorWith } from "lodash";
 
 export interface ParsedJSSubAction {
   name: string;
@@ -21,13 +20,25 @@ export interface JSUpdate {
   parsedBody: ParsedBody | undefined;
 }
 
-export const getDifferenceInJSArgumentArrays = (x: any, y: any) =>
-  isEmpty(xorWith(x, y, isEqual));
+export interface JSCollectionDifference {
+  newActions: Partial<JSAction>[];
+  updateActions: JSAction[];
+  deletedActions: JSAction[];
+  nameChangedActions: Array<{
+    id: string;
+    collectionId?: string;
+    oldName: string;
+    newName: string;
+    pageId: string;
+    moduleId?: string;
+  }>;
+  changedVariables: Variable[];
+}
 
 export const getDifferenceInJSCollection = (
   parsedBody: ParsedBody,
   jsAction: JSCollection,
-) => {
+): JSCollectionDifference => {
   const newActions: ParsedJSSubAction[] = [];
   const toBearchivedActions: JSAction[] = [];
   const toBeUpdatedActions: JSAction[] = [];
@@ -40,13 +51,7 @@ export const getDifferenceInJSCollection = (
       const action = parsedBody.actions[i];
       const preExisted = jsAction.actions.find((js) => js.name === action.name);
       if (preExisted) {
-        if (
-          preExisted.actionConfiguration.body !== action.body ||
-          !getDifferenceInJSArgumentArrays(
-            preExisted.actionConfiguration?.jsArguments,
-            action.arguments,
-          )
-        ) {
+        if (preExisted.actionConfiguration.body !== action.body) {
           toBeUpdatedActions.push({
             ...preExisted,
             actionConfiguration: {
@@ -214,7 +219,7 @@ export const createDummyJSCollectionActions = (
       workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
-        body: "function (){\n\t\t//\twrite code here\n\t\t//\tthis.myVar1 = [1,2,3]\n\t}",
+        body: "function () {}",
         timeoutInMillisecond: 0,
         jsArguments: [],
       },
@@ -226,7 +231,7 @@ export const createDummyJSCollectionActions = (
       workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
-        body: "async function () {\n\t\t//\tuse async-await or promises\n\t\t//\tawait storeValue('varName', 'hello world')\n\t}",
+        body: "async function () {}",
         timeoutInMillisecond: 0,
         jsArguments: [],
       },
@@ -238,11 +243,11 @@ export const createDummyJSCollectionActions = (
   const variables = [
     {
       name: "myVar1",
-      value: [],
+      value: "[]",
     },
     {
       name: "myVar2",
-      value: {},
+      value: "{}",
     },
   ];
 
@@ -266,7 +271,7 @@ export const createSingleFunctionJsCollection = (
       workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
-        body: "function (){\n\t\t//\twrite code here\n\t}",
+        body: "function () {}",
         timeoutInMillisecond: 0,
         jsArguments: [],
       },

@@ -12,17 +12,12 @@ export class DebuggerHelper {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private commonLocators = ObjectsRegistry.CommonLocators;
 
-  // ActionExecutionResizerHeight -> in repo
-  private readonly bottomPaneHeight = 360;
-  // from design system
-  private readonly TAB_MIN_HEIGHT = 36;
-
   public readonly locators = {
     _debuggerIcon: ".t--debugger-count",
     _debuggerToggle: "[data-testid=t--debugger-toggle]",
     _debuggerDownStreamErrMsg: "[data-testid=t--debugger-downStreamErrorMsg]",
     _tabsContainer: ".t--debugger-tabs-container",
-    _closeButton: ".t--close-debugger",
+    _closeButton: "[data-testid=t--view-hide-button]",
     _logMessage: ".t--debugger-log-message",
     _logEntityLink: ".t--debugger-log-entity-link",
     _logState: ".t--debugger-log-state",
@@ -110,21 +105,7 @@ export class DebuggerHelper {
         this.agHelper.AssertElementVisibility(
           this.locators._bottomPaneContainer[pageType],
         );
-        // this.agHelper.AssertHeight(
-        //   this.locators._bottomPaneContainer[pageType],
-        //   this.bottomPaneHeight,
-        // );
         break;
-      // case PageType.Query:
-      // case PageType.DataSources:
-      //   this.agHelper.AssertElementVisibility(
-      //     this.locators._bottomPaneContainer[pageType],
-      //   );
-      //   // this.agHelper.AssertHeight(
-      //   //   this.locators._bottomPaneContainer[pageType],
-      //   //   this.bottomPaneHeight - 1, // -1 to offset error
-      //   // );
-      //   break;
     }
   }
 
@@ -150,12 +131,7 @@ export class DebuggerHelper {
   }
 
   LogStateContains(text: string, index?: number) {
-    this.agHelper.GetNAssertContains(
-      this.locators._logState,
-      text,
-      "exist",
-      index,
-    );
+    this.agHelper.GetNAssertContains(this.locators._logState, text, "exist");
   }
 
   AssertErrorCount(count: number) {

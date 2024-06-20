@@ -140,19 +140,6 @@ export interface DraggedWidget {
   widgetId: string;
 }
 
-export type GenerateHighlights = (
-  baseHighlight: AnvilHighlightInfo,
-  layoutDimension: LayoutElementPosition,
-  currentDimension: LayoutElementPosition,
-  prevDimension: LayoutElementPosition | undefined,
-  nextDimension: LayoutElementPosition | undefined,
-  rowIndex: number,
-  isLastHighlight: boolean,
-  prevHighlight: AnvilHighlightInfo | undefined,
-  hasFillWidget?: boolean,
-  isDropTarget?: boolean,
-) => AnvilHighlightInfo[];
-
 export type GetInitialHighlights = (
   layoutProps: LayoutProps,
   baseHighlight: AnvilHighlightInfo,
@@ -202,14 +189,3 @@ export interface HighlightPayload {
   highlights: AnvilHighlightInfo[];
   skipEntity: boolean;
 }
-
-export type UpdateHighlights = (
-  arr: AnvilHighlightInfo[],
-  baseHighlight: AnvilHighlightInfo,
-  layoutDimension: LayoutElementPosition,
-  currDimension: LayoutElementPosition,
-  nextDimension: LayoutElementPosition | undefined,
-  rowIndex: number,
-  isLastHighlight: boolean,
-  hasFillWidget?: boolean,
-) => AnvilHighlightInfo[];

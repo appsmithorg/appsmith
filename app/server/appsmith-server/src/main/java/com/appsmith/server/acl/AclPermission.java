@@ -85,6 +85,12 @@ public enum AclPermission {
 
     APPLICATION_CREATE_PAGES("create:pages", Application.class),
 
+    /**
+     * This permission would be used to provide delete permission to pages where the user does not have
+     * permission to delete application.
+     */
+    APPLICATION_DELETE_PAGES("delete:applicationPages", Application.class),
+
     MANAGE_PAGES("manage:pages", NewPage.class),
     READ_PAGES("read:pages", NewPage.class),
     DELETE_PAGES("delete:pages", NewPage.class),

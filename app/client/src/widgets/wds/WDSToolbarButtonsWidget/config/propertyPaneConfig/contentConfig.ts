@@ -1,3 +1,7 @@
+import {
+  BUTTON_WIDGET_DEFAULT_LABEL,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 export const propertyPaneContentConfig = [
@@ -7,7 +11,7 @@ export const propertyPaneContentConfig = [
       {
         helpText: "Group Buttons",
         propertyName: "buttonsList",
-        controlType: "GROUP_BUTTONS",
+        controlType: "TOOLBAR_BUTTONS",
         label: "Buttons",
         allowSeparators: true,
         dependencies: ["childStylesheet", "orientation"],
@@ -38,7 +42,7 @@ export const propertyPaneContentConfig = [
                   helpText: "Sets the label of the button",
                   label: "Text",
                   controlType: "INPUT_TEXT",
-                  placeholderText: "Do something",
+                  placeholderText: createMessage(BUTTON_WIDGET_DEFAULT_LABEL),
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: { type: ValidationTypes.TEXT },
@@ -90,7 +94,7 @@ export const propertyPaneContentConfig = [
               sectionName: "Icon",
               children: [
                 {
-                  propertyName: "iconName",
+                  propertyName: "icon",
                   label: "Icon",
                   helpText: "Sets the icon to be used for a button",
                   controlType: "ICON_SELECT_V2",
@@ -100,11 +104,12 @@ export const propertyPaneContentConfig = [
                   validation: { type: ValidationTypes.TEXT },
                 },
                 {
-                  propertyName: "iconAlign",
+                  propertyName: "iconPosition",
                   label: "Position",
                   helpText: "Sets the icon alignment of the button",
                   controlType: "ICON_TABS",
                   fullWidth: false,
+                  defaultValue: "start",
                   options: [
                     {
                       startIcon: "skip-left-line",

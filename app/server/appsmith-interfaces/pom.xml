@@ -22,6 +22,12 @@
             <groupId>com.hierynomus</groupId>
             <artifactId>sshj</artifactId>
             <version>0.35.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.bouncycastle</groupId>
+                    <artifactId>bcprov-jdk15on</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- Actual Junit5 implementation. Will transitively include junit-jupiter-api -->
@@ -78,6 +84,11 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-web</artifactId>
             <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-crypto</artifactId>
         </dependency>
 
         <dependency>
@@ -237,7 +248,7 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.74</version>
+            <version>1.78</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

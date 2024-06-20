@@ -85,6 +85,9 @@ public class ImportApplicationTransactionServiceTest {
     @Autowired
     private Gson gson;
 
+    @Autowired
+    JsonSchemaMigration jsonSchemaMigration;
+
     Long applicationCount = 0L, pageCount = 0L, actionCount = 0L, actionCollectionCount = 0L;
     private ApplicationJson applicationJson = new ApplicationJson();
 
@@ -127,7 +130,8 @@ public class ImportApplicationTransactionServiceTest {
                 .map(data -> {
                     return gson.fromJson(data, ApplicationJson.class);
                 })
-                .map(JsonSchemaMigration::migrateApplicationToLatestSchema);
+                .map(jsonSchemaMigration::migrateArtifactToLatestSchema)
+                .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
     @Test

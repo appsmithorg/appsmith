@@ -1,3 +1,5 @@
+@import "@design-system/widgets/src/shared/colors/colors.module.css";
+
 .table {
   --th-height: calc(
     var(--caption-line-height) + var(--caption-margin-end) +
@@ -21,7 +23,7 @@
   /* adding overflow hidden so that the scollbar at the bottom does not flow out */
   overflow: hidden;
 
-  & [aria-hidden] {
+  & [aria-hidden]:not([role="presentation"]) {
     opacity: 0.6;
   }
 
@@ -72,7 +74,8 @@
    * TH
    *-------------------------------------------------------------------------- */
   & thead [role="columnheader"] {
-    padding-inline: var(--outer-spacing-1);
+    padding-inline-start: var(--outer-spacing-3);
+    padding-inline-end: var(--outer-spacing-1);
     padding-block: var(--outer-spacing-1);
     background: var(--color-bg-elevation-3);
     font-weight: bold;
@@ -107,7 +110,7 @@
     inset: 0;
     display: flex;
     align-items: items;
-    padding-inline: var(--outer-spacing-2);
+    padding-inline: var(--outer-spacing-3);
     padding-inline-end: var(--padding-inline-end);
   }
 
@@ -124,14 +127,12 @@
   }
 
   & thead [role="columnheader"][data-sticky-last-left-td]:not([aria-hidden]) {
-    /*important is added below because the useSticky hooks adds left as inline css */
-    left: 0px !important;
+    left: 0px;
     border-right: 3px solid var(--color-bd);
   }
 
   & thead [role="columnheader"][data-sticky-first-right-td]:not([aria-hidden]) {
-    /*important is added below because the useSticky hooks adds left as inline css */
-    right: 0px !important;
+    right: 0px;
     border-left: 3px solid var(--color-bd);
   }
 
@@ -140,17 +141,19 @@
    *-------------------------------------------------------------------------- */
   & [role="row"] {
     display: flex;
-    block-size: var(--tr-height);
+    min-block-size: var(--tr-height);
   }
 
   & [role="row"]:has([role="columnheader"]) {
     block-size: var(--th-height);
+    min-block-size: auto;
   }
 
   /*-------------------------------------------------------------------------
   * Cell ( td )
   *-------------------------------------------------------------------------- */
   & [role="cell"] {
+    position: relative;
     background-color: var(--color-bg-elevation-3);
   }
 
@@ -181,14 +184,12 @@
   }
 
   & [role="cell"][data-sticky-last-left-td]:not([aria-hidden]) {
-    /*important is added below because the useSticky hooks adds left as inline css */
-    left: 0px !important;
+    left: 0px;
     border-right: 3px solid var(--color-bd);
   }
 
   & [role="cell"][data-sticky-first-right-td]:not([aria-hidden]) {
-    /*important is below here because the useSticky hooks adds left as inline css */
-    right: 0px !important;
+    right: 0px;
     border-left: 3px solid var(--color-bd);
   }
 
@@ -198,6 +199,42 @@
     left: unset !important;
     right: unset !important;
   }
+
+  /*-------------------------------------------------------------------------
+  * Column Types
+  *-------------------------------------------------------------------------- */
+  &
+    [role="cell"]:is(
+      [data-column-type="text"],
+      [data-column-type="number"],
+      [data-column-type="url"],
+      [data-column-type="date"],
+
+    ) {
+    padding: var(--outer-spacing-4) var(--outer-spacing-3);
+  }
+
+  & [role="cell"]:is([data-column-type="button"]) {
+    align-items: center !important;
+    padding-inline: var(--outer-spacing-3);
+  }
+
+  @each $color in colors {
+    &
+      [role="cell"][data-cell-color="$(color)"]:not(
+        [data-column-type="button"],
+        [data-column-type="url"]
+      ) {
+      background-color: var(--color-bg-$(color)-subtle);
+    }
+
+    &
+      [role="row"][aria-checked="true"]
+      [role="cell"][data-cell-color="$(color)"] {
+      background-color: var(--color-bg-$(color)-subtle-active);
+    }
+  }
+
   /* --------------------------------------------------------------------------
   * Resizor
   *-------------------------------------------------------------------------- */

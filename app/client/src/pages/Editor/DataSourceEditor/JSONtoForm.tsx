@@ -50,7 +50,7 @@ export class JSONtoForm<
   renderForm = (formContent: any) => {
     return (
       // <MainContainer>
-      <FormContainer className="t--json-to-form-wrapper">
+      <FormContainer className="t--json-to-form-wrapper select-text">
         <FormContainerBody className="t--json-to-form-body">
           {formContent}
         </FormContainerBody>

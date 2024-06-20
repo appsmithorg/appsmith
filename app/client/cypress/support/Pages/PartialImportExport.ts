@@ -1,7 +1,6 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { EntityItems } from "./AssertHelper";
 import { AppSidebar, AppSidebarButton, PageLeftPane } from "./EditorNavigation";
-
 const exportedPropertiesToUIEntitiesMap = {
   jsObjects: "actionCollectionList",
   datasources: "datasourceList",
@@ -88,7 +87,7 @@ export default class PartialImportExport {
     );
     this.agHelper.GetNClick(this.locators.export.modelContents.exportButton);
     this.agHelper.FailIfErrorToast(
-      "Error exporting application. Please try again.",
+      Cypress.env("MESSAGES").ERROR_IN_EXPORTING_APP(),
     );
 
     cy.readFile(`cypress/downloads/${fixtureName}`).then((exportedFile) => {
@@ -125,17 +124,27 @@ export default class PartialImportExport {
     fileName: string,
     sectionTitle: "JSObjects" | "Queries" | "Widgets" | "Data" | "Libraries",
     elementsToCheck: string[],
+    filePath: string = "fixtures",
   ) {
     cy.intercept("POST", "/api/v1/applications/import/partial/**").as(
       "partialImportNetworkCall",
     );
 
-    cy.xpath(this.homePage._uploadFile).selectFile(
-      `cypress/fixtures/PartialImportExport/${fileName}`,
-      {
-        force: true,
-      },
-    );
+    if (filePath == "fixtures") {
+      cy.xpath(this.homePage._uploadFile).selectFile(
+        `cypress/fixtures/PartialImportExport/${fileName}`,
+        {
+          force: true,
+        },
+      );
+    } else if (filePath == "downloads") {
+      cy.xpath(this.homePage._uploadFile).selectFile(
+        `cypress/downloads/${fileName}`,
+        {
+          force: true,
+        },
+      );
+    }
     cy.wait("@partialImportNetworkCall");
 
     this.agHelper.FailIfErrorToast(
@@ -174,5 +183,35 @@ export default class PartialImportExport {
     elementsToCheck.forEach((element) => {
       PageLeftPane.assertPresence(element);
     });
+  }
+
+  PartiallyExportFile(
+    sectionIndex: number,
+    sectionSelector: string,
+    checkbox: string[],
+  ) {
+    this.agHelper.GetNClick(
+      this.locators.export.modelContents.sectionHeaders,
+      sectionIndex,
+    );
+
+    const currentSection = this.agHelper.GetElement(sectionSelector);
+
+    currentSection.find("label").each((element) => {
+      const labelText = element.text().trim();
+      if (checkbox.includes(labelText)) {
+        cy.wrap(element).click({ force: true });
+      }
+    });
+
+    this.agHelper.AssertElementEnabledDisabled(
+      this.locators.export.modelContents.exportButton,
+      0,
+      false,
+    );
+    this.agHelper.GetNClick(this.locators.export.modelContents.exportButton);
+    this.agHelper.FailIfErrorToast(
+      Cypress.env("MESSAGES").ERROR_IN_EXPORTING_APP(),
+    );
   }
 }

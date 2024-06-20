@@ -28,23 +28,15 @@ export const StyledTab = styled(Flex)`
   align-items: center;
   justify-content: center;
   padding: var(--ads-v2-spaces-3);
-
-  // After element - the seperator in between tabs
-  &:not(&.active):not(:has(+ .active)):after {
-    content: "";
-    position: absolute;
-    right: 0;
-    top: 8px;
-    width: 1px;
-    height: 40%;
-    background-color: var(--ads-v2-color-border);
-  }
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+  border-top: 2px solid transparent;
 
   &.active {
     background: var(--ads-v2-colors-control-field-default-bg);
-    border-top: 2px solid var(--ads-v2-color-bg-brand);
-    border-left: 1px solid var(--ads-v2-color-border);
-    border-right: 1px solid var(--ads-v2-color-border);
+    border-top-color: var(--ads-v2-color-bg-brand);
+    border-left-color: var(--ads-v2-color-border-muted);
+    border-right-color: var(--ads-v2-color-border-muted);
   }
 
   & > .tab-close {
@@ -54,6 +46,10 @@ export const StyledTab = styled(Flex)`
   }
 
   &:hover > .tab-close {
+    visibility: visible;
+  }
+
+  &.active > .tab-close {
     visibility: visible;
   }
 `;

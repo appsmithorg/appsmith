@@ -22,7 +22,8 @@
           "configProperty": "actionConfiguration.timeoutInMillisecond",
           "controlType": "INPUT_TEXT",
           "initialValue": 60000,
-          "dataType": "NUMBER"
+          "dataType": "NUMBER",
+          "width": "270px"
         }
       ]
     }

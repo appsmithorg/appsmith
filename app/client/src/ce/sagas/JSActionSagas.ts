@@ -13,6 +13,7 @@ import {
 } from "actions/pluginActionActions";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
+  closeJSActionTab,
   closeJsActionTabSuccess,
   copyJSCollectionError,
   copyJSCollectionSuccess,
@@ -67,7 +68,6 @@ import {
 import { toast } from "design-system";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getWidgets } from "sagas/selectors";
 import FocusRetention from "sagas/FocusRetentionSaga";
 import { handleJSEntityRedirect } from "sagas/IDESaga";
@@ -250,8 +250,13 @@ export function* moveJSCollectionSaga(
         },
       );
     }
-    const currentURL = window.location.pathname;
-    yield call(FocusRetention.handleRemoveFocusHistory, currentURL);
+    yield call(
+      closeJSActionTabSaga,
+      closeJSActionTab({
+        id: action.payload.id,
+        parentId: actionObject.pageId,
+      }),
+    );
     // @ts-expect-error: response.data is of type unknown
     yield put(moveJSCollectionSuccess(response.data));
   } catch (e) {
@@ -322,7 +327,7 @@ export function* deleteJSCollectionSaga(
         },
       });
       yield put(deleteJSCollectionSuccess({ id }));
-      yield put(closeJsActionTabSuccess({ id }));
+      yield put(closeJsActionTabSuccess({ id, parentId: pageId }));
 
       const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
@@ -383,11 +388,7 @@ export function* refactorJSObjectName(
   oldName: string,
   newName: string,
 ) {
-  const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
-  const params: FetchPageRequest = { id: pageId };
-  if (isServerDSLMigrationsEnabled) {
-    params.migrateDSL = true;
-  }
+  const params: FetchPageRequest = { id: pageId, migrateDSL: true };
   const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   // check if page request is successful
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
@@ -493,13 +494,13 @@ export function* fetchJSCollectionsForViewModeSaga(
 }
 
 export function* closeJSActionTabSaga(
-  actionPayload: ReduxAction<{ id: string }>,
+  actionPayload: ReduxAction<{ id: string; parentId: string }>,
 ) {
-  const id = actionPayload.payload.id;
+  const { id, parentId } = actionPayload.payload;
   const currentUrl = window.location.pathname;
   yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
   yield call(handleJSEntityRedirect, id);
-  yield put(closeJsActionTabSuccess({ id }));
+  yield put(closeJsActionTabSuccess({ id, parentId }));
 }
 
 // Saga to fetch stored test payloads for all collections present in the application

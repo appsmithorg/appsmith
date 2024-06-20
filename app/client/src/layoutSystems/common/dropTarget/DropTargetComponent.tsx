@@ -41,6 +41,7 @@ import {
 } from "widgets/WidgetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import Onboarding from "./OnBoarding";
+import { isDraggingBuildingBlockToCanvas } from "selectors/buildingBlocksSelectors";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -211,8 +212,14 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
   // Are we currently dragging?
-  const isDragging = useSelector(
+  const isDraggingWidget = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
+  const isDraggingBuildingBlock = useSelector(isDraggingBuildingBlockToCanvas);
+
+  const isDragging = useMemo(
+    () => isDraggingWidget || isDraggingBuildingBlock,
+    [isDraggingWidget, isDraggingBuildingBlock],
   );
   // Are we changing the auto height limits by dragging the signifiers?
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();

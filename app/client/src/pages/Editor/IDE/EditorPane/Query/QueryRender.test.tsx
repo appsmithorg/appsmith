@@ -22,6 +22,8 @@ const FeatureFlags = {
   rollout_side_by_side_enabled: true,
 };
 
+const pageId = "0123456789abcdef00000000";
+
 describe("IDE URL rendering of Queries", () => {
   localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   describe("Query Blank State", () => {
@@ -31,7 +33,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/queries",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries`,
           featureFlags: FeatureFlags,
         },
       );
@@ -53,7 +55,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/queries",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -71,38 +73,37 @@ describe("IDE URL rendering of Queries", () => {
     });
 
     it("Renders Fullscreen Add in Blank State", () => {
-      const { getByRole, getByText } = render(
+      const { getByTestId, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/queries/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/add`,
           featureFlags: FeatureFlags,
         },
       );
-
-      // Main pane text
-      getByText(createMessage(EDITOR_PANE_TEXTS.query_blank_state));
-
-      // Left pane header
-      getByText(createMessage(EDITOR_PANE_TEXTS.query_create_tab_title));
 
       // Create options are rendered
       getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));
       getByText("New datasource");
       getByText("REST API");
+      // Check new tab presence
+      const newTab = getByTestId("t--ide-tab-new");
+      expect(newTab).not.toBeNull();
       // Close button is rendered
-      getByRole("button", { name: "Close pane" });
+      expect(
+        newTab.querySelector("[data-testid='t--tab-close-btn']"),
+      ).not.toBeNull();
     });
 
     it("Renders Split Screen Add in Blank State", () => {
       const state = getIDETestState({ ideView: EditorViewMode.SplitScreen });
-      const { getByRole, getByTestId, getByText } = render(
+      const { getByTestId, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/queries/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -119,8 +120,13 @@ describe("IDE URL rendering of Queries", () => {
       getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));
       getByText("New datasource");
       getByText("REST API");
+      // Check new tab presence
+      const newTab = getByTestId("t--ide-tab-new");
+      expect(newTab).not.toBeNull();
       // Close button is rendered
-      getByRole("button", { name: "Close pane" });
+      expect(
+        newTab.querySelector("[data-testid='t--tab-close-btn']"),
+      ).not.toBeNull();
     });
   });
 
@@ -142,7 +148,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/api/api_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/api/api_id`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -186,7 +192,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/api/api_id2",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/api/api_id2`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -207,7 +213,7 @@ describe("IDE URL rendering of Queries", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByTestId("t--ide-split-screen-add-button");
+      getByTestId("t--ide-tabs-add-button");
     });
 
     it("Renders Api add routes in Full Screen", () => {
@@ -222,35 +228,28 @@ describe("IDE URL rendering of Queries", () => {
         },
       });
 
-      const { getAllByText, getByRole, getByTestId, getByText } = render(
+      const { getByTestId, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/api/api_id/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/api/api_id/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
       );
 
-      // There will be 2 Api1 text (editor tab and Editor form)
-      expect(getAllByText("Api3").length).toEqual(2);
-      // Tabs active state
-      expect(getByTestId("t--ide-tab-Api3").classList.contains("active")).toBe(
-        false,
-      );
-      // Check if the form is rendered
-      getByTestId("t--action-form-API");
-      // Check if the params tabs is visible
-      getByRole("tab", { name: /params/i });
-      // Check if run button is visible
-      getByRole("button", { name: /run/i });
       // Create options are rendered
       getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));
       getByText("New datasource");
       getByText("REST API");
+      // Check new tab presence
+      const newTab = getByTestId("t--ide-tab-new");
+      expect(newTab).not.toBeNull();
       // Close button is rendered
-      getByRole("button", { name: "Close pane" });
+      expect(
+        newTab.querySelector("[data-testid='t--tab-close-btn']"),
+      ).not.toBeNull();
     });
     it("Renders Api add routes in Split Screen", () => {
       const page = PageFactory.build();
@@ -265,17 +264,16 @@ describe("IDE URL rendering of Queries", () => {
         ideView: EditorViewMode.SplitScreen,
       });
 
-      const { getAllByText, getByRole, getByTestId, getByText, queryByTestId } =
-        render(
-          <Route path={BUILDER_PATH}>
-            <IDE />
-          </Route>,
-          {
-            url: "/app/applicationSlug/pageSlug-page_id/edit/api/api_id/add",
-            initialState: state,
-            featureFlags: FeatureFlags,
-          },
-        );
+      const { getAllByText, getByTestId, getByText, queryByTestId } = render(
+        <Route path={BUILDER_PATH}>
+          <IDE />
+        </Route>,
+        {
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/api/api_id/add`,
+          initialState: state,
+          featureFlags: FeatureFlags,
+        },
+      );
 
       // There will be 1 Api4 text ( The tab )
       expect(getAllByText("Api4").length).toEqual(1);
@@ -283,12 +281,8 @@ describe("IDE URL rendering of Queries", () => {
       expect(getByTestId("t--ide-tab-Api4").classList.contains("active")).toBe(
         false,
       );
-      // Add button active state
-      expect(
-        getByTestId("t--ide-split-screen-add-button").getAttribute(
-          "data-selected",
-        ),
-      ).toBe("true");
+      // Add button should not present
+      expect(queryByTestId("t--ide-tabs-add-button")).toBeNull();
 
       // Check if the form is not rendered
       expect(queryByTestId("t--action-form-API")).toBeNull();
@@ -296,8 +290,13 @@ describe("IDE URL rendering of Queries", () => {
       getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));
       getByText("New datasource");
       getByText("REST API");
+      // Check new tab presence
+      const newTab = getByTestId("t--ide-tab-new");
+      expect(newTab).not.toBeNull();
       // Close button is rendered
-      getByRole("button", { name: "Close pane" });
+      expect(
+        newTab.querySelector("[data-testid='t--tab-close-btn']"),
+      ).not.toBeNull();
     });
   });
 
@@ -322,7 +321,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/queries/query_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/query_id`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -370,7 +369,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/queries/query_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/query_id`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -395,7 +394,7 @@ describe("IDE URL rendering of Queries", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByTestId("t--ide-split-screen-add-button");
+      getByTestId("t--ide-tabs-add-button");
     });
     it("Renders Postgres add routes in Full Screen", async () => {
       const page = PageFactory.build();
@@ -412,40 +411,31 @@ describe("IDE URL rendering of Queries", () => {
         },
       });
 
-      const { container, getAllByText, getByRole, getByTestId, getByText } =
-        render(
-          <Route path={BUILDER_PATH}>
-            <IDE />
-          </Route>,
-          {
-            url: `/app/applicationSlug/${page.slug}-${page.pageId}/edit/queries/query_id/add`,
-            initialState: state,
-            featureFlags: FeatureFlags,
-            sagasToRun: sagasToRunForTests,
-          },
-        );
+      const { container, getByTestId, getByText } = render(
+        <Route path={BUILDER_PATH}>
+          <IDE />
+        </Route>,
+        {
+          url: `/app/applicationSlug/${page.slug}-${page.pageId}/edit/queries/query_id/add`,
+          initialState: state,
+          featureFlags: FeatureFlags,
+          sagasToRun: sagasToRunForTests,
+        },
+      );
 
       screen.logTestingPlaygroundURL(container);
 
-      await userEvent.click(getByRole("tab", { name: "Query" }));
-
-      // There will be 2 Query3 text (editor tab and Editor form)
-      expect(getAllByText("Query3").length).toEqual(2);
-      // Tabs active state
-      expect(
-        getByTestId("t--ide-tab-Query3").classList.contains("active"),
-      ).toBe(false);
-      // Check if the form is rendered
-      getByTestId("t--action-form-DB");
-
-      // Check if run button is visible
-      getByRole("button", { name: /run/i });
       // Create options are rendered
       getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));
       getByText("New datasource");
       getByText("REST API");
+      // Check new tab presence
+      const newTab = getByTestId("t--ide-tab-new");
+      expect(newTab).not.toBeNull();
       // Close button is rendered
-      getByRole("button", { name: "Close pane" });
+      expect(
+        newTab.querySelector("[data-testid='t--tab-close-btn']"),
+      ).not.toBeNull();
     });
     it("Renders Postgres add routes in Split Screen", () => {
       const page = PageFactory.build();
@@ -463,18 +453,17 @@ describe("IDE URL rendering of Queries", () => {
         ideView: EditorViewMode.SplitScreen,
       });
 
-      const { getAllByText, getByRole, getByTestId, getByText, queryByTestId } =
-        render(
-          <Route path={BUILDER_PATH}>
-            <IDE />
-          </Route>,
-          {
-            url: "/app/applicationSlug/pageSlug-page_id/edit/queries/query_id/add",
-            sagasToRun: sagasToRunForTests,
-            initialState: state,
-            featureFlags: FeatureFlags,
-          },
-        );
+      const { getAllByText, getByTestId, getByText, queryByTestId } = render(
+        <Route path={BUILDER_PATH}>
+          <IDE />
+        </Route>,
+        {
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/query_id/add`,
+          sagasToRun: sagasToRunForTests,
+          initialState: state,
+          featureFlags: FeatureFlags,
+        },
+      );
 
       // There will be 1 Api4 text ( The tab )
       expect(getAllByText("Query4").length).toEqual(1);
@@ -482,12 +471,8 @@ describe("IDE URL rendering of Queries", () => {
       expect(
         getByTestId("t--ide-tab-Query4").classList.contains("active"),
       ).toBe(false);
-      // Add button active state
-      expect(
-        getByTestId("t--ide-split-screen-add-button").getAttribute(
-          "data-selected",
-        ),
-      ).toBe("true");
+      // Add button should not present
+      expect(queryByTestId("t--ide-tabs-add-button")).toBeNull();
 
       // Check if the form is not rendered
       expect(queryByTestId("t--action-form-DB")).toBeNull();
@@ -495,8 +480,13 @@ describe("IDE URL rendering of Queries", () => {
       getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));
       getByText("New datasource");
       getByText("REST API");
+      // Check new tab presence
+      const newTab = getByTestId("t--ide-tab-new");
+      expect(newTab).not.toBeNull();
       // Close button is rendered
-      getByRole("button", { name: "Close pane" });
+      expect(
+        newTab.querySelector("[data-testid='t--tab-close-btn']"),
+      ).not.toBeNull();
     });
   });
 
@@ -522,7 +512,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/saas/google-sheets-plugin/api/saas_api_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -571,7 +561,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/saas/google-sheets-plugin/api/saas_api_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -598,7 +588,7 @@ describe("IDE URL rendering of Queries", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByTestId("t--ide-split-screen-add-button");
+      getByTestId("t--ide-tabs-add-button");
     });
     it("Renders Google Sheets add routes in Full Screen", async () => {
       const page = PageFactory.build();
@@ -616,40 +606,31 @@ describe("IDE URL rendering of Queries", () => {
         },
       });
 
-      const { container, getAllByText, getByRole, getByTestId, getByText } =
-        render(
-          <Route path={BUILDER_PATH}>
-            <IDE />
-          </Route>,
-          {
-            url: "/app/applicationSlug/pageSlug-page_id/edit/saas/google-sheets-plugin/api/saas_api_id/add",
-            initialState: state,
-            featureFlags: FeatureFlags,
-            sagasToRun: sagasToRunForTests,
-          },
-        );
+      const { container, getByTestId, getByText } = render(
+        <Route path={BUILDER_PATH}>
+          <IDE />
+        </Route>,
+        {
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id/add`,
+          initialState: state,
+          featureFlags: FeatureFlags,
+          sagasToRun: sagasToRunForTests,
+        },
+      );
 
       screen.logTestingPlaygroundURL(container);
 
-      await userEvent.click(getByRole("tab", { name: "Query" }));
-
-      // There will be 2 Query3 text (editor tab and Editor form)
-      expect(getAllByText("Sheets3").length).toEqual(2);
-      // Tabs active state
-      expect(
-        getByTestId("t--ide-tab-Sheets3").classList.contains("active"),
-      ).toBe(false);
-      // Check if the form is rendered
-      getByTestId("t--action-form-SAAS");
-
-      // Check if run button is visible
-      getByRole("button", { name: /run/i });
       // Create options are rendered
       getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));
       getByText("New datasource");
       getByText("REST API");
+      // Check new tab presence
+      const newTab = getByTestId("t--ide-tab-new");
+      expect(newTab).not.toBeNull();
       // Close button is rendered
-      getByRole("button", { name: "Close pane" });
+      expect(
+        newTab.querySelector("[data-testid='t--tab-close-btn']"),
+      ).not.toBeNull();
     });
     it("Renders Google Sheets add routes in Split Screen", async () => {
       const page = PageFactory.build();
@@ -668,18 +649,17 @@ describe("IDE URL rendering of Queries", () => {
         ideView: EditorViewMode.SplitScreen,
       });
 
-      const { getAllByText, getByRole, getByTestId, getByText, queryByTestId } =
-        render(
-          <Route path={BUILDER_PATH}>
-            <IDE />
-          </Route>,
-          {
-            url: "/app/applicationSlug/pageSlug-page_id/edit/saas/google-sheets-plugin/api/saas_api_id/add",
-            sagasToRun: sagasToRunForTests,
-            initialState: state,
-            featureFlags: FeatureFlags,
-          },
-        );
+      const { getAllByText, getByTestId, getByText, queryByTestId } = render(
+        <Route path={BUILDER_PATH}>
+          <IDE />
+        </Route>,
+        {
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id/add`,
+          sagasToRun: sagasToRunForTests,
+          initialState: state,
+          featureFlags: FeatureFlags,
+        },
+      );
 
       // There will be 1 Api4 text ( The tab )
       expect(getAllByText("Sheets4").length).toEqual(1);
@@ -688,11 +668,7 @@ describe("IDE URL rendering of Queries", () => {
         getByTestId("t--ide-tab-Sheets4").classList.contains("active"),
       ).toBe(false);
       // Add button active state
-      expect(
-        getByTestId("t--ide-split-screen-add-button").getAttribute(
-          "data-selected",
-        ),
-      ).toBe("true");
+      expect(queryByTestId("t--ide-tabs-add-button")).toBeNull();
 
       // Check if the form is not rendered
       expect(queryByTestId("t--action-form-SAAS")).toBeNull();
@@ -700,8 +676,13 @@ describe("IDE URL rendering of Queries", () => {
       getByText(createMessage(EDITOR_PANE_TEXTS.queries_create_from_existing));
       getByText("New datasource");
       getByText("REST API");
+      // Check new tab presence
+      const newTab = getByTestId("t--ide-tab-new");
+      expect(newTab).not.toBeNull();
       // Close button is rendered
-      getByRole("button", { name: "Close pane" });
+      expect(
+        newTab.querySelector("[data-testid='t--tab-close-btn']"),
+      ).not.toBeNull();
     });
   });
 });

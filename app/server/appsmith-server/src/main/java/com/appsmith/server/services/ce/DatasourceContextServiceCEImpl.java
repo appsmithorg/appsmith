@@ -374,6 +374,11 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         });
     }
 
+    /**
+     * removes the datasource context entry from the contextMaps. may return an empty mono
+     * @param datasourceStorage
+     * @return removed datasourceContext
+     */
     @Override
     public Mono<DatasourceContext<?>> deleteDatasourceContext(DatasourceStorage datasourceStorage) {
 
@@ -390,11 +395,19 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         }
         return pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
-                .map(pluginExecutor -> {
+                .flatMap(pluginExecutor -> {
                     log.info("Clearing datasource context for datasource storage ID {}.", datasourceStorage.getId());
                     pluginExecutor.datasourceDestroy(datasourceContext.getConnection());
                     datasourceContextMonoMap.remove(datasourceContextIdentifier);
-                    return datasourceContextMap.remove(datasourceContextIdentifier);
+
+                    if (!datasourceContextMap.containsKey(datasourceContextIdentifier)) {
+                        log.info(
+                                "datasourceContextMap does not contain any entry for datasource storage with id: {} ",
+                                datasourceStorage.getId());
+                        return Mono.empty();
+                    }
+
+                    return Mono.just(datasourceContextMap.remove(datasourceContextIdentifier));
                 });
     }
 

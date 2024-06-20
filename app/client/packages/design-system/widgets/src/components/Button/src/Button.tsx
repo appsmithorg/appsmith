@@ -33,7 +33,7 @@ const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
         <span aria-hidden={isLoading ? true : undefined} data-content="">
           {icon && <Icon name={icon} size={size as keyof typeof SIZES} />}
           {Boolean(children) && (
-            <Text data-text="" fontWeight={600} lineClamp={1}>
+            <Text data-text="" fontWeight={500} lineClamp={1}>
               {children}
             </Text>
           )}

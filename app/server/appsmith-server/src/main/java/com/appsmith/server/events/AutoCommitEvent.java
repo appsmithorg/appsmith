@@ -31,4 +31,29 @@ public class AutoCommitEvent {
 
     @ToString.Exclude
     private String publicKey;
+
+    public AutoCommitEvent(
+            String applicationId,
+            String branchName,
+            String workspaceId,
+            String repoName,
+            String authorName,
+            String authorEmail,
+            String repoUrl,
+            String privateKey,
+            String publicKey) {
+        this.applicationId = applicationId;
+        this.branchName = branchName;
+        this.workspaceId = workspaceId;
+        this.repoName = repoName;
+        this.authorName = authorName;
+        this.authorEmail = authorEmail;
+        this.repoUrl = repoUrl;
+        this.privateKey = privateKey;
+        this.publicKey = publicKey;
+    }
+
+    // These flags are required to select what part of changes are required to be merged.
+    private Boolean isServerSideEvent;
+    private Boolean isClientSideEvent;
 }

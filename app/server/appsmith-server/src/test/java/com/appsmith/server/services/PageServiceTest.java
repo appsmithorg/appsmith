@@ -305,7 +305,8 @@ public class PageServiceTest {
                 .verifyComplete();
 
         // Check if defaultResources
-        Mono<NewPage> newPageMono = pageMono.flatMap(pageDTO -> newPageService.getById(pageDTO.getId()));
+        Mono<NewPage> newPageMono =
+                pageMono.flatMap(pageDTO -> newPageService.getByIdWithoutPermissionCheck(pageDTO.getId()));
         StepVerifier.create(newPageMono)
                 .assertNext(newPage -> {
                     assertThat(newPage.getDefaultResources()).isNotNull();

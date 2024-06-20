@@ -68,12 +68,10 @@ public class ApiKeyAuthentication extends APIConnection {
             headerValue = this.headerPrefix.trim() + " ";
         }
         headerValue += this.value;
-
         return headerValue.trim();
     }
 
     private URI appendApiKeyParamToUrl(URI oldUrl) {
-
         return UriComponentsBuilder.newInstance()
                 .scheme(oldUrl.getScheme())
                 .host(oldUrl.getHost())
@@ -81,6 +79,7 @@ public class ApiKeyAuthentication extends APIConnection {
                 .path(oldUrl.getPath())
                 .query(oldUrl.getQuery())
                 .queryParam(label, value)
+                .encode()
                 .fragment(oldUrl.getFragment())
                 .build()
                 .toUri();

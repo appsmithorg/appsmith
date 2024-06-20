@@ -47,7 +47,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
+import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static java.lang.Boolean.FALSE;
 
 @Slf4j
@@ -75,7 +75,7 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
             boolean isSuccess,
             Throwable error,
             CreatorContextType creatorType) {
-        return Mono.zip(sessionUserService.getCurrentUser(), newPageService.getById(creatorId))
+        return Mono.zip(sessionUserService.getCurrentUser(), newPageService.getByIdWithoutPermissionCheck(creatorId))
                 .flatMap(tuple -> {
                     User t1 = tuple.getT1();
                     NewPage t2 = tuple.getT2();
@@ -244,12 +244,10 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         List<Mono<LayoutDTO>> monoList = new ArrayList<>();
         for (UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayout :
                 updateMultiplePageLayoutDTO.getPageLayouts()) {
+            final Layout layout = new Layout();
+            layout.setDsl(pageLayout.getLayout().dsl());
             Mono<LayoutDTO> updatedLayoutMono = this.updateLayout(
-                    pageLayout.getPageId(),
-                    defaultApplicationId,
-                    pageLayout.getLayoutId(),
-                    pageLayout.getLayout(),
-                    branchName);
+                    pageLayout.getPageId(), defaultApplicationId, pageLayout.getLayoutId(), layout, branchName);
             monoList.add(updatedLayoutMono);
         }
         return Flux.merge(monoList).then(Mono.just(monoList.size()));

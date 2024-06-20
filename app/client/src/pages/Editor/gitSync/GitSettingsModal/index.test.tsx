@@ -31,7 +31,6 @@ const createInitialState = (overrideFn = (o: any) => o) => {
         featureFlag: {
           data: {
             license_git_continuous_delivery_enabled: true,
-            release_git_continuous_delivery_enabled: true,
           },
         },
       },
@@ -86,22 +85,5 @@ describe("Git Settings Modal", () => {
     expect(getByTestId(`t--tab-${GitSettingsTab.GENERAL}`)).toBeTruthy();
     expect(queryByTestId(`t--tab-${GitSettingsTab.BRANCH}`)).not.toBeTruthy();
     expect(getByTestId(`t--tab-${GitSettingsTab.CD}`)).toBeTruthy();
-  });
-
-  it("is not rendering CD when feature flag is not enabled", () => {
-    const initialState = createInitialState((initialState) => {
-      const newState = { ...initialState };
-      newState.ui.users.featureFlag.data = {
-        license_git_continuous_delivery_enabled: false,
-        release_git_continuous_delivery_enabled: false,
-      };
-      return newState;
-    });
-    const store = mockStore(initialState);
-    const { getByTestId, queryByTestId } = renderComponent(store);
-    expect(getByTestId("t--git-settings-modal")).toBeTruthy();
-    expect(getByTestId(`t--tab-${GitSettingsTab.GENERAL}`)).toBeTruthy();
-    expect(getByTestId(`t--tab-${GitSettingsTab.BRANCH}`)).toBeTruthy();
-    expect(queryByTestId(`t--tab-${GitSettingsTab.CD}`)).not.toBeTruthy();
   });
 });

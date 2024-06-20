@@ -159,4 +159,36 @@ public class CustomUserDataRepositoryTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void fetchMostRecentlyUsedWorkspaceId_withAndWithoutRecentlyUsedIds_success() {
+        String randomId = UUID.randomUUID().toString();
+        String firstId = "first_" + randomId, photoId = "photo_" + randomId;
+
+        UserData userData = new UserData();
+        userData.setUserId(firstId);
+        userData.setProfilePhotoAssetId(photoId);
+
+        // Assert when no recently used entity ids are present
+        userData = userDataRepository.save(userData).block();
+        StepVerifier.create(userDataRepository.fetchMostRecentlyUsedWorkspaceId(firstId))
+                .assertNext(workspaceId -> {
+                    assertThat(workspaceId).isEmpty();
+                })
+                .verifyComplete();
+
+        // Recently used entity ids are present
+        RecentlyUsedEntityDTO recentlyUsedEntityDTO = new RecentlyUsedEntityDTO();
+        recentlyUsedEntityDTO.setWorkspaceId("123");
+        recentlyUsedEntityDTO.setApplicationIds(List.of("456"));
+
+        assert userData != null : "userData can't be null";
+        userData.setRecentlyUsedEntityIds(List.of(recentlyUsedEntityDTO));
+        userDataRepository.save(userData).block();
+        StepVerifier.create(userDataRepository.fetchMostRecentlyUsedWorkspaceId(firstId))
+                .assertNext(workspaceId -> {
+                    assertThat(workspaceId).isEqualTo("123");
+                })
+                .verifyComplete();
+    }
 }

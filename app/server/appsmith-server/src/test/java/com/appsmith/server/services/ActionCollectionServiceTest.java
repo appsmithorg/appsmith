@@ -467,7 +467,7 @@ public class ActionCollectionServiceTest {
 
         assert createdActionCollectionDTO2 != null;
         final Mono<ActionCollection> actionCollectionMono =
-                actionCollectionService.getById(createdActionCollectionDTO2.getId());
+                actionCollectionService.getByIdWithoutPermissionCheck(createdActionCollectionDTO2.getId());
 
         StepVerifier.create(actionCollectionMono)
                 .assertNext(actionCollection -> {
@@ -477,10 +477,11 @@ public class ActionCollectionServiceTest {
                 })
                 .verifyComplete();
 
-        final Mono<NewAction> actionMono = newActionService.getById(createdActionCollectionDTO2.getActions().stream()
-                .findFirst()
-                .get()
-                .getId());
+        final Mono<NewAction> actionMono =
+                newActionService.getByIdWithoutPermissionCheck(createdActionCollectionDTO2.getActions().stream()
+                        .findFirst()
+                        .get()
+                        .getId());
 
         StepVerifier.create(actionMono)
                 .assertNext(action -> {
@@ -561,7 +562,7 @@ public class ActionCollectionServiceTest {
 
         assert createdActionCollectionDTO2 != null;
         final Mono<ActionCollection> actionCollectionMono =
-                actionCollectionService.getById(createdActionCollectionDTO2.getId());
+                actionCollectionService.getByIdWithoutPermissionCheck(createdActionCollectionDTO2.getId());
 
         StepVerifier.create(actionCollectionMono)
                 .assertNext(actionCollection -> {
@@ -571,10 +572,11 @@ public class ActionCollectionServiceTest {
                 })
                 .verifyComplete();
 
-        final Mono<NewAction> actionMono = newActionService.getById(createdActionCollectionDTO2.getActions().stream()
-                .findFirst()
-                .get()
-                .getId());
+        final Mono<NewAction> actionMono =
+                newActionService.getByIdWithoutPermissionCheck(createdActionCollectionDTO2.getActions().stream()
+                        .findFirst()
+                        .get()
+                        .getId());
 
         StepVerifier.create(actionMono)
                 .assertNext(action -> {

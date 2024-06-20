@@ -28,7 +28,7 @@ export default {
           propertyName: "discardActionLabel",
           label: "Text",
           helpText: "Sets the label text of the button",
-          controlType: "TABLE_COMPUTE_VALUE",
+
           dependencies: ["primaryColumns"],
           isBindProperty: true,
           isTriggerProperty: false,
@@ -61,7 +61,7 @@ export default {
           helpText: "Controls the visibility of the discard button",
           defaultValue: true,
           controlType: "SWITCH",
-          customJSControl: "TABLE_COMPUTE_VALUE",
+
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
@@ -78,7 +78,7 @@ export default {
           helpText: "Disables clicks to the discard button",
           defaultValue: false,
           controlType: "SWITCH",
-          customJSControl: "TABLE_COMPUTE_VALUE",
+
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,
@@ -116,7 +116,7 @@ export const discardButtonStyleConfig = {
           controlType: "PRIMARY_COLUMNS_COLOR_PICKER_V2",
           helpText: "Changes the color of the button",
           isJSConvertible: true,
-          customJSControl: "TABLE_COMPUTE_VALUE",
+
           dependencies: ["primaryColumns"],
           isBindProperty: true,
           validation: {
@@ -135,7 +135,7 @@ export const discardButtonStyleConfig = {
           label: "Button variant",
           controlType: "ICON_TABS",
           fullWidth: true,
-          customJSControl: "TABLE_COMPUTE_VALUE",
+
           isJSConvertible: true,
           helpText: "Sets the variant of the discard button",
           dependencies: ["primaryColumns"],
@@ -174,7 +174,7 @@ export const discardButtonStyleConfig = {
         {
           propertyName: "discardBorderRadius",
           label: "Border radius",
-          customJSControl: "TABLE_COMPUTE_VALUE",
+
           isJSConvertible: true,
           helpText:
             "Rounds the corners of the discard button's outer border edge",
@@ -201,7 +201,7 @@ export const discardButtonStyleConfig = {
           helpText: "Sets the icon to be used for the discard action button",
           dependencies: ["primaryColumns", "columnOrder"],
           controlType: "ICON_SELECT",
-          customJSControl: "TABLE_COMPUTE_VALUE",
+
           isJSConvertible: true,
           isBindProperty: true,
           isTriggerProperty: false,

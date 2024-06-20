@@ -41,7 +41,6 @@ import saaSPaneSagas from "sagas/SaaSPaneSagas";
 import snapshotSagas from "sagas/SnapshotSagas";
 import snipingModeSagas from "sagas/SnipingModeSagas";
 import templateSagas from "sagas/TemplatesSagas";
-import buildingBlockSagas from "sagas/BuildingBlockSagas";
 import themeSagas from "sagas/ThemeSaga";
 import utilSagas from "sagas/UtilSagas";
 import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
@@ -52,6 +51,7 @@ import entityNavigationSaga from "sagas/NavigationSagas";
 import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
 import anvilSagas from "layoutSystems/anvil/integrations/sagas";
 import ideSagas from "sagas/IDESaga";
+import sendSideBySideWidgetHoverAnalyticsEventSaga from "sagas/AnalyticsSaga";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
 import ternSagas from "sagas/TernSaga";
@@ -111,5 +111,5 @@ export const sagas = [
   anvilSagas,
   ternSagas,
   ideSagas,
-  buildingBlockSagas,
+  sendSideBySideWidgetHoverAnalyticsEventSaga,
 ];

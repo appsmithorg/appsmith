@@ -2,7 +2,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 import { PageType } from "../../../../support/Pages/DebuggerHelper";
 import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 
-describe("Entity bottom bar", { tags: ["@tag.Debugger"] }, () => {
+describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
   it("1. Debugger should be closable", () => {
     //Verify if bottom bar is closed.
     _.debuggerHelper.AssertClosed();
@@ -10,7 +10,9 @@ describe("Entity bottom bar", { tags: ["@tag.Debugger"] }, () => {
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.AssertOpen(PageType.Canvas);
     //Verify if selected tab is errors in tab title.
-    _.debuggerHelper.AssertSelectedTab("Errors");
+    _.debuggerHelper.AssertSelectedTab(
+      Cypress.env("MESSAGES").DEBUGGER_ERRORS(),
+    );
     // verify if bottom bar is closed on clicking close icon in canvas.
     _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
@@ -21,7 +23,9 @@ describe("Entity bottom bar", { tags: ["@tag.Debugger"] }, () => {
     //Verify if bottom bar opens JSEditor.
     _.debuggerHelper.AssertOpen(PageType.JsEditor);
     // Verify if selected tab is response.
-    _.debuggerHelper.AssertSelectedTab("Response");
+    _.debuggerHelper.AssertSelectedTab(
+      Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
+    );
     //Verify if bottom bar is closed on clicking close icon in JSEditor.
     _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
@@ -29,7 +33,9 @@ describe("Entity bottom bar", { tags: ["@tag.Debugger"] }, () => {
     _.jsEditor.RunJSObj();
     _.debuggerHelper.AssertOpen(PageType.JsEditor);
     //verify if response tab is selected on execution JSFunction.
-    _.debuggerHelper.AssertSelectedTab("Response");
+    _.debuggerHelper.AssertSelectedTab(
+      Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
+    );
     //verify if bottom bar is closed on switching to canvas page.
     EditorNavigation.ShowCanvas();
     _.debuggerHelper.AssertClosed();
@@ -45,13 +51,17 @@ describe("Entity bottom bar", { tags: ["@tag.Debugger"] }, () => {
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.AssertOpen(PageType.API);
     //Verify if selected tab is errors in tab title.
-    _.debuggerHelper.AssertSelectedTab("Errors");
+    _.debuggerHelper.AssertSelectedTab(
+      Cypress.env("MESSAGES").DEBUGGER_ERRORS(),
+    );
     //Verify if bottom bar is open on executing api.
     _.apiPage.RunAPI();
     _.agHelper.Sleep(1000);
     _.debuggerHelper.AssertOpen(PageType.API);
     //verify if response tab is selected on execution api.
-    _.debuggerHelper.AssertSelectedTab("Response");
+    _.debuggerHelper.AssertSelectedTab(
+      Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
+    );
   });
 
   it("4. Bottom bar in Datasource", () => {
@@ -73,7 +83,9 @@ describe("Entity bottom bar", { tags: ["@tag.Debugger"] }, () => {
         _.debuggerHelper.AssertOpen(PageType.DataSources);
         //Verify if selected tab is errors and error count is
         //Verify if selected tab is errors in tab title.
-        _.debuggerHelper.AssertSelectedTab("Errors");
+        _.debuggerHelper.AssertSelectedTab(
+          Cypress.env("MESSAGES").DEBUGGER_ERRORS(),
+        );
         //Verify if bottom bar is closed on clicking close icon in active datasource page.
         _.debuggerHelper.CloseBottomBar();
         _.debuggerHelper.AssertClosed();
@@ -94,7 +106,9 @@ describe("Entity bottom bar", { tags: ["@tag.Debugger"] }, () => {
         //Verify if bottom bar is open on executing query.
         _.debuggerHelper.AssertOpen(PageType.Query);
         //Verify if response atb is selected on executing query.
-        _.debuggerHelper.AssertSelectedTab("Response");
+        _.debuggerHelper.AssertSelectedTab(
+          Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
+        );
         // clean up
         _.dataSources.DeleteQuery("Query1");
         _.dataSources.DeleteDatasourceFromWithinDS(dbName);
@@ -108,7 +122,9 @@ describe("Entity bottom bar", { tags: ["@tag.Debugger"] }, () => {
     _.debuggerHelper.AssertOpen(PageType.DataSources);
     //Verify if selected tab is errors and error count is
     //Verify if selected tab is errors in tab title.
-    _.debuggerHelper.AssertSelectedTab("Errors");
+    _.debuggerHelper.AssertSelectedTab(
+      Cypress.env("MESSAGES").DEBUGGER_ERRORS(),
+    );
     //Verify if bottom bar is closed on clicking close icon in active datasource page.
     _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
@@ -125,7 +141,9 @@ describe("Entity bottom bar", { tags: ["@tag.Debugger"] }, () => {
     //Verify if bottom bar is open on executing query.
     _.debuggerHelper.AssertOpen(PageType.Query);
     //Verify if response atb is selected on executing query.
-    _.debuggerHelper.AssertSelectedTab("Response");
+    _.debuggerHelper.AssertSelectedTab(
+      Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
+    );
     // clean up
     _.dataSources.DeleteQuery("Query1");
     cy.get("@dsName").then(($dsName) => {

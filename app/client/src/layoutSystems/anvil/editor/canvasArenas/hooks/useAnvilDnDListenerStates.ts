@@ -14,6 +14,9 @@ import { useAnvilDnDCompensators } from "./useAnvilDnDCompensators";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import type { AnvilGlobalDnDStates } from "../../canvas/hooks/useAnvilGlobalDnDStates";
 import { getWidgets } from "sagas/selectors";
+import { useMemo } from "react";
+import { ZoneWidget } from "widgets/anvil/ZoneWidget";
+import { useAnvilWidgetElevation } from "../../canvas/providers/AnvilWidgetElevationProvider";
 
 interface AnvilDnDListenerStatesProps {
   anvilGlobalDragStates: AnvilGlobalDnDStates;
@@ -26,6 +29,7 @@ export interface AnvilDnDListenerStates {
   activateOverlayWidgetDrop: boolean;
   allowToDrop: boolean;
   canActivate: boolean;
+  currentWidgetHierarchy: number;
   draggedBlocks: DraggedWidget[];
   dragDetails: DragDetails;
   isCurrentDraggedCanvas: boolean;
@@ -94,6 +98,8 @@ export const useAnvilDnDListenerStates = ({
     mainCanvasLayoutId,
   } = anvilGlobalDragStates;
   const allWidgets = useSelector(getWidgets);
+  const anvilWidgetElevation = useAnvilWidgetElevation();
+  const elevatedWidgets = anvilWidgetElevation?.elevatedWidgets || {};
   const widgetProps = allWidgets[widgetId];
   const selectedWidgets = useSelector(getSelectedWidgets);
   /**
@@ -130,6 +136,23 @@ export const useAnvilDnDListenerStates = ({
     (widgetProps.children || []).filter(
       (each) => !allWidgets[each].detachFromLayout,
     ).length === 0;
+
+  const allSiblingsWidgetIds = useMemo(() => {
+    return (
+      (widgetProps.parentId && allWidgets[widgetProps.parentId]?.children) || []
+    );
+  }, [widgetProps, allWidgets]);
+
+  const isElevatedWidget = useMemo(() => {
+    if (widgetProps.type === ZoneWidget.type) {
+      const isAnyZoneElevated = allSiblingsWidgetIds.some(
+        (each) => !!elevatedWidgets[each],
+      );
+      return isAnyZoneElevated;
+    }
+    return !!elevatedWidgets[widgetId];
+  }, [widgetProps, elevatedWidgets, allSiblingsWidgetIds]);
+
   const {
     edgeCompensatorValues,
     layoutCompensatorValues,
@@ -140,13 +163,14 @@ export const useAnvilDnDListenerStates = ({
     draggedWidgetHierarchy,
     currentWidgetHierarchy,
     isEmptyLayout,
-    widgetProps,
+    isElevatedWidget,
   );
 
   return {
     activateOverlayWidgetDrop,
     allowToDrop,
     canActivate,
+    currentWidgetHierarchy,
     draggedBlocks,
     dragDetails,
     dragMeta: {

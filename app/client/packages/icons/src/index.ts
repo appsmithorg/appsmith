@@ -12,6 +12,7 @@ export { ModalThumbnail } from "./components/Thumbnails/ModalThumbnail";
 export { ParagraphThumbnail } from "./components/Thumbnails/ParagraphThumbnail";
 export { PhoneInputThumbnail } from "./components/Thumbnails/PhoneInputThumbnail";
 export { RadioGroupThumbnail } from "./components/Thumbnails/RadioGroupThumbnail";
+export { SectionThumbnail } from "./components/Thumbnails/SectionThumbnail";
 export { StatsBoxThumbnail } from "./components/Thumbnails/StatsBoxThumbnail";
 export { SwitchGroupThumbnail } from "./components/Thumbnails/SwitchGroupThumbnail";
 export { SwitchThumbnail } from "./components/Thumbnails/SwitchThumbnail";

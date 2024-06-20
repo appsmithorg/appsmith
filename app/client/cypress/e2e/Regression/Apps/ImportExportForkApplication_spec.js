@@ -36,7 +36,7 @@ describe(
         } else {
           cy.get(homePageLocatores.toastMessage).should(
             "contain",
-            "Application imported successfully",
+            Cypress.env("MESSAGES").IMPORT_APP_SUCCESSFUL(),
           );
         }
         agHelper.GenerateUUID();
@@ -132,7 +132,7 @@ describe(
               } else {
                 cy.get(homePageLocatores.toastMessage).should(
                   "contain",
-                  "Application imported successfully",
+                  Cypress.env("MESSAGES").IMPORT_APP_SUCCESSFUL(),
                 );
               }
               const importedApp = interception.response.body.data.application;

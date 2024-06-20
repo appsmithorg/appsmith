@@ -14,8 +14,7 @@ import type {
   LayoutSystemTypes,
 } from "layoutSystems/types";
 import type { BaseAction } from "entities/Action";
-
-export type EvaluationVersion = number;
+import type { EvaluationVersion } from "constants/EvalConstants";
 
 export interface PublishApplicationRequest {
   applicationId: string;
@@ -92,6 +91,7 @@ export interface CreateApplicationRequest {
   color?: AppColorCode;
   icon?: IconNames;
   layoutSystemType: LayoutSystemTypes;
+  showNavbar?: boolean;
 }
 
 export interface SetDefaultPageRequest {
@@ -282,8 +282,6 @@ export class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
     `/publish/${applicationId}`;
-  static createApplicationPath = (workspaceId: string) =>
-    `?workspaceId=${workspaceId}`;
   static changeAppViewAccessPath = (applicationId: string) =>
     `/${applicationId}/changeAccess`;
   static setDefaultPagePath = (request: SetDefaultPageRequest) =>
@@ -340,20 +338,14 @@ export class ApplicationApi extends Api {
   static async createApplication(
     request: CreateApplicationRequest,
   ): Promise<AxiosPromise<PublishApplicationResponse>> {
-    return Api.post(
-      ApplicationApi.baseURL +
-        ApplicationApi.createApplicationPath(request.workspaceId),
-      {
-        name: request.name,
-        color: request.color,
-        icon: request.icon,
-        applicationDetail: {
-          appPositioning: {
-            type: request.layoutSystemType,
-          },
-        },
-      },
-    );
+    return Api.post(ApplicationApi.baseURL, {
+      workspaceId: request.workspaceId,
+      name: request.name,
+      color: request.color,
+      icon: request.icon,
+      positioningType: request.layoutSystemType,
+      showNavbar: request.showNavbar ?? null,
+    });
   }
 
   static async setDefaultApplicationPage(

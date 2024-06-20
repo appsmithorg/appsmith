@@ -23,28 +23,63 @@ import PerformanceTracker, {
 import history, { NavigationMethod } from "utils/history";
 import type { Plugin } from "api/PluginApi";
 import { EDIT, createMessage } from "@appsmith/constants/messages";
+import { getShowHintOptions } from "./commandsHelper";
 
 export enum Shortcuts {
   PLUS = "PLUS",
   BINDING = "BINDING",
   FUNCTION = "FUNCTION",
   ASK_AI = "ASK_AI",
+  SHOW_MORE = "SHOW_MORE",
 }
+
+const filteredCommands: CommandsCompletion[] = [];
+const NO_OF_QUERIES_TO_SHOW_BY_DEFAULT = 5;
+
+export const getShowMoreLabel = (suggestions: CommandsCompletion[]) => {
+  return (
+    "Load " + (suggestions.length - NO_OF_QUERIES_TO_SHOW_BY_DEFAULT) + " more"
+  );
+};
 
 export function matchingCommands(
   list: CommandsCompletion[],
   searchText: string,
-  limit = 5,
 ) {
-  return list
-    .filter((action) => {
-      return (
-        action.displayText &&
-        action.displayText.toLowerCase().indexOf(searchText.toLowerCase()) > -1
-      );
-    })
-    .slice(0, limit);
+  return list.filter((action) => {
+    return (
+      action.displayText &&
+      action.displayText.toLowerCase().indexOf(searchText.toLowerCase()) > -1
+    );
+  });
 }
+
+export const showMoreCommandOption = (
+  displayText: string,
+  editor: CodeMirror.Editor,
+  focusEditor: (focusOnLine?: number, chOffset?: number) => void,
+  suggestions: CommandsCompletion[],
+  searchText: string = "",
+): CommandsCompletion => ({
+  text: "",
+  displayText: displayText,
+  className: "CodeMirror-commands show-more-option",
+  data: {},
+  shortcut: Shortcuts.SHOW_MORE,
+  render: (element: HTMLElement, self: any, data: any) => {
+    ReactDOM.render(
+      <ShowMoreCommand
+        editor={editor}
+        focusEditor={focusEditor}
+        icon={iconsByType[data.shortcut as Shortcuts]}
+        name={data.displayText}
+        searchText={searchText}
+        suggestions={suggestions}
+      />,
+      element,
+    );
+  },
+});
 
 export const commandsHeader = (
   displayText: string,
@@ -97,7 +132,74 @@ export const iconsByType = {
     <Icon className="snippet-icon" name="snippet" size="md" />
   ),
   [Shortcuts.ASK_AI]: <Icon className="magic" name="magic-line" size="md" />,
+  [Shortcuts.SHOW_MORE]: (
+    <Icon className="show-more-icon" name="more-horizontal-control" size="md" />
+  ),
 };
+
+export function ShowMoreCommand(props: {
+  icon: any;
+  name: string;
+  editor: CodeMirror.Editor;
+  focusEditor: (focusOnLine?: number, chOffset?: number) => void;
+  suggestions: CommandsCompletion[];
+  searchText: string;
+}) {
+  const handleShowMoreClick = (event: any) => {
+    event.stopPropagation();
+    event.preventDefault();
+
+    const suggestionsMatchingSearchText = matchingCommands(
+      props.suggestions,
+      props.searchText,
+    );
+    const showMoreLabel = getShowMoreLabel(suggestionsMatchingSearchText);
+    const loadMoreOptionIndex = filteredCommands.findIndex(
+      (element) => element.displayText === showMoreLabel,
+    );
+    if (loadMoreOptionIndex !== -1) {
+      const suggestionList = matchingCommands(
+        props.suggestions.slice(
+          NO_OF_QUERIES_TO_SHOW_BY_DEFAULT,
+          props.suggestions.length,
+        ),
+        props.searchText,
+      ).slice(0, props.suggestions.length);
+      filteredCommands.splice(loadMoreOptionIndex, 1, ...suggestionList);
+    }
+
+    // Modify the list
+    props.editor.showHint(
+      getShowHintOptions(
+        filteredCommands,
+        props.editor,
+        props.focusEditor,
+        props.searchText,
+      ),
+    );
+  };
+  return (
+    <div
+      className="command-container relative cursor-pointer w-full"
+      onClick={(e) => {
+        handleShowMoreClick(e);
+      }}
+    >
+      <div className="command flex w-full">
+        <div className="self-center shrink-0">{props.icon}</div>
+        <div className="flex grow">
+          <div className="flex flex-col gap-1 grow w-full">
+            <div className="whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)] relative">
+              <span className="flex items-center overflow-hidden overflow-ellipsis slash-command-hint-text">
+                {props.name}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export function Command(props: {
   icon: any;
@@ -171,7 +273,10 @@ export const generateQuickCommands = (
     featureFlags: FeatureFlags;
     enableAIAssistance: boolean;
   },
+  editor: CodeMirror.Editor,
+  focusEditor: (focusOnLine?: number, chOffset?: number) => void,
 ) => {
+  filteredCommands.splice(0, filteredCommands.length);
   const newBinding: CommandsCompletion = generateCreateNewCommand({
     text: "{{}}",
     displayText: "Add a binding",
@@ -205,7 +310,7 @@ export const generateQuickCommands = (
             ? `{{${name}.}}`
             : `{{${name}}}`,
       displayText: `${name}`,
-      className: "CodeMirror-commands group relative",
+      className: "CodeMirror-commands group relative Codemirror-commands-apis",
       data: suggestion,
       triggerCompletionsPostPick: suggestion.type !== ENTITY_TYPE.ACTION,
       render: (element: HTMLElement, _: unknown, data: CommandsCompletion) => {
@@ -270,8 +375,6 @@ export const generateQuickCommands = (
       },
     };
   });
-
-  const filteredCommands: CommandsCompletion[] = [];
   const commonCommands: CommandsCompletion[] = [];
 
   if (enableAIAssistance) {
@@ -300,7 +403,7 @@ export const generateQuickCommands = (
   const commonCommandsMatchingSearchText = matchingCommands(
     commonCommands,
     searchText,
-  );
+  ).slice(0, NO_OF_QUERIES_TO_SHOW_BY_DEFAULT);
 
   filteredCommands.push(...commonCommandsMatchingSearchText);
 
@@ -311,7 +414,19 @@ export const generateQuickCommands = (
     const suggestionsMatchingSearchText = matchingCommands(
       suggestions,
       searchText,
-      5,
+    );
+
+    const limitedSuggestions = suggestionsMatchingSearchText.slice(
+      0,
+      NO_OF_QUERIES_TO_SHOW_BY_DEFAULT,
+    );
+
+    const loadMoreCommand = showMoreCommandOption(
+      getShowMoreLabel(suggestionsMatchingSearchText),
+      editor,
+      focusEditor,
+      suggestions,
+      searchText,
     );
 
     if (suggestionsMatchingSearchText.length) {
@@ -319,7 +434,12 @@ export const generateQuickCommands = (
       filteredCommands.push(
         commandsHeader("Bind data", "", filteredCommands.length > 0),
       );
-      filteredCommands.push(...suggestionsMatchingSearchText);
+      filteredCommands.push(...limitedSuggestions);
+      if (
+        suggestionsMatchingSearchText.length > NO_OF_QUERIES_TO_SHOW_BY_DEFAULT
+      ) {
+        filteredCommands.push(loadMoreCommand);
+      }
     }
 
     if (currentEntityType === ENTITY_TYPE.WIDGET) {
@@ -330,8 +450,7 @@ export const generateQuickCommands = (
       const createNewCommandsMatchingSearchText = matchingCommands(
         createNewCommands,
         searchText,
-        3,
-      );
+      ).slice(0, 3);
 
       // Check if new integration command matches search text
       createNewCommandsMatchingSearchText.push(

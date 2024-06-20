@@ -11,6 +11,7 @@ import {
   agHelper,
   propPane,
   deployMode,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -50,12 +51,12 @@ describe(
       cy.get(commonlocators.singleSelectMenuItem)
         .contains(pageid)
         .click({ force: true });
-      cy.assertPageSave();
+      agHelper.AssertAutoSave();
       //Validate NavigateTo Page functionality
       cy.wait(2000);
       deployMode.DeployApp();
       cy.get(widgetsPage.chartWidget).should("not.exist");
-      cy.isSelectRow(1);
+      table.SelectTableRow(1);
       cy.get(widgetsPage.chartWidget).should("be.visible");
     });
   },

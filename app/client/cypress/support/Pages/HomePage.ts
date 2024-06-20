@@ -68,7 +68,6 @@ export class HomePage {
   _applicationName = ".t--application-name";
   private _editAppName = "bp3-editable-text-editing";
   private _appMenu = ".ads-v2-menu__menu-item-children";
-  _buildFromDataTableActionCard = "[data-testid='generate-app']";
   private _selectRole = "//span[text()='Select a role']/ancestor::div";
   private _searchInput = "input[type='text']";
   _appHoverIcon = (action: string) => ".t--application-" + action + "-link";
@@ -100,7 +99,7 @@ export class HomePage {
   private _deleteApp = '[data-testid="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-testid="t--delete"]';
   private _wsAction = (action: string) =>
-    ".ads-v2-menu__menu-item-children:contains('" + action + "')";
+    ".workspace-menu-item:contains('" + action + "')";
   private _homeTab = ".t--apps-tab";
   private adsV2Text = ".ads-v2-text";
   private _forkWorkspaceDropdownOption = "div.rc-select-selector";
@@ -637,9 +636,13 @@ export class HomePage {
     cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
       force: true,
     });
-    this.agHelper.Sleep(3500);
+    this.agHelper.WaitUntilEleDisappear(
+      HomePageLocators.workspaceImportAppModal,
+    );
     this.agHelper.AssertElementAbsence(
-      this.locator._specificToast("Unable to import application in workspace"),
+      this.locator._specificToast(
+        Cypress.env("MESSAGES").UNABLE_TO_IMPORT_APP(),
+      ),
     );
   }
 
@@ -672,7 +675,7 @@ export class HomePage {
     this.agHelper.AssertElementExist(
       "//span[text()='Users will have access to all applications in the workspace. For application-level access, try out our ']",
     );
-    this.agHelper.AssertElementExist("//span[text()='business edition']");
+    this.agHelper.AssertElementExist("//span[text()='business plan']");
     cy.xpath(this._email).click({ force: true }).type(email);
     cy.xpath(this._selectRole).first().click({ force: true });
     this.agHelper.Sleep(500);
@@ -731,7 +734,9 @@ export class HomePage {
   }
 
   public AssertImportToast(timeout = 5000) {
-    this.agHelper.AssertContains("Application imported successfully");
+    this.agHelper.AssertContains(
+      Cypress.env("MESSAGES").IMPORT_APP_SUCCESSFUL(),
+    );
     this.agHelper.Sleep(timeout); //for imported app to settle!
     cy.get(this.locator._loading).should("not.exist");
   }

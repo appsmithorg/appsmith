@@ -37,10 +37,9 @@ describe(
     });
 
     it("2. login as Invited user and then validate viewer privilage", function () {
-      homePage.LogintoApp(
+      cy.LoginFromAPI(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
-        "App Viewer",
       );
       if (CURRENT_REPO == REPO.EE) adminSettings.EnableGAC(false, true, "home");
 
@@ -61,7 +60,7 @@ describe(
     });
 
     it("3. Enable public access to Application", function () {
-      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       homePage.FilterApplication(appid);
       homePage.EditAppFromAppHover();
       agHelper.AssertElementAbsence(locators._loading);
@@ -90,7 +89,7 @@ describe(
     });
 
     it("5. login as uninvited user and then validate public access of Application", function () {
-      homePage.LogintoApp(
+      cy.LoginFromAPI(
         Cypress.env("TESTUSERNAME2"),
         Cypress.env("TESTPASSWORD2"),
       );
@@ -105,7 +104,7 @@ describe(
     });
 
     it("6. login as Owner and disable public access", function () {
-      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       homePage.FilterApplication(appid);
       agHelper
         .GetElement(homePage._applicationCard)
@@ -120,7 +119,7 @@ describe(
     });
 
     it("7. login as uninvited user, validate public access disable feature ", function () {
-      homePage.LogintoApp(
+      cy.LoginFromAPI(
         Cypress.env("TESTUSERNAME2"),
         Cypress.env("TESTPASSWORD2"),
       );

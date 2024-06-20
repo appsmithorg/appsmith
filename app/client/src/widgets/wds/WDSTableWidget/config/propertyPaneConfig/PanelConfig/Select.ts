@@ -18,7 +18,7 @@ export default {
       propertyName: "selectOptions",
       helpText: "Options to be shown on the select dropdown",
       label: "Options",
-      controlType: "TABLE_COMPUTE_VALUE",
+
       isJSConvertible: false,
       isBindProperty: true,
       validation: {

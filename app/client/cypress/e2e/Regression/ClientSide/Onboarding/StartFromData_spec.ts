@@ -14,12 +14,6 @@ describe(
   function () {
     beforeEach(() => {
       homePage.Signout();
-      featureFlagIntercept(
-        {
-          ab_show_templates_instead_of_blank_canvas_enabled: true,
-        },
-        false,
-      );
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         homePage.SignUp(

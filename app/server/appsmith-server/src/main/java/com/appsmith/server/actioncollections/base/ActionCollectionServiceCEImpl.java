@@ -42,7 +42,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -343,28 +342,18 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollectionDTO> deleteWithoutPermissionUnpublishedActionCollection(String id) {
-        return deleteUnpublishedActionCollectionEx(
-                id, Optional.empty(), Optional.of(actionPermission.getDeletePermission()));
+        return deleteUnpublishedActionCollection(id, null, actionPermission.getDeletePermission());
     }
 
     @Override
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id) {
-        return deleteUnpublishedActionCollectionEx(
-                id,
-                Optional.of(actionPermission.getDeletePermission()),
-                Optional.of(actionPermission.getDeletePermission()));
+        return deleteUnpublishedActionCollection(
+                id, actionPermission.getDeletePermission(), actionPermission.getDeletePermission());
     }
 
     @Override
-    public Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionWithOptionalPermission(
-            String id,
-            Optional<AclPermission> deleteCollectionPermission,
-            Optional<AclPermission> deleteActionPermission) {
-        return deleteUnpublishedActionCollectionEx(id, deleteCollectionPermission, deleteActionPermission);
-    }
-
-    public Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionEx(
-            String id, Optional<AclPermission> permission, Optional<AclPermission> deleteActionPermission) {
+    public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(
+            String id, AclPermission permission, AclPermission deleteActionPermission) {
         Mono<ActionCollection> actionCollectionMono = repository
                 .findById(id, permission)
                 .switchIfEmpty(Mono.error(
@@ -377,7 +366,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                             && toDelete.getPublishedCollection().getName() != null) {
                         toDelete.getUnpublishedCollection().setDeletedAt(Instant.now());
                         modifiedActionCollectionMono = newActionService
-                                .findByCollectionIdAndViewMode(id, false, deleteActionPermission.orElse(null))
+                                .findByCollectionIdAndViewMode(id, false, deleteActionPermission)
                                 .flatMap(newAction -> newActionService
                                         .deleteGivenNewAction(newAction)
                                         // return an empty action so that the filter can remove it from the list
@@ -526,19 +515,6 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     }
 
     @Override
-    public Mono<ActionCollection> archiveByIdAndBranchName(String id, String branchName) {
-        Mono<ActionCollection> branchedCollectionMono = this.findByBranchNameAndDefaultCollectionId(
-                        branchName, id, actionPermission.getDeletePermission())
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)));
-
-        return branchedCollectionMono
-                .map(ActionCollection::getId)
-                .flatMap(this::archiveById)
-                .map(responseUtils::updateActionCollectionWithDefaultResources);
-    }
-
-    @Override
     public Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission) {
 
@@ -648,7 +624,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         NewAction newAction = newActionService.generateActionDomain(action);
         newAction.setUnpublishedAction(action);
 
-        Set<Policy> actionCollectionPolicies = new HashSet();
+        Set<Policy> actionCollectionPolicies = new HashSet<>();
         actionCollection.getPolicies().forEach(policy -> {
             Policy actionPolicy = Policy.builder()
                     .permission(policy.getPermission())

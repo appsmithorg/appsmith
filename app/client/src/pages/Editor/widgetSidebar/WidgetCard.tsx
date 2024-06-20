@@ -76,7 +76,7 @@ export const BetaLabel = styled.div`
 const THUMBNAIL_HEIGHT = 76;
 const THUMBNAIL_WIDTH = 72;
 
-export function WidgetCardComponent({
+function WidgetCardComponent({
   details,
   onDragStart = noop,
 }: {

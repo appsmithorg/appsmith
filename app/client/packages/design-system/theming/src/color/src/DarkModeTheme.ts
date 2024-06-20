@@ -330,10 +330,10 @@ export class DarkModeTheme implements ColorModeTheme {
     // Overlay behind modal dialogue
     const color = this.bgNeutral.clone();
 
-    color.alpha = 0.5;
+    color.alpha = 0.7;
 
-    if (color.oklch.l > 0.15) {
-      color.oklch.l = 0.15;
+    if (color.oklch.l > 0.12) {
+      color.oklch.l = 0.12;
     }
 
     return color;
@@ -389,8 +389,8 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.seedColor.clone();
 
     // Adjusted version of bgAccentSubtle (less or no chroma)
-    if (this.seedLightness > 0.25) {
-      color.oklch.l = 0.25;
+    if (this.seedLightness > 0.29) {
+      color.oklch.l = 0.29;
     }
 
     // If the color is too dark it won't be visible against bg.
@@ -398,8 +398,8 @@ export class DarkModeTheme implements ColorModeTheme {
       color.oklch.l = 0.22;
     }
 
-    if (this.seedChroma > 0.015) {
-      color.oklch.c = 0.015;
+    if (this.seedChroma > 0.025) {
+      color.oklch.c = 0.025;
     }
 
     if (this.seedIsAchromatic) {

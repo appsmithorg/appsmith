@@ -1,8 +1,9 @@
+import type { OtlpSpan, SpanAttributes } from "./generateTraces";
 import { startNestedSpan } from "./generateTraces";
-import type { TimeInput, Attributes, Span } from "@opentelemetry/api";
+import type { TimeInput } from "@opentelemetry/api";
 
 export interface WebworkerSpanData {
-  attributes: Attributes;
+  attributes: SpanAttributes;
   spanName: string;
   startTime: TimeInput;
   endTime: TimeInput;
@@ -13,7 +14,7 @@ export interface WebworkerSpanData {
 //to regular otlp telemetry data and subsequently exported to our telemetry collector
 export const newWebWorkerSpanData = (
   spanName: string,
-  attributes: Attributes,
+  attributes: SpanAttributes,
 ): WebworkerSpanData => {
   return {
     attributes,
@@ -29,8 +30,8 @@ const addEndTimeForWebWorkerSpanData = (span: WebworkerSpanData) => {
 
 export const profileFn = (
   spanName: string,
-  attributes: Attributes = {},
-  allSpans: Record<string, WebworkerSpanData>,
+  attributes: SpanAttributes = {},
+  allSpans: Record<string, WebworkerSpanData | SpanAttributes>,
   fn: (...args: any[]) => any,
 ) => {
   const span = newWebWorkerSpanData(spanName, attributes);
@@ -42,12 +43,25 @@ export const profileFn = (
 
 //convert webworker spans to OTLP spans
 export const convertWebworkerSpansToRegularSpans = (
-  parentSpan: Span,
+  parentSpan: OtlpSpan,
   allSpans: Record<string, WebworkerSpanData> = {},
 ) => {
-  for (const spanData of Object.values(allSpans)) {
-    const { attributes, endTime, spanName, startTime } = spanData;
-    const span = startNestedSpan(spanName, parentSpan, attributes, startTime);
-    span?.end(endTime);
-  }
+  Object.values(allSpans)
+    .filter(({ endTime, startTime }) => startTime && endTime)
+    .forEach((spanData) => {
+      const { attributes, endTime, spanName, startTime } = spanData;
+      const span = startNestedSpan(spanName, parentSpan, attributes, startTime);
+      span?.end(endTime);
+    });
+};
+
+export const filterSpanData = (
+  spanData: Record<string, WebworkerSpanData | SpanAttributes>,
+): Record<string, WebworkerSpanData> => {
+  return Object.keys(spanData)
+    .filter((key) => !key.startsWith("__"))
+    .reduce<Record<string, WebworkerSpanData>>((obj, key) => {
+      obj[key] = spanData[key] as WebworkerSpanData;
+      return obj;
+    }, {});
 };

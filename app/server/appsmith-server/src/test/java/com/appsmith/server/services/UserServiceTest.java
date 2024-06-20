@@ -1,7 +1,7 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.WithMockAppsmithUser;
@@ -91,9 +91,6 @@ public class UserServiceTest {
 
     @Autowired
     PasswordEncoder passwordEncoder;
-
-    @Autowired
-    EncryptionService encryptionService;
 
     @Autowired
     UserDataService userDataService;
@@ -552,7 +549,7 @@ public class UserServiceTest {
         nameValuePairs.add(new BasicNameValuePair("email", emailAddress));
         nameValuePairs.add(new BasicNameValuePair("token", token));
         String urlParams = WWWFormCodec.format(nameValuePairs, StandardCharsets.UTF_8);
-        return encryptionService.encryptString(urlParams);
+        return EncryptionHelper.encrypt(urlParams);
     }
 
     @Test

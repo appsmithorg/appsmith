@@ -2,7 +2,6 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Button } from "design-system";
-import type { RefObject } from "react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
@@ -36,6 +35,7 @@ import DesktopEntitySearchField from "pages/common/SearchBar/DesktopEntitySearch
 import MobileEntitySearchField from "pages/common/SearchBar/MobileEntitySearchField";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import Fuse from "fuse.js";
+import { useOutsideClick } from "@appsmith/hooks";
 
 const HeaderSection = styled.div`
   display: flex;
@@ -48,29 +48,6 @@ const HeaderSection = styled.div`
     }
   }
 `;
-
-function useOutsideClick<T extends HTMLElement>(
-  ref: RefObject<T>,
-  inputRef: RefObject<T>,
-  callback: () => void,
-) {
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        ref.current &&
-        !ref.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
-      ) {
-        callback();
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [ref, inputRef, callback]);
-}
 
 function EntitySearchBar(props: any) {
   const isMobile = useIsMobileDevice();

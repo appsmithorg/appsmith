@@ -6,6 +6,9 @@ import {
   EditorEntityTab,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
+import { getCurrentPageId } from "./editorSelectors";
+import type { ParentEntityIDETabs } from "../reducers/uiReducers/ideReducer";
+import { get } from "lodash";
 
 export const getIsSideBySideEnabled = createSelector(
   selectFeatureFlags,
@@ -39,13 +42,24 @@ export const getWidgetsCount = (state: AppState, pageId: string) =>
     (w) => w.type !== "CANVAS_WIDGET",
   ).length || 0;
 
-export const getJSTabs = (state: AppState) =>
-  state.ui.ide.tabs[EditorEntityTab.JS];
-
-export const getQueryTabs = (state: AppState) =>
-  state.ui.ide.tabs[EditorEntityTab.QUERIES];
-
 export const getIDETabs = (state: AppState) => state.ui.ide.tabs;
+
+export const getJSTabs = createSelector(
+  getCurrentPageId,
+  getIDETabs,
+  (pageId: string, tabs: ParentEntityIDETabs) =>
+    get(tabs, [pageId, EditorEntityTab.JS], []),
+);
+
+export const getQueryTabs = createSelector(
+  getCurrentPageId,
+  getIDETabs,
+  (pageId: string, tabs: ParentEntityIDETabs): string[] =>
+    get(tabs, [pageId, EditorEntityTab.QUERIES], []),
+);
 
 export const getShowCreateNewModal = (state: AppState) =>
   state.ui.ide.showCreateModal;
+
+export const getIdeCanvasSideBySideHoverState = (state: AppState) =>
+  state.ui.ide.ideCanvasSideBySideHover;

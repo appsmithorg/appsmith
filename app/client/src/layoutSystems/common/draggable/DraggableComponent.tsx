@@ -5,10 +5,7 @@ import type { CSSProperties, DragEventHandler, ReactNode } from "react";
 import React, { useMemo, useRef } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
-import {
-  isCurrentWidgetFocused,
-  isWidgetSelected,
-} from "selectors/widgetSelectors";
+import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
@@ -67,7 +64,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   const isSelected = useSelector(isWidgetSelected(props.widgetId));
   // This state tels us which widget is focused
   // The value is the widgetId of the focused widget.
-  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
+  const isFocused = useSelector(isWidgetFocused(props.widgetId));
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(

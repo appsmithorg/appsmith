@@ -91,8 +91,6 @@ import {
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
-import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
-import { setJSTabs, setQueryTabs } from "actions/ideActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
@@ -249,13 +247,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
   ],
   [FocusEntity.QUERY_LIST]: [
     {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.IDETabs,
-      selector: getQueryTabs,
-      setter: setQueryTabs,
-      defaultValue: [],
-    },
-    {
       type: FocusElementConfigType.URL,
       name: FocusElement.SelectedQuery,
       selector: identifyEntityFromPath,
@@ -270,13 +261,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       selector: identifyEntityFromPath,
       setter: setSelectedJSObject,
       defaultValue: getLastJSTab,
-    },
-    {
-      type: FocusElementConfigType.Redux,
-      name: FocusElement.IDETabs,
-      selector: getJSTabs,
-      setter: setJSTabs,
-      defaultValue: [],
     },
   ],
   [FocusEntity.WIDGET_LIST]: [

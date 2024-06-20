@@ -9,6 +9,11 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      is-pg-build:
+        description: "This is a boolean value in case the workflow is being called for a PG build"
+        required: false
+        type: string
+        default: "false"
 
 jobs:
   build-docker:
@@ -38,7 +43,7 @@ jobs:
 
       - name: Download the client build artifact
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: client-build
           path: app/client
@@ -51,14 +56,14 @@ jobs:
 
       - name: Download the server build artifact
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: server-build
           path: app/server/dist/
 
       - name: Download the rts build artifact
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: rts-dist
           path: app/client/packages/rts/dist
@@ -75,6 +80,21 @@ jobs:
             scripts/generate_info_json.sh
           fi
 
+      - name: Set base image tag
+        id: set_base_tag
+        run: |
+          if [[ "${{ inputs.pr }}" != 0 || "${{ github.ref_name }}" != master ]]; then
+            if [[ ${{ inputs.is-pg-build }} == 'true' || "${{ github.ref_name }}" == pg ]]; then
+              base_tag=pg
+            else
+              base_tag=release
+            fi
+          else
+            base_tag=nightly
+          fi
+          echo "base_tag=$base_tag" >> $GITHUB_OUTPUT
+
+
       # We don't use Depot Docker builds because it's faster for local Docker images to be built locally.
       # It's slower and more expensive to build these Docker images on Depot and download it back to the CI node.
       - name: Build docker image
@@ -83,11 +103,9 @@ jobs:
         run: |
           set -o xtrace
           declare -a args
-          if [[ "${{ inputs.pr }}" != 0 || "${{ github.ref_name }}" != master ]]; then
+          base_tag=${{ steps.set_base_tag.outputs.base_tag }}
+          if [[ base_tag != 'nightly' ]]; then
             args+=(--build-arg "APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com")
-            base_tag=release
-          else
-            base_tag=nightly
           fi
           args+=(--build-arg "BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:$base_tag")
           docker build -t cicontainer "${args[@]}" .

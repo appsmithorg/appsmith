@@ -273,7 +273,7 @@ export function isSaaSAction(action: Action): action is SaaSAction {
   return action.pluginType === PluginType.SAAS;
 }
 
-export function isAIAction(action: Action): action is SaaSAction {
+export function isAIAction(action: Action): action is AIAction {
   return action.pluginType === PluginType.AI;
 }
 

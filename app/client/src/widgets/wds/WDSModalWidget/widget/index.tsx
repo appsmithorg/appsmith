@@ -60,6 +60,12 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return config.methodsConfig;
   }
 
+  static getDerivedPropertiesMap() {
+    return {
+      name: "{{this.widgetName}}",
+    };
+  }
+
   static *performPasteOperation(
     allWidgets: CanvasWidgetsReduxState,
     copiedWidgets: CopiedWidgetData[],
@@ -94,7 +100,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   onSubmitClick = () => {
-    if (this.props.onSubmit) {
+    if (this.props.onSubmit && this.props.showSubmitButton) {
       super.executeAction({
         triggerPropertyName: "onSubmit",
         dynamicString: this.props.onSubmit,
@@ -122,7 +128,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       ? this.props.submitButtonText || "Submit"
       : undefined;
     const contentClassName = `${this.props.className} ${
-      this.props.allowWidgetInteraction ? "" : styles.disableModalInteraction
+      this.props.disableWidgetInteraction ? styles.disableModalInteraction : ""
     }`;
     return (
       <Modal
@@ -131,19 +137,28 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         setOpen={(val) => this.setState({ isVisible: val })}
         size={this.props.size}
       >
-        <ModalContent className={contentClassName.trim()}>
-          {this.props.showHeader && <ModalHeader title={this.props.title} />}
-          <ModalBody className={WDS_MODAL_WIDGET_CLASSNAME}>
-            <ModalLayoutProvider {...this.props} />
-          </ModalBody>
-          {this.props.showFooter && (
-            <ModalFooter
-              closeText={closeText}
-              onSubmit={submitText ? this.onSubmitClick : undefined}
-              submitText={submitText}
-            />
-          )}
-        </ModalContent>
+        {this.state.isVisible && (
+          <ModalContent className={contentClassName.trim()}>
+            {this.props.showHeader && (
+              <ModalHeader
+                excludeFromTabOrder={this.props.disableWidgetInteraction}
+                title={this.props.title}
+              />
+            )}
+            <ModalBody className={WDS_MODAL_WIDGET_CLASSNAME}>
+              <ModalLayoutProvider {...this.props} />
+            </ModalBody>
+            {this.props.showFooter && (
+              <ModalFooter
+                closeOnSubmit={this.props.closeOnSubmit}
+                closeText={closeText}
+                excludeFromTabOrder={this.props.disableWidgetInteraction}
+                onSubmit={submitText ? this.onSubmitClick : undefined}
+                submitText={submitText}
+              />
+            )}
+          </ModalContent>
+        )}
       </Modal>
     );
   }

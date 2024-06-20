@@ -11,6 +11,8 @@ import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -39,6 +41,22 @@ public class NewPage extends BranchAwareDomain implements Context {
         super.sanitiseToExportDBObject();
     }
 
+    @JsonView(Views.Internal.class)
+    @Override
+    public String getArtifactId() {
+        return this.applicationId;
+    }
+
+    @JsonView(Views.Internal.class)
+    @Override
+    public Layout getLayout() {
+        if (this.getUnpublishedPage() == null || this.getUnpublishedPage().getLayouts() == null) {
+            return null;
+        }
+        List<Layout> layouts = this.getUnpublishedPage().getLayouts();
+        return !layouts.isEmpty() ? layouts.get(0) : null;
+    }
+
     public static class Fields extends BranchAwareDomain.Fields {
         public static String unpublishedPage_layouts = unpublishedPage + "." + PageDTO.Fields.layouts;
         public static String unpublishedPage_name = unpublishedPage + "." + PageDTO.Fields.name;
@@ -47,6 +65,7 @@ public class NewPage extends BranchAwareDomain implements Context {
         public static String unpublishedPage_slug = unpublishedPage + "." + PageDTO.Fields.slug;
         public static String unpublishedPage_customSlug = unpublishedPage + "." + PageDTO.Fields.customSlug;
         public static String unpublishedPage_deletedAt = unpublishedPage + "." + PageDTO.Fields.deletedAt;
+        public static String unpublishedPage_dependencyMap = unpublishedPage + "." + PageDTO.Fields.dependencyMap;
 
         public static String publishedPage_layouts = publishedPage + "." + PageDTO.Fields.layouts;
         public static String publishedPage_name = publishedPage + "." + PageDTO.Fields.name;

@@ -31,6 +31,7 @@ import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import type { Datasource } from "entities/Datasource";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
 import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const SectionWrapper = styled.div<{ isBannerVisible: boolean }>`
   display: flex;
@@ -106,7 +107,8 @@ const CreateNewAppsOption = ({
     AnalyticsUtil.logEvent("CREATE_APP_FROM_DATA");
     // fetch plugins information to show list of all plugins
     dispatch(fetchPlugins({ workspaceId: application?.workspaceId }));
-    dispatch(fetchMockDatasources());
+    // For air-gapped version as internet access won't necessarily be available, we skip fetching mock datasources.
+    if (!isAirgapped()) dispatch(fetchMockDatasources());
     if (application?.workspaceId) {
       dispatch(
         fetchingEnvironmentConfigs({
@@ -138,25 +140,24 @@ const CreateNewAppsOption = ({
   };
 
   const onClickSkipButton = () => {
-    if (application) {
-      urlBuilder.updateURLParams(
-        {
-          applicationSlug: application.slug,
-          applicationVersion: application.applicationVersion,
-          applicationId: application.id,
-        },
-        application.pages.map((page) => ({
-          pageSlug: page.slug,
-          customSlug: page.customSlug,
-          pageId: page.id,
-        })),
-      );
-      history.push(
-        builderURL({
-          pageId: application.pages[0].id,
-        }),
-      );
-    }
+    const applicationObject = application!;
+    urlBuilder.updateURLParams(
+      {
+        applicationSlug: applicationObject.slug,
+        applicationVersion: applicationObject.applicationVersion,
+        applicationId: applicationObject.id,
+      },
+      applicationObject.pages.map((page) => ({
+        pageSlug: page.slug,
+        customSlug: page.customSlug,
+        pageId: page.id,
+      })),
+    );
+    history.push(
+      builderURL({
+        pageId: applicationObject.pages[0].id,
+      }),
+    );
 
     addAnalyticEventsForSkip();
   };
@@ -212,15 +213,16 @@ const CreateNewAppsOption = ({
         >
           {createMessage(GO_BACK)}
         </LinkWrapper>
-
-        <LinkWrapper
-          className="t--create-new-app-option-skip"
-          data-testid="t--create-new-app-option-skip"
-          endIcon="arrow-right-line"
-          onClick={onClickSkipButton}
-        >
-          {createMessage(SKIP_START_WITH_USE_CASE_TEMPLATES)}
-        </LinkWrapper>
+        {application && (
+          <LinkWrapper
+            className="t--create-new-app-option-skip"
+            data-testid="t--create-new-app-option-skip"
+            endIcon="arrow-right-line"
+            onClick={onClickSkipButton}
+          >
+            {createMessage(SKIP_START_WITH_USE_CASE_TEMPLATES)}
+          </LinkWrapper>
+        )}
       </BackWrapper>
       <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
         <Header

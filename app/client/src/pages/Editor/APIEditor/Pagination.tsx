@@ -49,11 +49,15 @@ const PaginationTypeView = styled.div`
   display: flex;
   justify-content: space-between;
   margin-bottom: ${(props) => props.theme.spaces[11]}px;
+  max-width: 100%;
 `;
 
 const PaginationSection = styled.div`
   display: flex;
   padding: var(--ads-v2-spaces-4) 0 0 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--ads-v2-spaces-3);
 `;
 
 const Example = styled(Text)`
@@ -77,7 +81,7 @@ const BindingKey = styled.div`
 const GifContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 
   img {
     width: 320px;
@@ -121,15 +125,13 @@ export default function Pagination(props: PaginationProps) {
                     1. Configure table for pagination
                   </Text>
                 </StepTitle>
-                <Step type={TextType.P1}>1. Enable server side pagination</Step>
-                <Step type={TextType.P1}>2. Configure OnPageChange action</Step>
                 <StepTitle>
                   <Text type={TextType.P1}>
                     2. Configure request parameters
                   </Text>
                 </StepTitle>
-                <Step style={{ width: "336px" }} type={TextType.P1}>
-                  1. Map appropiate parameter or header in your request to
+                <Step type={TextType.P1}>
+                  1. Map appropriate parameter or header in your request to
                   UsersTable’s page number property
                 </Step>
                 <Example type={TextType.P2}>
@@ -139,12 +141,6 @@ export default function Pagination(props: PaginationProps) {
                   <Text type={TextType.P2}>{"{{UsersTable.pageNo}}"}</Text>
                 </BindingKey>
               </div>
-              <GifContainer>
-                <GifPlayer gif={configPagination} thumbnail={thumbnail} />
-                <Text type={TextType.P3}>
-                  1. How to configure table for pagination
-                </Text>
-              </GifContainer>
             </PaginationTypeView>,
             <PaginationTypeView key={PaginationType.URL}>
               <div>
@@ -153,8 +149,6 @@ export default function Pagination(props: PaginationProps) {
                     1. Configure table for pagination
                   </Text>
                 </StepTitle>
-                <Step type={TextType.P1}>1. Enable server side pagination</Step>
-                <Step type={TextType.P1}>2. Configure OnPageChange action</Step>
                 <StepTitle>
                   <Text type={TextType.P1}>
                     2. Configure Request Parameters
@@ -212,16 +206,16 @@ export default function Pagination(props: PaginationProps) {
                   </Button>
                 </PaginationFieldWrapper>
               </div>
-              <GifContainer>
-                <GifPlayer gif={configPagination} thumbnail={thumbnail} />
-                <Text type={TextType.P3}>
-                  1. How to configure table for pagination
-                </Text>
-              </GifContainer>
             </PaginationTypeView>,
           ]}
         />
       </FormRow>
+      {props.paginationType !== PaginationType.NONE ? (
+        <GifContainer>
+          <GifPlayer gif={configPagination} thumbnail={thumbnail} />
+          <Text type={TextType.P3}>Configure table for pagination</Text>
+        </GifContainer>
+      ) : null}
     </PaginationSection>
   );
 }

@@ -18,11 +18,12 @@
     "@react-aria/utils": "^3.16.0",
     "@react-aria/visually-hidden": "^3.8.0",
     "@react-types/actiongroup": "^3.4.6",
+    "@react-types/shared": "^3.23.1",
     "@tabler/icons-react": "^2.45.0",
     "clsx": "^2.0.0",
     "colorjs.io": "^0.4.3",
     "lodash": "*",
-    "react-aria-components": "^1.1.1"
+    "react-aria-components": "^1.2.1"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",

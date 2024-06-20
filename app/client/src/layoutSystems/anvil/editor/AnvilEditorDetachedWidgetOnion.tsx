@@ -1,11 +1,13 @@
 import React from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
 import { useObserveDetachedWidget } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
 import {
   useAddBordersToDetachedWidgets,
   useHandleDetachedWidgetSelect,
 } from "layoutSystems/anvil/common/hooks/detachedWidgetHooks";
+import { AnvilErrorBoundary } from "../common/widgetComponent/AnvilErrorBoundary";
+import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
+import { useAnvilDetachedWidgetsDnD } from "./hooks/useAnvilDetachedWidgetsDnD";
 
 /**
  * AnvilEditorDetachedWidgetOnion
@@ -18,14 +20,16 @@ import {
  *
  * @returns Enhanced Widget
  */
-export const AnvilEditorDetachedWidgetOnion = (
-  props: BaseWidgetProps,
-): JSX.Element => {
+export const AnvilEditorDetachedWidgetOnion = (props: BaseWidgetProps) => {
   useObserveDetachedWidget(props.widgetId);
   useHandleDetachedWidgetSelect(props.widgetId);
   useAddBordersToDetachedWidgets(props.widgetId, props.type);
-
-  return (
-    <AnvilWidgetComponent {...props}>{props.children}</AnvilWidgetComponent>
+  useAnvilDetachedWidgetsDnD(
+    props.widgetId,
+    props.layout[0].layoutId,
+    !!props.isVisible,
   );
+  return props.type !== SKELETON_WIDGET_TYPE ? (
+    <AnvilErrorBoundary {...props}>{props.children}</AnvilErrorBoundary>
+  ) : null;
 };

@@ -19,6 +19,7 @@ import { EMPTY_MODAL_PADDING } from "../AnvilModalDropArena";
  */
 const CompensationSpacingTokens = {
   MAIN_CANVAS: "4",
+  SECTION: "3",
   ZONE: "3",
   MODAL_TOP: "2",
   MODAL_LEFT: "4",
@@ -52,6 +53,9 @@ const getWidgetSpacingCSSVariableValues = (outerSpacingTokens: {
     zoneSpacing: extractFloatValuesOutOfToken(
       outerSpacingTokens[CompensationSpacingTokens.ZONE],
     ),
+    sectionSpacing: extractFloatValuesOutOfToken(
+      outerSpacingTokens[CompensationSpacingTokens.SECTION],
+    ),
   };
 };
 
@@ -84,19 +88,27 @@ const getMainCanvasCompensators = (
 /**
  * Get compensators for the section widget
  */
-const getSectionCompensators = (mainCanvasSpacing: number) => {
+const getSectionCompensators = (
+  mainCanvasSpacing: number,
+  sectionSpacing: number,
+  isElevatedWidget: boolean,
+) => {
   const widgetCompensatorValues = {
     left: mainCanvasSpacing,
     top: 0,
   };
   const edgeCompensatorValues = {
-    left: HIGHLIGHT_SIZE * 2,
+    left: HIGHLIGHT_SIZE * 2 + (isElevatedWidget ? sectionSpacing * 2 : 0),
     top: 0,
+  };
+  const layoutCompensatorValues = {
+    left: mainCanvasSpacing + (isElevatedWidget ? sectionSpacing : 0),
+    top: isElevatedWidget ? sectionSpacing : 0,
   };
   return {
     widgetCompensatorValues,
     edgeCompensatorValues,
-    layoutCompensatorValues: widgetCompensatorValues,
+    layoutCompensatorValues,
   };
 };
 /**
@@ -189,7 +201,7 @@ export const getCompensatorsForHierarchy = (
       },
     };
   }
-  const { mainCanvasSpacing, modalSpacing, zoneSpacing } =
+  const { mainCanvasSpacing, modalSpacing, sectionSpacing, zoneSpacing } =
     getWidgetSpacingCSSVariableValues(outerSpacingTokens);
   /**
    * Get compensators based on hierarchy
@@ -203,7 +215,11 @@ export const getCompensatorsForHierarchy = (
     case hierarchy === 1:
       return getModalCompensators(isEmptyLayout, modalSpacing);
     case hierarchy === 2:
-      return getSectionCompensators(mainCanvasSpacing);
+      return getSectionCompensators(
+        mainCanvasSpacing,
+        sectionSpacing,
+        isElevatedWidget,
+      );
     case hierarchy === 3:
       return getZoneCompensators(zoneSpacing, isElevatedWidget);
     default:

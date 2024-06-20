@@ -36,7 +36,7 @@
   --on-canvas-ui-white: #ffffff;
 
   /* Other common parameters for on-canvas ui */
-  /* 
+  /*
     z index of ADS modal components -- 1000
     z index of ADS on-canvas ui components -- 998
     z index of WDS modal components -- 990
@@ -50,5 +50,5 @@
   --on-canvas-ui-border-width-1: 1px;
   --on-canvas-ui-border-width-2: 2px;
 
-  --on-canvas-ui-outline-offset: 3px;
+  --on-canvas-ui-outline-offset: 4px;
 }

@@ -8,6 +8,7 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "./EditorNavigation";
+import AddView from "./IDE/AddView";
 import PageList from "./PageList";
 
 type templateActions =
@@ -247,8 +248,7 @@ export class EntityExplorer {
     this.agHelper.ClickOutside(); //to close the evaluated pop-up
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.switchToAddNew();
-    let overlayItem = this._visibleTextSpan(dsName);
-    this.agHelper.GetNClick(overlayItem);
+    AddView.clickCreateOption(dsName);
   }
 
   public CopyPasteWidget(widgetName: string) {

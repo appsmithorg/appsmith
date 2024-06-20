@@ -113,13 +113,13 @@ export const getParentToOpenSelector = (widgetId: string) => {
 };
 
 // Check if widget is in the list of selected widgets
-export const isWidgetSelected = (widgetId: string) => {
+export const isWidgetSelected = (widgetId?: string) => {
   return createSelector(getSelectedWidgets, (widgets): boolean =>
-    widgets.includes(widgetId),
+    widgetId ? widgets.includes(widgetId) : false,
   );
 };
 
-export const isCurrentWidgetFocused = (widgetId: string) => {
+export const isWidgetFocused = (widgetId: string) => {
   return createSelector(
     getFocusedWidget,
     (widget): boolean => widget === widgetId,

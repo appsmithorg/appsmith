@@ -17,6 +17,11 @@ on:
         description: "This is the branch to be used for the build."
         required: false
         type: string
+      is-pg-build:
+        description: "This is a boolean value in case the workflow is being called for a PG build"
+        required: false
+        type: string
+        default: "false"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -108,7 +113,7 @@ jobs:
 
       - name: Download the failed test artifact in case of rerun
         if: steps.run_result.outputs.run_result == 'failedtest' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: failed-server-tests
           path: ~/failed-server-tests
@@ -133,6 +138,13 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
+      - name: Conditionally start PostgreSQL
+        run: |
+          if [[ ${{ inputs.is-pg-build }} == 'true' ]]; then
+            echo "Requesting PostgreSQL container to be started for pg specific build."
+            docker run --name appsmith-pg -p 5432:5432 -d -e POSTGRES_PASSWORD=password postgres:alpine postgres -N 1500
+          fi
+
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
@@ -148,16 +160,6 @@ jobs:
       # Build the code
       - name: Build
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        env:
-          ACTIVE_PROFILE: test
-          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
-          APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
-          APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: ${{ secrets.APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH }}
-          APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
-          APPSMITH_ENCRYPTION_PASSWORD: "password"
-          APPSMITH_ENCRYPTION_SALT: "salt"
-          APPSMITH_ENVFILE_PATH: /tmp/dummy.env
-          APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
           ./build.sh -DskipTests
 
@@ -166,7 +168,6 @@ jobs:
         if: (inputs.skip-tests != 'true' || steps.run_result.outputs.run_result == 'failedtest')  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         env:
           ACTIVE_PROFILE: test
-          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
           APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
           APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: ${{ secrets.APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH }}
           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
@@ -175,6 +176,11 @@ jobs:
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
+          if [[ "${{ inputs.is-pg-build }}" == "true" ]]; then
+            export APPSMITH_DB_URL="postgresql://postgres:password@localhost:5432/postgres"
+          else
+            export APPSMITH_DB_URL="mongodb://localhost:27017/mobtools"
+          fi
           args=()
           if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
             failed_tests="${{ steps.failed_tests.outputs.tests }}"
@@ -222,11 +228,12 @@ jobs:
 
       - name: Upload the failed tests report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: failed-server-tests
           path: app/server/failed-server-tests.txt
           if-no-files-found: ignore
+          overwrite: true
 
       - name: Fetch server build from cache
         if: steps.changed-files-specific.outputs.any_changed == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
@@ -262,10 +269,11 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: server-build
           path: app/server/dist/
+          overwrite: true
 
       - name: Put release build in cache
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')

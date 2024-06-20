@@ -1,6 +1,10 @@
 import { RecaptchaTypes } from "components/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { ValidationTypes } from "constants/WidgetValidation";
+import {
+  BUTTON_WIDGET_DEFAULT_LABEL,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export const propertyPaneContentConfig = [
   {
@@ -11,7 +15,7 @@ export const propertyPaneContentConfig = [
         label: "Label",
         helpText: "Sets the label of the button",
         controlType: "INPUT_TEXT",
-        placeholderText: "Do Something",
+        placeholderText: createMessage(BUTTON_WIDGET_DEFAULT_LABEL),
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
@@ -111,34 +115,6 @@ export const propertyPaneContentConfig = [
             default: RecaptchaTypes.V3,
           },
         },
-      },
-    ],
-  },
-  // TODO: refactor widgetParentProps implementation when we address #10659
-  {
-    sectionName: "Form settings",
-    children: [
-      {
-        helpText:
-          "Disabled if the form is invalid, if this widget exists directly within a Form widget.",
-        propertyName: "disabledWhenInvalid",
-        label: "Disabled invalid forms",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
-      },
-      {
-        helpText:
-          "Resets the fields of the form, on click, if this widget exists directly within a Form widget.",
-        propertyName: "resetFormOnClick",
-        label: "Reset form on success",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.BOOLEAN },
       },
     ],
   },

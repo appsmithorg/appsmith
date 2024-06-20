@@ -1,7 +1,13 @@
 import { InlineEditingSaveOptions } from "../constants";
-import { Colors } from "constants/Colors";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import {
+  BlueprintOperationTypes,
+  type WidgetDefaultProps,
+} from "WidgetProvider/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { DEFAULT_DATA } from "../constants/data";
+import type { WidgetProps } from "widgets/BaseWidget";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
+import get from "lodash/get";
 
 export const defaultsConfig = {
   responsiveBehavior: ResponsiveBehavior.Fill,
@@ -13,17 +19,14 @@ export const defaultsConfig = {
   label: "Data",
   widgetName: "Table",
   searchKey: "",
-  textSize: "0.875rem",
-  horizontalAlignment: "LEFT",
-  verticalAlignment: "CENTER",
+  horizontalAlignment: "start",
+  verticalAlignment: "center",
   totalRecordsCount: 0,
   defaultPageSize: 0,
   dynamicPropertyPathList: [],
-  borderColor: Colors.GREY_5,
-  borderWidth: "1",
   dynamicBindingPathList: [],
   primaryColumns: {},
-  tableData: "",
+  tableData: DEFAULT_DATA,
   columnWidthMap: {},
   columnOrder: [],
   enableClientSideSearch: true,
@@ -36,4 +39,33 @@ export const defaultsConfig = {
   version: 2,
   inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
   pageSize: 8,
+  buttonLabel: "Action",
+  buttonColor: "accent",
+  buttonVariant: "filled",
+  blueprint: {
+    operations: [
+      {
+        type: BlueprintOperationTypes.MODIFY_PROPS,
+        fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
+          const dynamicPropertyPathList: DynamicPath[] = [
+            ...get(widget, "dynamicPropertyPathList", []),
+          ];
+
+          dynamicPropertyPathList.push({
+            key: "tableData",
+          });
+
+          const updatePropertyMap = [
+            {
+              widgetId: widget.widgetId,
+              propertyName: "dynamicPropertyPathList",
+              propertyValue: dynamicPropertyPathList,
+            },
+          ];
+
+          return updatePropertyMap;
+        },
+      },
+    ],
+  },
 } as unknown as WidgetDefaultProps;

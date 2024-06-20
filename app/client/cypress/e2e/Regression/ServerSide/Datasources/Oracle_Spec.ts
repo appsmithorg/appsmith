@@ -37,8 +37,7 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
     agHelper.GetNAssertContains(locators._dsName, "Untitled datasource");
     agHelper.GetNClick(locators._dsName);
     agHelper.ClearTextField(locators._dsNameTxt); //removing ds name
-    agHelper.AssertTooltip("Please enter a valid name");
-    //agHelper.ValidateToastMessage("Invalid name");
+    agHelper.AssertTooltip(Cypress.env("MESSAGES").ACTION_INVALID_NAME_ERROR());
     agHelper.TypeText(locators._dsNameTxt, dataSourceName);
     agHelper.PressEnter();
     agHelper.AssertAttribute(

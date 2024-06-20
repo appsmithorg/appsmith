@@ -4,14 +4,14 @@ import type { IconProps } from "../../Icon";
 import type { COLORS, SIZES } from "../../../shared";
 
 export const BUTTON_VARIANTS = {
-  filled: "filled",
-  outlined: "outlined",
-  ghost: "ghost",
+  filled: "Filled",
+  outlined: "Outlined",
+  ghost: "Ghost",
 } as const;
 
 export const BUTTON_ICON_POSITIONS = {
-  start: "start",
-  end: "end",
+  start: "Start",
+  end: "End",
 } as const;
 
 export interface ButtonProps extends HeadlessButtonProps {

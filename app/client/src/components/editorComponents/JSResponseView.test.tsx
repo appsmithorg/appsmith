@@ -141,4 +141,36 @@ describe("JSResponseView", () => {
     // nothing should be rendered here since the implementation for component is in EE code
     expect(queryByText(document.body, EMPTY_RESPONSE_LAST_HALF())).toBeNull();
   });
+
+  it("the container should have class select-text to enable the selection of text for user", () => {
+    // mock the return value of isBrowserExecutionAllowed
+    (
+      actionExecutionUtils.isBrowserExecutionAllowed as jest.Mock
+    ).mockImplementation(() => false);
+
+    const { container } = render(
+      <Provider store={store}>
+        <ThemeProvider theme={lightTheme}>
+          <Router>
+            <JSResponseView
+              currentFunction={null}
+              disabled={false}
+              errors={[]}
+              isLoading={false}
+              jsCollectionData={collectionData}
+              onButtonClick={function (): void {
+                throw new Error("Function not implemented.");
+              }}
+            />
+          </Router>
+        </ThemeProvider>
+      </Provider>,
+    );
+
+    expect(
+      container
+        .querySelector(".t--js-editor-bottom-pane-container")
+        ?.classList.contains("select-text"),
+    ).toBe(true);
+  });
 });

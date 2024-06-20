@@ -1,6 +1,5 @@
 import {
   EMPTY_CANVAS_HINTS,
-  STARTER_TEMPLATE_PAGE_LAYOUTS,
   createMessage,
 } from "@appsmith/constants/messages";
 import { EditorEntityTab, EditorState } from "@appsmith/entities/IDE/constants";
@@ -20,31 +19,41 @@ jest.mock("pages/Editor/IDE/hooks", () => ({
   useCurrentEditorState: jest.fn(),
 }));
 
-describe("OnBoarding", () => {
-  const mockStore = configureStore([]);
+const mockStore = configureStore([]);
+const mockUseCurrentEditorStatePerTestCase = (segment: EditorEntityTab) => {
+  /* eslint-disable @typescript-eslint/no-var-requires */
+  const { useCurrentEditorState } = require("pages/Editor/IDE/hooks");
+  useCurrentEditorState.mockImplementation(() => ({
+    segment,
+  }));
+};
 
-  const BaseComponentRender = (storeToUse = baseStoreForSpec) => (
-    <Provider store={mockStore(storeToUse)}>
-      <ThemeProvider theme={lightTheme}>
-        <Onboarding />
-      </ThemeProvider>
-    </Provider>
-  );
-  const mockUseCurrentEditorStatePerTestCase = (segment: EditorEntityTab) => {
-    /* eslint-disable @typescript-eslint/no-var-requires */
-    const { useCurrentEditorState } = require("pages/Editor/IDE/hooks");
-    useCurrentEditorState.mockImplementation(() => ({
-      segment,
-    }));
-  };
+jest.mock("@appsmith/utils/airgapHelpers", () => ({
+  isAirgapped: jest.fn(),
+}));
 
-  it("1. renders the onboarding component", () => {
+const mockIsAirGapped = (val: boolean) => {
+  /* eslint-disable @typescript-eslint/no-var-requires */
+  const { isAirgapped } = require("@appsmith/utils/airgapHelpers");
+  isAirgapped.mockImplementation(() => val);
+};
+
+const BaseComponentRender = (storeToUse = baseStoreForSpec) => (
+  <Provider store={mockStore(storeToUse)}>
+    <ThemeProvider theme={lightTheme}>
+      <Onboarding />
+    </ThemeProvider>
+  </Provider>
+);
+
+describe("OnBoarding - Non-AirGap Edition", () => {
+  it("1. renders the onboarding component with starter building blocks on canvas", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
-    render(BaseComponentRender());
-    const onboardingElement = screen.getByText(
+    render(BaseComponentRender(storeToUseWithStarterBuildingBlocksEnabled));
+    const title = screen.getByText(
       createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
-    expect(onboardingElement).toBeInTheDocument();
+    expect(title).toBeInTheDocument();
   });
 
   it("2. renders the onboarding component when drag and drop is enabled", () => {
@@ -62,7 +71,7 @@ describe("OnBoarding", () => {
     expect(description).toBeInTheDocument();
   });
 
-  it("3. renders the onboarding component when drag and drop is enabled, with JS segment enabled", () => {
+  it("4. renders the onboarding component when drag and drop is enabled, with JS segment enabled", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.JS);
     render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
 
@@ -72,7 +81,7 @@ describe("OnBoarding", () => {
     expect(onboardingElement).toBeInTheDocument();
   });
 
-  it("4. renders the onboarding component when drag and drop is enabled, with Queries segment enabled", () => {
+  it("5. renders the onboarding component when drag and drop is enabled, with Queries segment enabled", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.QUERIES);
     render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
 
@@ -82,13 +91,97 @@ describe("OnBoarding", () => {
     expect(onboardingElement).toBeInTheDocument();
   });
 
-  it("5. renders the onboarding component when starter buidling blocks on canvas is enabled", () => {
+  it("6. does not render onboarding component when in preview mode", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
-    render(BaseComponentRender(storeToUseWithStarterBuildingBlocksEnabled));
-    const title = screen.getByText(
-      createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
+    const previewModeStore = {
+      ...storeToUseWithDragDropBuildingBlocksEnabled,
+      ui: {
+        ...storeToUseWithDragDropBuildingBlocksEnabled.ui,
+        gitSync: {
+          protectedBranches: false,
+        },
+        editor: {
+          isPreviewMode: true,
+        },
+      },
+    };
+    render(BaseComponentRender(previewModeStore));
+
+    const buildingBlockOnboardingElement = screen.queryByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
     );
-    expect(title).toBeInTheDocument();
+    const onboardingElement = screen.queryByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
+    );
+    expect(buildingBlockOnboardingElement).not.toBeInTheDocument();
+    expect(onboardingElement).toBeInTheDocument();
+  });
+});
+
+describe("OnBoarding - AirGap Edition", () => {
+  beforeEach(() => mockIsAirGapped(true));
+
+  const assertOnboardingElement = () => {
+    const onboardingElement = screen.getByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
+    );
+    expect(onboardingElement).toBeInTheDocument();
+  };
+
+  it("1. [Airgap] renders the default onboarding component", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
+    render(BaseComponentRender());
+    assertOnboardingElement();
+  });
+
+  it("2. [Airgap] renders the default onboarding component even when on mobile layout", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
+    render(BaseComponentRender(storeToUseWithMobileCanvas));
+    assertOnboardingElement();
+  });
+
+  it("3. [Airgap] renders the onboarding component when drag and drop is enabled", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
+    render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
+    assertOnboardingElement();
+  });
+
+  it("4. [Airgap] renders the onboarding component when drag and drop is enabled, with JS segment enabled", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.JS);
+    render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
+    assertOnboardingElement();
+  });
+
+  it("5. [Airgap] renders the onboarding component when drag and drop is enabled, with Queries segment enabled", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.QUERIES);
+    render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
+    assertOnboardingElement();
+  });
+
+  it("6. [Airgap] does not render onboarding component when in preview mode", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
+    const previewModeStore = {
+      ...storeToUseWithDragDropBuildingBlocksEnabled,
+      ui: {
+        ...storeToUseWithDragDropBuildingBlocksEnabled.ui,
+        gitSync: {
+          protectedBranches: true,
+        },
+        editor: {
+          isPreviewMode: true,
+        },
+      },
+    };
+    render(BaseComponentRender(previewModeStore));
+
+    const buildingBlockOnboardingElement = screen.queryByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
+    );
+    const onboardingElement = screen.queryByText(
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
+    );
+    expect(buildingBlockOnboardingElement).not.toBeInTheDocument();
+    expect(onboardingElement).toBeInTheDocument();
   });
 });
 
@@ -99,12 +192,31 @@ const baseStoreForSpec = {
     buildingBlocks: {
       isDraggingBuildingBlocksToCanvas: false,
     },
+    gitSync: {
+      protectedBranches: false,
+    },
+    editor: {
+      isPreviewMode: false,
+    },
     users: {
       featureFlag: {
         data: {
-          ab_show_templates_instead_of_blank_canvas_enabled: false,
           release_drag_drop_building_blocks_enabled: false,
         },
+      },
+    },
+  },
+};
+
+const storeToUseWithMobileCanvas = {
+  ...baseStoreForSpec,
+  ui: {
+    ...baseStoreForSpec.ui,
+    applications: {
+      ...baseStoreForSpec.ui.applications,
+      currentApplication: {
+        ...baseStoreForSpec.ui.applications.currentApplication,
+        appLayout: { type: "MOBILE" },
       },
     },
   },
@@ -119,7 +231,6 @@ const storeToUseWithDragDropBuildingBlocksEnabled = {
       featureFlag: {
         ...baseStoreForSpec.ui.users.featureFlag,
         data: {
-          ab_show_templates_instead_of_blank_canvas_enabled: false,
           release_drag_drop_building_blocks_enabled: true,
         },
       },
@@ -136,7 +247,6 @@ const storeToUseWithStarterBuildingBlocksEnabled = {
       featureFlag: {
         ...baseStoreForSpec.ui.users.featureFlag,
         data: {
-          ab_show_templates_instead_of_blank_canvas_enabled: true,
           release_drag_drop_building_blocks_enabled: false,
         },
       },

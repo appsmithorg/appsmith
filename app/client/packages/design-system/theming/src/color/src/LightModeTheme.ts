@@ -67,7 +67,7 @@ export class LightModeTheme implements ColorModeTheme {
       bgNegative: this.bgNegative.to("sRGB").toString(),
       bgNegativeHover: this.bgNegativeHover.to("sRGB").toString(),
       bgNegativeActive: this.bgNegativeActive.to("sRGB").toString(),
-      bgNegativeSubtle: this.bgNegativeActive.to("sRGB").toString(),
+      bgNegativeSubtle: this.bgNegativeSubtle.to("sRGB").toString(),
       bgNegativeSubtleHover: this.bgNegativeSubtleHover.to("sRGB").toString(),
       bgNegativeSubtleActive: this.bgNegativeSubtleActive.to("sRGB").toString(),
       bgWarning: this.bgWarning.to("sRGB").toString(),
@@ -330,7 +330,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Overlay behind modal dialogue
     const color = this.bgNeutral.clone();
 
-    color.alpha = 0.5;
+    color.alpha = 0.6;
 
     if (color.oklch.l > 0.15) {
       color.oklch.l = 0.15;

@@ -4,11 +4,15 @@ import type { AppState } from "@appsmith/reducers";
 import MockPluginsState from "test/factories/MockPluginsState";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
-import type { IDETabs } from "reducers/uiReducers/ideReducer";
+import type {
+  IDETabs,
+  ParentEntityIDETabs,
+} from "reducers/uiReducers/ideReducer";
 import { IDETabsDefaultValue } from "reducers/uiReducers/ideReducer";
 import type { JSCollection } from "entities/JSCollection";
 import type { FocusHistory } from "reducers/uiReducers/focusHistoryReducer";
 import type { Datasource } from "entities/Datasource";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 interface IDEStateArgs {
   ideView?: EditorViewMode;
@@ -19,12 +23,14 @@ interface IDEStateArgs {
   branch?: string;
   focusHistory?: FocusHistory;
   datasources?: Datasource[];
+  featureFlags?: Partial<FeatureFlags>;
 }
 
 export const getIDETestState = ({
   actions = [],
   branch,
   datasources = [],
+  featureFlags,
   focusHistory = {},
   ideView = EditorViewMode.FullScreen,
   js = [],
@@ -42,9 +48,14 @@ export const getIDETestState = ({
     loading: {},
   };
 
-  const actionData = actions.map((a) => ({ isLoading: false, config: a }));
+  let ideTabs: ParentEntityIDETabs = {};
+  if (pageList.currentPageId) {
+    ideTabs = { [pageList.currentPageId]: tabs };
+  }
 
+  const actionData = actions.map((a) => ({ isLoading: false, config: a }));
   const jsData = js.map((a) => ({ isLoading: false, config: a }));
+  const featureFlag = featureFlags ? { data: featureFlags } : {};
 
   return {
     ...initialState,
@@ -61,10 +72,14 @@ export const getIDETestState = ({
     },
     ui: {
       ...initialState.ui,
+      users: {
+        ...initialState.ui.users,
+        featureFlag,
+      },
       ide: {
         ...initialState.ui.ide,
         view: ideView,
-        tabs,
+        tabs: ideTabs,
       },
       focusHistory: {
         history: {
