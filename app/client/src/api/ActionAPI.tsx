@@ -181,6 +181,7 @@ class ActionAPI extends API {
         ...(action as any).datasource,
         datasourceStorages: undefined,
         isValid: undefined,
+        new: undefined,
       };
     }
     return API.put(`${ActionAPI.url}/${action.id}`, action, undefined, {
