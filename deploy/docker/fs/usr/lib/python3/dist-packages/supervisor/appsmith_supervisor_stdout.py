@@ -15,7 +15,7 @@ def main():
         headers = dict([x.split(":") for x in line.split()])
         data = sys.stdin.read(int(headers["len"]))  # read the event payload
         print(
-            "RESULT %s\n%s" % (len(data.encode("utf-8")), data),
+            f"RESULT {len(data.encode("utf-8"))}\n{data}",
             end="",
             flush=True,
         )  # transition from READY to ACKNOWLEDGED
@@ -24,7 +24,7 @@ def main():
 def event_handler(event, response):
     line, *lines = response.rstrip().decode().split("\n", 1)
     headers = dict(x.split(":", 1) for x in line.split())
-    prefix = "%s %s | " % (headers["processname"], headers["channel"])
+    prefix = f"{headers['processname']} {headers["channel"]} | "
     print(*(prefix + l for l in lines), sep="\n", file=sys.stderr, flush=True)
 
 
