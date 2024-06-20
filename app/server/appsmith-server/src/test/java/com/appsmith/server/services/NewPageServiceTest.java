@@ -37,7 +37,6 @@ import reactor.test.StepVerifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -433,7 +432,7 @@ public class NewPageServiceTest {
                     dependencyMap.put("key3", List.of("val1", "val2"));
                     return newPageService
                             .updateDependencyMap(pageDTO.getId(), dependencyMap, null)
-                            .then(newPageService.findById(pageDTO.getId(), Optional.empty()));
+                            .then(newPageService.findById(pageDTO.getId(), null));
                 });
 
         StepVerifier.create(newPageMono)
@@ -470,7 +469,7 @@ public class NewPageServiceTest {
                     return newPageService
                             .updateDependencyMap(pageDTO.getId(), dependencyMap, null)
                             .flatMap(page -> applicationPageService.publish(application.getId(), null, false))
-                            .then(newPageService.findById(pageDTO.getId(), Optional.empty()));
+                            .then(newPageService.findById(pageDTO.getId(), null));
                 });
 
         StepVerifier.create(newPageMono)
@@ -506,7 +505,7 @@ public class NewPageServiceTest {
                 })
                 .flatMap(pageDTO -> newPageService
                         .updateDependencyMap(pageDTO.getId(), null, null)
-                        .then(newPageService.findById(pageDTO.getId(), Optional.empty())));
+                        .then(newPageService.findById(pageDTO.getId(), null)));
 
         StepVerifier.create(newPageMono)
                 .assertNext(newPage -> {

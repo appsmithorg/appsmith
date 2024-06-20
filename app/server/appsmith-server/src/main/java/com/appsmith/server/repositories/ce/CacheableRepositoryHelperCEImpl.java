@@ -198,6 +198,8 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
 
         cq.where(andCriteria.toPredicate(root, cq, cb));
 
+        log.info("Fetching tenant from database as it couldn't be found in the cache!");
+
         return asMono(() -> Optional.of(entityManager.createQuery(cq).getSingleResult()))
                 .map(tenant -> {
                     if (tenant.getTenantConfiguration() == null) {

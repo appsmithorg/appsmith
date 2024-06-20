@@ -5,6 +5,7 @@ interface ToggleGroupItemProps {
   value: string;
   label?: string;
   isSelected?: boolean;
+  isDisabled?: boolean;
   index?: number;
 }
 

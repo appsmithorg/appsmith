@@ -98,8 +98,12 @@ function ConnectionSuccessBody() {
           {createMessage(GIT_CONNECT_SUCCESS_PROTECTION_MSG)}
         </Text>
       </div>
-      <LinkText isBold renderAs="p">
-        <Link href={DOCS_BRANCH_PROTECTION_URL}>
+      <LinkText className="inline-block" isBold renderAs="p">
+        <Link
+          data-testid="t--git-success-modal-learn-more-link"
+          target="_blank"
+          to={DOCS_BRANCH_PROTECTION_URL}
+        >
           {createMessage(GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA)}
         </Link>
       </LinkText>

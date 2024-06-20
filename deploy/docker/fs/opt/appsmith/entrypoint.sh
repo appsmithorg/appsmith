@@ -425,7 +425,7 @@ init_postgres() {
 
     if [[ ! -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
       tlog "Initializing local Postgres data folder"
-      su postgres -c "initdb -D $POSTGRES_DB_PATH"
+      su postgres -c "env PATH='$PATH' initdb -D $POSTGRES_DB_PATH"
     fi
   else
     runEmbeddedPostgres=0
