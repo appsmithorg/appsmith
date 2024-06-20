@@ -13,7 +13,6 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 public enum AclPermission {
@@ -132,9 +131,6 @@ public enum AclPermission {
 
     private final String value;
     private final Class<? extends BaseDomain> entity;
-    // Field to store the user context for which the permission is being checked.
-    @Setter
-    private User user;
 
     AclPermission(String value, Class<? extends BaseDomain> entity) {
         this.value = value;
