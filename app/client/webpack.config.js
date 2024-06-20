@@ -4,12 +4,22 @@ const common = require("./webpack.common.config.js");
 
 module.exports = merge(common, {
   devServer: {
-    proxy: {
+    allowedHosts: "all",
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "*",
+      "Access-Control-Allow-Headers": "*",
+    },
+    client: {
       webSocketURL: {
         hostname: "127.0.0.1",
         pathname: "/ws",
         port: 3000,
         protocol: "ws",
+      },
+      overlay: {
+        errors: true,
+        warnings: false,
       },
     },
   },
@@ -19,12 +29,10 @@ module.exports = merge(common, {
   cache: {
     type: "filesystem",
     buildDependencies: {
-      // This tells webpack to invalidate the cache when the config file changes
       config: [__filename],
     },
   },
   experiments: {
-    // buildHttpCache: true,
     cacheUnaffected: true,
   },
   plugins: [

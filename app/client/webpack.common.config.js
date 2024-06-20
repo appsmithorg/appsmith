@@ -3,10 +3,15 @@
 const path = require("path");
 const webpack = require("webpack");
 
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+
+const paths = require("./config/paths");
+// const env = require("./config/env")(paths.appPublic);
+
 const alias = require("./tsconfig.path-alias");
 console.log(alias);
-// exit;
 
+const isEnvProduction = false;
 module.exports = {
   output: {
     filename: "[name].js",
@@ -16,9 +21,7 @@ module.exports = {
   //   babel: {
   //     plugins: ["babel-plugin-lodash"],
   //   },
-  // eslint: {
-  //   enable: false,
-  // },
+
   // typescript: {
   //   enableTypeChecking: process.env.ENABLE_TYPE_CHECKING !== "false",
   // },
@@ -59,10 +62,10 @@ module.exports = {
         test: /\.(ts|tsx)$/,
         exclude: /(node_modules)/,
         use: {
-          // loader: "swc-loader",
-          loader: "babel-loader",
+          loader: "swc-loader",
         },
       },
+
       {
         test: /\.css$/,
         use: ["style-loader", "css-loader"],
@@ -154,12 +157,41 @@ module.exports = {
     },
   ],
   plugins: [
+    new webpack.DefinePlugin({
+      "process.env": "{}",
+      global: "{}",
+    }),
     // Replace BlueprintJS’s icon component with our own implementation
     // that code-splits icons away
     new webpack.NormalModuleReplacementPlugin(
       /@blueprintjs\/core\/lib\/\w+\/components\/icon\/icon\.\w+/,
       require.resolve(
         "./src/components/designSystems/blueprintjs/icon/index.js",
+      ),
+    ),
+    new HtmlWebpackPlugin(
+      Object.assign(
+        {},
+        {
+          inject: true,
+          template: paths.appHtml,
+        },
+        isEnvProduction
+          ? {
+              minify: {
+                removeComments: true,
+                collapseWhitespace: true,
+                removeRedundantAttributes: true,
+                useShortDoctype: true,
+                removeEmptyAttributes: true,
+                removeStyleLinkTypeAttributes: true,
+                keepClosingSlash: true,
+                minifyJS: true,
+                minifyCSS: true,
+                minifyURLs: true,
+              },
+            }
+          : undefined,
       ),
     ),
   ],
