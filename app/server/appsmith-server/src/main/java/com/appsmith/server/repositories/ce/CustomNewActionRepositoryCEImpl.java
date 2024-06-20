@@ -42,7 +42,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                         .isNull(NewAction.Fields.unpublishedAction_deletedAt))
                 .permission(permission.orElse(null))
                 .user(currentUser)
-                .user(currentUser)
                 .sort(sort.orElse(null))
                 .all();
     }

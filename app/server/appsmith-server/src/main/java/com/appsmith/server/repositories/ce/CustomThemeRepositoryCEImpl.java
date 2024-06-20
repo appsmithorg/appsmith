@@ -34,7 +34,6 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     public List<Theme> getSystemThemes() {
         return queryBuilder()
                 .criteria(Bridge.isTrue(Theme.Fields.isSystemTheme))
-                .permission(AclPermission.READ_THEMES)
                 .all();
     }
 

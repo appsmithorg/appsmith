@@ -41,7 +41,11 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                 .equal(PermissionGroup.Fields.defaultDomainId, workspaceId)
                 .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
 
-        return queryBuilder().criteria(query).permission(permission).all();
+        return queryBuilder()
+                .criteria(query)
+                .permission(permission)
+                .user(currentUser)
+                .all();
     }
 
     @Override
@@ -60,7 +64,11 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>equal(
                         PermissionGroup.Fields.defaultDomainId, workspaceId)
                 .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
-        return queryBuilder().criteria(query).permission(permission).all();
+        return queryBuilder()
+                .criteria(query)
+                .permission(permission)
+                .user(currentUser)
+                .all();
     }
 
     @Override
@@ -69,7 +77,11 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>in(
                         PermissionGroup.Fields.defaultDomainId, workspaceIds)
                 .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
-        return queryBuilder().criteria(query).permission(permission).all();
+        return queryBuilder()
+                .criteria(query)
+                .permission(permission)
+                .user(currentUser)
+                .all();
     }
 
     @Override

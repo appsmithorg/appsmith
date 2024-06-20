@@ -27,6 +27,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         return queryBuilder()
                 .criteria(Bridge.equal(Workspace.Fields.name, name))
                 .permission(permission)
+                .user(currentUser)
                 .one();
     }
 
@@ -37,6 +38,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(Bridge.<Workspace>in(Workspace.Fields.id, workspaceIds)
                         .equal(Workspace.Fields.tenantId, tenantId))
                 .permission(permission)
+                .user(currentUser)
                 .sort(sort)
                 .all();
     }

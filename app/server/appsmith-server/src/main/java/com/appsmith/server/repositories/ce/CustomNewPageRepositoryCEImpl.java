@@ -186,7 +186,11 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.defaultResources_branchName);
         }
 
-        return queryBuilder().criteria(q).permission(permission).one();
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission)
+                .user(currentUser)
+                .one();
     }
 
     public Optional<String> findBranchedPageId(
@@ -199,6 +203,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return queryBuilder()
                 .criteria(q)
                 .permission(permission)
+                .user(currentUser)
                 .fields("id")
                 .one()
                 .map(NewPage::getId);
@@ -216,6 +221,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                         NewPage.Fields.publishedPage_customSlug,
                         NewPage.Fields.applicationId)
                 .permission(permission)
+                .user(currentUser)
                 .all();
     }
 
@@ -254,6 +260,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission, User currentUser) {
         int count = queryBuilder()
                 .permission(permission)
+                .user(currentUser)
                 .criteria(Bridge.in(NewPage.Fields.id, pageIds))
                 .updateAll(Bridge.update()
                         .setToValueFromField(NewPage.Fields.publishedPage, NewPage.Fields.unpublishedPage));

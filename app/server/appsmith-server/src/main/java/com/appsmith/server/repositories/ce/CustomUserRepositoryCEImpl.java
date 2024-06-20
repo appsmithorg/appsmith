@@ -15,6 +15,10 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     @Override
     public Optional<User> findByEmail(String email, AclPermission permission, User currentUser) {
         BridgeQuery<User> emailCriteria = Bridge.equal(User.Fields.email, email);
-        return queryBuilder().criteria(emailCriteria).permission(permission).one();
+        return queryBuilder()
+                .criteria(emailCriteria)
+                .permission(permission)
+                .user(currentUser)
+                .one();
     }
 }
