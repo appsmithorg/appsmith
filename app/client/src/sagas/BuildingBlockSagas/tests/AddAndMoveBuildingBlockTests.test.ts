@@ -1,20 +1,33 @@
+import {
+  ReduxActionTypes,
+  type ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
+import { getAction } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import type { WidgetAddChild } from "actions/pageActions";
+import type { Action } from "entities/Action";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import type { CallEffect, PutEffect, SelectEffect } from "redux-saga/effects";
-import { call, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
+import { apiCallToSaveAction } from "sagas/ActionSagas";
 import { addWidgetAndMoveWidgetsSaga } from "sagas/CanvasSagas/DraggingCanvasSagas";
+import { addChildSaga } from "sagas/WidgetAdditionSagas";
 import { getDragDetails, getWidgetByName } from "sagas/selectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
 import {
   addAndMoveBuildingBlockToCanvasSaga,
   addBuildingBlockToCanvasSaga,
+  addNewlyAddedActionsToRedux,
   loadBuildingBlocksIntoApplication,
+  updateWidgetsNameInNewQueries,
 } from "../BuildingBlockAdditionSagas";
-import { actionPayload, addEntityAction, skeletonWidget } from "./fixtures";
-import type { WidgetAddChild } from "actions/pageActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { addChildSaga } from "sagas/WidgetAdditionSagas";
+import {
+  actionPayload,
+  newlyCreatedActions,
+  addEntityAction,
+  skeletonWidget,
+} from "./fixtures";
 
 type GeneratorType = Generator<
   CallEffect | SelectEffect | PutEffect,
@@ -207,5 +220,79 @@ describe("addBuildingBlockToCanvasSaga", () => {
     } catch (err) {
       expect(err).toBe(error);
     }
+  });
+});
+
+describe("addNewlyAddedActionsToRedux", () => {
+  it("1. should add new actions to Redux if they do not already exist", () => {
+    const existingAction = undefined;
+
+    const generator: any = addNewlyAddedActionsToRedux(newlyCreatedActions);
+
+    for (const action of newlyCreatedActions) {
+      expect(generator.next().value).toEqual(select(getAction, action.id));
+      expect(generator.next(existingAction).value).toEqual(
+        put({
+          type: ReduxActionTypes.APPEND_ACTION_AFTER_BUILDING_BLOCK_DROP,
+          payload: {
+            isLoading: false,
+            config: {
+              ...action,
+              entityReferenceType: "ACTION",
+            },
+            data: undefined,
+          },
+        }),
+      );
+      expect(generator.next().value).toEqual(call(apiCallToSaveAction, action));
+    }
+
+    expect(generator.next().done).toBe(true);
+  });
+  it("2. should handle empty actions array gracefully", () => {
+    const actions: Action[] = [];
+    const generator = addNewlyAddedActionsToRedux(actions);
+
+    expect(generator.next().done).toBe(true);
+  });
+});
+
+describe("updateWidgetsNameInNewQueries", () => {
+  it("1. should replace oldWidgetName with newWidgetName in actionConfiguration.body", () => {
+    const oldWidgetName = "OldWidget";
+    const newWidgetName = "NewWidget";
+    const queries = [
+      {
+        actionConfiguration: {
+          body: "SELECT * FROM OldWidget",
+        },
+        jsonPathKeys: ["OldWidget.data"],
+      },
+    ];
+
+    const updatedQueries = updateWidgetsNameInNewQueries(
+      oldWidgetName,
+      newWidgetName,
+      queries,
+    );
+
+    expect(updatedQueries[0].actionConfiguration.body).toBe(
+      "SELECT * FROM NewWidget",
+    );
+    expect(updatedQueries[0].jsonPathKeys[0]).toBe("NewWidget.data");
+  });
+
+  it("2. should return an empty array when queries array is empty", () => {
+    const oldWidgetName = "OldWidget";
+    const newWidgetName = "NewWidget";
+    const queries: any[] = [];
+
+    const updatedQueries = updateWidgetsNameInNewQueries(
+      oldWidgetName,
+      newWidgetName,
+      queries,
+    );
+
+    expect(updatedQueries).toEqual([]);
   });
 });

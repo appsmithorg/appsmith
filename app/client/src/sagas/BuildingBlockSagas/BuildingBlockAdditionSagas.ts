@@ -868,7 +868,7 @@ function handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
   return widgets;
 }
 
-function updateWidgetsNameInNewQueries(
+export function updateWidgetsNameInNewQueries(
   oldWidgetName: string,
   newWidgetName: string,
   queries: any[],
@@ -885,7 +885,7 @@ function updateWidgetsNameInNewQueries(
     });
 }
 
-function* addNewlyAddedActionsToRedux(actions: Action[]) {
+export function* addNewlyAddedActionsToRedux(actions: Action[]) {
   for (const action of actions) {
     if (action) {
       try {
@@ -893,7 +893,10 @@ function* addNewlyAddedActionsToRedux(actions: Action[]) {
         if (existingAction) continue;
         const actionDataPayload = {
           isLoading: false,
-          config: action,
+          config: {
+            ...action,
+            entityReferenceType: "ACTION",
+          },
           data: undefined,
         };
         yield put({
