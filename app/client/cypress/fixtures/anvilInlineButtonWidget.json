@@ -1240,6 +1240,91 @@
                 "mobileTopRow": 0,
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1CopyCopyCopy1",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete with Long Label that can't fit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "optwmskt0n",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
               }
             ],
             "elevatedBackground": true,
@@ -1311,6 +1396,22 @@
                       {
                         "alignment": "start",
                         "widgetId": "3kevph8xi6",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "v6p8rfvksu",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "optwmskt0n",
                         "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
                       }
                     ],
@@ -1981,6 +2082,7 @@
                 "mobileRightColumn": 64,
                 "animateLoading": true,
                 "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
                 "buttonsList": {
@@ -2518,6 +2620,6 @@
   },
   "layoutOnLoadActions": [],
   "layoutOnLoadActionErrors": [],
-  "id": "66728e43b8fc991d477cb718",
+  "id": "66740df8578c385615a3d38a",
   "userPermissions": []
 }
