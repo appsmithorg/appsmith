@@ -19,6 +19,7 @@ const _InlineButtonsInner = <T extends InlineButtonsItem>(
 ) => {
   const {
     color = "accent",
+    excludeFromTabOrder = false,
     isDisabled,
     onAction,
     size = "medium",
@@ -50,6 +51,7 @@ const _InlineButtonsInner = <T extends InlineButtonsItem>(
           return (
             <InlineButton
               color={item.props.color ?? color}
+              excludeFromTabOrder={excludeFromTabOrder}
               icon={item.props.icon}
               iconPosition={item.props.iconPosition}
               isDisabled={

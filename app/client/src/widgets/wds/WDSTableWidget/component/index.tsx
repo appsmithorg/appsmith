@@ -81,6 +81,7 @@ interface ReactTableComponentProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
+  excludeFromTabOrder?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -212,6 +213,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       editMode={editMode}
       editableCell={editableCell}
       enableDrag={memoziedEnableDrag}
+      excludeFromTabOrder={props.excludeFromTabOrder}
       filters={filters}
       handleColumnFreeze={handleColumnFreeze}
       handleReorderColumn={handleReorderColumn}

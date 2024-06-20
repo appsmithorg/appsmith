@@ -109,6 +109,7 @@ class WDSSwitchGroupWidget extends BaseWidget<
 
   getWidgetView() {
     const {
+      disableWidgetInteraction,
       labelPosition,
       labelTooltip,
       options,
@@ -131,6 +132,7 @@ class WDSSwitchGroupWidget extends BaseWidget<
       >
         {({ index, label, value }) => (
           <Switch
+            excludeFromTabOrder={disableWidgetInteraction}
             key={`${widgetId}-option-${index}`}
             labelPosition={labelPosition}
             value={value}

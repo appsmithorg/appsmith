@@ -14,7 +14,14 @@ export const ToolbarButtonsComponent = (
     Array<ToolbarButtonsItemComponentProps["id"]>
   >([]);
 
-  const { alignment, buttonsList, color, onButtonClick, variant } = props;
+  const {
+    alignment,
+    buttonsList,
+    color,
+    excludeFromTabOrder,
+    onButtonClick,
+    variant,
+  } = props;
 
   const sortedButtons = sortBy(
     Object.keys(buttonsList)
@@ -58,6 +65,7 @@ export const ToolbarButtonsComponent = (
       alignment={alignment}
       color={color}
       disabledKeys={disabledKeys}
+      excludeFromTabOrder={excludeFromTabOrder}
       items={sortedButtons}
       onAction={onAction}
       variant={variant}

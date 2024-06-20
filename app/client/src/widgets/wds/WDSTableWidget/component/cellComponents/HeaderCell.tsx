@@ -43,6 +43,7 @@ interface HeaderProps {
     e: React.DragEvent<HTMLDivElement>,
     destinationIndex: number,
   ) => void;
+  excludeFromTabOrder?: boolean;
 }
 
 const HeaderCellComponent = (props: HeaderProps) => {
@@ -133,7 +134,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
     <th
       {...headerProps}
       aria-hidden={props.isHidden ? "true" : undefined}
-      className={`th header-reorder ${props.stickyRightModifier}`}
+      className={`th header-reorder justify-end ${props.stickyRightModifier}`}
       data-header={props.columnName}
     >
       <div
@@ -186,6 +187,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
           <MenuTrigger>
             <IconButton
               color="neutral"
+              excludeFromTabOrder={props.excludeFromTabOrder}
               icon="chevron-down"
               size="small"
               variant="ghost"

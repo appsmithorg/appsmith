@@ -308,6 +308,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
         currencyCode={this.props.currencyCode}
         defaultValue={this.props.defaultText}
         errorMessage={validation.errorMessage}
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
         isReadOnly={this.props.isReadOnly}
