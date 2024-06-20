@@ -124,7 +124,11 @@ class WDSCheckboxGroupWidget extends BaseWidget<
         value={selectedValues}
       >
         {({ index, label, value }) => (
-          <Checkbox key={`${widgetId}-option-${index}`} value={value}>
+          <Checkbox
+            excludeFromTabOrder={this.props.disableWidgetInteraction}
+            key={`${widgetId}-option-${index}`}
+            value={value}
+          >
             {label}
           </Checkbox>
         )}

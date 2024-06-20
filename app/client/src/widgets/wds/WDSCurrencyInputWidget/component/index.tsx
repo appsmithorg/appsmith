@@ -18,6 +18,7 @@ export function CurrencyInputComponent(props: CurrencyInputComponentProps) {
       autoFocus={props.autoFocus}
       contextualHelp={props.tooltip}
       errorMessage={props.errorMessage}
+      excludeFromTabOrder={props.excludeFromTabOrder}
       isDisabled={props.isDisabled}
       isReadOnly={props.isReadOnly}
       isRequired={props.isRequired}
