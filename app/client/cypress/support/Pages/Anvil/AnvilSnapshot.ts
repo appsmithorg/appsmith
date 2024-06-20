@@ -13,13 +13,15 @@ export class AnvilSnapshot {
   };
 
   public verifyCanvasMode = async (widgetName: string) => {
-    this.agHelper.GetElement(this.locators.canvas).matchImageSnapshot(`anvil${widgetName}Canvas`);
+    this.agHelper
+      .GetElement(this.locators.canvas)
+      .matchImageSnapshot(`anvil${widgetName}Canvas`);
 
     this.setTheme("dark");
 
-    this.agHelper.GetElement(this.locators.canvas).matchImageSnapshot(
-      `anvil${widgetName}CanvasDark`,
-    );
+    this.agHelper
+      .GetElement(this.locators.canvas)
+      .matchImageSnapshot(`anvil${widgetName}CanvasDark`);
 
     this.setTheme("light");
   };
@@ -29,10 +31,9 @@ export class AnvilSnapshot {
 
     this.agHelper.GetNClick(this.locators.canvas);
 
-
-    this.agHelper.GetElement(this.locators.canvas).matchImageSnapshot(
-      `anvil${widgetName}Preview`,
-    );
+    this.agHelper
+      .GetElement(this.locators.canvas)
+      .matchImageSnapshot(`anvil${widgetName}Preview`);
 
     this.exitPreviewMode();
   };
@@ -54,12 +55,11 @@ export class AnvilSnapshot {
     devices.forEach((device) => {
       cy.viewport(device);
 
-      this.agHelper.GetElement(this.locators.appViewerPage).matchImageSnapshot(
-        `anvil${widgetName}Deploy${device}`,
-        {
+      this.agHelper
+        .GetElement(this.locators.appViewerPage)
+        .matchImageSnapshot(`anvil${widgetName}Deploy${device}`, {
           capture: "fullPage",
-        },
-      );
+        });
     });
   };
 
@@ -81,5 +81,4 @@ export class AnvilSnapshot {
 
     this.appSettings.ClosePane();
   };
-
 }
