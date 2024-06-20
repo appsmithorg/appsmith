@@ -557,7 +557,6 @@ export function* pasteBuildingBlockWidgetsSaga(
                 },
               );
             }
-
             if (oldWidgetName !== newWidgetName) {
               newActions = updateWidgetsNameInNewQueries(
                 oldWidgetName,
@@ -892,18 +891,14 @@ function* addNewlyAddedActionsToRedux(actions: Action[]) {
       try {
         const existingAction: Action = yield select(getAction, action.id);
         if (existingAction) continue;
+        const actionDataPayload = {
+          isLoading: false,
+          config: action,
+          data: undefined,
+        };
         yield put({
           type: ReduxActionTypes.APPEND_ACTION_AFTER_BUILDING_BLOCK_DROP,
-          payload: {
-            data: {
-              config: {
-                ...action,
-                entityReferenceType: "ACTION",
-              },
-              isLoading: false,
-              data: undefined,
-            },
-          },
+          payload: actionDataPayload,
         });
         yield call(apiCallToSaveAction, action);
       } catch (error) {
