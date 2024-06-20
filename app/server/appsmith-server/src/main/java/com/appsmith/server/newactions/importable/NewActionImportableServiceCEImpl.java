@@ -36,7 +36,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -99,7 +98,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         log.info("Deleting {} actions which are no more used", invalidActionIds.size());
                         return Flux.fromIterable(invalidActionIds)
                                 .flatMap(actionId -> newActionService
-                                        .deleteUnpublishedActionWithOptionalPermission(actionId, Optional.empty())
+                                        .deleteUnpublishedAction(actionId, null)
                                         // return an empty action so that the filter can remove it from the list
                                         .onErrorResume(throwable -> {
                                             log.debug("Failed to delete action with id {} during import", actionId);

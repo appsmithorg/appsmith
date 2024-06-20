@@ -7,7 +7,6 @@ export * from "./components/Text";
 export * from "./components/ToggleGroup";
 export * from "./components/Tooltip";
 export * from "./components/Flex";
-export * from "./components/Radio";
 export * from "./components/RadioGroup";
 export * from "./components/Switch";
 export * from "./components/TextInput";
@@ -23,8 +22,9 @@ export * from "./components/ContextualHelp";
 export * from "./components/Link";
 export * from "./components/Popover";
 export * from "./components/Label";
+export * from "./components/ErrorMessage";
 
 export * from "./utils";
 export * from "./styles";
-
+export * from "./hooks";
 export * from "./shared";

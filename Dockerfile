@@ -1,6 +1,8 @@
 ARG BASE
 FROM ${BASE}
 
+ENV IN_DOCKER=1
+
 # Add backend server - Application Layer
 ARG JAR_FILE=./app/server/dist/server-*.jar
 ARG PLUGIN_JARS=./app/server/dist/plugins/*.jar
