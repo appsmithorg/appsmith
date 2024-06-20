@@ -15,7 +15,7 @@ def main():
         headers = dict([x.split(":") for x in line.split()])
         data = sys.stdin.read(int(headers["len"]))  # read the event payload
         print(
-            f"RESULT {len(data.encode("utf-8"))}\n{data}",
+            f"RESULT {len(data.encode('utf-8'))}\n{data}",
             end="",
             flush=True,
         )  # transition from READY to ACKNOWLEDGED
