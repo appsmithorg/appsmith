@@ -58,8 +58,7 @@ public class CsrfConfig implements Customizer<ServerHttpSecurity.CsrfSpec>, Serv
      * seriously inhibit troubleshooting and dev convenience.
      * <a href="https://docs.spring.io/spring-security/reference/features/exploits/csrf.html#csrf-protection-read-only">Reference on Spring docs</a>.
      */
-    private static final Set<HttpMethod> SAFE_READ_ONLY_METHODS =
-            Set.of(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.TRACE);
+    private static final Set<HttpMethod> SAFE_READ_ONLY_METHODS = Set.of(HttpMethod.GET, HttpMethod.HEAD);
 
     void applyTo(ServerHttpSecurity http) {
         http.csrf(this).addFilterAfter(this, SecurityWebFiltersOrder.CSRF);
