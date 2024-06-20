@@ -65,7 +65,7 @@ describe(
       _.propPane.UpdatePropertyFieldValue("Text", `{{Table1.newRow.Date}}`);
 
       const localISOTime = getCurrentDateISO();
-      _.agHelper.GetNAssertContains(commonlocators.textWidgetName,localISOTime.split("T")[0] + "T00:00:00+05:30")
+      _.agHelper.GetNAssertContains(commonlocators.textWidgetName,localISOTime.split("T")[0] + "T00:00:00+00:00")
     });
   },
 );
