@@ -357,7 +357,7 @@ public class ActionCollectionServiceCEImpl
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(
             String id, AclPermission permission, AclPermission deleteActionPermission) {
         Mono<ActionCollection> actionCollectionMono = repository
-                .findById(id, permission.orElse(null))
+                .findById(id, permission)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)));
         return actionCollectionMono

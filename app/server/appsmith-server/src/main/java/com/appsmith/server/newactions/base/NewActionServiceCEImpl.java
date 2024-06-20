@@ -633,7 +633,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         action.setUserSetOnLoad(null);
 
         Mono<NewAction> updatedActionMono = repository
-                .findById(id, permission.orElse(null))
+                .findById(id, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)))
                 .map(dbAction -> {
                     final ActionDTO unpublishedAction = dbAction.getUnpublishedAction();
@@ -848,7 +848,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id, AclPermission newActionDeletePermission) {
         Mono<NewAction> actionMono = repository
-                .findById(id, newActionDeletePermission.orElse(null))
+                .findById(id, newActionDeletePermission)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono.flatMap(this::deleteGivenNewAction);
