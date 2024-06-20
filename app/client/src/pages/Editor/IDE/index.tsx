@@ -13,8 +13,8 @@ import MainPane from "./MainPane";
 import RightPane from "./RightPane";
 import classNames from "classnames";
 import { tailwindLayers } from "constants/Layers";
-import ProtectedCallout from "./ProtectedCallout";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import ProtectedCallout from "./ProtectedCallout";
 
 /**
  * OldName: MainContainer
@@ -42,7 +42,7 @@ function IDE() {
         <MainPane id="app-body" />
         <div
           className={classNames({
-            [`transition-transform transform duration-400 ${tailwindLayers.propertyPane}`]:
+            [`transition-transform transform duration-400 h-full ${tailwindLayers.propertyPane}`]:
               true,
             relative: !isCombinedPreviewMode,
             "translate-x-full fixed right-0": isCombinedPreviewMode,

@@ -1066,12 +1066,6 @@ export const HOW_TO_ADD_DEPLOY_KEY = () =>
 export const CONSENT_ADDED_DEPLOY_KEY = () =>
   "I've added the deploy key and gave it write access";
 export const PREVIOUS_STEP = () => "Previous step";
-export const GIT_CONNECT_SUCCESS_TITLE = () =>
-  "Successfully connected to your Git remote repository";
-export const GIT_CONNECT_SUCCESS_MESSAGE = () =>
-  "Now you can start collaborating with your team members by committing, merging and deploying your app";
-export const START_USING_GIT = () => "Start using Git";
-export const OPEN_GIT_SETTINGS = () => "Open Git settings";
 export const GIT_AUTHOR = () => "Git author";
 export const DISCONNECT_GIT = () => "Disconnect Git";
 export const DISCONNECT_GIT_MESSAGE = () =>
@@ -1114,16 +1108,6 @@ export const DEFAULT_BRANCH_DESC = () =>
 export const BRANCH_PROTECTION = () => "Branch protection";
 export const BRANCH_PROTECTION_DESC = () =>
   "Protected branches enable you to enforce Git workflows. Changes to the app are not allowed in the protected branches.";
-export const BRANCH_PROTECTION_RULES_AS_FOLLOWS = () =>
-  "Branch protection rules follow as,";
-export const BRANCH_PROTECTION_RULE_1 = () =>
-  "Commit and merge are not allowed.";
-export const BRANCH_PROTECTION_RULE_2 = () =>
-  "Users can’t create or edit queries, widgets, and JS Objects.";
-export const BRANCH_PROTECTION_RULE_3 = () =>
-  "You can still pull the latest changes and create new branches to edit the app.";
-export const BRANCH_PROTECTION_CHANGE_RULE = () =>
-  "You can remove protection on your default branch in Git settings.";
 export const GO_TO_SETTINGS = () => "Go to settings";
 export const NOW_PROTECT_BRANCH = () =>
   "You can now protect your default branch.";
@@ -1141,8 +1125,24 @@ export const BRANCH_PROTECTION_CALLOUT_UNPROTECT = () => "Unprotect branch";
 export const BRANCH_PROTECTION_CALLOUT_UNPROTECT_LOADING = () =>
   "Unprotecting branch ...";
 export const BRANCH_PROTECTION_PROTECTED = () => "Protected";
-
 // Git Branch Protection end
+
+// Git Connection Success
+export const GIT_CONNECT_SUCCESS_TITLE = () => "Successfully connected to Git";
+export const GIT_CONNECT_SUCCESS_MESSAGE = () =>
+  "Now you can start collaborating with your team members by committing, merging and deploying your app";
+export const GIT_CONNECT_SUCCESS_ACTION_CONTINUE = () =>
+  "Continue to edit application";
+export const GIT_CONNECT_SUCCESS_ACTION_SETTINGS = () => "Protect your branch";
+export const GIT_CONNECT_SUCCESS_PROTECTION_MSG = () =>
+  "We recommend protecting your default branch to have a seamless collaboration.";
+export const GIT_CONNECT_SUCCESS_REPO_NAME = () => "Repository name";
+export const GIT_CONNECT_SUCCESS_DEFAULT_BRANCH = () => "Default branch";
+export const GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP = () =>
+  "This is the base branch of the app. Users launching the app from the dashboard will see the deployed version from this branch.";
+export const GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA = () =>
+  "Learn more about branch protection";
+// Git Connection Success end
 
 export const GENERAL = () => "General";
 export const BRANCH = () => "Branch";

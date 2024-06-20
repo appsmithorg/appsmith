@@ -282,7 +282,7 @@ public class PartialImportServiceTest {
                 .block();
 
         String pageId = newPageService
-                .findById(testApplication.getPages().get(0).getId(), Optional.empty())
+                .findById(testApplication.getPages().get(0).getId(), null)
                 .block()
                 .getId();
 
@@ -400,7 +400,7 @@ public class PartialImportServiceTest {
                 .block();
 
         String pageId = newPageService
-                .findById(testApplication.getPages().get(0).getId(), Optional.empty())
+                .findById(testApplication.getPages().get(0).getId(), null)
                 .block()
                 .getId();
 
@@ -481,7 +481,7 @@ public class PartialImportServiceTest {
                 .block();
 
         String pageId = newPageService
-                .findById(testApplication.getPages().get(0).getId(), Optional.empty())
+                .findById(testApplication.getPages().get(0).getId(), null)
                 .block()
                 .getId();
         BuildingBlockDTO buildingBlockDTO = new BuildingBlockDTO();
