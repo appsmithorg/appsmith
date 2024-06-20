@@ -260,14 +260,7 @@ describe("updateWidgetsNameInNewQueries", () => {
   it("1. should replace oldWidgetName with newWidgetName in actionConfiguration.body", () => {
     const oldWidgetName = "OldWidget";
     const newWidgetName = "NewWidget";
-    const queries = [
-      {
-        actionConfiguration: {
-          body: "SELECT * FROM OldWidget",
-        },
-        jsonPathKeys: ["OldWidget.data"],
-      },
-    ];
+    const queries: Action[] = newlyCreatedActions;
 
     const updatedQueries = updateWidgetsNameInNewQueries(
       oldWidgetName,

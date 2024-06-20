@@ -871,8 +871,24 @@ function handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
 export function updateWidgetsNameInNewQueries(
   oldWidgetName: string,
   newWidgetName: string,
-  queries: any[],
+  queries: Action[],
 ) {
+  if (!oldWidgetName || !newWidgetName || !queries) {
+    throw new Error(
+      "Invalid input: oldWidgetName, newWidgetName, or queries are missing or empty",
+    );
+  }
+
+  if (typeof oldWidgetName !== "string" || typeof newWidgetName !== "string") {
+    throw new Error(
+      "Invalid input: oldWidgetName and newWidgetName must be strings",
+    );
+  }
+
+  if (!Array.isArray(queries)) {
+    throw new Error("Invalid input: queries must be an array");
+  }
+
   return queries
     .filter((query) => !!query)
     .map((query) => {
@@ -887,25 +903,32 @@ export function updateWidgetsNameInNewQueries(
 
 export function* addNewlyAddedActionsToRedux(actions: Action[]) {
   for (const action of actions) {
-    if (action) {
-      try {
-        const existingAction: Action = yield select(getAction, action.id);
-        if (existingAction) continue;
-        const actionDataPayload = {
-          isLoading: false,
-          config: action,
-          data: undefined,
-        };
-        yield put({
-          type: ReduxActionTypes.APPEND_ACTION_AFTER_BUILDING_BLOCK_DROP,
-          payload: {
-            data: actionDataPayload,
-          },
-        });
-        yield call(apiCallToSaveAction, action);
-      } catch (error) {
-        throw error;
-      }
+    if (!action) {
+      continue;
+    }
+
+    const existingAction: Action = yield select(getAction, action.id);
+    if (existingAction) {
+      continue;
+    }
+
+    try {
+      const actionDataPayload = {
+        isLoading: false,
+        config: action,
+        data: undefined,
+      };
+
+      yield put({
+        type: ReduxActionTypes.APPEND_ACTION_AFTER_BUILDING_BLOCK_DROP,
+        payload: {
+          data: actionDataPayload,
+        },
+      });
+
+      yield call(apiCallToSaveAction, action);
+    } catch (error) {
+      throw new Error("Error adding new action to Redux");
     }
   }
 }
