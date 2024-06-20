@@ -34,7 +34,6 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -127,7 +126,7 @@ public class CurlImporterServiceCEImpl extends BaseApiImporter implements CurlIm
     protected Mono<ActionDTO> associateContextIdToActionDTO(
             ActionDTO actionDTO, CreatorContextType contextType, String contextId) {
         actionDTO.setPageId(contextId);
-        return newPageService.findById(contextId, Optional.empty()).map(newPage -> {
+        return newPageService.findById(contextId, null).map(newPage -> {
             // Set git related resource IDs
             actionDTO.setDefaultResources(newPage.getDefaultResources());
             return actionDTO;

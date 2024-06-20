@@ -152,7 +152,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     /**
      * @deprecated using `Optional` for function arguments is an anti-pattern.
      */
-    @Deprecated
+    @Deprecated(forRemoval = true)
     public Optional<T> findById(String id, Optional<AclPermission> permission) {
         return findById(id, permission.orElse(null));
     }

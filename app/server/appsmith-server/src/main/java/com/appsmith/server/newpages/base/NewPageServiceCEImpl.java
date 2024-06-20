@@ -127,11 +127,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission) {
-        return repository.findById(pageId, aclPermission.orElse(null));
-    }
-
-    @Override
     public Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view) {
         return findNewPagesByApplicationId(applicationId, permission).flatMap(page -> getPageByViewMode(page, view));
     }
@@ -524,13 +519,13 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<NewPage> archiveWithoutPermissionById(String id) {
-        return archiveByIdEx(id, Optional.empty());
+    public Mono<NewPage> archiveByIdWithoutPermission(String id) {
+        return archiveByIdEx(id, null);
     }
 
     @Override
     public Mono<NewPage> archiveById(String id) {
-        return archiveByIdEx(id, Optional.of(pagePermission.getDeletePermission()));
+        return archiveByIdEx(id, pagePermission.getDeletePermission());
     }
 
     @Override
@@ -538,8 +533,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return repository.archiveAllById(idList);
     }
 
-    public Mono<NewPage> archiveByIdEx(String id, Optional<AclPermission> permission) {
-        Mono<NewPage> pageMono = this.findById(id, permission)
+    private Mono<NewPage> archiveByIdEx(String id, AclPermission permission) {
+        Mono<NewPage> pageMono = findById(id, permission)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
                 .cache();

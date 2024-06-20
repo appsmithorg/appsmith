@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Connection;
@@ -49,6 +50,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.util.LinkedMultiValueMap;
@@ -125,6 +127,9 @@ public class DatasourceServiceTest {
 
     @Autowired
     ApplicationPermission applicationPermission;
+
+    @Autowired
+    JdbcTemplate jdbcTemplate;
 
     String workspaceId = "";
     private String defaultEnvironmentId;
@@ -1091,10 +1096,17 @@ public class DatasourceServiceTest {
                     DBAuth authentication = (DBAuth)
                             datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    // TODO :: Fetch record from DB and check if password is encrypted
-                    assertThat(authentication.getPassword()).isEqualTo(password);
+                    assertThat(EncryptionHelper.decrypt(
+                                    getDatasourcePassword(savedDatasource.getId(), defaultEnvironmentId)))
+                            .isEqualTo(password);
                 })
                 .verifyComplete();
+    }
+
+    private String getDatasourcePassword(String datasourceId, String envId) {
+        String sql =
+                "SELECT datasource_configuration -> 'authentication' ->> 'password' FROM datasource_storage WHERE datasource_id = ? AND environment_id = ? LIMIT 1";
+        return jdbcTemplate.queryForObject(sql, String.class, datasourceId, envId);
     }
 
     @Test
@@ -1222,8 +1234,9 @@ public class DatasourceServiceTest {
                             datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
 
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    // TODO :: Add assertions for encrypted password
-                    assertThat(password).isEqualTo(authentication.getPassword());
+                    assertThat(EncryptionHelper.decrypt(
+                                    getDatasourcePassword(updatedDatasource.getId(), defaultEnvironmentId)))
+                            .isEqualTo(password);
                 })
                 .verifyComplete();
     }

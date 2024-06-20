@@ -1,42 +1,36 @@
-import clsx from "clsx";
 import React, { forwardRef } from "react";
-import type {
-  CheckboxRef as HeadlessCheckboxRef,
-  CheckboxProps as HeadlessCheckboxProps,
-} from "@design-system/headless";
-import { Checkbox as HeadlessCheckbox } from "@design-system/headless";
+import { Checkbox as HeadlessCheckbox } from "react-aria-components";
+import { Text, Icon } from "@design-system/widgets";
+import styles from "./styles.module.css";
+import type { ForwardedRef } from "react";
+import type { CheckboxProps } from "./types";
 
-import { Text } from "../../Text";
-import checkboxStyles from "./styles.module.css";
-import { inlineLabelStyles } from "../../../styles";
-
-export type CheckboxProps = HeadlessCheckboxProps;
-
-const _Checkbox = (props: CheckboxProps, ref: HeadlessCheckboxRef) => {
-  const { children, labelPosition = "end", ...rest } = props;
+const _Checkbox = (
+  props: CheckboxProps,
+  ref: ForwardedRef<HTMLLabelElement>,
+) => {
+  const {
+    children,
+    isIndeterminate,
+    isRequired,
+    labelPosition = "end",
+    ...rest
+  } = props;
 
   return (
     <HeadlessCheckbox
-      labelPosition={labelPosition}
       ref={ref}
       {...rest}
-      className={clsx(
-        checkboxStyles.checkbox,
-        inlineLabelStyles["inline-label"],
-      )}
+      className={styles.checkbox}
+      data-label-position={labelPosition}
+      isIndeterminate={isIndeterminate}
     >
-      {Boolean(children) && (
-        <>
-          <Text>{children}</Text>
-          {Boolean(props.isRequired) && (
-            <Text
-              color="negative"
-              data-inline-label-necessity-indicator-icon=""
-            >
-              *
-            </Text>
-          )}
-        </>
+      {Boolean(isIndeterminate) ? <Icon name="minus" /> : <Icon name="check" />}
+      <Text lineClamp={1}>{children}</Text>
+      {Boolean(isRequired) && (
+        <Text color="negative" data-inline-label-necessity-indicator-icon="">
+          *
+        </Text>
       )}
     </HeadlessCheckbox>
   );

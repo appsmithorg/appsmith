@@ -191,6 +191,9 @@ public class ExportServiceTests {
     @Autowired
     SessionUserService sessionUserService;
 
+    @Autowired
+    JsonSchemaVersions jsonSchemaVersions;
+
     @BeforeEach
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -731,8 +734,10 @@ public class ExportServiceTests {
 
                     NewPage newPage = pageList.get(0);
 
-                    assertThat(applicationJson.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
-                    assertThat(applicationJson.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
+                    assertThat(applicationJson.getServerSchemaVersion())
+                            .isEqualTo(jsonSchemaVersions.getServerVersion());
+                    assertThat(applicationJson.getClientSchemaVersion())
+                            .isEqualTo(jsonSchemaVersions.getClientVersion());
 
                     assertThat(exportedApp.getName()).isNotNull();
                     assertThat(exportedApp.getWorkspaceId()).isNull();
@@ -1924,8 +1929,8 @@ public class ExportServiceTests {
         testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
-        testApplication.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
-        testApplication.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        testApplication.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
+        testApplication.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
 
         Mono<ApplicationJson> applicationJsonMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -2023,8 +2028,8 @@ public class ExportServiceTests {
         testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
-        testApplication.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
-        testApplication.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        testApplication.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
+        testApplication.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
 
         Mono<ApplicationJson> applicationJsonMono = applicationPageService
                 .createApplication(testApplication, workspaceId)

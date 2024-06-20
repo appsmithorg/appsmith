@@ -1,5 +1,4 @@
 import type { Key } from "@react-types/shared";
-import type { ReactNode } from "react";
 import type {
   SelectProps as SpectrumSelectProps,
   ValidationResult,
@@ -24,7 +23,7 @@ export interface SelectProps<T extends object>
   /** loading state for the input */
   isLoading?: boolean;
   /** A ContextualHelp element to place next to the label. */
-  contextualHelp?: ReactNode;
+  contextualHelp?: string;
 }
 
 export interface SelectItem {

@@ -32,6 +32,8 @@ RUN set -o xtrace \
   && ln -s /usr/lib/postgresql/15 /usr/lib/postgresql/current \
   && apt-get clean
 
+ENV PATH="/usr/lib/postgresql/13/bin:${PATH}"
+
 # Install Java
 RUN set -o xtrace \
   && mkdir -p /opt/java \

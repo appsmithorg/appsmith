@@ -103,6 +103,8 @@ public class AutoCommitEventHandlerImplTest {
 
     AutoCommitEventHandler autoCommitEventHandler;
 
+    JsonSchemaVersions jsonSchemaVersions = new JsonSchemaVersions();
+
     private static final String defaultApplicationId = "default-app-id",
             branchName = "develop",
             workspaceId = "test-workspace-id";
@@ -439,7 +441,7 @@ public class AutoCommitEventHandlerImplTest {
 
         ApplicationJson applicationJson1 = new ApplicationJson();
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(applicationJson, applicationJson1);
-        applicationJson1.setServerSchemaVersion(JsonSchemaVersions.serverVersion + 1);
+        applicationJson1.setServerSchemaVersion(jsonSchemaVersions.getServerVersion() + 1);
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
@@ -573,7 +575,7 @@ public class AutoCommitEventHandlerImplTest {
 
         ApplicationJson applicationJson1 = new ApplicationJson();
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(applicationJson, applicationJson1);
-        applicationJson1.setServerSchemaVersion(JsonSchemaVersions.serverVersion + 1);
+        applicationJson1.setServerSchemaVersion(jsonSchemaVersions.getServerVersion() + 1);
 
         doReturn(Mono.just(applicationJson1)).when(jsonSchemaMigration).migrateApplicationJsonToLatestSchema(any());
 
