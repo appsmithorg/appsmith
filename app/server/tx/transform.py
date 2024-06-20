@@ -24,8 +24,8 @@ MONO_WRAPPER_NON_OPTIONAL = (
     SUBSCRIBE_WRAPPER % "Mono.fromSupplier(() -> %s)"
 )
 FLUX_WRAPPER = "asFlux(() -> %s)"
-FLUX_WRAPPER_WITH_USER_CONTEXT = "PermissionUtils.updateAclWithUserContext(%s).thenMany(%s)"
-MONO_WRAPPER_WITH_USER_CONTEXT = "PermissionUtils.updateAclWithUserContext(%s).then(%s)"
+FLUX_WRAPPER_WITH_USER_CONTEXT = "ReactiveContextUtils.getCurrentUser().flatMapMany(currentUser -> %s)"
+MONO_WRAPPER_WITH_USER_CONTEXT = "ReactiveContextUtils.getCurrentUser().flatMap(currentUser -> %s)"
 
 def apply(p, tx):
     update_file(p, tx(read_file(p)))
@@ -114,6 +114,25 @@ def switch_repo_types(domain):
                 ";\n\npublic interface",
                 ";\nimport java.util.Optional;\n\npublic interface",
             )
+        if "import com.appsmith.server.domains.User;" not in content:
+            content = content.replace(
+                ";\n\npublic interface",
+                ";\nimport com.appsmith.server.domains.User;\n\npublic interface",
+            )
+        update_file(full_path, content)
+
+def add_user_arg(domain):
+
+    for full_path in chain(repo_interfaces(domain), repo_classes(domain)):
+        content = (
+            read_file(full_path)
+            .replace("AclPermission permission)", "AclPermission permission, User currentUser)")
+            .replace("AclPermission aclPermission)", "AclPermission permission, User currentUser)")
+            .replace("Optional<AclPermission> permission)", "Optional<AclPermission> permission, User currentUser)")
+            .replace("Optional<AclPermission> aclPermission)", "Optional<AclPermission> permission, User currentUser)")
+            .replace("aclPermission", "permission")
+        )
+
         update_file(full_path, content)
 
 def replace_exact_word(text, old_word, new_word):
@@ -185,6 +204,7 @@ def generate_cake_class(domain):
     for method in sorted(methods, key=lambda m: m.signature):
         ret_type, signature, *_ = method
         #repo_signature = signature
+        """
         match = re.search(r'(Optional<AclPermission>|AclPermission) (\w+)', signature)
         permission_token = None
         if match:
@@ -192,22 +212,23 @@ def generate_cake_class(domain):
             #repo_signature = replace_exact_word(repo_signature, permission_token, PERMISSION_ARG)
             #repo_signature = repo_signature.replace(permission_token, PERMISSION_ARG)
             # print(f"Replacing with {PERMISSION_ARG} in repo_signature: {repo_signature}, signature: {signature}")
+        """
 
         if ret_type.startswith("Optional"):
             ret_type = ret_type.replace("Optional", "Mono")
-            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % (permission_token, MONO_WRAPPER) if "AclPermission" in signature else MONO_WRAPPER
+            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % MONO_WRAPPER if "AclPermission" in signature else MONO_WRAPPER
         elif ret_type.startswith(("List", "Iterable")):
             ret_type = ret_type.replace("List", "Flux").replace("Iterable", "Flux")
-            wrapper = FLUX_WRAPPER_WITH_USER_CONTEXT % (permission_token, FLUX_WRAPPER) if "AclPermission" in signature else FLUX_WRAPPER
+            wrapper = FLUX_WRAPPER_WITH_USER_CONTEXT % FLUX_WRAPPER if "AclPermission" in signature else FLUX_WRAPPER
         elif ret_type.startswith("Mono<"):
             wrapper = SUBSCRIBE_WRAPPER
         elif not ret_type.islower():
             ret_type = ("Mono<" + ret_type + ">")
-            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % (permission_token, MONO_WRAPPER_NON_OPTIONAL) if "AclPermission" in signature else MONO_WRAPPER_NON_OPTIONAL
+            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % MONO_WRAPPER_NON_OPTIONAL if "AclPermission" in signature else MONO_WRAPPER_NON_OPTIONAL
             #wrapper = MONO_WRAPPER_NON_OPTIONAL
         elif ret_type == "int":
             ret_type = "Mono<Integer>"
-            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % (permission_token, MONO_WRAPPER_NON_OPTIONAL) if "AclPermission" in signature else MONO_WRAPPER_NON_OPTIONAL
+            wrapper = MONO_WRAPPER_WITH_USER_CONTEXT % MONO_WRAPPER_NON_OPTIONAL if "AclPermission" in signature else MONO_WRAPPER_NON_OPTIONAL
             # wrapper = MONO_WRAPPER_NON_OPTIONAL
         else:
             wrapper = "%s"
@@ -219,6 +240,8 @@ def generate_cake_class(domain):
             # Remove all generics in type definitions.
             call = re.sub(r"<[^<>]+?>", "", call)
 
+        signature_wo_user_context = replace_exact_word(signature, ", User currentUser", "")
+        # print(f"Signature: {signature}, Signature_WO_User: {signature_wo_user_context}")
         call = re.sub(
             # Replace type declarations, and leave the argument names.
             r"[A-Za-z.]+?\s(\w+)([,)])", r"\1\2", call
@@ -228,7 +251,7 @@ def generate_cake_class(domain):
             + "public "
             + ret_type
             + " "
-            + signature
+            + signature_wo_user_context
             + " {\n    return "
             + (wrapper % ("repository." + call))
             + ";\n}\n"
@@ -252,12 +275,13 @@ def generate_cake_class(domain):
 
     import com.appsmith.external.models.*;
     import com.appsmith.server.acl.AclPermission;
+    import com.appsmith.server.domains.User;
     import com.appsmith.server.domains.*;
     import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
     import com.appsmith.server.newactions.projections.*;
     import com.appsmith.server.projections.*;
     import com.appsmith.server.repositories.*;
-    import com.appsmith.server.helpers.PermissionUtils;
+    import com.appsmith.server.helpers.ReactiveContextUtils;
     import com.appsmith.server.repositories.ce.params.QueryAllParams;
     import org.springframework.stereotype.Component;
     import org.springframework.data.domain.Sort;
@@ -386,7 +410,8 @@ def convert(domain):
         raise ValueError(f"{domain} is not a DB Document")
 
     to_entity(domain)
-    #switch_repo_types(domain)
+    switch_repo_types(domain)
+    add_user_arg(domain)
     generate_cake_class(domain)
     #use_cake(domain)  # Commenting this out since we want both cake and repo to co-exist now.
 
@@ -400,6 +425,7 @@ def main():
     apply(root / "app/server/appsmith-plugins/postgresPlugin/pom.xml", del_postgres_dep)
     cleanup()
 
+    add_user_arg("Appsmith")
     convert("ActionCollection")
     convert("Application")
     convert("UserData")
