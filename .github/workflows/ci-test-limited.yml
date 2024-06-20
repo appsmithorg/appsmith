@@ -18,7 +18,7 @@ on:
         description: "Matrix jobs"
         required: false
         type: string
-        default: "[0, 1, 2]"
+        default: "[0]"
   workflow_call:
     inputs:
       pr:
@@ -34,7 +34,7 @@ on:
         description: "This is the matrix job number"
         required: false
         type: string
-        default: "[0, 1, 2]"
+        default: "[0]"
 
 jobs:
   ci-test-limited:
