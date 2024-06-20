@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { Flex, ScrollArea, ToggleButton } from "design-system";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
@@ -20,7 +20,6 @@ import { List } from "./List";
 import { ScreenModeToggle } from "./ScreenModeToggle";
 
 const EditorTabs = () => {
-  const stickyRef = useRef(null);
   const [showListView, setShowListView] = useState(false);
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const ideViewMode = useSelector(getIDEViewMode);
@@ -96,7 +95,6 @@ const EditorTabs = () => {
               <AddButton
                 newTabClickCallback={newTabClickHandler}
                 onClose={closeClickHandler}
-                ref={stickyRef}
               />
             ) : null}
           </Flex>
