@@ -108,6 +108,11 @@ class DatasourcesApi extends API {
   static async updateDatasourceStorage(
     datasourceConfig: Partial<DatasourceStorage>,
   ): Promise<any> {
+    datasourceConfig = {
+      ...datasourceConfig,
+      isValid: undefined,
+      toastMessage: undefined,
+    };
     return API.put(
       DatasourcesApi.url + `/datasource-storages`,
       datasourceConfig,

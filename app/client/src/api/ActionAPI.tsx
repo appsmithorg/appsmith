@@ -132,7 +132,18 @@ class ActionAPI extends API {
   static async createAction(
     apiConfig: Partial<Action>,
   ): Promise<AxiosPromise<ActionCreateUpdateResponse>> {
-    return API.post(ActionAPI.url, { ...apiConfig, eventData: undefined });
+    const payload = {
+      ...apiConfig,
+      eventData: undefined,
+      isValid: undefined,
+      entityReferenceType: undefined,
+      datasource: {
+        ...apiConfig.datasource,
+        isValid: undefined,
+        new: undefined,
+      },
+    };
+    return API.post(ActionAPI.url, payload);
   }
 
   static async fetchActions(
