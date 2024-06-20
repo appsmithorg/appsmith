@@ -17,7 +17,11 @@ set -o nounset
 #   4. When we can't proceed due to any exceptional scenarios, communicate clearly.
 #   5. Mark old/stale/deprecated data with a date, so it can be deleted with confidence later.
 
-# TODO: Verify that no Postgres server is running.
+# Check if any Postgres server is running
+if pgrep -x "postgres" > /dev/null; then
+  echo "Error: A Postgres server is currently running. Please stop it before proceeding with the upgrade."
+  exit 1
+fi
 
 postgres_path=/usr/lib/postgresql
 
