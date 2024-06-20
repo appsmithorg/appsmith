@@ -267,13 +267,13 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setDeletedAt(Instant.now());
         layoutCollectionService.createCollection(actionCollectionDTO, null).block();
         ActionCollection createdActionCollection = actionCollectionRepository
-                .findByApplicationId(createdApplication.getId(), READ_ACTIONS, null)
+                .findByApplicationId(createdApplication.getId(), null, READ_ACTIONS)
                 .blockFirst();
         createdActionCollection.setDeletedAt(Instant.now());
         actionCollectionRepository.save(createdActionCollection).block();
 
         StepVerifier.create(
-                        actionCollectionRepository.findByApplicationId(createdApplication.getId(), READ_ACTIONS, null))
+                        actionCollectionRepository.findByApplicationId(createdApplication.getId(), null, READ_ACTIONS))
                 .verifyComplete();
     }
 
@@ -306,7 +306,7 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setDeletedAt(Instant.now());
         layoutCollectionService.createCollection(actionCollectionDTO, null).block();
         ActionCollection createdActionCollection = actionCollectionRepository
-                .findByApplicationId(createdApplication.getId(), READ_ACTIONS, null)
+                .findByApplicationId(createdApplication.getId(), null, READ_ACTIONS)
                 .blockFirst();
 
         final ActionCollectionMoveDTO actionCollectionMoveDTO = new ActionCollectionMoveDTO();
