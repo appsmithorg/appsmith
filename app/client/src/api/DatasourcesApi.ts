@@ -14,15 +14,6 @@ export interface CreateDatasourceConfig {
   appName?: string;
 }
 
-export interface EmbeddedRestDatasourceRequest {
-  datasourceConfiguration: { url: string };
-  invalids: Array<string>;
-  isValid: boolean;
-  name: string;
-  workspaceId: string;
-  pluginId: string;
-}
-
 // type executeQueryData = Array<{ key?: string; value?: string }>;
 type executeQueryData = Record<string, any>;
 
@@ -43,6 +34,36 @@ class DatasourcesApi extends API {
   static async createDatasource(
     datasourceConfig: Partial<Datasource>,
   ): Promise<any> {
+    // This here abomination is to remove several fields that are not accepted by the server.
+    for (const [name, storage] of Object.entries(
+      datasourceConfig.datasourceStorages || {},
+    )) {
+      datasourceConfig = {
+        ...datasourceConfig,
+        isValid: undefined,
+        datasourceStorages: {
+          ...datasourceConfig.datasourceStorages,
+          [name]: {
+            ...storage,
+            isValid: undefined,
+            toastMessage: undefined,
+            datasourceConfiguration: {
+              ...storage.datasourceConfiguration,
+              isValid: undefined,
+              connection: storage.datasourceConfiguration.connection && {
+                ...storage.datasourceConfiguration.connection,
+                ssl: {
+                  ...storage.datasourceConfiguration.connection.ssl,
+                  authTypeControl: undefined,
+                  certificateType: undefined,
+                },
+              },
+            },
+          },
+        },
+      } as any;
+    }
+
     return API.post(DatasourcesApi.url, datasourceConfig);
   }
 
@@ -52,14 +73,26 @@ class DatasourcesApi extends API {
     pluginId: string,
     workspaceId: string,
   ): Promise<any> {
-    return API.post(
-      `${DatasourcesApi.url}/test`,
-      { ...datasourceConfig, pluginId, workspaceId },
-      undefined,
-      {
-        timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
+    const payload = {
+      ...datasourceConfig,
+      pluginId,
+      workspaceId,
+      isValid: undefined,
+      toastMessage: undefined,
+      datasourceConfiguration: datasourceConfig.datasourceConfiguration && {
+        ...datasourceConfig.datasourceConfiguration,
+        connection: datasourceConfig.datasourceConfiguration.connection && {
+          ...datasourceConfig.datasourceConfiguration.connection,
+          ssl: {
+            ...datasourceConfig.datasourceConfiguration.connection.ssl,
+            certificateType: undefined,
+          },
+        },
       },
-    );
+    };
+    return API.post(`${DatasourcesApi.url}/test`, payload, undefined, {
+      timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
+    });
   }
 
   // Api to update datasource name.
@@ -118,7 +151,7 @@ class DatasourcesApi extends API {
     datasourceId,
   }: executeDatasourceQueryRequest) {
     return API.post(
-      DatasourcesApi.url + `/${datasourceId}` + `/schema-preview`,
+      DatasourcesApi.url + `/${datasourceId}/schema-preview`,
       data,
     );
   }
@@ -127,7 +160,7 @@ class DatasourcesApi extends API {
     data,
     datasourceId,
   }: executeDatasourceQueryRequest) {
-    return API.post(DatasourcesApi.url + `/${datasourceId}` + `/trigger`, data);
+    return API.post(DatasourcesApi.url + `/${datasourceId}/trigger`, data);
   }
 }
 
