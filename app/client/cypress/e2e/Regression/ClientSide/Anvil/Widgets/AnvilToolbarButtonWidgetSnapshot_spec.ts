@@ -8,22 +8,20 @@ describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Toolbar Button Widget`,
   { tags: ["@tag.Anvil"] },
   () => {
-    const widgetName = "ToolbarButtonWidget";
-
     before(() => {
-      agHelper.AddDsl(`anvil${widgetName}`);
+      agHelper.AddDsl("anvilToolbarButtonWidget");
     });
 
     it("1. Canvas Mode", () => {
-      anvilSnapshot.verifyCanvasMode(widgetName);
+      anvilSnapshot.verifyCanvasMode("ToolbarButtonWidget");
     });
 
     it("2. Preview Mode", () => {
-      anvilSnapshot.verifyPreviewMode(widgetName);
+      anvilSnapshot.verifyPreviewMode("ToolbarButtonWidget");
     });
 
     it("3. Deploy Mode", () => {
-      anvilSnapshot.verifyDeployMode(widgetName);
+      anvilSnapshot.verifyDeployMode("ToolbarButtonWidget");
     });
   },
 );

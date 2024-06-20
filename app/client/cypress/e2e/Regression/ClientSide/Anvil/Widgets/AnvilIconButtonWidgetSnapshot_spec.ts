@@ -8,22 +8,20 @@ describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Icon Button Widget`,
   { tags: ["@tag.Anvil"] },
   () => {
-    const widgetName = "IconButtonWidget";
-
     before(() => {
-      agHelper.AddDsl(`anvil${widgetName}`);
+      agHelper.AddDsl("anvilIconButtonWidget");
     });
 
     it("1. Canvas Mode", () => {
-      anvilSnapshot.verifyCanvasMode(widgetName);
+      anvilSnapshot.verifyCanvasMode("IconButtonWidget");
     });
 
     it("2. Preview Mode", () => {
-      anvilSnapshot.verifyPreviewMode(widgetName);
+      anvilSnapshot.verifyPreviewMode("IconButtonWidget");
     });
 
     it("3. Deploy Mode", () => {
-      anvilSnapshot.verifyDeployMode(widgetName);
+      anvilSnapshot.verifyDeployMode("IconButtonWidget");
     });
   },
 );
