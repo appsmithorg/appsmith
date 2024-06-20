@@ -163,7 +163,7 @@ class DatasourcesApi extends API {
     datasourceId,
   }: executeDatasourceQueryRequest) {
     return API.post(
-      DatasourcesApi.url + `/${datasourceId}/schema-preview`,
+      DatasourcesApi.url + `/${datasourceId}` + `/schema-preview`,
       data,
     );
   }
@@ -172,7 +172,7 @@ class DatasourcesApi extends API {
     data,
     datasourceId,
   }: executeDatasourceQueryRequest) {
-    return API.post(DatasourcesApi.url + `/${datasourceId}/trigger`, data);
+    return API.post(DatasourcesApi.url + `/${datasourceId}` + `/trigger`, data);
   }
 }
 
