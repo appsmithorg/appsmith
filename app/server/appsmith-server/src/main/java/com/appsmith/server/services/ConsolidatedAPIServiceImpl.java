@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class ConsolidatedAPIServiceImpl extends ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIService {
+public class ConsolidatedAPIServiceImpl extends ConsolidatedAPIServiceCECompatibleImpl implements ConsolidatedAPIService {
     public ConsolidatedAPIServiceImpl(
             SessionUserService sessionUserService,
             UserService userService,
