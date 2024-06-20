@@ -2,6 +2,12 @@ import React from "react";
 import type { ComponentProps } from "widgets/BaseComponent";
 import { BaseButton } from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
+import { theme } from "constants/DefaultTheme";
+import styled from "styled-components";
+
+const ErrorMessage = styled.div`
+  color: ${theme.colors.error};
+`;
 
 function FilePickerComponent(props: FilePickerComponentProps) {
   let computedLabel = props.label;
@@ -11,19 +17,22 @@ function FilePickerComponent(props: FilePickerComponentProps) {
   }
 
   return (
-    <BaseButton
-      borderRadius={props.borderRadius}
-      boxShadow={props.boxShadow}
-      buttonColor={props.buttonColor}
-      disabled={props.isDisabled}
-      loading={props.isLoading}
-      maxWidth={props.maxWidth}
-      minHeight={props.minHeight}
-      minWidth={props.minWidth}
-      onClick={props.openModal}
-      shouldFitContent={props.shouldFitContent}
-      text={computedLabel}
-    />
+    <>
+      <BaseButton
+        borderRadius={props.borderRadius}
+        boxShadow={props.boxShadow}
+        buttonColor={props.buttonColor}
+        disabled={props.isDisabled}
+        loading={props.isLoading}
+        maxWidth={props.maxWidth}
+        minHeight={props.minHeight}
+        minWidth={props.minWidth}
+        onClick={props.openModal}
+        shouldFitContent={props.shouldFitContent}
+        text={computedLabel}
+      />
+      {props.errorMessage && <ErrorMessage>{props.errorMessage}</ErrorMessage>}
+    </>
   );
 }
 export interface FilePickerComponentProps extends ComponentProps {
@@ -38,6 +47,8 @@ export interface FilePickerComponentProps extends ComponentProps {
   maxWidth?: number;
   minWidth?: number;
   minHeight?: number;
+  maxNumFiles?: number;
+  errorMessage?: string | null;
 }
 
 FilePickerComponent.defaultProps = {
