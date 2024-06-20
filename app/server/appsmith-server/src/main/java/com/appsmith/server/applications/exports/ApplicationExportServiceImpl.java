@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.exports.internal.artifactbased.ArtifactBasedExportService;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -24,7 +25,8 @@ public class ApplicationExportServiceImpl extends ApplicationExportServiceCEImpl
             ExportableService<NewPage> newPageExportableService,
             ExportableService<NewAction> newActionExportableService,
             ExportableService<ActionCollection> actionCollectionExportableService,
-            ExportableService<Theme> themeExportableService) {
+            ExportableService<Theme> themeExportableService,
+            JsonSchemaVersions jsonSchemaVersions) {
 
         super(
                 applicationService,
@@ -32,6 +34,7 @@ public class ApplicationExportServiceImpl extends ApplicationExportServiceCEImpl
                 newPageExportableService,
                 newActionExportableService,
                 actionCollectionExportableService,
-                themeExportableService);
+                themeExportableService,
+                jsonSchemaVersions);
     }
 }

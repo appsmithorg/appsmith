@@ -400,8 +400,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
     cy.get(gitSyncLocators.closeGitSyncModal).click();
-    cy.merge(mainBranch);
-    agHelper.GetNClick(gitSyncLocators.closeGitSyncModal);
+    gitSync.MergeToMaster();
     cy.latestDeployPreview();
     // verify page is hidden on deploy mode
     agHelper.AssertContains("Child_Page Copy", "not.exist");

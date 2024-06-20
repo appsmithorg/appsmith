@@ -230,6 +230,12 @@ public class CommonGitServiceCETest {
     @Autowired
     CacheableRepositoryHelper cacheableRepositoryHelper;
 
+    @Autowired
+    JsonSchemaMigration jsonSchemaMigration;
+
+    @Autowired
+    JsonSchemaVersions jsonSchemaVersions;
+
     @SpyBean
     AnalyticsService analyticsService;
 
@@ -290,7 +296,7 @@ public class CommonGitServiceCETest {
 
         return stringifiedFile
                 .map(data -> gson.fromJson(data, ApplicationJson.class))
-                .map(JsonSchemaMigration::migrateArtifactToLatestSchema)
+                .map(jsonSchemaMigration::migrateArtifactToLatestSchema)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
@@ -2295,8 +2301,8 @@ public class CommonGitServiceCETest {
                     Application application = tuple.getT2();
                     assertThat(commitMsg).contains("sample response for commit");
                     assertThat(commitMsg).contains("pushed successfully");
-                    assertThat(application.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
-                    assertThat(application.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
+                    assertThat(application.getClientSchemaVersion()).isEqualTo(jsonSchemaVersions.getClientVersion());
+                    assertThat(application.getServerSchemaVersion()).isEqualTo(jsonSchemaVersions.getServerVersion());
                     assertThat(application.getIsManualUpdate()).isFalse();
                 })
                 .verifyComplete();

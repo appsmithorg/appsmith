@@ -45,13 +45,18 @@ init_env_file() {
   ENV_PATH="$CONF_PATH/docker.env"
   TEMPLATES_PATH="/opt/appsmith/templates"
 
+  if [[ -n "$APPSMITH_MONGODB_URI" ]]; then
+    export APPSMITH_DB_URL="$APPSMITH_MONGODB_URI"
+    unset APPSMITH_MONGODB_URI
+  fi
+
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
   printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TMP/pre-define.env"
 
   tlog "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
     # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
-    echo "Generating default configuration file"
+    tlog "Generating default configuration file"
     mkdir -p "$CONF_PATH"
     local default_appsmith_mongodb_user="appsmith"
     local generated_appsmith_mongodb_password=$(
@@ -75,8 +80,19 @@ init_env_file() {
 
 
   tlog "Load environment configuration"
+
+  # Load the ones in `docker.env` in the stacks folder.
   set -o allexport
   . "$ENV_PATH"
+  set +o allexport
+
+  if [[ -n "$APPSMITH_MONGODB_URI" ]]; then
+    export APPSMITH_DB_URL="$APPSMITH_MONGODB_URI"
+    unset APPSMITH_MONGODB_URI
+  fi
+
+  # Load the ones set from outside, should take precedence, and so will overwrite anything from `docker.env` above.
+  set -o allexport
   . "$TMP/pre-define.env"
   set +o allexport
 }
@@ -172,11 +188,6 @@ configure_database_connection_url() {
   tlog "Configuring database connection URL"
   isPostgresUrl=0
   isMongoUrl=0
-  # Check if APPSMITH_DB_URL is not set
-  if [[ -z "${APPSMITH_DB_URL}" ]]; then
-    # If APPSMITH_DB_URL is not set, fall back to APPSMITH_MONGODB_URI
-    export APPSMITH_DB_URL="${APPSMITH_MONGODB_URI}"
-  fi
 
   if [[ "${APPSMITH_DB_URL}" == "postgresql:"* ]]; then
     isPostgresUrl=1
@@ -414,47 +425,14 @@ init_postgres() {
     # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
     chown -R postgres:postgres "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
 
-    if [[ -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
-      tlog "Found existing Postgres, Skipping initialization"
-    else
-      tlog "Initializing local postgresql database"
-      mkdir -p "$POSTGRES_DB_PATH"
-
-      # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-      chown postgres:postgres "$POSTGRES_DB_PATH"
-
-      # Initialize the postgres db file system
-      su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
-      sed -Ei "s,^#(unix_socket_directories =).*,\\1 '$TMP/pg-runtime'," "$POSTGRES_DB_PATH/postgresql.conf"
-
-      # Start the postgres server in daemon mode
-      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
-
-      # Create mockdb db and user and populate it with the data
-      seed_embedded_postgres
-      # Stop the postgres daemon
-      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
+    if [[ ! -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
+      tlog "Initializing local Postgres data folder"
+      su postgres -c "env PATH='$PATH' initdb -D $POSTGRES_DB_PATH"
     fi
   else
     runEmbeddedPostgres=0
   fi
 
-}
-
-seed_embedded_postgres(){
-    # Create mockdb database
-    psql -U postgres -c "CREATE DATABASE mockdb;"
-    # Create mockdb superuser
-    su postgres -c "/usr/lib/postgresql/13/bin/createuser mockdb -s"
-    # Dump the sql file containing mockdb data
-    psql -U postgres -d mockdb --file='/opt/appsmith/templates/mockdb_postgres.sql'
-
-    # Create users database
-    psql -U postgres -c "CREATE DATABASE users;"
-    # Create users superuser
-    su postgres -c "/usr/lib/postgresql/13/bin/createuser users -s"
-    # Dump the sql file containing mockdb data
-    psql -U postgres -d users --file='/opt/appsmith/templates/users_postgres.sql'
 }
 
 safe_init_postgres(){
