@@ -77,15 +77,12 @@ else
   3 | three
 (3 rows)'
   if ! diff <(echo "$expected_contents") <(su postgres -c 'psql -h 127.0.0.1 -c "select * from t"'); then
+    status=1
     echo "Table contents mismatch. Found this:"
     su postgres -c 'psql -h 127.0.0.1 -c "select * from t"'
     echo "Instead of this:"
     echo "$expected_contents"
   fi
-fi
-
-if [[ $status == 0 && su postgres -c 'psql -h 127.0.0.1 -c "select * from t"' ]]; then
-
 fi
 
 docker exec -it "$container_name" bash
