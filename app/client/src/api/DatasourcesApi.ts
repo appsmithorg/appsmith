@@ -111,9 +111,9 @@ class DatasourcesApi extends API {
       ...datasourceStorage,
       isValid: undefined,
       toastMessage: undefined,
-      datasourceConfiguration: {
+      datasourceConfiguration: datasourceStorage.datasourceConfiguration && {
         ...datasourceStorage.datasourceConfiguration,
-        connection: {
+        connection: datasourceStorage.datasourceConfiguration.connection && {
           ...datasourceStorage.datasourceConfiguration.connection,
           ssl: {
             ...datasourceStorage.datasourceConfiguration.connection.ssl,
