@@ -2,23 +2,16 @@ import React from "react";
 import { Flex, Spinner, Button } from "design-system";
 import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
 import { useIsJSAddLoading } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
-import {
-  EditorEntityTab,
-  EditorEntityTabState,
-} from "@appsmith/entities/IDE/constants";
-import { FileTab } from "IDE/Components/FileTab";
+import { EditorEntityTabState } from "@appsmith/entities/IDE/constants";
 
-const AddButton = ({
-  newTabClickCallback,
-  onClose,
-}: {
-  newTabClickCallback: () => void;
-  onClose: (actionId?: string) => void;
-}) => {
+const AddButton = () => {
   const { addClickHandler } = useIDETabClickHandlers();
   const isJSLoading = useIsJSAddLoading();
-  const { segment, segmentMode } = useCurrentEditorState();
+  const { segmentMode } = useCurrentEditorState();
 
+  if (segmentMode === EditorEntityTabState.Add) {
+    return null;
+  }
   if (isJSLoading) {
     return (
       <Flex px="spaces-2">
@@ -26,32 +19,17 @@ const AddButton = ({
       </Flex>
     );
   }
-
-  const onCloseClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onClose();
-  };
-
-  return segmentMode === EditorEntityTabState.Add ? (
-    <FileTab
-      isActive={segmentMode === EditorEntityTabState.Add}
-      onClick={newTabClickCallback}
-      onClose={(e) => onCloseClick(e)}
-      title={`New ${segment === EditorEntityTab.JS ? "JS" : "Query"}`}
+  return (
+    <Button
+      className="!min-w-[24px]"
+      data-testid="t--ide-tabs-add-button"
+      id="tabs-add-toggle"
+      isIconButton
+      kind="tertiary"
+      onClick={addClickHandler}
+      size="sm"
+      startIcon="add-line"
     />
-  ) : (
-    <div className="bg-white sticky right-0 flex items-center h-[32px] border-b border-b-[var(--ads-v2-color-border-muted)] pl-[var(--ads-v2-spaces-2)]">
-      <Button
-        className="!min-w-[24px]"
-        data-testid="t--ide-tabs-add-button"
-        id="tabs-add-toggle"
-        isIconButton
-        kind="tertiary"
-        onClick={addClickHandler}
-        size="sm"
-        startIcon="add-line"
-      />
-    </div>
   );
 };
 

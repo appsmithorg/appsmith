@@ -18,6 +18,7 @@ import { useLocation } from "react-router";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
 import { List } from "./List";
 import { ScreenModeToggle } from "./ScreenModeToggle";
+import { AddTab } from "./AddTab";
 
 const EditorTabs = () => {
   const [showListView, setShowListView] = useState(false);
@@ -76,6 +77,7 @@ const EditorTabs = () => {
         <ScrollArea
           className="h-[32px] top-[0.5px]"
           data-testid="t--editor-tabs"
+          defer
           options={{
             overflow: {
               x: "scroll",
@@ -91,15 +93,14 @@ const EditorTabs = () => {
               onClose={closeClickHandler}
               tabs={files}
             />
-            {files.length > 0 ? (
-              <AddButton
-                newTabClickCallback={newTabClickHandler}
-                onClose={closeClickHandler}
-              />
-            ) : null}
+            <AddTab
+              newTabClickCallback={newTabClickHandler}
+              onClose={closeClickHandler}
+            />
           </Flex>
         </ScrollArea>
 
+        {files.length > 0 ? <AddButton /> : null}
         {/* Switch screen mode button */}
         <ScreenModeToggle />
       </Container>
