@@ -14,7 +14,7 @@ describe(
       agHelper.AddDsl(`anvil${widgetName}`);
     });
 
-    it.only("1. Canvas Mode", () => {
+    it("1. Canvas Mode", () => {
       anvilSnapshot.verifyCanvasMode(widgetName);
     });
 
