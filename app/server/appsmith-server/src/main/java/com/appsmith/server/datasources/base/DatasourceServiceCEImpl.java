@@ -22,6 +22,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
@@ -194,7 +195,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     })
                     .flatMap(datasource1 -> {
                         Mono<User> userMono = sessionUserService.getCurrentUser();
-                        return generateAndSetDatasourcePolicies(userMono, datasource1, permission);
+                        return generateAndSetDatasourcePolicies(userMono, datasource1, permission.orElse(null));
                     })
                     .flatMap(this::validateAndSaveDatasourceToRepository)
                     .flatMap(savedDatasource ->
@@ -265,7 +266,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     private Mono<Datasource> generateAndSetDatasourcePolicies(
-            Mono<User> userMono, Datasource datasource, Optional<AclPermission> permission) {
+            Mono<User> userMono, Datasource datasource, AclPermission permission) {
         return userMono.flatMap(user -> {
             Mono<Workspace> workspaceMono = workspaceService
                     .findById(datasource.getWorkspaceId(), permission)
@@ -381,7 +382,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         return Mono.just(datasource)
                 .flatMap(this::validateDatasource)
                 .flatMap(repository::save)
-                .flatMap(repository::setUserPermissionsInObject);
+                .zipWith(ReactiveContextUtils.getCurrentUser())
+                .flatMap(tuple -> repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()));
     }
 
     @Override

@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.server.helpers.ReactiveContextUtils.getCurrentUser;
+
 public class UserPermissionUtils {
     public static boolean validateDomainObjectPermissionExists(
             BaseDomain baseDomain, AclPermission aclPermission, Set<String> permissionGroups) {
@@ -39,5 +41,20 @@ public class UserPermissionUtils {
                 })
                 .collectList()
                 .thenReturn(Boolean.TRUE);
+    }
+
+    public static Mono<AclPermission> updateAclWithUserContext(AclPermission permission) {
+        if (permission == null) {
+            return Mono.empty();
+        }
+        // Make sure the user context is not available in the permission object to avoid any static data leaks from the
+        // earlier call.
+        permission.setUser(null);
+        return getCurrentUser()
+                .map(user -> {
+                    permission.setUser(user);
+                    return permission;
+                })
+                .switchIfEmpty(Mono.just(permission));
     }
 }

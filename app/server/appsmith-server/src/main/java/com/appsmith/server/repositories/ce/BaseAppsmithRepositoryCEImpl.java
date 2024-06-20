@@ -207,21 +207,47 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     protected Set<String> getCurrentUserPermissionGroupsIfRequired(
             AclPermission permission, boolean includeAnonymousUserPermissions) {
-        return permission == null ? Set.of() : getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
+        return permission == null ? Set.of() : getPermissionGroupsForUser(includeAnonymousUserPermissions, permission.getUser());
     }
 
-    public Set<String> getCurrentUserPermissionGroups() {
-        return getCurrentUserPermissionGroups(true);
+    public Set<String> getPermissionGroupsForUser(User user) {
+        return getPermissionGroupsForUser(true, user);
     }
 
-    protected Set<String> getCurrentUserPermissionGroups(boolean includeAnonymousUserPermissions) {
-        final Set<String> permissionGroups = ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication().getPrincipal())
-                .map(principal -> includeAnonymousUserPermissions
-                        ? getAllPermissionGroupsForUser((User) principal)
-                        : getStrictPermissionGroupsForUser((User) principal))
-                .block();
-        return permissionGroups == null ? Collections.emptySet() : permissionGroups;
+    protected Set<String> getPermissionGroupsForUser(boolean includeAnonymousUserPermissions, User user) {
+        if (user == null) {
+            return Mono.just(Collections.emptySet());
+        }
+        return includeAnonymousUserPermissions
+                ? getAllPermissionGroupsForUser(user).block()
+                : getStrictPermissionGroupsForUser(user).block();
+    }
+
+    protected Query createQueryWithPermission(
+            List<Criteria> criterias, Set<String> permissionGroups, AclPermission aclPermission) {
+        return createQueryWithPermission(criterias, null, permissionGroups, aclPermission);
+    }
+
+    protected Query createQueryWithPermission(
+            List<Criteria> criterias,
+            List<String> projectionFieldNames,
+            Set<String> permissionGroups,
+            AclPermission aclPermission) {
+        final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
+        criteriaList.add(notDeleted());
+
+        final Criteria permissionCriteria = userAcl(permissionGroups, aclPermission);
+        if (permissionCriteria != null) {
+            criteriaList.add(permissionCriteria);
+        }
+
+        final Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+
+        if (!isEmpty(projectionFieldNames)) {
+            query.fields().include(projectionFieldNames.toArray(new String[0]));
+        }
+
+        return query;
     }
 
     public QueryAllParams<T> queryBuilder() {
@@ -641,8 +667,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return queryBuilder().criteria(query).updateFirst(resource);
     }
 
-    public T setUserPermissionsInObject(T obj) {
-        return setUserPermissionsInObject(obj, getCurrentUserPermissionGroups());
+    public T setUserPermissionsInObject(T obj, User user) {
+        return getPermissionGroupsForUser(true, user)
+            .flatMap(permissionGroups -> setUserPermissionsInObject(obj, permissionGroups));
     }
 
     public T setUserPermissionsInObject(T obj, Collection<String> permissionGroups) {

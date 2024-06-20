@@ -67,8 +67,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<NewAction> findByPageId(String pageId, AclPermission permission);
 
-    Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> permission);
-
     Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission permission);
 
     Flux<NewAction> findAllByApplicationIdAndViewMode(
@@ -150,9 +148,9 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId);
 
-    Flux<NewAction> findByPageIds(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+    Flux<NewAction> findByPageIds(List<String> unpublishedPages, AclPermission permission);
 
-    Flux<NewAction> findByPageIdsForExport(List<String> unpublishedPages, Optional<AclPermission> optionalPermission);
+    Flux<NewAction> findByPageIdsForExport(List<String> unpublishedPages, AclPermission permission);
 
     Flux<NewAction> findAllActionsByContextIdAndContextTypeAndViewMode(
             String contextId,

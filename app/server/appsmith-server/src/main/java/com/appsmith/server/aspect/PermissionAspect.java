@@ -1,0 +1,78 @@
+package com.appsmith.server.aspect;
+
+import com.appsmith.server.acl.AclPermission;
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.Around;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.Arrays;
+import java.util.Optional;
+
+import static com.appsmith.server.helpers.UserPermissionUtils.updateAclWithUserContext;
+
+@Aspect
+@Slf4j
+@Component
+public class PermissionAspect {
+
+    @Around("execution(* com.appsmith.server.repositories..*(..))")
+    public Object handlePermission(ProceedingJoinPoint joinPoint) throws Throwable {
+
+        Class<?> returnType =
+                ((MethodSignature) joinPoint.getSignature()).getMethod().getReturnType();
+        if (!Mono.class.isAssignableFrom(returnType) && !Flux.class.isAssignableFrom(returnType)) {
+            return joinPoint.proceed(joinPoint.getArgs());
+        }
+
+        AclPermission permissionWithoutUserContext = Arrays.stream(joinPoint.getArgs())
+                .filter(arg -> arg instanceof AclPermission
+                        // TODO (Abhijeet): This is a temporary fix to avoid Optional<AclPermission> in the repository
+                        // methods.
+                        || (arg instanceof Optional && ((Optional<?>) arg).orElse(null) instanceof AclPermission))
+                .map(arg -> {
+                    if (arg instanceof AclPermission) {
+                        return (AclPermission) arg;
+                    }
+                    return (AclPermission) ((Optional<?>) arg).orElse(null);
+                })
+                // We expect only one permission object to be passed to the repository methods.
+                .findFirst()
+                .orElse(null);
+        if (permissionWithoutUserContext == null) {
+            return joinPoint.proceed(joinPoint.getArgs());
+        }
+
+        Mono<AclPermission> permissionMono = updateAclWithUserContext(permissionWithoutUserContext);
+        if (Mono.class.isAssignableFrom(returnType)) {
+            return permissionMono.then(Mono.defer(() -> {
+                try {
+                    return (Mono<?>) joinPoint.proceed(joinPoint.getArgs());
+                } catch (Throwable e) {
+                    log.error(
+                            "Error occurred while adding the user context to the permission object when invoking function {}",
+                            joinPoint.getSignature().getName(),
+                            e);
+                    return Mono.error(e);
+                }
+            }));
+        } else if (Flux.class.isAssignableFrom(returnType)) {
+            return permissionMono.thenMany(Flux.defer(() -> {
+                try {
+                    return (Flux<?>) joinPoint.proceed(joinPoint.getArgs());
+                } catch (Throwable e) {
+                    log.error(
+                            "Error occurred while adding the user context to the permission object when invoking function {}",
+                            joinPoint.getSignature().getName(),
+                            e);
+                    return Flux.error(e);
+                }
+            }));
+        }
+        return joinPoint.proceed(joinPoint.getArgs());
+    }
+}

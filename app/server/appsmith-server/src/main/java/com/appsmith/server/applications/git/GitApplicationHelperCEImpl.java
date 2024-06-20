@@ -40,7 +40,6 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds;
 
@@ -267,7 +266,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
 
         Flux<NewAction> newActionFlux = newPageFlux.flatMap(newPage -> {
             return newActionService
-                    .findByPageId(newPage.getId(), Optional.empty())
+                    .findByPageId(newPage.getId())
                     .map(newAction -> {
                         newAction.setDefaultResources(null);
                         if (newAction.getUnpublishedAction() != null) {

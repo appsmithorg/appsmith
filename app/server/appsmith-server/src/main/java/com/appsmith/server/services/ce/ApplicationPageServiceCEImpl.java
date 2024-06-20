@@ -37,12 +37,14 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitUtils;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.projections.IdPoliciesOnly;
 import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
@@ -1425,6 +1427,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private Mono<Boolean> validateAllObjectsForPermissions(
             Mono<Application> applicationMono, AppsmithError expectedError) {
+        Mono<User> currentUserMono = ReactiveContextUtils.getCurrentUser().cache();
         Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
@@ -1433,7 +1436,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newPage.setPolicies(idPoliciesOnly.getPolicies());
                     return newPage;
                 })
-                .flatMap(newPageRepository::setUserPermissionsInObject));
+                .zipWith(currentUserMono)
+                .flatMap(tuple -> newPageRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
         Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
@@ -1442,7 +1446,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newAction.setPolicies(idPoliciesOnly.getPolicies());
                     return newAction;
                 })
-                .flatMap(newActionRepository::setUserPermissionsInObject));
+                .zipWith(currentUserMono)
+                .flatMap(tuple -> newActionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
         Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
@@ -1451,7 +1456,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     actionCollection.setPolicies(idPoliciesOnly.getPolicies());
                     return actionCollection;
                 })
-                .flatMap(actionCollectionRepository::setUserPermissionsInObject));
+                .zipWith(currentUserMono)
+                .flatMap(tuple -> actionCollectionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
 
         Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
                 pageFlux,
@@ -1495,11 +1501,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .flatMapMany(datasourceIds -> datasourceRepository
                         .findIdsAndPoliciesByIdIn(datasourceIds)
-                        .flatMap(idPolicy -> {
+                        .zipWith(ReactiveContextUtils.getCurrentUser())
+                        .flatMap(tuple2 -> {
+                            IdPoliciesOnly idPolicy = tuple2.getT1();
+                            User user = tuple2.getT2();
+                            ;
                             Datasource datasource = new Datasource();
                             datasource.setId(idPolicy.getId());
                             datasource.setPolicies(idPolicy.getPolicies());
-                            return datasourceRepository.setUserPermissionsInObject(datasource);
+                            return datasourceRepository.setUserPermissionsInObject(datasource, user);
                         }));
 
         return UserPermissionUtils.validateDomainObjectPermissionsOrError(

@@ -16,8 +16,10 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PageUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
+import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
@@ -178,7 +180,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     }
                     return Mono.just(savedPage);
                 })
-                .flatMap(repository::setUserPermissionsInObject)
+                .zipWith(ReactiveContextUtils.getCurrentUser())
+                .flatMap(tuple -> repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                 .flatMap(page -> getPageByViewMode(page, false));
     }
 
@@ -591,12 +594,14 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            getPageMono = asMono(() -> repositoryDirect
+            AclPermission permission = pagePermission.getReadPermission();
+            getPageMono = UserPermissionUtils.updateAclWithUserContext(permission)
+                .then(Mono.defer(() -> asMono(() -> repositoryDirect
                     .queryBuilder()
                     .byId(defaultPageId)
                     .fields(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES)
-                    .permission(pagePermission.getReadPermission())
-                    .one());
+                    .permission(permission)
+                    .one())));
         } else {
             getPageMono = repository.findPageByBranchNameAndDefaultPageId(
                     branchName, defaultPageId, pagePermission.getReadPermission());

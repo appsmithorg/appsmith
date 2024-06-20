@@ -18,8 +18,6 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     List<NewAction> findByPageId(String pageId, AclPermission aclPermission);
 
-    List<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission);
-
     List<NewAction> findByPageId(String pageId);
 
     List<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission);
@@ -34,8 +32,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
 
-    List<NewAction> findByApplicationId(
-            String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort);
+    List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Optional<Sort> sort);
 
     List<NewAction> findByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission);
 
@@ -44,14 +41,12 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Optional<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, Boolean viewMode, AclPermission permission);
 
-    List<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
+    List<NewAction> findByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
     List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission);
 
-    List<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
-
     List<NewAction> findNonJsActionsByApplicationIdAndViewMode(
-            String applicationId, Boolean viewMode, AclPermission aclPermission);
+        String applicationId, Boolean viewMode, AclPermission aclPermission);
 
     List<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);

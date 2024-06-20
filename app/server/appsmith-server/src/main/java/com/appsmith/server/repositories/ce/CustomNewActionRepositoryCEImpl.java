@@ -33,12 +33,11 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findByApplicationId(
-            String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
+    public List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Optional<Sort> sort) {
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId)
                         .isNull(NewAction.Fields.unpublishedAction_deletedAt))
-                .permission(aclPermission.orElse(null))
+                .permission(aclPermission)
                 .sort(sort.orElse(null))
                 .all();
     }
@@ -65,13 +64,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission) {
-        return findByPageId(pageId, aclPermission.orElse(null));
-    }
-
-    @Override
     public List<NewAction> findByPageId(String pageId) {
-        return this.findByPageId(pageId, Optional.empty());
+        return this.findByPageId(pageId, null);
     }
 
     @Override
@@ -237,12 +231,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    @Deprecated
-    public List<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        return findByPageIds(pageIds, permission.orElse(null));
-    }
-
-    @Override
     public List<NewAction> findNonJsActionsByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission) {
         return queryBuilder()
@@ -311,12 +299,12 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public List<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
+    public List<NewAction> findByDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
         final String defaultResources = BranchAwareDomain.Fields.defaultResources;
         return queryBuilder()
                 .criteria(Bridge.equal(NewAction.Fields.defaultResources_applicationId, defaultApplicationId)
                         .isNull(NewAction.Fields.unpublishedAction_deletedAt))
-                .permission(permission.orElse(null))
+                .permission(permission)
                 .all();
     }
 

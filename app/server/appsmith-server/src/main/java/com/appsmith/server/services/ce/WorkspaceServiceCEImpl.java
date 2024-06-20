@@ -47,7 +47,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -189,8 +188,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                             .thenReturn(createdWorkspace);
                 })
                 .flatMap(this::createWorkspaceDependents)
-                .flatMap(analyticsService::sendCreateEvent)
-                .map(x -> x);
+                .flatMap(analyticsService::sendCreateEvent);
     }
 
     protected void prepareWorkspaceToCreate(Workspace workspace, User user) {
@@ -452,11 +450,6 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
     @Override
     public Mono<Workspace> findById(String id, AclPermission permission) {
         return repository.findById(id, permission);
-    }
-
-    @Override
-    public Mono<Workspace> findById(String id, Optional<AclPermission> permission) {
-        return findById(id, permission.orElse(null));
     }
 
     @Override

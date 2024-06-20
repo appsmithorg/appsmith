@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -336,7 +337,8 @@ public class ActionCollectionServiceCEImpl
                     return dbActionCollection;
                 })
                 .flatMap(actionCollection -> this.update(id, actionCollection))
-                .flatMap(repository::setUserPermissionsInObject)
+                .zipWith(ReactiveContextUtils.getCurrentUser())
+                .flatMap(tuple -> repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                 .flatMap(actionCollection -> this.generateActionCollectionByViewMode(actionCollection, false)
                         .flatMap(actionCollectionDTO1 -> this.populateActionCollectionByViewMode(
                                 actionCollection.getUnpublishedCollection(), false))); // */
@@ -688,7 +690,8 @@ public class ActionCollectionServiceCEImpl
                                 }
                                 return Mono.just(savedActionCollection);
                             })
-                            .flatMap(repository::setUserPermissionsInObject)
+                            .zipWith(ReactiveContextUtils.getCurrentUser())
+                            .flatMap(tuple -> repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                             .cache();
 
                     return actionCollectionMono
