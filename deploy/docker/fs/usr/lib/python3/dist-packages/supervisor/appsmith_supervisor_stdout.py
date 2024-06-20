@@ -24,7 +24,7 @@ def main():
 def event_handler(event, response):
     line, *lines = response.rstrip().decode().split("\n", 1)
     headers = dict(x.split(":", 1) for x in line.split())
-    prefix = f"{headers['processname']} {headers["channel"]} | "
+    prefix = f"{headers['processname']} {headers['channel']} | "
     print(*(prefix + l for l in lines), sep="\n", file=sys.stderr, flush=True)
 
 
