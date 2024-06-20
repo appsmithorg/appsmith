@@ -119,7 +119,7 @@ export const newlyCreatedActions: Action[] = [
     actionConfiguration: {
       timeoutInMillisecond: 10000,
       paginationType: PaginationType.NONE,
-      body: 'SELECT * FROM user_data \nWHERE name ILIKE \'{{"%" + (tbl_usersCopy4.searchText || "") + "%"}}\'\nAND dob >= \'{{dat_bornAfterCopy4.selectedDate}}\'\n{{sel_countryCopy4.selectedOptionValue !== "" ? "AND country = \'" + sel_countryCopy4.selectedOptionValue + "\'" : ""}}\nORDER BY id\nOFFSET {{tbl_usersCopy4.pageOffset}}\nLIMIT {{tbl_usersCopy4.pageSize - 1}} ',
+      body: 'SELECT * FROM user_data WHERE name ILIKE \'{{"%" + (tbl_usersCopy4.searchText || "") + "%"}}',
       pluginSpecifiedTemplates: [
         {
           value: false,

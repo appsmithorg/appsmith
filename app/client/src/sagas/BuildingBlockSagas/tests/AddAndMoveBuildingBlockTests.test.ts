@@ -24,8 +24,8 @@ import {
 } from "../BuildingBlockAdditionSagas";
 import {
   actionPayload,
-  newlyCreatedActions,
   addEntityAction,
+  newlyCreatedActions,
   skeletonWidget,
 } from "./fixtures";
 
@@ -235,11 +235,11 @@ describe("addNewlyAddedActionsToRedux", () => {
         put({
           type: ReduxActionTypes.APPEND_ACTION_AFTER_BUILDING_BLOCK_DROP,
           payload: {
-            isLoading: false,
-            config: {
-              ...action,
+            data: {
+              isLoading: false,
+              config: action,
+              data: undefined,
             },
-            data: undefined,
           },
         }),
       );
@@ -258,8 +258,8 @@ describe("addNewlyAddedActionsToRedux", () => {
 
 describe("updateWidgetsNameInNewQueries", () => {
   it("1. should replace oldWidgetName with newWidgetName in actionConfiguration.body", () => {
-    const oldWidgetName = "OldWidget";
-    const newWidgetName = "NewWidget";
+    const oldWidgetName = "tbl_usersCopy4";
+    const newWidgetName = "tbl_usersCopy5";
     const queries: Action[] = newlyCreatedActions;
 
     const updatedQueries = updateWidgetsNameInNewQueries(
@@ -269,9 +269,11 @@ describe("updateWidgetsNameInNewQueries", () => {
     );
 
     expect(updatedQueries[0].actionConfiguration.body).toBe(
-      "SELECT * FROM NewWidget",
+      'SELECT * FROM user_data WHERE name ILIKE \'{{"%" + (tbl_usersCopy5.searchText || "") + "%"}}',
     );
-    expect(updatedQueries[0].jsonPathKeys[0]).toBe("NewWidget.data");
+    expect(updatedQueries[0].jsonPathKeys[0]).toBe(
+      "dat_bornAfterCopy4.selectedDate",
+    );
   });
 
   it("2. should return an empty array when queries array is empty", () => {
