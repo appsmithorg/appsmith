@@ -238,7 +238,6 @@ describe("addNewlyAddedActionsToRedux", () => {
             isLoading: false,
             config: {
               ...action,
-              entityReferenceType: "ACTION",
             },
             data: undefined,
           },

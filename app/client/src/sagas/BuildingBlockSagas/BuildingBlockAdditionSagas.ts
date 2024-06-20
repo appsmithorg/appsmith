@@ -893,15 +893,14 @@ export function* addNewlyAddedActionsToRedux(actions: Action[]) {
         if (existingAction) continue;
         const actionDataPayload = {
           isLoading: false,
-          config: {
-            ...action,
-            entityReferenceType: "ACTION",
-          },
+          config: action,
           data: undefined,
         };
         yield put({
           type: ReduxActionTypes.APPEND_ACTION_AFTER_BUILDING_BLOCK_DROP,
-          payload: actionDataPayload,
+          payload: {
+            data: actionDataPayload,
+          },
         });
         yield call(apiCallToSaveAction, action);
       } catch (error) {
