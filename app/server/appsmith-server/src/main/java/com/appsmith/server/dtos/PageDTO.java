@@ -17,6 +17,7 @@ import org.springframework.data.annotation.Transient;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -42,7 +43,7 @@ public class PageDTO {
     @JsonView({Views.Public.class, Views.Export.class, Git.class})
     String slug;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     String customSlug;
 
     @Transient
@@ -64,7 +65,7 @@ public class PageDTO {
     @JsonView(Views.Public.class)
     Instant deletedAt = null;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     Boolean isHidden;
 
     @Transient
@@ -77,7 +78,12 @@ public class PageDTO {
     @JsonView(Views.Public.class)
     DefaultResources defaultResources;
 
+    // TODO: get this clarified for GIT annotation
+    @JsonView({Views.Public.class, Git.class})
+    Map<String, List<String>> dependencyMap;
+
     public void sanitiseToExportDBObject() {
+        this.setDependencyMap(null);
         this.getLayouts().forEach(Layout::sanitiseToExportDBObject);
     }
 }

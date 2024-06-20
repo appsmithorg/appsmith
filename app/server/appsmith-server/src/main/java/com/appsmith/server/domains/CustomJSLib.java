@@ -1,8 +1,6 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.server.domains.ce.CustomJSLibCE;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -18,14 +16,7 @@ import java.util.Set;
 @Document
 public class CustomJSLib extends CustomJSLibCE {
 
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public CustomJSLib(
-            @JsonProperty("name") String name,
-            @JsonProperty("accessor") Set<String> accessor,
-            @JsonProperty("url") String url,
-            @JsonProperty("docsUrl") String docsUrl,
-            @JsonProperty("version") String version,
-            @JsonProperty("defs") String defs) {
+    public CustomJSLib(String name, Set<String> accessor, String url, String docsUrl, String version, String defs) {
         super(name, accessor, url, docsUrl, version, defs);
     }
 

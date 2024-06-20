@@ -75,7 +75,6 @@ import { Omnibar } from "./commons/Omnibar";
 import { EditorShareButton } from "./EditorShareButton";
 import { HelperBarInHeader } from "./HelpBarInHeader";
 import { AppsmithLink } from "./AppsmithLink";
-import { GetNavigationMenuData } from "./EditorName/NavigationMenuData";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -208,7 +207,6 @@ export function EditorHeader() {
                 editInteractionKind={EditInteractionKind.SINGLE}
                 editorName="Application"
                 fill
-                getNavigationMenu={GetNavigationMenuData}
                 isError={isErroredSavingName}
                 isNewEditor={
                   applicationList.filter((el) => el.id === applicationId)

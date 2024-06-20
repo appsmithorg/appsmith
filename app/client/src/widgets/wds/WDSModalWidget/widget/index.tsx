@@ -100,7 +100,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   onSubmitClick = () => {
-    if (this.props.onSubmit) {
+    if (this.props.onSubmit && this.props.showSubmitButton) {
       super.executeAction({
         triggerPropertyName: "onSubmit",
         dynamicString: this.props.onSubmit,
@@ -128,7 +128,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       ? this.props.submitButtonText || "Submit"
       : undefined;
     const contentClassName = `${this.props.className} ${
-      this.props.allowWidgetInteraction ? "" : styles.disableModalInteraction
+      this.props.disableWidgetInteraction ? styles.disableModalInteraction : ""
     }`;
     return (
       <Modal
@@ -141,7 +141,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           <ModalContent className={contentClassName.trim()}>
             {this.props.showHeader && (
               <ModalHeader
-                excludeFromTabOrder={!this.props.allowWidgetInteraction}
+                excludeFromTabOrder={this.props.disableWidgetInteraction}
                 title={this.props.title}
               />
             )}
@@ -150,8 +150,9 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
             </ModalBody>
             {this.props.showFooter && (
               <ModalFooter
+                closeOnSubmit={this.props.closeOnSubmit}
                 closeText={closeText}
-                excludeFromTabOrder={!this.props.allowWidgetInteraction}
+                excludeFromTabOrder={this.props.disableWidgetInteraction}
                 onSubmit={submitText ? this.onSubmitClick : undefined}
                 submitText={submitText}
               />

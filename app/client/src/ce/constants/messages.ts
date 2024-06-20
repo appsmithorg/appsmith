@@ -192,6 +192,7 @@ export const INVITE_USER_RAMP_TEXT = () =>
   "Users will have access to all applications in the workspace. For application-level access, try out our ";
 export const CUSTOM_ROLES_RAMP_TEXT = () =>
   "To build and assign custom roles, try out our ";
+export const ASSIGN_CUSTOM_ROLE = () => "Assign Custom Role";
 export const CUSTOM_ROLE_TEXT = () => "Custom role";
 export const CUSTOM_ROLE_DISABLED_OPTION_TEXT = () =>
   "Can access specific applications or only certain pages and queries within an application";
@@ -907,7 +908,7 @@ export const GIT_UPSTREAM_CHANGES = () =>
 export const GIT_CONFLICTING_INFO = () =>
   "Please resolve the merge conflicts manually on your repository.";
 export const CANNOT_PULL_WITH_LOCAL_UNCOMMITTED_CHANGES = () =>
-  "You have uncommitted changes. Please commit before pulling the remote changes.";
+  "You have uncommitted changes. Please commit or discard before pulling the remote changes.";
 export const CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES = () =>
   "Your current branch has uncommitted changes. Please commit them before proceeding to merge.";
 
@@ -1065,12 +1066,6 @@ export const HOW_TO_ADD_DEPLOY_KEY = () =>
 export const CONSENT_ADDED_DEPLOY_KEY = () =>
   "I've added the deploy key and gave it write access";
 export const PREVIOUS_STEP = () => "Previous step";
-export const GIT_CONNECT_SUCCESS_TITLE = () =>
-  "Successfully connected to your Git remote repository";
-export const GIT_CONNECT_SUCCESS_MESSAGE = () =>
-  "Now you can start collaborating with your team members by committing, merging and deploying your app";
-export const START_USING_GIT = () => "Start using Git";
-export const OPEN_GIT_SETTINGS = () => "Open Git settings";
 export const GIT_AUTHOR = () => "Git author";
 export const DISCONNECT_GIT = () => "Disconnect Git";
 export const DISCONNECT_GIT_MESSAGE = () =>
@@ -1113,16 +1108,6 @@ export const DEFAULT_BRANCH_DESC = () =>
 export const BRANCH_PROTECTION = () => "Branch protection";
 export const BRANCH_PROTECTION_DESC = () =>
   "Protected branches enable you to enforce Git workflows. Changes to the app are not allowed in the protected branches.";
-export const BRANCH_PROTECTION_RULES_AS_FOLLOWS = () =>
-  "Branch protection rules follow as,";
-export const BRANCH_PROTECTION_RULE_1 = () =>
-  "Commit and merge are not allowed.";
-export const BRANCH_PROTECTION_RULE_2 = () =>
-  "Users can’t create or edit queries, widgets, and JS Objects.";
-export const BRANCH_PROTECTION_RULE_3 = () =>
-  "You can still pull the latest changes and create new branches to edit the app.";
-export const BRANCH_PROTECTION_CHANGE_RULE = () =>
-  "You can remove protection on your default branch in Git settings.";
 export const GO_TO_SETTINGS = () => "Go to settings";
 export const NOW_PROTECT_BRANCH = () =>
   "You can now protect your default branch.";
@@ -1140,8 +1125,24 @@ export const BRANCH_PROTECTION_CALLOUT_UNPROTECT = () => "Unprotect branch";
 export const BRANCH_PROTECTION_CALLOUT_UNPROTECT_LOADING = () =>
   "Unprotecting branch ...";
 export const BRANCH_PROTECTION_PROTECTED = () => "Protected";
-
 // Git Branch Protection end
+
+// Git Connection Success
+export const GIT_CONNECT_SUCCESS_TITLE = () => "Successfully connected to Git";
+export const GIT_CONNECT_SUCCESS_MESSAGE = () =>
+  "Now you can start collaborating with your team members by committing, merging and deploying your app";
+export const GIT_CONNECT_SUCCESS_ACTION_CONTINUE = () =>
+  "Continue to edit application";
+export const GIT_CONNECT_SUCCESS_ACTION_SETTINGS = () => "Protect your branch";
+export const GIT_CONNECT_SUCCESS_PROTECTION_MSG = () =>
+  "We recommend protecting your default branch to have a seamless collaboration.";
+export const GIT_CONNECT_SUCCESS_REPO_NAME = () => "Repository name";
+export const GIT_CONNECT_SUCCESS_DEFAULT_BRANCH = () => "Default branch";
+export const GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP = () =>
+  "This is the base branch of the app. Users launching the app from the dashboard will see the deployed version from this branch.";
+export const GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA = () =>
+  "Learn more about branch protection";
+// Git Connection Success end
 
 export const GENERAL = () => "General";
 export const BRANCH = () => "Branch";
@@ -1770,9 +1771,6 @@ export const WIDGET_USED = () => "Widgets";
 export const SIMILAR_TEMPLATES = () => "Similar templates";
 export const VIEW_ALL_TEMPLATES = () => "View all templates";
 export const FILTERS = () => "Filters";
-export const TEMPLATE_CARD_TITLE = () => "Start from a template";
-export const TEMPLATE_CARD_DESCRIPTION = () =>
-  "Create app from template by selecting pages";
 export const FILTER_SELECTALL = () => "Select all";
 export const FILTER_SELECT_PAGE = () => "Add selected page";
 export const FILTER_SELECT_PAGES = () => "Add selected pages";
@@ -1825,9 +1823,6 @@ export const SEARCH_USERS = (
 
 export const CREATE_PAGE = () => "New blank page";
 export const CANVAS_NEW_PAGE_CARD = () => "Create new page";
-export const GENERATE_PAGE = () => "Generate page from data table";
-export const GENERATE_PAGE_DESCRIPTION = () =>
-  "Start app with a simple CRUD UI and customize it";
 export const ADD_PAGE_FROM_TEMPLATE = () => "Add page from template";
 export const INVALID_URL = () =>
   "Please enter a valid URL, for example, https://example.com";
@@ -1839,8 +1834,7 @@ export const APP_SETTINGS_CLOSE_TOOLTIP = () => "Close settings panel";
 
 export const GENERAL_SETTINGS_SECTION_HEADER = () => "General";
 export const GENERAL_SETTINGS_SECTION_CONTENT_HEADER = () => "General settings";
-export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () =>
-  "App name, icon and share";
+export const GENERAL_SETTINGS_SECTION_HEADER_DESC = () => "App name and icon";
 export const GENERAL_SETTINGS_APP_NAME_LABEL = () => "App name";
 export const GENERAL_SETTINGS_NAME_EMPTY_MESSAGE = () =>
   "App name cannot be empty";
@@ -2266,36 +2260,6 @@ export const DATA_PANE_TITLE = () => "Datasources in your workspace";
 export const DATASOURCE_LIST_BLANK_DESCRIPTION = () =>
   "Connect a datasource to write your first query";
 export const DATASOURCE_BLANK_STATE_MESSAGE = () => "No datasources to display";
-
-export const STARTER_TEMPLATE_PAGE_LAYOUTS = {
-  header: () => "Choose a template",
-  layouts: {
-    sortFilterTable: {
-      name: () => "Filter your data",
-      description: () => "Use to filter and sort your data",
-    },
-    form: {
-      name: () => "Form",
-      description: () => "Add records to a database with a form",
-    },
-    recordEdit: {
-      name: () => "Change your data",
-      description: () => "Use to add or edit records via forms",
-    },
-    recordDetails: {
-      name: () => "View your data",
-      description: () => "Use to view fields for your records",
-    },
-  },
-  datasourceConnectPrompt: {
-    header: () => "Bring your data in!",
-    buttonText: () => "Connect your datasource",
-  },
-  or: () => "or",
-  dragAndDrop: () => "Drag and Drop Widgets",
-  importLoadingText: () => "Importing template",
-  seeMoreText: () => "See more",
-};
 
 // Create New Apps Intermediary step
 export const CREATE_NEW_APPS_STEP_TITLE = () => "How would you like to start?";

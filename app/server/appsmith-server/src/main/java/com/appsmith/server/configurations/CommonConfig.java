@@ -13,6 +13,7 @@ import jakarta.validation.ValidatorFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -74,6 +75,8 @@ public class CommonConfig {
     private String mongoDBVersion;
 
     private static final String MIN_SUPPORTED_MONGODB_VERSION = "5.0.0";
+
+    private static String adminEmailDomainHash;
 
     @Bean
     public Scheduler scheduler() {
@@ -152,5 +155,19 @@ public class CommonConfig {
 
     public Long getCurrentTimeInstantEpochMilli() {
         return Instant.now().toEpochMilli();
+    }
+
+    public String getAdminEmailDomainHash() {
+        if (StringUtils.hasLength(adminEmailDomainHash)) {
+            return adminEmailDomainHash;
+        }
+        adminEmailDomainHash = this.adminEmails.stream()
+                .map(email -> email.split("@"))
+                .filter(emailParts -> emailParts.length == 2)
+                .findFirst()
+                .map(email -> email[1])
+                .map(DigestUtils::sha256Hex)
+                .orElse("");
+        return adminEmailDomainHash;
     }
 }

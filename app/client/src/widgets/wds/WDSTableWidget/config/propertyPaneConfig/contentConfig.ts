@@ -27,6 +27,7 @@ export const contentConfig = [
         controlType: "ONE_CLICK_BINDING_CONTROL",
         controlConfig: {
           searchableColumn: true,
+          maxHeight: "300px",
         },
         placeholderText: '[{ "name": "John" }]',
         inputType: "ARRAY",
@@ -148,7 +149,13 @@ export const contentConfig = [
         defaultValue: 10,
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.NUMBER },
+        min: 1,
+        validation: {
+          type: ValidationTypes.NUMBER,
+          params: {
+            min: 1,
+          },
+        },
       },
       {
         propertyName: "isVisiblePagination",

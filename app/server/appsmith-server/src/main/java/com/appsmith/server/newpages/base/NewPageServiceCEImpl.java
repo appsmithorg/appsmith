@@ -124,11 +124,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission) {
-        return repository.findById(pageId, aclPermission);
-    }
-
-    @Override
     public Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view) {
         return findNewPagesByApplicationId(applicationId, permission).flatMap(page -> getPageByViewMode(page, view));
     }
@@ -521,13 +516,13 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<NewPage> archiveWithoutPermissionById(String id) {
-        return archiveByIdEx(id, Optional.empty());
+    public Mono<NewPage> archiveByIdWithoutPermission(String id) {
+        return archiveByIdEx(id, null);
     }
 
     @Override
     public Mono<NewPage> archiveById(String id) {
-        return archiveByIdEx(id, Optional.of(pagePermission.getDeletePermission()));
+        return archiveByIdEx(id, pagePermission.getDeletePermission());
     }
 
     @Override
@@ -535,8 +530,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return repository.archiveAllById(idList);
     }
 
-    public Mono<NewPage> archiveByIdEx(String id, Optional<AclPermission> permission) {
-        Mono<NewPage> pageMono = this.findById(id, permission)
+    private Mono<NewPage> archiveByIdEx(String id, AclPermission permission) {
+        Mono<NewPage> pageMono = findById(id, permission)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, id)))
                 .cache();
@@ -584,10 +579,9 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             return Mono.just(defaultPageId);
         }
         return repository
-                .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, permission)
+                .findBranchedPageId(branchName, defaultPageId, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName)))
-                .map(NewPage::getId);
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE_ID, defaultPageId + ", " + branchName)));
     }
 
     @Override
@@ -669,5 +663,42 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     @Override
     public Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission) {
         return repository.publishPages(pageIds, permission);
+    }
+
+    @Override
+    public Mono<String> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap, String branchName) {
+        Mono<Integer> updateResult;
+        if (branchName != null) {
+            updateResult = findBranchedPageId(branchName, pageId, AclPermission.MANAGE_PAGES)
+                    .flatMap(branchPageId -> repository.updateDependencyMap(branchPageId, dependencyMap));
+        } else {
+            updateResult = repository.updateDependencyMap(pageId, dependencyMap);
+        }
+
+        return updateResult.flatMap(count -> {
+            if (count == 0) {
+                return Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, pageId));
+            }
+            return Mono.just(count.toString());
+        });
+    }
+
+    @Override
+    public Flux<PageDTO> findByApplicationIdAndApplicationMode(
+            String applicationId, AclPermission permission, ApplicationMode applicationMode) {
+        Boolean viewMode = ApplicationMode.PUBLISHED.equals(applicationMode);
+        return findNewPagesByApplicationId(applicationId, permission)
+                .filter(page -> {
+                    PageDTO pageDTO;
+                    if (ApplicationMode.PUBLISHED.equals(applicationMode)) {
+                        pageDTO = page.getPublishedPage();
+                    } else {
+                        pageDTO = page.getUnpublishedPage();
+                    }
+
+                    boolean isDeletedOrNull = pageDTO == null || pageDTO.getDeletedAt() != null;
+                    return !isDeletedOrNull;
+                })
+                .flatMap(page -> getPageByViewMode(page, viewMode));
     }
 }

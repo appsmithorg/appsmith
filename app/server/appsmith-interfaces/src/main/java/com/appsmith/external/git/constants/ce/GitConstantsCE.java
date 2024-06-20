@@ -22,6 +22,8 @@ public class GitConstantsCE {
     public static final String GIT_PROFILE_ERROR = "Unable to find git author configuration for logged-in user. You can"
             + " set up a git profile from the user profile section.";
 
+    public static final String RECONSTRUCT_PAGE = "reconstruct page";
+
     public class GitMetricConstantsCE {
         public static final String CHECKOUT_REMOTE = "checkout-remote";
         public static final String HARD_RESET = "hard-reset";
@@ -30,5 +32,24 @@ public class GitConstantsCE {
         public static final String WIDGETS = "Widgets";
         public static final String ACTION_COLLECTION_BODY = "ActionCollectionBody";
         public static final String NEW_ACTION_BODY = "NewActionBody";
+    }
+
+    public class GitCommandConstantsCE {
+        public static final String METADATA = "metadata";
+        public static final String AUTO_COMMIT = "autoCommit";
+        public static final String PULL = "pull";
+        public static final String PUSH = "push";
+        public static final String STATUS = "status";
+        public static final String FETCH_REMOTE = "fetchRemote";
+        public static final String COMMIT = "commit";
+        public static final String CREATE_BRANCH = "createBranch";
+        public static final String CHECKOUT_BRANCH = "checkoutBranch";
+        public static final String SYNC_BRANCH = "syncBranch";
+        public static final String LIST_BRANCH = "listBranch";
+        public static final String MERGE_BRANCH = "mergeBranch";
+        public static final String DELETE = "delete";
+        public static final String DISCARD = "discard";
+        public static final String PAGE_DSL_VERSION = "pageDslVersion";
+        public static final String AUTO_COMMIT_ELIGIBILITY = "autoCommitEligibility";
     }
 }

@@ -26,7 +26,7 @@ describe(
       deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
       table.WaitUntilTableLoad(0, 0, "v1");
       // Select 1st row
-      cy.isSelectRow(2);
+      table.SelectTableRow(1);
       // Verify Row is selected by showing the message
       agHelper.ValidateToastMessage("Row is selected");
       deployMode.NavigateBacktoEditor();

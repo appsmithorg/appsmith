@@ -55,6 +55,7 @@ import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUt
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import {
   getNewPositions,
+  handleButtonDynamicTriggerPathList,
   handleImageWidgetWhenPasting,
   handleJSONFormPropertiesListedInDynamicBindingPath,
   handleJSONFormWidgetWhenPasting,
@@ -283,6 +284,7 @@ export function* loadBuildingBlocksIntoApplication(
       }
     }
   } catch (error) {
+    log.error("Error loading building blocks into application", error);
     yield put({
       type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
       payload: {
@@ -379,7 +381,10 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
   );
   yield call(
     loadBuildingBlocksIntoApplication,
-    actionPayload.payload.newWidget,
+    {
+      ...actionPayload.payload.newWidget,
+      widgetId: actionPayload.payload.canvasId,
+    },
     skeletonWidget.widgetId,
   );
 }
@@ -419,8 +424,6 @@ export function* pasteBuildingBlockWidgetsSaga(
   const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   try {
-    const isThereACollision = false;
-
     if (
       // to avoid invoking old way of copied widgets implementaion
       !Array.isArray(copiedWidgetGroups) ||
@@ -457,6 +460,7 @@ export function* pasteBuildingBlockWidgetsSaga(
       topMostWidget.topRow,
       leftMostWidget.leftColumn,
       { gridPosition },
+      pastingIntoWidgetId,
     );
     for (const widgetGroup of copiedWidgetGroups) {
       //This is required when you cut the widget as CanvasWidgetState doesn't have the widget anymore
@@ -506,7 +510,7 @@ export function* pasteBuildingBlockWidgetsSaga(
             nextAvailableRow,
             newPastingPositionMap,
             true,
-            isThereACollision,
+            false,
             false,
           );
 
@@ -834,6 +838,9 @@ function handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
       break;
     case "IMAGE_WIDGET":
       handleImageWidgetWhenPasting(widgetNameMap, widget);
+      break;
+    case "BUTTON_WIDGET":
+      handleButtonDynamicTriggerPathList(widgetNameMap, widget);
       break;
     default:
       widgets = handleSpecificCasesWhilePasting(

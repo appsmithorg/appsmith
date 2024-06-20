@@ -24,7 +24,7 @@ module.exports = merge(common, {
   webpack: {
     plugins: [
       new WorkboxPlugin.InjectManifest({
-        swSrc: "./src/serviceWorker.js",
+        swSrc: "./src/serviceWorker.ts",
         mode: "development",
         swDest: "./pageService.js",
         exclude: [

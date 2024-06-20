@@ -28,19 +28,8 @@ describe(
     });
 
     beforeEach(() => {
-      cy.startRoutesForDatasource();
+      dataSources.StartDataSourceRoutes();
     });
-
-    // afterEach(function() {
-    //   if (this.currentTest.state === "failed") {
-    //     Cypress.runner.stop();
-    //   }
-    // });
-
-    // afterEach(() => {
-    //   if (queryName)
-    //     cy.actionContextMenuByEntityName(queryName);
-    // });
 
     before("Creates a new Amazon S3 datasource", function () {
       dataSources.CreateDataSource("S3");

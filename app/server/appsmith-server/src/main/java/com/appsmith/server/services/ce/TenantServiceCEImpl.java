@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.MigrationStatus;
@@ -18,14 +19,18 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.solutions.EnvManager;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.util.StringUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
+import static com.appsmith.external.constants.spans.TenantSpan.FETCH_DEFAULT_TENANT_SPAN;
+import static com.appsmith.external.constants.spans.TenantSpan.FETCH_TENANT_CACHE_POST_DESERIALIZATION_ERROR_SPAN;
 import static com.appsmith.server.acl.AclPermission.MANAGE_TENANT;
 import static java.lang.Boolean.TRUE;
 
@@ -42,6 +47,9 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
+    private final CommonConfig commonConfig;
+    private final ObservationRegistry observationRegistry;
+
     public TenantServiceCEImpl(
             Validator validator,
             TenantRepository repository,
@@ -49,12 +57,16 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             ConfigService configService,
             @Lazy EnvManager envManager,
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            CommonConfig commonConfig,
+            ObservationRegistry observationRegistry) {
         super(validator, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
+        this.commonConfig = commonConfig;
+        this.observationRegistry = observationRegistry;
     }
 
     @Override
@@ -124,9 +136,11 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> getTenantConfiguration(Mono<Tenant> dbTenantMono) {
+        String adminEmailDomainHash = commonConfig.getAdminEmailDomainHash();
         Mono<Tenant> clientTenantMono = configService.getInstanceId().map(instanceId -> {
             final Tenant tenant = new Tenant();
             tenant.setInstanceId(instanceId);
+            tenant.setAdminEmailDomainHash(adminEmailDomainHash);
 
             final TenantConfiguration config = new TenantConfiguration();
             tenant.setTenantConfiguration(config);
@@ -168,6 +182,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         // Fetching Tenant from redis cache
         return getDefaultTenantId()
                 .flatMap(tenantId -> cacheableRepositoryHelper.fetchDefaultTenant(tenantId))
+                .name(FETCH_DEFAULT_TENANT_SPAN)
+                .tap(Micrometer.observation(observationRegistry))
                 .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)))
                 .onErrorResume(e -> {
                     log.error("Error fetching default tenant from redis!", e);
@@ -184,6 +200,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                                 }
                                 return tenant;
                             }))
+                            .name(FETCH_TENANT_CACHE_POST_DESERIALIZATION_ERROR_SPAN)
+                            .tap(Micrometer.observation(observationRegistry))
                             .flatMap(tenant -> repository
                                     .setUserPermissionsInObject(tenant)
                                     .switchIfEmpty(Mono.just(tenant)));

@@ -34,14 +34,11 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
-import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
-import com.appsmith.server.helpers.ce.autocommit.AutoCommitEligibilityHelper;
-import com.appsmith.server.helpers.ce.autocommit.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
@@ -90,6 +87,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -111,7 +109,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final NewPageService newPageService;
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
-    private final GitFileUtils gitFileUtils;
+    private final CommonGitFileUtils commonGitFileUtils;
     private final ThemeService themeService;
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
@@ -127,12 +125,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final DatasourceRepository datasourceRepository;
     private final DatasourcePermission datasourcePermission;
     private final DSLMigrationUtils dslMigrationUtils;
-    private final GitAutoCommitHelper gitAutoCommitHelper;
-    private final AutoCommitEligibilityHelper autoCommitEligibilityHelper;
     private final ClonePageService<NewAction> actionClonePageService;
     private final ClonePageService<ActionCollection> actionCollectionClonePageService;
-
-    public static final Integer EVALUATION_VERSION = 2;
 
     @Override
     public Mono<PageDTO> createPage(PageDTO page) {
@@ -299,76 +293,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         return newPageService
                 .findNewPagesByApplicationId(branchedApplication.getId(), pagePermission.getReadPermission())
                 .filter(newPage -> pageIds.contains(newPage.getId()))
-                .collectList()
-                .flatMap(newPageList -> {
-                    if (Boolean.TRUE.equals(viewMode)) {
-                        return Mono.just(newPageList);
-                    }
-
-                    // autocommit if migration is required
-                    return migrateSchemasForGitConnectedApps(branchedApplication, newPageList)
-                            .onErrorResume(error -> {
-                                log.debug(
-                                        "Skipping the autocommit for applicationId : {} due to error; {}",
-                                        branchedApplication.getId(),
-                                        error.getMessage());
-
-                                return Mono.just(Boolean.FALSE);
-                            })
-                            .thenReturn(newPageList);
-                });
-    }
-
-    /**
-     * Publishes the autocommit if it's eligible for one
-     * @param application : the branched application which requires schemaMigration
-     * @param newPages : list of pages from db
-     * @return : a boolean publisher
-     */
-    private Mono<Boolean> migrateSchemasForGitConnectedApps(Application application, List<NewPage> newPages) {
-
-        if (CollectionUtils.isNullOrEmpty(newPages)) {
-            return Mono.just(Boolean.FALSE);
-        }
-
-        GitArtifactMetadata gitMetadata = application.getGitArtifactMetadata();
-
-        if (application.getGitArtifactMetadata() == null) {
-            return Mono.just(Boolean.FALSE);
-        }
-
-        String defaultApplicationId = gitMetadata.getDefaultArtifactId();
-        String branchName = gitMetadata.getBranchName();
-        String workspaceId = application.getWorkspaceId();
-
-        if (!StringUtils.hasText(branchName)) {
-            log.debug(
-                    "Skipping the autocommit for applicationId : {}, branch name is not present", application.getId());
-            return Mono.just(Boolean.FALSE);
-        }
-
-        if (!StringUtils.hasText(defaultApplicationId)) {
-            log.debug(
-                    "Skipping the autocommit for applicationId : {}, defaultApplicationId is not present",
-                    application.getId());
-            return Mono.just(Boolean.FALSE);
-        }
-
-        // since this method is only called when the app is in edit mode
-        Mono<PageDTO> pageDTOMono = getPage(newPages.get(0), false);
-
-        return pageDTOMono.flatMap(pageDTO -> {
-            return autoCommitEligibilityHelper
-                    .isAutoCommitRequired(workspaceId, gitMetadata, pageDTO)
-                    .flatMap(autoCommitTriggerDTO -> {
-                        if (Boolean.TRUE.equals(autoCommitTriggerDTO.getIsAutoCommitRequired())) {
-                            return gitAutoCommitHelper.autoCommitApplication(
-                                    autoCommitTriggerDTO, defaultApplicationId, branchName);
-                        }
-
-                        return Mono.just(Boolean.FALSE);
-                    });
-        });
+                .collectList();
     }
 
     @Override
@@ -603,7 +528,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     if (GitUtils.isApplicationConnectedToGit(application)) {
                         return applicationService.findAllApplicationsByDefaultApplicationId(
-                                gitData.getDefaultApplicationId(), applicationPermission.getDeletePermission());
+                                gitData.getDefaultArtifactId(), applicationPermission.getDeletePermission());
                     }
                     return Flux.fromIterable(List.of(application));
                 })
@@ -615,13 +540,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(application -> {
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     if (gitData != null
-                            && !StringUtils.isEmpty(gitData.getDefaultApplicationId())
+                            && !StringUtils.isEmpty(gitData.getDefaultArtifactId())
                             && !StringUtils.isEmpty(gitData.getRepoName())) {
                         String repoName = gitData.getRepoName();
                         Path repoPath =
-                                Paths.get(application.getWorkspaceId(), gitData.getDefaultApplicationId(), repoName);
+                                Paths.get(application.getWorkspaceId(), gitData.getDefaultArtifactId(), repoName);
                         // Delete git repo from local
-                        return gitFileUtils.deleteLocalRepo(repoPath).then(Mono.just(application));
+                        return commonGitFileUtils.deleteLocalRepo(repoPath).then(Mono.just(application));
                     }
                     return Mono.just(application);
                 });
@@ -741,7 +666,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 DefaultResources defaults = new DefaultResources();
                                 GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                                 if (gitData != null) {
-                                    defaults.setApplicationId(gitData.getDefaultApplicationId());
+                                    defaults.setApplicationId(gitData.getDefaultArtifactId());
                                     defaults.setBranchName(gitData.getBranchName());
                                 } else {
                                     defaults.setApplicationId(applicationId);
@@ -980,16 +905,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * which is currently in published state and is being used.
      *
      * @param id                   The pageId which needs to be archived.
-     * @param deletePagePermission
-     * @return
      */
     @Override
-    public Mono<PageDTO> deleteUnpublishedPageWithOptionalPermission(
+    public Mono<PageDTO> deleteUnpublishedPage(
             String id,
-            Optional<AclPermission> deletePagePermission,
-            Optional<AclPermission> readApplicationPermission,
-            Optional<AclPermission> deleteCollectionPermission,
-            Optional<AclPermission> deleteActionPermission) {
+            AclPermission deletePagePermission,
+            AclPermission readApplicationPermission,
+            AclPermission deleteCollectionPermission,
+            AclPermission deleteActionPermission) {
         return deleteUnpublishedPageEx(
                 id,
                 deletePagePermission,
@@ -1000,40 +923,20 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     @Override
     public Mono<PageDTO> deleteUnpublishedPage(String id) {
-
-        Optional<AclPermission> deletePagePermission = Optional.of(pagePermission.getDeletePermission());
-        Optional<AclPermission> readApplicationPermission = Optional.of(applicationPermission.getReadPermission());
-        Optional<AclPermission> deleteCollectionPermission = Optional.of(actionPermission.getDeletePermission());
-        Optional<AclPermission> deleteActionPermission = Optional.of(actionPermission.getDeletePermission());
         return deleteUnpublishedPageEx(
                 id,
-                deletePagePermission,
-                readApplicationPermission,
-                deleteCollectionPermission,
-                deleteActionPermission);
+                pagePermission.getDeletePermission(),
+                applicationPermission.getReadPermission(),
+                actionPermission.getDeletePermission(),
+                actionPermission.getDeletePermission());
     }
 
-    /**
-     * This function archives the unpublished page. This also archives the unpublished action. The reason that the
-     * entire action is not deleted at this point is to handle the following edge case :
-     * An application is published with 1 page and 1 action.
-     * Post publish, create a new page and move the action from the existing page to the new page. Now delete this newly
-     * created page.
-     * In this scenario, if we were to delete all actions associated with the page, we would end up deleting an action
-     * which is currently in published state and is being used.
-     *
-     * @param id                         The pageId which needs to be archived.
-     * @param readApplicationPermission
-     * @param deleteCollectionPermission
-     * @param deleteActionPermission
-     * @return
-     */
     private Mono<PageDTO> deleteUnpublishedPageEx(
             String id,
-            Optional<AclPermission> deletePagePermission,
-            Optional<AclPermission> readApplicationPermission,
-            Optional<AclPermission> deleteCollectionPermission,
-            Optional<AclPermission> deleteActionPermission) {
+            AclPermission deletePagePermission,
+            AclPermission readApplicationPermission,
+            AclPermission deleteCollectionPermission,
+            AclPermission deleteActionPermission) {
 
         return newPageService
                 .findById(id, deletePagePermission)
@@ -1044,7 +947,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     // Application is accessed without any application permission over here.
                     // previously it was getting accessed only with read permission.
                     Mono<Application> applicationMono = applicationService
-                            .findById(page.getApplicationId(), readApplicationPermission.orElse(null))
+                            .findById(page.getApplicationId(), readApplicationPermission)
                             .switchIfEmpty(Mono.error(
                                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                             .flatMap(application -> {
@@ -1072,25 +975,20 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             })
                             .flatMap(newPage -> newPageService.getPageByViewMode(newPage, false));
 
-                    /**
-                     *  Only delete unpublished action and not the entire action. Also filter actions embedded in
-                     *  actionCollection which will be deleted while deleting the collection, this will avoid the race
-                     *  condition for delete action
-                     */
+                    // Only delete unpublished action and not the entire action. Also filter actions embedded in
+                    // actionCollection which will be deleted while deleting the collection, this will avoid the race
+                    // condition for delete action
                     Mono<List<ActionDTO>> archivedActionsMono = newActionService
                             .findByPageId(page.getId(), deleteActionPermission)
                             .filter(newAction -> !StringUtils.hasLength(
                                     newAction.getUnpublishedAction().getCollectionId()))
                             .flatMap(action -> {
                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
-                                return newActionService.deleteUnpublishedActionWithOptionalPermission(
-                                        action.getId(), deleteActionPermission);
+                                return newActionService.deleteUnpublishedAction(action.getId(), deleteActionPermission);
                             })
                             .collectList();
 
-                    /**
-                     *  Only delete unpublished action collection and not the entire action collection.
-                     */
+                    //  Only delete unpublished action collection and not the entire action collection.
                     Mono<List<ActionCollectionDTO>> archivedActionCollectionsMono = actionCollectionService
                             .findByPageId(page.getId())
                             .flatMap(actionCollection -> {
@@ -1098,7 +996,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                         "Going to archive actionCollectionId: {} for applicationId: {}",
                                         actionCollection.getId(),
                                         id);
-                                return actionCollectionService.deleteUnpublishedActionCollectionWithOptionalPermission(
+                                return actionCollectionService.deleteUnpublishedActionCollection(
                                         actionCollection.getId(), deleteCollectionPermission, deleteActionPermission);
                             })
                             .collectList();
