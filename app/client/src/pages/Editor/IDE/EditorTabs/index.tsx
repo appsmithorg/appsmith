@@ -44,7 +44,7 @@ const EditorTabs = () => {
     } else if (showListView) {
       setShowListView(false);
     }
-  }, [files, segmentMode]);
+  }, [files, segmentMode, showListView]);
 
   useEffect(() => {
     const ele = document.querySelector<HTMLElement>(
