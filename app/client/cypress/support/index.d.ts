@@ -177,5 +177,9 @@ declare namespace Cypress {
     validateEvaluatedValue(value: string);
     selectByTestId(value: string): Chainable<JQuery<HTMLElement>>;
     assertTooltipPresence(tooltipSelector: string, expectedText: string);
+    matchImageSnapshot(
+      name: string,
+      options?: Partial<Cypress.ScreenshotOptions>,
+    );
   }
 }
