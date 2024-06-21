@@ -88,7 +88,6 @@ const EditorTabs = () => {
         <ScrollArea
           className="h-[32px] top-[0.5px]"
           data-testid="t--editor-tabs"
-          defer
           options={{
             overflow: {
               x: "scroll",
