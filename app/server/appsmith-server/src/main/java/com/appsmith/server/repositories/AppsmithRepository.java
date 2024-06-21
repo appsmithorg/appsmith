@@ -14,11 +14,6 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     Optional<T> findById(String id, AclPermission permission, User currentUser);
 
-    @Deprecated(forRemoval = true)
-    Optional<T> findById(String id, Optional<AclPermission> permission, User currentUser);
-
-    Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission, User currentUser);
-
     Optional<T> updateById(String id, T resource, AclPermission permission, User currentUser);
 
     int updateByIdWithoutPermissionCheck(String id, BridgeUpdate update);

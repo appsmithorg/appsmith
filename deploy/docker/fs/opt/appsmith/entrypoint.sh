@@ -4,9 +4,6 @@ set -e
 
 tlog "Running as: $(id)"
 
-# Temporary, remove after this change goes into `base.dockerfile`.
-export PATH="/usr/lib/postgresql/13/bin:${PATH}"
-
 stacks_path=/appsmith-stacks
 
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
