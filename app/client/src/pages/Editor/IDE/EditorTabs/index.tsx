@@ -46,6 +46,17 @@ const EditorTabs = () => {
     }
   }, [files, segmentMode]);
 
+  useEffect(() => {
+    const ele = document.querySelector<HTMLElement>(
+      '[data-testid="t--editor-tabs"] > [data-overlayscrollbars-viewport]',
+    );
+    if (ele && ele.scrollWidth > ele.clientWidth) {
+      ele.style.borderRight = "1px solid var(--ads-v2-color-border)";
+    } else if (ele) {
+      ele.style.borderRight = "unset";
+    }
+  }, [files]);
+
   if (!isSideBySideEnabled) return null;
   if (segment === EditorEntityTab.UI) return null;
 
