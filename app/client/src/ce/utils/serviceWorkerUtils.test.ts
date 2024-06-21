@@ -442,6 +442,17 @@ describe("serviceWorkerUtils", () => {
         const key = prefetchApiService.getRequestKey(request);
         expect(key).toBe("GET:https://app.appsmith.com/:branchname:main");
       });
+
+      it("should only append branchname header in request key", () => {
+        const request = new Request("https://app.appsmith.com", {
+          method: "GET",
+        });
+        request.headers.append("branchname", "main");
+        request.headers.append("another-header-key", "another-header-value");
+        request.headers.append("Content-Type", "application/json");
+        const key = prefetchApiService.getRequestKey(request);
+        expect(key).toBe("GET:https://app.appsmith.com/:branchname:main");
+      });
     });
 
     describe("aqcuireFetchMutex", () => {
