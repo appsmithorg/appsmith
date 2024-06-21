@@ -226,6 +226,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         autoFocus={this.props.autoFocus}
         defaultValue={this.props.defaultText}
         errorMessage={errorMessage}
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={inputType}
