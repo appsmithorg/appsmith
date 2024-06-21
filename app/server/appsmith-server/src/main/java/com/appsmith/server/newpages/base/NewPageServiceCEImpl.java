@@ -632,11 +632,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         return repository.findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, permission);
     }
 
-    @Override
-    public Flux<NewPage> findPageSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
-        return repository.findSlugsByApplicationIds(applicationIds, aclPermission);
-    }
-
     /**
      * Returns a list of pages of an Application.
      * If Application ID is present, it'll fetch all pages of that application in the provided mode.

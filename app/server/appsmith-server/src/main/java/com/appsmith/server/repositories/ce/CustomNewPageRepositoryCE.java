@@ -32,10 +32,8 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
     Optional<NewPage> findPageByBranchNameAndDefaultPageId(
             String branchName, String defaultPageId, AclPermission permission, User currentUser);
 
-    List<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission permission, User currentUser);
-
     Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission, User currentUser);
+            String defaultApplicationId, String gitSyncId, AclPermission permission);
 
     Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission, User currentUser);
