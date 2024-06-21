@@ -142,6 +142,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return queryBuilder().byId(id).permission(permission).user(currentUser).one();
     }
 
+    @Transactional
+    @Modifying
     public Optional<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission, User currentUser) {
         // Set policies to null in the update object
         resource.setPolicies(null);
