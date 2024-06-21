@@ -15,12 +15,11 @@ import { addChildSaga } from "sagas/WidgetAdditionSagas";
 import { getDragDetails, getWidgetByName } from "sagas/selectors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
+import { addNewlyAddedActionsToRedux, updateWidgetsNameInNewQueries } from "..";
 import {
   addAndMoveBuildingBlockToCanvasSaga,
   addBuildingBlockToCanvasSaga,
-  addNewlyAddedActionsToRedux,
   loadBuildingBlocksIntoApplication,
-  updateWidgetsNameInNewQueries,
 } from "../BuildingBlockAdditionSagas";
 import {
   actionPayload,

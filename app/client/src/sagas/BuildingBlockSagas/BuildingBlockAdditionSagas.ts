@@ -66,7 +66,6 @@ import ApplicationApi, {
   type ImportBuildingBlockToApplicationRequest,
   type ImportBuildingBlockToApplicationResponse,
 } from "@appsmith/api/ApplicationApi";
-import { getAction } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { WidgetAddChild } from "actions/pageActions";
 import { runAction } from "actions/pluginActionActions";
@@ -79,7 +78,6 @@ import type { JSCollection } from "entities/JSCollection";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { race } from "redux-saga/effects";
-import { apiCallToSaveAction } from "sagas/ActionSagas";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
 import {
@@ -88,7 +86,11 @@ import {
 } from "selectors/editorSelectors";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
-import { saveBuildingBlockWidgetsToStore } from ".";
+import {
+  addNewlyAddedActionsToRedux,
+  saveBuildingBlockWidgetsToStore,
+  updateWidgetsNameInNewQueries,
+} from ".";
 import { addWidgetAndMoveWidgetsSaga } from "../CanvasSagas/DraggingCanvasSagas";
 import { validateResponse } from "../ErrorSagas";
 import { postPageAdditionSaga } from "../TemplatesSagas";
@@ -866,69 +868,4 @@ function handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
       break;
   }
   return widgets;
-}
-
-export function updateWidgetsNameInNewQueries(
-  oldWidgetName: string,
-  newWidgetName: string,
-  queries: Action[],
-) {
-  if (!oldWidgetName || !newWidgetName || !queries) {
-    throw new Error(
-      "Invalid input: oldWidgetName, newWidgetName, or queries are missing or empty",
-    );
-  }
-
-  if (typeof oldWidgetName !== "string" || typeof newWidgetName !== "string") {
-    throw new Error(
-      "Invalid input: oldWidgetName and newWidgetName must be strings",
-    );
-  }
-
-  if (!Array.isArray(queries)) {
-    throw new Error("Invalid input: queries must be an array");
-  }
-
-  return queries
-    .filter((query) => !!query)
-    .map((query) => {
-      query.actionConfiguration.body =
-        query.actionConfiguration.body.replaceAll(oldWidgetName, newWidgetName);
-      query.jsonPathKeys = query.jsonPathKeys.map((path: string) =>
-        path.replaceAll(oldWidgetName, newWidgetName),
-      );
-      return query;
-    });
-}
-
-export function* addNewlyAddedActionsToRedux(actions: Action[]) {
-  for (const action of actions) {
-    if (!action) {
-      continue;
-    }
-
-    const existingAction: Action = yield select(getAction, action.id);
-    if (existingAction) {
-      continue;
-    }
-
-    try {
-      const actionDataPayload = {
-        isLoading: false,
-        config: action,
-        data: undefined,
-      };
-
-      yield put({
-        type: ReduxActionTypes.APPEND_ACTION_AFTER_BUILDING_BLOCK_DROP,
-        payload: {
-          data: actionDataPayload,
-        },
-      });
-
-      yield call(apiCallToSaveAction, action);
-    } catch (error) {
-      throw new Error("Error adding new action to Redux");
-    }
-  }
 }
