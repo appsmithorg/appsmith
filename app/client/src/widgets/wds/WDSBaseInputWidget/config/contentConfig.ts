@@ -68,8 +68,7 @@ export const propertyPaneContentConfig = [
         propertyName: "tooltip",
         label: "Tooltip",
         controlType: "INPUT_TEXT",
-        placeholderText:
-          "The tooltip may include relevant information or instructions",
+        placeholderText: "Tooltips show contextual help",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
