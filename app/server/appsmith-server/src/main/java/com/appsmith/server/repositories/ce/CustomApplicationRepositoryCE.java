@@ -89,10 +89,10 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
             String applicationName, String workspaceId, AclPermission permission, User currentUser);
 
     List<String> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
-            String workspaceId, String permissionGroupId, AclPermission permission, User currentUser);
+            String workspaceId, AclPermission permission, User currentUser, String permissionGroupId);
 
     Optional<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
-            String permissionGroupId, AclPermission permission, User currentUser);
+            AclPermission permission, User currentUser, String permissionGroupId);
 
     int unprotectAllBranches(String applicationId, AclPermission permission, User currentUser);
 

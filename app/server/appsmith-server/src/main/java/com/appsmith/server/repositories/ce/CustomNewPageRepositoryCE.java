@@ -18,9 +18,9 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
             String applicationId, AclPermission permission, User currentUser);
 
     Optional<NewPage> findByIdAndLayoutsIdAndViewMode(
-            String id, String layoutId, Boolean viewMode, AclPermission permission, User currentUser);
+            String id, String layoutId, AclPermission permission, User currentUser, Boolean viewMode);
 
-    Optional<NewPage> findByNameAndViewMode(String name, Boolean viewMode, AclPermission permission, User currentUser);
+    Optional<NewPage> findByNameAndViewMode(String name, AclPermission permission, User currentUser, Boolean viewMode);
 
     Optional<NewPage> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, Boolean viewMode, AclPermission permission, User currentUser);

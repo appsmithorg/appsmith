@@ -277,7 +277,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public List<String> getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
-            String workspaceId, String permissionGroupId, AclPermission permission, User currentUser) {
+            String workspaceId, AclPermission permission, User currentUser, String permissionGroupId) {
         return queryBuilder()
                 .criteria(Bridge.equal(Application.Fields.workspaceId, workspaceId))
                 // Check if the permission is being provided by the given permission group
@@ -291,7 +291,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public Optional<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
-            String permissionGroupId, AclPermission permission, User currentUser) {
+            AclPermission permission, User currentUser, String permissionGroupId) {
         return queryBuilder()
                 .permission(permission, currentUser)
                 .permissionGroups(Set.of(permissionGroupId))

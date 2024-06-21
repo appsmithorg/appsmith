@@ -513,7 +513,7 @@ public class ApplicationServiceCEImpl
 
         Flux<String> otherApplicationsForThisRoleFlux = repository
                 .getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
-                        application.getWorkspaceId(), permissionGroupId, READ_APPLICATIONS)
+                        application.getWorkspaceId(), READ_APPLICATIONS, permissionGroupId)
                 .filter(applicationId -> !application.getId().equals(applicationId))
                 .cache();
 

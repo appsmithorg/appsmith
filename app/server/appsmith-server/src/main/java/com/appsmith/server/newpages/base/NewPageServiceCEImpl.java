@@ -188,13 +188,13 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Mono<PageDTO> findByIdAndLayoutsId(
             String pageId, String layoutId, AclPermission aclPermission, Boolean view) {
         return repository
-                .findByIdAndLayoutsIdAndViewMode(pageId, layoutId, view, aclPermission)
+                .findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
     public Mono<PageDTO> findByNameAndViewMode(String name, AclPermission permission, Boolean view) {
-        return repository.findByNameAndViewMode(name, view, permission).flatMap(page -> getPageByViewMode(page, view));
+        return repository.findByNameAndViewMode(name, permission, view).flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override

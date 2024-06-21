@@ -745,7 +745,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Flux<NewAction> findAllByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
         return repository
-                .findByApplicationId(applicationId, sort, permission)
+                .findByApplicationId(applicationId, permission, sort)
                 // In case of view mode being true, filter out all the actions which haven't been published
                 .flatMap(action -> {
                     if (Boolean.TRUE.equals(viewMode)) {
@@ -767,7 +767,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Flux<NewAction> findAllByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort) {
         return repository
-                .findByApplicationId(applicationId, sort, permission)
+                .findByApplicationId(applicationId, permission, sort)
                 // In case of view mode being true, filter out all the actions which haven't been published
                 .flatMap(action -> {
                     if (Boolean.TRUE.equals(viewMode)) {
@@ -1013,10 +1013,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
             if (FALSE.equals(includeJsActions)) {
                 actionsFromRepository = repository.findAllNonJsActionsByNameAndPageIdsAndViewMode(
-                        name, pageIds, false, sort, actionPermission.getReadPermission());
+                        name, pageIds, false, actionPermission.getReadPermission(), sort);
             } else {
                 actionsFromRepository = repository.findAllActionsByNameAndPageIdsAndViewMode(
-                        name, pageIds, false, sort, actionPermission.getReadPermission());
+                        name, pageIds, false, actionPermission.getReadPermission(), sort);
             }
         }
 
@@ -1727,10 +1727,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             boolean includeJs) {
         if (viewMode) {
             return repository.findAllPublishedActionsByContextIdAndContextType(
-                    contextId, contextType, includeJs, permission);
+                    contextId, contextType, permission, includeJs);
         }
         return repository.findAllUnpublishedActionsByContextIdAndContextType(
-                contextId, contextType, includeJs, permission);
+                contextId, contextType, permission, includeJs);
     }
 
     @Override

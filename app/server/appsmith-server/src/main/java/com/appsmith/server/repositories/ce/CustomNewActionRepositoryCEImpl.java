@@ -35,7 +35,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<NewAction> findByApplicationId(
-            String applicationId, Optional<Sort> sort, Optional<AclPermission> permission, User currentUser) {
+            String applicationId, Optional<AclPermission> permission, User currentUser, Optional<Sort> sort) {
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId)
                         .isNull(NewAction.Fields.unpublishedAction_deletedAt))
@@ -101,9 +101,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String name,
             List<String> pageIds,
             Boolean viewMode,
-            Sort sort,
             AclPermission permission,
-            User currentUser) {
+            User currentUser,
+            Sort sort) {
         return queryBuilder()
                 .criteria(getCriteriaForFindAllActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode))
                 .permission(permission, currentUser)
@@ -178,7 +178,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<NewAction> findByApplicationId(
-            String applicationId, Sort sort, AclPermission permission, User currentUser) {
+            String applicationId, AclPermission permission, User currentUser, Sort sort) {
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId))
                 .permission(permission, currentUser)
@@ -279,9 +279,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String name,
             List<String> pageIds,
             Boolean viewMode,
-            Sort sort,
             AclPermission permission,
-            User currentUser) {
+            User currentUser,
+            Sort sort) {
         return queryBuilder()
                 .criteria(getCriteriaForFindAllNonJsActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode))
                 .permission(permission, currentUser)
@@ -402,9 +402,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId,
             CreatorContextType contextType,
-            boolean includeJs,
             AclPermission permission,
-            User currentUser) {
+            User currentUser,
+            boolean includeJs) {
         String contextIdPath = NewAction.Fields.unpublishedAction_pageId;
         String contextTypePath = NewAction.Fields.unpublishedAction_contextType;
         final BridgeQuery<NewAction> q = Bridge.<NewAction>or(
@@ -422,9 +422,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<NewAction> findAllPublishedActionsByContextIdAndContextType(
             String contextId,
             CreatorContextType contextType,
-            boolean includeJs,
             AclPermission permission,
-            User currentUser) {
+            User currentUser,
+            boolean includeJs) {
         String contextIdPath = NewAction.Fields.publishedAction_pageId;
         String contextTypePath = NewAction.Fields.publishedAction_contextType;
         final BridgeQuery<NewAction> q =

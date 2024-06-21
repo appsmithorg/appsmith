@@ -99,7 +99,7 @@ public class ActionCollectionServiceCEImpl
     public Flux<ActionCollection> findAllByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
         return repository
-                .findByApplicationId(applicationId, sort, permission)
+                .findByApplicationId(applicationId, permission, sort)
                 // In case of view mode being true, filter out all the actions which haven't been published
                 .flatMap(collection -> {
                     if (Boolean.TRUE.equals(viewMode)) {
@@ -310,7 +310,7 @@ public class ActionCollectionServiceCEImpl
             pageIds.add(params.getFirst(FieldName.PAGE_ID));
         }
         return repository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-                name, pageIds, viewMode, branch, sort, actionPermission.getReadPermission());
+                name, pageIds, viewMode, branch, actionPermission.getReadPermission(), sort);
     }
 
     @Override
@@ -454,7 +454,7 @@ public class ActionCollectionServiceCEImpl
     public Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(
             String applicationId, AclPermission permission) {
         return repository
-                .findByApplicationId(applicationId, null, permission)
+                .findByApplicationId(applicationId, permission, null)
                 .flatMap(this::archiveGivenActionCollection)
                 .collectList();
     }
