@@ -706,6 +706,23 @@ describe(
       });
     });
 
+    it("15. Verify Generate CRUD for the new collection & Verify Deploy mode for table - AuthorNAwards", () => {
+      dataSources.GeneratePageForDS(dsName);
+      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
+      agHelper.GetNClickByContains(
+        dataSources._dropdownOption,
+        "AuthorNAwards",
+      );
+      GenerateCRUDNValidateDeployPage(
+        `[{"award":"Award for the Advancement of Free Software","year":2001,"by":"Free Software Foundation"},{"award":"NLUUG Award","year":2003,"by":"NLUUG"}]`,
+        "6",
+        "",
+        3,
+      );
+      // agHelper.NavigateBacktoEditor();
+      // table.WaitUntilTableLoad();
+    });
+
     it("16. Validate Deletion of the Newly Created Page - AuthorNAwards", () => {
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad(0, 0, "v2");
