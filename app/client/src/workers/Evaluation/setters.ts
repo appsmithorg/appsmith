@@ -36,6 +36,7 @@ class Setters {
     path: string,
     value: unknown,
     setterMethodName: string,
+    argsValue: any[]
   ) {
     const { entityName, propertyPath } = getEntityNameAndPropertyPath(path);
 
@@ -90,6 +91,10 @@ class Setters {
       }
     }
 
+    if (argsValue && argsValue.length) {
+      parsedValue = [parsedValue, ...argsValue];
+    }
+
     if (isWidget(entity)) {
       overrideWidgetProperties({
         entity: entity as WidgetEntity,
@@ -133,9 +138,9 @@ class Setters {
     /** register the setter method in the lookup */
     set(this.setterMethodLookup, [entityName, setterMethodName], true);
 
-    const fn = async (value: unknown) => {
+    const fn = async (value: unknown, ...args: unknown[]) => {
       if (!dataTreeEvaluator) return;
-      return this.applySetterMethod(path, value, setterMethodName);
+      return this.applySetterMethod(path, value, setterMethodName, args);
     };
 
     return getFnWithGuards(fn, setterMethodName, [isAsyncGuard]);
