@@ -39,6 +39,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -284,7 +285,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                     return Mono.just(createdAction);
                 })
-                .flatMap(repository::setUserPermissionsInObject)
+                .zipWith(ReactiveContextUtils.getCurrentUser())
+                .flatMap(tuple -> repository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2()))
                 .flatMap(newAction1 -> setTransientFieldsInUnpublishedAction(newAction1));
     }
 
@@ -743,7 +745,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Flux<NewAction> findAllByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
         return repository
-                .findByApplicationId(applicationId, permission, sort)
+                .findByApplicationId(applicationId, sort, permission)
                 // In case of view mode being true, filter out all the actions which haven't been published
                 .flatMap(action -> {
                     if (Boolean.TRUE.equals(viewMode)) {
@@ -765,7 +767,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Flux<NewAction> findAllByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, Optional<AclPermission> permission, Optional<Sort> sort) {
         return repository
-                .findByApplicationId(applicationId, permission, sort)
+                .findByApplicationId(applicationId, sort, permission)
                 // In case of view mode being true, filter out all the actions which haven't been published
                 .flatMap(action -> {
                     if (Boolean.TRUE.equals(viewMode)) {
@@ -1011,10 +1013,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
             if (FALSE.equals(includeJsActions)) {
                 actionsFromRepository = repository.findAllNonJsActionsByNameAndPageIdsAndViewMode(
-                        name, pageIds, false, actionPermission.getReadPermission(), sort);
+                        name, pageIds, false, sort, actionPermission.getReadPermission());
             } else {
                 actionsFromRepository = repository.findAllActionsByNameAndPageIdsAndViewMode(
-                        name, pageIds, false, actionPermission.getReadPermission(), sort);
+                        name, pageIds, false, sort, actionPermission.getReadPermission());
             }
         }
 
@@ -1725,10 +1727,10 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             boolean includeJs) {
         if (viewMode) {
             return repository.findAllPublishedActionsByContextIdAndContextType(
-                    contextId, contextType, permission, includeJs);
+                    contextId, contextType, includeJs, permission);
         }
         return repository.findAllUnpublishedActionsByContextIdAndContextType(
-                contextId, contextType, permission, includeJs);
+                contextId, contextType, includeJs, permission);
     }
 
     @Override

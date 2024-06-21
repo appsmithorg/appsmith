@@ -48,13 +48,13 @@ public class RepositoryHelperMethods {
 
             // Convert JSON string to Set<Policy>
             String policiesJson = rs.getString("policies");
-            String tenantConfig = rs.getString("tenant_configuration");
             Set<Policy> policies = mapObject(policiesJson, new TypeReference<Set<Policy>>() {});
-            TenantConfiguration tenantConfiguration =
-                    mapObject(tenantConfig, new TypeReference<TenantConfiguration>() {});
+            tenant.setPolicies(policies == null ? new HashSet<>() : policies);
+
+            String tenantConfig = rs.getString("tenant_configuration");
+            TenantConfiguration tenantConfiguration = mapObject(tenantConfig, new TypeReference<>() {});
             tenant.setTenantConfiguration(
                     tenantConfiguration == null ? new TenantConfiguration() : tenantConfiguration);
-            tenant.setPolicies(policies == null ? new HashSet<>() : policies);
             return tenant;
         };
         try {

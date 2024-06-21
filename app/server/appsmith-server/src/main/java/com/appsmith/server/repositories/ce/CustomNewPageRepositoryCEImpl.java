@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
@@ -30,25 +31,31 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         implements CustomNewPageRepositoryCE {
 
     @Override
-    public List<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
+    public List<NewPage> findByApplicationId(String applicationId, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
-                .permission(aclPermission)
+                .permission(permission)
+                .user(currentUser)
                 .all();
     }
 
     @Override
-    public List<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission) {
+    public List<NewPage> findByApplicationIdAndNonDeletedEditMode(
+            String applicationId, AclPermission permission, User currentUser) {
         BridgeQuery<NewPage> q = Bridge.<NewPage>equal(NewPage.Fields.applicationId, applicationId)
                 // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
                 // exist. To handle this, only fetch non-deleted pages
                 .isNull(NewPage.Fields.unpublishedPage_deletedAt);
-        return queryBuilder().criteria(q).permission(aclPermission).all();
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission)
+                .user(currentUser)
+                .all();
     }
 
     @Override
     public Optional<NewPage> findByIdAndLayoutsIdAndViewMode(
-            String id, String layoutId, AclPermission aclPermission, Boolean viewMode) {
+            String id, String layoutId, Boolean viewMode, AclPermission permission, User currentUser) {
         // TODO(Shri): Why is this method's code different from that in `release` branch.
 
         final boolean isViewMode = Boolean.TRUE.equals(viewMode);
@@ -80,12 +87,14 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return queryBuilder()
                 .byId(id)
                 .criteria(specFn)
-                .permission(aclPermission)
+                .permission(permission)
+                .user(currentUser)
                 .one();
     }
 
     @Override
-    public Optional<NewPage> findByNameAndViewMode(String name, AclPermission aclPermission, Boolean viewMode) {
+    public Optional<NewPage> findByNameAndViewMode(
+            String name, Boolean viewMode, AclPermission permission, User currentUser) {
         final BridgeQuery<NewPage> q = getNameCriterion(name, viewMode);
 
         if (Boolean.FALSE.equals(viewMode)) {
@@ -94,12 +103,16 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.unpublishedPage_deletedAt);
         }
 
-        return queryBuilder().criteria(q).permission(aclPermission).one();
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission)
+                .user(currentUser)
+                .one();
     }
 
     @Override
     public Optional<NewPage> findByNameAndApplicationIdAndViewMode(
-            String name, String applicationId, AclPermission aclPermission, Boolean viewMode) {
+            String name, String applicationId, Boolean viewMode, AclPermission permission, User currentUser) {
         BridgeQuery<NewPage> q = getNameCriterion(name, viewMode).equal(NewPage.Fields.applicationId, applicationId);
 
         if (Boolean.FALSE.equals(viewMode)) {
@@ -108,11 +121,15 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.unpublishedPage_deletedAt);
         }
 
-        return queryBuilder().criteria(q).permission(aclPermission).one();
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission)
+                .user(currentUser)
+                .one();
     }
 
     @Override
-    public List<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission aclPermission) {
+    public List<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission permission, User currentUser) {
         List<String> includedFields = List.of(
                 FieldName.APPLICATION_ID,
                 FieldName.DEFAULT_RESOURCES,
@@ -131,7 +148,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return this.queryBuilder()
                 .criteria(Bridge.in(NewPage.Fields.id, ids))
                 .fields(includedFields)
-                .permission(aclPermission)
+                .permission(permission)
+                .user(currentUser)
                 .all();
     }
 
@@ -155,7 +173,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Optional<NewPage> findPageByBranchNameAndDefaultPageId(
-            String branchName, String defaultPageId, AclPermission permission) {
+            String branchName, String defaultPageId, AclPermission permission, User currentUser) {
 
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
@@ -168,10 +186,15 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.defaultResources_branchName);
         }
 
-        return queryBuilder().criteria(q).permission(permission).one();
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission)
+                .user(currentUser)
+                .one();
     }
 
-    public Optional<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission) {
+    public Optional<String> findBranchedPageId(
+            String branchName, String defaultPageId, AclPermission permission, User currentUser) {
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
                 Bridge.equal(NewPage.Fields.defaultResources_pageId, defaultPageId);
@@ -180,13 +203,15 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return queryBuilder()
                 .criteria(q)
                 .permission(permission)
+                .user(currentUser)
                 .fields("id")
                 .one()
                 .map(NewPage::getId);
     }
 
     @Override
-    public List<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
+    public List<NewPage> findSlugsByApplicationIds(
+            List<String> applicationIds, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.in(NewPage.Fields.applicationId, applicationIds))
                 .fields(
@@ -195,19 +220,21 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                         NewPage.Fields.publishedPage_slug,
                         NewPage.Fields.publishedPage_customSlug,
                         NewPage.Fields.applicationId)
-                .permission(aclPermission)
+                .permission(permission)
+                .user(currentUser)
                 .all();
     }
 
     @Override
     public Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission) {
-        return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
+            String defaultApplicationId, String gitSyncId, AclPermission permission, User currentUser) {
+        return findByGitSyncIdAndDefaultApplicationId(
+                defaultApplicationId, gitSyncId, Optional.ofNullable(permission), currentUser);
     }
 
     @Override
     public Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
+            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission, User currentUser) {
 
         // defaultAppIdCriteria
         final BridgeQuery<NewPage> q =
@@ -220,15 +247,20 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.gitSyncId);
         }
 
-        return queryBuilder().criteria(q).permission(permission.orElse(null)).first();
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission.orElse(null))
+                .user(currentUser)
+                .first();
     }
 
     @Override
     @Modifying
     @Transactional
-    public Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission) {
+    public Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission, User currentUser) {
         int count = queryBuilder()
                 .permission(permission)
+                .user(currentUser)
                 .criteria(Bridge.in(NewPage.Fields.id, pageIds))
                 .updateAll(Bridge.update()
                         .setToValueFromField(NewPage.Fields.publishedPage, NewPage.Fields.unpublishedPage));

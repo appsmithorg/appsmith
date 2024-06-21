@@ -16,6 +16,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -26,6 +27,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitUtils;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.ApplicationVersion;
@@ -130,7 +132,9 @@ public class ApplicationServiceCEImpl
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        return asMono(() -> repositoryDirect.findById(id, applicationPermission.getReadPermission()))
+        return ReactiveContextUtils.getCurrentUser()
+                .flatMap(user ->
+                        asMono(() -> repositoryDirect.findById(id, applicationPermission.getReadPermission(), user)))
                 .flatMap(this::setTransientFields)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)));
@@ -509,7 +513,7 @@ public class ApplicationServiceCEImpl
 
         Flux<String> otherApplicationsForThisRoleFlux = repository
                 .getAllApplicationIdsInWorkspaceAccessibleToARoleWithPermission(
-                        application.getWorkspaceId(), READ_APPLICATIONS, permissionGroupId)
+                        application.getWorkspaceId(), permissionGroupId, READ_APPLICATIONS)
                 .filter(applicationId -> !application.getId().equals(applicationId))
                 .cache();
 
@@ -814,12 +818,15 @@ public class ApplicationServiceCEImpl
             List<String> projectionFieldNames,
             AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
-            return asMono(() -> repository
+            Mono<User> currentUserMono = sessionUserService.getCurrentUser();
+            return currentUserMono
+                    .flatMap(user -> asMono(() -> repository
                             .queryBuilder()
                             .byId(defaultApplicationId)
                             .fields(projectionFieldNames)
                             .permission(aclPermission)
-                            .one())
+                            .user(user)
+                            .one()))
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));
         }

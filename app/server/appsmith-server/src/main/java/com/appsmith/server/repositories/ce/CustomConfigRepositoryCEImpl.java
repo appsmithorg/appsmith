@@ -14,17 +14,22 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
         implements CustomConfigRepositoryCE {
 
     @Override
-    public Optional<Config> findByName(String name, AclPermission permission) {
+    public Optional<Config> findByName(String name, AclPermission permission, User currentUser) {
         BridgeQuery<Config> nameCriteria = Bridge.equal(Config.Fields.name, name);
-        return queryBuilder().criteria(nameCriteria).permission(permission).one();
+        return queryBuilder()
+                .criteria(nameCriteria)
+                .permission(permission)
+                .user(currentUser)
+                .one();
     }
 
     @Override
-    public Optional<Config> findByNameAsUser(String name, User user, AclPermission permission) {
+    public Optional<Config> findByNameAsUser(String name, User user, AclPermission permission, User currentUser) {
         final Set<String> permissionGroups = getAllPermissionGroupsForUser(user);
         return queryBuilder()
                 .criteria(Bridge.equal(Config.Fields.name, name))
                 .permission(permission)
+                .user(currentUser)
                 .permissionGroups(permissionGroups)
                 .one();
     }

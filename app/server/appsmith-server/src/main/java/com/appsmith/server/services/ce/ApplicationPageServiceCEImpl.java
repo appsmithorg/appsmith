@@ -1425,6 +1425,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private Mono<Boolean> validateAllObjectsForPermissions(
             Mono<Application> applicationMono, AppsmithError expectedError) {
+        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
@@ -1433,7 +1434,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newPage.setPolicies(idPoliciesOnly.getPolicies());
                     return newPage;
                 })
-                .flatMap(newPageRepository::setUserPermissionsInObject));
+                .zipWith(userMono)
+                .flatMap(tuple -> newPageRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
+
         Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
@@ -1442,7 +1445,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newAction.setPolicies(idPoliciesOnly.getPolicies());
                     return newAction;
                 })
-                .flatMap(newActionRepository::setUserPermissionsInObject));
+                .zipWith(userMono)
+                .flatMap(tuple -> newActionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
+
         Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
@@ -1451,7 +1456,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     actionCollection.setPolicies(idPoliciesOnly.getPolicies());
                     return actionCollection;
                 })
-                .flatMap(actionCollectionRepository::setUserPermissionsInObject));
+                .zipWith(userMono)
+                .flatMap(tuple -> actionCollectionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
 
         Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
                 pageFlux,
@@ -1480,6 +1486,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     private Mono<Boolean> validateDatasourcesForCreatePermission(Mono<Application> applicationMono) {
+        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
         Flux<BaseDomain> datasourceFlux = applicationMono
                 .flatMapMany(application -> newActionRepository.findAllByApplicationIdsWithoutPermission(
                         List.of(application.getId()),
@@ -1495,12 +1502,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 })
                 .flatMapMany(datasourceIds -> datasourceRepository
                         .findIdsAndPoliciesByIdIn(datasourceIds)
-                        .flatMap(idPolicy -> {
+                        .map(idPolicy -> {
                             Datasource datasource = new Datasource();
                             datasource.setId(idPolicy.getId());
                             datasource.setPolicies(idPolicy.getPolicies());
-                            return datasourceRepository.setUserPermissionsInObject(datasource);
-                        }));
+                            return datasource;
+                        })
+                        .zipWith(userMono)
+                        .flatMap(tuple ->
+                                datasourceRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
 
         return UserPermissionUtils.validateDomainObjectPermissionsOrError(
                         datasourceFlux,

@@ -16,6 +16,7 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PageUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.NewPageRepository;
@@ -178,7 +179,8 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     }
                     return Mono.just(savedPage);
                 })
-                .flatMap(repository::setUserPermissionsInObject)
+                .zipWith(ReactiveContextUtils.getCurrentUser())
+                .flatMap(obj -> repository.setUserPermissionsInObject(obj.getT1(), obj.getT2()))
                 .flatMap(page -> getPageByViewMode(page, false));
     }
 
@@ -186,13 +188,13 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Mono<PageDTO> findByIdAndLayoutsId(
             String pageId, String layoutId, AclPermission aclPermission, Boolean view) {
         return repository
-                .findByIdAndLayoutsIdAndViewMode(pageId, layoutId, aclPermission, view)
+                .findByIdAndLayoutsIdAndViewMode(pageId, layoutId, view, aclPermission)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
     public Mono<PageDTO> findByNameAndViewMode(String name, AclPermission permission, Boolean view) {
-        return repository.findByNameAndViewMode(name, permission, view).flatMap(page -> getPageByViewMode(page, view));
+        return repository.findByNameAndViewMode(name, view, permission).flatMap(page -> getPageByViewMode(page, view));
     }
 
     @Override
@@ -436,7 +438,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Mono<PageDTO> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission permission, Boolean view) {
         return repository
-                .findByNameAndApplicationIdAndViewMode(name, applicationId, permission, view)
+                .findByNameAndApplicationIdAndViewMode(name, applicationId, view, permission)
                 .flatMap(page -> getPageByViewMode(page, view));
     }
 
@@ -591,12 +593,15 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            getPageMono = asMono(() -> repositoryDirect
-                    .queryBuilder()
-                    .byId(defaultPageId)
-                    .fields(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES)
-                    .permission(pagePermission.getReadPermission())
-                    .one());
+            getPageMono = ReactiveContextUtils.getCurrentUser().flatMap(user -> {
+                return asMono(() -> repositoryDirect
+                        .queryBuilder()
+                        .byId(defaultPageId)
+                        .fields(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES)
+                        .permission(pagePermission.getReadPermission())
+                        .user(user)
+                        .one());
+            });
         } else {
             getPageMono = repository.findPageByBranchNameAndDefaultPageId(
                     branchName, defaultPageId, pagePermission.getReadPermission());

@@ -13,8 +13,12 @@ import java.util.Optional;
 public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User> implements CustomUserRepositoryCE {
 
     @Override
-    public Optional<User> findByEmail(String email, AclPermission aclPermission) {
+    public Optional<User> findByEmail(String email, AclPermission permission, User currentUser) {
         BridgeQuery<User> emailCriteria = Bridge.equal(User.Fields.email, email);
-        return queryBuilder().criteria(emailCriteria).permission(aclPermission).one();
+        return queryBuilder()
+                .criteria(emailCriteria)
+                .permission(permission)
+                .user(currentUser)
+                .one();
     }
 }

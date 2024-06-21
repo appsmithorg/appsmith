@@ -1012,6 +1012,14 @@ public enum AppsmithError {
             "Insufficient password strength",
             ErrorType.ARGUMENT_ERROR,
             null),
+    USER_CONTEXT_NOT_FOUND(
+            404,
+            AppsmithErrorCode.USER_CONTEXT_NOT_FOUND.getCode(),
+            "Unable to find user context",
+            AppsmithErrorAction.DEFAULT,
+            "User context not found",
+            ErrorType.INTERNAL_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;

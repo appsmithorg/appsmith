@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.AppsmithRepository;
@@ -73,10 +74,11 @@ public abstract class BaseService<
 
         resource.setUpdatedAt(Instant.now());
 
-        return asMono(() -> Optional.of(repositoryDirect.updateById((String) id, resource, null)))
+        return ReactiveContextUtils.getCurrentUser().flatMap(user -> asMono(
+                        () -> Optional.of(repositoryDirect.updateById((String) id, resource, null, user)))
                 .flatMap(obj -> repository.findById((String) id))
                 .flatMap(savedResource ->
-                        analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
+                        analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource))));
     }
 
     @Override
@@ -147,13 +149,16 @@ public abstract class BaseService<
             criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
         }
 
-        Flux<T> result = asFlux(() -> repositoryDirect
-                .queryBuilder()
-                .criteria(Bridge.or(criteria))
-                .permission(permission)
-                .sort(sort)
-                .includeAnonymousUserPermissions(false)
-                .all());
+        Flux<T> result = ReactiveContextUtils.getCurrentUser().flatMapMany(user -> {
+            return asFlux(() -> repositoryDirect
+                    .queryBuilder()
+                    .criteria(Bridge.or(criteria))
+                    .permission(permission)
+                    .user(user)
+                    .sort(sort)
+                    .includeAnonymousUserPermissions(false)
+                    .all());
+        });
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }

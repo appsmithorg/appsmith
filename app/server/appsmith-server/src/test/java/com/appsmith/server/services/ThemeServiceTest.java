@@ -663,7 +663,7 @@ public class ThemeServiceTest {
         Application publishedApp =
                 applicationPageService.publish(savedApplication.getId(), TRUE).block();
 
-        Mono<Theme> classicThemeMono = themeRepository.getSystemThemeByName(Theme.LEGACY_THEME_NAME);
+        Mono<Theme> classicThemeMono = themeRepository.getSystemThemeByName(Theme.LEGACY_THEME_NAME, READ_THEMES);
 
         Mono<Tuple2<Application, Theme>> appAndThemeTuple =
                 Mono.just(publishedApp).zipWith(classicThemeMono);

@@ -5,6 +5,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -14,6 +15,7 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
 
     @Override
     @Transactional
+    @Modifying
     public int updateStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
         return queryBuilder()
                 .criteria(Bridge.equal(DatasourceStorageStructure.Fields.datasourceId, datasourceId)

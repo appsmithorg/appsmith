@@ -301,21 +301,24 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     }
 
     private Mono<ImportArtifactPermissionProvider> getImportApplicationPermissions() {
-        return permissionGroupRepository.getCurrentUserPermissionGroups().flatMap(userPermissionGroups -> {
-            ImportArtifactPermissionProvider permissionProvider = ImportArtifactPermissionProvider.builder(
-                            applicationPermission,
-                            pagePermission,
-                            actionPermission,
-                            datasourcePermission,
-                            workspacePermission)
-                    .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
-                    .requiredPermissionOnTargetArtifact(applicationPermission.getEditPermission())
-                    .permissionRequiredToCreateDatasource(true)
-                    .permissionRequiredToEditDatasource(true)
-                    .currentUserPermissionGroups(userPermissionGroups)
-                    .build();
-            return Mono.just(permissionProvider);
-        });
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
+                .flatMap(userPermissionGroups -> {
+                    ImportArtifactPermissionProvider permissionProvider = ImportArtifactPermissionProvider.builder(
+                                    applicationPermission,
+                                    pagePermission,
+                                    actionPermission,
+                                    datasourcePermission,
+                                    workspacePermission)
+                            .requiredPermissionOnTargetWorkspace(workspacePermission.getReadPermission())
+                            .requiredPermissionOnTargetArtifact(applicationPermission.getEditPermission())
+                            .permissionRequiredToCreateDatasource(true)
+                            .permissionRequiredToEditDatasource(true)
+                            .currentUserPermissionGroups(userPermissionGroups)
+                            .build();
+                    return Mono.just(permissionProvider);
+                });
     }
 
     private Mono<Void> getApplicationImportableEntities(

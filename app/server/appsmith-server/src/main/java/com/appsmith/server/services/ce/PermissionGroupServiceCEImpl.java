@@ -419,6 +419,6 @@ public class PermissionGroupServiceCEImpl
 
     @Override
     public Mono<Set<String>> getSessionUserPermissionGroupIds() {
-        return sessionUserService.getCurrentUser().flatMap(repository::getAllPermissionGroupsIdsForUser);
+        return sessionUserService.getCurrentUser().flatMap(usr -> repository.getAllPermissionGroupsIdsForUser(usr));
     }
 }

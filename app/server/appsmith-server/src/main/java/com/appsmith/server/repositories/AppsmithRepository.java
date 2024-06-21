@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 
@@ -11,9 +12,9 @@ import java.util.Optional;
 
 public interface AppsmithRepository<T extends BaseDomain> {
 
-    Optional<T> findById(String id, AclPermission permission);
+    Optional<T> findById(String id, AclPermission permission, User currentUser);
 
-    Optional<T> updateById(String id, T resource, AclPermission permission);
+    Optional<T> updateById(String id, T resource, AclPermission permission, User currentUser);
 
     int updateByIdWithoutPermissionCheck(String id, BridgeUpdate update);
 
@@ -21,9 +22,9 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     T setUserPermissionsInObject(T obj, Collection<String> permissionGroups);
 
-    T setUserPermissionsInObject(T obj);
+    T setUserPermissionsInObject(T obj, User user);
 
-    T updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission);
+    T updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission, User currentUser);
 
     /**
      * This method uses the mongodb bulk operation to save a list of new actions. When calling this method, please note

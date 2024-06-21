@@ -15,22 +15,26 @@ public interface CustomPermissionGroupRepositoryCE extends AppsmithRepository<Pe
     List<PermissionGroup> findByAssignedToUserIdsIn(String userId);
 
     List<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
-            String userId, String workspaceId, AclPermission permission);
+            String userId, String workspaceId, AclPermission permission, User currentUser);
 
     int updateById(String id, BridgeUpdate updateObj);
 
-    List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission);
+    List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission, User currentUser);
 
-    List<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission);
+    List<PermissionGroup> findByDefaultWorkspaceIds(
+            Set<String> workspaceIds, AclPermission permission, User currentUser);
 
     Optional<Void> evictPermissionGroupsUser(String email, String tenantId);
 
     Optional<Void> evictAllPermissionGroupCachesForUser(String email, String tenantId);
 
     List<PermissionGroup> findAllByAssignedToUserIn(
-            Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission);
+            Set<String> userIds,
+            Optional<List<String>> includeFields,
+            Optional<AclPermission> permission,
+            User currentUser);
 
-    Set<String> getCurrentUserPermissionGroups();
+    Set<String> getPermissionGroupsForUser(User user);
 
     Set<String> getAllPermissionGroupsIdsForUser(User user);
 }

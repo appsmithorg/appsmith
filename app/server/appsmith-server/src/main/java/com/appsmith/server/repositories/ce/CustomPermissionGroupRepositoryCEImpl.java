@@ -35,13 +35,17 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public List<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
-            String userId, String workspaceId, AclPermission permission) {
+            String userId, String workspaceId, AclPermission permission, User currentUser) {
         BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>jsonIn(
                         userId, PermissionGroup.Fields.assignedToUserIds)
                 .equal(PermissionGroup.Fields.defaultDomainId, workspaceId)
                 .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
 
-        return queryBuilder().criteria(query).permission(permission).all();
+        return queryBuilder()
+                .criteria(query)
+                .permission(permission)
+                .user(currentUser)
+                .all();
     }
 
     @Override
@@ -55,19 +59,29 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
+    public List<PermissionGroup> findByDefaultWorkspaceId(
+            String workspaceId, AclPermission permission, User currentUser) {
         BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>equal(
                         PermissionGroup.Fields.defaultDomainId, workspaceId)
                 .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
-        return queryBuilder().criteria(query).permission(permission).all();
+        return queryBuilder()
+                .criteria(query)
+                .permission(permission)
+                .user(currentUser)
+                .all();
     }
 
     @Override
-    public List<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
+    public List<PermissionGroup> findByDefaultWorkspaceIds(
+            Set<String> workspaceIds, AclPermission permission, User currentUser) {
         BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>in(
                         PermissionGroup.Fields.defaultDomainId, workspaceIds)
                 .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
-        return queryBuilder().criteria(query).permission(permission).all();
+        return queryBuilder()
+                .criteria(query)
+                .permission(permission)
+                .user(currentUser)
+                .all();
     }
 
     @Override
@@ -83,8 +97,8 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public Set<String> getCurrentUserPermissionGroups() {
-        return super.getCurrentUserPermissionGroups();
+    public Set<String> getPermissionGroupsForUser(User user) {
+        return super.getPermissionGroupsForUser(user);
     }
 
     @Override
@@ -94,13 +108,17 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public List<PermissionGroup> findAllByAssignedToUserIn(
-            Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
+            Set<String> userIds,
+            Optional<List<String>> includeFields,
+            Optional<AclPermission> permission,
+            User currentUser) {
         BridgeQuery<PermissionGroup> assignedToUserIdCriteria =
                 Bridge.in(PermissionGroup.Fields.assignedToUserIds, userIds);
         return queryBuilder()
                 .criteria(assignedToUserIdCriteria)
                 .fields(includeFields.orElse(null))
                 .permission(permission.orElse(null))
+                .user(currentUser)
                 .all();
     }
 }

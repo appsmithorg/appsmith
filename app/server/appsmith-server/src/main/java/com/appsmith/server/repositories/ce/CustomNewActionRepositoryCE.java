@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
 
@@ -12,61 +13,76 @@ import java.util.Set;
 
 public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewAction> {
 
-    List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission);
+    List<NewAction> findByApplicationId(String applicationId, AclPermission permission, User currentUser);
 
-    Optional<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission);
+    Optional<NewAction> findByUnpublishedNameAndPageId(
+            String name, String pageId, AclPermission permission, User currentUser);
 
-    List<NewAction> findByPageId(String pageId, AclPermission aclPermission);
+    List<NewAction> findByPageId(String pageId, AclPermission permission, User currentUser);
 
-    List<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission);
+    List<NewAction> findByPageId(String pageId, Optional<AclPermission> permission, User currentUser);
 
     List<NewAction> findByPageId(String pageId);
 
-    List<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission);
+    List<NewAction> findByPageIdAndViewMode(
+            String pageId, Boolean viewMode, AclPermission permission, User currentUser);
 
-    List<NewAction> findUnpublishedActionsByNameInAndPageId(Set<String> names, String pageId, AclPermission permission);
+    List<NewAction> findUnpublishedActionsByNameInAndPageId(
+            Set<String> names, String pageId, AclPermission permission, User currentUser);
 
     List<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
-            String pageId, AclPermission permission);
+            String pageId, AclPermission permission, User currentUser);
 
     List<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
-            String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
+            String name, List<String> pageIds, Boolean viewMode, Sort sort, AclPermission permission, User currentUser);
 
-    List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
+    List<NewAction> findByApplicationId(String applicationId, Sort sort, AclPermission permission, User currentUser);
 
     List<NewAction> findByApplicationId(
-            String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort);
+            String applicationId, Optional<Sort> sort, Optional<AclPermission> permission, User currentUser);
 
-    List<NewAction> findByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission);
+    List<NewAction> findByApplicationIdAndViewMode(
+            String applicationId, Boolean viewMode, AclPermission permission, User currentUser);
 
     Optional<Long> countByDatasourceId(String datasourceId);
 
     Optional<NewAction> findByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, Boolean viewMode, AclPermission permission);
+            String branchName, String defaultActionId, Boolean viewMode, AclPermission permission, User currentUser);
 
-    List<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
+    List<NewAction> findByDefaultApplicationId(
+            String defaultApplicationId, Optional<AclPermission> permission, User currentUser);
 
-    List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission);
+    List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission, User currentUser);
 
-    List<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
+    List<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission, User currentUser);
 
     List<NewAction> findNonJsActionsByApplicationIdAndViewMode(
-            String applicationId, Boolean viewMode, AclPermission aclPermission);
+            String applicationId, Boolean viewMode, AclPermission permission, User currentUser);
 
     List<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
-            String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
+            String name, List<String> pageIds, Boolean viewMode, Sort sort, AclPermission permission, User currentUser);
 
-    Optional<Void> publishActions(String applicationId, AclPermission permission);
+    Optional<Void> publishActions(String applicationId, AclPermission permission, User currentUser);
 
-    Optional<Integer> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
+    Optional<Integer> archiveDeletedUnpublishedActions(
+            String applicationId, AclPermission permission, User currentUser);
 
     List<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 
-    List<NewAction> findAllByCollectionIds(List<String> collectionIds, boolean viewMode, AclPermission aclPermission);
+    List<NewAction> findAllByCollectionIds(
+            List<String> collectionIds, boolean viewMode, AclPermission permission, User currentUser);
 
     List<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
-            String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs);
+            String contextId,
+            CreatorContextType contextType,
+            boolean includeJs,
+            AclPermission permission,
+            User currentUser);
 
     List<NewAction> findAllPublishedActionsByContextIdAndContextType(
-            String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs);
+            String contextId,
+            CreatorContextType contextType,
+            boolean includeJs,
+            AclPermission permission,
+            User currentUser);
 }

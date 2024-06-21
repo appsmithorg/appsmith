@@ -67,6 +67,8 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     // ---------------------------------------------------
     // Wrappers for methods from CRUDRepository
     // ---------------------------------------------------
+    @Transactional
+    @Modifying
     public Mono<T> save(T entity) {
         return Mono.fromSupplier(() -> {
                     final boolean isNew = entity.getId() == null;

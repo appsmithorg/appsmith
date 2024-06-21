@@ -42,9 +42,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Field;
@@ -138,15 +138,18 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return map;
     }
 
-    public Optional<T> findById(String id, AclPermission permission) {
-        return queryBuilder().byId(id).permission(permission).one();
+    public Optional<T> findById(String id, AclPermission permission, User currentUser) {
+        return queryBuilder().byId(id).permission(permission).user(currentUser).one();
     }
 
-    public Optional<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission) {
+    @Transactional
+    @Modifying
+    public Optional<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission, User currentUser) {
         // Set policies to null in the update object
         resource.setPolicies(null);
 
-        final QueryAllParams<T> q = queryBuilder().byId(id).permission(permission);
+        final QueryAllParams<T> q =
+                queryBuilder().byId(id).permission(permission).user(currentUser);
 
         q.updateFirst(buildUpdateFromSparseResource(resource));
 
@@ -167,7 +170,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             Map<String, Object> fieldNameValueMap,
             String branchName,
             String branchNamePath,
-            AclPermission permission) {
+            AclPermission permission,
+            User currentUser) {
         final BridgeQuery<BaseDomain> q = Bridge.equal(defaultIdPath, defaultId);
 
         if (!isBlank(branchName)) {
@@ -177,30 +181,34 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         final BridgeUpdate update = Bridge.update();
         fieldNameValueMap.forEach(update::set);
 
-        final int count = queryBuilder().criteria(q).permission(permission).updateFirst(update);
+        final int count = queryBuilder()
+                .criteria(q)
+                .permission(permission)
+                .user(currentUser)
+                .updateFirst(update);
         return Optional.of(count);
     }
 
-    protected Set<String> getCurrentUserPermissionGroupsIfRequired(AclPermission permission) {
-        return getCurrentUserPermissionGroupsIfRequired(permission, true);
+    protected Set<String> getCurrentUserPermissionGroupsIfRequired(AclPermission permission, User user) {
+        return getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission), user, true);
     }
 
     protected Set<String> getCurrentUserPermissionGroupsIfRequired(
-            AclPermission permission, boolean includeAnonymousUserPermissions) {
-        return permission == null ? Set.of() : getCurrentUserPermissionGroups(includeAnonymousUserPermissions);
+            Optional<AclPermission> permission, User user, boolean includeAnonymousUserPermissions) {
+        if (permission.isEmpty()) {
+            return Set.of();
+        }
+        return getPermissionGroupsForUser(user, includeAnonymousUserPermissions);
     }
 
-    public Set<String> getCurrentUserPermissionGroups() {
-        return getCurrentUserPermissionGroups(true);
+    public Set<String> getPermissionGroupsForUser(User user) {
+        return getPermissionGroupsForUser(user, true);
     }
 
-    protected Set<String> getCurrentUserPermissionGroups(boolean includeAnonymousUserPermissions) {
-        final Set<String> permissionGroups = ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication().getPrincipal())
-                .map(principal -> includeAnonymousUserPermissions
-                        ? getAllPermissionGroupsForUser((User) principal)
-                        : getStrictPermissionGroupsForUser((User) principal))
-                .block();
+    protected Set<String> getPermissionGroupsForUser(User user, boolean includeAnonymousUserPermissions) {
+        final Set<String> permissionGroups = includeAnonymousUserPermissions
+                ? getAllPermissionGroupsForUser(user)
+                : getStrictPermissionGroupsForUser(user);
         return permissionGroups == null ? Collections.emptySet() : permissionGroups;
     }
 
@@ -219,8 +227,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @SuppressWarnings("unchecked")
     public <P> List<P> queryAllExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(
-                        Mono.defer(() -> Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission()))))
+                .switchIfEmpty(Mono.defer(() ->
+                        Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission(), params.getUser()))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     if (params.getPermission() != null && permissionGroups.isEmpty()) {
@@ -301,8 +309,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @SuppressWarnings("unchecked")
     public <P> Optional<P> queryOneExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(
-                        Mono.defer(() -> Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission()))))
+                .switchIfEmpty(Mono.defer(() ->
+                        Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission(), params.getUser()))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     if (params.getPermission() != null && permissionGroups.isEmpty()) {
@@ -363,8 +371,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     public Optional<Long> countExecute(QueryAllParams<T> params) {
         return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(
-                        Mono.defer(() -> Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission()))))
+                .switchIfEmpty(Mono.defer(() ->
+                        Mono.just(getCurrentUserPermissionGroupsIfRequired(params.getPermission(), params.getUser()))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     if (params.getPermission() != null && permissionGroups.isEmpty()) {
@@ -455,7 +463,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.fromSupplier(() -> getCurrentUserPermissionGroupsIfRequired(
-                        params.getPermission(), params.isIncludeAnonymousUserPermissions())))
+                        Optional.ofNullable(params.getPermission()),
+                        params.getUser(),
+                        params.isIncludeAnonymousUserPermissions())))
                 .doOnSuccess(params::permissionGroups)
                 .then();
     }
@@ -465,7 +475,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         ArrayList<String> permissionGroups;
 
         if (CollectionUtils.isEmpty(permissionGroupsSet)) {
-            permissionGroups = new ArrayList<>(getCurrentUserPermissionGroupsIfRequired(params.getPermission()));
+            permissionGroups =
+                    new ArrayList<>(getCurrentUserPermissionGroupsIfRequired(params.getPermission(), params.getUser()));
         } else {
             permissionGroups = new ArrayList<>(permissionGroupsSet);
         }
@@ -621,8 +632,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return queryBuilder().criteria(query).updateFirst(resource);
     }
 
-    public T setUserPermissionsInObject(T obj) {
-        return setUserPermissionsInObject(obj, getCurrentUserPermissionGroups());
+    public T setUserPermissionsInObject(T obj, User user) {
+        return setUserPermissionsInObject(obj, getPermissionGroupsForUser(user));
     }
 
     public T setUserPermissionsInObject(T obj, Collection<String> permissionGroups) {
@@ -655,7 +666,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      * 3. Return the set of all the permission groups.
      */
     protected Set<String> getAllPermissionGroupsForUser(User user) {
-        if (user.getTenantId() == null) {
+        if (user == null || !StringUtils.hasLength(user.getId())) {
+            return Collections.emptySet();
+        } else if (user.getTenantId() == null) {
             user.setTenantId(cacheableRepositoryHelper.getDefaultTenantId().block());
         }
 
@@ -673,7 +686,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      */
     protected Set<String> getStrictPermissionGroupsForUser(User user) {
 
-        if (user.getTenantId() == null) {
+        if (user == null || !StringUtils.hasLength(user.getId())) {
+            return Collections.emptySet();
+        } else if (user.getTenantId() == null) {
             String tenantId = cacheableRepositoryHelper.getDefaultTenantId().block();
             user.setTenantId(tenantId);
         }
@@ -731,9 +746,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      */
     @Transactional
     @Modifying
-    public T updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission) {
-        int modifiedCount = queryBuilder().byId(id).permission(permission).updateFirst(updateObj);
-        return queryBuilder().byId(id).permission(permission).one().orElse(null);
+    public T updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission, User currentUser) {
+        int modifiedCount =
+                queryBuilder().byId(id).permission(permission).user(currentUser).updateFirst(updateObj);
+        return queryBuilder()
+                .byId(id)
+                .permission(permission)
+                .user(currentUser)
+                .one()
+                .orElse(null);
     }
 
     public Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> entities) {
