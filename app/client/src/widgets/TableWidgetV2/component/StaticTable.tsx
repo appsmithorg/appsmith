@@ -40,6 +40,7 @@ type StaticTableProps = TableColumnHeaderProps & {
   scrollContainerStyles: any;
   useVirtual: boolean;
   tableBodyRef?: React.MutableRefObject<HTMLDivElement | null>;
+  onHoverCell: () => void;
 };
 
 const StaticTable = (props: StaticTableProps, ref: React.Ref<SimpleBar>) => {
@@ -90,6 +91,7 @@ const StaticTable = (props: StaticTableProps, ref: React.Ref<SimpleBar>) => {
         tableSizes={props.tableSizes}
         useVirtual={props.useVirtual}
         width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
+        onHoverCell={props.onHoverCell}
       />
     </SimpleBar>
   );

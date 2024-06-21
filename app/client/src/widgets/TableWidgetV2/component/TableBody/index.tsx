@@ -48,9 +48,11 @@ export const BodyContext = React.createContext<BodyContextType>({
   isAddRowInProgress: false,
   totalColumnsWidth: 0,
 });
+interface RowRendererProps extends ListChildComponentProps {
+  onHoverCell: () => void;
+}
 
-const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
-  const { data, index, style } = rowProps;
+const RowRenderer = ({ data, index, style, onHoverCell }: RowRendererProps) => {
 
   if (index < data.length) {
     const row = data[index];
@@ -62,12 +64,15 @@ const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
         key={index}
         row={row}
         style={style}
+        onHoverCell={onHoverCell}
       />
     );
   } else {
     return <EmptyRow style={style} />;
   }
-}, areEqual);
+}
+
+const MemoizedRowRenderer = React.memo(RowRenderer, areEqual);
 
 interface BodyPropsType {
   getTableBodyProps(
@@ -79,6 +84,7 @@ interface BodyPropsType {
   width?: number;
   tableSizes: TableSizes;
   innerElementType?: ReactElementType;
+  onHoverCell: () => void;
 }
 
 const TableVirtualBodyComponent = React.forwardRef(
@@ -90,16 +96,23 @@ const TableVirtualBodyComponent = React.forwardRef(
           height={
             props.height -
             props.tableSizes.TABLE_HEADER_HEIGHT -
-            2 * props.tableSizes.VERTICAL_PADDING
+            2 * WIDGET_PADDING
           }
           innerElementType={props.innerElementType}
           itemCount={Math.max(props.rows.length, props.pageSize)}
           itemData={props.rows}
-          itemSize={props.tableSizes.ROW_HEIGHT}
+          itemSize={
+            props.tableSizes.ROW_HEIGHT + props.tableSizes.ROW_VIRTUAL_OFFSET
+          }
           outerRef={ref}
           width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
         >
-          {rowRenderer}
+          {(rowProps) => (
+            <MemoizedRowRenderer
+              {...rowProps}
+              onHoverCell={props.onHoverCell}
+            />
+          )}
         </FixedSizeList>
       </div>
     );
@@ -110,7 +123,14 @@ const TableBodyComponent = (props: BodyPropsType) => {
   return (
     <div {...props.getTableBodyProps()} className="tbody body">
       {props.rows.map((row, index) => {
-        return <Row index={index} key={index} row={row} />;
+        return (
+          <Row
+            index={index}
+            key={index}
+            row={row}
+            onHoverCell={props.onHoverCell}
+          />
+        );
       })}
       {props.pageSize > props.rows.length && (
         <EmptyRows rowCount={props.pageSize - props.rows.length} />

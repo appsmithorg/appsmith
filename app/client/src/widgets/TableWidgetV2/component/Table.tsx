@@ -131,6 +131,7 @@ export interface TableProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
+  onHoverCell: () => void;
 }
 
 const defaultColumn = {
@@ -192,6 +193,7 @@ export function Table(props: TableProps) {
     multiRowSelection,
     showConnectDataOverlay,
     toggleAllRowSelect,
+    onHoverCell,
   } = props;
 
   const tableHeadercolumns = React.useMemo(
@@ -463,6 +465,7 @@ export function Table(props: TableProps) {
                 useVirtual={shouldUseVirtual}
                 widgetId={props.widgetId}
                 width={props.width}
+                onHoverCell={onHoverCell}
               />
             )}
 
@@ -501,6 +504,7 @@ export function Table(props: TableProps) {
                 useVirtual={shouldUseVirtual}
                 widgetId={props.widgetId}
                 width={props.width}
+                onHoverCell={onHoverCell}
               />
             )}
           </div>

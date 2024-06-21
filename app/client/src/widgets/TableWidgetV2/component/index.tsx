@@ -104,6 +104,7 @@ interface ReactTableComponentProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
+  onHoverCell: () => void;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -164,6 +165,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     widgetId,
     widgetName,
     width,
+    onHoverCell,
   } = props;
 
   const sortTableColumn = useCallback(
@@ -276,6 +278,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       widgetId={widgetId}
       widgetName={widgetName}
       width={width}
+      onHoverCell={onHoverCell}
     />
   );
 }

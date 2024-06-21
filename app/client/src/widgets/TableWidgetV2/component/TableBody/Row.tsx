@@ -12,6 +12,7 @@ interface RowType {
   index: number;
   row: ReactTableRowType<Record<string, unknown>>;
   style?: ListChildComponentProps["style"];
+  onHoverCell: (event: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export function Row(props: RowType) {
@@ -76,6 +77,7 @@ export function Row(props: RowType) {
         return (
           <div
             {...cellProperties}
+            onMouseOver={props.onHoverCell}
             className={
               columns[cellIndex].isHidden
                 ? "td hidden-cell"
