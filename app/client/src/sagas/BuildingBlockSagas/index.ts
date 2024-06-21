@@ -73,6 +73,9 @@ export function updateWidgetsNameInNewQueries(
   return queries
     .filter((query) => !!query)
     .map((query) => {
+      if (!query.actionConfiguration.body || !query.jsonPathKeys) {
+        return query;
+      }
       query.actionConfiguration.body =
         query.actionConfiguration.body.replaceAll(oldWidgetName, newWidgetName);
       query.jsonPathKeys = query.jsonPathKeys.map((path: string) =>
