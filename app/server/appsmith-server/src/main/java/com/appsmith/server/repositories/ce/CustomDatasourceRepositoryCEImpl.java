@@ -18,8 +18,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
         Sort sort = Sort.by(Datasource.Fields.name);
         return queryBuilder()
                 .criteria(Bridge.equal(Datasource.Fields.workspaceId, workspaceId))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .sort(sort)
                 .all();
     }
@@ -29,8 +28,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
             String name, String workspaceId, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.equal(Datasource.Fields.name, name).equal(Datasource.Fields.workspaceId, workspaceId))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .one();
     }
 }

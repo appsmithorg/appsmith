@@ -17,8 +17,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
         BridgeQuery<User> emailCriteria = Bridge.equal(User.Fields.email, email);
         return queryBuilder()
                 .criteria(emailCriteria)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .one();
     }
 }

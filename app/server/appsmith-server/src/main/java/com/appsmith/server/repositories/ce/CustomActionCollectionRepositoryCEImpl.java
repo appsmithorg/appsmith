@@ -31,8 +31,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         return queryBuilder()
                 .criteria(bridgeQuery)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .sort(sort)
                 .all();
     }
@@ -47,8 +46,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         return queryBuilder()
                 .criteria(bridgeQuery)
-                .permission(permission.orElse(null))
-                .user(currentUser)
+                .permission(permission.orElse(null), currentUser)
                 .sort(sort.orElse(null))
                 .all();
     }
@@ -75,8 +73,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         return queryBuilder()
                 .criteria(bridgeQuery)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -149,8 +146,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         return queryBuilder()
                 .criteria(criteriaList)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .sort(sort)
                 .all();
     }
@@ -165,8 +161,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         return queryBuilder()
                 .criteria(bridgeQuery)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -182,11 +177,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                         ActionCollection.Fields.defaultResources_collectionId, defaultCollectionId)
                 .equal(ActionCollection.Fields.defaultResources_branchName, branchName);
 
-        return queryBuilder()
-                .criteria(bq)
-                .permission(permission)
-                .user(currentUser)
-                .one();
+        return queryBuilder().criteria(bq).permission(permission, currentUser).one();
     }
 
     @Override
@@ -198,8 +189,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         return queryBuilder()
                 .criteria(query)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -209,8 +199,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds);
         return queryBuilder()
                 .criteria(pageIdCriteria)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -232,8 +221,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 Bridge.<ActionCollection>equal(contextIdPath, contextId).equal(contextTypePath, contextType);
         return queryBuilder()
                 .criteria(contextIdAndContextTypeCriteria)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -246,8 +234,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 Bridge.<ActionCollection>equal(contextIdPath, contextId).equal(contextTypePath, contextType);
         return queryBuilder()
                 .criteria(contextIdAndContextTypeCriteria)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -272,8 +259,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         return queryBuilder()
                 .criteria(query)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 }

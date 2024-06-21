@@ -18,8 +18,7 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
         BridgeQuery<Config> nameCriteria = Bridge.equal(Config.Fields.name, name);
         return queryBuilder()
                 .criteria(nameCriteria)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .one();
     }
 
@@ -28,8 +27,7 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
         final Set<String> permissionGroups = getAllPermissionGroupsForUser(user);
         return queryBuilder()
                 .criteria(Bridge.equal(Config.Fields.name, name))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .permissionGroups(permissionGroups)
                 .one();
     }

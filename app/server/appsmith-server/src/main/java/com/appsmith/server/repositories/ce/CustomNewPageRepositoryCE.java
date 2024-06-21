@@ -33,7 +33,7 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
             String branchName, String defaultPageId, AclPermission permission, User currentUser);
 
     Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission);
+            String defaultApplicationId, String gitSyncId, AclPermission permission, User currentUser);
 
     Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission, User currentUser);

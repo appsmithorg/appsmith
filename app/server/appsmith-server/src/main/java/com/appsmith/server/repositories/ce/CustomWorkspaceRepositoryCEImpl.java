@@ -26,8 +26,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public Optional<Workspace> findByName(String name, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.equal(Workspace.Fields.name, name))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .one();
     }
 
@@ -37,8 +36,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         return queryBuilder()
                 .criteria(Bridge.<Workspace>in(Workspace.Fields.id, workspaceIds)
                         .equal(Workspace.Fields.tenantId, tenantId))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .sort(sort)
                 .all();
     }
@@ -47,8 +45,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<Workspace> findAll(AclPermission permission, User currentUser) {
         return Flux.fromIterable(queryBuilder()
                         .criteria(Bridge.equal(Workspace.Fields.tenantId, currentUser.getTenantId()))
-                        .permission(permission)
-                        .user(currentUser)
+                        .permission(permission, currentUser)
                         .all())
                 .collectList()
                 .block();

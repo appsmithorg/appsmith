@@ -48,8 +48,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return queryBuilder()
                 .byId(id)
                 .criteria(Bridge.equal(Application.Fields.workspaceId, workspaceId))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .one();
     }
 
@@ -57,8 +56,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Optional<Application> findByName(String name, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.equal(Application.Fields.name, name))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .one();
     }
 
@@ -66,8 +64,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public List<Application> findByWorkspaceId(String workspaceId, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.equal(Application.Fields.workspaceId, workspaceId))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -76,8 +73,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             Set<String> workspaceIds, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.in(Application.Fields.workspaceId, workspaceIds))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -87,8 +83,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
                 .flatMap(cacheableRepositoryHelper::getPermissionGroupsOfUser)
                 .flatMapMany(permissionGroups -> asFlux(() -> queryBuilder()
-                        .permission(permission)
-                        .user(currentUser)
+                        .permission(permission, currentUser)
                         .permissionGroups(permissionGroups)
                         .all()))
                 .collectList()
@@ -100,8 +95,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             String applicationId, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.equal(Application.Fields.clonedFromApplicationId, applicationId))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -191,8 +185,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                                         defaultApplicationId))
                         .equal(Application.Fields.gitApplicationMetadata_branchName, branchName))
                 .fields(projectionFieldNames)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .one();
     }
 
@@ -204,8 +197,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 .criteria(Bridge.equal(
                                 Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId)
                         .equal(Application.Fields.gitApplicationMetadata_branchName, branchName))
-                .permission(permission.orElse(null))
-                .user(currentUser)
+                .permission(permission.orElse(null), currentUser)
                 .one();
     }
 
@@ -216,8 +208,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return queryBuilder()
                 .criteria(Bridge.equal(
                         Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -239,8 +230,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                         .exists(Application.Fields.gitApplicationMetadata_isRepoPrivate)
                         .exists(Application.Fields.gitApplicationMetadata_gitAuth)
                         .equal(Application.Fields.workspaceId, workspaceId))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -271,8 +261,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         return queryBuilder()
                 .byId(applicationId)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .updateFirst(updateObj);
     }
 
@@ -282,8 +271,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return queryBuilder()
                 .criteria(Bridge.equal(Application.Fields.workspaceId, workspaceId)
                         .equal(Application.Fields.name, applicationName))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .count();
     }
 
@@ -293,8 +281,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return queryBuilder()
                 .criteria(Bridge.equal(Application.Fields.workspaceId, workspaceId))
                 // Check if the permission is being provided by the given permission group
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .permissionGroups(Set.of(permissionGroupId))
                 .all(IdOnly.class)
                 .stream()
@@ -306,8 +293,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Optional<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
             String permissionGroupId, AclPermission permission, User currentUser) {
         return queryBuilder()
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .permissionGroups(Set.of(permissionGroupId))
                 .count();
     }
@@ -321,8 +307,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         List<Application> applicationList = queryBuilder()
                 .criteria(Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, applicationId)
                         .isTrue(Application.Fields.gitApplicationMetadata_isProtectedBranch))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
         applicationList.forEach(application -> {
             GitArtifactMetadata metadata = application.getGitApplicationMetadata();
@@ -353,11 +338,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         // TODO : This is a temporary solution to unprotect all branches. Replace with a better solution once the field
         //  level updates are possible for jsonb column.
-        List<Application> applicationList = queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .all();
+        List<Application> applicationList =
+                queryBuilder().criteria(q).permission(permission, currentUser).all();
         int count = 0;
         for (Application application : applicationList) {
             GitArtifactMetadata metadata = application.getGitApplicationMetadata();

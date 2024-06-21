@@ -29,8 +29,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<NewAction> findByApplicationId(String applicationId, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -40,8 +39,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId)
                         .isNull(NewAction.Fields.unpublishedAction_deletedAt))
-                .permission(permission.orElse(null))
-                .user(currentUser)
+                .permission(permission.orElse(null), currentUser)
                 .sort(sort.orElse(null))
                 .all();
     }
@@ -55,11 +53,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 // would exist. To handle this, only fetch non-deleted actions
                 .isNull(NewAction.Fields.unpublishedAction_deletedAt);
 
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .one();
+        return queryBuilder().criteria(q).permission(permission, currentUser).one();
     }
 
     @Override
@@ -68,8 +62,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(Bridge.or(
                         Bridge.equal(NewAction.Fields.unpublishedAction_pageId, pageId),
                         Bridge.equal(NewAction.Fields.publishedAction_pageId, pageId)))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -100,11 +93,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             // would exist. To handle this, only fetch non-deleted actions
             q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
         }
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .all();
+        return queryBuilder().criteria(q).permission(permission, currentUser).all();
     }
 
     @Override
@@ -117,8 +106,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             User currentUser) {
         return queryBuilder()
                 .criteria(getCriteriaForFindAllActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .sort(sort)
                 .all();
     }
@@ -172,11 +160,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         // exist. To handle this, only fetch non-deleted actions
         q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
 
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .all();
+        return queryBuilder().criteria(q).permission(permission, currentUser).all();
     }
 
     @Override
@@ -189,11 +173,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 // would exist. To handle this, only fetch non-deleted actions
                 .isNull(NewAction.Fields.unpublishedAction_deletedAt);
 
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .all();
+        return queryBuilder().criteria(q).permission(permission, currentUser).all();
     }
 
     @Override
@@ -201,8 +181,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String applicationId, Sort sort, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .sort(sort)
                 .all();
     }
@@ -216,8 +195,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String applicationId, Boolean viewMode, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -256,19 +234,14 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
         }
 
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .one();
+        return queryBuilder().criteria(q).permission(permission, currentUser).one();
     }
 
     @Override
     public List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.in(NewAction.Fields.unpublishedAction_pageId, pageIds))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -283,8 +256,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String applicationId, Boolean viewMode, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(getCriteriaForFindNonJsActionsByApplicationIdAndViewMode(applicationId, viewMode))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -312,8 +284,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             User currentUser) {
         return queryBuilder()
                 .criteria(getCriteriaForFindAllNonJsActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .sort(sort)
                 .all();
     }
@@ -360,8 +331,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         return queryBuilder()
                 .criteria(Bridge.equal(NewAction.Fields.defaultResources_applicationId, defaultApplicationId)
                         .isNull(NewAction.Fields.unpublishedAction_deletedAt))
-                .permission(permission.orElse(null))
-                .user(currentUser)
+                .permission(permission.orElse(null), currentUser)
                 .all();
     }
 
@@ -376,8 +346,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     protected Optional<Void> copyUnpublishedActionToPublishedAction(
             BridgeQuery<NewAction> criteria, AclPermission permission, User currentUser) {
         queryBuilder()
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .criteria(criteria)
                 .updateAll(Bridge.update()
                         .setToValueFromField(NewAction.Fields.publishedAction, NewAction.Fields.unpublishedAction));
@@ -401,8 +370,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                                 String.class,
                                 root.get(NewAction.Fields.unpublishedAction),
                                 cb.literal(FieldName.DELETED_AT))))*/)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .updateAll(Bridge.update().set(NewAction.Fields.deletedAt, Instant.now()));
 
         return Optional.of(count);
@@ -427,11 +395,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             collectionIdPath = NewAction.Fields.unpublishedAction_collectionId;
         }
         BridgeQuery<NewAction> q = Bridge.in(collectionIdPath, collectionIds);
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .all();
+        return queryBuilder().criteria(q).permission(permission, currentUser).all();
     }
 
     @Override
@@ -451,11 +415,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             q.notEqual(NewAction.Fields.pluginType, PluginType.JS);
         }
 
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .all();
+        return queryBuilder().criteria(q).permission(permission, currentUser).all();
     }
 
     @Override
@@ -476,10 +436,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             q.notEqual(NewAction.Fields.pluginType, PluginType.JS);
         }
 
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .all();
+        return queryBuilder().criteria(q).permission(permission, currentUser).all();
     }
 }

@@ -598,8 +598,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                         .queryBuilder()
                         .byId(defaultPageId)
                         .fields(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES)
-                        .permission(pagePermission.getReadPermission())
-                        .user(user)
+                        .permission(pagePermission.getReadPermission(), user)
                         .one());
             });
         } else {

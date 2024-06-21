@@ -43,8 +43,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
         return queryBuilder()
                 .criteria(query)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -66,8 +65,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                 .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
         return queryBuilder()
                 .criteria(query)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -79,8 +77,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                 .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
         return queryBuilder()
                 .criteria(query)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -117,8 +114,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
         return queryBuilder()
                 .criteria(assignedToUserIdCriteria)
                 .fields(includeFields.orElse(null))
-                .permission(permission.orElse(null))
-                .user(currentUser)
+                .permission(permission.orElse(null), currentUser)
                 .all();
     }
 }

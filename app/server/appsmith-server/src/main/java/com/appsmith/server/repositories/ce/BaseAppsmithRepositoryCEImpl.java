@@ -139,7 +139,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     public Optional<T> findById(String id, AclPermission permission, User currentUser) {
-        return queryBuilder().byId(id).permission(permission).user(currentUser).one();
+        return queryBuilder().byId(id).permission(permission, currentUser).one();
     }
 
     @Transactional
@@ -148,8 +148,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         // Set policies to null in the update object
         resource.setPolicies(null);
 
-        final QueryAllParams<T> q =
-                queryBuilder().byId(id).permission(permission).user(currentUser);
+        final QueryAllParams<T> q = queryBuilder().byId(id).permission(permission, currentUser);
 
         q.updateFirst(buildUpdateFromSparseResource(resource));
 
@@ -181,11 +180,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         final BridgeUpdate update = Bridge.update();
         fieldNameValueMap.forEach(update::set);
 
-        final int count = queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .updateFirst(update);
+        final int count =
+                queryBuilder().criteria(q).permission(permission, currentUser).updateFirst(update);
         return Optional.of(count);
     }
 
@@ -748,13 +744,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @Modifying
     public T updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission, User currentUser) {
         int modifiedCount =
-                queryBuilder().byId(id).permission(permission).user(currentUser).updateFirst(updateObj);
-        return queryBuilder()
-                .byId(id)
-                .permission(permission)
-                .user(currentUser)
-                .one()
-                .orElse(null);
+                queryBuilder().byId(id).permission(permission, currentUser).updateFirst(updateObj);
+        return queryBuilder().byId(id).permission(permission, currentUser).one().orElse(null);
     }
 
     public Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> entities) {

@@ -153,8 +153,7 @@ public abstract class BaseService<
             return asFlux(() -> repositoryDirect
                     .queryBuilder()
                     .criteria(Bridge.or(criteria))
-                    .permission(permission)
-                    .user(user)
+                    .permission(permission, user)
                     .sort(sort)
                     .includeAnonymousUserPermissions(false)
                     .all());

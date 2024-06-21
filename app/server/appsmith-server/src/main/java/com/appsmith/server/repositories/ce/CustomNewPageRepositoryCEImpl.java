@@ -35,8 +35,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public List<NewPage> findByApplicationId(String applicationId, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.equal(NewPage.Fields.applicationId, applicationId))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -47,11 +46,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
                 // exist. To handle this, only fetch non-deleted pages
                 .isNull(NewPage.Fields.unpublishedPage_deletedAt);
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .all();
+        return queryBuilder().criteria(q).permission(permission, currentUser).all();
     }
 
     @Override
@@ -88,8 +83,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return queryBuilder()
                 .byId(id)
                 .criteria(specFn)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .one();
     }
 
@@ -104,11 +98,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.unpublishedPage_deletedAt);
         }
 
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .one();
+        return queryBuilder().criteria(q).permission(permission, currentUser).one();
     }
 
     @Override
@@ -122,11 +112,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.unpublishedPage_deletedAt);
         }
 
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .one();
+        return queryBuilder().criteria(q).permission(permission, currentUser).one();
     }
 
     @Override
@@ -149,8 +135,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return this.queryBuilder()
                 .criteria(Bridge.in(NewPage.Fields.id, ids))
                 .fields(includedFields)
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -187,11 +172,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.defaultResources_branchName);
         }
 
-        return queryBuilder()
-                .criteria(q)
-                .permission(permission)
-                .user(currentUser)
-                .one();
+        return queryBuilder().criteria(q).permission(permission, currentUser).one();
     }
 
     public Optional<String> findBranchedPageId(
@@ -203,7 +184,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
         return queryBuilder()
                 .criteria(q)
-                .permission(permission)
+                .permission(permission, currentUser)
                 .one(IdOnly.class)
                 .map(IdOnly::id);
     }
@@ -232,8 +213,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
         return queryBuilder()
                 .criteria(q)
-                .permission(permission.orElse(null))
-                .user(currentUser)
+                .permission(permission.orElse(null), currentUser)
                 .first();
     }
 
@@ -242,8 +222,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Transactional
     public Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission, User currentUser) {
         int count = queryBuilder()
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .criteria(Bridge.in(NewPage.Fields.id, pageIds))
                 .updateAll(Bridge.update()
                         .setToValueFromField(NewPage.Fields.publishedPage, NewPage.Fields.unpublishedPage));

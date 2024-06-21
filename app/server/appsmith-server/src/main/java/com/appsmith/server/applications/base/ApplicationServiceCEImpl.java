@@ -824,8 +824,7 @@ public class ApplicationServiceCEImpl
                             .queryBuilder()
                             .byId(defaultApplicationId)
                             .fields(projectionFieldNames)
-                            .permission(aclPermission)
-                            .user(user)
+                            .permission(aclPermission, user)
                             .one()))
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));

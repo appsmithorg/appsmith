@@ -25,8 +25,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         BridgeQuery<Theme> systemThemeCriteria = Bridge.isTrue(Theme.Fields.isSystemTheme);
         return queryBuilder()
                 .criteria(Bridge.or(appThemeCriteria, systemThemeCriteria))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .all();
     }
 
@@ -41,8 +40,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     public Optional<Theme> getSystemThemeByName(String themeName, AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.equalIgnoreCase(Theme.Fields.name, themeName).isTrue(Theme.Fields.isSystemTheme))
-                .permission(permission)
-                .user(currentUser)
+                .permission(permission, currentUser)
                 .one();
     }
 
@@ -50,8 +48,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
             BridgeQuery<Theme> criteria, AclPermission permission, User currentUser) {
         return Optional.of(queryBuilder()
                         .criteria(criteria)
-                        .permission(permission)
-                        .user(currentUser)
+                        .permission(permission, currentUser)
                         .updateAll(Bridge.update().set(Theme.Fields.deletedAt, Instant.now()))
                 > 0);
     }

@@ -127,8 +127,9 @@ public class QueryAllParams<T extends BaseDomain> {
         return this;
     }
 
-    public QueryAllParams<T> permission(AclPermission permission) {
+    public QueryAllParams<T> permission(AclPermission permission, User user) {
         this.permission = permission;
+        this.user = user;
         return this;
     }
 
@@ -154,11 +155,6 @@ public class QueryAllParams<T extends BaseDomain> {
 
     public QueryAllParams<T> includeAnonymousUserPermissions(boolean value) {
         includeAnonymousUserPermissions = value;
-        return this;
-    }
-
-    public QueryAllParams<T> user(User user) {
-        this.user = user;
         return this;
     }
 
