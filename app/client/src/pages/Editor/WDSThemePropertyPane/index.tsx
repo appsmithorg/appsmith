@@ -117,6 +117,7 @@ function WDSThemePropertyPane() {
       <SettingSection className="px-4 pb-3" isDefaultOpen title="Color">
         <section className="space-y-2">
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-color-mode"
             isFullWidth
             onChange={(value: string) => {
               updateTheme({

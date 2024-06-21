@@ -26,7 +26,7 @@ const _Checkbox = (
       isIndeterminate={isIndeterminate}
     >
       {Boolean(isIndeterminate) ? <Icon name="minus" /> : <Icon name="check" />}
-      <Text lineClamp={1}>{children}</Text>
+      {Boolean(children) && <Text lineClamp={1}>{children}</Text>}
       {Boolean(isRequired) && (
         <Text color="negative" data-inline-label-necessity-indicator-icon="">
           *

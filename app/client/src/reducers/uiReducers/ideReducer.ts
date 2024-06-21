@@ -17,6 +17,10 @@ const initialState: IDEState = {
   view: EditorViewMode.FullScreen,
   tabs: {},
   showCreateModal: false,
+  ideCanvasSideBySideHover: {
+    navigated: false,
+    widgetTypes: [],
+  },
 };
 
 const ideReducer = createImmerReducer(initialState, {
@@ -80,12 +84,31 @@ const ideReducer = createImmerReducer(initialState, {
     );
     remove(tabs, (tab) => tab === action.payload.id);
   },
+  [ReduxActionTypes.RESET_ANALYTICS_FOR_SIDE_BY_SIDE_HOVER]: (
+    state: IDEState,
+  ) => {
+    state.ideCanvasSideBySideHover = klona(
+      initialState.ideCanvasSideBySideHover,
+    );
+  },
+  [ReduxActionTypes.RECORD_ANALYTICS_FOR_SIDE_BY_SIDE_NAVIGATION]: (
+    state: IDEState,
+  ) => {
+    state.ideCanvasSideBySideHover.navigated = true;
+  },
+  [ReduxActionTypes.RECORD_ANALYTICS_FOR_SIDE_BY_SIDE_WIDGET_HOVER]: (
+    state: IDEState,
+    action: ReduxAction<string>,
+  ) => {
+    state.ideCanvasSideBySideHover.widgetTypes.push(action.payload);
+  },
 });
 
 export interface IDEState {
   view: EditorViewMode;
   tabs: ParentEntityIDETabs;
   showCreateModal: boolean;
+  ideCanvasSideBySideHover: IDECanvasSideBySideHover;
 }
 
 export interface ParentEntityIDETabs {
@@ -95,6 +118,11 @@ export interface ParentEntityIDETabs {
 export interface IDETabs {
   [EditorEntityTab.JS]: string[];
   [EditorEntityTab.QUERIES]: string[];
+}
+
+export interface IDECanvasSideBySideHover {
+  navigated: boolean;
+  widgetTypes: string[];
 }
 
 export default ideReducer;
