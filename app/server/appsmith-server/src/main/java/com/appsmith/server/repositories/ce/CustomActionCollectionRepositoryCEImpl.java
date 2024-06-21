@@ -25,7 +25,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     @Deprecated
     public List<ActionCollection> findByApplicationId(
-            String applicationId, Sort sort, AclPermission permission, User currentUser) {
+            String applicationId, AclPermission permission, User currentUser, Sort sort) {
         final BridgeQuery<ActionCollection> bridgeQuery =
                 Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
 
@@ -38,7 +38,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     public List<ActionCollection> findByApplicationId(
-            String applicationId, Optional<Sort> sort, Optional<AclPermission> permission, User currentUser) {
+            String applicationId, Optional<AclPermission> permission, User currentUser, Optional<Sort> sort) {
 
         final BridgeQuery<ActionCollection> bridgeQuery = Bridge.<ActionCollection>equal(
                         ActionCollection.Fields.applicationId, applicationId)
@@ -137,9 +137,9 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             List<String> pageIds,
             boolean viewMode,
             String branchName,
-            Sort sort,
             AclPermission permission,
-            User currentUser) {
+            User currentUser,
+            Sort sort) {
         BridgeQuery<ActionCollection> criteriaList =
                 this.getBridgeQueryForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                         branchName, viewMode, name, pageIds);

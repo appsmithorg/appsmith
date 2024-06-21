@@ -32,7 +32,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<Workspace> findByIdsIn(
-            Set<String> workspaceIds, String tenantId, Sort sort, AclPermission permission, User currentUser) {
+            Set<String> workspaceIds, String tenantId, AclPermission permission, User currentUser, Sort sort) {
         return queryBuilder()
                 .criteria(Bridge.<Workspace>in(Workspace.Fields.id, workspaceIds)
                         .equal(Workspace.Fields.tenantId, tenantId))

@@ -13,10 +13,10 @@ import java.util.Optional;
 public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<ActionCollection> {
 
     List<ActionCollection> findByApplicationId(
-            String applicationId, Sort sort, AclPermission permission, User currentUser);
+            String applicationId, AclPermission permission, User currentUser, Sort sort);
 
     List<ActionCollection> findByApplicationId(
-            String applicationId, Optional<Sort> sort, Optional<AclPermission> permission, User currentUser);
+            String applicationId, Optional<AclPermission> permission, User currentUser, Optional<Sort> sort);
 
     List<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission permission, User currentUser);
@@ -26,9 +26,9 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
             List<String> pageIds,
             boolean viewMode,
             String branchName,
-            Sort sort,
             AclPermission permission,
-            User currentUser);
+            User currentUser,
+            Sort sort);
 
     List<ActionCollection> findByPageId(String pageId, AclPermission permission, User currentUser);
 

@@ -51,7 +51,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Optional<NewPage> findByIdAndLayoutsIdAndViewMode(
-            String id, String layoutId, Boolean viewMode, AclPermission permission, User currentUser) {
+            String id, String layoutId, AclPermission permission, User currentUser, Boolean viewMode) {
         // TODO(Shri): Why is this method's code different from that in `release` branch.
 
         final boolean isViewMode = Boolean.TRUE.equals(viewMode);
@@ -89,7 +89,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Optional<NewPage> findByNameAndViewMode(
-            String name, Boolean viewMode, AclPermission permission, User currentUser) {
+            String name, AclPermission permission, User currentUser, Boolean viewMode) {
         final BridgeQuery<NewPage> q = getNameCriterion(name, viewMode);
 
         if (Boolean.FALSE.equals(viewMode)) {

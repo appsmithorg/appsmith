@@ -34,12 +34,12 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
             String pageId, AclPermission permission, User currentUser);
 
     List<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
-            String name, List<String> pageIds, Boolean viewMode, Sort sort, AclPermission permission, User currentUser);
+            String name, List<String> pageIds, Boolean viewMode, AclPermission permission, User currentUser, Sort sort);
 
-    List<NewAction> findByApplicationId(String applicationId, Sort sort, AclPermission permission, User currentUser);
+    List<NewAction> findByApplicationId(String applicationId, AclPermission permission, User currentUser, Sort sort);
 
     List<NewAction> findByApplicationId(
-            String applicationId, Optional<Sort> sort, Optional<AclPermission> permission, User currentUser);
+            String applicationId, Optional<AclPermission> permission, User currentUser, Optional<Sort> sort);
 
     List<NewAction> findByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission permission, User currentUser);
@@ -60,7 +60,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
             String applicationId, Boolean viewMode, AclPermission permission, User currentUser);
 
     List<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
-            String name, List<String> pageIds, Boolean viewMode, Sort sort, AclPermission permission, User currentUser);
+            String name, List<String> pageIds, Boolean viewMode, AclPermission permission, User currentUser, Sort sort);
 
     Optional<Void> publishActions(String applicationId, AclPermission permission, User currentUser);
 
@@ -75,14 +75,14 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     List<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId,
             CreatorContextType contextType,
-            boolean includeJs,
             AclPermission permission,
-            User currentUser);
+            User currentUser,
+            boolean includeJs);
 
     List<NewAction> findAllPublishedActionsByContextIdAndContextType(
             String contextId,
             CreatorContextType contextType,
-            boolean includeJs,
             AclPermission permission,
-            User currentUser);
+            User currentUser,
+            boolean includeJs);
 }
