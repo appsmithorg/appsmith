@@ -27,7 +27,7 @@ export const propertyPaneContentConfig = [
         propertyName: "regex",
         label: "Regex",
         controlType: "INPUT_TEXT",
-        placeholderText: "^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$",
+        placeholderText: "^\\w+@[a-zA-Z_]$",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: { type: ValidationTypes.REGEX },
@@ -37,7 +37,7 @@ export const propertyPaneContentConfig = [
         propertyName: "validation",
         label: "Valid",
         controlType: "INPUT_TEXT",
-        placeholderText: "{{ Input1.text.length > 0 }}",
+        placeholderText: "{{ Input1.isValid }}",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
