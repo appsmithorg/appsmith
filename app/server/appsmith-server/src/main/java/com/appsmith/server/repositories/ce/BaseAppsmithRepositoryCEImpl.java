@@ -142,11 +142,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return queryBuilder().byId(id).permission(permission).user(currentUser).one();
     }
 
-    public Optional<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission) {
+    public Optional<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission, User currentUser) {
         // Set policies to null in the update object
         resource.setPolicies(null);
 
-        final QueryAllParams<T> q = queryBuilder().byId(id).permission(permission);
+        final QueryAllParams<T> q =
+                queryBuilder().byId(id).permission(permission).user(currentUser);
 
         q.updateFirst(buildUpdateFromSparseResource(resource));
 

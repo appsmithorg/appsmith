@@ -16,6 +16,7 @@ import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -817,12 +818,15 @@ public class ApplicationServiceCEImpl
             List<String> projectionFieldNames,
             AclPermission aclPermission) {
         if (StringUtils.isEmpty(branchName)) {
-            return asMono(() -> repository
+            Mono<User> currentUserMono = sessionUserService.getCurrentUser();
+            return currentUserMono
+                    .flatMap(user -> asMono(() -> repository
                             .queryBuilder()
                             .byId(defaultApplicationId)
                             .fields(projectionFieldNames)
                             .permission(aclPermission)
-                            .one())
+                            .user(user)
+                            .one()))
                     .switchIfEmpty(Mono.error(new AppsmithException(
                             AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));
         }
