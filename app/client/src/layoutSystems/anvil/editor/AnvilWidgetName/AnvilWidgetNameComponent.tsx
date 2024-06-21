@@ -10,6 +10,7 @@ import {
 import { createMessage } from "@appsmith/constants/messages";
 import { debugWidget } from "layoutSystems/anvil/integrations/actions";
 import { useDispatch } from "react-redux";
+import { NavigationMethod } from "utils/history";
 
 /**
  * Floating UI doesn't seem to respect initial styles from styled components or modules
@@ -63,7 +64,11 @@ export function _AnvilWidgetNameComponent(
   }, [parentId]);
 
   const handleSelectWidget = useCallback(() => {
-    selectWidget(SelectionRequestType.One, [props.widgetId]);
+    selectWidget(
+      SelectionRequestType.One,
+      [props.widgetId],
+      NavigationMethod.CanvasClick,
+    );
   }, [props.widgetId]);
 
   const handleDebugClick = useCallback(() => {

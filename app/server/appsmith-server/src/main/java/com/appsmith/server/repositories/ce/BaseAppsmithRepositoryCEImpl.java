@@ -142,30 +142,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return queryBuilder().byId(id).permission(permission).one();
     }
 
-    public Optional<T> findById(String id, List<String> projectionFieldNames, AclPermission permission) {
-        return queryBuilder()
-                .byId(id)
-                .fields(projectionFieldNames)
-                .permission(permission)
-                .one();
-    }
-
-    /**
-     * @deprecated using `Optional` for function arguments is an anti-pattern.
-     */
-    @Deprecated(forRemoval = true)
-    public Optional<T> findById(String id, Optional<AclPermission> permission) {
-        return findById(id, permission.orElse(null));
-    }
-
-    /**
-     * @deprecated This isn't as intuitive as with MongoDB, and isn't the best way with Hibernate. Just calling the
-     * setter methods directly on the persistent object should serve better.
-     */
-    @Deprecated
-    @Transactional
-    @Modifying
     public Optional<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission) {
+        // Set policies to null in the update object
+        resource.setPolicies(null);
+
         final QueryAllParams<T> q = queryBuilder().byId(id).permission(permission);
 
         q.updateFirst(buildUpdateFromSparseResource(resource));

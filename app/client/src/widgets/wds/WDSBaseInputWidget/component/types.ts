@@ -14,6 +14,7 @@ export interface BaseInputComponentProps extends ComponentProps {
   widgetId: string;
   spellCheck?: boolean;
   shouldUseLocale?: boolean;
+  excludeFromTabOrder?: boolean;
 
   // input props
   value?: string;
