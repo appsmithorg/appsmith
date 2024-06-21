@@ -34,7 +34,7 @@ export class AnvilDnDHelper {
         return `#${dropTarget.id}`;
       }
       if (dropTarget.name) {
-        return `${getWidgetSelector(dropTarget.name.toLowerCase() as any)} ${
+        return `${anvilLocators.anvilWidgetNameSelector(dropTarget.name)} ${
           anvilLocators.anvilDnDListener
         }`;
       }

@@ -1,12 +1,10 @@
 import {
   agHelper,
   anvilLayout,
-  entityExplorer,
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
-import { ANVIL_EDITOR_TEST, modifierKey } from "../../../../support/Constants";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
 import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
 import EditorNavigation, {
   EntityType,
@@ -17,10 +15,6 @@ describe(
   { tags: ["@tag.Anvil"] },
   () => {
     before(() => {
-      // intercept features call for Anvil + WDS tests
-      featureFlagIntercept({
-        release_anvil_enabled: true,
-      });
       // Cleanup the canvas before each test
       agHelper.SelectAllWidgets();
       agHelper.PressDelete();
@@ -53,7 +47,7 @@ describe(
       agHelper.GetNClick(locators._enterPreviewMode);
       agHelper.GetNClick(anvilLocators.anvilWidgetNameSelector("Button1"));
       agHelper.AssertElementExist(
-        anvilLocators.anvilModalWidgetNameSelector("Modal1"),
+        anvilLocators.anvilWidgetNameSelector("Modal1"),
       );
     });
     it("2. Verify closing a modal using the close icon button", () => {
@@ -61,14 +55,14 @@ describe(
         anvilLocators.anvilModalCloseIconButtonSelector("Modal1"),
       );
       agHelper.AssertElementAbsence(
-        anvilLocators.anvilModalWidgetNameSelector("Modal1"),
+        anvilLocators.anvilWidgetNameSelector("Modal1"),
       );
     });
     it("3. Verify closing a modal by clicking outside the modal area", () => {
       // open modal
       agHelper.GetNClick(anvilLocators.anvilWidgetNameSelector("Button1"));
       agHelper.AssertElementExist(
-        anvilLocators.anvilModalWidgetNameSelector("Modal1"),
+        anvilLocators.anvilWidgetNameSelector("Modal1"),
       );
       // click on overlay top position
       agHelper.GetNClick(
@@ -81,19 +75,19 @@ describe(
         "top",
       );
       agHelper.AssertElementAbsence(
-        anvilLocators.anvilModalWidgetNameSelector("Modal1"),
+        anvilLocators.anvilWidgetNameSelector("Modal1"),
       );
     });
     it("4. Verify closing a modal using the ESC key", () => {
       // open modal
       agHelper.GetNClick(anvilLocators.anvilWidgetNameSelector("Button1"));
       agHelper.AssertElementExist(
-        anvilLocators.anvilModalWidgetNameSelector("Modal1"),
+        anvilLocators.anvilWidgetNameSelector("Modal1"),
       );
       // press escape
       agHelper.PressEscape();
       agHelper.AssertElementAbsence(
-        anvilLocators.anvilModalWidgetNameSelector("Modal1"),
+        anvilLocators.anvilWidgetNameSelector("Modal1"),
       );
       agHelper.GetNClick(locators._exitPreviewMode);
     });
@@ -158,15 +152,15 @@ describe(
         },
       );
       agHelper
-        .GetElement(anvilLocators.anvilModalWidgetNameSelector("Modal1"))
+        .GetElement(anvilLocators.anvilWidgetNameSelector("Modal1"))
         .matchImageSnapshot("anvil/anvilModalMediumSize");
       propPane.SelectPropertiesDropDown("size", "Small");
       agHelper
-        .GetElement(anvilLocators.anvilModalWidgetNameSelector("Modal1"))
+        .GetElement(anvilLocators.anvilWidgetNameSelector("Modal1"))
         .matchImageSnapshot("anvil/anvilModalSmallSize");
       propPane.SelectPropertiesDropDown("size", "Large");
       agHelper
-        .GetElement(anvilLocators.anvilModalWidgetNameSelector("Modal1"))
+        .GetElement(anvilLocators.anvilWidgetNameSelector("Modal1"))
         .matchImageSnapshot("anvil/anvilModalLargeSize");
     });
   },

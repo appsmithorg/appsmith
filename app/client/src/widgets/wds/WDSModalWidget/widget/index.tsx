@@ -26,6 +26,7 @@ import { ModalLayoutProvider } from "layoutSystems/anvil/layoutComponents/ModalL
 import styles from "./styles.module.css";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
+import { AnvilDataAttributes } from "widgets/anvil/constants";
 
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";
@@ -124,10 +125,8 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   };
 
   getModalClassNames = () => {
-    const { disableWidgetInteraction, type, widgetId, widgetName } = this.props;
-    return `${getAnvilWidgetDOMId(widgetId)} ${widgetTypeClassname(
-      type,
-    )} t--widget-${widgetName?.toLowerCase()} ${
+    const { disableWidgetInteraction, type, widgetId } = this.props;
+    return `${getAnvilWidgetDOMId(widgetId)} ${widgetTypeClassname(type)} ${
       disableWidgetInteraction ? styles.disableModalInteraction : ""
     }`;
   };
@@ -141,10 +140,16 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     const modalClassNames = `${this.getModalClassNames()}`;
     return (
       <Modal
+        dataAttributes={{
+          [AnvilDataAttributes.MODAL_SIZE]: this.props.size,
+          [AnvilDataAttributes.WIDGET_NAME]: this.props.widgetName,
+          [AnvilDataAttributes.IS_SELECTED_WIDGET]: this.props.isWidgetSelected
+            ? "true"
+            : "false",
+        }}
         isOpen={this.state.isVisible as boolean}
         onClose={this.onModalClose}
         setOpen={(val) => this.setState({ isVisible: val })}
-        size={this.props.size}
       >
         {this.state.isVisible && (
           <ModalContent className={modalClassNames.trim()}>
