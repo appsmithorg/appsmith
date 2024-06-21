@@ -10,6 +10,7 @@ function PageNumberInputComponent(props: {
   pageCount: number;
   updatePageNo: (pageNo: number, event?: EventType) => void;
   disabled: boolean;
+  excludeFromTabOrder?: boolean;
 }) {
   const [pageNumber, setPageNumber] = useState(props.pageNo || "0");
 
@@ -47,6 +48,7 @@ function PageNumberInputComponent(props: {
   return (
     <TextInput
       className="t--table-widget-page-input"
+      excludeFromTabOrder={props.excludeFromTabOrder}
       isDisabled={props.disabled}
       onBlur={handleUpdatePageNo}
       onChange={(value) => {

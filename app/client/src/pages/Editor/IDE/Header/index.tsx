@@ -76,6 +76,7 @@ import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { IDEHeader, IDEHeaderTitle } from "IDE";
 import { APPLICATIONS_URL } from "constants/routes";
+import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -239,6 +240,7 @@ const Header = () => {
                   editInteractionKind={EditInteractionKind.SINGLE}
                   editorName="Application"
                   fill
+                  getNavigationMenu={useNavigationMenuData}
                   isError={isErroredSavingName}
                   isNewEditor={
                     applicationList.filter((el) => el.id === applicationId)

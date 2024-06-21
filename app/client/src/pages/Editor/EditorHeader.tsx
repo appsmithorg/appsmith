@@ -46,6 +46,7 @@ import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
+import { useNavigationMenuData } from "./EditorName/useNavigationMenuData";
 
 import {
   getIsGitConnected,
@@ -207,6 +208,7 @@ export function EditorHeader() {
                 editInteractionKind={EditInteractionKind.SINGLE}
                 editorName="Application"
                 fill
+                getNavigationMenu={useNavigationMenuData}
                 isError={isErroredSavingName}
                 isNewEditor={
                   applicationList.filter((el) => el.id === applicationId)
