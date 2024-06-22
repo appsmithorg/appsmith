@@ -89,8 +89,6 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
     Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
 
-    Flux<NewPage> findPageSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission);
-
     Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission);
 
     ApplicationPagesDTO getApplicationPagesDTO(Application application, List<NewPage> newPages, boolean viewMode);
