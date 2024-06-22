@@ -6,7 +6,7 @@ import { noop } from "lodash";
 import "@testing-library/jest-dom";
 import "jest-styled-components";
 
-describe("BottomView", () => {
+describe("1. BottomView", () => {
   describe("ViewHideBehaviour.COLLAPSE", () => {
     // HIDDEN = FALSE
     it("it is visible when hidden = false", () => {
