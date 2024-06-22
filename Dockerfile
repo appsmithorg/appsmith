@@ -34,6 +34,8 @@ COPY ./app/client/packages/rts/dist rts/
 
 ENV PATH /opt/bin:/opt/appsmith/utils/node_modules/.bin:/opt/java/bin:/opt/node/bin:$PATH
 
+ENV PATH="/usr/lib/postgresql/15/bin:${PATH}"
+
 RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
   && chmod +x /opt/bin/* *.sh /watchtower-hooks/*.sh \
   # Disable setuid/setgid bits for the files inside container.
