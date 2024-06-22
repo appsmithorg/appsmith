@@ -6,7 +6,7 @@
   "mongo-uri": "mongodb://host.docker.internal:28017/mongo_samples?retryWrites=true&w=majority",
 
   "postgres-host": "host.docker.internal",
-  "postgres-port": 5433,
+  "postgres-port": 5432,
   "postgres-databaseName": "fakeapi",
   "postgres-username": "docker",
   "postgres-password": "docker",
