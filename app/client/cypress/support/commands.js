@@ -371,7 +371,8 @@ Cypress.Commands.add("addDsl", (dsl) => {
     if (RapidMode.config.enabled && RapidMode.config.usesDSL) {
       pageid = RapidMode.config.pageID;
     } else {
-      pageid = url.split("/")[5]?.split("-").pop();
+      pageid = agHelper.extractPageIdFromUrl(url);
+      expect(pageid).to.not.be.null;
     }
 
     //Fetch the layout id
