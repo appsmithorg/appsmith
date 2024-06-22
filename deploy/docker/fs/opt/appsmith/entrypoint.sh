@@ -367,7 +367,7 @@ configure_supervisord() {
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
-    if [[ $isUriLocal -eq 0 ]]; then
+    if [[ $isUriLocal -eq 0 && $isMongoUrl -eq 1 ]]; then
       cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
     fi
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
