@@ -1693,13 +1693,13 @@ export default class DataTreeEvaluator {
             return path.key;
           });
 
-          Object.keys(entityConfig.bindingPaths).forEach((bindingPath) => {
-            const childPropertyPath = `${entityName}.${bindingPath}`;
+          Object.keys(entityConfig.reactivePaths).forEach((relativePath) => {
+            const childPropertyPath = `${entityName}.${relativePath}`;
             // Check if relative path has dynamic binding
             if (
               entityDynamicBindingPaths &&
               entityDynamicBindingPaths.length &&
-              entityDynamicBindingPaths.includes(bindingPath)
+              entityDynamicBindingPaths.includes(relativePath)
             ) {
               changePaths.add(childPropertyPath);
             }
