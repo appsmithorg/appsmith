@@ -141,8 +141,12 @@ export class AggregateHelper {
       return null;
     }
 
-    // Can handle both ObjectID and UUID. Not a very strict pattern, but that's not the purpose here.
-    return parts[5]?.match(/[a-f0-9]+((-[a-f0-9]+){4})?$/)?.[0] ?? null;
+    // Extract the page ID, either as an ObjectID or as a UUID.
+    return (
+      parts[5]?.match(
+        /[0-9a-f]{24}$|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      )?.[0] ?? null
+    );
   }
 
   public AddDsl(
