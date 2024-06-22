@@ -142,7 +142,11 @@ export class AggregateHelper {
     }
 
     // Extract the page ID, either as an ObjectID or as a UUID.
-    return parts[5]?.match(/[0-9a-f]{24}$|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)?.[0] ?? null;
+    return (
+      parts[5]?.match(
+        /[0-9a-f]{24}$|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      )?.[0] ?? null
+    );
   }
 
   public AddDsl(
