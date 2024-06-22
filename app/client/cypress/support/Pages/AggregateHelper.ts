@@ -133,15 +133,28 @@ export class AggregateHelper {
     });
   }
 
+  public extractPageIdFromUrl(url: string): null | string {
+    const parts = url.split("/");
+
+    if (parts[3] !== "app") {
+      // Not a app URL.
+      return null;
+    }
+
+    // Can handle both ObjectID and UUID. Not a very strict pattern, but that's not the purpose here.
+    return parts[5]?.match(/[a-f0-9]+((-[a-f0-9]+){4})?$/)?.[0] ?? null;
+  }
+
   public AddDsl(
     dslFile: string,
     elementToCheckPresenceaftDslLoad: string | "" = "", //    reloadWithoutCache = true,
   ) {
-    let pageid: string, layoutId;
+    let layoutId;
     let appId: string | null;
     cy.fixture(dslFile).then((val) => {
       cy.url().then((url) => {
-        pageid = url.split("/")[5]?.split("-").pop() as string;
+        const pageid = this.extractPageIdFromUrl(url);
+        assert(pageid != null);
         //Fetch the layout id
         cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
           const respBody = JSON.stringify(response.body);
