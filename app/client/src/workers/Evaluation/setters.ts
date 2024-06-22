@@ -19,6 +19,7 @@ import type {
 } from "entities/DataTree/dataTreeTypes";
 import { getFnWithGuards, isAsyncGuard } from "./fns/utils/fnGuard";
 import { shouldAddSetter } from "./evaluate";
+import { EVAL_WORKER_SYNC_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 
 class Setters {
   /** stores the setter method accessor as key and true as value
@@ -120,7 +121,14 @@ class Setters {
       resolve(parsedValue);
     }).then((res) => {
       updatedProperties.push([entityName, propertyPath]);
-      evalTreeWithChanges(updatedProperties, evalMetaUpdates);
+      evalTreeWithChanges({
+        data: {
+          updatedValuePaths: updatedProperties,
+          metaUpdates: evalMetaUpdates,
+        },
+        method: EVAL_WORKER_SYNC_ACTION.EVAL_TREE_WITH_CHANGES,
+        webworkerTelemetry: {},
+      });
       return res;
     });
   }

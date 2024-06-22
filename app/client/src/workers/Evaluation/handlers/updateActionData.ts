@@ -3,6 +3,7 @@ import type { EvalWorkerSyncRequest } from "../types";
 import set from "lodash/set";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import DataStore from "../dataStore";
+import { EVAL_WORKER_SYNC_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 
 export interface UpdateActionProps {
   entityName: string;
@@ -40,5 +41,9 @@ export function handleActionsDataUpdate(actionsToUpdate: UpdateActionProps[]) {
   const updatedProperties: string[][] = actionsToUpdate.map(
     ({ dataPath, entityName }) => [entityName, dataPath],
   );
-  evalTreeWithChanges(updatedProperties, []);
+  evalTreeWithChanges({
+    data: { updatedValuePaths: updatedProperties, metaUpdates: [] },
+    method: EVAL_WORKER_SYNC_ACTION.EVAL_TREE_WITH_CHANGES,
+    webworkerTelemetry: {},
+  });
 }

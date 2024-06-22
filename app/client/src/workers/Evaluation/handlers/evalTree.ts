@@ -45,8 +45,11 @@ export let canvasWidgetsMeta: Record<string, any>;
 export let metaWidgetsCache: MetaWidgetsReduxState;
 export let canvasWidgets: CanvasWidgetsReduxState;
 
-export function evalTree(request: EvalWorkerSyncRequest) {
+export function evalTree(
+  request: EvalWorkerSyncRequest<EvalTreeRequestData>,
+): EvalTreeResponseData {
   const { data, webworkerTelemetry } = request;
+
   webworkerTelemetry["transferDataToWorkerThread"].endTime = Date.now();
 
   let evalOrder: string[] = [];
@@ -76,7 +79,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     widgets,
     widgetsMeta,
     widgetTypeConfigMap,
-  } = data as EvalTreeRequestData;
+  } = data;
 
   const unevalTree = __unevalTree__.unEvalTree;
   configTree = __unevalTree__.configTree as ConfigTree;
@@ -291,7 +294,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     },
   );
 
-  const evalTreeResponse: EvalTreeResponseData = {
+  const evalTreeResponse = {
     updates,
     dependencies,
     errors,

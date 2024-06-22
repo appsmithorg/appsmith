@@ -1,7 +1,11 @@
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
-import type { EvalTreeResponseData, UpdateTreeResponse } from "./types";
+import type {
+  EvalTreeResponseData,
+  EvalWorkerSyncRequest,
+  UpdateTreeResponse,
+} from "./types";
 import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
@@ -10,7 +14,6 @@ import {
   getNewDataTreeUpdates,
   uniqueOrderUpdatePaths,
 } from "./helpers";
-import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 const getDefaultEvalResponse = (): EvalTreeResponseData => ({
@@ -31,36 +34,32 @@ const getDefaultEvalResponse = (): EvalTreeResponseData => ({
 });
 
 export function evalTreeWithChanges(
-  updatedValuePaths: string[][],
-  metaUpdates: EvalMetaUpdates = [],
+  request: EvalWorkerSyncRequest<{
+    metaUpdates?: EvalMetaUpdates;
+    updatedValuePaths: string[][];
+    pathsToSkipFromEval?: string[];
+  }>,
 ) {
+  const { data } = request;
+  const {
+    metaUpdates = [],
+    pathsToSkipFromEval = [],
+    updatedValuePaths,
+  } = data;
   let setupUpdateTreeResponse = {} as UpdateTreeResponse;
   if (dataTreeEvaluator) {
-    setupUpdateTreeResponse =
-      dataTreeEvaluator.setupUpdateTreeWithDifferences(updatedValuePaths);
+    setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTreeWithDifferences(
+      updatedValuePaths,
+      pathsToSkipFromEval,
+    );
   }
-
-  const setterAndLocalStorageUpdatePaths = uniqueOrderUpdatePaths(
-    updatedValuePaths.map((val) => val.join(".")),
-  );
-
+  const additionalPathsAddedAsUpdates = pathsToSkipFromEval;
   evaluateAndPushResponse(
-    dataTreeEvaluator,
     setupUpdateTreeResponse,
     metaUpdates,
-    setterAndLocalStorageUpdatePaths,
+    additionalPathsAddedAsUpdates,
   );
 }
-
-export const pushResponseToMainThread = (data: UpdateDataTreeMessageData) => {
-  sendMessage.call(self, {
-    messageType: MessageType.DEFAULT,
-    body: {
-      data,
-      method: MAIN_THREAD_ACTION.UPDATE_DATATREE,
-    },
-  });
-};
 
 export const getAffectedNodesInTheDataTree = (
   unEvalUpdates: DataTreeDiff[],
@@ -74,13 +73,11 @@ export const getAffectedNodesInTheDataTree = (
 };
 
 export const evaluateAndPushResponse = (
-  dataTreeEvaluator: DataTreeEvaluator | undefined,
   setupUpdateTreeResponse: UpdateTreeResponse,
   metaUpdates: EvalMetaUpdates,
   additionalPathsAddedAsUpdates: string[],
 ) => {
   const response = evaluateAndGenerateResponse(
-    dataTreeEvaluator,
     setupUpdateTreeResponse,
     metaUpdates,
     additionalPathsAddedAsUpdates,
@@ -89,7 +86,6 @@ export const evaluateAndPushResponse = (
 };
 
 export const evaluateAndGenerateResponse = (
-  dataTreeEvaluator: DataTreeEvaluator | undefined,
   setupUpdateTreeResponse: UpdateTreeResponse,
   metaUpdates: EvalMetaUpdates,
   additionalPathsAddedAsUpdates: string[],
@@ -162,4 +158,14 @@ export const evaluateAndGenerateResponse = (
     workerResponse: defaultResponse,
     unevalTree,
   };
+};
+
+export const pushResponseToMainThread = (data: UpdateDataTreeMessageData) => {
+  sendMessage.call(self, {
+    messageType: MessageType.DEFAULT,
+    body: {
+      data,
+      method: MAIN_THREAD_ACTION.UPDATE_DATATREE,
+    },
+  });
 };
