@@ -157,15 +157,23 @@ export class PrefetchApiService {
   cacheMaxAge = 2 * 60 * 1000; // 2 minutes in milliseconds
   // Mutex to lock the fetch and cache operation
   prefetchFetchMutexMap = new Map<string, Mutex>();
+  // Header keys used to create the unique request key
+  headerKeys = ["branchname"];
 
   constructor() {}
 
   // Function to get the request key
   getRequestKey = (request: Request) => {
-    const headersKey = Array.from(request.headers.entries())
-      .map(([key, value]) => `${key}:${value}`)
-      .join(",");
-    return `${request.method}:${request.url}:${headersKey}`;
+    let requestKey = `${request.method}:${request.url}`;
+
+    this.headerKeys.forEach((headerKey) => {
+      const headerValue = request.headers.get(headerKey);
+      if (headerValue) {
+        requestKey += `:${headerKey}:${headerValue}`;
+      }
+    });
+
+    return requestKey;
   };
 
   // Function to acquire the fetch mutex for a request

@@ -421,7 +421,9 @@ init_postgres() {
     # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
     chown -R postgres:postgres "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
 
-    if [[ ! -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
+    if [[ -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
+      /opt/appsmith/pg-upgrade.sh
+    else
       tlog "Initializing local Postgres data folder"
       su postgres -c "env PATH='$PATH' initdb -D $POSTGRES_DB_PATH"
     fi
