@@ -30,7 +30,7 @@ describe(
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       cy.url().then((url) => {
         const pageid = agHelper.extractPageIdFromUrl(url);
-        assert(pageid != null);
+        expect(pageid).to.not.be.null;
         cy.log(pageid + "page id");
         cy.request("GET", "api/v1/pages/" + pageid).then((response) => {
           const respBody = JSON.stringify(response.body);

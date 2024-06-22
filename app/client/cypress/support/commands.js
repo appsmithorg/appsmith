@@ -372,7 +372,7 @@ Cypress.Commands.add("addDsl", (dsl) => {
       pageid = RapidMode.config.pageID;
     } else {
       pageid = agHelper.extractPageIdFromUrl(url);
-      assert(pageid != null);
+      expect(pageid).to.not.be.null;
     }
 
     //Fetch the layout id

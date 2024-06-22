@@ -158,7 +158,7 @@ export class AggregateHelper {
     cy.fixture(dslFile).then((val) => {
       cy.url().then((url) => {
         const pageid = this.extractPageIdFromUrl(url);
-        assert(pageid != null);
+        expect(pageid).to.not.be.null;
         //Fetch the layout id
         cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
           const respBody = JSON.stringify(response.body);
