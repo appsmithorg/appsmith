@@ -192,7 +192,7 @@ class ActionAPI extends API {
         new: undefined,
       },
     };
-    return API.put(`${ActionAPI.url}/${action.id}`, payload, undefined, {
+    return API.put(`${ActionAPI.url}/${apiConfig.id}`, payload, undefined, {
       cancelToken: ActionAPI.apiUpdateCancelTokenSource.token,
     });
   }
