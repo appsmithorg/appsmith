@@ -10,7 +10,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.springframework.data.annotation.Transient;
+import jakarta.persistence.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
 

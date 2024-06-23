@@ -3,7 +3,7 @@ package com.appsmith.external.models;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.springframework.data.annotation.Transient;
+import jakarta.persistence.Transient;
 
 import java.time.Instant;
 import java.util.List;

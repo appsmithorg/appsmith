@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.annotation.Transient;
+import jakarta.persistence.Transient;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;

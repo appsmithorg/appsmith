@@ -16,7 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import net.minidev.json.JSONObject;
-import org.springframework.data.annotation.Transient;
+import jakarta.persistence.Transient;
 
 import java.util.Collections;
 import java.util.HashSet;

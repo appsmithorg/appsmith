@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.data.annotation.Transient;
+import jakarta.persistence.Transient;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 

@@ -15,7 +15,7 @@ import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.constraints.Range;
-import org.springframework.data.annotation.Transient;
+import jakarta.persistence.Transient;
 import org.springframework.http.HttpMethod;
 import reactor.netty.http.HttpProtocol;
 

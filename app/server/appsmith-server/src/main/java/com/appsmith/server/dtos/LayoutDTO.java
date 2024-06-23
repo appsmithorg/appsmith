@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 import net.minidev.json.JSONObject;
-import org.springframework.data.annotation.Transient;
+import jakarta.persistence.Transient;
 
 import java.util.List;
 import java.util.Set;
