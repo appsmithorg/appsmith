@@ -1368,7 +1368,7 @@ export default class DataTreeEvaluator {
 
         if (!jsSnippet) return stringSegments[index];
 
-        if (!propertyPath.includes("body")) {
+        if (entity && entityConfig && !propertyPath.includes("body")) {
           ExecutionMetaData.setExecutionMetaData({
             triggerMeta: {
               source: {
