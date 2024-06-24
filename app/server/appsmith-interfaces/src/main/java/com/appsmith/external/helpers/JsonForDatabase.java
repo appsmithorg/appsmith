@@ -39,10 +39,12 @@ public final class JsonForDatabase {
             System.getenv("APPSMITH_ENCRYPTION_PASSWORD"),
             HexFormat.of().formatHex(System.getenv("APPSMITH_ENCRYPTION_SALT").getBytes()));
 
-    private static final Converter<String, String> encConverter = new StdConverter<>() {
+    private static final Converter<Object, String> encConverter = new StdConverter<>() {
         @Override
-        public String convert(String value) {
-            return textEncryptor.encrypt(value);
+        public String convert(Object value) {
+            // Ideally, this shouldn't be `Object`, it should be `String`. We need `Object` here for the
+            // `AuthenticationResponse.tokenResponse` field, which also, may be should've been a JSON string instead.
+            return textEncryptor.encrypt(String.valueOf(value));
         }
     };
 
