@@ -173,7 +173,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         Mono<Datasource> datasourceMono = Mono.just(datasource);
 
         // First check if this is an existing datasource or whether we need to create one
-        if (datasource.isNew()) {
+        if (!hasText(datasource.getId())) {
             // We need to create the datasource as well
 
             // Determine valid name for datasource
@@ -215,7 +215,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         return datasourceMono.flatMap(savedDatasource -> this.organiseDatasourceStorages(savedDatasource)
                 .flatMap(datasourceStorage -> {
                     // Make sure that we are creating entries only if the id is not already populated
-                    if (!datasourceStorage.isNew()) {
+                    if (hasText(datasourceStorage.getId())) {
                         return Mono.just(datasourceStorage);
                     }
 
@@ -284,7 +284,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     @Override
     public Mono<Datasource> updateDatasource(
             String id, Datasource datasource, String activeEnvironmentId, Boolean isUserRefreshedUpdate) {
-        if (id == null) {
+        if (!hasText(id)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
@@ -326,10 +326,10 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             String activeEnvironmentId,
             Boolean isUserRefreshedUpdate) {
 
-        final String datasourceId = datasourceStorageDTO.getDatasourceId();
+        String datasourceId = datasourceStorageDTO.getDatasourceId();
         String environmentId = datasourceStorageDTO.getEnvironmentId();
 
-        if (datasourceId == null) {
+        if (!hasText(datasourceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.DATASOURCE_ID));
         }
 
@@ -357,7 +357,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             datasourceStorage.prepareTransientFields(dbDatasource);
 
             return datasourceStorageService
-                    .updateDatasourceStorage(datasourceStorage, activeEnvironmentId, TRUE)
+                    .updateDatasourceStorage(datasourceStorage, activeEnvironmentId, Boolean.TRUE)
                     .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
                     .map(datasourceStorageDTO1 -> {
                         dbDatasource.getDatasourceStorages().put(trueEnvironmentId, datasourceStorageDTO1);
@@ -445,7 +445,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 // however since we are falling back to default this step is not required here.
 
                 // Cases where the datasource hasn't been saved yet
-                if (datasourceStorage.isNew()) {
+                if (!hasText(datasourceStorage.getDatasourceId())) {
 
                     if (!hasText(datasourceStorage.getWorkspaceId())) {
                         return Mono.error(
@@ -495,7 +495,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                 // changes are present in the encrypted field, because encrypted fields are not sent
                                 // over the network after encryption back to the client
 
-                                if (datasourceStorage.isNew()) {
+                                if (!hasText(datasourceStorage.getId())) {
                                     return Mono.just(datasourceStorage);
                                 }
 
@@ -630,7 +630,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     // In case of endpoint identifier as empty string, no rate limiting will be applied
                     // Currently this function is overridden only by postgresPlugin class, in future it will be done for
                     // all plugins wherever applicable.
-                    if (isFlagEnabled && FALSE.equals(isBlank(rateLimitIdentifier))) {
+                    if (isFlagEnabled && Boolean.FALSE.equals(isBlank(rateLimitIdentifier))) {
                         return rateLimitService.isEndpointBlockedForConnectionRequest(
                                 RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, rateLimitIdentifier);
                     } else {
@@ -654,7 +654,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     // In case of endpoint identifier as empty string, no rate limiting will be applied
                     // Currently this function is overridden only by postgresPlugin class, in future it will be done for
                     // all plugins wherever applicable.
-                    if (isFlagEnabled && FALSE.equals(isBlank(rateLimitIdentifier))) {
+                    if (isFlagEnabled && Boolean.FALSE.equals(isBlank(rateLimitIdentifier))) {
                         return rateLimitService.tryIncreaseCounter(
                                 RateLimitConstants.BUCKET_KEY_FOR_TEST_DATASOURCE_API, rateLimitIdentifier);
                     } else {
@@ -687,7 +687,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> findByIdWithStorages(String id) {
-        return findById(id).flatMap(datasource -> {
+        return repository.findById(id).flatMap(datasource -> {
             return datasourceStorageService
                     .findByDatasource(datasource)
                     .map(datasourceStorageService::createDatasourceStorageDTOFromDatasourceStorage)
