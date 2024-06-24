@@ -5,7 +5,6 @@ import type { WidgetState } from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
 import type { AnvilConfig } from "WidgetProvider/constants";
 import { Switch, ToggleGroup } from "@design-system/widgets";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import {
@@ -18,7 +17,6 @@ import {
   settersConfig,
   methodsConfig,
 } from "../config";
-import { validateInput } from "./helpers";
 import type { SwitchGroupWidgetProps, OptionProps } from "./types";
 
 class WDSSwitchGroupWidget extends BaseWidget<
@@ -62,13 +60,6 @@ class WDSSwitchGroupWidget extends BaseWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return {
       selectedValues: "defaultSelectedValues",
-    };
-  }
-
-  static getDerivedPropertiesMap(): DerivedPropertiesMap {
-    return {
-      value: `{{this.selectedValues}}`,
-      isValid: `{{ this.isRequired ? !!this.selectedValues.length : true }}`,
     };
   }
 
@@ -118,14 +109,10 @@ class WDSSwitchGroupWidget extends BaseWidget<
       ...rest
     } = this.props;
 
-    const validation = validateInput(this.props);
-
     return (
       <ToggleGroup
         {...rest}
         contextualHelp={labelTooltip}
-        errorMessage={validation.errorMessage}
-        isInvalid={validation.validationStatus === "invalid"}
         items={options}
         onChange={this.onChange}
         value={selectedValues}

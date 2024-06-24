@@ -9,8 +9,6 @@ export interface OptionProps {
 export interface SwitchGroupWidgetProps extends WidgetProps {
   defaultSelectedValues?: OptionProps["value"][];
   isDisabled: boolean;
-  isRequired?: boolean;
-  isValid?: boolean;
   isVisible: boolean;
   labelPosition?: keyof typeof POSITION;
   labelText?: string;
