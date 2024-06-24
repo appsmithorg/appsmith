@@ -15,6 +15,7 @@ import {
   uniqueOrderUpdatePaths,
 } from "./helpers";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 
 const getDefaultEvalResponse = (): EvalTreeResponseData => ({
   updates: "[]",
@@ -55,6 +56,7 @@ export function evalTreeWithChanges(
   }
   const additionalPathsAddedAsUpdates = pathsToSkipFromEval;
   evaluateAndPushResponse(
+    dataTreeEvaluator,
     setupUpdateTreeResponse,
     metaUpdates,
     additionalPathsAddedAsUpdates,
@@ -73,11 +75,13 @@ export const getAffectedNodesInTheDataTree = (
 };
 
 export const evaluateAndPushResponse = (
+  dataTreeEvaluator: DataTreeEvaluator | undefined,
   setupUpdateTreeResponse: UpdateTreeResponse,
   metaUpdates: EvalMetaUpdates,
   additionalPathsAddedAsUpdates: string[],
 ) => {
   const response = evaluateAndGenerateResponse(
+    dataTreeEvaluator,
     setupUpdateTreeResponse,
     metaUpdates,
     additionalPathsAddedAsUpdates,
@@ -86,6 +90,7 @@ export const evaluateAndPushResponse = (
 };
 
 export const evaluateAndGenerateResponse = (
+  dataTreeEvaluator: DataTreeEvaluator | undefined,
   setupUpdateTreeResponse: UpdateTreeResponse,
   metaUpdates: EvalMetaUpdates,
   additionalPathsAddedAsUpdates: string[],
