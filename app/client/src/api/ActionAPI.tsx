@@ -236,7 +236,19 @@ class ActionAPI extends API {
   }
 
   static async moveAction(moveRequest: MoveActionRequest) {
-    return API.put(ActionAPI.url + "/move", moveRequest, undefined, {
+    const payload = {
+      ...moveRequest,
+      action: moveRequest.action && {
+        ...moveRequest.action,
+        entityReferenceType: undefined,
+        datasource: moveRequest.action.datasource && {
+          ...moveRequest.action.datasource,
+          isValid: undefined,
+          new: undefined,
+        },
+      },
+    };
+    return API.put(ActionAPI.url + "/move", payload, undefined, {
       timeout: DEFAULT_EXECUTE_ACTION_TIMEOUT_MS,
     });
   }
