@@ -1,5 +1,4 @@
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { PaginationType, PluginType, type Action } from "entities/Action";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import { cloneDeep } from "lodash";
 import type {
@@ -23,54 +22,11 @@ import {
   leftMostWidget,
   topMostWidget,
 } from "../pasteWidgetAddition.fixture";
+import { newlyCreatedActions } from "./fixtures";
 
 // Mock data for testing
 const gridPosition = { top: 50, left: 500 };
 const parentWidgetId = "parentWidgetId";
-const newActions: Action[] = [
-  {
-    name: "fetch_users1",
-    cacheResponse: "",
-    datasource: {
-      id: "66670c6c62c7c735c83c61d2",
-      name: "Sample Database",
-      pluginId: "656eeb1024ec7f5154c9ba00",
-    },
-    pageId: "666bff510e7df2453b7cfbcf",
-    actionConfiguration: {
-      timeoutInMillisecond: 10000,
-      paginationType: PaginationType.NONE,
-      body: 'SELECT * FROM user_data \nWHERE name ILIKE \'{{"%" + (tbl_usersCopy.searchText || "") + "%"}}\'\nAND dob >= \'{{dat_bornAfterCopy.selectedDate}}\'\n{{sel_countryCopy.selectedOptionValue !== "" ? "AND country = \'" + sel_countryCopy.selectedOptionValue + "\'" : ""}}\nORDER BY id\nOFFSET {{tbl_usersCopy.pageOffset}}\nLIMIT {{tbl_usersCopy.pageSize - 1}} ',
-      pluginSpecifiedTemplates: [
-        {
-          value: false,
-        },
-      ],
-    },
-    executeOnLoad: true,
-    dynamicBindingPathList: [
-      {
-        key: "body",
-      },
-    ],
-    isValid: true,
-    invalids: [],
-    messages: [],
-    jsonPathKeys: [
-      "dat_bornAfterCopy.selectedDate",
-      '"%" + (tbl_usersCopy.searchText || "") + "%"',
-      "tbl_usersCopy.pageOffset",
-      'sel_countryCopy.selectedOptionValue !== "" ? "AND country = \'" + sel_countryCopy.selectedOptionValue + "\'" : ""',
-      "tbl_usersCopy.pageSize - 1",
-    ],
-    confirmBeforeExecute: false,
-    userPermissions: [],
-    id: "666bffd30e7df2453b7cfbd4",
-    pluginId: "656eeb1024ec7f5154c9ba00",
-    workspaceId: "66670c5162c7c735c83c61c9",
-    pluginType: PluginType.DB,
-  },
-];
 
 const totalWidth = 31;
 const flexLayers: FlexLayer[] = [];
@@ -92,7 +48,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
     const generator: GeneratorType = pasteBuildingBlockWidgetsSaga(
       gridPosition,
       parentWidgetId,
-      newActions,
+      newlyCreatedActions,
     );
 
     // Step 1: call getCopiedWidgets()

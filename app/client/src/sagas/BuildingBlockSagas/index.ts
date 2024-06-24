@@ -85,6 +85,7 @@ export function updateWidgetsNameInNewQueries(
     });
 }
 
+// new actions needed after the drop of a block need to be added to the redux local state
 export function* addNewlyAddedActionsToRedux(actions: Action[]) {
   for (const action of actions) {
     if (!action) {
