@@ -265,7 +265,11 @@ class PageApi extends Api {
     if (request.pageId) {
       return Api.put(PageApi.getGenerateTemplateURL(request.pageId), request);
     } else {
-      return Api.post(PageApi.getGenerateTemplateURL(), request);
+      const payload = {
+        ...request,
+        pageId: undefined,
+      };
+      return Api.post(PageApi.getGenerateTemplateURL(), payload);
     }
   }
 
