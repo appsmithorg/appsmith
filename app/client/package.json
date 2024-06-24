@@ -17,10 +17,10 @@
   ],
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
-    "start": "BROWSER=none REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco --max_old_space_size=4096 start",
+    "start": "BROWSER=none REACT_APP_ENVIRONMENT=DEVELOPMENT REACT_APP_CLIENT_LOG_LEVEL=debug HOST=dev.appsmith.com craco --max_old_space_size=20480 start",
     "build": "./build.sh",
     "build-airgap": "node download-assets.js && ./build.sh",
-    "build-local": "craco --max-old-space-size=4096 build --config craco.build.config.js",
+    "build-local": "craco --max-old-space-size=20480 build --config craco.build.config.js",
     "build-staging": "REACT_APP_ENVIRONMENT=STAGING craco --max-old-space-size=4096 build --config craco.build.config.js",
     "test": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh",
     "test:ci": "CYPRESS_BASE_URL=https://dev.appsmith.com cypress/test.sh --env=ci",
@@ -99,7 +99,6 @@
     "appsmith-icons": "workspace:^",
     "assert-never": "^1.2.1",
     "astring": "^1.7.5",
-    "async-mutex": "^0.5.0",
     "axios": "^1.6.0",
     "classnames": "^2.3.1",
     "clsx": "^1.2.1",
@@ -109,13 +108,14 @@
     "core-js": "^3.9.1",
     "craco-alias": "^2.1.1",
     "craco-babel-loader": "^1.0.4",
+    "critters-webpack-plugin": "^3.0.2",
     "cssnano": "^6.0.1",
     "cypress-log-to-output": "^1.1.2",
     "d3-geo": "^3.1.0",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
-    "design-system": "npm:@appsmithorg/design-system@2.1.41",
-    "design-system-old": "npm:@appsmithorg/design-system-old@1.1.17",
+    "design-system": "npm:@appsmithorg/design-system@2.1.39",
+    "design-system-old": "npm:@appsmithorg/design-system-old@1.1.16",
     "downloadjs": "^1.4.7",
     "echarts": "^5.4.2",
     "fast-deep-equal": "^3.1.3",
@@ -124,6 +124,7 @@
     "focus-trap-react": "^8.9.2",
     "fuse.js": "^3.4.5",
     "fusioncharts": "^3.18.0",
+    "glob": "^10.4.1",
     "graphql": "^16.8.1",
     "history": "^4.10.1",
     "http-proxy": "^1.18.1",
@@ -161,6 +162,7 @@
     "prismjs": "^1.27.0",
     "proxy-memoize": "^1.2.0",
     "punycode": "^2.1.1",
+    "purgecss-webpack-plugin": "^6.0.0",
     "rc-pagination": "^3.1.3",
     "rc-select": "^14.1.9",
     "rc-tree-select": "^5.4.0",
@@ -223,6 +225,7 @@
     "styled-components": "^5.3.6",
     "tailwindcss": "^3.3.3",
     "tern": "^0.21.0",
+    "terser-webpack-plugin": "^5.3.10",
     "tinycolor2": "^1.4.2",
     "to-json-schema": "^0.2.5",
     "toposort": "^2.0.2",
@@ -303,7 +306,7 @@
     "@types/zipcelx": "^1.5.0",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
-    "babel-plugin-lodash": "^3.3.4",
+    "babel-plugin-lodash": "latest",
     "babel-plugin-module-resolver": "^4.1.0",
     "chalk": "^4.1.1",
     "compression-webpack-plugin": "^10.0.0",
@@ -397,5 +400,10 @@
     "@blueprintjs/icons": "3.22.0",
     "@types/react": "^17.0.2",
     "postcss": "8.4.31"
+  },
+  "overrides": {
+    "babel-plugin-lodash": {
+      "@babel/types": "~7.20.0"
+    }
   }
 }

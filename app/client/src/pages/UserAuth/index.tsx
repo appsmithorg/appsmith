@@ -1,19 +1,19 @@
-import React from "react";
+import React, { lazy, Suspense } from "react";
 import { Route, Switch, useLocation, useRouteMatch } from "react-router-dom";
-import Login from "pages/UserAuth/Login";
-import SignUp from "pages/UserAuth/SignUp";
-import ForgotPassword from "./ForgotPassword";
-import ResetPassword from "./ResetPassword";
-import PageNotFound from "pages/common/ErrorPages/PageNotFound";
+const Login = lazy(() => import("pages/UserAuth/Login"));
+const SignUp = lazy(() => import("pages/UserAuth/SignUp"));
+const ForgotPassword = lazy(() => import("./ForgotPassword"));
+const ResetPassword = lazy(() => import("./ResetPassword"));
+const PageNotFound = lazy(() => import("pages/common/ErrorPages/PageNotFound"));
+const VerificationPending = lazy(() => import("./VerificationPending"));
+const VerifyUser = lazy(() => import("./VerifyUser"));
+const VerificationError = lazy(() => import("./VerificationError"));
 import * as Sentry from "@sentry/react";
 import { requiresUnauth } from "./requiresAuthHOC";
 import { useSelector } from "react-redux";
 import { getThemeDetails, ThemeMode } from "selectors/themeSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { ThemeProvider } from "styled-components";
-import VerificationPending from "./VerificationPending";
-import VerifyUser from "./VerifyUser";
-import VerificationError from "./VerificationError";
 import FooterLinks from "./FooterLinks";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
@@ -34,7 +34,7 @@ export function UserAuth() {
 
   return (
     <ThemeProvider theme={lightTheme}>
-      {/* TODO: (Albin) - chnages this to ads-v2 variable once  branding is sorted out. */}
+      {/* TODO: (Albin) - changes this to ads-v2 variable once branding is sorted out. */}
       <div
         className={`absolute inset-0 flex flex-col overflow-y-auto auth-container bg-[color:var(--ads-color-background-secondary)] ${
           !isMobileDevice ? "p-4" : "px-6 py-12"
@@ -46,32 +46,34 @@ export function UserAuth() {
             src={getAssetUrl(tenantConfig.brandLogoUrl)}
           />
         )}
-        <Switch location={location}>
-          <SentryRoute component={Login} exact path={`${path}/login`} />
-          <SentryRoute component={SignUp} exact path={`${path}/signup`} />
-          <SentryRoute
-            component={ResetPassword}
-            exact
-            path={`${path}/resetPassword`}
-          />
-          <SentryRoute
-            component={ForgotPassword}
-            exact
-            path={`${path}/forgotPassword`}
-          />
-          <SentryRoute
-            component={VerificationPending}
-            exact
-            path={`${path}/verificationPending`}
-          />
-          <SentryRoute component={VerifyUser} exact path={`${path}/verify`} />
-          <SentryRoute
-            component={VerificationError}
-            exact
-            path={`${path}/verify-error`}
-          />
-          <SentryRoute component={PageNotFound} />
-        </Switch>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Switch location={location}>
+            <SentryRoute component={Login} exact path={`${path}/login`} />
+            <SentryRoute component={SignUp} exact path={`${path}/signup`} />
+            <SentryRoute
+              component={ResetPassword}
+              exact
+              path={`${path}/resetPassword`}
+            />
+            <SentryRoute
+              component={ForgotPassword}
+              exact
+              path={`${path}/forgotPassword`}
+            />
+            <SentryRoute
+              component={VerificationPending}
+              exact
+              path={`${path}/verificationPending`}
+            />
+            <SentryRoute component={VerifyUser} exact path={`${path}/verify`} />
+            <SentryRoute
+              component={VerificationError}
+              exact
+              path={`${path}/verify-error`}
+            />
+            <SentryRoute component={PageNotFound} />
+          </Switch>
+        </Suspense>
         {cloudHosting && <FooterLinks />}
       </div>
     </ThemeProvider>

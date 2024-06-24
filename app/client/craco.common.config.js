@@ -2,6 +2,11 @@ const CracoAlias = require("craco-alias");
 const CracoBabelLoader = require("craco-babel-loader");
 const path = require("path");
 const webpack = require("webpack");
+const CrittersPlugin = require("critters-webpack-plugin");
+const CssMinimizerPlugin = require("css-minimizer-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
+const PurgeCSSPlugin = require("purgecss-webpack-plugin").PurgeCSSPlugin;
+const glob = require("glob");
 
 module.exports = {
   devServer: {
@@ -73,6 +78,23 @@ module.exports = {
         ],
       },
       optimization: {
+        minimize: true,
+        minimizer: [
+          new CssMinimizerPlugin(),
+          new TerserPlugin({
+            terserOptions: {
+              compress: {
+                unused: true,
+                dead_code: true,
+                warnings: false,
+              },
+              output: {
+                comments: false,
+              },
+            },
+            extractComments: false,
+          }),
+        ],
         splitChunks: {
           cacheGroups: {
             icons: {
@@ -141,6 +163,11 @@ module.exports = {
             "./src/components/designSystems/blueprintjs/icon/index.js",
           ),
         ),
+        new CrittersPlugin(),
+        new webpack.optimize.ModuleConcatenationPlugin(),
+        new PurgeCSSPlugin({
+          paths: glob.sync("src/**/*", { nodir: true }),
+        }),
       ],
     },
   },
