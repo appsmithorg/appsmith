@@ -49,7 +49,7 @@ const NoResult = styled(NonIdealState)`
       svg {
         height: 52px;
         width: 144px;
-      }
+      
     }
 
     div {
