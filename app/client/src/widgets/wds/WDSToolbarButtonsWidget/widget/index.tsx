@@ -77,6 +77,7 @@ class WDSToolbarButtonsWidget extends BaseWidget<
         alignment={alignment}
         buttonsList={buttonsList}
         color={color}
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         key={widgetId}
         onButtonClick={this.onButtonClick}
         variant={variant}

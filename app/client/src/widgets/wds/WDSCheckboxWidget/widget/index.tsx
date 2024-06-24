@@ -95,6 +95,7 @@ class WDSCheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   getWidgetView() {
     return (
       <Checkbox
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         id={this.props.widgetId}
         isDisabled={this.props.isDisabled}
         isInvalid={!this.props.isValid}
