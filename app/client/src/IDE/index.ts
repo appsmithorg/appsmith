@@ -11,6 +11,14 @@
  */
 export { default as IDEHeader } from "./Structure/Header";
 
+/**
+ *
+ * IDE Body
+ *
+ *
+ */
+export { default as IDEBody } from "./Structure/Body";
+
 /* ====================================================
     **** UI Components ****
     Components that are smaller UI abstractions for easy use and standardisation within the IDE

@@ -5,7 +5,7 @@ import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "@appsmith/reducers";
-import IDE from "./IDE";
+import { IDEBody as IDE } from "IDE";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
