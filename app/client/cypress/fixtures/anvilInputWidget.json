@@ -1,0 +1,2154 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 4896,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 380,
+    "containerStyle": "none",
+    "snapRows": 124,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 89,
+    "minHeight": 1292,
+    "layout": [
+      {
+        "layoutId": "wqokm6wrqg",
+        "layoutType": "ALIGNED_LAYOUT_COLUMN",
+        "layout": [
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "qv26efbhab",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "sbl90fsatg",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "pjfk21amu0",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "okjt1axruy",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "0hx11f528z",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "f17bhyfhai",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          }
+        ],
+        "layoutStyle": {
+          "border": "none",
+          "height": "100%",
+          "padding": "spacing-4",
+          "gap": "spacing-4"
+        },
+        "isDropTarget": true,
+        "isPermanent": true,
+        "childTemplate": {
+          "insertChild": true,
+          "isDropTarget": false,
+          "isPermanent": false,
+          "layout": [],
+          "layoutId": "",
+          "layoutType": "WIDGET_ROW",
+          "maxChildLimit": 1
+        }
+      }
+    ],
+    "dynamicTriggerPathList": [],
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section1",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone1",
+            "flexGrow": 12,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "dlm0uo4cec",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input2",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "iconName": "123",
+                "widgetId": "vsqxpyj7ye",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1Copy",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "placeholderText": "Placeholder",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "99ka9a6urq",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1CopyCopy",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "placeholderText": "Placeholder",
+                "isDisabled": true,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "iyggs6b6br",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1CopyCopyCopy",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "placeholderText": "Placeholder",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "umezh2p54g",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1CopyCopyCopyCopyCopy",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "placeholderText": "Placeholder",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "0cctyxxncd",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1Copy1",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "85oq3tfpky",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1Copy2",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "hcaf179goq",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1Copy1Copy",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "o3kee5de3v",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1Copy1Copy2",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "q40ubvqv45",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1Copy1CopyCopy",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "7shl3i3h3t",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1CopyCopyCopyCopy",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "placeholderText": "Placeholder",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "6gc16bqsgd",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": "Read only value"
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1CopyCopyCopyCopyCopyCopy",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "placeholderText": "",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "bvj7u353cv",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": false,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input2CopyCopy",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "validation": "",
+                "isRequired": true,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "h04j0ont1l",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": "Default Value"
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input2Copy",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "tooltip": "Tooltip",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "validation": "",
+                "isRequired": true,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "l7y4kaoyk5",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "errorMessage": "",
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "j999cwcbnb",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "x2nhbq2vl4",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "j999cwcbnb",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "qv26efbhab",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "9dme3qpv4q",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "dlm0uo4cec",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "zxiqi5xgmo",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "99ka9a6urq",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "h04j0ont1l",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "4w0ckbx9xw",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "vsqxpyj7ye",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "l7y4kaoyk5",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "xyb5y215zc",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "iyggs6b6br",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "ie0r7fzaue",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "umezh2p54g",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "6gc16bqsgd",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "lgf239pvhe",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "0cctyxxncd",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "bvj7u353cv",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "hwan5ljbv1",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "85oq3tfpky",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "hcaf179goq",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "zw07x7p9kc",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "o3kee5de3v",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "7shl3i3h3t",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "q40ubvqv45",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "zonm1phj72",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "827qb033hi",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "qv26efbhab",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 1,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "j999cwcbnb",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "7rq486k1nj",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "j999cwcbnb": 12
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section2",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1Copy1Copy1",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "4oq0r8ucsj",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "vsjhrclxoe",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "x2nhbq2vl4",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "vsjhrclxoe",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "pjfk21amu0",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "gp9brth3ch",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "4oq0r8ucsj",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "mnriyjs0aq",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone3",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1Copy1Copy1Copy",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "z2bnxk8qy2",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "amoc7bgh3w",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "x2nhbq2vl4",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "amoc7bgh3w",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "pjfk21amu0",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "3k2hnp5cvf",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "z2bnxk8qy2",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "cvr4fy9bkc",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "827qb033hi",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "pjfk21amu0",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 2,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "vsjhrclxoe",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "amoc7bgh3w",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "sfrlgvqz4e",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "vsjhrclxoe": 6,
+          "amoc7bgh3w": 6
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section3",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone4",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1Copy1Copy1Copy1",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "tv7elgtw54",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "10yma8iw8x",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "x2nhbq2vl4",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "10yma8iw8x",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "0hx11f528z",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "ryjnw2lxnz",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "tv7elgtw54",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "of0p13pqkv",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone5",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1Copy1Copy1CopyCopy",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "uju3reto0b",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "8z5gcsy44z",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "x2nhbq2vl4",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "8z5gcsy44z",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "0hx11f528z",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "enf0cjb4de",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "uju3reto0b",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "9fy1mskk2j",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone6",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Input1Copy1Copy1CopyCopyCopy",
+                "displayName": "Input",
+                "searchTags": [
+                  "form",
+                  "text input",
+                  "number",
+                  "textarea"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelPosition": "top",
+                "inputType": "TEXT",
+                "isDisabled": false,
+                "key": "xf1gw1g9vv",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "cj4tcu3lv9",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Label",
+                "version": 2,
+                "parentId": "wavyy0gaam",
+                "tags": [
+                  "Suggested",
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "iconAlign": "left",
+                "defaultText": ""
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "x2nhbq2vl4",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "wavyy0gaam",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "0hx11f528z",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "3feo6relp6",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "cj4tcu3lv9",
+                        "widgetType": "WDS_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "6v8ss3u58w",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "827qb033hi",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "0hx11f528z",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 3,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "10yma8iw8x",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "8z5gcsy44z",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "wavyy0gaam",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "doglpavywx",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "10yma8iw8x": 4,
+          "8z5gcsy44z": 4,
+          "wavyy0gaam": 4
+        }
+      }
+    ]
+  },
+  "layoutOnLoadActions": [],
+  "layoutOnLoadActionErrors": [],
+  "id": "667945a207fd8f022e8b8722",
+  "userPermissions": []
+}
