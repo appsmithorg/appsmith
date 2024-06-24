@@ -35,12 +35,18 @@ import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
 
 export function defaultSelectedValuesValidation(
   value: unknown,
+  props: any,
 ): ValidationResponse {
   let values: string[] = [];
+  const options: OptionProps[] = props.options || [];
 
   if (typeof value === "string") {
     try {
       values = JSON.parse(value);
+      values = values.filter((value: string) =>
+        options.some((option: OptionProps) => option.value === value),
+      );
+
       if (!Array.isArray(values)) {
         throw new Error();
       }
@@ -614,7 +620,6 @@ class CheckboxGroupWidget extends BaseWidget<
   }
 
   componentDidUpdate(prevProps: CheckboxGroupWidgetProps) {
-    //search props.selectedValues in the options if not found set selectedValues to []
     const validSelectedValues = prevProps.selectedValues.filter(
       (value: string) =>
         prevProps.options.some((option) => option.value === value),
