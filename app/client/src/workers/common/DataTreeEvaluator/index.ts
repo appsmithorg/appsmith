@@ -717,10 +717,8 @@ export default class DataTreeEvaluator {
     }
 
     const updatedValuePaths = [...pathsChangedSet];
-    this.logs.push({
-      differences,
-      translatedDiffs,
-    });
+
+    this.updateEvalTreeWithChanges({ differences });
 
     const setupUpdateTreeOutput = profileFn(
       "setupTree",
@@ -739,6 +737,11 @@ export default class DataTreeEvaluator {
         });
       },
     );
+
+    this.logs.push({
+      differences,
+      translatedDiffs,
+    });
 
     return {
       ...setupUpdateTreeOutput,
@@ -791,7 +794,6 @@ export default class DataTreeEvaluator {
       isNewWidgetAdded: boolean;
     },
   ) {
-    this.updateEvalTreeWithChanges({ differences });
     const {
       configTree,
       dependenciesOfRemovedPaths = [],
