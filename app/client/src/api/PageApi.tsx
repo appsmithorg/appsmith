@@ -262,13 +262,13 @@ class PageApi extends Api {
   static async generateTemplatePage(
     request: GenerateTemplatePageRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
+    const payload = {
+      ...request,
+      pageId: undefined,
+    };
     if (request.pageId) {
-      return Api.put(PageApi.getGenerateTemplateURL(request.pageId), request);
+      return Api.put(PageApi.getGenerateTemplateURL(request.pageId), payload);
     } else {
-      const payload = {
-        ...request,
-        pageId: undefined,
-      };
       return Api.post(PageApi.getGenerateTemplateURL(), payload);
     }
   }
