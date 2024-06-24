@@ -6,6 +6,7 @@ import {
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import type { AppState } from "@appsmith/reducers";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   getHasCreatePagePermission,
@@ -24,6 +25,7 @@ import {
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
+import { isEnabledForPreviewData } from "utils/editorContextUtils";
 import history from "utils/history";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { EditorNames } from "./";
@@ -46,6 +48,9 @@ export const useHeaderActions = (
 ) => {
   const pageId = useSelector(getCurrentPageId);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const releaseDragDropBuildingBlocks = useFeatureFlag(
+    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
+  );
   const userAppPermissions = useSelector(
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
@@ -55,6 +60,17 @@ export const useHeaderActions = (
   const showGenerateButton = useShowPageGenerationOnHeader(
     datasource as Datasource,
   );
+
+  const plugin = useSelector((state: AppState) =>
+    getPlugin(state, datasource?.pluginId || ""),
+  );
+
+  const isPluginAllowedToPreviewData =
+    !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
+
+  const shouldShowSecondaryGenerateButton = releaseDragDropBuildingBlocks
+    ? false
+    : !!isPluginAllowedToPreviewData;
 
   if (editorType === EditorNames.APPLICATION) {
     const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
@@ -90,6 +106,7 @@ export const useHeaderActions = (
         datasource={datasource as Datasource}
         disabled={!canCreateDatasourceActions || !isPluginAuthorized}
         eventFrom="datasource-pane"
+        isNewQuerySecondaryButton={shouldShowSecondaryGenerateButton}
         pluginType={pluginType}
       />
     );
