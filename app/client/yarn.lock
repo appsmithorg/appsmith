@@ -32897,7 +32897,7 @@ __metadata:
 
 "tinymce@npm:^7.0.0 || ^6.0.0 || ^5.5.1":
   version: 7.0.0
-  resolution: "tinymce@npm:7.2.0"
+  resolution: "tinymce@npm:7.0.0"
   checksum: 1f2dc383c1c6f4efb8d3f4223577a8f2b450f6cc62b2861c80467495d68c2453cbd8b646416a0376282fb0b6341c194c698503149037347133b7b936fb7c717b
   languageName: node
   linkType: hard

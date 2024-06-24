@@ -544,7 +544,7 @@ class RichTextEditorWidget extends BaseWidget<
           isDisabled={this.props.isDisabled}
           isDynamicHeightEnabled={isAutoHeightEnabledForWidget(this.props)}
           isMarkdown={this.props.inputType === RTEFormats.MARKDOWN}
-          isToolbarHidden={false}
+          isToolbarHidden={!!this.props.isToolbarHidden}
           isValid={this.props.isValid}
           isVisible={this.props.isVisible}
           key={this.props.widgetId}
