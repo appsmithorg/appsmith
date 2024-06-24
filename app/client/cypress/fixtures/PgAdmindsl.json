@@ -3366,43 +3366,5 @@
         "width": 476
       }
     ]
-  },
-  "layoutOnLoadActions": [
-    [
-      {
-        "id": "618a1d972bd3790c06a8744a",
-        "name": "get_schema",
-        "pluginType": "DB",
-        "jsonPathKeys": [],
-        "timeoutInMillisecond": 10000
-      },
-      {
-        "id": "618a1d9f2bd3790c06a8744b",
-        "name": "get_tables",
-        "pluginType": "DB",
-        "jsonPathKeys": ["schema_select.selectedOptionValue || \"public\""],
-        "timeoutInMillisecond": 10000
-      },
-      {
-        "id": "618cd7424c4a6f71a2723404",
-        "name": "get_table_col_schema",
-        "pluginType": "DB",
-        "jsonPathKeys": [],
-        "timeoutInMillisecond": 10000
-      }
-    ],
-    [
-      {
-        "id": "618a1dad2bd3790c06a8744c",
-        "name": "get_columns",
-        "pluginType": "DB",
-        "jsonPathKeys": [
-          "List1.selectedItem.tablename",
-          "schema_select.selectedOptionValue"
-        ],
-        "timeoutInMillisecond": 10000
-      }
-    ]
-  ],
-  "new": false
+  }
 }
