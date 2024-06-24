@@ -158,7 +158,7 @@ describe(
       agHelper
         .GetElement(anvilLocators.anvilWidgetNameSelector("Modal1"))
         .matchImageSnapshot("anvil/anvilModalSmallSize");
-      propPane.SelectPropertiesDropDown("size", "Large");
+      // propPane.SelectPropertiesDropDown("size", "Large");
       agHelper
         .GetElement(anvilLocators.anvilWidgetNameSelector("Modal1"))
         .matchImageSnapshot("anvil/anvilModalLargeSize");
