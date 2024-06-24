@@ -46,7 +46,7 @@ export function AppPage(props: AppPageProps) {
       isPublished={isPublished}
       sidebarWidth={sidebarWidth}
     >
-      <PageView className="t--app-viewer-page" width={width}>
+      <PageView data-testid="t--app-viewer-page" width={width}>
         {props.widgetsStructure.widgetId &&
           renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
       </PageView>

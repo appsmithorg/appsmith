@@ -12,7 +12,6 @@ import {
   Flex,
   Switch,
   RadioGroup,
-  Radio,
   IconButton,
   TextArea,
   Modal,
@@ -105,12 +104,27 @@ export const ComplexForm = () => {
           )}
         </ToggleGroup>
 
-        <RadioGroup label="Portion size">
-          <Radio value="s">S</Radio>
-          <Radio value="M">M</Radio>
-          <Radio value="L">L</Radio>
-          <Radio value="XL">XL</Radio>
-        </RadioGroup>
+        <RadioGroup
+          items={[
+            {
+              value: "s",
+              label: "S",
+            },
+            {
+              value: "m",
+              label: "M",
+            },
+            {
+              value: "l",
+              label: "L",
+            },
+            {
+              value: "xl",
+              label: "XL",
+            },
+          ]}
+          label="Portion size"
+        />
 
         <Flex direction="column" gap="spacing-3">
           <Flex direction="column" gap="spacing-2">

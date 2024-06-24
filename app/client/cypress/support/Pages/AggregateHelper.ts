@@ -133,15 +133,32 @@ export class AggregateHelper {
     });
   }
 
+  public extractPageIdFromUrl(url: string): null | string {
+    const parts = url.split("/");
+
+    if (parts[3] !== "app") {
+      // Not a app URL.
+      return null;
+    }
+
+    // Extract the page ID, either as an ObjectID or as a UUID.
+    return (
+      parts[5]?.match(
+        /[0-9a-f]{24}$|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+      )?.[0] ?? null
+    );
+  }
+
   public AddDsl(
     dslFile: string,
     elementToCheckPresenceaftDslLoad: string | "" = "", //    reloadWithoutCache = true,
   ) {
-    let pageid: string, layoutId;
+    let layoutId;
     let appId: string | null;
     cy.fixture(dslFile).then((val) => {
       cy.url().then((url) => {
-        pageid = url.split("/")[5]?.split("-").pop() as string;
+        const pageid = this.extractPageIdFromUrl(url);
+        expect(pageid).to.not.be.null;
         //Fetch the layout id
         cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
           const respBody = JSON.stringify(response.body);
