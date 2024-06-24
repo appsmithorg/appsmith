@@ -4,7 +4,6 @@ import type { ApiResponse } from "./ApiResponses";
 import type { AxiosPromise } from "axios";
 
 import type { Datasource, DatasourceStorage } from "entities/Datasource";
-
 export interface CreateDatasourceConfig {
   name: string;
   pluginId: string;
@@ -164,7 +163,7 @@ class DatasourcesApi extends API {
     datasourceId,
   }: executeDatasourceQueryRequest) {
     return API.post(
-      DatasourcesApi.url + `/${datasourceId}/schema-preview`,
+      DatasourcesApi.url + `/${datasourceId}` + `/schema-preview`,
       data,
     );
   }
@@ -173,7 +172,7 @@ class DatasourcesApi extends API {
     data,
     datasourceId,
   }: executeDatasourceQueryRequest) {
-    return API.post(DatasourcesApi.url + `/${datasourceId}/trigger`, data);
+    return API.post(DatasourcesApi.url + `/${datasourceId}` + `/trigger`, data);
   }
 }
 
