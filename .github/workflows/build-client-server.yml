@@ -131,7 +131,6 @@ jobs:
     secrets: inherit
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
-      matrix: ${{needs.file-check.outputs.matrix_count}}
 
   ci-test-limited-existing-docker-image:
     needs: [file-check]
