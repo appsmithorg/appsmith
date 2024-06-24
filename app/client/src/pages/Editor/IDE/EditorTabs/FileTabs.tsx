@@ -1,28 +1,24 @@
-import React, { useEffect } from "react";
+import React from "react";
 
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import {
+  EditorEntityTabState,
+  type EntityItem,
+} from "@appsmith/entities/IDE/constants";
 import { useCurrentEditorState } from "../hooks";
 import { FileTab } from "IDE/Components/FileTab";
+import type { FocusEntityInfo } from "navigation/FocusEntity";
 
 interface Props {
   tabs: EntityItem[];
   navigateToTab: (tab: EntityItem) => void;
   onClose: (actionId?: string) => void;
-  currentTab: string;
+  currentEntity: FocusEntityInfo;
+  isListActive?: boolean;
 }
 
 const FileTabs = (props: Props) => {
-  const { currentTab, navigateToTab, onClose, tabs } = props;
+  const { currentEntity, isListActive, navigateToTab, onClose, tabs } = props;
   const { segmentMode } = useCurrentEditorState();
-
-  useEffect(() => {
-    const activetab = document.querySelector(".editor-tab.active");
-    if (activetab) {
-      activetab.scrollIntoView({
-        inline: "nearest",
-      });
-    }
-  }, [tabs, segmentMode]);
 
   const onCloseClick = (e: React.MouseEvent, id?: string) => {
     e.stopPropagation();
@@ -34,7 +30,11 @@ const FileTabs = (props: Props) => {
       {tabs.map((tab: EntityItem) => (
         <FileTab
           icon={tab.icon}
-          isActive={currentTab === tab.key}
+          isActive={
+            currentEntity.id === tab.key &&
+            segmentMode !== EditorEntityTabState.Add &&
+            !isListActive
+          }
           key={tab.key}
           onClick={() => navigateToTab(tab)}
           onClose={(e) => onCloseClick(e, tab.key)}

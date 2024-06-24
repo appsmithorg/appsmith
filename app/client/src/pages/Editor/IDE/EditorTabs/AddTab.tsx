@@ -8,11 +8,13 @@ import {
 } from "@appsmith/entities/IDE/constants";
 
 const AddTab = ({
+  isListActive,
   newTabClickCallback,
   onClose,
 }: {
   newTabClickCallback: () => void;
   onClose: (actionId?: string) => void;
+  isListActive: boolean;
 }) => {
   const { segment, segmentMode } = useCurrentEditorState();
 
@@ -25,7 +27,7 @@ const AddTab = ({
 
   return (
     <FileTab
-      isActive={segmentMode === EditorEntityTabState.Add}
+      isActive={segmentMode === EditorEntityTabState.Add && !isListActive}
       onClick={newTabClickCallback}
       onClose={(e) => onCloseClick(e)}
       title={`New ${segment === EditorEntityTab.JS ? "JS" : "Query"}`}

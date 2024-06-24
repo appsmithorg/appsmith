@@ -78,7 +78,6 @@ const ListJSObjects = () => {
       >
         <Flex
           data-testid="t--ide-list"
-          flex="1"
           flexDirection="column"
           gap="spaces-4"
           overflowY="auto"

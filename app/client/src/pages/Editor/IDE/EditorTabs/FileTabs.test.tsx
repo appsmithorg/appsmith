@@ -1,8 +1,9 @@
 import React from "react";
 import { fireEvent, render } from "test/testUtils";
 import FileTabs from "./FileTabs";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import { EditorState, type EntityItem } from "@appsmith/entities/IDE/constants";
 import { PluginType } from "entities/Action";
+import { FocusEntity } from "navigation/FocusEntity";
 
 describe("FileTabs", () => {
   const mockTabs: EntityItem[] = [
@@ -14,11 +15,17 @@ describe("FileTabs", () => {
 
   const mockNavigateToTab = jest.fn();
   const mockOnClose = jest.fn();
+  const activeEntity = {
+    entity: FocusEntity.API,
+    id: "File 1",
+    appState: EditorState.EDITOR,
+    params: {},
+  };
 
   it("renders tabs correctly", () => {
     const { getByTestId, getByText } = render(
       <FileTabs
-        currentTab={mockTabs[0].key}
+        currentEntity={activeEntity}
         navigateToTab={mockNavigateToTab}
         onClose={mockOnClose}
         tabs={mockTabs}
@@ -41,7 +48,7 @@ describe("FileTabs", () => {
   it("check tab click", () => {
     const { getByTestId } = render(
       <FileTabs
-        currentTab={mockTabs[0].key}
+        currentEntity={activeEntity}
         navigateToTab={mockNavigateToTab}
         onClose={mockOnClose}
         tabs={mockTabs}
@@ -56,7 +63,7 @@ describe("FileTabs", () => {
   it("check for close click", () => {
     const { getByTestId } = render(
       <FileTabs
-        currentTab={mockTabs[1].key}
+        currentEntity={activeEntity}
         navigateToTab={mockNavigateToTab}
         onClose={mockOnClose}
         tabs={mockTabs}

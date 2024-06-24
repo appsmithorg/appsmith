@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { shallowEqual, useSelector } from "react-redux";
 import { Flex, ScrollArea, ToggleButton } from "design-system";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
@@ -26,26 +26,35 @@ const EditorTabs = () => {
   const ideViewMode = useSelector(getIDEViewMode);
   const { segment, segmentMode } = useCurrentEditorState();
   const { closeClickHandler, tabClickHandler } = useIDETabClickHandlers();
-
   const tabsConfig = TabSelectors[segment];
-  const files = useSelector(tabsConfig.tabsSelector);
+  const files = useSelector(tabsConfig.tabsSelector, shallowEqual);
 
   const location = useLocation();
   const currentEntity = identifyEntityFromPath(location.pathname);
-  const activeTab = showListView
-    ? ""
-    : segmentMode === EditorEntityTabState.Add
-      ? "add"
-      : currentEntity.id;
 
+  // Turn off list view while changing segment, files
+  useEffect(() => {
+    setShowListView(false);
+  }, [currentEntity.id, currentEntity.entity, files, segmentMode]);
+
+  // Show list view if all tabs is closed
   useEffect(() => {
     if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) {
       setShowListView(true);
-    } else if (showListView) {
-      setShowListView(false);
     }
-  }, [files, segmentMode, showListView]);
+  }, [files, segmentMode, currentEntity.entity]);
 
+  // scroll to the active tab
+  useEffect(() => {
+    const activetab = document.querySelector(".editor-tab.active");
+    if (activetab) {
+      activetab.scrollIntoView({
+        inline: "nearest",
+      });
+    }
+  }, [files, segmentMode]);
+
+  // show border if add button is sticky
   useEffect(() => {
     const ele = document.querySelector<HTMLElement>(
       '[data-testid="t--editor-tabs"] > [data-overlayscrollbars-viewport]',
@@ -98,12 +107,14 @@ const EditorTabs = () => {
         >
           <Flex className="items-center" gap="spaces-2" height="100%">
             <FileTabs
-              currentTab={activeTab}
+              currentEntity={currentEntity}
+              isListActive={showListView}
               navigateToTab={onTabClick}
               onClose={closeClickHandler}
               tabs={files}
             />
             <AddTab
+              isListActive={showListView}
               newTabClickCallback={newTabClickHandler}
               onClose={closeClickHandler}
             />
