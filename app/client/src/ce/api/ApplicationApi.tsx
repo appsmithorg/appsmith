@@ -368,7 +368,11 @@ export class ApplicationApi extends Api {
     request: UpdateApplicationRequest,
   ): Promise<AxiosPromise<ApiResponse<UpdateApplicationResponse>>> {
     const { id, ...rest } = request;
-    return Api.put(ApplicationApi.baseURL + "/" + id, rest);
+    const payload = {
+      ...rest,
+      currentApp: undefined,
+    };
+    return Api.put(ApplicationApi.baseURL + "/" + id, payload);
   }
 
   static async deleteApplication(
