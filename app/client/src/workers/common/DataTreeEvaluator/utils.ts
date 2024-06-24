@@ -1,6 +1,9 @@
+import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
+  DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isJSAction,
+  isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   EXECUTION_PARAM_REFERENCE_REGEX,
@@ -109,4 +112,23 @@ export function getOnlyAffectedJSObjects(
     },
     {} as Record<string, JSActionEntity>,
   );
+}
+
+export function getIsNewWidgetAdded(
+  translatedDiffs: DataTreeDiff[],
+  localUnEvalTree: DataTree,
+) {
+  let isNewWidgetAdded = false;
+  /** We need to know if a new widget was added so that we do not fire ENTITY_BINDING_SUCCESS event */
+  for (let i = 0; i < translatedDiffs.length; i++) {
+    const diffEvent = translatedDiffs[i];
+    if (diffEvent.event === DataTreeDiffEvent.NEW) {
+      const entity = localUnEvalTree[diffEvent.payload.propertyPath];
+      if (isWidget(entity)) {
+        isNewWidgetAdded = true;
+        break;
+      }
+    }
+  }
+  return isNewWidgetAdded;
 }
