@@ -78,8 +78,7 @@ public class PageDTO {
     @JsonView(Views.Public.class)
     DefaultResources defaultResources;
 
-    // TODO: get this clarified for GIT annotation
-    @JsonView({Views.Public.class, Git.class})
+    @JsonView(Views.Public.class)
     Map<String, List<String>> dependencyMap;
 
     public void sanitiseToExportDBObject() {

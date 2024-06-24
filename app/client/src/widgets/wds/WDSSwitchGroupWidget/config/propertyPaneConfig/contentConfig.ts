@@ -131,23 +131,6 @@ export const propertyPaneContentConfig = [
     ],
   },
   {
-    sectionName: "Validations",
-    children: [
-      {
-        propertyName: "isRequired",
-        label: "Required",
-        helpText: "Makes input to the widget mandatory",
-        controlType: "SWITCH",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-    ],
-  },
-  {
     sectionName: "General",
     children: [
       {
