@@ -50,18 +50,18 @@
       "children": [
         {
           "label": "Authentication type",
-          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "configProperty": "datasourceConfiguration.authentication.authType",
           "controlType": "DROP_DOWN",
           "isRequired": true,
-          "initialValue": "basic",
+          "initialValue": "USERNAME_PASSWORD",
           "options": [
             {
-              "label": "Basic",
-              "value": "basic"
+              "label": "USERNAME_PASSWORD",
+              "value": "USERNAME_PASSWORD"
             },
             {
-              "label": "Key Pair",
-              "value": "keypair"
+              "label": "KEY_PAIR",
+              "value": "KEY_PAIR"
             }
           ],
           "hidden": {
@@ -94,9 +94,9 @@
                 "value": true
               },
               {
-                "path": "datasourceConfiguration.authentication.authenticationType",
+                "path": "datasourceConfiguration.authentication.authType",
                 "comparison": "NOT_EQUALS",
-                "value": "basic"
+                "value": "USERNAME_PASSWORD"
               }
             ]
           }
@@ -116,9 +116,9 @@
                 "value": false
               },
               {
-                "path": "datasourceConfiguration.authentication.authenticationType",
+                "path": "datasourceConfiguration.authentication.authType",
                 "comparison": "NOT_EQUALS",
-                "value": "keypair"
+                "value": "KEY_PAIR"
               }
             ]
           }
@@ -137,9 +137,9 @@
                 "value": false
               },
               {
-                "path": "datasourceConfiguration.authentication.authenticationType",
+                "path": "datasourceConfiguration.authentication.authType",
                 "comparison": "NOT_EQUALS",
-                "value": "keypair"
+                "value": "KEY_PAIR"
               }
             ]
           }
