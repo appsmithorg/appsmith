@@ -153,15 +153,15 @@ describe(
       );
       agHelper
         .GetElement(anvilLocators.anvilWidgetNameSelector("Modal1"))
-        .matchImageSnapshot("anvil/anvilModalMediumSize");
+        .matchImageSnapshot("anvilModalMediumSize");
       propPane.SelectPropertiesDropDown("size", "Small");
       agHelper
         .GetElement(anvilLocators.anvilWidgetNameSelector("Modal1"))
-        .matchImageSnapshot("anvil/anvilModalSmallSize");
+        .matchImageSnapshot("anvilModalSmallSize");
       propPane.SelectPropertiesDropDown("size", "Large");
       agHelper
         .GetElement(anvilLocators.anvilWidgetNameSelector("Modal1"))
-        .matchImageSnapshot("anvil/anvilModalLargeSize");
+        .matchImageSnapshot("anvilModalLargeSize");
     });
   },
 );
