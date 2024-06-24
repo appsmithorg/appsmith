@@ -85,7 +85,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   }
 
   onModalClose = () => {
-    if (this.props.onClose) {
+    if (!this.props.disableWidgetInteraction && this.props.onClose) {
       super.executeAction({
         triggerPropertyName: "onClose",
         dynamicString: this.props.onClose,
