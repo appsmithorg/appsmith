@@ -142,7 +142,6 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
-      matrix: ${{ needs.file-check.outputs.matrix_count }}
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]
