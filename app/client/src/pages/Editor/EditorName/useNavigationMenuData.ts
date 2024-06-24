@@ -19,6 +19,7 @@ import {
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
+import type { ThemeProp } from "WidgetProvider/constants";
 import { toast } from "design-system";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { getAppsmithConfigs } from "@appsmith/configs";
@@ -26,7 +27,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 
 const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
-export interface NavigationMenuDataProps {
+export interface NavigationMenuDataProps extends ThemeProp {
   editMode: typeof noop;
   setForkApplicationModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }

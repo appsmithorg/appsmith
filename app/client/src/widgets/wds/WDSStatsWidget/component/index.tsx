@@ -9,7 +9,6 @@ export const StatsComponent = (props: StatsComponentProps) => {
     iconAlign,
     iconName,
     label,
-    onClick,
     value,
     valueChange,
     valueChangeColor,
@@ -22,7 +21,6 @@ export const StatsComponent = (props: StatsComponentProps) => {
       direction={iconAlign === "end" ? "row-reverse" : "row"}
       gap="spacing-2"
       isInner
-      onClick={onClick}
     >
       {iconName && iconName !== "(none)" && (
         <Icon name={iconName} size="large" />

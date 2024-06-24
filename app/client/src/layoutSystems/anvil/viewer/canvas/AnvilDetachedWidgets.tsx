@@ -1,6 +1,5 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useDetachedChildren } from "layoutSystems/anvil/common/hooks/detachedWidgetHooks";
-import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
 import React from "react";
 import { useSelector } from "react-redux";
@@ -15,9 +14,7 @@ export const AnvilDetachedWidgets = () => {
       {detachedChildren.map((child) =>
         renderChildWidget({
           childWidgetData: child as WidgetProps,
-          defaultWidgetProps: {
-            className: `${getAnvilWidgetDOMId(child.widgetId)}`,
-          },
+          defaultWidgetProps: {},
           noPad: false,
           // Adding these properties as the type insists on providing this
           // while it is not required for detached children
