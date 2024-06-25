@@ -159,18 +159,4 @@ export const propertyPaneContentConfig = [
       },
     ],
   },
-  {
-    sectionName: "Events",
-    children: [
-      {
-        helpText: "when the button is clicked",
-        propertyName: "onClick",
-        label: "onClick",
-        controlType: "ACTION_SELECTOR",
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: true,
-      },
-    ],
-  },
 ];
