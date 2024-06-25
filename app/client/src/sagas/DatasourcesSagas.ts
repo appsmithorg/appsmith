@@ -428,8 +428,8 @@ export function* deleteDatasourceSaga(
 
     if (isValidResponse) {
       const currentUrl = `${window.location.pathname}`;
-      yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
       yield call(handleDatasourceDeleteRedirect, id);
+      yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
 
       toast.show(createMessage(DATASOURCE_DELETE, response.data.name), {
         kind: "success",
