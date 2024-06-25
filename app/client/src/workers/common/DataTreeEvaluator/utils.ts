@@ -102,11 +102,11 @@ export function getOnlyAffectedJSObjects(
   }
   const idsSet = new Set(ids);
   return Object.keys(jsDataTree).reduce(
-    (acc, key) => {
-      const { actionId } = jsDataTree[key];
+    (acc, jsObjectName) => {
+      const { actionId } = jsDataTree[jsObjectName];
       //only matching action id will be included in the reduced jsDataTree
       if (idsSet.has(actionId)) {
-        acc[key] = jsDataTree[key];
+        acc[jsObjectName] = jsDataTree[jsObjectName];
       }
       return acc;
     },

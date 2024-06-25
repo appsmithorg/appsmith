@@ -1,6 +1,6 @@
 import type {
   DataTreeEvaluationProps,
-  EvalError,
+  EvalError as TEvalError,
   EvaluationError,
 } from "utils/DynamicBindingUtils";
 import {
@@ -21,7 +21,6 @@ import type {
   WidgetEntity,
   WidgetEntityConfig,
   ActionEntity,
-  JSActionEntity,
   JSActionEntityConfig,
   PrivateWidgets,
   ActionEntityConfig,
@@ -164,7 +163,7 @@ export default class DataTreeEvaluator {
   privateWidgets: PrivateWidgets = {};
   oldUnEvalTree: UnEvalTree = {};
   oldConfigTree: ConfigTree = {};
-  errors: EvalError[] = [];
+  errors: TEvalError[] = [];
   logs: unknown[] = [];
   console = userLogs;
   allActionValidationConfig?: {
@@ -463,25 +462,24 @@ export default class DataTreeEvaluator {
     };
   }
 
-  updateLocalUnEvalTree(unevalTree: DataTree, configTree: ConfigTree) {
-    /**
-     *  TODO: This is a temporary fix to update unevalTree with JSObjectCollection state.
-     * In ideal scenario, the unevalTree should be updated with JSObjectCollection state in the dataTreeFactory itself. We will need to try to send
-     * {
-     * "JsObject1": {
-     *    function1: "function() { return 1; }",
-     *    "function1.data": {},
-     *    function2: "function() { return 2; }",
-     *    "function2.data": {},
-     *  }
-     * }
-     *  */
-
+  /**
+   *  TODO: This is a temporary fix to update unevalTree with JSObjectCollection state.
+   * In ideal scenario, the unevalTree should be updated with JSObjectCollection state in the dataTreeFactory itself. We will need to try to send
+   * {
+   * "JsObject1": {
+   *    function1: "function() { return 1; }",
+   *    "function1.data": {},
+   *    function2: "function() { return 2; }",
+   *    "function2.data": {},
+   *  }
+   * }
+   *  */
+  updateUnEvalTreeJSFunction(unevalTree: DataTree, configTree: ConfigTree) {
     //add functions and variables to unevalTree
     const unEvalJSCollection = JSObjectCollection.getUnEvalState();
     Object.keys(unEvalJSCollection).forEach((entityName) => {
       const updates = unEvalJSCollection[entityName];
-      if (!!unevalTree[entityName]) {
+      if (unevalTree[entityName]) {
         Object.keys(updates).forEach((key) => {
           const data = get(unevalTree, `${entityName}.${key}.data`, undefined);
           if (isJSObjectFunction(unevalTree, entityName, key, configTree)) {
@@ -496,25 +494,26 @@ export default class DataTreeEvaluator {
     return unevalTree;
   }
 
-  handleJSObjectUpdates({
+  /**
+   *
+   * In this method, we find the updatedJSobjects then parse the updated jsObject body and update the resolved functions and variable accordingly.
+   * getUpdatedLocalUnEvalTreeAfterJSUpdates- We update the unevalTree with the updated jsObject properties.
+   */
+  generateJSObjectUpdates({
     affectedJSObjects = { isAllAffected: false, ids: [] },
     configTree,
-    localUnEvalTree,
+    unEvalTree,
     webworkerTelemetry,
   }: {
-    localUnEvalTree: UnEvalTree;
+    unEvalTree: UnEvalTree;
     configTree: ConfigTree;
     webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes>;
     affectedJSObjects: AffectedJSObjects;
   }) {
-    let jsUpdates: Record<string, JSUpdate> = {};
     //get difference in js collection body to be parsed
     const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
-    const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
-    const jsDifferences: Diff<
-      Record<string, JSActionEntity>,
-      Record<string, JSActionEntity>
-    >[] = profileFn(
+    const localUnEvalTreeJSCollection = getJSEntities(unEvalTree);
+    const jsDifferences = profileFn(
       "SetupUpdateTree.Diff1",
       undefined,
       webworkerTelemetry,
@@ -535,30 +534,23 @@ export default class DataTreeEvaluator {
 
     const jsTranslatedDiffs = flatten(
       jsDifferences.map((diff) =>
-        translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
+        translateDiffEventToDataTreeDiffEvent(diff, unEvalTree),
       ),
     );
 
     //save parsed functions in resolveJSFunctions, update current state of js collection
-    const parsedCollections = profileFn(
+    const { jsUpdates } = profileFn(
       "SetupUpdateTree.parseJSActions",
       undefined,
       webworkerTelemetry,
-      () => {
-        return parseJSActions(
-          this,
-          localUnEvalTree,
-          this.oldUnEvalTree,
-          jsTranslatedDiffs,
-        );
-      },
+      () =>
+        parseJSActions(this, unEvalTree, this.oldUnEvalTree, jsTranslatedDiffs),
     );
 
-    jsUpdates = parsedCollections.jsUpdates;
     //update local data tree if js body has updated (remove/update/add js functions or variables)
-    localUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
+    const updatedUnEvalTree = getUpdatedLocalUnEvalTreeAfterJSUpdates(
       jsUpdates,
-      localUnEvalTree,
+      unEvalTree,
       configTree,
     );
 
@@ -577,16 +569,17 @@ export default class DataTreeEvaluator {
       stringifiedOldUnEvalTreeJSCollections,
     );
 
-    const localUnEvalTreeWithStringifiedJSFunctions = Object.assign(
+    const unEvalTreeWithStringifiedJSFunctions = Object.assign(
       {},
-      localUnEvalTree,
+      updatedUnEvalTree,
       stringifiedLocalUnEvalTreeJSCollection,
     );
 
     return {
       oldUnEvalTreeWithStringifiedJSFunctions,
-      localUnEvalTreeWithStringifiedJSFunctions,
+      unEvalTreeWithStringifiedJSFunctions,
       jsUpdates,
+      updatedUnEvalTree,
     };
   }
 
@@ -609,31 +602,31 @@ export default class DataTreeEvaluator {
     this.setConfigTree(configTree);
 
     const localUnEvalTree = Object.assign({}, unEvalTree);
-    //update uneval tree from previously saved current state of collection
-    const updatedUnEvalTree = this.updateLocalUnEvalTree(
+    const updatedUnEvalTreeJSFunction = this.updateUnEvalTreeJSFunction(
       localUnEvalTree,
       configTree,
     );
 
     const {
       jsUpdates,
-      localUnEvalTreeWithStringifiedJSFunctions,
       oldUnEvalTreeWithStringifiedJSFunctions,
-    } = this.handleJSObjectUpdates({
-      localUnEvalTree: updatedUnEvalTree,
+      unEvalTreeWithStringifiedJSFunctions,
+      updatedUnEvalTree: updatedUnEvalTreeJSObjects,
+    } = this.generateJSObjectUpdates({
+      unEvalTree: updatedUnEvalTreeJSFunction,
       configTree,
       webworkerTelemetry,
       affectedJSObjects,
     });
 
-    const differences: Diff<DataTree, DataTree>[] = profileFn(
+    const differences = profileFn(
       "unEvalTreeWithStringifiedJSFunctionsDiff",
       undefined,
       webworkerTelemetry,
       () =>
         diff(
           oldUnEvalTreeWithStringifiedJSFunctions,
-          localUnEvalTreeWithStringifiedJSFunctions,
+          unEvalTreeWithStringifiedJSFunctions,
         ) || [],
     );
     // Since eval tree is listening to possible events that don't cause differences
@@ -652,14 +645,14 @@ export default class DataTreeEvaluator {
     //find all differences which can lead to updating of dependency map
     const translatedDiffs = flatten(
       differences.map((diff) =>
-        translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
+        translateDiffEventToDataTreeDiffEvent(diff, updatedUnEvalTreeJSObjects),
       ),
     );
 
     // TODO => Optimize using dataTree diff
 
     this.allKeys = profileFn("getAllPaths", undefined, webworkerTelemetry, () =>
-      getAllPaths(localUnEvalTreeWithStringifiedJSFunctions),
+      getAllPaths(unEvalTreeWithStringifiedJSFunctions),
     );
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
@@ -673,7 +666,7 @@ export default class DataTreeEvaluator {
         configTree,
         dataTreeEvalRef: this,
         translatedDiffs,
-        unEvalDataTree: updatedUnEvalTree,
+        unEvalDataTree: updatedUnEvalTreeJSObjects,
       });
     });
 
@@ -696,7 +689,7 @@ export default class DataTreeEvaluator {
       undefined,
       webworkerTelemetry,
       () => {
-        return this.setupTree(localUnEvalTree, updatedValuePaths, {
+        return this.setupTree(updatedUnEvalTreeJSObjects, updatedValuePaths, {
           dependenciesOfRemovedPaths,
           removedPaths,
           translatedDiffs,
@@ -716,11 +709,11 @@ export default class DataTreeEvaluator {
   }
 
   getEvaluationOrder({
-    localUnEvalTree,
     pathsToSkipFromEval,
     subTreeSortOrder,
+    unEvalTree,
   }: {
-    localUnEvalTree: DataTree;
+    unEvalTree: DataTree;
     pathsToSkipFromEval: string[];
     subTreeSortOrder: string[];
   }) {
@@ -730,10 +723,9 @@ export default class DataTreeEvaluator {
     for (const fullPath of subTreeSortOrder) {
       if (pathsToSkipFromEval.includes(fullPath)) continue;
 
-      if (!isDynamicLeaf(localUnEvalTree, fullPath, this.getConfigTree()))
-        continue;
+      if (!isDynamicLeaf(unEvalTree, fullPath, this.getConfigTree())) continue;
 
-      const unEvalPropValue = get(localUnEvalTree, fullPath);
+      const unEvalPropValue = get(unEvalTree, fullPath);
       const evalPropValue = get(this.evalTree, fullPath);
       evaluationOrder.push(fullPath);
       if (isFunction(evalPropValue)) continue;
@@ -745,7 +737,7 @@ export default class DataTreeEvaluator {
   }
 
   setupTree(
-    localUnEvalTree: UnEvalTree,
+    updatedUnEvalTree: UnEvalTree,
     updatedValuePaths: string[][],
     extraParams: {
       dependenciesOfRemovedPaths?: string[];
@@ -768,12 +760,12 @@ export default class DataTreeEvaluator {
       updatedValuePaths,
       dependenciesOfRemovedPaths,
       removedPaths,
-      localUnEvalTree,
+      updatedUnEvalTree,
     );
     const calculateSortOrderEndTime = performance.now();
 
     const { evaluationOrder } = this.getEvaluationOrder({
-      localUnEvalTree,
+      unEvalTree: updatedUnEvalTree,
       pathsToSkipFromEval,
       subTreeSortOrder,
     });
@@ -793,7 +785,7 @@ export default class DataTreeEvaluator {
     const cloneStartTime = performance.now();
     // TODO: For some reason we are passing some reference which are getting mutated.
     // Need to check why big api responses are getting split between two eval runs
-    this.oldUnEvalTree = klona(localUnEvalTree);
+    this.oldUnEvalTree = klona(updatedUnEvalTree);
     this.oldConfigTree = Object.assign({}, this.getConfigTree());
     const cloneEndTime = performance.now();
 
@@ -809,7 +801,7 @@ export default class DataTreeEvaluator {
 
     const isNewWidgetAdded = getIsNewWidgetAdded(
       translatedDiffs,
-      localUnEvalTree,
+      updatedUnEvalTree,
     );
 
     return {
@@ -824,7 +816,7 @@ export default class DataTreeEvaluator {
     updatedValuePaths: string[][],
     pathsToSkipFromEval: string[] = [],
   ): ReturnType<typeof DataTreeEvaluator.prototype.setupUpdateTree> {
-    const localUnEvalTree = Object.assign({}, this.oldUnEvalTree);
+    const updatedUnEvalTree = Object.assign({}, this.oldUnEvalTree);
     // skipped update local unEvalTree
     if (updatedValuePaths.length === 0) {
       return {
@@ -836,7 +828,7 @@ export default class DataTreeEvaluator {
     }
 
     return {
-      ...this.setupTree(localUnEvalTree, updatedValuePaths, {
+      ...this.setupTree(updatedUnEvalTree, updatedValuePaths, {
         pathsToSkipFromEval,
       }),
       jsUpdates: {},
