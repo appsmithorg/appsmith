@@ -4,6 +4,7 @@ import FileTabs from "./FileTabs";
 import { EditorState, type EntityItem } from "@appsmith/entities/IDE/constants";
 import { PluginType } from "entities/Action";
 import { FocusEntity } from "navigation/FocusEntity";
+import { sanitizeString } from "utils/URLUtils";
 
 describe("FileTabs", () => {
   const mockTabs: EntityItem[] = [
@@ -37,7 +38,7 @@ describe("FileTabs", () => {
 
     // Check if each tab is rendered with correct content
     mockTabs.forEach((tab) => {
-      const tabElement = getByTestId(`t--ide-tab-${tab.title}`);
+      const tabElement = getByTestId(`t--ide-tab-${sanitizeString(tab.title)}`);
       expect(tabElement).not.toBeNull();
 
       const tabTitleElement = getByText(tab.title);
@@ -54,7 +55,9 @@ describe("FileTabs", () => {
         tabs={mockTabs}
       />,
     );
-    const tabElement = getByTestId(`t--ide-tab-${mockTabs[0].title}`);
+    const tabElement = getByTestId(
+      `t--ide-tab-${sanitizeString(mockTabs[0].title)}`,
+    );
     fireEvent.click(tabElement);
 
     expect(mockNavigateToTab).toHaveBeenCalledWith(mockTabs[0]);
@@ -69,7 +72,9 @@ describe("FileTabs", () => {
         tabs={mockTabs}
       />,
     );
-    const tabElement = getByTestId(`t--ide-tab-${mockTabs[1].title}`);
+    const tabElement = getByTestId(
+      `t--ide-tab-${sanitizeString(mockTabs[1].title)}`,
+    );
     const closeElement = tabElement.querySelector(
       "[data-testid='t--tab-close-btn']",
     ) as HTMLElement;

@@ -3,6 +3,7 @@ import styled from "styled-components";
 import clsx from "classnames";
 
 import { Flex, Icon } from "design-system";
+import { sanitizeString } from "utils/URLUtils";
 
 interface FileTabProps {
   isActive: boolean;
@@ -80,7 +81,7 @@ export const FileTab = ({
   return (
     <StyledTab
       className={clsx("editor-tab", isActive && "active")}
-      data-testid={`t--ide-tab-${title}`}
+      data-testid={`t--ide-tab-${sanitizeString(title)}`}
       onClick={onClick}
     >
       {icon ? <TabIconContainer>{icon}</TabIconContainer> : null}
