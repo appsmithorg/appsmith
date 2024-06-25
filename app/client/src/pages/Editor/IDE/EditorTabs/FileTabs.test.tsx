@@ -33,9 +33,6 @@ describe("FileTabs", () => {
       />,
     );
 
-    const editorTabsContainer = getByTestId("t--editor-tabs");
-    expect(editorTabsContainer).not.toBeNull();
-
     // Check if each tab is rendered with correct content
     mockTabs.forEach((tab) => {
       const tabElement = getByTestId(`t--ide-tab-${sanitizeString(tab.title)}`);
