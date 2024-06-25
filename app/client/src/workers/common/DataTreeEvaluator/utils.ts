@@ -9,7 +9,11 @@ import {
   EXECUTION_PARAM_REFERENCE_REGEX,
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import type {
+  ConfigTree,
+  DataTree,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeTypes";
 import type DependencyMap from "entities/DependencyMap";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
@@ -116,19 +120,15 @@ export function getOnlyAffectedJSObjects(
 
 export function getIsNewWidgetAdded(
   translatedDiffs: DataTreeDiff[],
-  localUnEvalTree: DataTree,
+  unEvalTree: UnEvalTree,
 ) {
-  let isNewWidgetAdded = false;
-  /** We need to know if a new widget was added so that we do not fire ENTITY_BINDING_SUCCESS event */
-  for (let i = 0; i < translatedDiffs.length; i++) {
-    const diffEvent = translatedDiffs[i];
+  return translatedDiffs.some((diffEvent) => {
     if (diffEvent.event === DataTreeDiffEvent.NEW) {
-      const entity = localUnEvalTree[diffEvent.payload.propertyPath];
+      const entity = unEvalTree[diffEvent.payload.propertyPath];
       if (isWidget(entity)) {
-        isNewWidgetAdded = true;
-        break;
+        return true;
       }
     }
-  }
-  return isNewWidgetAdded;
+    return false;
+  });
 }
