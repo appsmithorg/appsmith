@@ -9,11 +9,14 @@ import { SavingState } from "design-system-old";
 import EditableName from "./EditableName";
 import { NavigationMenu } from "./NavigationMenu";
 import { Menu, toast, MenuTrigger } from "design-system";
+import type { Theme } from "constants/DefaultTheme";
 import ForkApplicationModal from "pages/Applications/ForkApplicationModal";
 import { Container, StyledIcon } from "./components";
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { useNavigationMenuData } from "./useNavigationMenuData";
+import type { NavigationMenuDataProps } from "./useNavigationMenuData";
+import type { MenuItemData } from "./NavigationMenuItem";
+import { useTheme } from "styled-components";
 
 type EditorNameProps = CommonComponentProps & {
   applicationId?: string | undefined;
@@ -31,6 +34,10 @@ type EditorNameProps = CommonComponentProps & {
   isPopoverOpen: boolean;
   setIsPopoverOpen: typeof noop;
   editorName: string;
+  getNavigationMenu: ({
+    editMode,
+    setForkApplicationModalOpen,
+  }: NavigationMenuDataProps) => MenuItemData[];
 };
 
 export function EditorName(props: EditorNameProps) {
@@ -38,10 +45,13 @@ export function EditorName(props: EditorNameProps) {
     defaultSavingState,
     defaultValue,
     editorName,
+    getNavigationMenu,
     isNewEditor,
     isPopoverOpen,
     setIsPopoverOpen,
   } = props;
+
+  const theme = useTheme() as Theme;
 
   const [isEditingDefault, setIsEditingDefault] = useState(isNewEditor);
   const [isEditing, setIsEditing] = useState(!!isEditingDefault);
@@ -92,8 +102,9 @@ export function EditorName(props: EditorNameProps) {
     }
   }, []);
 
-  const navigationMenuData = useNavigationMenuData({
+  const navigationMenuData = getNavigationMenu({
     editMode,
+    theme,
     setForkApplicationModalOpen,
   });
 
