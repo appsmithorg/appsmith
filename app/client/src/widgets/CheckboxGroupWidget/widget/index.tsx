@@ -160,6 +160,12 @@ class CheckboxGroupWidget extends BaseWidget<
     };
   }
 
+  static getDependencyMap(): Record<string, string[]> {
+    return {
+      defaultSelectedValues: ["options"],
+    };
+  }
+
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
     return {
       "!doc":
