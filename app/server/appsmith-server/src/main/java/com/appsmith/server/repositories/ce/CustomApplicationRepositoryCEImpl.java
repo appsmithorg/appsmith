@@ -305,8 +305,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         // TODO : This is a temporary solution to unprotect all branches. Replace with a better solution once the field
         //  level updates are possible for jsonb column.
         List<Application> applicationList = queryBuilder()
-                .criteria(Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, applicationId)
-                        .isTrue(Application.Fields.gitApplicationMetadata_isProtectedBranch))
+                .criteria(Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, applicationId))
                 .permission(permission, currentUser)
                 .all();
         applicationList.forEach(application -> {
