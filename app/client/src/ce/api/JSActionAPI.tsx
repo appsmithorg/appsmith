@@ -95,8 +95,20 @@ class JSActionAPI extends API {
   static async updateJSCollection(
     jsConfig: JSCollection,
   ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
-    const jsAction = Object.assign({}, jsConfig);
-    return API.put(`${JSActionAPI.url}/${jsAction.id}`, jsAction);
+    const payload = {
+      ...jsConfig,
+      actions:
+        jsConfig.actions?.map((action) => ({
+          ...action,
+          entityReferenceType: undefined,
+          datasource: (action as any).datasource && {
+            ...(action as any).datasource,
+            isValid: undefined,
+            new: undefined,
+          },
+        })) ?? undefined,
+    };
+    return API.put(`${JSActionAPI.url}/${jsConfig.id}`, payload);
   }
 
   static async deleteJSCollection(id: string) {
@@ -128,10 +140,25 @@ class JSActionAPI extends API {
   static async updateJSCollectionActionRefactor(
     updateJSCollectionActionName: UpdateCollectionActionNameRequest,
   ) {
-    return API.put(
-      JSActionAPI.url + "/refactorAction",
-      updateJSCollectionActionName,
-    );
+    const payload = {
+      ...updateJSCollectionActionName,
+      actionCollection: updateJSCollectionActionName.actionCollection && {
+        ...updateJSCollectionActionName.actionCollection,
+        actions:
+          updateJSCollectionActionName.actionCollection.actions?.map(
+            (action) => ({
+              ...action,
+              entityReferenceType: undefined,
+              datasource: (action as any).datasource && {
+                ...(action as any).datasource,
+                isValid: undefined,
+                new: undefined,
+              },
+            }),
+          ) ?? undefined,
+      },
+    };
+    return API.put(JSActionAPI.url + "/refactorAction", payload);
   }
 }
 
