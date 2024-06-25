@@ -107,7 +107,7 @@ export function evalTree(
         { description: "during initialisation" },
         webworkerTelemetry,
         () =>
-          dataTreeEvaluator?.setupFirstTree(
+          (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree(
             unevalTree,
             configTree,
             webworkerTelemetry,
@@ -121,7 +121,8 @@ export function evalTree(
         "evalAndValidateFirstTree",
         { description: "during initialisation" },
         webworkerTelemetry,
-        () => dataTreeEvaluator?.evalAndValidateFirstTree(),
+        () =>
+          (dataTreeEvaluator as DataTreeEvaluator).evalAndValidateFirstTree(),
       );
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
@@ -153,7 +154,11 @@ export function evalTree(
         "setupFirstTree",
         { description: "non-initialisation" },
         webworkerTelemetry,
-        () => dataTreeEvaluator?.setupFirstTree(unevalTree, configTree),
+        () =>
+          (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree(
+            unevalTree,
+            configTree,
+          ),
       );
       isCreateFirstTree = true;
       evalOrder = setupFirstTreeResponse.evalOrder;
@@ -163,7 +168,8 @@ export function evalTree(
         "evalAndValidateFirstTree",
         { description: "non-initialisation" },
         webworkerTelemetry,
-        () => dataTreeEvaluator?.evalAndValidateFirstTree(),
+        () =>
+          (dataTreeEvaluator as DataTreeEvaluator).evalAndValidateFirstTree(),
       );
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
@@ -186,7 +192,7 @@ export function evalTree(
         undefined,
         webworkerTelemetry,
         () =>
-          dataTreeEvaluator?.setupUpdateTree(
+          (dataTreeEvaluator as DataTreeEvaluator).setupUpdateTree(
             unevalTree,
             configTree,
             webworkerTelemetry,
@@ -205,7 +211,7 @@ export function evalTree(
         undefined,
         webworkerTelemetry,
         () =>
-          dataTreeEvaluator?.evalAndValidateSubTree(
+          (dataTreeEvaluator as DataTreeEvaluator).evalAndValidateSubTree(
             evalOrder,
             configTree,
             unEvalUpdates,

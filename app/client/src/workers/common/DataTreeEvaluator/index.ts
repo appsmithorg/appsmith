@@ -598,6 +598,7 @@ export default class DataTreeEvaluator {
     evalOrder: string[];
     jsUpdates: Record<string, JSUpdate>;
     removedPaths: Array<{ entityId: string; fullpath: string }>;
+    isNewWidgetAdded: boolean;
   } {
     this.setConfigTree(configTree);
 
@@ -637,6 +638,7 @@ export default class DataTreeEvaluator {
         unEvalUpdates: [],
         evalOrder: [],
         jsUpdates: {},
+        isNewWidgetAdded: false,
       };
     }
 
@@ -824,6 +826,7 @@ export default class DataTreeEvaluator {
         evalOrder: [],
         jsUpdates: {},
         removedPaths: [],
+        isNewWidgetAdded: false,
       };
     }
 
