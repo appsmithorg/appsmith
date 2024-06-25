@@ -67,11 +67,11 @@ def repo_interfaces(domain):
                     / f"appsmith-server/src/main/java/com/appsmith/server/repositories/{'ce/' if 'CE' in g else ''}{g}.java"
                 )
                 for g in [
-                f"Custom{domain}RepositoryCE",
-                f"{domain}RepositoryCE",
-                f"Custom{domain}Repository",
-                f"{domain}Repository",
-            ]
+                    f"Custom{domain}RepositoryCE",
+                    f"{domain}RepositoryCE",
+                    # f"Custom{domain}Repository",
+                    # f"{domain}Repository",
+                ]
             ),
         )
     )
@@ -87,11 +87,9 @@ def repo_classes(domain):
                     / f"appsmith-server/src/main/java/com/appsmith/server/repositories/{'ce/' if 'CE' in g else ''}{g}.java"
                 )
                 for g in [
-                f"Custom{domain}RepositoryCEImpl",
-                # f"{domain}RepositoryCE",
-                # f"Custom{domain}Repository",
-                # f"{domain}Repository",
-            ]
+                    f"Custom{domain}RepositoryCEImpl",
+                    # f"Custom{domain}RepositoryImpl",
+                ]
             ),
         )
     )
