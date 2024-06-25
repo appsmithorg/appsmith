@@ -131,7 +131,6 @@ jobs:
     secrets: inherit
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
-      matrix: ${{needs.file-check.outputs.matrix_count}}
 
   ci-test-limited-existing-docker-image:
     needs: [file-check]
@@ -143,7 +142,6 @@ jobs:
     with:
       pr: ${{fromJson(needs.file-check.outputs.pr)}}
       previous-workflow-run-id: ${{ fromJson(needs.file-check.outputs.runId) }}
-      matrix: ${{ needs.file-check.outputs.matrix_count }}
 
   ci-test-limited-result:
     needs: [file-check, ci-test-limited]

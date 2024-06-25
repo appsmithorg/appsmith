@@ -17,6 +17,7 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -37,6 +38,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
+@Slf4j
 @RequiredArgsConstructor
 public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T, String>> {
     private final R repository;
@@ -85,9 +87,12 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                             entity.setId(null);
                         }
                         throw e;
-                    } catch (IllegalAccessException e) {
-                        // This can only happen when classes loaded in the JVM have been corrupted at runtime.
-                        // Very unlikely.
+                    } catch (Exception e) {
+                        // This should NEVER happen in live/production environments.
+                        if (isNew) {
+                            entity.setId(null);
+                        }
+                        log.error("Couldn't save entity", e);
                         throw new RuntimeException(e);
                     }
                 })
