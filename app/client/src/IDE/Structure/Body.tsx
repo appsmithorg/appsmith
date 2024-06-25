@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Button, Flex } from "design-system";
+import React from "react";
+import { Flex } from "design-system";
 import styled from "styled-components";
 
 const Container = styled(Flex)`
@@ -14,70 +14,51 @@ const Sidebar = styled.aside`
   background-color: #2a002b;
 `;
 
-const LeftPane = styled.div<{ extend: boolean }>`
+const LeftPaneContainer = styled.div`
   height: 100%;
   border-right: 1px solid var(--ads-v2-color-border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: rgba(135, 22, 56, 1);
-
-  width: ${({ extend }) => (extend ? "unset" : "300px")};
-  flex: ${({ extend }) => (extend ? "1" : "unset")};
-  transition: all 0.3s ease-in;
+  width: 300px;
 `;
 
-const MainPane = styled.div<{ stretch: boolean }>`
-  width: ${({ stretch }) => (stretch ? "unset" : "0px")};
-  flex: ${({ stretch }) => (stretch ? "1" : "unset")};
+const MainPaneContainer = styled.div`
+  flex: 1;
   height: 100%;
   transition: all 0.3s ease-in;
-  background-color: rgba(214, 215, 222, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
 
-const RightPane = styled.div<{ hide: boolean }>`
-  width: ${({ hide }) => (hide ? "0px" : "200px")};
-  transform: ${({ hide }) => (hide ? "translateX(200px)" : "translateX(0px)")};
+const RightPaneContainer = styled.div`
+  width: 200px;
   height: 100%;
   border-left: 1px solid var(--ads-v2-color-border);
-  transition: all 0.3s ease-in;
-  background-color: rgba(92, 92, 172, 1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
 `;
 
-const IDEBody = () => {
-  const [extendedPane, setExtendedPane] = useState<string | null>(null);
+interface ContainerProps {
+  children: React.ReactNode[];
+}
+
+const Body = ({ children }: ContainerProps) => {
   return (
     <Container>
       <Sidebar />
-      <LeftPane extend={extendedPane === "LeftPane"}>
-        {extendedPane === "LeftPane" ? (
-          <Button
-            onClick={() => {
-              setExtendedPane(null);
-            }}
-          >
-            Retract
-          </Button>
-        ) : (
-          <Button
-            onClick={() => {
-              setExtendedPane("LeftPane");
-            }}
-          >
-            Extend
-          </Button>
-        )}
-      </LeftPane>
-      <MainPane stretch={extendedPane === null} />
-      <RightPane hide={extendedPane === "LeftPane"} />
+      {children}
     </Container>
   );
 };
 
-export default IDEBody;
+const LeftPane = ({ children }: ContainerProps) => {
+  return <LeftPaneContainer>{children}</LeftPaneContainer>;
+};
+
+const MainPane = ({ children }: ContainerProps) => {
+  return <MainPaneContainer>{children}</MainPaneContainer>;
+};
+
+const RightPane = ({ children }: ContainerProps) => {
+  return <RightPaneContainer>{children}</RightPaneContainer>;
+};
+
+Body.LeftPane = LeftPane;
+Body.MainPane = MainPane;
+Body.RightPane = RightPane;
+
+export default Body;
