@@ -152,7 +152,15 @@ function QueryDebuggerTabs({
     if (isString(actionResponse.body)) {
       try {
         // Try to parse response as JSON array to be displayed in the Response tab
-        output = JSON.parse(actionResponse.body);
+        const parsedOutput = JSON.parse(actionResponse.body);
+        console.log("Parsed output:", parsedOutput);
+        if (Array.isArray(parsedOutput)) {
+          output = parsedOutput;
+        } else if (parsedOutput.records && Array.isArray(parsedOutput.records)) {
+          output = parsedOutput.records;
+        } else {
+          output = [parsedOutput];
+        }
       } catch (e) {
         // In case the string is not a JSON, wrap it in a response object
         output = [
@@ -162,7 +170,15 @@ function QueryDebuggerTabs({
         ];
       }
     } else {
-      output = actionResponse.body as any;
+      if (typeof actionResponse.body === "object" && actionResponse.body !== null) {
+        if (Array.isArray(actionResponse.body)) {
+          output = actionResponse.body;
+        } else if ('records' in actionResponse.body && Array.isArray((actionResponse.body as any).records)) {
+          output = (actionResponse.body as any).records;
+        } else {
+          output = [actionResponse.body];
+        }
+      }
     }
   }
 
