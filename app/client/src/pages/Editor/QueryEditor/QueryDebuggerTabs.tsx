@@ -152,15 +152,7 @@ function QueryDebuggerTabs({
     if (isString(actionResponse.body)) {
       try {
         // Try to parse response as JSON array to be displayed in the Response tab
-        const parsedOutput = JSON.parse(actionResponse.body);
-        console.log("Parsed output:", parsedOutput);
-        if (Array.isArray(parsedOutput)) {
-          output = parsedOutput;
-        } else if (parsedOutput.records && Array.isArray(parsedOutput.records)) {
-          output = parsedOutput.records;
-        } else {
-          output = [parsedOutput];
-        }
+        output = JSON.parse(actionResponse.body);
       } catch (e) {
         // In case the string is not a JSON, wrap it in a response object
         output = [
