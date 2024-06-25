@@ -49,25 +49,100 @@
       "id": 2,
       "children": [
         {
-          "sectionName": null,
-          "children": [
+          "label": "Authentication type",
+          "configProperty": "datasourceConfiguration.authentication.authType",
+          "controlType": "DROP_DOWN",
+          "isRequired": true,
+          "initialValue": "USERNAME_PASSWORD",
+          "options": [
             {
-              "label": "Username",
-              "configProperty": "datasourceConfiguration.authentication.username",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Username",
-              "isRequired": true
+              "label": "USERNAME_PASSWORD",
+              "value": "USERNAME_PASSWORD"
             },
             {
-              "label": "Password",
-              "configProperty": "datasourceConfiguration.authentication.password",
-              "dataType": "PASSWORD",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Password",
-              "isRequired": true,
-              "encrypted": true
+              "label": "KEY_PAIR",
+              "value": "KEY_PAIR"
             }
-          ]
+          ],
+          "hidden": {
+            "flagValue": "release_snowflake_key_pair_auth_enabled",
+            "comparison": "FEATURE_FLAG",
+            "value": false
+          }
+        },
+        {
+          "label": "Username",
+          "configProperty": "datasourceConfiguration.authentication.username",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Username",
+          "isRequired": true
+        },
+        {
+          "label": "Password",
+          "configProperty": "datasourceConfiguration.authentication.password",
+          "dataType": "PASSWORD",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "Password",
+          "isRequired": true,
+          "encrypted": true,
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "flagValue": "release_snowflake_key_pair_auth_enabled",
+                "comparison": "FEATURE_FLAG",
+                "value": true
+              },
+              {
+                "path": "datasourceConfiguration.authentication.authType",
+                "comparison": "NOT_EQUALS",
+                "value": "USERNAME_PASSWORD"
+              }
+            ]
+          }
+        },
+        {
+          "label": "Private key",
+          "configProperty": "datasourceConfiguration.authentication.privateKey",
+          "controlType": "FILE_PICKER",
+          "isRequired": true,
+          "encrypted": true,
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "flagValue": "release_snowflake_key_pair_auth_enabled",
+                "comparison": "FEATURE_FLAG",
+                "value": false
+              },
+              {
+                "path": "datasourceConfiguration.authentication.authType",
+                "comparison": "NOT_EQUALS",
+                "value": "KEY_PAIR"
+              }
+            ]
+          }
+        },
+        {
+          "label": "Private key passphrase",
+          "configProperty": "datasourceConfiguration.authentication.passphrase",
+          "controlType": "INPUT_TEXT",
+          "placeholderText": "private key passphrase",
+          "hidden": {
+            "conditionType": "OR",
+            "conditions": [
+              {
+                "flagValue": "release_snowflake_key_pair_auth_enabled",
+                "comparison": "FEATURE_FLAG",
+                "value": false
+              },
+              {
+                "path": "datasourceConfiguration.authentication.authType",
+                "comparison": "NOT_EQUALS",
+                "value": "KEY_PAIR"
+              }
+            ]
+          }
         }
       ]
     }
