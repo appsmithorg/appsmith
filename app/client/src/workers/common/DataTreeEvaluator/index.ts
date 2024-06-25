@@ -1632,18 +1632,16 @@ export default class DataTreeEvaluator {
         if (!entity || isNotEntity(entity)) {
           continue;
         }
-        let entityDynamicBindingPaths: string[] = [];
+        const entityDynamicBindingPathsSet = new Set<string>();
         if (isAction(entity)) {
-          entityDynamicBindingPaths = getEntityDynamicBindingPathList(
-            entityConfig,
-          ).map((path) => {
-            return path.key;
+          getEntityDynamicBindingPathList(entityConfig).forEach((path) => {
+            entityDynamicBindingPathsSet.add(path.key);
           });
         }
         Object.keys(entityConfig.reactivePaths).forEach((reactivePath) => {
           const childPropertyPath = `${entityName}.${reactivePath}`;
           // Check if relative path has dynamic binding
-          if (entityDynamicBindingPaths.includes(reactivePath)) {
+          if (entityDynamicBindingPathsSet.has(reactivePath)) {
             changePaths.add(childPropertyPath);
           }
 
