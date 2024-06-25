@@ -218,6 +218,7 @@ function AppViewer(props: Props) {
           <AppViewerBody
             $contain={isAutoLayout ? "content" : "strict"}
             className={CANVAS_SELECTOR}
+            data-testid="t--app-viewer-page-body"
             hasPages={pages.length > 1}
             headerHeight={headerHeight}
             ref={focusRef}

@@ -39,6 +39,7 @@ echo "status code: $status_code"
 
 if [ "$status_code" -eq "502" ]; then
   echo "Unable to connect to server"
+  docker logs appsmith
   exit 1
 fi
 

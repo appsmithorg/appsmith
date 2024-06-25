@@ -6,7 +6,6 @@ export const autocompleteConfig = {
   "!url": "https://docs.appsmith.com/widget-reference/switch-group",
   isVisible: DefaultAutocompleteDefinitions.isVisible,
   isDisabled: "bool",
-  isValid: "bool",
   options: "[$__dropdownOption__$]",
   selectedValues: "[string]",
 };

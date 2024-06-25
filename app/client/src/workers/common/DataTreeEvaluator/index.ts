@@ -583,11 +583,16 @@ export default class DataTreeEvaluator {
       stringifiedLocalUnEvalTreeJSCollection,
     );
 
-    const differences: Diff<DataTree, DataTree>[] =
-      diff(
-        oldUnEvalTreeWithStringifiedJSFunctions,
-        localUnEvalTreeWithStringifiedJSFunctions,
-      ) || [];
+    const differences: Diff<DataTree, DataTree>[] = profileFn(
+      "unEvalTreeWithStringifiedJSFunctionsDiff",
+      undefined,
+      webworkerTelemetry,
+      () =>
+        diff(
+          oldUnEvalTreeWithStringifiedJSFunctions,
+          localUnEvalTreeWithStringifiedJSFunctions,
+        ) || [],
+    );
     // Since eval tree is listening to possible events that don't cause differences
     // We want to check if no diffs are present and bail out early
     if (differences.length === 0) {
@@ -628,7 +633,10 @@ export default class DataTreeEvaluator {
 
     const updateDependencyStartTime = performance.now();
     // TODO => Optimize using dataTree diff
-    this.allKeys = getAllPaths(localUnEvalTreeWithStringifiedJSFunctions);
+
+    this.allKeys = profileFn("getAllPaths", undefined, webworkerTelemetry, () =>
+      getAllPaths(localUnEvalTreeWithStringifiedJSFunctions),
+    );
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
     const {
