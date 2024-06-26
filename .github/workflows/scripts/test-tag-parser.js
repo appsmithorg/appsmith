@@ -39,7 +39,7 @@ function parseTags({core, context}) {
     // More smart matchers?
 
     // No match, fail.
-    core.setFailed("\tNo match found for tag:", rawTag);
+    core.setFailed("\tNo match found for tag: " + rawTag);
 
     // We still process the rest, so we report all invalid tags in the input in a single run.
   }
