@@ -12,6 +12,10 @@ import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 import { Banner } from "@appsmith/utils/licenseHelpers";
 import bootIntercom from "utils/bootIntercom";
 import EntitySearchBar from "pages/common/SearchBar/EntitySearchBar";
+import { Switch, Tooltip } from "design-system";
+import { setFeatureFlagOverridesAction } from "actions/featureFlagActions";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
+import log from "loglevel";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -35,6 +39,19 @@ const StyledPageHeader = styled(StyledHeader)<{
     `};
   ${({ isBannerVisible, isMobile }) =>
     isBannerVisible ? (isMobile ? `top: 70px;` : `top: 40px;`) : ""};
+
+  & .ads-v2-switch {
+    display: block;
+    width: 100%;
+    position: absolute;
+    left: 175px;
+    top: 12px;
+    width: 30px;
+    & > label {
+      min-width: 0;
+      flex-direction: row-reverse;
+    }
+  }
 `;
 
 interface PageHeaderProps {
@@ -61,6 +78,15 @@ export function PageHeader(props: PageHeaderProps) {
   const showBanner = useSelector(shouldShowLicenseBanner);
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isLicensePage = useRouteMatch("/license")?.isExact;
+  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
+
+  log.debug("Is Anvil Enabled:", isAnvilEnabled);
+
+  function handleAnvilToggle(isSelected: boolean) {
+    dispatch(
+      setFeatureFlagOverridesAction({ release_anvil_enabled: isSelected }),
+    );
+  }
 
   return (
     <>
@@ -72,6 +98,11 @@ export function PageHeader(props: PageHeaderProps) {
         isMobile={isMobile}
         showSeparator={props.showSeparator || false}
       >
+        <Switch isSelected={isAnvilEnabled} onChange={handleAnvilToggle}>
+          <Tooltip content="Toggles Anvil Layout System" trigger="hover">
+            <b>&alpha;</b>
+          </Tooltip>
+        </Switch>
         <EntitySearchBar user={user} />
       </StyledPageHeader>
     </>

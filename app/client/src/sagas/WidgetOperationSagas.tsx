@@ -74,7 +74,8 @@ import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 
 import { builderURL } from "@appsmith/RouteBuilder";
 import {
-  ERROR_PASTE_LAYOUT_SYSTEM_CONFLICT,
+  ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT,
+  ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
   ERROR_WIDGET_CUT_NOT_ALLOWED,
@@ -1858,11 +1859,18 @@ function* verifyPasteFeasibilitySaga(
   const currentLayoutSystemType: LayoutSystemTypes =
     yield select(getLayoutSystemType);
 
-  if (
-    isLayoutSystemConflictingForPaste(currentLayoutSystemType, layoutSystemType)
-  ) {
-    toast.show(createMessage(ERROR_PASTE_LAYOUT_SYSTEM_CONFLICT), {
-      kind: "info",
+  const isConflicting = isLayoutSystemConflictingForPaste(
+    currentLayoutSystemType,
+    layoutSystemType,
+  );
+
+  if (isConflicting) {
+    const message =
+      currentLayoutSystemType === LayoutSystemTypes.ANVIL
+        ? ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT
+        : ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT;
+    toast.show(createMessage(message), {
+      kind: "warning",
     });
     return;
   }
