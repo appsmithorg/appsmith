@@ -10,6 +10,7 @@ export class AnvilSnapshot {
     canvas: "[data-testid=t--canvas-artboard]",
     colorMode: "[data-testid=t--anvil-theme-settings-color-mode]",
     appViewerPage: "[data-testid=t--app-viewer-page-body]",
+    propertyPaneSidebar: "[data-testid=t--property-pane-sidebar]"
   };
 
   public verifyCanvasMode = async (widgetName: string) => {
@@ -82,4 +83,11 @@ export class AnvilSnapshot {
     this.appSettings.ClosePane();
   };
 
+  public triggerInputInvalidState = () => {
+    this.enterPreviewMode();
+    cy.get("input[aria-required=true]").first().type("123");
+    cy.get("input[aria-required=true]").first().clear();
+    this.exitPreviewMode();
+    this.agHelper.GetNClick(this.locators.propertyPaneSidebar);
+  }
 }

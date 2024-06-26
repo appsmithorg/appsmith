@@ -13,12 +13,7 @@ describe(
     });
 
     it("1. Canvas Mode", () => {
-      // trigger input invalid state
-      anvilSnapshot.enterPreviewMode();
-      cy.get("input[aria-required=true]").first().type("123");
-      cy.get("input[aria-required=true]").first().clear();
-      anvilSnapshot.exitPreviewMode();
-
+      anvilSnapshot.triggerInputInvalidState();
       anvilSnapshot.verifyCanvasMode("InputWidget");
     });
 
