@@ -41,10 +41,9 @@ import {
   omit,
   range,
   set,
-  toString,
   xor,
 } from "lodash";
-import { klona } from "klona";
+import lodashToString from 'lodash/toString';
 import log from "loglevel";
 import memoizeOne from "memoize-one";
 import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
@@ -1005,7 +1004,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             const value = Array.isArray(evaluatedValue) ? evaluatedValue : [];
             set(widget, path, value);
           } else {
-            set(widget, path, toString(evaluatedValue));
+            set(widget, path, lodashToString(evaluatedValue));
           }
         }
       });

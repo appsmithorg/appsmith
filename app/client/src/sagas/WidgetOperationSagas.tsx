@@ -32,7 +32,7 @@ import {
   RenderModes,
   WIDGET_ID_SHOW_WALKTHROUGH,
 } from "constants/WidgetConstants";
-import _, { get, isString, set, uniq } from "lodash";
+import _ from "lodash";
 import { klona } from "klona";  
 import log from "loglevel";
 import type {
@@ -508,7 +508,7 @@ export function* handleUpdateWidgetDynamicProperty(
         key: propertyPath,
       });
     }
-    widget = set(widget, propertyPath, convertToString(propertyValue));
+    widget = _.set(widget, propertyPath, convertToString(propertyValue));
   } else {
     dynamicPropertyPathList = _.reject(dynamicPropertyPathList, {
       key: propertyPath,
@@ -540,7 +540,7 @@ export function* handleUpdateWidgetDynamicProperty(
         widget,
       );
 
-      widget = set(widget, propertyPath, parsed);
+      widget = _.set(widget, propertyPath, parsed);
     }
   }
   widget.dynamicPropertyPathList = dynamicPropertyPathList;
@@ -586,12 +586,12 @@ export function* setWidgetDynamicPropertySaga(
 
   widget = yield call(handleUpdateWidgetDynamicProperty, widget, update);
 
-  const propertyValue = get(widget, propertyPath);
+  const propertyValue = _.get(widget, propertyPath);
   if (!propertyValue && isDynamic) {
     // Empty binding should not be set for table and json widgets' data property
     // As these are getting populated with slash command menu on focus
     if (!shouldShowSlashCommandMenu(widget.type, propertyPath)) {
-      set(widget, propertyPath, EMPTY_BINDING);
+      _.set(widget, propertyPath, EMPTY_BINDING);
     }
   }
 
@@ -614,7 +614,7 @@ export function getPropertiesToUpdate(
   // Create a
   const widgetWithUpdates = klona(widget);
   Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
-    set(widgetWithUpdates, propertyPath, propertyValue);
+    _.set(widgetWithUpdates, propertyPath, propertyValue);
   });
 
   // get the flat list of all updates (in case values are objects)
@@ -718,7 +718,7 @@ export function* getPropertiesUpdatedWidget(
       Object.entries(propertyUpdates).forEach(
         ([propertyPath, propertyValue]) => {
           // since property paths could be nested, we use lodash set method
-          widget = set(widget, propertyPath, propertyValue);
+          widget = _.set(widget, propertyPath, propertyValue);
         },
       );
       widget.dynamicBindingPathList = dynamicBindingPathList;
@@ -809,7 +809,7 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
     stateWidgets,
   );
 
-  const updatedWidgetIds = uniq(
+  const updatedWidgetIds = _.uniq(
     updatedWidgetsAndActionsToDispatch.map(
       (each) => each.updatedWidget.widgetId,
     ),
@@ -1383,7 +1383,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
                     )) {
                       // Replace reference of previous widget with the new widgetName
                       // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
-                      widget.primaryColumns[columnId][key] = isString(value)
+                      widget.primaryColumns[columnId][key] = _.isString(value)
                         ? value.replace(
                             `${oldWidgetName}.`,
                             `${newWidgetName}.`,
@@ -1410,7 +1410,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
                 if (widget.defaultOptionValue) {
                   const value = widget.defaultOptionValue;
                   // replace All occurrence of old widget name
-                  widget.defaultOptionValue = isString(value)
+                  widget.defaultOptionValue = _.isString(value)
                     ? value.replaceAll(`${oldWidgetName}.`, `${newWidgetName}.`)
                     : value;
                 }
