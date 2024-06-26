@@ -15,6 +15,8 @@ public interface DatasourceStorageServiceCE {
 
     Mono<DatasourceStorage> create(DatasourceStorage datasourceStorage);
 
+    Mono<DatasourceStorage> create(DatasourceStorage datasourceStorage, boolean isDryOps);
+
     Mono<DatasourceStorage> save(DatasourceStorage datasourceStorage);
 
     Mono<DatasourceStorage> archive(DatasourceStorage datasourceStorage);
@@ -30,7 +32,10 @@ public interface DatasourceStorageServiceCE {
     Mono<DatasourceStorage> findStrictlyByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
 
     Mono<DatasourceStorage> updateDatasourceStorage(
-            DatasourceStorage datasourceStorage, String activeEnvironmentId, Boolean IsUserRefreshedUpdate);
+            DatasourceStorage datasourceStorage,
+            String activeEnvironmentId,
+            Boolean IsUserRefreshedUpdate,
+            boolean isDryOps);
 
     Mono<DatasourceStorage> validateDatasourceStorage(DatasourceStorage datasourceStorage);
 

@@ -11,6 +11,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface DatasourceServiceCE {
@@ -39,6 +40,8 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> save(Datasource datasource);
 
+    Mono<Datasource> save(Datasource datasource, boolean isDryOps);
+
     /**
      * Retrieves all datasources based on input params, currently only workspaceId.
      * The retrieved datasources will contain configuration from the default environment,
@@ -63,7 +66,8 @@ public interface DatasourceServiceCE {
 
     Mono<Datasource> create(Datasource datasource);
 
-    Mono<Datasource> createWithoutPermissions(Datasource datasource);
+    Mono<Datasource> createWithoutPermissions(
+            Datasource datasource, Map<String, List<DatasourceStorage>> datasourceStorageDryRunQueries);
 
     Mono<Datasource> updateDatasourceStorage(
             DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId, Boolean IsUserRefreshedUpdate);
