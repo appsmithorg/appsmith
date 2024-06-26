@@ -17,7 +17,7 @@ import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user
 export function* fetchCurrentTenantConfigSaga(
-  action: ReduxAction<{ tenantConfig: ApiResponse | null }>,
+  action: ReduxAction<{ tenantConfig?: ApiResponse }>,
 ) {
   const tenantConfig = action.payload.tenantConfig;
   try {
