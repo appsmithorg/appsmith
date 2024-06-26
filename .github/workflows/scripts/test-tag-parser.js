@@ -18,9 +18,10 @@ function parseTags({core, context}) {
 
   for (const [rawTag] of config.matchAll(/\w+/g)) {
     console.log("Given: '" + rawTag + "'");
+    const rawTagLowerAndPrefixed = "@tag." + rawTag.toLowerCase();
 
     // See if there is exact case-insensitive match.
-    const exactTagMatch = allTags.find(t => t.toLowerCase() === "@tag." + rawTag);
+    const exactTagMatch = allTags.find(t => t.toLowerCase() === rawTagLowerAndPrefixed);
     if (exactTagMatch) {
       console.log("\tMatch found:", exactTagMatch);
       concreteTags.push(exactTagMatch);
@@ -28,7 +29,7 @@ function parseTags({core, context}) {
     }
 
     // See if there is a singular/plural match (very rudimentary language skills).
-    const countedMatch = allTags.find(t => t.toLowerCase().replace(/s$/, "") === "@tag." + rawTag.replace(/s$/, ""));
+    const countedMatch = allTags.find(t => t.toLowerCase().replace(/s$/, "") === rawTagLowerAndPrefixed.replace(/s$/, ""));
     if (countedMatch) {
       console.log("\tMatch found:", countedMatch);
       concreteTags.push(countedMatch);
