@@ -23,7 +23,8 @@ import java.util.Set;
     @JsonSubTypes.Type(value = OAuth2.class, name = Authentication.OAUTH2),
     @JsonSubTypes.Type(value = BasicAuth.class, name = Authentication.BASIC),
     @JsonSubTypes.Type(value = ApiKeyAuth.class, name = Authentication.API_KEY),
-    @JsonSubTypes.Type(value = BearerTokenAuth.class, name = Authentication.BEARER_TOKEN)
+    @JsonSubTypes.Type(value = BearerTokenAuth.class, name = Authentication.BEARER_TOKEN),
+    @JsonSubTypes.Type(value = KeyPairAuth.class, name = Authentication.SNOWFLAKE_KEY_PAIR_AUTH)
 })
 @FieldNameConstants
 public class AuthenticationDTO implements AppsmithDomain {
