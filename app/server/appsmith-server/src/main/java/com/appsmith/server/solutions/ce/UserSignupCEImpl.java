@@ -303,13 +303,12 @@ public class UserSignupCEImpl implements UserSignupCE {
                 })
                 .flatMap(user -> {
                     final UserData userData = new UserData();
-                    userData.setUserId(user.getId());
                     userData.setRole(userFromRequest.getRole());
                     userData.setProficiency(userFromRequest.getProficiency());
                     userData.setUseCase(userFromRequest.getUseCase());
 
                     Mono<UserData> userDataMono = userDataService
-                            .create(userData)
+                            .updateForUser(user, userData)
                             .elapsed()
                             .map(pair -> {
                                 log.debug(
