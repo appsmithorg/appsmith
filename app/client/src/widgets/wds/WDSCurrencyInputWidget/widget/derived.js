@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars*/
 export default {
   isValid: (props, moment, _) => {
-    let hasValidValue, value;
+    let hasValidValue, value, isEmpty;
     try {
       isEmpty = _.isNil(props.rawText) || props.rawText === "";
       value = isEmpty ? null : Number(props.rawText);
