@@ -80,6 +80,13 @@
             <scope>provided</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.projectreactor.tools</groupId>
+            <artifactId>blockhound-junit-platform</artifactId>
+            <version>1.0.9.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- Test Dependencies -->
 
         <!-- Actual Junit5 implementation. Will transitively include junit-jupiter-api -->
