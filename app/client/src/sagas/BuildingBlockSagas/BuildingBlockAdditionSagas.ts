@@ -6,6 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { isString } from "lodash";
 import { klona } from "klona";
 import log from "loglevel";
 import type {
