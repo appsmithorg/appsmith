@@ -51,6 +51,27 @@ interface QueryDebuggerTabsProps {
   onRunClick: () => void;
   showSchema?: boolean;
 }
+const parseResponseBody = (body: any): any[] => {
+  let parsedOutput: any;
+
+  if (typeof body === "string") {
+    try {
+      parsedOutput = JSON.parse(body);
+    } catch (e) {
+      return [{ response: body }];
+    }
+  } else {
+    parsedOutput = body;
+  }
+
+  if (Array.isArray(parsedOutput)) {
+    return parsedOutput;
+  } else if (parsedOutput.records && Array.isArray(parsedOutput.records)) {
+    return parsedOutput.records;
+  } else {
+    return [parsedOutput];
+  }
+};
 
 function QueryDebuggerTabs({
   actionName,
@@ -152,7 +173,7 @@ function QueryDebuggerTabs({
     if (isString(actionResponse.body)) {
       try {
         // Try to parse response as JSON array to be displayed in the Response tab
-        output = JSON.parse(actionResponse.body);
+        output = parseResponseBody(actionResponse.body);
       } catch (e) {
         // In case the string is not a JSON, wrap it in a response object
         output = [
@@ -162,15 +183,7 @@ function QueryDebuggerTabs({
         ];
       }
     } else {
-      if (typeof actionResponse.body === "object" && actionResponse.body !== null) {
-        if (Array.isArray(actionResponse.body)) {
-          output = actionResponse.body;
-        } else if ('records' in actionResponse.body && Array.isArray((actionResponse.body as any).records)) {
-          output = (actionResponse.body as any).records;
-        } else {
-          output = [actionResponse.body];
-        }
-      }
+      output = parseResponseBody(actionResponse.body);
     }
   }
 
