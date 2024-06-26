@@ -29,6 +29,7 @@ describe("TransformTableDataIntoArrayOfArray", () => {
         isCellEditable: false,
         isEditable: false,
         allowCellWrapping: false,
+        disableTooltip: false,
       },
     },
   ];
