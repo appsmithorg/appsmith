@@ -40,16 +40,13 @@ export function handleActionsDataUpdate(actionsToUpdate: UpdateActionProps[]) {
     DataStore.setActionData(path, data);
   }
   const updatedProperties: string[][] = [];
-  const pathsToSkipFromEval: string[] = [];
   actionsToUpdate.forEach(({ dataPath, entityName }) => {
     updatedProperties.push([entityName, dataPath]);
-    pathsToSkipFromEval.push(`${entityName}.${dataPath}`);
   });
   evalTreeWithChanges({
     data: {
       updatedValuePaths: updatedProperties,
       metaUpdates: [],
-      pathsToSkipFromEval,
     },
     method: EVAL_WORKER_SYNC_ACTION.EVAL_TREE_WITH_CHANGES,
     webworkerTelemetry: {},

@@ -55,13 +55,10 @@ export function applyJSVariableUpdatesToEvalTree(updatesMap: UpdatedPathsMap) {
    *  if "JSObject.myVar1" is updated
    *  then => only re-evaluate values dependent on "JSObject.myVar1"
    */
-  const pathsToSkipFromEval = modifiedVariablesList.map((path) =>
-    path.join("."),
-  );
+
   evalTreeWithChanges({
     data: {
       updatedValuePaths: modifiedVariablesList,
-      pathsToSkipFromEval,
     },
     method: EVAL_WORKER_SYNC_ACTION.EVAL_TREE_WITH_CHANGES,
     webworkerTelemetry: {},

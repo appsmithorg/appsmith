@@ -38,15 +38,13 @@ export function evalTreeWithChanges(
   request: EvalWorkerSyncRequest<{
     metaUpdates?: EvalMetaUpdates;
     updatedValuePaths: string[][];
-    pathsToSkipFromEval: string[];
   }>,
 ) {
   const { data } = request;
-  const {
-    metaUpdates = [],
-    pathsToSkipFromEval = [],
-    updatedValuePaths,
-  } = data;
+  const { metaUpdates = [], updatedValuePaths } = data;
+
+  const pathsToSkipFromEval = updatedValuePaths.map((path) => path.join("."));
+
   let setupUpdateTreeResponse = {} as UpdateTreeResponse;
   if (dataTreeEvaluator) {
     setupUpdateTreeResponse = dataTreeEvaluator.setupUpdateTreeWithDifferences(
@@ -54,13 +52,12 @@ export function evalTreeWithChanges(
       pathsToSkipFromEval,
     );
   }
-  const additionalPathsAddedAsUpdates = pathsToSkipFromEval;
 
   evaluateAndPushResponse(
     dataTreeEvaluator,
     setupUpdateTreeResponse,
     metaUpdates,
-    additionalPathsAddedAsUpdates,
+    pathsToSkipFromEval,
   );
 }
 

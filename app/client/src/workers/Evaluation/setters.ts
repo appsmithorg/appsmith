@@ -126,7 +126,6 @@ class Setters {
         data: {
           updatedValuePaths: updatedProperties,
           metaUpdates: evalMetaUpdates,
-          pathsToSkipFromEval: [path],
         },
         method: EVAL_WORKER_SYNC_ACTION.EVAL_TREE_WITH_CHANGES,
         webworkerTelemetry: {},
