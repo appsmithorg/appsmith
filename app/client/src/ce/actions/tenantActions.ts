@@ -4,7 +4,7 @@ import type { ApiResponse } from "api/ApiResponses";
 
 export const getCurrentTenant = (
   isBackgroundRequest = true,
-  tenantConfig?: ApiResponse,
+  tenantConfig: ApiResponse | null,
 ) => ({
   type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG,
   payload: {

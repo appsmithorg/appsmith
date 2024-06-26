@@ -26,9 +26,11 @@ import * as Sentry from "@sentry/react";
 import { resetRecentEntities } from "actions/globalSearchActions";
 
 import {
+  endConsolidatedPageLoad,
   initAppViewer,
   initEditor,
   resetEditorSuccess,
+  startConsolidatedPageLoad,
 } from "actions/initActions";
 import {
   getCurrentPageId,
@@ -187,27 +189,16 @@ export function* reportSWStatus() {
   }
 }
 
-function* executeActionDuringUserDetailsInitialisation(
-  actionType: string,
-  shouldInitialiseUserDetails?: boolean,
-) {
-  if (!shouldInitialiseUserDetails) {
-    return;
-  }
-  yield put({ type: actionType });
-}
-
 export function* getInitResponses({
   applicationId,
+  fetchCurrentTenant = false,
   mode,
   pageId,
-  shouldInitialiseUserDetails,
 }: {
   applicationId?: string;
   pageId?: string;
-  branch?: string;
   mode?: APP_MODE;
-  shouldInitialiseUserDetails?: boolean;
+  fetchCurrentTenant?: boolean;
 }): any {
   const params = pickBy(
     {
@@ -218,11 +209,7 @@ export function* getInitResponses({
   );
   let response: InitConsolidatedApi | undefined;
   try {
-    yield call(
-      executeActionDuringUserDetailsInitialisation,
-      ReduxActionTypes.START_CONSOLIDATED_PAGE_LOAD,
-      shouldInitialiseUserDetails,
-    );
+    yield put(startConsolidatedPageLoad());
 
     const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
       yield mode === APP_MODE.EDIT
@@ -245,11 +232,7 @@ export function* getInitResponses({
       embedRedirectURL();
     }
 
-    yield call(
-      executeActionDuringUserDetailsInitialisation,
-      ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
-      shouldInitialiseUserDetails,
-    );
+    yield put(endConsolidatedPageLoad());
 
     Sentry.captureMessage(
       `consolidated api failure for ${JSON.stringify(
@@ -261,25 +244,18 @@ export function* getInitResponses({
 
   const { featureFlags, productAlert, tenantConfig, userProfile, ...rest } =
     response || {};
-  //actions originating from INITIALIZE_CURRENT_PAGE should update user details
-  //other actions are not necessary
-
-  if (!shouldInitialiseUserDetails) {
-    return rest;
-  }
 
   yield put(getCurrentUser(userProfile));
 
   yield put(fetchFeatureFlagsInit(featureFlags));
 
-  yield put(getCurrentTenant(false, tenantConfig));
+  // If fetchCurrentTenant is true then don't pass the tenant configuration in the consolidated api
+  // This will make sure that the tenant configuration is fetched from the current tenants endpoint
+  const tenantConfigurationResponse = fetchCurrentTenant ? null : tenantConfig;
+  yield put(getCurrentTenant(false, tenantConfigurationResponse));
 
   yield put(fetchProductAlertInit(productAlert));
-  yield call(
-    executeActionDuringUserDetailsInitialisation,
-    ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
-    shouldInitialiseUserDetails,
-  );
+  yield put(endConsolidatedPageLoad());
   return rest;
 }
 
@@ -412,7 +388,6 @@ function* eagerPageInitSaga() {
             applicationId,
             branch,
             mode: APP_MODE.EDIT,
-            shouldInitialiseUserDetails: true,
           }),
         );
         return;
@@ -432,7 +407,6 @@ function* eagerPageInitSaga() {
             branch,
             pageId,
             mode: APP_MODE.PUBLISHED,
-            shouldInitialiseUserDetails: true,
           }),
         );
         return;
@@ -442,8 +416,8 @@ function* eagerPageInitSaga() {
 
   try {
     yield call(getInitResponses, {
-      shouldInitialiseUserDetails: true,
       mode: APP_MODE.PUBLISHED,
+      fetchCurrentTenant: true,
     });
   } catch (e) {}
 }
