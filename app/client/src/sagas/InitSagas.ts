@@ -417,7 +417,7 @@ function* eagerPageInitSaga() {
     }
   }
 
-  const skipTenantUpdate = matchSettingsLicensePath(url);
+  const skipTenantUpdate = !!matchSettingsLicensePath(url);
 
   try {
     yield call(getInitResponses, {
