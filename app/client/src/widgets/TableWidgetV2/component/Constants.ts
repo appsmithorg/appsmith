@@ -151,6 +151,9 @@ export interface InlineEditingCellProperties {
 export interface CellWrappingProperties {
   allowCellWrapping: boolean;
 }
+export interface DisableTooltipProperties {
+  disableTooltip: boolean;
+}
 
 export interface ButtonCellProperties {
   buttonVariant: ButtonVariant;
@@ -222,6 +225,7 @@ export interface CellLayoutProperties
   extends EditActionCellProperties,
     InlineEditingCellProperties,
     CellWrappingProperties,
+    DisableTooltipProperties,
     ButtonCellProperties,
     URLCellProperties,
     MenuButtonCellProperties,
@@ -285,6 +289,7 @@ export interface ColumnBaseProperties {
   isAscOrder?: boolean;
   alias: string;
   allowCellWrapping: boolean;
+  disableTooltip: boolean;
 }
 
 export interface ColumnStyleProperties {
@@ -497,6 +502,7 @@ export interface BaseCellComponentProps {
   compactMode: string;
   isHidden: boolean;
   allowCellWrapping?: boolean;
+  disableTooltip?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   cellBackground?: string;

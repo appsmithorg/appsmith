@@ -99,6 +99,7 @@ export const BasicCell = React.forwardRef(
       compactMode,
       disabledEditIcon,
       disabledEditIconMessage,
+      disableTooltip,
       fontStyle,
       hasUnsavedChanges,
       horizontalAlignment,
@@ -143,6 +144,7 @@ export const BasicCell = React.forwardRef(
           className={isCellEditable ? "editable-cell" : ""}
           columnType={columnType}
           compactMode={compactMode}
+          disableTooltip={disableTooltip}
           fontStyle={fontStyle}
           horizontalAlignment={horizontalAlignment}
           isCellDisabled={isCellDisabled}

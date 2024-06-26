@@ -118,6 +118,7 @@ function PlainTextCell(
     decimals,
     disabledEditIcon,
     disabledEditIconMessage,
+    disableTooltip,
     displayText,
     fontStyle,
     hasUnsavedChanges,
@@ -299,6 +300,7 @@ function PlainTextCell(
         cellBackground={cellBackground}
         columnType={columnType}
         compactMode={compactMode}
+        disableTooltip={disableTooltip}
         disabledEditIcon={disabledEditIcon}
         disabledEditIconMessage={disabledEditIconMessage}
         fontStyle={fontStyle}

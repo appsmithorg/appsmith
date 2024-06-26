@@ -106,6 +106,27 @@ export default {
       },
     },
     {
+      propertyName: "disableTooltip",
+      dependencies: ["primaryColumns", "columnType"],
+      label: "Disable tooltip",
+      helpText: "Hides tooltip on cell hover",
+      defaultValue: false,
+      controlType: "SWITCH",
+      customJSControl: "TABLE_COMPUTE_VALUE",
+      isJSConvertible: true,
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
+      hidden: (props: TableWidgetProps, propertyPath: string) => {
+        return hideByColumnType(props, propertyPath, [ColumnTypes.TEXT]);
+      },
+    },
+    {
       propertyName: "isCellEditable",
       dependencies: [
         "primaryColumns",

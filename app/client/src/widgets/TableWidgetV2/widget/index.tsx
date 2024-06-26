@@ -2497,6 +2497,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             compactMode={compactMode}
             currencyCode={cellProperties.currencyCode}
             decimals={cellProperties.decimals}
+            disableTooltip={cellProperties.disableTooltip}
             disabledEditIcon={
               shouldDisableEdit || this.props.isAddRowInProgress
             }

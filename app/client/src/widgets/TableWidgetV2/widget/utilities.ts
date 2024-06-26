@@ -225,6 +225,7 @@ export function getDefaultColumnProperties(
     decimals: 0,
     thousandSeparator: true,
     notation: "standard" as Intl.NumberFormatOptions["notation"],
+    disableTooltip: false,
   };
 
   return columnProps;
@@ -523,6 +524,10 @@ export const getCellProperties = (
         rowIndex,
       ),
       notation: getPropertyValue(columnProperties.notation, rowIndex, true),
+      disableTooltip: getBooleanPropertyValue(
+        columnProperties.disableTooltip,
+        rowIndex,
+      ),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;

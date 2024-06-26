@@ -1,10 +1,10 @@
-import React, { createRef, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
-import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
-import type { CellAlignment, VerticalAlignment } from "../Constants";
+import { importSvg } from "design-system-old";
+import React, { createRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { importSvg } from "design-system-old";
+import type { CellAlignment, VerticalAlignment } from "../Constants";
+import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 
 const OpenNewTabIcon = importSvg(
   async () => import("assets/icons/control/open-new-tab.svg"),
@@ -37,8 +37,8 @@ const TOOLTIP_OPEN_DELAY = 500;
 
 function useToolTip(
   children: React.ReactNode,
-  tableWidth?: number,
   title?: string,
+  disableTooltip?: boolean,
 ) {
   const ref = createRef<HTMLDivElement>();
   const [requiresTooltip, setRequiresTooltip] = useState(false);
@@ -54,7 +54,11 @@ function useToolTip(
        * during initial render
        */
       timeout = setTimeout(() => {
-        if (element && element.offsetWidth < element.scrollWidth) {
+        const requiresTooltip =
+          !disableTooltip &&
+          element &&
+          element.offsetWidth < element.scrollWidth;
+        if (requiresTooltip) {
           setRequiresTooltip(true);
         } else {
           setRequiresTooltip(false);
@@ -82,15 +86,13 @@ function useToolTip(
   return requiresTooltip && children ? (
     <Tooltip
       autoFocus={false}
-      boundary="viewport"
       content={
         <TooltipContentWrapper width={MAX_WIDTH - WIDTH_OFFSET}>
           {title}
         </TooltipContentWrapper>
       }
-      defaultIsOpen
       hoverOpenDelay={TOOLTIP_OPEN_DELAY}
-      position="right"
+      position="bottom"
       usePortal
     >
       {
@@ -116,6 +118,7 @@ interface Props {
   className?: string;
   compactMode?: string;
   allowCellWrapping?: boolean;
+  disableTooltip?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   textColor?: string;
@@ -128,7 +131,7 @@ interface Props {
 }
 
 function LinkWrapper(props: Props) {
-  const content = useToolTip(props.children, props.tableWidth, props.title);
+  const content = useToolTip(props.children, props.title, props.disableTooltip);
 
   return (
     <CellWrapper
@@ -160,7 +163,7 @@ function LinkWrapper(props: Props) {
 }
 
 function AutoToolTipComponent(props: Props) {
-  const content = useToolTip(props.children, props.tableWidth, props.title);
+  const content = useToolTip(props.children, props.title, props.disableTooltip);
 
   if (props.columnType === ColumnTypes.URL && props.title) {
     return <LinkWrapper {...props} />;
