@@ -9,19 +9,25 @@ describe(
   { tags: ["@tag.Anvil"] },
   () => {
     before(() => {
-      agHelper.AddDsl("anvilButtonWidget");
+      agHelper.AddDsl("anvilInputWidget");
     });
 
     it("1. Canvas Mode", () => {
-      anvilSnapshot.verifyCanvasMode("ButtonWidget ");
+      // trigger input invalid state
+      anvilSnapshot.enterPreviewMode();
+      cy.get("input[aria-required=true]").first().type("123");
+      cy.get("input[aria-required=true]").first().clear();
+      anvilSnapshot.exitPreviewMode();
+
+      anvilSnapshot.verifyCanvasMode("InputWidget");
     });
 
     it("2. Preview Mode", () => {
-      anvilSnapshot.verifyPreviewMode("ButtonWidget");
+      anvilSnapshot.verifyPreviewMode("InputWidget");
     });
 
     it("3. Deploy Mode", () => {
-      anvilSnapshot.verifyDeployMode("ButtonWidget");
+      anvilSnapshot.verifyDeployMode("InputWidget");
     });
   },
 );

@@ -3,19 +3,16 @@ export default {
   isValid: (props, moment, _) => {
     let hasValidValue, value;
     try {
-      value = props.rawText !== "" ? Number(props.rawText) : undefined;
+      isEmpty = _.isNil(props.rawText) || props.rawText === "";
+      value = isEmpty ? null : Number(props.rawText);
       hasValidValue = Number.isFinite(value);
     } catch (e) {
       return false;
     }
 
-    if (
-      !props.isRequired &&
-      (props.rawText === "" || props.rawText === undefined)
-    ) {
+    if (!props.isRequired && isEmpty) {
       return true;
     }
-
     if (props.isRequired && !hasValidValue) {
       return false;
     }
@@ -54,4 +51,5 @@ export default {
       return hasValidValue;
     }
   },
+  //
 };

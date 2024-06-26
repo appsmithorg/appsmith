@@ -109,7 +109,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      isValid: `{{(()=>{${derivedProperties.isValid}})()}}`,
+      isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
     };
   }
 

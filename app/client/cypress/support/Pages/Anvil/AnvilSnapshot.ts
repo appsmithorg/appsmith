@@ -63,11 +63,11 @@ export class AnvilSnapshot {
     });
   };
 
-  private enterPreviewMode = (shouldOpen = true) => {
+  public enterPreviewMode = (shouldOpen = true) => {
     this.agHelper.GetNClick(this.locators.enterPreviewMode);
   };
 
-  private exitPreviewMode = () => {
+  public exitPreviewMode = () => {
     this.agHelper.GetNClick(this.locators.exitPreviewMode);
   };
 
@@ -81,4 +81,5 @@ export class AnvilSnapshot {
 
     this.appSettings.ClosePane();
   };
+
 }
