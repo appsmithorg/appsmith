@@ -394,6 +394,18 @@ class CodeEditor extends Component<Props, State> {
           saveAndAutoIndentCode(editor);
           AnalyticsUtil.logEvent("PRETTIFY_AND_SAVE_KEYBOARD_SHORTCUT");
         },
+        'Ctrl-/': function(cm) {
+          if (cm.getMode().name === 'htmlmixed') {
+            let selection = cm.getSelection();
+            if (selection.startsWith("<!--") && selection.endsWith("-->")) {
+              cm.replaceSelection(selection.slice(4, -3).trim());
+            } else {
+              cm.replaceSelection(`<!-- ${selection} -->`);
+            }
+          } else {
+            cm.toggleComment(); // Fallback to default behavior for other modes
+          }
+        },
         [getDeleteLineShortcut()]: () => {
           return;
         },
