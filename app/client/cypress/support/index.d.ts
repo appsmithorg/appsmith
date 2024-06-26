@@ -181,6 +181,5 @@ declare namespace Cypress {
       name: string,
       options?: Partial<Cypress.ScreenshotOptions>,
     );
-    Createpage(pageName: string);
   }
 }

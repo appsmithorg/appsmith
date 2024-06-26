@@ -10,7 +10,7 @@ export class AnvilSnapshot {
     canvas: "[data-testid=t--canvas-artboard]",
     colorMode: "[data-testid=t--anvil-theme-settings-color-mode]",
     appViewerPage: "[data-testid=t--app-viewer-page-body]",
-    propertyPaneSidebar: "[data-testid=t--property-pane-sidebar]"
+    propertyPaneSidebar: "[data-testid=t--property-pane-sidebar]",
   };
 
   public verifyCanvasMode = async (widgetName: string) => {
@@ -64,11 +64,11 @@ export class AnvilSnapshot {
     });
   };
 
-  public enterPreviewMode = (shouldOpen = true) => {
+  private enterPreviewMode = (shouldOpen = true) => {
     this.agHelper.GetNClick(this.locators.enterPreviewMode);
   };
 
-  public exitPreviewMode = () => {
+  private exitPreviewMode = () => {
     this.agHelper.GetNClick(this.locators.exitPreviewMode);
   };
 
@@ -89,5 +89,5 @@ export class AnvilSnapshot {
     cy.get("input[aria-required=true]").first().clear();
     this.exitPreviewMode();
     this.agHelper.GetNClick(this.locators.propertyPaneSidebar);
-  }
+  };
 }
