@@ -110,7 +110,6 @@ import reactor.util.function.Tuple4;
 
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
@@ -140,7 +139,6 @@ import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_C
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.dtos.ce.CustomJSLibContextCE_DTO.getDTOFromCustomJSLib;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -999,18 +997,13 @@ public class ImportServiceTests {
                     assertEquals(2, importedJSLibList.size());
                     CustomJSLib importedJSLib = (CustomJSLib) importedJSLibList.toArray()[0];
                     CustomJSLib expectedJSLib = new CustomJSLib(
-                            "TestLib",
-                            Set.of("accessor1"),
-                            "url",
-                            "docsUrl",
-                            "1" + ".0",
-                            "defs_string".getBytes(StandardCharsets.UTF_8));
+                            "TestLib", Set.of("accessor1"), "url", "docsUrl", "1" + ".0", "defs_string");
                     assertEquals(expectedJSLib.getName(), importedJSLib.getName());
                     assertEquals(expectedJSLib.getAccessor(), importedJSLib.getAccessor());
                     assertEquals(expectedJSLib.getUrl(), importedJSLib.getUrl());
                     assertEquals(expectedJSLib.getDocsUrl(), importedJSLib.getDocsUrl());
                     assertEquals(expectedJSLib.getVersion(), importedJSLib.getVersion());
-                    assertArrayEquals(expectedJSLib.getDefs(), importedJSLib.getDefs());
+                    assertEquals(expectedJSLib.getDefs(), importedJSLib.getDefs());
                     // although the imported list had only one jsLib entry, the other entry comes from ensuring an xml
                     // parser entry for backward compatibility
                     assertEquals(2, application.getUnpublishedCustomJSLibs().size());
@@ -4847,13 +4840,7 @@ public class ImportServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithCustomJSLibTest() {
-        CustomJSLib jsLib = new CustomJSLib(
-                "TestLib",
-                Set.of("accessor1"),
-                "url",
-                "docsUrl",
-                "1.0",
-                "defs_string".getBytes(StandardCharsets.UTF_8));
+        CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
         Mono<Boolean> addJSLibMonoCached = customJSLibService
                 .addJSLibsToContext(testAppId, CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
                 .flatMap(isJSLibAdded ->
@@ -4880,7 +4867,7 @@ public class ImportServiceTests {
                     assertEquals(jsLib.getUrl(), exportedJSLib.getUrl());
                     assertEquals(jsLib.getDocsUrl(), exportedJSLib.getDocsUrl());
                     assertEquals(jsLib.getVersion(), exportedJSLib.getVersion());
-                    assertArrayEquals(jsLib.getDefs(), exportedJSLib.getDefs());
+                    assertEquals(jsLib.getDefs(), exportedJSLib.getDefs());
                     assertEquals(
                             getDTOFromCustomJSLib(jsLib),
                             exportedAppJson

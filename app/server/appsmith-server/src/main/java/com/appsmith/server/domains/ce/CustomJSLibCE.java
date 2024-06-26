@@ -6,14 +6,6 @@ import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializer;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.google.gson.TypeAdapter;
-import com.google.gson.annotations.JsonAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -21,10 +13,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.Type;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -73,32 +64,11 @@ public class CustomJSLibCE extends BranchAwareDomain {
 
     /* `Tern` tool definitions - it defines the methods exposed by the library. It helps us with auto-complete
     feature i.e. the function name showing up as suggestion when user has partially typed it. */
-    @Column(columnDefinition = "text")
     @JsonView({Views.Public.class, Git.class})
-    @JsonSerialize(using = DefsSerializerForJackson.class)
-    @JsonAdapter(DefsAdapterForGson.class)
-    byte[] defs;
+    @ColumnTransformer(read = "convert_from(defs, 'utf8')")
+    String defs;
 
-    public static class DefsSerializerForJackson extends JsonSerializer<byte[]> {
-        @Override
-        public void serialize(byte[] value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
-            gen.writeString(new String(value, StandardCharsets.UTF_8));
-        }
-    }
-
-    public static class DefsAdapterForGson extends TypeAdapter<byte[]> {
-        @Override
-        public void write(JsonWriter out, byte[] value) throws IOException {
-            out.value(new String(value, StandardCharsets.UTF_8));
-        }
-
-        @Override
-        public byte[] read(JsonReader in) throws IOException {
-            return in.nextString().getBytes(StandardCharsets.UTF_8);
-        }
-    }
-
-    public CustomJSLibCE(String name, Set<String> accessor, String url, String docsUrl, String version, byte[] defs) {
+    public CustomJSLibCE(String name, Set<String> accessor, String url, String docsUrl, String version, String defs) {
         setName(name);
         setAccessor(accessor);
         setUrl(url);

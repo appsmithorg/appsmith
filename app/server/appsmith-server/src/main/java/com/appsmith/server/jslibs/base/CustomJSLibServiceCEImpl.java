@@ -87,7 +87,7 @@ public class CustomJSLibServiceCEImpl
                        The second check provides us with a backdoor to overwrite any faulty data that would have come in any time earlier.
                        Currently, once a custom JS lib data gets persisted there is no way to update it - the isForceInstall flag will allow a way to update this data.
                     */
-                    if ((jsLib.getDefs().length > foundJSLib.getDefs().length) || isForceInstall) {
+                    if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
                         jsLib.setId(foundJSLib.getId());
                         return repository.save(jsLib);
                     }
