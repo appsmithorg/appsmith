@@ -7,8 +7,5 @@
         "import/no-anonymous-default-export": "off"
       }
     }
-  ],
-  "parserOptions": {
-     "project": "**/tsconfig.json"
-  }
+  ]
 }

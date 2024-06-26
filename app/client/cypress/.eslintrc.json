@@ -19,8 +19,5 @@
     "jest/no-disabled-tests": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-var-requires": "off"
-  },
-  "parserOptions": {
-     "project": "**/tsconfig.json"
   }
 }

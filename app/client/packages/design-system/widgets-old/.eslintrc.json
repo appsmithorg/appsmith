@@ -5,8 +5,5 @@
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "react/display-name": "off"
-  },
-  "parserOptions": {
-     "project": "**/tsconfig.json"
   }
 }
