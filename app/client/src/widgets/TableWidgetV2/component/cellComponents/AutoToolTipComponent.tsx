@@ -90,6 +90,7 @@ function useToolTip(
       }
       defaultIsOpen
       hoverOpenDelay={TOOLTIP_OPEN_DELAY}
+      position="right"
       usePortal
     >
       {
