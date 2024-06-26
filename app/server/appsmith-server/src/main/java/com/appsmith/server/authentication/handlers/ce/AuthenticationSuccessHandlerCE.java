@@ -3,6 +3,7 @@ package com.appsmith.server.authentication.handlers.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.server.authentication.handlers.CustomServerOAuth2AuthorizationRequestResolver;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.LoginSource;
@@ -34,6 +35,7 @@ import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.security.web.server.authentication.ServerAuthenticationSuccessHandler;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
 import java.net.URLDecoder;
@@ -82,14 +84,12 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 if (!TRUE.equals(emailVerificationEnabled)) {
                     return userMono.flatMap(user -> {
                         user.setEmailVerificationRequired(FALSE);
-                        userRepository.save(user);
-                        return Mono.just(FALSE);
+                        return userRepository.save(user).then(Mono.just(FALSE));
                     });
                 } else {
                     return userMono.flatMap(user -> {
                         user.setEmailVerificationRequired(TRUE);
-                        userRepository.save(user);
-                        return Mono.just(TRUE);
+                        return userRepository.save(user).then(Mono.just(TRUE));
                     });
                 }
             });
@@ -104,8 +104,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         // email verification not enabled at the tenant
                         if (!TRUE.equals(emailVerificationEnabled)) {
                             user.setEmailVerificationRequired(FALSE);
-                            userRepository.save(user);
-                            return Mono.just(FALSE);
+                            return userRepository.save(user).then(Mono.just(FALSE));
                         } else {
                             // scenario when at the time of signup, the email verification was disabled at the tenant
                             // but later on turned on, now when this user logs in, it will not be prompted to verify
@@ -115,8 +114,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                 return Mono.just(FALSE);
                             } else {
                                 user.setEmailVerificationRequired(TRUE);
-                                userRepository.save(user);
-                                return Mono.just(TRUE);
+                                return userRepository.save(user).then(Mono.just(TRUE));
                             }
                         }
                     });
@@ -279,8 +277,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                 user.setPassword(null);
                 user.setSource(authenticationLoginSource);
                 // Update the user in separate thread
-                userRepository.save(user); // .subscribeOn(Schedulers.boundedElastic())
-                // .subscribe();
+                userRepository
+                        .save(user)
+                        .subscribeOn(Schedulers.boundedElastic())
+                        .subscribe();
             }
             if (isFromSignup) {
                 boolean finalIsFromSignup = isFromSignup;
@@ -317,10 +317,10 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                     List<Mono<?>> monos = new ArrayList<>();
 
                     // Since the user has successfully logged in, lets reset the rate limit counter for the user.
-                    // monos.add(rateLimitService.resetCounter(
-                    //         RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, user.getEmail()));
+                    monos.add(rateLimitService.resetCounter(
+                            RateLimitConstants.BUCKET_KEY_FOR_LOGIN_API, user.getEmail()));
 
-                    // monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
+                    monos.add(userDataService.ensureViewedCurrentVersionReleaseNotes(currentUser));
 
                     String modeOfLogin = FieldName.FORM_LOGIN;
                     if (authentication instanceof OAuth2AuthenticationToken) {
@@ -353,15 +353,11 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                         modeOfLogin)));
                     }
 
-                    // monos.add(analyticsService.sendObjectEvent(
-                    //         AnalyticsEvents.LOGIN, currentUser, Map.of(FieldName.MODE_OF_LOGIN, modeOfLogin)));
+                    monos.add(analyticsService.sendObjectEvent(
+                            AnalyticsEvents.LOGIN, currentUser, Map.of(FieldName.MODE_OF_LOGIN, modeOfLogin)));
 
                     return Mono.whenDelayError(monos);
                 })
-                .then(Mono.defer(() -> {
-                    System.out.println("AuthenticationSuccessHandlerCE.onAuthenticationSuccess");
-                    return Mono.empty();
-                }))
                 .then(finalRedirectionMono);
     }
 
@@ -383,7 +379,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                         // workspace user has access to, and would be user's default workspace. Hence, we use this
                         // workspace to create the application.
                         if (workspaces.size() == 1) {
-                            // application.setWorkspaceId(workspaces.get(0).getId());
+                            application.setWorkspaceId(workspaces.get(0).getId());
                             return Mono.just(application);
                         }
 
@@ -394,7 +390,7 @@ public class AuthenticationSuccessHandlerCE implements ServerAuthenticationSucce
                                 .findByEmail(email)
                                 .flatMap(user -> workspaceService.createDefault(new Workspace(), user))
                                 .map(workspace -> {
-                                    // application.setWorkspaceId(workspace.getId());
+                                    application.setWorkspaceId(workspace.getId());
                                     return application;
                                 });
                     });
