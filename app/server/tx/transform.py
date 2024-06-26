@@ -70,7 +70,7 @@ def repo_interfaces(domain):
                     f"Custom{domain}RepositoryCE",
                     f"{domain}RepositoryCE",
                     # f"Custom{domain}Repository",
-                    # f"{domain}Repository",
+                    f"{domain}Repository",
                 ]
             ),
         )

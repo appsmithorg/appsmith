@@ -18,7 +18,7 @@ import java.util.Set;
 @Where(clause = "deleted_at IS NULL")
 public class CustomJSLib extends CustomJSLibCE {
 
-    public CustomJSLib(String name, Set<String> accessor, String url, String docsUrl, String version, byte[] defs) {
+    public CustomJSLib(String name, Set<String> accessor, String url, String docsUrl, String version, String defs) {
         super(name, accessor, url, docsUrl, version, defs);
     }
 

@@ -6,10 +6,6 @@ import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.google.gson.TypeAdapter;
-import com.google.gson.annotations.JsonAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonWriter;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -17,10 +13,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.ColumnTransformer;
 import org.hibernate.annotations.Type;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -69,24 +64,22 @@ public class CustomJSLibCE extends BranchAwareDomain {
 
     /* `Tern` tool definitions - it defines the methods exposed by the library. It helps us with auto-complete
     feature i.e. the function name showing up as suggestion when user has partially typed it. */
-    @Column(columnDefinition = "text")
     @JsonView({Views.Public.class, Git.class})
-    @JsonAdapter(DefsAdapter.class)
-    byte[] defs;
+    @ColumnTransformer(
+            // This is a `bytea` type column in Postgres, because there's a not-so-rare chance that this value can
+            // contain
+            // the NUL character. But Postgres doesn't allow `text` columns to contain the NUL character, so we have to
+            // use
+            // a `bytea` column type. But since everything else (client, git, rest of the backend code, MongoDB version)
+            // needs this field to be a `String`, we keep it to `String`, but apply read/write converters when
+            // interacting
+            // with the database.
+            // We also assume UTF8 here, since this value is known to always be valid JSON, which is UTF8-only.
+            read = "convert_from(defs, 'utf8')",
+            write = "convert_to(?, 'utf8')")
+    String defs;
 
-    public static class DefsAdapter extends TypeAdapter<byte[]> {
-        @Override
-        public void write(JsonWriter out, byte[] value) throws IOException {
-            out.value(new String(value, StandardCharsets.UTF_8));
-        }
-
-        @Override
-        public byte[] read(JsonReader in) throws IOException {
-            return in.nextString().getBytes(StandardCharsets.UTF_8);
-        }
-    }
-
-    public CustomJSLibCE(String name, Set<String> accessor, String url, String docsUrl, String version, byte[] defs) {
+    public CustomJSLibCE(String name, Set<String> accessor, String url, String docsUrl, String version, String defs) {
         setName(name);
         setAccessor(accessor);
         setUrl(url);

@@ -85,7 +85,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -106,7 +105,6 @@ import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -1834,13 +1832,7 @@ public class ExportServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void createExportAppJsonWithCustomJSLibTest() {
-        CustomJSLib jsLib = new CustomJSLib(
-                "TestLib",
-                Set.of("accessor1"),
-                "url",
-                "docsUrl",
-                "1.0",
-                "defs_string".getBytes(StandardCharsets.UTF_8));
+        CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
         Mono<Boolean> addJSLibMonoCached = customJSLibService
                 .addJSLibsToContext(testAppId, CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
                 .flatMap(isJSLibAdded ->
@@ -1868,7 +1860,7 @@ public class ExportServiceTests {
                     assertEquals(jsLib.getUrl(), exportedJSLib.getUrl());
                     assertEquals(jsLib.getDocsUrl(), exportedJSLib.getDocsUrl());
                     assertEquals(jsLib.getVersion(), exportedJSLib.getVersion());
-                    assertArrayEquals(jsLib.getDefs(), exportedJSLib.getDefs());
+                    assertEquals(jsLib.getDefs(), exportedJSLib.getDefs());
                     assertEquals(
                             getDTOFromCustomJSLib(jsLib),
                             exportedAppJson
