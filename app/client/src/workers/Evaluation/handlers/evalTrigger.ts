@@ -2,6 +2,7 @@ import { dataTreeEvaluator } from "./evalTree";
 import type { EvalWorkerASyncRequest } from "../types";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
 import { evaluateAndPushResponse } from "../evalTreeWithChanges";
+import { getJSEntities } from "../JSObject";
 
 export default async function (request: EvalWorkerASyncRequest) {
   const { data } = request;
@@ -20,12 +21,15 @@ export default async function (request: EvalWorkerASyncRequest) {
   ExecutionMetaData.setExecutionMetaData({ triggerMeta, eventType });
 
   if (!triggerMeta.onPageLoad) {
+    const allJSObjectIds = Object.values(
+      getJSEntities(unEvalTree.unEvalTree),
+    ).map((v) => v.actionId);
     const { evalOrder, unEvalUpdates } = dataTreeEvaluator.setupUpdateTree(
       unEvalTree.unEvalTree,
       unEvalTree.configTree,
       undefined,
       //TODO: the evalTrigger can be optimised to not diff all JS actions
-      { isAllAffected: true, ids: [] },
+      allJSObjectIds,
     );
     evaluateAndPushResponse(
       dataTreeEvaluator,

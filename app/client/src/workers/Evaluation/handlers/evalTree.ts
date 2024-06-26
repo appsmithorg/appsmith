@@ -37,6 +37,10 @@ import {
 import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import {
+  getAffectedJSObjectIdsFromJsPatches,
+  mergeJSObjectsToUnevalTree,
+} from "./evalTreeUtils";
 
 export let replayMap: Record<string, ReplayEntity<any>> | undefined;
 export let dataTreeEvaluator: DataTreeEvaluator | undefined;
@@ -64,10 +68,10 @@ export function evalTree(request: EvalWorkerSyncRequest) {
   let isNewWidgetAdded = false;
 
   const {
-    affectedJSObjects,
     allActionValidationConfig,
     appMode,
     forceEvaluation,
+    jsPatches,
     metaWidgets,
     shouldReplay,
     shouldRespondWithLogs,
@@ -78,7 +82,14 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     widgetTypeConfigMap,
   } = data as EvalTreeRequestData;
 
-  const unevalTree = __unevalTree__.unEvalTree;
+  // the received unevalTree intially does not have the jsObjects in it,
+  // we are stiching the jsPatches back to the unevalTree over here
+  const unevalTree = mergeJSObjectsToUnevalTree(
+    dataTreeEvaluator?.oldUnEvalTree,
+    __unevalTree__.unEvalTree,
+    jsPatches,
+  );
+
   configTree = __unevalTree__.configTree as ConfigTree;
   canvasWidgets = widgets;
   canvasWidgetsMeta = widgetsMeta;
@@ -187,7 +198,11 @@ export function evalTree(request: EvalWorkerSyncRequest) {
             unevalTree,
             configTree,
             webworkerTelemetry,
-            affectedJSObjects,
+            getAffectedJSObjectIdsFromJsPatches(
+              dataTreeEvaluator?.oldUnEvalTree,
+              unevalTree,
+              jsPatches,
+            ),
           ),
       );
 

@@ -20,6 +20,8 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { fetchPluginFormConfigsSuccess } from "actions/pluginActions";
 import { createJSCollectionSuccess } from "actions/jsActionActions";
+import type { UnEvalTree } from "entities/DataTree/dataTreeTypes";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 jest.mock("loglevel");
 
 describe("evaluateTreeSaga", () => {
@@ -50,7 +52,7 @@ describe("evaluateTreeSaga", () => {
         appMode: false,
         widgetsMeta: {},
         shouldRespondWithLogs: true,
-        affectedJSObjects: { ids: [], isAllAffected: false },
+        jsPatches: { shouldReplaceAllNodes: false, patches: [] },
       })
       .run();
   });
@@ -78,49 +80,159 @@ describe("evaluateTreeSaga", () => {
         appMode: false,
         widgetsMeta: {},
         shouldRespondWithLogs: false,
-        affectedJSObjects: { ids: [], isAllAffected: false },
+        jsPatches: { shouldReplaceAllNodes: false, patches: [] },
       })
       .run();
   });
-  test("should propagate affectedJSObjects property to evaluation action", async () => {
-    const unEvalAndConfigTree = { unEvalTree: {}, configTree: {} };
-    const affectedJSObjects = {
-      isAllAffected: false,
-      ids: ["1", "2"],
-    };
+  describe("affectedJSObjects", () => {
+    test("should send jsPatches property to during evaluation action", async () => {
+      const unEvalAndConfigTree = {
+        unEvalTree: {
+          jsObject1: {
+            ENTITY_TYPE: "JSACTION",
+            actionId: "1",
+          },
+          jsObject2: {
+            ENTITY_TYPE: "JSACTION",
+            actionId: "2",
+          },
+          jsObject3: {
+            ENTITY_TYPE: "JSACTION",
+            actionId: "3",
+          },
+        } as UnEvalTree,
+        configTree: {},
+      };
+      const affectedJSObjects = {
+        isAllAffected: false,
+        ids: ["1", "2"],
+      };
 
-    return expectSaga(
-      evaluateTreeSaga,
-      unEvalAndConfigTree,
-      [],
-      undefined,
-      undefined,
-      undefined,
-      affectedJSObjects,
-    )
-      .provide([
-        [select(getAllActionValidationConfig), {}],
-        [select(getWidgets), {}],
-        [select(getMetaWidgets), {}],
-        [select(getSelectedAppTheme), {}],
-        [select(getAppMode), false],
-        [select(getWidgetsMeta), {}],
-      ])
-      .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
-        unevalTree: unEvalAndConfigTree,
-        widgetTypeConfigMap: undefined,
-        widgets: {},
-        theme: {},
-        shouldReplay: true,
-        allActionValidationConfig: {},
-        forceEvaluation: false,
-        metaWidgets: {},
-        appMode: false,
-        widgetsMeta: {},
-        shouldRespondWithLogs: false,
+      return expectSaga(
+        evaluateTreeSaga,
+        unEvalAndConfigTree,
+        [],
+        undefined,
+        undefined,
+        undefined,
         affectedJSObjects,
-      })
-      .run();
+      )
+        .provide([
+          [select(getAllActionValidationConfig), {}],
+          [select(getWidgets), {}],
+          [select(getMetaWidgets), {}],
+          [select(getSelectedAppTheme), {}],
+          [select(getAppMode), false],
+          [select(getWidgetsMeta), {}],
+        ])
+        .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
+          unevalTree: {
+            // The the JSObjects should be removed from the unevalTree
+            unEvalTree: {},
+            configTree: {},
+          },
+          widgetTypeConfigMap: undefined,
+          widgets: {},
+          theme: {},
+          shouldReplay: true,
+          allActionValidationConfig: {},
+          forceEvaluation: false,
+          metaWidgets: {},
+          appMode: false,
+          widgetsMeta: {},
+          shouldRespondWithLogs: false,
+          jsPatches: {
+            shouldReplaceAllNodes: false,
+            patches: [
+              {
+                path: "jsObject1",
+                value: {
+                  ENTITY_TYPE: "JSACTION",
+                  actionId: "1",
+                },
+              },
+              {
+                path: "jsObject2",
+                value: {
+                  ENTITY_TYPE: "JSACTION",
+                  actionId: "2",
+                },
+              },
+            ],
+          },
+        })
+        .run();
+    });
+    test("should remove JS Objects from the unEvalTree for any evaluation, this should help in reducing the evalTree payload", async () => {
+      const unEvalAndConfigTree = {
+        unEvalTree: {
+          jsObject1: {
+            ENTITY_TYPE: "JSACTION",
+            actionId: "1",
+          },
+          jsObject2: {
+            ENTITY_TYPE: "JSACTION",
+            actionId: "2",
+          },
+          jsObject3: {
+            ENTITY_TYPE: "JSACTION",
+            actionId: "3",
+          },
+          widget1: {
+            ENTITY_TYPE: "WIDGET",
+          } as WidgetEntity,
+        } as UnEvalTree,
+        configTree: {},
+      };
+      const affectedJSObjects = {
+        isAllAffected: false,
+        ids: [],
+      };
+
+      return expectSaga(
+        evaluateTreeSaga,
+        unEvalAndConfigTree,
+        [],
+        undefined,
+        undefined,
+        undefined,
+        affectedJSObjects,
+      )
+        .provide([
+          [select(getAllActionValidationConfig), {}],
+          [select(getWidgets), {}],
+          [select(getMetaWidgets), {}],
+          [select(getSelectedAppTheme), {}],
+          [select(getAppMode), false],
+          [select(getWidgetsMeta), {}],
+        ])
+        .call(evalWorker.request, EVAL_WORKER_ACTIONS.EVAL_TREE, {
+          unevalTree: {
+            // The the JSObjects should be removed from the unevalTree and non jsObject should be retained like widgets
+            unEvalTree: {
+              widget1: {
+                ENTITY_TYPE: "WIDGET",
+              },
+            },
+            configTree: {},
+          },
+          widgetTypeConfigMap: undefined,
+          widgets: {},
+          theme: {},
+          shouldReplay: true,
+          allActionValidationConfig: {},
+          forceEvaluation: false,
+          metaWidgets: {},
+          appMode: false,
+          widgetsMeta: {},
+          shouldRespondWithLogs: false,
+          jsPatches: {
+            shouldReplaceAllNodes: false,
+            patches: [],
+          },
+        })
+        .run();
+    });
   });
 });
 

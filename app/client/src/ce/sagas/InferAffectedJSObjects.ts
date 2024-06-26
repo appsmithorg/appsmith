@@ -13,6 +13,14 @@ import type { JSCollection } from "entities/JSCollection";
 export function getAffectedJSObjectIdsFromJSAction(
   action: ReduxAction<unknown> | BufferedReduxAction<unknown>,
 ): AffectedJSObjects {
+  // This is triggered during a page load and at that point of time we need to send all JSObjects
+  if (action.type === ReduxActionTypes.FETCH_ALL_PAGE_ENTITY_COMPLETION) {
+    return {
+      ids: [],
+      isAllAffected: true,
+    };
+  }
+
   if (!JS_ACTIONS.includes(action.type)) {
     return {
       ids: [],
@@ -21,11 +29,16 @@ export function getAffectedJSObjectIdsFromJSAction(
   }
   // only JS actions here
   action as ReduxAction<unknown>;
-  // When fetching JSActions fails, we need to diff all JSObjects because the reducer updates it
-  // to empty collection
+
   if (
+    // When fetching JSActions fails, we need to diff all JSObjects because the reducer updates it
+    // to empty collection
     action.type === ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR ||
-    action.type === ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR
+    action.type === ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR ||
+    // for these two actions, we need to diff all JSObjects because the reducer updates allNodes
+    action.type === ReduxActionTypes.FETCH_JS_ACTIONS_FOR_PAGE_SUCCESS ||
+    action.type === ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_SUCCESS ||
+    action.type === ReduxActionTypes.DELETE_JS_ACTION_SUCCESS
   ) {
     return {
       isAllAffected: true,

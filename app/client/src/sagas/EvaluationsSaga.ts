@@ -104,6 +104,7 @@ import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchFeatureFlagsInit } from "actions/userActions";
 import type { AffectedJSObjects } from "./EvaluationsSagaUtils";
+import { seperateOutAffectedJSactions } from "./EvaluationsSagaUtils";
 import {
   getAffectedJSObjectIdsFromAction,
   parseUpdatesAndDeleteUndefinedUpdates,
@@ -272,9 +273,19 @@ export function* evaluateTreeSaga(
     yield select(getWidgetsMeta);
 
   const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
+  // We are seperating out the JS actions from the unevalTree to reduce the payload size here
+  // we are sending JSPatches only when required
+  const { jsPatches, unevalTreeWithoutJSObjects } =
+    seperateOutAffectedJSactions(
+      unEvalAndConfigTree.unEvalTree,
+      affectedJSObjects,
+    );
 
   const evalTreeRequestData: EvalTreeRequestData = {
-    unevalTree: unEvalAndConfigTree,
+    unevalTree: {
+      configTree: unEvalAndConfigTree.configTree,
+      unEvalTree: unevalTreeWithoutJSObjects,
+    },
     widgetTypeConfigMap,
     widgets,
     theme,
@@ -285,7 +296,7 @@ export function* evaluateTreeSaga(
     appMode,
     widgetsMeta,
     shouldRespondWithLogs,
-    affectedJSObjects,
+    jsPatches,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(

@@ -110,3 +110,21 @@ export function getOnlyAffectedJSObjects(
     {} as Record<string, JSActionEntity>,
   );
 }
+
+export const getAffectedJSActions = (
+  jsCollections: Record<string, JSActionEntity>,
+  affectedJSObjectIds: string[],
+) => {
+  const affectedJSObjects = new Set(affectedJSObjectIds);
+
+  return Object.keys(jsCollections).reduce(
+    (acc, key) => {
+      const jsCollection = jsCollections[key];
+      if (affectedJSObjects.has(jsCollection.actionId)) {
+        acc[key] = jsCollection;
+      }
+      return acc;
+    },
+    {} as Record<string, JSActionEntity>,
+  );
+};

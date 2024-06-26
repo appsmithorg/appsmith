@@ -113,8 +113,8 @@ import {
   updateEvalTreeWithJSCollectionState,
 } from "workers/Evaluation/JSObject";
 import {
+  getAffectedJSActions,
   getFixedTimeDifference,
-  getOnlyAffectedJSObjects,
   replaceThisDotParams,
 } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
@@ -138,7 +138,6 @@ import {
   type WebworkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
 import type { SpanAttributes } from "UITelemetry/generateTraces";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import generateOverrideContext from "@appsmith/workers/Evaluation/generateOverrideContext";
 
 type SortedDependencies = Array<string>;
@@ -491,7 +490,7 @@ export default class DataTreeEvaluator {
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
-    affectedJSObjects: AffectedJSObjects = { isAllAffected: false, ids: [] },
+    affectedJSObjectIds: string[] = [],
   ): {
     unEvalUpdates: DataTreeDiff[];
     evalOrder: string[];
@@ -511,6 +510,7 @@ export default class DataTreeEvaluator {
     //get difference in js collection body to be parsed
     const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
     const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
+
     const jsDifferences: Diff<
       Record<string, JSActionEntity>,
       Record<string, JSActionEntity>
@@ -521,13 +521,13 @@ export default class DataTreeEvaluator {
       () =>
         convertMicroDiffToDeepDiff(
           microDiff(
-            getOnlyAffectedJSObjects(
+            getAffectedJSActions(
               oldUnEvalTreeJSCollections,
-              affectedJSObjects,
+              affectedJSObjectIds,
             ),
-            getOnlyAffectedJSObjects(
+            getAffectedJSActions(
               localUnEvalTreeJSCollection,
-              affectedJSObjects,
+              affectedJSObjectIds,
             ),
           ) || [],
         ),

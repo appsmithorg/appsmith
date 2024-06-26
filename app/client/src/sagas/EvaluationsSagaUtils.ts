@@ -3,8 +3,11 @@ import type {
   ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import { AFFECTED_JS_OBJECTS_FNS } from "@appsmith/sagas/InferAffectedJSObjects";
+import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import log from "loglevel";
 import type { DiffWithNewTreeState } from "workers/Evaluation/helpers";
+import { getJSEntities } from "workers/Evaluation/JSObject";
 
 export const parseUpdatesAndDeleteUndefinedUpdates = (
   updates: string,
@@ -83,3 +86,48 @@ export function getAffectedJSObjectIdsFromAction(
 
   return mergeAffectedJSObjects(action);
 }
+
+export const seperateOutAffectedJSactions = (
+  unevalTree: UnEvalTree,
+  affectedJSObjects: AffectedJSObjects,
+) => {
+  const { ids, isAllAffected } = affectedJSObjects;
+
+  const unevalTreeWithoutJSObjects = Object.keys(unevalTree).reduce(
+    (acc, entityId) => {
+      const entityData = unevalTree[entityId];
+      if (isJSAction(entityData)) {
+        return acc;
+      }
+      acc[entityId] = entityData;
+      return acc;
+    },
+    {} as UnEvalTree,
+  );
+  const jsObjects = getJSEntities(unevalTree);
+
+  const allJSObjects = Object.keys(jsObjects).map((key) => ({
+    path: key,
+    value: jsObjects[key],
+  }));
+
+  if (isAllAffected) {
+    return {
+      unevalTreeWithoutJSObjects,
+      jsPatches: {
+        shouldReplaceAllNodes: true,
+        patches: allJSObjects,
+      },
+    };
+  }
+  const affectedIdsSet = new Set(ids);
+  return {
+    unevalTreeWithoutJSObjects,
+    jsPatches: {
+      shouldReplaceAllNodes: false,
+      patches: allJSObjects.filter((v: any) =>
+        affectedIdsSet.has(v.value.actionId),
+      ),
+    },
+  };
+};
