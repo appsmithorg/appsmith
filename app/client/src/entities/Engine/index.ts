@@ -25,6 +25,7 @@ export interface AppEnginePayload {
   pageId?: string;
   branch?: string;
   mode: APP_MODE;
+  shouldInitialiseUserDetails?: boolean;
 }
 
 export interface IAppEngine {

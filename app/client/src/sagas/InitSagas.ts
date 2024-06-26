@@ -26,11 +26,9 @@ import * as Sentry from "@sentry/react";
 import { resetRecentEntities } from "actions/globalSearchActions";
 
 import {
-  endConsolidatedPageLoad,
   initAppViewer,
   initEditor,
   resetEditorSuccess,
-  startConsolidatedPageLoad,
 } from "actions/initActions";
 import {
   getCurrentPageId,
@@ -63,11 +61,7 @@ import {
   matchEditorPath,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "../entities/App";
-import {
-  GIT_BRANCH_QUERY_KEY,
-  matchSettingsLicensePath,
-  matchViewerPath,
-} from "constants/routes";
+import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
@@ -193,16 +187,27 @@ export function* reportSWStatus() {
   }
 }
 
+function* executeActionDuringUserDetailsInitialisation(
+  actionType: string,
+  shouldInitialiseUserDetails?: boolean,
+) {
+  if (!shouldInitialiseUserDetails) {
+    return;
+  }
+  yield put({ type: actionType });
+}
+
 export function* getInitResponses({
   applicationId,
   mode,
   pageId,
-  skipTenantUpdate = false,
+  shouldInitialiseUserDetails,
 }: {
   applicationId?: string;
   pageId?: string;
+  branch?: string;
   mode?: APP_MODE;
-  skipTenantUpdate?: boolean;
+  shouldInitialiseUserDetails?: boolean;
 }): any {
   const params = pickBy(
     {
@@ -213,7 +218,11 @@ export function* getInitResponses({
   );
   let response: InitConsolidatedApi | undefined;
   try {
-    yield put(startConsolidatedPageLoad());
+    yield call(
+      executeActionDuringUserDetailsInitialisation,
+      ReduxActionTypes.START_CONSOLIDATED_PAGE_LOAD,
+      shouldInitialiseUserDetails,
+    );
 
     const initConsolidatedApiResponse: ApiResponse<InitConsolidatedApi> =
       yield mode === APP_MODE.EDIT
@@ -236,7 +245,11 @@ export function* getInitResponses({
       embedRedirectURL();
     }
 
-    yield put(endConsolidatedPageLoad());
+    yield call(
+      executeActionDuringUserDetailsInitialisation,
+      ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
+      shouldInitialiseUserDetails,
+    );
 
     Sentry.captureMessage(
       `consolidated api failure for ${JSON.stringify(
@@ -248,17 +261,25 @@ export function* getInitResponses({
 
   const { featureFlags, productAlert, tenantConfig, userProfile, ...rest } =
     response || {};
+  //actions originating from INITIALIZE_CURRENT_PAGE should update user details
+  //other actions are not necessary
+
+  if (!shouldInitialiseUserDetails) {
+    return rest;
+  }
 
   yield put(getCurrentUser(userProfile));
 
   yield put(fetchFeatureFlagsInit(featureFlags));
 
-  if (!skipTenantUpdate) {
-    yield put(getCurrentTenant(false, tenantConfig));
-  }
+  yield put(getCurrentTenant(false, tenantConfig));
 
   yield put(fetchProductAlertInit(productAlert));
-  yield put(endConsolidatedPageLoad());
+  yield call(
+    executeActionDuringUserDetailsInitialisation,
+    ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
+    shouldInitialiseUserDetails,
+  );
   return rest;
 }
 
@@ -391,6 +412,7 @@ function* eagerPageInitSaga() {
             applicationId,
             branch,
             mode: APP_MODE.EDIT,
+            shouldInitialiseUserDetails: true,
           }),
         );
         return;
@@ -410,6 +432,7 @@ function* eagerPageInitSaga() {
             branch,
             pageId,
             mode: APP_MODE.PUBLISHED,
+            shouldInitialiseUserDetails: true,
           }),
         );
         return;
@@ -417,12 +440,10 @@ function* eagerPageInitSaga() {
     }
   }
 
-  const skipTenantUpdate = !!matchSettingsLicensePath(url);
-
   try {
     yield call(getInitResponses, {
+      shouldInitialiseUserDetails: true,
       mode: APP_MODE.PUBLISHED,
-      skipTenantUpdate,
     });
   } catch (e) {}
 }
