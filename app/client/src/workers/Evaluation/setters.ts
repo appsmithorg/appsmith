@@ -121,10 +121,12 @@ class Setters {
       resolve(parsedValue);
     }).then((res) => {
       updatedProperties.push([entityName, propertyPath]);
+
       evalTreeWithChanges({
         data: {
           updatedValuePaths: updatedProperties,
           metaUpdates: evalMetaUpdates,
+          pathsToSkipFromEval: [path],
         },
         method: EVAL_WORKER_SYNC_ACTION.EVAL_TREE_WITH_CHANGES,
         webworkerTelemetry: {},

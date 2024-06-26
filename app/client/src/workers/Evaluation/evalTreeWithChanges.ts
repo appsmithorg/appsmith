@@ -55,6 +55,7 @@ export function evalTreeWithChanges(
     );
   }
   const additionalPathsAddedAsUpdates = pathsToSkipFromEval;
+
   evaluateAndPushResponse(
     dataTreeEvaluator,
     setupUpdateTreeResponse,
