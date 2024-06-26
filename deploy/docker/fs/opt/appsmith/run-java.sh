@@ -71,6 +71,7 @@ exec java ${APPSMITH_JAVA_ARGS:-} ${APPSMITH_JAVA_HEAP_ARG:-} \
   --add-opens java.base/java.time=ALL-UNNAMED \
   --add-opens java.base/java.nio=ALL-UNNAMED \
   -Dserver.port=8080 \
+  -XX:+AllowRedefinitionToAddDeleteMethods \
   -XX:+ShowCodeDetailsInExceptionMessages \
   -Djava.security.egd=file:/dev/./urandom \
   -Dlog4j2.formatMsgNoLookups=true \
