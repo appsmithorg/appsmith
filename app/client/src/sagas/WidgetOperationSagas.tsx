@@ -32,7 +32,8 @@ import {
   RenderModes,
   WIDGET_ID_SHOW_WALKTHROUGH,
 } from "constants/WidgetConstants";
-import _, { cloneDeep, get, isString, set, uniq } from "lodash";
+import _, { get, isString, set, uniq } from "lodash";
+import { klona } from "klona";  
 import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
@@ -552,7 +553,7 @@ export function* batchUpdateWidgetDynamicPropertySaga(
 ) {
   const { updates, widgetId } = action.payload;
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  let widget = cloneDeep({ ...stateWidget });
+  let widget = klona({ ...stateWidget });
 
   for (const update of updates) {
     widget = yield call(handleUpdateWidgetDynamicProperty, widget, update);
@@ -575,7 +576,7 @@ export function* setWidgetDynamicPropertySaga(
     widgetId,
   } = action.payload;
   const stateWidget: WidgetProps = yield select(getWidget, widgetId);
-  let widget = cloneDeep({ ...stateWidget });
+  let widget = klona({ ...stateWidget });
   const update = {
     isDynamic,
     propertyPath,
@@ -611,7 +612,7 @@ export function getPropertiesToUpdate(
   dynamicBindingPathList: DynamicPath[];
 } {
   // Create a
-  const widgetWithUpdates = _.cloneDeep(widget);
+  const widgetWithUpdates = klona(widget);
   Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
     set(widgetWithUpdates, propertyPath, propertyValue);
   });
@@ -704,7 +705,7 @@ export function* getPropertiesUpdatedWidget(
   // if there is no widget in the state, don't do anything
   if (!stateWidget) return;
 
-  let widget = cloneDeep(stateWidget);
+  let widget = klona(stateWidget);
   try {
     if (Object.keys(modify).length > 0) {
       const {
@@ -1310,7 +1311,7 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
 
           widgetList.forEach((widget) => {
             // Create a copy of the widget properties
-            const newWidget = cloneDeep(widget);
+            const newWidget = klona(widget);
             newWidget.widgetId = generateReactKey();
             // Add the new widget id so that it maps the previous widget id
             widgetIdMap[widget.widgetId] = newWidget.widgetId;

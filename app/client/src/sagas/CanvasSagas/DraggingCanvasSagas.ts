@@ -20,7 +20,7 @@ import { updateRelationships } from "layoutSystems/autolayout/utils/autoLayoutDr
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { calculateDropTargetRows } from "layoutSystems/common/dropTarget/DropTargetUtils";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import { cloneDeep } from "lodash";
+import { klona } from "klona";
 import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
@@ -247,7 +247,7 @@ function* moveAndUpdateWidgets(
   draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
   canvasId: string,
 ) {
-  const widgets = cloneDeep(allWidgets);
+  const widgets = klona(allWidgets);
   const bottomMostRowAfterMove = getBottomMostRowAfterMove(
     draggedBlocksToUpdate,
     allWidgets,

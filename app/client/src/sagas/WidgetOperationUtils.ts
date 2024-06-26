@@ -32,6 +32,7 @@ import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import { Positioning } from "layoutSystems/common/utils/constants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import _, { find, isString, reduce, remove } from "lodash";
+import { klona } from "klona";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
@@ -133,7 +134,7 @@ export const handleIfParentIsListWidgetWhilePasting = (
   while (root && root.parentId && root.widgetId !== MAIN_CONTAINER_WIDGET_ID) {
     if (root.type === "LIST_WIDGET") {
       const listWidget = root;
-      const currentWidget = _.cloneDeep(widget);
+      const currentWidget = klona(widget);
       let template = _.get(listWidget, "template", {});
       const dynamicBindingPathList: any[] = _.get(
         listWidget,
@@ -1385,7 +1386,7 @@ export const filterOutSelectedWidgets = function* (
   parentId: string,
   copiedWidgetGroups: CopiedWidgetGroup[],
 ) {
-  const canvasWidgets: CanvasWidgetsReduxState = yield _.cloneDeep(
+  const canvasWidgets: CanvasWidgetsReduxState = yield klona(
     select(getWidgets),
   );
 

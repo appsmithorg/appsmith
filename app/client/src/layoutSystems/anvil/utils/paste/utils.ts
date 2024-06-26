@@ -1,6 +1,6 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { cloneDeep } from "lodash";
+import { klona } from "klona";  
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { select } from "redux-saga/effects";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
@@ -43,7 +43,7 @@ export function* addPastedWidgets(
   list.forEach((each: FlattenedWidgetProps) => {
     oldWidgetMap[each.widgetId] = each;
     // Clone old widget to create new one.
-    const newWidget = cloneDeep(each);
+    const newWidget = klona(each);
     newWidget.widgetId = generateReactKey();
 
     // Map old and new widgets
@@ -74,7 +74,7 @@ export function* addPastedWidgets(
     }
 
     if (widget.layout) {
-      widget.layout = [updateLayoutProps(cloneDeep(widget.layout[0]), map)];
+      widget.layout = [updateLayoutProps(klona(widget.layout[0]), map)];
     }
 
     /**

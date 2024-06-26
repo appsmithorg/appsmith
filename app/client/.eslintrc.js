@@ -12,6 +12,9 @@ const baseNoRestrictedImports =
 
 const eslintConfig = {
   extends: ["./.eslintrc.base.json"],
+  parserOptions: {
+    "project": "**/tsconfig.json"
+  },
   rules: {
     "testing-library/no-container": "off",
     "testing-library/no-node-access": "off",

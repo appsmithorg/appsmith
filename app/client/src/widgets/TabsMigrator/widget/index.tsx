@@ -5,7 +5,8 @@ import type {
   TabsWidgetProps,
 } from "widgets/TabsWidget/constants";
 import { selectedTabValidation } from "widgets/TabsWidget/widget";
-import { cloneDeep, get, isString } from "lodash";
+import { get, isString } from "lodash";
+import { klona } from "klona";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { generateReactKey } from "utils/generators";
 import { EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
@@ -260,7 +261,7 @@ class TabsMigratorWidget extends BaseWidget<
 
   componentDidMount() {
     if (get(this.props, EVAL_VALUE_PATH, false)) {
-      const tabsDsl = cloneDeep(this.props);
+      const tabsDsl = klona(this.props);
       const migratedTabsDsl = migrateTabsData(tabsDsl);
       super.batchUpdateWidgetProperty({
         modify: {

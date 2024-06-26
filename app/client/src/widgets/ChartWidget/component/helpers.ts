@@ -1,6 +1,7 @@
 import { get } from "lodash";
 import type { ChartType, ChartSelectedDataPoint } from "../constants";
-import { omit, cloneDeep } from "lodash";
+import { omit} from "lodash";
+import { klona } from "klona";
 import type { ChartComponentProps } from ".";
 import { EChartsDatasetBuilder } from "./EChartsDatasetBuilder";
 import { EChartsConfigurationBuilder } from "./EChartsConfigurationBuilder";
@@ -22,7 +23,7 @@ export const parseOnDataPointClickParams = (evt: any, chartType: ChartType) => {
 export const parseOnDataPointClickForCustomEChart = (
   evt: Record<string, unknown>,
 ): ChartSelectedDataPoint => {
-  const rawEventData = omit(cloneDeep(evt), "event");
+  const rawEventData = omit(klona(evt), "event");
   return {
     x: undefined,
     y: undefined,

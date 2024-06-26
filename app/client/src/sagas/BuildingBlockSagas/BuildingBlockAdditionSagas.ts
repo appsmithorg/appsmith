@@ -6,7 +6,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { cloneDeep, isString } from "lodash";
+import { klona } from "klona";
 import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
@@ -521,7 +521,7 @@ export function* pasteBuildingBlockWidgetsSaga(
 
           widgetList.forEach((widget) => {
             // Create a copy of the widget properties
-            const newWidget = cloneDeep(widget);
+            const newWidget = klona(widget);
             newWidget.widgetId = generateReactKey();
             // Add the new widget id so that it maps the previous widget id
             widgetIdMap[widget.widgetId] = newWidget.widgetId;

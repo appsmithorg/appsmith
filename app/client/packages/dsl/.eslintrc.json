@@ -6,5 +6,8 @@
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/prefer-nullish-coalescing": "off",
     "testing-library/no-debugging-utils": "off"
+  },
+  "parserOptions": {
+     "project": "**/tsconfig.json"
   }
 }

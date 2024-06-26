@@ -1,4 +1,5 @@
-import { cloneDeep, noop } from "lodash";
+import {  noop } from "lodash";
+import { klona } from "klona";
 import type { DSLWidget } from "WidgetProvider/constants";
 import { traverseDSLAndMigrate } from "./WidgetMigrationUtils";
 
@@ -29,7 +30,7 @@ describe("traverseDSLAndMigrate", () => {
   });
 
   it("should check that tree structure remain intact", () => {
-    const copyDSL = cloneDeep(dsl);
+    const copyDSL = klona(dsl);
     traverseDSLAndMigrate(dsl as any as DSLWidget, noop);
     expect(dsl).toEqual(copyDSL);
   });
