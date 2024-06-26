@@ -41,7 +41,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.groupId>com.appsmith</project.groupId>
         <project.version>1.0-SNAPSHOT</project.version>
-        <reactor-test.version>3.5.1</reactor-test.version>
+        <reactor-test.version>3.6.7</reactor-test.version>
         <!-- By default skip the dockerization step. Only activate if necessary -->
         <skipDockerBuild>true</skipDockerBuild>
         <!-- We're forcing this version temporarily to fix CVE-2022-1471-->
