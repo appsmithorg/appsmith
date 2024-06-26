@@ -6,6 +6,10 @@ import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.stream.JsonReader;
@@ -71,10 +75,18 @@ public class CustomJSLibCE extends BranchAwareDomain {
     feature i.e. the function name showing up as suggestion when user has partially typed it. */
     @Column(columnDefinition = "text")
     @JsonView({Views.Public.class, Git.class})
-    @JsonAdapter(DefsAdapter.class)
+    @JsonSerialize(using = DefsSerializerForJackson.class)
+    @JsonAdapter(DefsAdapterForGson.class)
     byte[] defs;
 
-    public static class DefsAdapter extends TypeAdapter<byte[]> {
+    public static class DefsSerializerForJackson extends JsonSerializer<byte[]> {
+        @Override
+        public void serialize(byte[] value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeString(new String(value, StandardCharsets.UTF_8));
+        }
+    }
+
+    public static class DefsAdapterForGson extends TypeAdapter<byte[]> {
         @Override
         public void write(JsonWriter out, byte[] value) throws IOException {
             out.value(new String(value, StandardCharsets.UTF_8));
