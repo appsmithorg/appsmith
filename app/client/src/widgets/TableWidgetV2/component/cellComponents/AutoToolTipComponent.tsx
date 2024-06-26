@@ -1,4 +1,4 @@
-import React, { createRef, useEffect, useState } from "react";
+import React, { createRef, useEffect, useMemo, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 import type { CellAlignment, VerticalAlignment } from "../Constants";
@@ -34,6 +34,7 @@ export const Content = styled.span`
 const WIDTH_OFFSET = 32;
 const MAX_WIDTH = 500;
 const TOOLTIP_OPEN_DELAY = 500;
+const MAX_CHARS_ALLOWED_IN_TOOLTIP = 1000;
 
 function useToolTip(
   children: React.ReactNode,
@@ -42,6 +43,13 @@ function useToolTip(
 ) {
   const ref = createRef<HTMLDivElement>();
   const [requiresTooltip, setRequiresTooltip] = useState(false);
+
+  const titleToDisplay = useMemo(() => {
+    if (title && title.length > MAX_CHARS_ALLOWED_IN_TOOLTIP) {
+      return `${title.substring(0, MAX_CHARS_ALLOWED_IN_TOOLTIP)} (...)`;
+    }
+    return title;
+  }, [title]);
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
@@ -85,7 +93,7 @@ function useToolTip(
       boundary="viewport"
       content={
         <TooltipContentWrapper width={MAX_WIDTH - WIDTH_OFFSET}>
-          {title}
+          {titleToDisplay}
         </TooltipContentWrapper>
       }
       defaultIsOpen
