@@ -34,7 +34,7 @@ export const Content = styled.span`
 const WIDTH_OFFSET = 32;
 const MAX_WIDTH = 500;
 const TOOLTIP_OPEN_DELAY = 500;
-const MAX_CHARS_ALLOWED_IN_TOOLTIP = 1000;
+const MAX_CHARS_ALLOWED_IN_TOOLTIP = 200;
 
 function useToolTip(
   children: React.ReactNode,
