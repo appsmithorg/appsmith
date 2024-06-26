@@ -63,7 +63,11 @@ import {
   matchEditorPath,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "../entities/App";
-import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
+import {
+  GIT_BRANCH_QUERY_KEY,
+  matchSettingsLicensePath,
+  matchViewerPath,
+} from "constants/routes";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
@@ -191,14 +195,14 @@ export function* reportSWStatus() {
 
 export function* getInitResponses({
   applicationId,
-  fetchCurrentTenant = false,
   mode,
   pageId,
+  skipTenantUpdate = false,
 }: {
   applicationId?: string;
   pageId?: string;
   mode?: APP_MODE;
-  fetchCurrentTenant?: boolean;
+  skipTenantUpdate?: boolean;
 }): any {
   const params = pickBy(
     {
@@ -249,10 +253,9 @@ export function* getInitResponses({
 
   yield put(fetchFeatureFlagsInit(featureFlags));
 
-  // If fetchCurrentTenant is true then don't pass the tenant configuration in the consolidated api
-  // This will make sure that the tenant configuration is fetched from the current tenants endpoint
-  const tenantConfigurationResponse = fetchCurrentTenant ? null : tenantConfig;
-  yield put(getCurrentTenant(false, tenantConfigurationResponse));
+  if (!skipTenantUpdate) {
+    yield put(getCurrentTenant(false, tenantConfig));
+  }
 
   yield put(fetchProductAlertInit(productAlert));
   yield put(endConsolidatedPageLoad());
@@ -414,10 +417,12 @@ function* eagerPageInitSaga() {
     }
   }
 
+  const skipTenantUpdate = matchSettingsLicensePath(url);
+
   try {
     yield call(getInitResponses, {
       mode: APP_MODE.PUBLISHED,
-      fetchCurrentTenant: true,
+      skipTenantUpdate,
     });
   } catch (e) {}
 }
