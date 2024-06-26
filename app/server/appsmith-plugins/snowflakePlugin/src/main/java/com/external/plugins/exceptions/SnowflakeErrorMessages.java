@@ -34,4 +34,6 @@ public class SnowflakeErrorMessages extends BasePluginErrorMessages {
     public static final String DS_MISSING_USERNAME_ERROR_MSG = "Missing username for authentication.";
 
     public static final String DS_MISSING_PASSWORD_ERROR_MSG = "Missing password for authentication.";
+
+    public static final String DS_MISSING_PRIVATE_KEY_ERROR_MSG = "Missing private key for authentication.";
 }

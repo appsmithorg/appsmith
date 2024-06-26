@@ -6,6 +6,7 @@ import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.KeyPairAuth;
 import com.appsmith.external.models.Property;
 import com.external.plugins.exceptions.SnowflakeErrorMessages;
 import com.external.plugins.exceptions.SnowflakePluginError;
@@ -70,6 +71,23 @@ public class SnowflakePluginTest {
         Set<String> output = pluginExecutor.validateDatasource(datasourceConfiguration);
         assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_USERNAME_ERROR_MSG));
         assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG));
+        assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG));
+        assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_WAREHOUSE_NAME_ERROR_MSG));
+        assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG));
+        assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_SCHEMA_NAME_ERROR_MSG));
+    }
+
+    @Test
+    public void testValidateDatasource_withInvalidCredentials_forkeypair_returnsInvalids() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        KeyPairAuth auth = new KeyPairAuth();
+        auth.setUsername(null);
+        auth.setPrivateKey(null);
+        datasourceConfiguration.setAuthentication(auth);
+        datasourceConfiguration.setProperties(List.of(new Property(), new Property()));
+        Set<String> output = pluginExecutor.validateDatasource(datasourceConfiguration);
+        assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_USERNAME_ERROR_MSG));
+        assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_PRIVATE_KEY_ERROR_MSG));
         assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG));
         assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_WAREHOUSE_NAME_ERROR_MSG));
         assertTrue(output.contains(SnowflakeErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG));
