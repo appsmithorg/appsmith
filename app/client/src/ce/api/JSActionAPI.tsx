@@ -52,6 +52,7 @@ export interface RefactorAction {
   oldName: string;
   collectionName: string;
   moduleId?: string;
+  workflowId?: string;
   contextType?: ActionParentEntityTypeInterface;
 }
 export interface RefactorActionRequest extends RefactorAction {
@@ -74,39 +75,13 @@ class JSActionAPI extends API {
   static async createJSCollection(
     jsConfig: CreateJSCollectionRequest,
   ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
-    const payload = {
-      ...jsConfig,
-      actions:
-        jsConfig.actions?.map((action) => ({
-          ...action,
-          entityReferenceType: undefined,
-          datasource: (action as any).datasource && {
-            ...(action as any).datasource,
-            isValid: undefined,
-            new: undefined,
-          },
-        })) ?? undefined,
-    };
-    return API.post(JSActionAPI.url, payload);
+    return API.post(JSActionAPI.url, jsConfig);
   }
 
   static async copyJSCollection(
     jsConfig: Partial<JSCollection>,
   ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
-    const payload = {
-      ...jsConfig,
-      actions:
-        jsConfig.actions?.map((action) => ({
-          ...action,
-          entityReferenceType: undefined,
-          datasource: (action as any).datasource && {
-            ...(action as any).datasource,
-            isValid: undefined,
-            new: undefined,
-          },
-        })) ?? undefined,
-    };
-    return API.post(JSActionAPI.url, payload);
+    return API.post(JSActionAPI.url, jsConfig);
   }
 
   static async updateJSCollectionBody(
