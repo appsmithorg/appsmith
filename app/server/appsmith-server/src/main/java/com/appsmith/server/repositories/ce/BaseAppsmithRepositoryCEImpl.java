@@ -40,7 +40,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -117,22 +116,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return queryBuilder().byId(id).permission(permission).one();
     }
 
-    /**
-     * @deprecated using `Optional` for function arguments is an anti-pattern.
-     */
-    @Deprecated
-    public Mono<T> findById(String id, Optional<AclPermission> permission) {
-        return findById(id, permission.orElse(null));
-    }
-
     public Mono<T> updateById(@NonNull String id, @NonNull T resource, AclPermission permission) {
         // Set policies to null in the update object
         resource.setPolicies(null);
 
-        return queryBuilder()
-                .byId(id)
-                .permission(permission)
-                .updateFirstAndFind(buildUpdateFromSparseResource(resource));
+        final QueryAllParams<T> q = queryBuilder().byId(id).permission(permission);
+
+        return q.updateFirst(buildUpdateFromSparseResource(resource)).then(Mono.defer(q::one));
     }
 
     public Mono<Integer> updateByIdWithoutPermissionCheck(@NonNull String id, BridgeUpdate update) {
@@ -354,19 +344,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
             }
         }));
-    }
-
-    public Mono<T> updateExecuteAndFind(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
-        if (QueryAllParams.Scope.ALL.equals(params.getScope())) {
-            // Not implemented yet, since not needed yet.
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
-
-        } else if (QueryAllParams.Scope.FIRST.equals(params.getScope())) {
-            return updateExecute(params, update).then(Mono.defer(() -> queryOneExecute(params)));
-
-        } else {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
-        }
     }
 
     public BridgeUpdate buildUpdateFromSparseResource(T resource) {

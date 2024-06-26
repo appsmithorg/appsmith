@@ -1,11 +1,1 @@
-<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M9 5V1H5V5H9Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M9 17V13H5V17H9Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M9 29V25H5V29H9Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13 1H25" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13 5H21" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13 13H25" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13 17H21" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13 25H25" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M13 29H21" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="#000" stroke-linecap="round" stroke-linejoin="round" d="M4.5 2.5v-2h-2v2h2ZM4.5 8.5v-2h-2v2h2ZM4.5 14.5v-2h-2v2h2ZM6.5.5h6M6.5 2.5h4M6.5 6.5h6M6.5 8.5h4M6.5 12.5h6M6.5 14.5h4"/></svg>

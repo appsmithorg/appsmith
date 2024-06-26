@@ -11,6 +11,7 @@ import { anvilLocators } from "./Locators";
 interface DropTargetDetails {
   id?: string;
   name?: string;
+  dropModal?: boolean;
 }
 
 interface DragDropWidgetOptions {
@@ -26,11 +27,14 @@ export class AnvilDnDHelper {
     dropTarget?: DropTargetDetails,
   ) => {
     if (dropTarget) {
+      if (dropTarget.dropModal) {
+        return anvilLocators.anvilDetachedWidgetsDropArena;
+      }
       if (dropTarget.id) {
         return `#${dropTarget.id}`;
       }
       if (dropTarget.name) {
-        return `${getWidgetSelector(dropTarget.name.toLowerCase() as any)} ${
+        return `${anvilLocators.anvilWidgetNameSelector(dropTarget.name)} ${
           anvilLocators.anvilDnDListener
         }`;
       }
@@ -64,7 +68,10 @@ export class AnvilDnDHelper {
       eventConstructor: "MouseEvent",
       force: true,
     });
-    cy.get(this.locator._anvilDnDHighlight);
+    if (!options.dropTargetDetails?.dropModal) {
+      // no need to show highlight for modal drop
+      cy.get(this.locator._anvilDnDHighlight);
+    }
     cy.get(dropAreaSelector).first().trigger("mouseup", xPos, yPos, {
       eventConstructor: "MouseEvent",
       force: true,

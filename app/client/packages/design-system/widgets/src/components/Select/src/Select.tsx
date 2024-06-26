@@ -3,20 +3,12 @@ import clsx from "clsx";
 import { getTypographyClassName } from "@design-system/theming";
 import {
   Button,
-  Label,
   ListBox,
   Select as HeadlessSelect,
   SelectValue,
   FieldError,
 } from "react-aria-components";
-import {
-  Text,
-  Icon,
-  Spinner,
-  ContextualHelp,
-  Flex,
-  Popover,
-} from "@design-system/widgets";
+import { Text, Icon, Spinner, Popover, Label } from "@design-system/widgets";
 import { ListBoxItem } from "./ListBoxItem";
 import styles from "./styles.module.css";
 import type { SelectProps } from "./types";
@@ -50,26 +42,11 @@ export const Select = <T extends object>(props: SelectProps<T>) => {
     >
       {({ isInvalid }) => (
         <>
-          <Flex alignItems="center" gap="spacing-1">
-            {Boolean(label) && (
-              <Label>
-                <Text fontWeight={600} size="caption">
-                  {label}
-                  {Boolean(isRequired) && (
-                    <span
-                      aria-label="(required)"
-                      className={styles.necessityIndicator}
-                    >
-                      *
-                    </span>
-                  )}
-                </Text>
-              </Label>
-            )}
-            {Boolean(contextualHelp) && (
-              <ContextualHelp contextualHelp={contextualHelp} />
-            )}
-          </Flex>
+          <Label
+            contextualHelp={contextualHelp}
+            isRequired={isRequired}
+            text={label}
+          />
           <Button className={styles.textField} ref={triggerRef}>
             <SelectValue
               className={clsx(

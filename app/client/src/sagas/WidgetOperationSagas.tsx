@@ -140,6 +140,7 @@ import {
   getValueFromTree,
   getWidgetDescendantToReset,
   groupWidgetsIntoContainer,
+  handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
   isLayoutSystemConflictingForPaste,
   isSelectedWidgetsColliding,
@@ -1551,6 +1552,8 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
               widgetNameMap,
               newWidgetList,
             );
+            // Moved handleIfParentIsListWidgetWhilePasting out of handleSpecificCasesWhilePasting as it is a compound case meaning it checks for parent of current widget rather than the current one itself(which are handled in handleSpecificCasesWhilePasting)
+            widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
           }
         }),
       ),

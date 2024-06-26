@@ -14,8 +14,7 @@ import type {
   LayoutSystemTypes,
 } from "layoutSystems/types";
 import type { BaseAction } from "entities/Action";
-
-export type EvaluationVersion = number;
+import type { EvaluationVersion } from "constants/EvalConstants";
 
 export interface PublishApplicationRequest {
   applicationId: string;
@@ -369,7 +368,11 @@ export class ApplicationApi extends Api {
     request: UpdateApplicationRequest,
   ): Promise<AxiosPromise<ApiResponse<UpdateApplicationResponse>>> {
     const { id, ...rest } = request;
-    return Api.put(ApplicationApi.baseURL + "/" + id, rest);
+    const payload = {
+      ...rest,
+      currentApp: undefined,
+    };
+    return Api.put(ApplicationApi.baseURL + "/" + id, payload);
   }
 
   static async deleteApplication(

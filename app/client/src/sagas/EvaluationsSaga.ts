@@ -70,7 +70,7 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { validate } from "workers/Evaluation/validations";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
-import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
+import type { EvaluationVersion } from "constants/EvalConstants";
 
 import type { LogObject } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";

@@ -36,6 +36,12 @@ describe(
           dataManager.dsValues[dataManager.defaultEnviorment].postgres_host,
         );
         agHelper.ClearNType(
+          dataSources._port,
+          dataManager.dsValues[
+            dataManager.defaultEnviorment
+          ].postgres_port.toString(),
+        );
+        agHelper.ClearNType(
           dataSources._databaseName,
           dataManager.dsValues[dataManager.defaultEnviorment]
             .postgres_databaseName,

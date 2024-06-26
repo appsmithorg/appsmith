@@ -98,10 +98,10 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
+import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
-import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -1411,17 +1411,8 @@ public class ActionServiceCE_Test {
 
                     return Mono.zip(monos, objects -> page1);
                 })
-                .zipWhen(page1 -> {
-                    Layout layout = new Layout();
-
-                    JSONObject obj = new JSONObject(Map.of("key", "value"));
-                    layout.setDsl(obj);
-
-                    return layoutService.createLayout(page1.getId(), layout);
-                })
-                .flatMap(tuple2 -> {
-                    final PageDTO page1 = tuple2.getT1();
-                    final Layout layout = tuple2.getT2();
+                .flatMap(page1 -> {
+                    final Layout layout = page1.getLayouts().get(0);
 
                     Layout newLayout = new Layout();
 

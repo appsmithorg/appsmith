@@ -3,7 +3,6 @@ import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import type {
   AppEmbedSetting,
   ApplicationPagePayload,
-  EvaluationVersion,
   GitApplicationMetadata,
 } from "@appsmith/api/ApplicationApi";
 import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
@@ -17,6 +16,7 @@ import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { LayoutSystemTypeConfig } from "layoutSystems/types";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
+import type { EvaluationVersion } from "constants/EvalConstants";
 
 export const ReduxSagaChannels = {
   WEBSOCKET_APP_LEVEL_WRITE_CHANNEL: "WEBSOCKET_APP_LEVEL_WRITE_CHANNEL",
@@ -931,6 +931,14 @@ const ActionTypes = {
   RESET_BUILDING_BLOCK_DRAG_START_TIME: "RESET_BUILDING_BLOCK_DRAG_START_TIME",
   CLOSE_QUERY_ACTION_TAB_SUCCESS: "CLOSE_QUERY_ACTION_TAB_SUCCESS",
   LINT_SETUP: "LINT_SETUP",
+  SEND_ANALYTICS_FOR_SIDE_BY_SIDE_HOVER:
+    "SEND_ANALYTICS_FOR_SIDE_BY_SIDE_HOVER",
+  RECORD_ANALYTICS_FOR_SIDE_BY_SIDE_WIDGET_HOVER:
+    "RECORD_ANALYTICS_FOR_SIDE_BY_SIDE_WIDGET_HOVER",
+  RECORD_ANALYTICS_FOR_SIDE_BY_SIDE_NAVIGATION:
+    "RECORD_ANALYTICS_FOR_SIDE_BY_SIDE_NAVIGATION",
+  RESET_ANALYTICS_FOR_SIDE_BY_SIDE_HOVER:
+    "RESET_ANALYTICS_FOR_SIDE_BY_SIDE_HOVER",
 };
 
 export const ReduxActionTypes = {

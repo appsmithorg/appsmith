@@ -183,6 +183,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
 });
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
+  homePageTS.LogOutviaAPI();
   let baseURL = Cypress.config().baseUrl;
   baseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
 
@@ -370,7 +371,8 @@ Cypress.Commands.add("addDsl", (dsl) => {
     if (RapidMode.config.enabled && RapidMode.config.usesDSL) {
       pageid = RapidMode.config.pageID;
     } else {
-      pageid = url.split("/")[5]?.split("-").pop();
+      pageid = agHelper.extractPageIdFromUrl(url);
+      expect(pageid).to.not.be.null;
     }
 
     //Fetch the layout id
