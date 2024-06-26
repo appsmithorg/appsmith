@@ -1,20 +1,49 @@
-import React, { useCallback, useEffect } from "react";
-import { useSelector, useDispatch } from "react-redux";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import history, { NavigationMethod } from "utils/history";
 import { useCurrentAppState } from "../hooks";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
-import SidebarComponent from "./SidebarComponent";
-import { BottomButtons, TopButtons } from "@appsmith/entities/IDE/constants";
+import { IDESidebar, Condition } from "IDE";
+import {
+  BottomButtons,
+  EditorState,
+  TopButtons,
+} from "@appsmith/entities/IDE/constants";
+import { getDatasources } from "@appsmith/selectors/entitiesSelector";
+import {
+  createMessage,
+  EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON,
+} from "@appsmith/constants/messages";
 
 function Sidebar() {
+  const [topButtons, setTopButtons] = useState(TopButtons);
   const dispatch = useDispatch();
   const appState = useCurrentAppState();
   const pageId = useSelector(getCurrentPageId);
-
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
+  const datasources = useSelector(getDatasources);
+
+  useEffect(() => {
+    if (datasources.length === 0) {
+      setTopButtons(
+        TopButtons.map((button) => {
+          if (button.state === EditorState.DATA) {
+            return {
+              ...button,
+              condition: Condition.Warn,
+              tooltip: createMessage(EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON),
+            };
+          }
+          return button;
+        }),
+      );
+    } else {
+      setTopButtons(TopButtons);
+    }
+  }, [datasources]);
 
   useEffect(() => {
     dispatch(fetchWorkspace(currentWorkspaceId));
@@ -36,11 +65,11 @@ function Sidebar() {
   );
 
   return (
-    <SidebarComponent
+    <IDESidebar
       appState={appState}
       bottomButtons={BottomButtons}
       onClick={onClick}
-      topButtons={TopButtons}
+      topButtons={topButtons}
     />
   );
 }

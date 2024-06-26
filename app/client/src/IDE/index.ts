@@ -40,6 +40,15 @@ export { default as IDEHeaderDropdown } from "./Components/HeaderDropdown";
  */
 export { default as IDEBottomView } from "./Components/BottomView";
 
+/**
+ *
+ *
+ *
+ */
+export { default as IDESidebar } from "./Components/Sidebar";
+export type { ISidebarButton } from "./Components/Sidebar";
+export { Condition } from "./Components/Sidebar/SidebarButton";
+
 /* ====================================================
     **** Interfaces ****
     Common types that are used by the different components of the IDE
