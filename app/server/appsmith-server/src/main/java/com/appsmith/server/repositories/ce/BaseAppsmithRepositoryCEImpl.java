@@ -44,7 +44,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Field;
@@ -662,7 +661,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      * 3. Return the set of all the permission groups.
      */
     protected Set<String> getAllPermissionGroupsForUser(User user) {
-        if (user == null || !StringUtils.hasLength(user.getId())) {
+        if (user == null) {
             return Collections.emptySet();
         } else if (user.getTenantId() == null) {
             user.setTenantId(cacheableRepositoryHelper.getDefaultTenantId().block());
@@ -682,7 +681,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      */
     protected Set<String> getStrictPermissionGroupsForUser(User user) {
 
-        if (user == null || !StringUtils.hasLength(user.getId())) {
+        if (user == null) {
             return Collections.emptySet();
         } else if (user.getTenantId() == null) {
             String tenantId = cacheableRepositoryHelper.getDefaultTenantId().block();
