@@ -68,9 +68,9 @@ const parseResponseBody = (body: any): any[] => {
     return parsedOutput;
   } else if (parsedOutput.records && Array.isArray(parsedOutput.records)) {
     return parsedOutput.records;
-  } else {
-    return [parsedOutput];
-  }
+  } 
+  return [parsedOutput];
+  
 };
 
 function QueryDebuggerTabs({
