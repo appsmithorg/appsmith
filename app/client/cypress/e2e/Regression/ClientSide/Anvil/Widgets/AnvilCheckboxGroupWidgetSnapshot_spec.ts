@@ -13,6 +13,7 @@ describe(
     });
 
     it("1. Canvas Mode", () => {
+      anvilSnapshot.triggerCheckboxGroupInvalidState();
       anvilSnapshot.verifyCanvasMode("CheckboxGroupWidget");
     });
 

@@ -1,3 +1,4 @@
+import type { ToggleGroupProps } from "@design-system/widgets";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface OptionProps {
@@ -16,4 +17,10 @@ export interface CheckboxGroupWidgetProps extends WidgetProps {
   onCheckChange?: string;
   options: OptionProps[];
   orientation: "vertical" | "horizontal";
+}
+
+export interface CheckboxGroupComponentProps extends CheckboxGroupWidgetProps {
+  validationStatus?: "valid" | "invalid";
+  errorMessage?: string;
+  onChange: ToggleGroupProps["onChange"];
 }

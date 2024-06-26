@@ -4,7 +4,6 @@ import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
 import type { AnvilConfig } from "WidgetProvider/constants";
-import { Checkbox, ToggleGroup } from "@design-system/widgets";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -20,6 +19,7 @@ import {
 } from "../config";
 import { validateInput } from "./helpers";
 import type { CheckboxGroupWidgetProps, OptionProps } from "./types";
+import { CheckboxGroupComponent } from "../component";
 
 class WDSCheckboxGroupWidget extends BaseWidget<
   CheckboxGroupWidgetProps,
@@ -108,31 +108,14 @@ class WDSCheckboxGroupWidget extends BaseWidget<
   };
 
   getWidgetView() {
-    const { labelTooltip, options, selectedValues, widgetId, ...rest } =
-      this.props;
-
     const validation = validateInput(this.props);
 
     return (
-      <ToggleGroup
-        {...rest}
-        contextualHelp={labelTooltip}
-        errorMessage={validation.errorMessage}
-        isInvalid={validation.validationStatus === "invalid"}
-        items={options}
+      <CheckboxGroupComponent
+        {...this.props}
+        {...validation}
         onChange={this.onChange}
-        value={selectedValues}
-      >
-        {({ index, label, value }) => (
-          <Checkbox
-            excludeFromTabOrder={this.props.disableWidgetInteraction}
-            key={`${widgetId}-option-${index}`}
-            value={value}
-          >
-            {label}
-          </Checkbox>
-        )}
-      </ToggleGroup>
+      />
     );
   }
 }

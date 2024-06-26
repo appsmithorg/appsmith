@@ -1,4 +1,4 @@
-anvilRadioGroupWidgetimport { ANVIL_EDITOR_TEST } from "../../../../../support/Constants";
+import { ANVIL_EDITOR_TEST } from "../../../../../support/Constants";
 import {
   agHelper,
   anvilSnapshot,
