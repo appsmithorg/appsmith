@@ -3,15 +3,19 @@ export default {
   isValid: (props, moment, _) => {
     let hasValidValue, value;
     try {
-      value = Number(props.value);
+      value = props.rawText !== "" ? Number(props.rawText) : undefined;
       hasValidValue = Number.isFinite(value);
     } catch (e) {
       return false;
     }
 
-    if (!props.isRequired && (props.text === "" || props.text === undefined)) {
+    if (
+      !props.isRequired &&
+      (props.rawText === "" || props.rawText === undefined)
+    ) {
       return true;
     }
+
     if (props.isRequired && !hasValidValue) {
       return false;
     }
@@ -45,46 +49,9 @@ export default {
       }
     }
     if (parsedRegex) {
-      return parsedRegex.test(props.text);
+      return parsedRegex.test(props.rawText);
     } else {
       return hasValidValue;
     }
   },
-  //
-  value: (props, moment, _) => {
-    const text = props.parsedText;
-
-    function getLocale() {
-      return navigator.languages?.[0] || "en-US";
-    }
-
-    function getLocaleDecimalSeperator() {
-      return Intl.NumberFormat(getLocale())
-        .format(1.1)
-        .replace(/\p{Number}/gu, "");
-    }
-
-    function getLocaleThousandSeparator() {
-      return Intl.NumberFormat(getLocale())
-        .format(11111)
-        .replace(/\p{Number}/gu, "");
-    }
-
-    if (text) {
-      const parsed = parseFloat(
-        text
-          .replace(new RegExp(`[${getLocaleThousandSeparator()}]`, "g"), "")
-          .replace(new RegExp(`[${getLocaleDecimalSeperator()}]`), "."),
-      );
-
-      if (Number.isNaN(parsed)) {
-        parsed = undefined;
-      }
-
-      return parsed;
-    } else {
-      return undefined;
-    }
-  },
-  //
 };
