@@ -126,6 +126,7 @@ def add_user_arg(domain):
         content = (
             read_file(full_path)
             .replace("aclPermission", "permission")
+            .replace("optionalPermission", "permission")
             .replace("AclPermission permission", "AclPermission permission, User currentUser")
             .replace("Optional<AclPermission> permission", "Optional<AclPermission> permission, User currentUser")
         )
