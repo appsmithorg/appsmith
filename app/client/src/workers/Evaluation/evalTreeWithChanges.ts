@@ -38,7 +38,7 @@ export function evalTreeWithChanges(
   request: EvalWorkerSyncRequest<{
     metaUpdates?: EvalMetaUpdates;
     updatedValuePaths: string[][];
-    pathsToSkipFromEval?: string[];
+    pathsToSkipFromEval: string[];
   }>,
 ) {
   const { data } = request;
