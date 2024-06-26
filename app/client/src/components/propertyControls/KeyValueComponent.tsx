@@ -6,6 +6,7 @@ import { Button } from "design-system";
 import { generateReactKey } from "utils/generators";
 import { debounce } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import { ReactComponent as WarningErrorIcon } from 'assets/icons/alert/warning-error.svg';
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -41,15 +42,42 @@ function updateOptionValue<T>(
 const FlexBox = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start;
 `;
 
 const ErrorMessageBox = styled.div`
   color: ${props => props.theme.colors.error};
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content:center;
+  margin-left: 0;
+  margin-bottom: 12px;
 `;
 
 const StyledBox = styled.div`
   width: 10px;
+`;
+
+const StyledInputGroup = styled(InputGroup)<{ hasError: boolean }>`
+  > .ads-v2-input__input-section > div {
+    min-width: 0px;
+  }
+  & input {
+    ${props => props.hasError && `
+      border-color: ${props.theme.colors.error};
+    `}
+    ${props => !props.hasError && `
+      border-color: #cdd5df;
+      &:focus {
+        border-color: #4c5664;
+      }
+      &:hover {
+        border-color: #99a4b3;
+      }
+    `}
+  }
 `;
 
 type UpdatePairFunction = (
@@ -66,12 +94,6 @@ interface KeyValueComponentProps {
 type SegmentedControlOptionWithKey = SegmentedControlOption & {
   key: string;
 };
-
-const StyledInputGroup = styled(InputGroup)`
-  > .ads-v2-input__input-section > div {
-    min-width: 0px;
-  }
-`;
 
 export function KeyValueComponent(props: KeyValueComponentProps) {
   const [renderPairs, setRenderPairs] = useState<
@@ -201,11 +223,13 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
   return (
     <>
       {renderPairs.map((pair: SegmentedControlOptionWithKey, index) => {
+        const hasError = !!errorMessages[index];
         return (
           <FlexBox key={pair.key}>
             <ControlWrapper orientation={"HORIZONTAL"}>
               <StyledInputGroup
                 dataType={"text"}
+                hasError={hasError}
                 onBlur={onInputBlur}
                 onChange={(value: string) => {
                   updateKey(index, value);
@@ -217,6 +241,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
               <StyledBox />
               <StyledInputGroup
                 dataType={"text"}
+                hasError={hasError}
                 onBlur={onInputBlur}
                 onChange={(value: string) => {
                   updateValue(index, value);
@@ -239,6 +264,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
             </ControlWrapper>
             {errorMessages[index] && (
               <ErrorMessageBox>
+                <WarningErrorIcon />
                 {errorMessages[index]}
               </ErrorMessageBox>
             )}
