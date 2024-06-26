@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionResult;
@@ -81,6 +82,7 @@ public class SnowflakePluginTest {
     public void testValidateDatasource_withInvalidCredentials_forkeypair_returnsInvalids() {
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         KeyPairAuth auth = new KeyPairAuth();
+        auth.setAuthenticationType(Authentication.SNOWFLAKE_KEY_PAIR_AUTH);
         auth.setUsername(null);
         auth.setPrivateKey(null);
         datasourceConfiguration.setAuthentication(auth);
