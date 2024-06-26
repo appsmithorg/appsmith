@@ -86,11 +86,13 @@ function useToolTip(
   return requiresTooltip && children ? (
     <Tooltip
       autoFocus={false}
+      boundary="viewport"
       content={
         <TooltipContentWrapper width={MAX_WIDTH - WIDTH_OFFSET}>
           {title}
         </TooltipContentWrapper>
       }
+      defaultIsOpen
       hoverOpenDelay={TOOLTIP_OPEN_DELAY}
       position="bottom"
       usePortal
