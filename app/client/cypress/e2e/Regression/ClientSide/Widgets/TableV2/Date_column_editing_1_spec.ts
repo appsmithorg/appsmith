@@ -60,20 +60,28 @@ describe(
       );
       agHelper.AssertElementAbsence(table._dateInputPopover);
       agHelper.AssertElementAbsence(table._editCellEditor);
-      agHelper
-        .GetText(locators._textWidget, "text", 0)
-        .then(($textData) =>
-          expect($textData).to.eq(
-            `{"revenue":42600000,"imdb_id":"tt3228774","release_date":"2021-05-17"}`,
-          ),
-        );
-      agHelper
-        .GetText(locators._textWidget, "text", 1)
-        .then(($textData) =>
-          expect($textData).to.eq(
-            `[{"index":0,"updatedFields":{"release_date":"2021-05-17"},"allFields":{"revenue":42600000,"imdb_id":"tt3228774","release_date":"2021-05-17"}}]`,
-          ),
-        );
+      agHelper.GetText(locators._textWidget, "text", 0).then(($textData) =>
+        expect(JSON.parse($textData as string)).to.deep.eq({
+          revenue: 42600000,
+          imdb_id: "tt3228774",
+          release_date: "2021-05-17",
+        }),
+      );
+      agHelper.GetText(locators._textWidget, "text", 1).then(($textData) =>
+        expect(JSON.parse($textData as string)).to.deep.eq([
+          {
+            index: 0,
+            updatedFields: {
+              release_date: "2021-05-17",
+            },
+            allFields: {
+              revenue: 42600000,
+              imdb_id: "tt3228774",
+              release_date: "2021-05-17",
+            },
+          },
+        ]),
+      );
       agHelper
         .GetText(locators._textWidget, "text", 2)
         .then(($textData) => expect($textData).to.eq("[0]"));
