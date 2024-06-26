@@ -28,8 +28,6 @@ RUN set -o xtrace \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
   && apt-get install --no-install-recommends --yes mongodb-org redis postgresql-13 postgresql-14 \
-  # Create a symlink to the current version of PostgreSQL
-  && ln -s /usr/lib/postgresql/13 /usr/lib/postgresql/current \
   && apt-get clean
 
 ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
