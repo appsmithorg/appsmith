@@ -142,7 +142,7 @@ export class AggregateHelper {
   public extractPageIdFromUrl(urlFragment: string): null | string {
     return (
       urlFragment.match(
-        /\/app(?:\/[^/]+)?\/[^/]+-([0-9a-f]{24}$|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/,
+        /\/app(?:\/[^/]+)?\/[^/]+-([0-9a-f]{24}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b/,
       )?.[1] ?? null
     );
   }
