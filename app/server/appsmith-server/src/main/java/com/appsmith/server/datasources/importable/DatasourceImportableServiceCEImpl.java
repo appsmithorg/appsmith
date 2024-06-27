@@ -409,6 +409,10 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
     private void addDryOpsForEntity(
             String queryType, Map<String, List<Datasource>> dryRunOpsMap, Datasource createdDatasource) {
         if (dryRunOpsMap.containsKey(queryType)) {
+            List<Datasource> datasourceList = new ArrayList<>();
+            datasourceList.addAll(dryRunOpsMap.get(queryType));
+            datasourceList.add(createdDatasource);
+            dryRunOpsMap.put(FieldName.CREATE, datasourceList);
             dryRunOpsMap.get(queryType).add(createdDatasource);
         } else {
             dryRunOpsMap.put(queryType, List.of(createdDatasource));
