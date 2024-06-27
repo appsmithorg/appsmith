@@ -223,14 +223,17 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     }
 
                     return datasourceStorageService
-                            .create(datasourceStorage, true)
+                            .create(datasourceStorage, isDryOps)
                             .map(datasourceStorage1 -> {
-                                if (datasourceStorageDryRunQueries.containsKey(FieldName.CREATE)) {
-                                    datasourceStorageDryRunQueries
-                                            .get(FieldName.CREATE)
-                                            .add(datasourceStorage1);
-                                } else {
-                                    datasourceStorageDryRunQueries.put(FieldName.CREATE, List.of(datasourceStorage1));
+                                if (datasourceStorageDryRunQueries != null) {
+                                    if (datasourceStorageDryRunQueries.containsKey(FieldName.CREATE)) {
+                                        datasourceStorageDryRunQueries
+                                                .get(FieldName.CREATE)
+                                                .add(datasourceStorage1);
+                                    } else {
+                                        datasourceStorageDryRunQueries.put(
+                                                FieldName.CREATE, List.of(datasourceStorage1));
+                                    }
                                 }
                                 return datasourceStorage1;
                             });
