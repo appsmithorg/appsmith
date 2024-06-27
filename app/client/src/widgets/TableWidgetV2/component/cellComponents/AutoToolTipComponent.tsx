@@ -40,10 +40,6 @@ function useToolTip(children: React.ReactNode, title?: string) {
   const ref = createRef<HTMLDivElement>();
   const [requiresTooltip, setRequiresTooltip] = useState(false);
 
-  if (title && title.length > MAX_CHARS_ALLOWED_IN_TOOLTIP) {
-    title = `${title.substring(0, MAX_CHARS_ALLOWED_IN_TOOLTIP)} (...)`;
-  }
-
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
 
@@ -86,7 +82,9 @@ function useToolTip(children: React.ReactNode, title?: string) {
       boundary="viewport"
       content={
         <TooltipContentWrapper width={MAX_WIDTH - WIDTH_OFFSET}>
-          {title}
+          {title && title.length > MAX_CHARS_ALLOWED_IN_TOOLTIP
+            ? `${title.substring(0, MAX_CHARS_ALLOWED_IN_TOOLTIP)} (...)`
+            : title}
         </TooltipContentWrapper>
       }
       defaultIsOpen
