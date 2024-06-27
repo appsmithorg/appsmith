@@ -679,6 +679,7 @@ describe("DataTreeEvaluator", () => {
       updatedUnEvalTree,
       updatedConfigTree,
     );
+
     evaluator.evalAndValidateSubTree(
       evalOrder,
       updatedConfigTree,
