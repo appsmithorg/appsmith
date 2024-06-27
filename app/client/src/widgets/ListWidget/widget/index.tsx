@@ -31,7 +31,6 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import {
-  cloneDeep,
   compact,
   get,
   indexOf,
@@ -42,9 +41,9 @@ import {
   omit,
   range,
   set,
-  toString,
   xor,
 } from "lodash";
+import lodashToString from 'lodash/toString';
 import log from "loglevel";
 import memoizeOne from "memoize-one";
 import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
@@ -339,7 +338,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
               canvas.children &&
                 get(canvas, "children", []).forEach((child: string) => {
-                  const childWidget = cloneDeep(get(widgets, `${child}`));
+                  const childWidget = klona(get(widgets, `${child}`));
                   const logBlackList: { [key: string]: boolean } = {};
                   const keys = Object.keys(childWidget);
 
@@ -1005,7 +1004,7 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
             const value = Array.isArray(evaluatedValue) ? evaluatedValue : [];
             set(widget, path, value);
           } else {
-            set(widget, path, toString(evaluatedValue));
+            set(widget, path, lodashToString(evaluatedValue));
           }
         }
       });

@@ -16,7 +16,7 @@ import {
 import { getNewPositions } from "sagas/PasteWidgetUtils";
 import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { cloneDeep } from "lodash";
+import { klona } from "klona"
 import {
   copiedWidgets,
   leftMostWidget,
@@ -126,7 +126,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
       );
     }
 
-    const newWidgetList = cloneDeep(copiedWidgets[0].list);
+    const newWidgetList = klona(copiedWidgets[0].list);
 
     // Step 7: mock the entire copied widget handling logic
     for (let i = 0; i < newWidgetList.length; i++) {

@@ -2,7 +2,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
 import type { User } from "entities/AppCollab/CollabInterfaces";
-import { cloneDeep } from "lodash";
+import { klona } from "klona";  
 
 const initialState: AppCollabReducerState = {
   editors: [],
@@ -38,7 +38,7 @@ const appCollabReducer = createReducer(initialState, {
     state: AppCollabReducerState,
     action: ReduxAction<any>,
   ) => {
-    const clonedPointerData = cloneDeep(state.pointerData);
+    const clonedPointerData = klona(state.pointerData);
     delete clonedPointerData[action.payload];
     return {
       ...state,

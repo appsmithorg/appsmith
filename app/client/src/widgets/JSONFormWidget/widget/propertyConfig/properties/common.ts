@@ -4,6 +4,7 @@ import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { get } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { SchemaItem } from "widgets/JSONFormWidget/constants";
+import { klona } from "klona";
 import {
   ARRAY_ITEM_KEY,
   FIELD_EXPECTING_OPTIONS,
@@ -65,9 +66,9 @@ function accessorValidation(
   const propertyPathChunks = propertyPath.split(".");
   const grandParentPath = propertyPathChunks.slice(0, -2).join(".");
   const schemaItemIdentifier = propertyPathChunks.slice(-2)[0]; // ['schema', '__root_field__', 'children', 'age', 'name'] -> age
-  const schema = lodash.cloneDeep(lodash.get(props, grandParentPath));
+  const schema = klona(lodash.get(props, grandParentPath));
   const RESTRICTED_KEYS = ["__array_item__", "__root_schema__"];
-  const currentSchemaItem = lodash.cloneDeep(schema[schemaItemIdentifier]);
+  const currentSchemaItem = klona(schema[schemaItemIdentifier]);
   // Remove the current edited schemaItem from schema so it doesn't
   // get picked in the existing keys list
   delete schema[schemaItemIdentifier];

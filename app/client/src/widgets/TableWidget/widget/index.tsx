@@ -69,7 +69,8 @@ import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import { cloneDeep, set } from "lodash";
+import { set } from "lodash";
+import { klona } from "klona";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { combineDynamicBindings } from "utils/DynamicBindingUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -249,7 +250,7 @@ class TableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           {
             type: BlueprintOperationTypes.MODIFY_PROPS,
             fn: (widget: WidgetProps & { children?: WidgetProps[] }) => {
-              const primaryColumns = cloneDeep(widget.primaryColumns);
+              const primaryColumns = klona(widget.primaryColumns);
               const columnIds = Object.keys(primaryColumns);
               columnIds.forEach((columnId) => {
                 set(

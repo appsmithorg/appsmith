@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import cloneDeep from "lodash/cloneDeep";
+import { klona } from "klona";
 import isString from "lodash/isString";
 import type { DSLWidget } from "../types";
 import { removeSpecialChars } from "../utils";
@@ -25,7 +25,7 @@ export const getAllTableColumnKeys = (
 
 export const tableWidgetPropertyPaneMigrations = (currentDSL: DSLWidget) => {
   currentDSL.children = currentDSL.children?.map((_child: DSLWidget) => {
-    let child = cloneDeep(_child);
+    let child = klona(_child);
     // If the current child is a TABLE_WIDGET
     if (child.type === "TABLE_WIDGET") {
       const hiddenColumns = child.hiddenColumns || [];
