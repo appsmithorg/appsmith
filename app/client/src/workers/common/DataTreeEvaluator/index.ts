@@ -467,6 +467,10 @@ export default class DataTreeEvaluator {
     //add functions and variables to unevalTree
     const unEvalJSCollection = JSObjectCollection.getUnEvalState();
     Object.keys(unEvalJSCollection).forEach((update) => {
+      const entity = unevalTree[update];
+
+      if (!isJSAction(entity)) return;
+
       const updates = unEvalJSCollection[update];
       if (!!unevalTree[update]) {
         Object.keys(updates).forEach((key) => {
