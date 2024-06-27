@@ -587,6 +587,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
+        Flux<User> currentUserFlux = currentUserMono.repeat();
 
         // For sample apps that are marked as forked, we allow forking to any workspace without any permission checks
         return isForkingEnabled(applicationMonoWithOutPermission).flatMap(isForkingEnabled -> {
@@ -610,7 +611,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         newPage.setPolicies(idPoliciesOnly.getPolicies());
                         return newPage;
                     })
-                    .zipWith(currentUserMono)
+                    .zipWith(currentUserFlux)
                     .flatMap(object -> newPageRepository.setUserPermissionsInObject(object.getT1(), object.getT2())));
 
             Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
@@ -621,13 +622,13 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         newAction.setPolicies(idPoliciesOnly.getPolicies());
                         return newAction;
                     })
-                    .zipWith(currentUserMono)
+                    .zipWith(currentUserFlux)
                     .flatMap(object -> newActionRepository.setUserPermissionsInObject(object.getT1(), object.getT2())));
 
             Flux<BaseDomain> actionCollectionFlux =
                     applicationMono.flatMapMany(application -> actionCollectionRepository
                             .findByApplicationId(application.getId(), Optional.empty(), Optional.empty())
-                            .zipWith(currentUserMono)
+                            .zipWith(currentUserFlux)
                             .flatMap(object -> actionCollectionRepository.setUserPermissionsInObject(
                                     object.getT1(), object.getT2())));
 
