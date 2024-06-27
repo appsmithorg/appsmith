@@ -24,6 +24,7 @@ import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
+import com.appsmith.server.repositories.DryOperationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -66,6 +67,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     private final GsonBuilder gsonBuilder;
     private final ArtifactExchangeJsonAdapter artifactExchangeJsonAdapter;
     private final JsonSchemaMigration jsonSchemaMigration;
+    private final DryOperationRepository dryOperationRepository;
 
     /**
      * This method provides the importService specific to the artifact based on the ArtifactType.
@@ -502,6 +504,24 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     return Mono.error(
                             new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
+                // execute dryOps for datasourceStorage
+                .flatMap(importableArtifact -> Flux.fromIterable(mappedImportableResourcesDTO
+                                .getDatasourceStorageDryRunQueries()
+                                .keySet())
+                        .flatMap(key -> dryOperationRepository.saveDatasourceStorageToDb(mappedImportableResourcesDTO
+                                .getDatasourceStorageDryRunQueries()
+                                .get(key)))
+                        .collectList()
+                        .thenReturn(importableArtifact))
+                // execute dry run for datasource
+                .flatMap(importableArtifact -> Flux.fromIterable(mappedImportableResourcesDTO
+                                .getDatasourceDryRunQueries()
+                                .keySet())
+                        .flatMap(key -> dryOperationRepository.saveDatasourceToDb(mappedImportableResourcesDTO
+                                .getDatasourceDryRunQueries()
+                                .get(key)))
+                        .collectList()
+                        .thenReturn(importableArtifact))
                 .as(transactionalOperator::transactional);
 
         final Mono<? extends Artifact> resultMono = importMono

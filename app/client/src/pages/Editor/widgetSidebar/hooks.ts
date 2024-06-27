@@ -1,4 +1,3 @@
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getAllTemplates } from "actions/templateActions";
 import type { WidgetTags } from "constants/WidgetConstants";
 import { useEffect, useMemo, useState } from "react";
@@ -8,7 +7,6 @@ import {
   getBuildingBlockExplorerCards,
   templatesCountSelector,
 } from "selectors/templatesSelectors";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { groupWidgetCardsByTags } from "../utils";
 import { isFixedLayoutSelector } from "selectors/layoutSystemSelectors";
 
@@ -17,9 +15,7 @@ import { isFixedLayoutSelector } from "selectors/layoutSystemSelectors";
  * @returns Object containing cards, grouped cards and entity loading states.
  */
 export const useUIExplorerItems = () => {
-  const releaseDragDropBuildingBlocks = useFeatureFlag(
-    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
-  );
+  const releaseDragDropBuildingBlocks = true;
   const isFixedLayout = useSelector(isFixedLayoutSelector);
   const dispatch = useDispatch();
   // check if entities have loaded
