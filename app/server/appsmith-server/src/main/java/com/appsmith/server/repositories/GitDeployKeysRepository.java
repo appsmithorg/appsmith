@@ -1,9 +1,5 @@
 package com.appsmith.server.repositories;
 
-import com.appsmith.server.domains.GitDeployKeys;
+import com.appsmith.server.repositories.ce.GitDeployKeysRepositoryCE;
 
-import java.util.Optional;
-
-public interface GitDeployKeysRepository extends BaseRepository<GitDeployKeys, String> {
-    Optional<GitDeployKeys> findByEmail(String email);
-}
+public interface GitDeployKeysRepository extends GitDeployKeysRepositoryCE {}
