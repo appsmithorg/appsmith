@@ -103,11 +103,13 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     /**
      * An unmodifiable set of policies.
      */
+    @JsonView({Views.Internal.class, Git.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public Set<Policy> getPolicies() {
         return policyMap == null ? null : Set.copyOf(policyMap.values());
     }
 
+    @JsonView({Views.Internal.class, Git.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public void setPolicies(Set<Policy> policies) {
         if (policies == null) {

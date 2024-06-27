@@ -294,6 +294,7 @@ public class NewPageServiceTest {
                             .getPolicies()
                             .forEach(policy -> policy.setPermission(
                                     pagePermission.getReadPermission().getValue()));
+                    firstPage.setPolicyMap(firstPage.getPolicyMap());
                     return newPageRepository.save(firstPage).thenMany(Flux.fromIterable(savedPages));
                 })
                 .map(NewPage::getId)
