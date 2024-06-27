@@ -93,9 +93,17 @@ export class AnvilSnapshot {
 
   public triggerCheckboxGroupInvalidState = () => {
     this.enterPreviewMode();
-    cy.get("[data-widget-name*='CheckboxGroup'] div:has([aria-label='(required)']) div:has(input[type=checkbox]) label").first().click();
-    cy.get("[data-widget-name*='CheckboxGroup'] div:has([aria-label='(required)']) div:has(input[type=checkbox]) label").first().click();
+    cy.get(
+      "[data-widget-name*='CheckboxGroup'] div:has([aria-label='(required)']) div:has(input[type=checkbox]) label",
+    )
+      .first()
+      .click();
+    cy.get(
+      "[data-widget-name*='CheckboxGroup'] div:has([aria-label='(required)']) div:has(input[type=checkbox]) label",
+    )
+      .first()
+      .click();
     this.exitPreviewMode();
     this.agHelper.GetNClick(this.locators.propertyPaneSidebar);
-  }
+  };
 }
