@@ -42,7 +42,8 @@
     "prettier:ci": "yarn workspaces foreach -ptv run prettier",
     "check-types": "yarn tsc --noEmit",
     "init-husky": "cd ../.. && husky install app/client/.husky",
-    "clean:workspaces": "yarn workspaces foreach -pAv exec rm -rf node_modules"
+    "clean:workspaces": "yarn workspaces foreach -pAv exec rm -rf node_modules",
+    "generate:anvil-snapshots": "rm -rf cypress/snapshots/Anvil* && npx cypress run --spec cypress/e2e/Regression/ClientSide/Anvil/Widgets/** --browser chrome"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.441.0",
