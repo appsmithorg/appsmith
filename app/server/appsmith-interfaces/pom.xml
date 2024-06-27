@@ -255,12 +255,6 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-tracing</artifactId>
         </dependency>
-        <dependency>
-            <groupId>net.snowflake</groupId>
-            <artifactId>snowflake-jdbc</artifactId>
-            <version>3.13.29</version>
-            <scope>compile</scope>
-        </dependency>
 
     </dependencies>
 
