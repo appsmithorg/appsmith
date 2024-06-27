@@ -244,7 +244,7 @@ public class DatabaseChangelog2 {
 
         Query adminUserQuery = new Query();
         adminUserQuery.addCriteria(
-                where(BaseDomain.Fields.policies).elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue())));
+                where("policies").elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue())));
         List<User> adminUsers = mongoTemplate.find(adminUserQuery, User.class);
 
         instanceManagerPermissionGroup.setAssignedToUserIds(

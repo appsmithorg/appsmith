@@ -50,7 +50,7 @@ public class Migration031CreateUserManagementRolesForUsersTaggedIn030 {
 
         Query queryUsersTaggedInMigration030 = new Query(criteriaUsersTaggedInMigration030);
         queryUsersTaggedInMigration030.fields().include(User.Fields.id);
-        queryUsersTaggedInMigration030.fields().include(User.Fields.policies);
+        queryUsersTaggedInMigration030.fields().include("policies");
         queryUsersTaggedInMigration030.fields().include(User.Fields.email);
 
         Query optimisedQueryUsersTaggedInMigration030 = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
@@ -67,8 +67,7 @@ public class Migration031CreateUserManagementRolesForUsersTaggedIn030 {
                         updateMigrationFlagAndPoliciesForUser.unset(
                                 Migration030TagUsersWithNoUserManagementRoles
                                         .MIGRATION_FLAG_030_TAG_USER_WITHOUT_USER_MANAGEMENT_ROLE);
-                        updateMigrationFlagAndPoliciesForUser.set(
-                                User.Fields.policies, userWithUpdatedPolicies.getPolicies());
+                        updateMigrationFlagAndPoliciesForUser.set("policies", userWithUpdatedPolicies.getPolicies());
                         Criteria criteriaUserId =
                                 Criteria.where(BaseDomain.Fields.id).is(user.getId());
                         Query queryUserId = new Query(criteriaUserId);

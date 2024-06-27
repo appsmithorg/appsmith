@@ -45,7 +45,7 @@ public class Migration029PopulateDefaultDomainIdInUserManagementRoles {
                 .is(RESET_PASSWORD_USERS.getValue())
                 .andOperator(notDeleted());
         Query queryExistingUsersWithResetPasswordPolicy = new Query(resetPasswordPolicyExistsAndNotDeleted);
-        queryExistingUsersWithResetPasswordPolicy.fields().include(User.Fields.policies);
+        queryExistingUsersWithResetPasswordPolicy.fields().include("policies");
         Map<String, String> userManagementRoleIdToUserIdMap = new HashMap<>();
         mongoTemplate.stream(queryExistingUsersWithResetPasswordPolicy, User.class)
                 .forEach(existingUser -> {

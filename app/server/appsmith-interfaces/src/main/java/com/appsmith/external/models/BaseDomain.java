@@ -23,7 +23,9 @@ import org.springframework.data.mongodb.core.index.Indexed;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -75,7 +77,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     protected Instant deletedAt = null;
 
     @JsonView(Views.Internal.class)
-    protected Set<Policy> policies = new HashSet<>();
+    protected Map<String, Policy> policyMap = new HashMap<>();
 
     @Override
     @JsonView(Views.Public.class)
@@ -98,6 +100,30 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView({Views.Internal.class, Git.class})
     String gitSyncId;
 
+    /**
+     * An unmodifiable set of policies.
+     */
+    @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    public Set<Policy> getPolicies() {
+        return policyMap == null ? null : Set.copyOf(policyMap.values());
+    }
+
+    @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    public void setPolicies(Set<Policy> policies) {
+        if (policies == null) {
+            policyMap = null;
+        } else {
+            if (policyMap == null) {
+                policyMap = new HashMap<>();
+            } else {
+                policyMap.clear();
+            }
+            for (Policy policy : policies) {
+                policyMap.put(policy.getPermission(), policy);
+            }
+        }
+    }
+
     public void sanitiseToExportDBObject() {
         this.setCreatedAt(null);
         this.setUpdatedAt(null);
@@ -112,8 +138,8 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
         // updating an existing document). If it contains any policies, they are also reset.
         this.setId(null);
         this.setUpdatedAt(null);
-        if (this.getPolicies() != null) {
-            this.getPolicies().clear();
+        if (this.getPolicyMap() != null) {
+            this.getPolicyMap().clear();
         }
     }
 

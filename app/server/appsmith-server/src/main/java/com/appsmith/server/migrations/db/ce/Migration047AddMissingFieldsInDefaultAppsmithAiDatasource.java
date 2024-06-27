@@ -123,7 +123,7 @@ public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
      */
     private Pair<Boolean, Set<String>> getAllApplicationIdsOfDatasourceAndCheckIfAnyAppPublic(String datasourceId) {
         Query newActionsQuery = new Query().addCriteria(newActionCriteria(datasourceId));
-        newActionsQuery.fields().include(FieldName.ID, FieldName.APPLICATION_ID, NewAction.Fields.policies);
+        newActionsQuery.fields().include(FieldName.ID, FieldName.APPLICATION_ID, "policies");
 
         Set<String> allApplicationIds = new HashSet<>();
         AtomicReference<Boolean> isPublic = new AtomicReference<>(false);
