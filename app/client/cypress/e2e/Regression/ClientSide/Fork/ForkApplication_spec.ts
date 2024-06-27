@@ -20,7 +20,6 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-let forkedApplicationDsl;
 let parentApplicationDsl: any;
 let forkableAppUrl: any;
 
@@ -85,12 +84,8 @@ describe(
       assertHelper.WaitForNetworkCall("@getConsolidatedData");
       cy.get("@getConsolidatedData").then((httpResponse: any) => {
         const data = httpResponse.response.body.data?.pageWithMigratedDsl?.data;
-        forkedApplicationDsl = data.layouts[0].dsl;
-        cy.log(JSON.stringify(forkedApplicationDsl));
-        cy.log(JSON.stringify(parentApplicationDsl));
-        expect(JSON.stringify(forkedApplicationDsl)).to.contain(
-          JSON.stringify(parentApplicationDsl),
-        );
+        const forkedApplicationDsl = data.layouts[0].dsl;
+        expect(forkedApplicationDsl).to.deep.eq(parentApplicationDsl);
       });
     });
 
