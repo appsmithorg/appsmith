@@ -60,16 +60,16 @@ public class UserUtilsCE {
         return configRepository
                 .findByNameAsUser(INSTANCE_CONFIG, user, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
                 .map(config -> Boolean.TRUE)
-                .switchIfEmpty(Mono.just(Boolean.FALSE));
+                .switchIfEmpty(Mono.just(Boolean.FALSE))
+                .name(CHECK_SUPER_USER_SPAN)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     public Mono<Boolean> isCurrentUserSuperUser() {
         return configRepository
                 .findByName(INSTANCE_CONFIG, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
                 .map(config -> Boolean.TRUE)
-                .switchIfEmpty(Mono.just(Boolean.FALSE))
-                .name(CHECK_SUPER_USER_SPAN)
-                .tap(Micrometer.observation(observationRegistry));
+                .switchIfEmpty(Mono.just(Boolean.FALSE));
     }
 
     public Mono<Boolean> makeSuperUser(List<User> users) {
