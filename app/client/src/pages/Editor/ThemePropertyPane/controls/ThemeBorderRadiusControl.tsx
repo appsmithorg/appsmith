@@ -2,7 +2,11 @@ import React, { useCallback } from "react";
 
 import type { AppTheme } from "entities/AppTheming";
 import { invertedBorderRadiusOptions } from "constants/ThemeConstants";
-import { SegmentedControl, Tooltip } from "design-system";
+import {
+  SegmentedControl,
+  type SegmentedControlOption,
+  Tooltip,
+} from "design-system";
 
 interface ThemeBorderRadiusControlProps {
   options: {
@@ -39,11 +43,11 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
     ? invertedBorderRadiusOptions[selectedOption]
     : "";
 
-    const buttonGroupOptions = [
-      makeButtonGroupOption("none", options.none),
-      makeButtonGroupOption("M", options.M),
-      makeButtonGroupOption("L", options.L),
-    ];
+  const buttonGroupOptions = [
+    makeButtonGroupOption("none", options.none),
+    makeButtonGroupOption("M", options.M),
+    makeButtonGroupOption("L", options.L),
+  ];
 
   return (
     <SegmentedControl
@@ -55,7 +59,10 @@ function ThemeBorderRadiusControl(props: ThemeBorderRadiusControlProps) {
   );
 }
 
-function makeButtonGroupOption(key: string, value: string): SegmentedControlOption {
+function makeButtonGroupOption(
+  key: string,
+  value: string,
+): SegmentedControlOption {
   return {
     label: (
       <Tooltip content={key} key={key}>
@@ -69,7 +76,7 @@ function makeButtonGroupOption(key: string, value: string): SegmentedControlOpti
       </Tooltip>
     ),
     value: key,
-  }
+  };
 }
 
 export default ThemeBorderRadiusControl;
