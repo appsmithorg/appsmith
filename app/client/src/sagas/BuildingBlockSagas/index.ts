@@ -12,6 +12,7 @@ import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import { all, call, put, select } from "redux-saga/effects";
 import { apiCallToSaveAction } from "sagas/ActionSagas";
+import { accessNestedObjectValue } from "sagas/PasteWidgetUtils";
 import { saveCopiedWidgets } from "utils/storage";
 
 export function* saveBuildingBlockWidgetsToStore(
@@ -73,11 +74,17 @@ export function updateWidgetsNameInNewQueries(
   return queries
     .filter((query) => !!query)
     .map((query) => {
-      if (!query.actionConfiguration.body || !query.jsonPathKeys) {
+      if (!query.actionConfiguration && !query.jsonPathKeys) {
         return query;
       }
-      query.actionConfiguration.body =
-        query.actionConfiguration.body.replaceAll(oldWidgetName, newWidgetName);
+      query?.dynamicBindingPathList?.forEach((path: { key: string }) => {
+        accessNestedObjectValue(
+          query.actionConfiguration,
+          path.key,
+          oldWidgetName,
+          newWidgetName,
+        );
+      });
       query.jsonPathKeys = query.jsonPathKeys.map((path: string) =>
         path.replaceAll(oldWidgetName, newWidgetName),
       );
