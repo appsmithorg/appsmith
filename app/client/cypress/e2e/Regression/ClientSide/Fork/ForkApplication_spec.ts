@@ -20,7 +20,6 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-let parentApplicationDsl: any;
 let forkableAppUrl: any;
 
 describe(
@@ -67,6 +66,7 @@ describe(
       agHelper.AddDsl("basicDsl");
       EditorNavigation.SelectEntityByName("Input1", EntityType.Widget);
 
+      let parentApplicationDsl: any;
       cy.intercept("PUT", "/api/v1/layouts/*/pages/*").as("inputUpdate");
       cy.testJsontext("defaultvalue", "A");
       cy.wait("@inputUpdate").then((response: any) => {

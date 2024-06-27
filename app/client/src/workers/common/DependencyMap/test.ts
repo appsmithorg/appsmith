@@ -1,26 +1,8 @@
-import ButtonWidget from "widgets/ButtonWidget";
-import SelectWidget from "widgets/SelectWidget";
 import type {
   WidgetEntity,
   DataTreeEntityConfig,
 } from "@appsmith/entities/DataTree/types";
 import { getEntityPathDependencies } from "./utils/getEntityDependencies";
-import type BaseWidget from "widgets/BaseWidget";
-
-const widgetConfigMap = {};
-
-[ButtonWidget, SelectWidget].forEach((widget: typeof BaseWidget) => {
-  if (widget.type) {
-    // @ts-expect-error: Types are not available
-    widgetConfigMap[widget.type] = {
-      defaultProperties: widget.getDefaultPropertiesMap(),
-
-      derivedProperties: widget.getDerivedPropertiesMap(),
-
-      metaProperties: widget.getMetaPropertiesMap(),
-    };
-  }
-});
 
 describe("DependencyMap utils", function () {
   test("getEntityPathDependencies", () => {

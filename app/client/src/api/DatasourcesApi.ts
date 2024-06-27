@@ -118,6 +118,7 @@ class DatasourcesApi extends API {
           ssl: {
             ...datasourceStorage.datasourceConfiguration.connection.ssl,
             authTypeControl: undefined,
+            certificateType: undefined,
           },
         },
       },

@@ -150,25 +150,6 @@ jobs:
         if: steps.checkAll.outputs.invalid_tags_all != ''
         run: exit 1
 
-      # In case of a run with all test cases, inform the PR author of better usage
-      - name: Add test response to use @tag.All
-        if: steps.checkAll.outputs.tags == ''
-        uses: nefrob/pr-description@v1.1.2
-        with:
-            content: |
-              <!-- This is an auto-generated comment: Cypress test results  -->
-              > [!WARNING]
-              > Whoa, @tag.All spotted in your test suite! 🚀
-              > While @tag.All is cool, like a catch-all net, why not try specific tags? 🏷️
-              > Narrow down your suite with specific tags for quicker and more accurate tests! 🚀 Less waiting, more zipping through tests like a ninja!
-              > Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
-
-              <!-- end of auto-generated comment: Cypress test results  -->
-
-            regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
-            regexFlags: ims
-            token: ${{ secrets.GITHUB_TOKEN }}
-
       # In case of a runnable command, update the PR with run details
       - name: Add test response with link to workflow run
         uses: actions/github-script@v7

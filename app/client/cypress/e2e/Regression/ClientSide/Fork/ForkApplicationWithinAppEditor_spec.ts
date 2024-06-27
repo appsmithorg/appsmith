@@ -44,8 +44,9 @@ describe(
       cy.get("@getConsolidatedData")
         .its("response.body.data")
         .then((data) => {
-          const forkedApplicationDsl = data.pageWithMigratedDsl.data.layouts[0].dsl;
-          expect(forkedApplicationDsl).to.deep.eq(parentApplicationDsl);
+          expect(data.pageWithMigratedDsl.data.layouts[0].dsl).to.deep.eq(
+            parentApplicationDsl,
+          );
         });
     });
   },

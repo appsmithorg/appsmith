@@ -6,12 +6,19 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import io.micrometer.observation.ObservationRegistry;
 
 import java.util.Optional;
 import java.util.Set;
 
 public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Config>
         implements CustomConfigRepositoryCE {
+
+    private final ObservationRegistry observationRegistry;
+
+    public CustomConfigRepositoryCEImpl(ObservationRegistry observationRegistry) {
+        this.observationRegistry = observationRegistry;
+    }
 
     @Override
     public Optional<Config> findByName(String name, AclPermission permission, User currentUser) {
