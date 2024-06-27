@@ -36,11 +36,7 @@ const MAX_WIDTH = 500;
 const TOOLTIP_OPEN_DELAY = 500;
 const MAX_CHARS_ALLOWED_IN_TOOLTIP = 200;
 
-function useToolTip(
-  children: React.ReactNode,
-  tableWidth?: number,
-  title?: string,
-) {
+function useToolTip(children: React.ReactNode, title?: string) {
   const ref = createRef<HTMLDivElement>();
   const [requiresTooltip, setRequiresTooltip] = useState(false);
 
@@ -133,7 +129,7 @@ interface Props {
 }
 
 function LinkWrapper(props: Props) {
-  const content = useToolTip(props.children, props.tableWidth, props.title);
+  const content = useToolTip(props.children, props.title);
 
   return (
     <CellWrapper
@@ -165,7 +161,7 @@ function LinkWrapper(props: Props) {
 }
 
 function AutoToolTipComponent(props: Props) {
-  const content = useToolTip(props.children, props.tableWidth, props.title);
+  const content = useToolTip(props.children, props.title);
 
   if (props.columnType === ColumnTypes.URL && props.title) {
     return <LinkWrapper {...props} />;
