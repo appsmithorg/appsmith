@@ -17,7 +17,7 @@ import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils"
 import type { APP_MODE } from "entities/App";
 import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
 import type { SpanAttributes } from "UITelemetry/generateTraces";
-import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
+import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
 
 export type EvalWorkerSyncRequest<T = any> = WorkerRequest<
   T,
@@ -28,7 +28,13 @@ export type EvalWorkerASyncRequest<T = any> = WorkerRequest<
   EVAL_WORKER_ASYNC_ACTION
 >;
 export type EvalWorkerResponse = EvalTreeResponseData | boolean | unknown;
-
+export interface JsPatches {
+  shouldReplaceAllNodes: boolean;
+  patches: {
+    path: string;
+    value: JSActionEntity;
+  }[];
+}
 export interface EvalTreeRequestData {
   unevalTree: unEvalAndConfigTree;
   widgetTypeConfigMap: WidgetTypeConfigMap;
@@ -43,7 +49,7 @@ export interface EvalTreeRequestData {
   appMode?: APP_MODE;
   widgetsMeta: Record<string, any>;
   shouldRespondWithLogs?: boolean;
-  affectedJSObjects: AffectedJSObjects;
+  jsPatches: JsPatches;
 }
 
 export interface EvalTreeResponseData {
