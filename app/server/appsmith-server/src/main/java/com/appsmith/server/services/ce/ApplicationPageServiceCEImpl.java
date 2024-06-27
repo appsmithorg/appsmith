@@ -1425,7 +1425,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private Mono<Boolean> validateAllObjectsForPermissions(
             Mono<Application> applicationMono, AppsmithError expectedError) {
-        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
+        Flux<User> userFlux = sessionUserService.getCurrentUser().cache().repeat();
         Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
@@ -1434,7 +1434,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newPage.setPolicies(idPoliciesOnly.getPolicies());
                     return newPage;
                 })
-                .zipWith(userMono)
+                .zipWith(userFlux)
                 .flatMap(tuple -> newPageRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
 
         Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
@@ -1445,7 +1445,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     newAction.setPolicies(idPoliciesOnly.getPolicies());
                     return newAction;
                 })
-                .zipWith(userMono)
+                .zipWith(userFlux)
                 .flatMap(tuple -> newActionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
 
         Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
@@ -1456,7 +1456,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     actionCollection.setPolicies(idPoliciesOnly.getPolicies());
                     return actionCollection;
                 })
-                .zipWith(userMono)
+                .zipWith(userFlux)
                 .flatMap(tuple -> actionCollectionRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
 
         Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
