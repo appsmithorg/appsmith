@@ -1,16 +1,14 @@
 .switch {
-  position: relative;
-  width: auto;
+  display: flex;
+  align-items: center;
+  min-width: fit-content;
+  cursor: pointer;
 
   [data-icon] {
     --gutter: 2px;
     --knob-size: var(--sizing-4);
 
-    /**
-      Checkbox icon are positioned absolutely because we need to align the elements along the baseline
-      but icon takes more space than the text content.
-    */
-    position: absolute;
+    position: relative;
     width: var(--sizing-8);
     height: var(--sizing-5);
     background-color: var(--color-bd-neutral);
@@ -44,46 +42,39 @@
   *-----------------------------------------------------------------------------
   */
   &[data-label-position="end"] {
-    padding-inline-start: calc(var(--sizing-8) + var(--inner-spacing-2));
-    justify-content: flex-end;
+    margin-inline-end: auto;
   }
 
   &[data-label-position="end"] [data-icon] {
-    left: 0;
-  }
-
-  &[data-label-position="end"] .text {
-    margin-inline-start: auto;
+    margin-inline-end: var(--inner-spacing-2);
   }
 
   &[data-label-position="start"] {
-    padding-inline-end: calc(var(--sizing-8) + var(--inner-spacing-2));
+    width: 100%;
+    flex-direction: row-reverse;
+    justify-content: space-between;
   }
 
   &[data-label-position="start"] [data-icon] {
-    right: 0;
-  }
-
-  &[data-label-position="start"] .text {
-    margin-inline-end: auto;
+    margin-inline-start: var(--inner-spacing-2);
   }
 
   /**
  * ----------------------------------------------------------------------------
- * CHECKED  - BUT NOT DISABLED
+ * CHECKED - BUT NOT DISABLED
  *-----------------------------------------------------------------------------
  */
-  &[data-state="checked"] [data-icon] {
+  &[data-selected="true"] [data-icon] {
     background-color: var(--color-bg-accent);
     color: var(--color-bg);
   }
 
-  &[data-hovered][data-state="checked"]:not([data-disabled]) [data-icon] {
+  &[data-hovered][data-selected="true"]:not([data-disabled]) [data-icon] {
     background-color: var(--color-bg-accent-hover);
     color: var(--color-bg);
   }
 
-  &[data-state="checked"] [data-icon]::after {
+  &[data-selected="true"] [data-icon]::after {
     left: calc(100% - var(--knob-size) - var(--gutter));
   }
 
@@ -92,9 +83,19 @@
   * FOCUS
   *-----------------------------------------------------------------------------
   */
-  &[data-focused] [data-icon] {
+  &[data-focus-visible] [data-icon] {
     box-shadow:
       0 0 0 2px var(--color-bg),
       0 0 0 4px var(--color-bd-focus);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * DISABLED
+  *-----------------------------------------------------------------------------
+  */
+  &[data-disabled] {
+    opacity: var(--opacity-disabled);
+    cursor: not-allowed;
   }
 }

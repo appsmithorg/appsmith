@@ -9,9 +9,22 @@ const anvilWidgetBasedSelectors = {
   anvilWidgetNameSelector: (widgetName: string) => {
     return `[${AnvilDataAttributes.WIDGET_NAME}="${widgetName}"]`;
   },
+  anvilModalOverlay: 'div[data-floating-ui-portal] > div[data-status="open"]',
   anvilSelectedWidget: `${anvilWidgetSelector}[data-selected=true]`,
   anvilWidgetTypeSelector: (widgetType: string) => {
     return `.t--widget-${widgetType}`;
+  },
+};
+
+const anvilModalWidgetSelectors = {
+  anvilModalCloseIconButtonSelector: (widgetName: string) => {
+    return `${anvilWidgetBasedSelectors.anvilWidgetNameSelector(widgetName)} > div > div > button[data-icon-button]`;
+  },
+  anvilModalFooterCloseButtonSelector: (widgetName: string) => {
+    return `${anvilWidgetBasedSelectors.anvilWidgetNameSelector(widgetName)} > div > div:last-child > button[data-button]:first-child`;
+  },
+  anvilModalFooterSubmitButtonSelector: (widgetName: string) => {
+    return `${anvilWidgetBasedSelectors.anvilWidgetNameSelector(widgetName)} > div > div:last-child > button[data-button]:last-child`;
   },
 };
 
@@ -29,6 +42,8 @@ const anvilSectionAndZonesBasedSelectors = {
 // dnd based selectors
 const anvilDnDBasedSelectors = {
   anvilDnDListener: "[data-type=anvil-dnd-listener]",
+  anvilDetachedWidgetsDropArena:
+    "[data-testid=t--anvil-detached-widgets-drop-arena]",
   mainCanvasSelector: `#${getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID)}`,
 };
 
@@ -39,12 +54,14 @@ const anvilWidgetsLocators = {
   WDSINPUT: "wdsinputwidget",
   WDSSWITCH: "wdsswitchwidget",
   WDSCHECKBOX: "wdscheckboxwidget",
+  WDSMODAL: "wdsmodalwidget",
   SECTION: "sectionwidget",
   ZONE: "zonewidget",
 };
 
 export const anvilLocators = {
   ...anvilWidgetBasedSelectors,
+  ...anvilModalWidgetSelectors,
   ...anvilWidgetsLocators,
   ...anvilSectionAndZonesBasedSelectors,
   ...anvilDnDBasedSelectors,

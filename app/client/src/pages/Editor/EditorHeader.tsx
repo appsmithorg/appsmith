@@ -46,6 +46,7 @@ import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
+import { useNavigationMenuData } from "./EditorName/useNavigationMenuData";
 
 import {
   getIsGitConnected,
@@ -75,7 +76,6 @@ import { Omnibar } from "./commons/Omnibar";
 import { EditorShareButton } from "./EditorShareButton";
 import { HelperBarInHeader } from "./HelpBarInHeader";
 import { AppsmithLink } from "./AppsmithLink";
-import { GetNavigationMenuData } from "./EditorName/NavigationMenuData";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -208,7 +208,7 @@ export function EditorHeader() {
                 editInteractionKind={EditInteractionKind.SINGLE}
                 editorName="Application"
                 fill
-                getNavigationMenu={GetNavigationMenuData}
+                getNavigationMenu={useNavigationMenuData}
                 isError={isErroredSavingName}
                 isNewEditor={
                   applicationList.filter((el) => el.id === applicationId)
