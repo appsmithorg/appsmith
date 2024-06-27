@@ -1,10 +1,10 @@
-import React, { createRef, useEffect, useMemo, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
-import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
-import type { CellAlignment, VerticalAlignment } from "../Constants";
+import { importSvg } from "design-system-old";
+import React, { createRef, useEffect, useState } from "react";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
-import { importSvg } from "design-system-old";
+import type { CellAlignment, VerticalAlignment } from "../Constants";
+import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 
 const OpenNewTabIcon = importSvg(
   async () => import("assets/icons/control/open-new-tab.svg"),
@@ -44,12 +44,9 @@ function useToolTip(
   const ref = createRef<HTMLDivElement>();
   const [requiresTooltip, setRequiresTooltip] = useState(false);
 
-  const titleToDisplay = useMemo(() => {
-    if (title && title.length > MAX_CHARS_ALLOWED_IN_TOOLTIP) {
-      return `${title.substring(0, MAX_CHARS_ALLOWED_IN_TOOLTIP)} (...)`;
-    }
-    return title;
-  }, [title]);
+  if (title && title.length > MAX_CHARS_ALLOWED_IN_TOOLTIP) {
+    title = `${title.substring(0, MAX_CHARS_ALLOWED_IN_TOOLTIP)} (...)`;
+  }
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
@@ -93,7 +90,7 @@ function useToolTip(
       boundary="viewport"
       content={
         <TooltipContentWrapper width={MAX_WIDTH - WIDTH_OFFSET}>
-          {titleToDisplay}
+          {title}
         </TooltipContentWrapper>
       }
       defaultIsOpen
