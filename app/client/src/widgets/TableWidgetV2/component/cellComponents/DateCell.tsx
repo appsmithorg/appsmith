@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { VerticalAlignment } from "../Constants";
 import {
   ALIGN_ITEMS,
@@ -196,6 +196,14 @@ export const DateCell = (props: DateComponentProps) => {
   const [showRequiredError, setShowRequiredError] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    if (isRequired && !value) {
+      setIsValid(false);
+    } else {
+      setIsValid(true);
+    }
+  }, [value, isRequired]);
+  
   const valueInISOFormat = useMemo(() => {
     if (typeof value !== "string") return "";
 
@@ -213,8 +221,9 @@ export const DateCell = (props: DateComponentProps) => {
   }, [value, props.outputFormat]);
 
   const onDateSelected = (date: string) => {
+    const formattedDate = date ? moment(date).format(inputFormat) : "";
     if (isNewRow) {
-      updateNewRowValues(alias, date, date);
+      updateNewRowValues(alias, date, formattedDate);
       return;
     }
 
@@ -227,7 +236,7 @@ export const DateCell = (props: DateComponentProps) => {
     setShowRequiredError(false);
     setHasFocus(false);
 
-    const formattedDate = date ? moment(date).format(inputFormat) : "";
+    
     onDateSave(rowIndex, alias, formattedDate, onDateSelectedString);
   };
 
@@ -241,8 +250,9 @@ export const DateCell = (props: DateComponentProps) => {
   };
 
   const onPopoverClosed = () => {
+    const isValidValue = value !== undefined && value !== null;
     setHasFocus(false);
-    setIsValid(true);
+    setIsValid(isValidValue);
     toggleCellEditMode(
       false,
       rowIndex,
