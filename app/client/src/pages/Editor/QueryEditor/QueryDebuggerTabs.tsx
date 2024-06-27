@@ -66,11 +66,11 @@ const parseResponseBody = (body: any): any[] => {
 
   if (Array.isArray(parsedOutput)) {
     return parsedOutput;
-  } else if (parsedOutput.records && Array.isArray(parsedOutput.records)) {
+  }
+  if (parsedOutput.records && Array.isArray(parsedOutput.records)) {
     return parsedOutput.records;
   } 
   return [parsedOutput];
-  
 };
 
 function QueryDebuggerTabs({
