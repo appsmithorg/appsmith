@@ -16,13 +16,17 @@ export class AnvilSnapshot {
   public verifyCanvasMode = async (widgetName: string) => {
     this.agHelper
       .GetElement(this.locators.canvas)
-      .matchImageSnapshot(`anvil${widgetName}Canvas`);
+      .matchImageSnapshot(`anvil${widgetName}Canvas`, {
+        comparisonMethod: "ssim",
+      });
 
     this.setTheme("dark");
 
     this.agHelper
       .GetElement(this.locators.canvas)
-      .matchImageSnapshot(`anvil${widgetName}CanvasDark`);
+      .matchImageSnapshot(`anvil${widgetName}CanvasDark`, {
+        comparisonMethod: "ssim",
+      });
 
     this.setTheme("light");
   };
@@ -34,7 +38,9 @@ export class AnvilSnapshot {
 
     this.agHelper
       .GetElement(this.locators.canvas)
-      .matchImageSnapshot(`anvil${widgetName}Preview`);
+      .matchImageSnapshot(`anvil${widgetName}Preview`, {
+        comparisonMethod: "ssim",
+      });
 
     this.exitPreviewMode();
   };
@@ -59,6 +65,7 @@ export class AnvilSnapshot {
       this.agHelper
         .GetElement(this.locators.appViewerPage)
         .matchImageSnapshot(`anvil${widgetName}Deploy${device}`, {
+          comparisonMethod: "ssim",
           capture: "fullPage",
         });
     });
