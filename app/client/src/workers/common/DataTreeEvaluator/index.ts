@@ -644,7 +644,7 @@ export default class DataTreeEvaluator {
       };
     }
 
-    DataStore.update(differences);
+    DataStore.update(differences as Diff<DataTree, DataTree>[]);
 
     //find all differences which can lead to updating of dependency map
     const translatedDiffs = flatten(
