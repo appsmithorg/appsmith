@@ -107,7 +107,8 @@ public class CommonConfig {
     public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
         final MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
 
-        converter.setObjectMapper(objectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, true));
+        converter.setObjectMapper(objectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, "CE".equals(ProjectProperties.EDITION)));
 
         return converter;
     }
