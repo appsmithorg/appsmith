@@ -87,7 +87,7 @@ describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
       .should("not.be.empty");
   });
 
-  it.only("5. Select widget selection is not cleared when the widget is server side filtered", () => {
+  it("5. Select widget selection is not cleared when the widget is server side filtered", () => {
     dataSources.CreateDataSource("Postgres");
 
     cy.get("@dsName").then((dsName) => {
