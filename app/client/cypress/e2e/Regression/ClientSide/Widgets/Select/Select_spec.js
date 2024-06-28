@@ -9,7 +9,7 @@ const {
   agHelper,
   assertHelper,
   dataSources,
-  propPane
+  propPane,
 } = require("../../../../../support/Objects/ObjectsCore");
 const {
   default: EditorNavigation,
