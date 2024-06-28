@@ -90,7 +90,7 @@ docker run --entrypoint sh \
   -e DB="$DBNAME" \
   alpine \
   -c \
-  'apk --no-cache add postgresql14-client; psql -c "create database \"$DB\" \"$URL\" "'
+  'apk --no-cache add postgresql14-client; psql -c "create database \"$DB\"" \"$URL\"'
 
 echo "Deploy appsmith helm chart"
 helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespace --recreate-pods \
