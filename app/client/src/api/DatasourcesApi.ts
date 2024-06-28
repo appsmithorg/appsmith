@@ -50,7 +50,7 @@ class DatasourcesApi extends API {
             datasourceConfiguration: {
               ...storage.datasourceConfiguration,
               isValid: undefined,
-              authentication: this.cleanupAuthenticationObject(
+              authentication: this.cleanAuthenticationObject(
                 storage.datasourceConfiguration.authentication,
               ),
               connection: storage.datasourceConfiguration.connection && {
@@ -70,62 +70,63 @@ class DatasourcesApi extends API {
     return API.post(DatasourcesApi.url, datasourceConfig);
   }
 
-  static cleanupAuthenticationObject(authentication: any): any {
+  static cleanAuthenticationObject(authentication: any): any {
     if (!authentication) {
       return undefined;
     }
-    const common: any = {
+
+    const auth: any = {
       authenticationType: authentication.authenticationType,
     };
 
     switch (authentication.authenticationType) {
       case "dbAuth":
-        common.authType = authentication.authType;
-        common.username = authentication.username;
-        common.password = authentication.password;
-        common.databaseName = authentication.databaseName;
+        auth.authType = authentication.authType;
+        auth.username = authentication.username;
+        auth.password = authentication.password;
+        auth.databaseName = authentication.databaseName;
         break;
       case "oAuth2":
-        common.grantType = authentication.grantType;
-        common.isTokenHeader = authentication.isTokenHeader;
-        common.isAuthorizationHeader = authentication.isAuthorizationHeader;
-        common.clientId = authentication.clientId;
-        common.clientSecret = authentication.clientSecret;
-        common.authorizationUrl = authentication.authorizationUrl;
-        common.expiresIn = authentication.expiresIn;
-        common.accessTokenUrl = authentication.accessTokenUrl;
-        common.scopeString = authentication.scopeString;
-        common.scope = authentication.scope;
-        common.sendScopeWithRefreshToken =
+        auth.grantType = authentication.grantType;
+        auth.isTokenHeader = authentication.isTokenHeader;
+        auth.isAuthorizationHeader = authentication.isAuthorizationHeader;
+        auth.clientId = authentication.clientId;
+        auth.clientSecret = authentication.clientSecret;
+        auth.authorizationUrl = authentication.authorizationUrl;
+        auth.expiresIn = authentication.expiresIn;
+        auth.accessTokenUrl = authentication.accessTokenUrl;
+        auth.scopeString = authentication.scopeString;
+        auth.scope = authentication.scope;
+        auth.sendScopeWithRefreshToken =
           authentication.sendScopeWithRefreshToken;
-        common.refreshTokenClientCredentialsLocation =
+        auth.refreshTokenClientCredentialsLocation =
           authentication.refreshTokenClientCredentialsLocation;
-        common.headerPrefix = authentication.headerPrefix;
-        common.customTokenParameters = authentication.customTokenParameters;
-        common.audience = authentication.audience;
-        common.resource = authentication.resource;
-        common.useSelfSignedCert = authentication.useSelfSignedCert;
+        auth.headerPrefix = authentication.headerPrefix;
+        auth.customTokenParameters = authentication.customTokenParameters;
+        auth.audience = authentication.audience;
+        auth.resource = authentication.resource;
+        auth.useSelfSignedCert = authentication.useSelfSignedCert;
         break;
       case "basic":
-        common.username = authentication.username;
-        common.password = authentication.password;
+        auth.username = authentication.username;
+        auth.password = authentication.password;
         break;
       case "apiKey":
-        common.addTo = authentication.addTo;
-        common.label = authentication.label;
-        common.headerPrefix = authentication.headerPrefix;
-        common.value = authentication.value;
+        auth.addTo = authentication.addTo;
+        auth.label = authentication.label;
+        auth.headerPrefix = authentication.headerPrefix;
+        auth.value = authentication.value;
         break;
       case "bearerToken":
-        common.bearerToken = authentication.bearerToken;
+        auth.bearerToken = authentication.bearerToken;
         break;
       case "snowflakeKeyPairAuth":
-        common.username = authentication.username;
-        common.privateKey = authentication.privateKey;
-        common.passphrase = authentication.passphrase;
+        auth.username = authentication.username;
+        auth.privateKey = authentication.privateKey;
+        auth.passphrase = authentication.passphrase;
     }
 
-    return common;
+    return auth;
   }
 
   // Api to test current environment datasource
