@@ -41,9 +41,8 @@ export { default as IDEHeaderDropdown } from "./Components/HeaderDropdown";
 export { default as IDEBottomView } from "./Components/BottomView";
 
 /**
- *
- *
- *
+ * IDESidebar is used inside the IDE to have a navigation menu on the left side of the screen.
+ * It switches between different editor states
  */
 export { default as IDESidebar } from "./Components/Sidebar";
 export type { ISidebarButton } from "./Components/Sidebar";

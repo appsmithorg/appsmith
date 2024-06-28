@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import styled from "styled-components";
 import type { Condition } from "./SidebarButton";
 import SidebarButton from "./SidebarButton";
@@ -25,6 +25,7 @@ export interface ISidebarButton {
 }
 
 interface SidebarComponentProps {
+  id?: string;
   topButtons: ISidebarButton[];
   bottomButtons: ISidebarButton[];
   appState: EditorState;
@@ -34,17 +35,21 @@ interface SidebarComponentProps {
 function SidebarComponent(props: SidebarComponentProps) {
   const { appState, bottomButtons, onClick, topButtons } = props;
 
+  const handleOnClick = useCallback((button: ISidebarButton) => {
+    if (appState !== button.state) {
+      onClick(button.urlSuffix);
+    }
+  }, []);
+
   return (
-    <Container className="t--sidebar" id="t--app-sidebar">
+    <Container className="t--sidebar" id={props.id}>
       <div>
         {topButtons.map((b) => (
           <SidebarButton
             icon={b.icon}
             key={b.state}
             onClick={() => {
-              if (appState !== b.state) {
-                onClick(b.urlSuffix);
-              }
+              handleOnClick(b);
             }}
             selected={appState === b.state}
             title={b.title}
@@ -58,9 +63,7 @@ function SidebarComponent(props: SidebarComponentProps) {
             icon={b.icon}
             key={b.state}
             onClick={() => {
-              if (appState !== b.state) {
-                onClick(b.urlSuffix);
-              }
+              handleOnClick(b);
             }}
             selected={appState === b.state}
             title={b.title}

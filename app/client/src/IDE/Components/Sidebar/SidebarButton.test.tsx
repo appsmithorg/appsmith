@@ -1,20 +1,25 @@
 import { render } from "test/testUtils";
 import React from "react";
-import { Condition } from "./SidebarButton";
-import SidebarButton from "./SidebarButton";
-import { TopButtons } from "@appsmith/entities/IDE/constants";
+import SidebarButton, {
+  Condition,
+  type SidebarButtonProps,
+} from "./SidebarButton";
 
-const sidebarButtonProps = {
-  icon: TopButtons[1].icon,
+const sidebarButtonProps: SidebarButtonProps = {
+  icon: "down-arrow",
   onClick: () => {},
   selected: false,
-  title: TopButtons[1].title,
-  condition: Condition.Warn,
+  title: "Test",
 };
 
 describe("SidebarButton", () => {
   it("should render the warning icon in case the datasource list is empty", () => {
-    const { container } = render(<SidebarButton {...sidebarButtonProps} />);
+    const withWarningCondition = {
+      ...sidebarButtonProps,
+      condition: Condition.Warn,
+    };
+
+    const { container } = render(<SidebarButton {...withWarningCondition} />);
 
     const svgs = container.querySelectorAll("svg");
     expect(svgs).toHaveLength(2);

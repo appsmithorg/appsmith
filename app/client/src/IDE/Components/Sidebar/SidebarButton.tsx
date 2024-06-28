@@ -3,10 +3,20 @@ import { Icon, Text, Tooltip } from "design-system";
 import styled from "styled-components";
 
 export enum Condition {
-  Warn = "warning",
+  Warn = "Warn",
   Error = "Error",
   Success = "Success",
 }
+
+const ConditionConfig: Record<Condition, { icon: string; color: string }> = {
+  [Condition.Warn]: {
+    icon: "warning",
+    color: "#ffe283",
+  },
+  // TODO add this information for further conditions
+  Error: { color: "", icon: "" },
+  Success: { color: "", icon: "" },
+};
 
 export interface SidebarButtonProps {
   title?: string;
@@ -52,7 +62,7 @@ const ConditionIcon = styled(Icon)`
   bottom: 3px;
   right: -1px;
   &.t--sidebar-${Condition.Warn}-condition-icon {
-    color: #ffe283;
+    color: ${ConditionConfig[Condition.Warn].color};
   }
   // TODO add more condition colors here
 `;
@@ -75,7 +85,7 @@ function SidebarButton(props: SidebarButtonProps) {
           {props.condition && (
             <ConditionIcon
               className={`t--sidebar-${props.condition}-condition-icon`}
-              name={props.condition}
+              name={ConditionConfig[props.condition].icon}
               size="md"
             />
           )}
