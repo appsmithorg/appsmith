@@ -1486,7 +1486,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     private Mono<Boolean> validateDatasourcesForCreatePermission(Mono<Application> applicationMono) {
-        Mono<User> userMono = sessionUserService.getCurrentUser().cache();
+        Flux<User> userFlux = sessionUserService.getCurrentUser().cache().repeat();
         Flux<BaseDomain> datasourceFlux = applicationMono
                 .flatMapMany(application -> newActionRepository.findAllByApplicationIdsWithoutPermission(
                         List.of(application.getId()),
@@ -1508,7 +1508,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             datasource.setPolicies(idPolicy.getPolicies());
                             return datasource;
                         })
-                        .zipWith(userMono)
+                        .zipWith(userFlux)
                         .flatMap(tuple ->
                                 datasourceRepository.setUserPermissionsInObject(tuple.getT1(), tuple.getT2())));
 
