@@ -10,7 +10,6 @@ import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
 import java.util.Set;
 
 public interface DatasourceServiceCE {
@@ -58,8 +57,6 @@ public interface DatasourceServiceCE {
      * @return
      */
     Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, AclPermission permission);
-
-    Flux<Datasource> saveAll(List<Datasource> datasourceList);
 
     Mono<Datasource> create(Datasource datasource);
 
