@@ -13,7 +13,7 @@ import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
-  CONTEXT_RE_NAME,
+  CONTEXT_RENAME,
   CONTEXT_MOVE,
   CONTEXT_NO_PAGE,
   CONTEXT_SHOW_BINDING,
@@ -100,7 +100,7 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
       canManage && {
         value: "rename",
         onSelect: editJSCollectionName,
-        label: createMessage(CONTEXT_RE_NAME),
+        label: createMessage(CONTEXT_RENAME),
       },
     menuItems.includes(ActionEntityContextMenuItemsEnum.SHOW_BINDING) && {
       value: "showBinding",

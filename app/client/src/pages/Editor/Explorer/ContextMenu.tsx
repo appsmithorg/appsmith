@@ -55,7 +55,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       // Without this the input takes focus first post which the Menu closes post which MenuTrigger
       // takes back focus.
       setTimeout(() => {
-        option.onSelect && option.onSelect(option);
+        option.onSelect?.(option);
       }, 0);
       if (option.value === "delete" && !option.confirmDelete) {
         handleOpenChange(true);
