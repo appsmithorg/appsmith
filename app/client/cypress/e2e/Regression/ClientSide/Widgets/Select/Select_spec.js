@@ -92,6 +92,7 @@ describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
 
     cy.get("@dsName").then((dsName) => {
       EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
+      propPane.ToggleJSMode("sourcedata", false);
 
       oneClickBinding.ChooseAndAssertForm(
         `${dsName}`,
@@ -103,7 +104,6 @@ describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
         },
       );
     });
-    propPane.ToggleJSMode("sourcedata", false);
 
     agHelper.GetNClick(OneClickBindingLocator.connectData);
 
