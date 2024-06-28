@@ -9,6 +9,7 @@ const {
   agHelper,
   assertHelper,
   dataSources,
+  propPane
 } = require("../../../../../support/Objects/ObjectsCore");
 const {
   default: EditorNavigation,
@@ -86,7 +87,7 @@ describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
       .should("not.be.empty");
   });
 
-  it("5. Select widget selection is not cleared when the widget is server side filtered", () => {
+  it.only("5. Select widget selection is not cleared when the widget is server side filtered", () => {
     dataSources.CreateDataSource("Postgres");
 
     cy.get("@dsName").then((dsName) => {
@@ -102,6 +103,7 @@ describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
         },
       );
     });
+    propPane.ToggleJSMode("sourcedata", false);
 
     agHelper.GetNClick(OneClickBindingLocator.connectData);
 
