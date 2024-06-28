@@ -2,14 +2,16 @@ name: PR Automation test suite
 
 on:
   pull_request:
-    branches: [release]
+    branches:
+      - release
+      - pg
     types:
-      - opened
       - labeled
 
 jobs:
   parse-tags:
     runs-on: ubuntu-latest
+    if: github.event.label.name == 'ok-to-test'
     permissions:
       pull-requests: write
     defaults:
@@ -25,14 +27,6 @@ jobs:
         uses: actions/checkout@v4
         with:
             repository: appsmithorg/appsmith
-
-      # Checks for ok-to-test label presence in PR
-      - name: Check label
-        run: |
-              if [[ '${{ github.event.label.name }}' != 'ok-to-test' ]]; then
-                echo "Irrelevant label '${{ github.event.label.name }}' added! "
-                exit 1
-              fi
 
       # Reads the PR description to retrieve the /ok-to-test or, if that's absent, the /test command
       - name: Read tags from PR description
