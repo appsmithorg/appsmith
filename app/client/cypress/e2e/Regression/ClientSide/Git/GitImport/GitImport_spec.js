@@ -170,7 +170,8 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
     agHelper.AssertElementExist(gitSync._bottomBarPull);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
-    cy.merge(mainBranch);
+    gitSync.MergeToMaster();
+    //cy.merge(mainBranch);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
     cy.latestDeployPreview();
