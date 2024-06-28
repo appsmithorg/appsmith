@@ -50,7 +50,7 @@ class DatasourcesApi extends API {
             datasourceConfiguration: {
               ...storage.datasourceConfiguration,
               isValid: undefined,
-              authentication: this.cleanAuthenticationObject(
+              authentication: DatasourcesApi.cleanAuthenticationObject(
                 storage.datasourceConfiguration.authentication,
               ),
               connection: storage.datasourceConfiguration.connection && {
