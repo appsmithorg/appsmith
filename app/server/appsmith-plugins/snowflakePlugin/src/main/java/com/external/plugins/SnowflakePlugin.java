@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -284,7 +285,7 @@ public class SnowflakePlugin extends BasePlugin {
             if (datasourceConfiguration.getAuthentication() == null) {
                 invalids.add(SnowflakeErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG);
             } else {
-                if (SNOWFLAKE_KEY_PAIR_AUTH.equals(
+                if (Authentication.SNOWFLAKE_KEY_PAIR_AUTH.equals(
                         datasourceConfiguration.getAuthentication().getAuthenticationType())) {
                     KeyPairAuth authentication = (KeyPairAuth) datasourceConfiguration.getAuthentication();
                     if (StringUtils.isEmpty(authentication.getUsername())) {
