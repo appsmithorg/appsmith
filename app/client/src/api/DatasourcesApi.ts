@@ -50,6 +50,9 @@ class DatasourcesApi extends API {
             datasourceConfiguration: {
               ...storage.datasourceConfiguration,
               isValid: undefined,
+              authentication: this.cleanupAuthenticationObject(
+                storage.datasourceConfiguration.authentication,
+              ),
               connection: storage.datasourceConfiguration.connection && {
                 ...storage.datasourceConfiguration.connection,
                 ssl: {
@@ -65,6 +68,64 @@ class DatasourcesApi extends API {
     }
 
     return API.post(DatasourcesApi.url, datasourceConfig);
+  }
+
+  static cleanupAuthenticationObject(authentication: any): any {
+    if (!authentication) {
+      return undefined;
+    }
+    const common: any = {
+      authenticationType: authentication.authenticationType,
+    };
+
+    switch (authentication.authenticationType) {
+      case "dbAuth":
+        common.authType = authentication.authType;
+        common.username = authentication.username;
+        common.password = authentication.password;
+        common.databaseName = authentication.databaseName;
+        break;
+      case "oAuth2":
+        common.grantType = authentication.grantType;
+        common.isTokenHeader = authentication.isTokenHeader;
+        common.isAuthorizationHeader = authentication.isAuthorizationHeader;
+        common.clientId = authentication.clientId;
+        common.clientSecret = authentication.clientSecret;
+        common.authorizationUrl = authentication.authorizationUrl;
+        common.expiresIn = authentication.expiresIn;
+        common.accessTokenUrl = authentication.accessTokenUrl;
+        common.scopeString = authentication.scopeString;
+        common.scope = authentication.scope;
+        common.sendScopeWithRefreshToken =
+          authentication.sendScopeWithRefreshToken;
+        common.refreshTokenClientCredentialsLocation =
+          authentication.refreshTokenClientCredentialsLocation;
+        common.headerPrefix = authentication.headerPrefix;
+        common.customTokenParameters = authentication.customTokenParameters;
+        common.audience = authentication.audience;
+        common.resource = authentication.resource;
+        common.useSelfSignedCert = authentication.useSelfSignedCert;
+        break;
+      case "basic":
+        common.username = authentication.username;
+        common.password = authentication.password;
+        break;
+      case "apiKey":
+        common.addTo = authentication.addTo;
+        common.label = authentication.label;
+        common.headerPrefix = authentication.headerPrefix;
+        common.value = authentication.value;
+        break;
+      case "bearerToken":
+        common.bearerToken = authentication.bearerToken;
+        break;
+      case "snowflakeKeyPairAuth":
+        common.username = authentication.username;
+        common.privateKey = authentication.privateKey;
+        common.passphrase = authentication.passphrase;
+    }
+
+    return common;
   }
 
   // Api to test current environment datasource
