@@ -12,7 +12,7 @@ import {
 import styled from "styled-components";
 import { Icon } from "design-system";
 import {
-  CONTEXT_EDIT_NAME,
+  CONTEXT_RE_NAME,
   CONTEXT_CLONE,
   CONTEXT_SET_AS_HOME_PAGE,
   CONTEXT_DELETE,
@@ -156,7 +156,7 @@ export function PageContextMenu(props: {
     canManagePages && {
       value: "rename",
       onSelect: editPageName,
-      label: createMessage(CONTEXT_EDIT_NAME),
+      label: createMessage(CONTEXT_RE_NAME),
     },
     canCreatePages &&
       canManagePages && {

@@ -13,7 +13,7 @@ import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
-  CONTEXT_EDIT_NAME,
+  CONTEXT_RE_NAME,
   CONTEXT_MOVE,
   CONTEXT_NO_PAGE,
   CONTEXT_SHOW_BINDING,
@@ -96,11 +96,11 @@ export function JSCollectionEntityContextMenu(props: EntityContextMenuProps) {
   );
 
   const optionsTree = [
-    menuItems.includes(ActionEntityContextMenuItemsEnum.EDIT_NAME) &&
+    menuItems.includes(ActionEntityContextMenuItemsEnum.RE_NAME) &&
       canManage && {
         value: "rename",
         onSelect: editJSCollectionName,
-        label: createMessage(CONTEXT_EDIT_NAME),
+        label: createMessage(CONTEXT_RE_NAME),
       },
     menuItems.includes(ActionEntityContextMenuItemsEnum.SHOW_BINDING) && {
       value: "showBinding",

@@ -224,7 +224,7 @@ export class JSEditor {
   public RenameJSObjFromExplorer(entityName: string, renameVal: string) {
     this.ee.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: entityName,
-      action: "Edit name",
+      action: "Rename",
     });
     cy.xpath(this.locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",

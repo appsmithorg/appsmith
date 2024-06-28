@@ -51,7 +51,7 @@ export default function TreeDropdown(props: TreeDropdownProps) {
   const handleSelect = (option: TreeDropdownOption) => {
     if (option.onSelect) {
       // MenuTrigger takes focus after the Menu closes. For an input to be focused for e.g
-      // edit name we have to take focus back from it.
+      // Rename we have to take focus back from it.
       // Without this the input takes focus first post which the Menu closes post which MenuTrigger
       // takes back focus.
       setTimeout(() => {
