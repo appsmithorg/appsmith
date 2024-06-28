@@ -31,7 +31,7 @@ export const defaultsConfig = {
   columnOrder: [],
   enableClientSideSearch: true,
   isVisibleSearch: true,
-  isVisibleFilters: true,
+  isVisibleFilters: false,
   isVisibleDownload: true,
   isVisiblePagination: true,
   isSortable: true,
