@@ -109,7 +109,7 @@ helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespa
   --set resources.requests.memory="2048Mi" \
   --set applicationConfig.APPSMITH_SENTRY_DSN="https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547" \
   --set applicationConfig.APPSMITH_SENTRY_ENVIRONMENT="$NAMESPACE" \
-  --set applicationConfig.APPSMITH_DB_URL="postgresql://$PGUSER:$PGPASSWORD@$PGHOST/$DBNAME" \
+  --set applicationConfig.APPSMITH_MONGODB_URI="postgresql://$PGUSER:$PGPASSWORD@$PGHOST/$DBNAME" \
   --set applicationConfig.APPSMITH_DISABLE_EMBEDDED_KEYCLOAK=\"1\" \
   --set applicationConfig.APPSMITH_CUSTOMER_PORTAL_URL="https://release-customer.appsmith.com" \
   --version $HELMCHART_VERSION
