@@ -6,7 +6,7 @@ import QueriesSegment from "./Query";
 import WidgetsSegment from "./UI";
 import JSSegment from "./JS";
 import SegmentedHeader from "./components/SegmentedHeader";
-import EditorTabs from "../EditorTabs/SplitScreenTabs";
+import EditorTabs from "../EditorTabs";
 import {
   jsSegmentRoutes,
   querySegmentRoutes,
@@ -17,19 +17,23 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "@appsmith/constants/routes/appRoutes";
+import { useSelector } from "react-redux";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 const EditorPaneSegments = () => {
   const { path } = useRouteMatch();
+  const ideViewMode = useSelector(getIDEViewMode);
 
   return (
     <Flex
+      className="relative"
       flexDirection="column"
-      gap="spacing-2"
       height="100%"
       overflow="hidden"
     >
       <SegmentedHeader />
-      <EditorTabs />
+      {ideViewMode === EditorViewMode.SplitScreen ? <EditorTabs /> : null}
       <Flex
         className="ide-editor-left-pane__content"
         flexDirection="column"
