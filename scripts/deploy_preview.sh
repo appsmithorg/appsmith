@@ -1,6 +1,8 @@
 #!/bin/bash
 # Params are in environment variables as PARAM_{SLUG}, e.g. PARAM_USER_ID
 
+edition=ce
+
 # Configure the AWS & kubectl environment
 
 mkdir ~/.aws; touch ~/.aws/config
@@ -25,17 +27,17 @@ echo "Cluster name: $cluster_name"
 echo "Pull Request Number: $PULL_REQUEST_NUMBER"
 echo "DP_EFS_ID: $DP_EFS_ID"
 
-sts_output=$(aws sts assume-role --role-arn $AWS_ROLE_ARN --role-session-name ekscisession)
+sts_output="$(aws sts assume-role --role-arn "$AWS_ROLE_ARN" --role-session-name ekscisession)"
 
-export AWS_ACCESS_KEY_ID=$(echo $sts_output | jq -r '.Credentials''.AccessKeyId');\
-export AWS_SECRET_ACCESS_KEY=$(echo $sts_output | jq -r '.Credentials''.SecretAccessKey');\
-export AWS_SESSION_TOKEN=$(echo $sts_output | jq -r '.Credentials''.SessionToken');
+export AWS_ACCESS_KEY_ID="$(echo "$sts_output" | jq -r .Credentials.AccessKeyId)"
+export AWS_SECRET_ACCESS_KEY="$(echo "$sts_output" | jq -r .Credentials.SecretAccessKey)"
+export AWS_SESSION_TOKEN="$(echo "$sts_output" | jq -r .Credentials.SessionToken)"
 
-export NAMESPACE=ce"$PULL_REQUEST_NUMBER"
-export CHARTNAME=ce"$PULL_REQUEST_NUMBER"
-export SECRET=ce"$PULL_REQUEST_NUMBER"
-export DBNAME=ce"$PULL_REQUEST_NUMBER"
-export DOMAINNAME=ce-"$PULL_REQUEST_NUMBER".dp.appsmith.com
+export NAMESPACE="$edition$PULL_REQUEST_NUMBER"
+export CHARTNAME="$edition$PULL_REQUEST_NUMBER"
+export SECRET="$edition$PULL_REQUEST_NUMBER"
+export DBNAME="$edition$PULL_REQUEST_NUMBER"
+export DOMAINNAME="$edition-$PULL_REQUEST_NUMBER".dp.appsmith.com
 export HELMCHART="appsmith"
 export HELMCHART_URL="http://helm-ee.appsmith.com"
 export HELMCHART_VERSION="3.1.1"
@@ -60,14 +62,14 @@ then
   kubectl delete pv $NAMESPACE-appsmith --grace-period=0 --force || true
 #  Below lines are a placeholder to use access points more effectively
 #  echo "deleting Accessing points"
-#  ACCESS_POINT_ID=$(aws efs describe-access-points --file-system-id "$DP_EFS_ID" | jq -r '.AccessPoints[] | select(.Name=="'"ce$PULL_REQUEST_NUMBER"'") | .AccessPointId')
+#  ACCESS_POINT_ID=$(aws efs describe-access-points --file-system-id "$DP_EFS_ID" | jq -r '.AccessPoints[] | select(.Name=="'"$edition$PULL_REQUEST_NUMBER"'") | .AccessPointId')
 #  echo "Deleting Accessing Point $ACCESS_POINT_ID"
 #  aws efs delete-access-point --access-point-id $ACCESS_POINT_ID
 fi
 
 #echo "Create Access Point and Access Point ID"
 ### Use DP-EFS and create ACCESS_POINT
-#ACCESS_POINT=$(aws efs create-access-point --file-system-id $DP_EFS_ID --tags Key=Name,Value=ce$PULL_REQUEST_NUMBER)
+#ACCESS_POINT=$(aws efs create-access-point --file-system-id $DP_EFS_ID --tags Key=Name,Value=$edition$PULL_REQUEST_NUMBER)
 #ACCESS_POINT_ID=$(echo $ACCESS_POINT | jq -r '.AccessPointId');
 
 echo "Use kubernetes secret to Pull Image"
@@ -95,7 +97,7 @@ helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespa
   --set "ingress.hosts[0].host=$DOMAINNAME, ingress.hosts[0].paths[0].path=/, ingress.hosts[0].paths[0].pathType=Prefix" \
   --set autoupdate.enabled=false --set persistence.efs.enabled=true --set ingress.className="nginx" \
   --set persistence.efs.driver=efs.csi.aws.com --set persistence.storageClass=efs-dp-appsmith \
-  --set persistence.efs.volumeHandle=$DP_EFS_ID:/ce/ce$PULL_REQUEST_NUMBER \
+  --set persistence.efs.volumeHandle=$DP_EFS_ID:/$edition/$edition$PULL_REQUEST_NUMBER \
   --set resources.requests.cpu="1m" \
   --set resources.requests.memory="2048Mi" \
   --set applicationConfig.APPSMITH_SENTRY_DSN="https://abf15a075d1347969df44c746cca7eaa@o296332.ingest.sentry.io/1546547" \
