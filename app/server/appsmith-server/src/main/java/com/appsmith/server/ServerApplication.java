@@ -26,11 +26,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
-<<<<<<< HEAD
-=======
 import reactor.blockhound.BlockHound;
-import reactor.tools.agent.ReactorDebugAgent;
->>>>>>> 2ac94a6c72 (wip)
 
 import java.time.Duration;
 
