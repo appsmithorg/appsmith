@@ -1,9 +1,7 @@
 import { render } from "test/testUtils";
 import React from "react";
-import SidebarButton, {
-  Condition,
-  type SidebarButtonProps,
-} from "./SidebarButton";
+import SidebarButton, { type SidebarButtonProps } from "./SidebarButton";
+import { Condition } from "../../Interfaces/Condition";
 
 const sidebarButtonProps: SidebarButtonProps = {
   icon: "down-arrow",

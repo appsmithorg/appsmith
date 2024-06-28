@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import history, { NavigationMethod } from "utils/history";
-import { useCurrentAppState } from "../hooks";
+import { useCurrentAppState } from "./hooks";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { fetchWorkspace } from "@appsmith/actions/workspaceActions";
 import { IDESidebar, Condition } from "IDE";

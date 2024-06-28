@@ -45,8 +45,6 @@ export { default as IDEBottomView } from "./Components/BottomView";
  * It switches between different editor states
  */
 export { default as IDESidebar } from "./Components/Sidebar";
-export type { ISidebarButton } from "./Components/Sidebar";
-export { Condition } from "./Components/Sidebar/SidebarButton";
 
 /* ====================================================
     **** Interfaces ****
@@ -54,3 +52,5 @@ export { Condition } from "./Components/Sidebar/SidebarButton";
 =======================================================**/
 
 export { ViewHideBehaviour, ViewDisplayMode } from "./Interfaces/View";
+export type { ISidebarButton } from "./Interfaces/ISidebarButton";
+export { Condition } from "./Interfaces/Condition";

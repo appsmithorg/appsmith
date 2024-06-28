@@ -1,8 +1,8 @@
 import React, { useCallback } from "react";
 import styled from "styled-components";
-import type { Condition } from "./SidebarButton";
 import SidebarButton from "./SidebarButton";
 import type { EditorState } from "@appsmith/entities/IDE/constants";
+import type { ISidebarButton } from "../../Interfaces/ISidebarButton";
 
 const Container = styled.div`
   width: 50px;
@@ -15,16 +15,7 @@ const Container = styled.div`
   position: relative;
 `;
 
-export interface ISidebarButton {
-  state: EditorState;
-  icon: string;
-  title?: string;
-  urlSuffix: string;
-  condition?: Condition;
-  tooltip?: string;
-}
-
-interface SidebarComponentProps {
+interface IDESidebarProps {
   id?: string;
   topButtons: ISidebarButton[];
   bottomButtons: ISidebarButton[];
@@ -32,7 +23,7 @@ interface SidebarComponentProps {
   onClick: (suffix: string) => void;
 }
 
-function SidebarComponent(props: SidebarComponentProps) {
+function IDESidebar(props: IDESidebarProps) {
   const { appState, bottomButtons, onClick, topButtons } = props;
 
   const handleOnClick = useCallback(
@@ -78,4 +69,4 @@ function SidebarComponent(props: SidebarComponentProps) {
   );
 }
 
-export default SidebarComponent;
+export default IDESidebar;

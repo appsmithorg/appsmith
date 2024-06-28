@@ -1,12 +1,7 @@
 import React from "react";
 import { Icon, Text, Tooltip } from "design-system";
 import styled from "styled-components";
-
-export enum Condition {
-  Warn = "Warn",
-  Error = "Error",
-  Success = "Success",
-}
+import { Condition } from "../../Interfaces/Condition";
 
 const ConditionConfig: Record<Condition, { icon: string; color: string }> = {
   [Condition.Warn]: {
@@ -14,8 +9,8 @@ const ConditionConfig: Record<Condition, { icon: string; color: string }> = {
     color: "#ffe283",
   },
   // TODO add this information for further conditions
-  Error: { color: "", icon: "" },
-  Success: { color: "", icon: "" },
+  // Error: { color: "", icon: "" },
+  // Success: { color: "", icon: "" },
 };
 
 export interface SidebarButtonProps {
