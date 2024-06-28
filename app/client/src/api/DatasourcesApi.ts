@@ -76,10 +76,10 @@ class DatasourcesApi extends API {
     }
 
     const clean: any = {
-      authenticationType: authentication.authenticationType,
+      authenticationType: authentication.authenticationType ?? "dbAuth",
     };
 
-    switch (authentication.authenticationType) {
+    switch (clean.authenticationType) {
       case "dbAuth":
         clean.authType = authentication.authType;
         clean.username = authentication.username;
