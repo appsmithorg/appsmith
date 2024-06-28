@@ -94,6 +94,7 @@ class WDSSwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   getWidgetView() {
     return (
       <Switch
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         id={this.props.widgetId}
         isDisabled={this.props.isDisabled}
         isInvalid={this.props.isValid === "invalid"}

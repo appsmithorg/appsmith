@@ -4,9 +4,6 @@ set -e
 
 tlog "Running as: $(id)"
 
-# Temporary, remove after this change goes into `base.dockerfile`.
-export PATH="/usr/lib/postgresql/13/bin:${PATH}"
-
 stacks_path=/appsmith-stacks
 
 export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
@@ -428,9 +425,11 @@ init_postgres() {
     # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
     chown -R postgres:postgres "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
 
-    if [[ ! -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
+    if [[ -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
+      /opt/appsmith/pg-upgrade.sh
+    else
       tlog "Initializing local Postgres data folder"
-      su postgres -c "initdb -D $POSTGRES_DB_PATH"
+      su postgres -c "env PATH='$PATH' initdb -D $POSTGRES_DB_PATH"
     fi
   else
     runEmbeddedPostgres=0

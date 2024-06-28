@@ -39,9 +39,10 @@ function parseTags(body) {
 
   for (const [rawTag] of config.matchAll(/\w+/g)) {
     console.log("Given: '" + rawTag + "'");
+    const rawTagLowerAndPrefixed = "@tag." + rawTag.toLowerCase();
 
     // See if there is exact case-insensitive match.
-    const exactTagMatch = allTags.find(t => t.toLowerCase() === "@tag." + rawTag);
+    const exactTagMatch = allTags.find(t => t.toLowerCase() === rawTagLowerAndPrefixed);
     if (exactTagMatch) {
       console.log("\tMatch found:", exactTagMatch);
       concreteTags.push(exactTagMatch);
@@ -49,7 +50,7 @@ function parseTags(body) {
     }
 
     // See if there is a singular/plural match (very rudimentary language skills).
-    const countedMatch = allTags.find(t => t.toLowerCase().replace(/s$/, "") === "@tag." + rawTag.replace(/s$/, ""));
+    const countedMatch = allTags.find(t => t.toLowerCase().replace(/s$/, "") === rawTagLowerAndPrefixed.replace(/s$/, ""));
     if (countedMatch) {
       console.log("\tMatch found:", countedMatch);
       concreteTags.push(countedMatch);
@@ -59,7 +60,7 @@ function parseTags(body) {
     // More smart matchers?
 
     // No match, fail.
-    throw new Error("No match found for tag:", rawTag);
+    throw new Error("No match found for tag: " + rawTag);
 
     // We still process the rest, so we report all invalid tags in the input in a single run.
   }

@@ -23,6 +23,7 @@ const _ToolbarButtonsInner = <T extends ToolbarButtonsItem>(
     alignment = "start",
     color = "accent",
     density = "regular",
+    excludeFromTabOrder = false,
     isDisabled,
     onAction,
     size = "medium",
@@ -59,6 +60,7 @@ const _ToolbarButtonsInner = <T extends ToolbarButtonsItem>(
           return (
             <ToolbarButton
               color={color}
+              excludeFromTabOrder={excludeFromTabOrder}
               icon={item.props.icon}
               iconPosition={item.props.iconPosition}
               isDisabled={
@@ -81,6 +83,7 @@ const _ToolbarButtonsInner = <T extends ToolbarButtonsItem>(
             <Button
               color={color}
               data-action-group-menu
+              excludeFromTabOrder={excludeFromTabOrder}
               icon="dots"
               isDisabled={isDisabled}
               variant={variant}

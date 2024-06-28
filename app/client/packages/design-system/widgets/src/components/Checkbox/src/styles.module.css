@@ -2,7 +2,9 @@
   display: flex;
   align-items: center;
   min-width: fit-content;
+  width: fit-content;
   cursor: pointer;
+  gap: var(--inner-spacing-2);
 
   [data-icon] {
     --checkbox-border-width: var(--border-width-2);
@@ -43,21 +45,9 @@
   * LABEL POSITION
   *-----------------------------------------------------------------------------
   */
-  &[data-label-position="end"] {
-    margin-inline-end: auto;
-  }
-
-  &[data-label-position="end"] [data-icon] {
-    margin-inline-end: var(--inner-spacing-2);
-  }
-
   &[data-label-position="start"] {
     flex-direction: row-reverse;
     justify-content: start;
-  }
-
-  &[data-label-position="start"] [data-icon] {
-    margin-inline-start: var(--inner-spacing-2);
   }
 
   /**

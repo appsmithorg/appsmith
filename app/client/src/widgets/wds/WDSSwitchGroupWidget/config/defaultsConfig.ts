@@ -10,7 +10,6 @@ export const defaultsConfig = {
   ],
   defaultSelectedValues: ["BLUE", "RED"],
   isDisabled: false,
-  isRequired: false,
   isVisible: true,
   labelPosition: "end",
   label: "Label",
