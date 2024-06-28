@@ -36,8 +36,8 @@ type StaticTableProps = TableColumnHeaderProps & {
   isAddRowInProgress: boolean;
   headerProps?: TableColumnHeaderProps | Record<string, never>;
   totalColumnsWidth?: number;
-  useVirtual: boolean;
   tableBodyRef?: React.MutableRefObject<HTMLDivElement | null>;
+  excludeFromTabOrder?: boolean;
 };
 
 const StaticTable = (props: StaticTableProps) => {
@@ -51,6 +51,7 @@ const StaticTable = (props: StaticTableProps) => {
         disableDrag={props.disableDrag}
         editMode={props.editMode}
         enableDrag={props.enableDrag}
+        excludeFromTabOrder={props.excludeFromTabOrder}
         handleAllRowSelectClick={props.handleAllRowSelectClick}
         handleColumnFreeze={props.handleColumnFreeze}
         handleReorderColumn={props.handleReorderColumn}
@@ -74,6 +75,7 @@ const StaticTable = (props: StaticTableProps) => {
         accentColor={props.accentColor}
         borderRadius={props.borderRadius}
         columns={props.columns}
+        excludeFromTabOrder={props.excludeFromTabOrder}
         getTableBodyProps={props.getTableBodyProps}
         height={props.pageSize * props.tableSizes.ROW_HEIGHT}
         isAddRowInProgress={props.isAddRowInProgress}
@@ -85,7 +87,6 @@ const StaticTable = (props: StaticTableProps) => {
         selectTableRow={props.selectTableRow}
         selectedRowIndex={props.selectedRowIndex}
         selectedRowIndices={props.selectedRowIndices}
-        useVirtual={props.useVirtual}
         width={props.width}
       />
     </>

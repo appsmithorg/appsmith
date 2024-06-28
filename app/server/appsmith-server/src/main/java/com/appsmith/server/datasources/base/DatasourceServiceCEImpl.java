@@ -57,7 +57,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -141,16 +140,16 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Mono<Datasource> create(Datasource datasource) {
-        return createEx(datasource, Optional.of(workspacePermission.getDatasourceCreatePermission()));
+        return createEx(datasource, workspacePermission.getDatasourceCreatePermission());
     }
 
     // TODO: Check usage
     @Override
     public Mono<Datasource> createWithoutPermissions(Datasource datasource) {
-        return createEx(datasource, Optional.empty());
+        return createEx(datasource, null);
     }
 
-    private Mono<Datasource> createEx(@NotNull Datasource datasource, Optional<AclPermission> permission) {
+    private Mono<Datasource> createEx(@NotNull Datasource datasource, AclPermission permission) {
         // Validate incoming request
         String workspaceId = datasource.getWorkspaceId();
         if (!hasText(workspaceId)) {
@@ -263,7 +262,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     private Mono<Datasource> generateAndSetDatasourcePolicies(
-            Mono<User> userMono, Datasource datasource, Optional<AclPermission> permission) {
+            Mono<User> userMono, Datasource datasource, AclPermission permission) {
         return userMono.flatMap(user -> {
             Mono<Workspace> workspaceMono = workspaceService
                     .findById(datasource.getWorkspaceId(), permission)
@@ -799,15 +798,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     markRecentlyUsed(datasourceList, 3);
                     return Flux.fromIterable(datasourceList);
                 }));
-    }
-
-    @Override
-    public Flux<Datasource> saveAll(List<Datasource> datasourceList) {
-        datasourceList.stream()
-                .filter(datasource -> datasource.getGitSyncId() == null)
-                .forEach(datasource -> datasource.setGitSyncId(
-                        datasource.getWorkspaceId() + "_" + Instant.now().toString()));
-        return repository.saveAll(datasourceList);
     }
 
     @Override

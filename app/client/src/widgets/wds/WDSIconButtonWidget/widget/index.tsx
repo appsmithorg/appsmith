@@ -97,6 +97,7 @@ class WDSIconButtonWidget extends BaseWidget<
     return (
       <IconButtonComponent
         color={this.props.buttonColor}
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         iconName={this.props.iconName}
         isDisabled={this.props.isDisabled}
         isLoading={this.state.isLoading}
