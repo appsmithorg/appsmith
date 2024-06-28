@@ -3033,9 +3033,5 @@
         }
       }
     ]
-  },
-  "layoutOnLoadActions": [],
-  "layoutOnLoadActionErrors": [],
-  "id": "667a99469da472349cd2d492",
-  "userPermissions": []
+  }
 }
