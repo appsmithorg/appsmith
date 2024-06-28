@@ -35,11 +35,14 @@ interface SidebarComponentProps {
 function SidebarComponent(props: SidebarComponentProps) {
   const { appState, bottomButtons, onClick, topButtons } = props;
 
-  const handleOnClick = useCallback((button: ISidebarButton) => {
-    if (appState !== button.state) {
-      onClick(button.urlSuffix);
-    }
-  }, []);
+  const handleOnClick = useCallback(
+    (button: ISidebarButton) => {
+      if (appState !== button.state) {
+        onClick(button.urlSuffix);
+      }
+    },
+    [appState],
+  );
 
   return (
     <Container className="t--sidebar" id={props.id}>
