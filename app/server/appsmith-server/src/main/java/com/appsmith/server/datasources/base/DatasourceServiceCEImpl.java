@@ -797,16 +797,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Flux<Datasource> saveAll(List<Datasource> datasourceList) {
-        datasourceList.stream()
-                .filter(datasource -> datasource.getGitSyncId() == null)
-                .forEach(datasource -> datasource.setGitSyncId(
-                        datasource.getWorkspaceId() + "_" + Instant.now().toString()));
-        return Flux.empty();
-        // return repository.saveAll(datasourceList);
-    }
-
-    @Override
     public Mono<Datasource> archiveById(String id) {
         return repository
                 .findById(id, datasourcePermission.getDeletePermission())

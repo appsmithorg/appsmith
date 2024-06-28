@@ -1,5 +1,6 @@
 package com.external.plugins;
 
+import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -10,6 +11,7 @@ import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.KeyPairAuth;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.exceptions.SnowflakeErrorMessages;
@@ -172,13 +174,22 @@ public class SnowflakePlugin extends BasePlugin {
                         config.setConnectionTimeout(Long.parseLong(
                                 properties.get("connectionTimeoutMillis").toString()));
 
-                        // Set authentication properties
-                        DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                        if (authentication.getUsername() != null) {
-                            config.setUsername(authentication.getUsername());
-                        }
-                        if (authentication.getPassword() != null) {
-                            config.setPassword(authentication.getPassword());
+                        if (Authentication.SNOWFLAKE_KEY_PAIR_AUTH.equals(
+                                datasourceConfiguration.getAuthentication().getAuthenticationType())) {
+                            KeyPairAuth authentication = (KeyPairAuth) datasourceConfiguration.getAuthentication();
+                            // Set authentication properties
+                            if (authentication.getUsername() != null) {
+                                config.setUsername(authentication.getUsername());
+                            }
+                        } else {
+                            // Set authentication properties
+                            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                            if (authentication.getUsername() != null) {
+                                config.setUsername(authentication.getUsername());
+                            }
+                            if (authentication.getPassword() != null) {
+                                config.setPassword(authentication.getPassword());
+                            }
                         }
 
                         // Set up the connection URL
@@ -223,9 +234,17 @@ public class SnowflakePlugin extends BasePlugin {
         @Override
         public Properties addAuthParamsToConnectionConfig(
                 DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-            properties.setProperty("user", authentication.getUsername());
-            properties.setProperty("password", authentication.getPassword());
+
+            if (Authentication.SNOWFLAKE_KEY_PAIR_AUTH.equals(
+                    datasourceConfiguration.getAuthentication().getAuthenticationType())) {
+                KeyPairAuth authentication = (KeyPairAuth) datasourceConfiguration.getAuthentication();
+                properties.setProperty("user", authentication.getUsername());
+            } else {
+                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                properties.setProperty("user", authentication.getUsername());
+                properties.setProperty("password", authentication.getPassword());
+            }
+
             properties.setProperty(
                     "warehouse",
                     String.valueOf(
@@ -298,16 +317,27 @@ public class SnowflakePlugin extends BasePlugin {
             if (datasourceConfiguration.getAuthentication() == null) {
                 invalids.add(SnowflakeErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG);
             } else {
-                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                if (StringUtils.isEmpty(authentication.getUsername())) {
-                    invalids.add(SnowflakeErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
-                }
+                if (Authentication.SNOWFLAKE_KEY_PAIR_AUTH.equals(
+                        datasourceConfiguration.getAuthentication().getAuthenticationType())) {
+                    KeyPairAuth authentication = (KeyPairAuth) datasourceConfiguration.getAuthentication();
+                    if (StringUtils.isEmpty(authentication.getUsername())) {
+                        invalids.add(SnowflakeErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
+                    }
 
-                if (StringUtils.isEmpty(authentication.getPassword())) {
-                    invalids.add(SnowflakeErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
+                    if (authentication.getPrivateKey() == null) {
+                        invalids.add(SnowflakeErrorMessages.DS_MISSING_PRIVATE_KEY_ERROR_MSG);
+                    }
+                } else {
+                    DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                    if (StringUtils.isEmpty(authentication.getUsername())) {
+                        invalids.add(SnowflakeErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
+                    }
+
+                    if (StringUtils.isEmpty(authentication.getPassword())) {
+                        invalids.add(SnowflakeErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
+                    }
                 }
             }
-
             return invalids;
         }
 
