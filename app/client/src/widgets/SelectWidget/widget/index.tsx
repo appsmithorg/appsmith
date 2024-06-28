@@ -111,6 +111,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       labelTextSize: "0.875rem",
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
+      dynamicPropertyPathList: [{ key: "sourceData" }],
     };
   }
 
