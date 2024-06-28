@@ -18,7 +18,7 @@ export function validateInput(props: any) {
   }
 
   return {
-    validattionStatus: isInvalid ? "invalid" : undefined,
+    validationStatus: isInvalid ? "invalid" : undefined,
     errorMessage: isInvalid ? conditionalProps.errorMessage : undefined,
   } as const;
 }
