@@ -190,7 +190,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     protected Set<String> getCurrentUserPermissionGroupsIfRequired(
             Optional<AclPermission> permission, User user, boolean includeAnonymousUserPermissions) {
-        if (permission.isEmpty()) {
+        // Expect a valid AclPermission and a user to fetch valid permission groups
+        if (permission.isEmpty() || user.getEmail() == null || user.getEmail().isEmpty() || user.getId() == null) {
             return Set.of();
         }
         return getPermissionGroupsForUser(user, includeAnonymousUserPermissions);

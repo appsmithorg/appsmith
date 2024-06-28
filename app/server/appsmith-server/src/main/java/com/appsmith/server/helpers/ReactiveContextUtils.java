@@ -10,6 +10,7 @@ public class ReactiveContextUtils {
         return ReactiveSecurityContextHolder.getContext()
                 .map(SecurityContext::getAuthentication)
                 .map(auth -> (User) auth.getPrincipal())
-                .switchIfEmpty(Mono.just(new User()));
+                .switchIfEmpty(Mono.just(new User()))
+                .onErrorResume(e -> Mono.just(new User()));
     }
 }
