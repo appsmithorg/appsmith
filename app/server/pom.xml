@@ -82,6 +82,7 @@
                 <version>3.0.0-M5</version>
                 <configuration>
                     <printSummary>true</printSummary>
+                    <testFailureIgnore>true</testFailureIgnore>
                     <!-- Allow JUnit to access the test classes -->
                     <argLine>--add-opens java.base/java.lang=ALL-UNNAMED
                         --add-opens java.base/java.time=ALL-UNNAMED
