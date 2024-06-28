@@ -1,10 +1,5 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Git/GitSync/Merge_spec.js
-cypress/e2e/Regression/ClientSide/Git/GitWithJSLibrary/GitwithCustomJSLibrary_spec.js
-cypress/e2e/Regression/ClientSide/Git/GitSync/DeleteBranch_spec.js
-cypress/e2e/Regression/ClientSide/Git/GitSync/MergeViaRemote_spec.ts
 cypress/e2e/Regression/ClientSide/Git/GitImport/GitImport_spec.js
-cypress/e2e/Regression/ClientSide/Git/GitSync/GitBugs_spec.js
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
