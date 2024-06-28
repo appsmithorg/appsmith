@@ -75,58 +75,58 @@ class DatasourcesApi extends API {
       return undefined;
     }
 
-    const auth: any = {
+    const clean: any = {
       authenticationType: authentication.authenticationType,
     };
 
     switch (authentication.authenticationType) {
       case "dbAuth":
-        auth.authType = authentication.authType;
-        auth.username = authentication.username;
-        auth.password = authentication.password;
-        auth.databaseName = authentication.databaseName;
+        clean.authType = authentication.authType;
+        clean.username = authentication.username;
+        clean.password = authentication.password;
+        clean.databaseName = authentication.databaseName;
         break;
       case "oAuth2":
-        auth.grantType = authentication.grantType;
-        auth.isTokenHeader = authentication.isTokenHeader;
-        auth.isAuthorizationHeader = authentication.isAuthorizationHeader;
-        auth.clientId = authentication.clientId;
-        auth.clientSecret = authentication.clientSecret;
-        auth.authorizationUrl = authentication.authorizationUrl;
-        auth.expiresIn = authentication.expiresIn;
-        auth.accessTokenUrl = authentication.accessTokenUrl;
-        auth.scopeString = authentication.scopeString;
-        auth.scope = authentication.scope;
-        auth.sendScopeWithRefreshToken =
+        clean.grantType = authentication.grantType;
+        clean.isTokenHeader = authentication.isTokenHeader;
+        clean.isAuthorizationHeader = authentication.isAuthorizationHeader;
+        clean.clientId = authentication.clientId;
+        clean.clientSecret = authentication.clientSecret;
+        clean.authorizationUrl = authentication.authorizationUrl;
+        clean.expiresIn = authentication.expiresIn;
+        clean.accessTokenUrl = authentication.accessTokenUrl;
+        clean.scopeString = authentication.scopeString;
+        clean.scope = authentication.scope;
+        clean.sendScopeWithRefreshToken =
           authentication.sendScopeWithRefreshToken;
-        auth.refreshTokenClientCredentialsLocation =
+        clean.refreshTokenClientCredentialsLocation =
           authentication.refreshTokenClientCredentialsLocation;
-        auth.headerPrefix = authentication.headerPrefix;
-        auth.customTokenParameters = authentication.customTokenParameters;
-        auth.audience = authentication.audience;
-        auth.resource = authentication.resource;
-        auth.useSelfSignedCert = authentication.useSelfSignedCert;
+        clean.headerPrefix = authentication.headerPrefix;
+        clean.customTokenParameters = authentication.customTokenParameters;
+        clean.audience = authentication.audience;
+        clean.resource = authentication.resource;
+        clean.useSelfSignedCert = authentication.useSelfSignedCert;
         break;
       case "basic":
-        auth.username = authentication.username;
-        auth.password = authentication.password;
+        clean.username = authentication.username;
+        clean.password = authentication.password;
         break;
       case "apiKey":
-        auth.addTo = authentication.addTo;
-        auth.label = authentication.label;
-        auth.headerPrefix = authentication.headerPrefix;
-        auth.value = authentication.value;
+        clean.addTo = authentication.addTo;
+        clean.label = authentication.label;
+        clean.headerPrefix = authentication.headerPrefix;
+        clean.value = authentication.value;
         break;
       case "bearerToken":
-        auth.bearerToken = authentication.bearerToken;
+        clean.bearerToken = authentication.bearerToken;
         break;
       case "snowflakeKeyPairAuth":
-        auth.username = authentication.username;
-        auth.privateKey = authentication.privateKey;
-        auth.passphrase = authentication.passphrase;
+        clean.username = authentication.username;
+        clean.privateKey = authentication.privateKey;
+        clean.passphrase = authentication.passphrase;
     }
 
-    return auth;
+    return clean;
   }
 
   // Api to test current environment datasource
