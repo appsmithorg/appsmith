@@ -5,6 +5,12 @@ module.exports = function ({core, context}) {
   } catch (error) {
     core.setFailure(error.message);
     core.setOutput("outcome", "failure");
+    const body = [
+      "Invalid tags. Please use `/ok-to-test tags=\"@tag.All\"` or `/test all` in the PR body to run all tests.",
+      "[Tags documentation](https://www.notion.so/appsmith/7c0fc64d4efb4afebf53348cd6252918)",
+      "[List of valid tags](https://github.com/appsmithorg/appsmith/blob/release/app/client/cypress/tags.js)",
+    ].join("\n");
+    require("write-cypress-status.js")({core, context, github}, "warning", body);
   }
 
   core.setOutput("tags", tags);
