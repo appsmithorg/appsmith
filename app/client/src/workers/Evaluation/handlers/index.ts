@@ -22,6 +22,7 @@ import setupEvaluationEnvironment, {
 import validateProperty from "./validateProperty";
 import updateActionData from "./updateActionData";
 import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
+import { evalTreeWithChanges } from "../evalTreeWithChanges";
 
 const syncHandlerMap: Record<
   EVAL_WORKER_SYNC_ACTION,
@@ -29,6 +30,7 @@ const syncHandlerMap: Record<
 > = {
   [EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS]: evalActionBindings,
   [EVAL_WORKER_ACTIONS.EVAL_TREE]: evalTree,
+  [EVAL_WORKER_ACTIONS.EVAL_TREE_WITH_CHANGES]: evalTreeWithChanges,
   [EVAL_WORKER_ACTIONS.UNDO]: undo,
   [EVAL_WORKER_ACTIONS.REDO]: redo,
   [EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT]: updateReplayObject,

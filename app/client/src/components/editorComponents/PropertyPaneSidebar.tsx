@@ -126,6 +126,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
       {/* PROPERTY PANE */}
       <div
         className="js-property-pane-sidebar t--property-pane-sidebar flex h-full border-l bg-white"
+        data-testid={PROPERTY_PANE_ID}
         id={PROPERTY_PANE_ID}
         ref={sidebarRef}
       >

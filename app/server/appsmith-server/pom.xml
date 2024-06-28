@@ -438,14 +438,6 @@
             <version>2.14.2.Final</version>
             <scope>test</scope>
         </dependency>
-
-        <!-- This dependency helps us print better & debuggable stack traces -->
-        <dependency>
-            <groupId>io.projectreactor</groupId>
-            <artifactId>reactor-tools</artifactId>
-            <version>${reactor-test.version}</version>
-        </dependency>
-
     </dependencies>
 
     <repositories>
