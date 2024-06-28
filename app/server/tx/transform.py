@@ -442,16 +442,15 @@ def main():
     convert("UsagePulse")
     convert("GitDeployKeys")
 
-    # print("Format cakes")
-    # subprocess.check_call(
-    #     [
-    #         "mvn",
-    #         "-Dorg.slf4j.simpleLogger.defaultLogLevel=warn",
-    #         "spotless:apply",
-    #         # r"-DspotlessFiles=appsmith-server/src/main/java/com/appsmith/server/repositories/cakes/.*\.java",
-    #     ],
-    #     cwd=server_root,
-    # )
+    print("\nApplying spotless...")
+    subprocess.check_call(
+        [
+            "mvn",
+            "-Dorg.slf4j.simpleLogger.defaultLogLevel=warn",
+            "spotless:apply",
+        ],
+        cwd=server_root,
+    )
 
 
 if __name__ == "__main__":

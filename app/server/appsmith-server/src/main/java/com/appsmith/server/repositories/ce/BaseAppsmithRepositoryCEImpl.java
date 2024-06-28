@@ -44,6 +44,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Field;
@@ -62,7 +63,6 @@ import java.util.Set;
 
 import static com.appsmith.external.helpers.ReflectionHelpers.getAllFields;
 import static com.appsmith.server.helpers.ce.ReflectionHelpers.map;
-import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
  * In case you are wondering why we have two different repository implementation classes i.e.
@@ -172,7 +172,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             User currentUser) {
         final BridgeQuery<BaseDomain> q = Bridge.equal(defaultIdPath, defaultId);
 
-        if (!isBlank(branchName)) {
+        if (StringUtils.hasLength(branchName)) {
             q.equal(branchNamePath, branchName);
         }
 
@@ -191,7 +191,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     protected Set<String> getCurrentUserPermissionGroupsIfRequired(
             Optional<AclPermission> permission, User user, boolean includeAnonymousUserPermissions) {
         // Expect a valid AclPermission and a user to fetch valid permission groups
-        if (permission.isEmpty() || user.getEmail() == null || user.getEmail().isEmpty() || user.getId() == null) {
+        if (permission.isEmpty()) {
             return Set.of();
         }
         return getPermissionGroupsForUser(user, includeAnonymousUserPermissions);
@@ -202,6 +202,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     protected Set<String> getPermissionGroupsForUser(User user, boolean includeAnonymousUserPermissions) {
+        if (!isValidUser(user)) {
+            return Set.of();
+        }
         final Set<String> permissionGroups = includeAnonymousUserPermissions
                 ? getAllPermissionGroupsForUser(user)
                 : getStrictPermissionGroupsForUser(user);
@@ -629,7 +632,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     public T setUserPermissionsInObject(T obj, User user) {
-        return setUserPermissionsInObject(obj, getPermissionGroupsForUser(user));
+        Set<String> permissionGroups = new HashSet<>();
+        if (isValidUser(user)) {
+            permissionGroups = getPermissionGroupsForUser(user);
+        }
+        return setUserPermissionsInObject(obj, permissionGroups);
     }
 
     public T setUserPermissionsInObject(T obj, Collection<String> permissionGroups) {
@@ -662,7 +669,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      * 3. Return the set of all the permission groups.
      */
     protected Set<String> getAllPermissionGroupsForUser(User user) {
-        if (user == null) {
+        if (!isValidUser(user)) {
             return Collections.emptySet();
         } else if (user.getTenantId() == null) {
             user.setTenantId(cacheableRepositoryHelper.getDefaultTenantId().block());
@@ -682,7 +689,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      */
     protected Set<String> getStrictPermissionGroupsForUser(User user) {
 
-        if (user == null) {
+        if (!isValidUser(user)) {
             return Collections.emptySet();
         } else if (user.getTenantId() == null) {
             String tenantId = cacheableRepositoryHelper.getDefaultTenantId().block();
@@ -786,5 +793,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         baseRepository.saveAll(entitiesToSave);
         return Optional.empty();
+    }
+
+    private static boolean isValidUser(User user) {
+        return user != null && StringUtils.hasLength(user.getEmail()) && StringUtils.hasLength(user.getId());
     }
 }
