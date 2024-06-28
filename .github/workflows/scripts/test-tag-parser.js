@@ -15,6 +15,9 @@ module.exports = function ({core, context}) {
 
   core.setOutput("tags", tags);
   core.setOutput("outcome", "success");
+
+  // Shouldn't be needed anymore, but remove in separate PR.
+  return tags;
 }
 
 function parseTags(body) {
