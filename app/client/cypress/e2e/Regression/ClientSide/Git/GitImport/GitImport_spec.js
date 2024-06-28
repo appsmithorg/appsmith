@@ -54,8 +54,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
       cy.wait(1000);
       dataSources.FillMongoDSForm();
       cy.testDatasource(true);
-      agHelper.GetNClick(dataSources._saveDs);
-      cy.wait(2000);
+      dataSources.SaveDatasource();
       cy.wait("@getWorkspace");
       cy.get(reconnectDatasourceModal.ImportSuccessModal).should("be.visible");
       cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
