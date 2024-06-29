@@ -367,7 +367,7 @@ create table plugin
     min_appsmith_version_supported text,
     name text,
     package_name text NOT NULL,
-    plugin_name text NOT NULL,
+    plugin_name text,
     response_type text,
     type text,
     ui_component text,

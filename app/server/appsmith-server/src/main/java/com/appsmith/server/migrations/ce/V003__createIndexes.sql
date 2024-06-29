@@ -7,15 +7,20 @@ create unique index if not exists user_email_key on "user"(email);
 create unique index if not exists sequence_name_key on sequence(name);
 
 -- plugin table constraints
-create unique index if not exists plugin_plugin_name_key
-    on plugin(plugin_name)
-    WHERE version IS NULL AND deleted_at IS NULL;
 create unique index if not exists plugin_package_name_key
     on plugin(package_name)
-    WHERE version IS NULL AND deleted_at IS NULL;
+    WHERE plugin_name IS NULL AND version IS NULL AND deleted_at IS NULL;
 create unique index if not exists plugin_package_name_version_key
-    on plugin(package_name, version)
-    WHERE version IS NULL AND deleted_at IS NULL;
+    on plugin(package_name, plugin_name, version)
+    WHERE plugin_name IS NOT NULL AND version IS NOT NULL AND deleted_at IS NULL;
+
+-- Ideally we should have this constraint, but we have data that unfortunately violates this.
+-- ALTER TABLE plugin
+--     ADD CONSTRAINT plugin_package_name_version_chk CHECK(
+--         (package_name is NULL AND version IS NULL)
+--         OR (package_name is NOT NULL AND version IS NOT NULL)
+--     );
+
 
 -- user_data table constraints
 create unique index if not exists user_id_key on user_data(user_id);
