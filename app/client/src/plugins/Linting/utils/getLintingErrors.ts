@@ -7,6 +7,7 @@ import type {
   MemberExpressionData,
   AssignmentExpressionData,
   CallExpressionData,
+  MemberCallExpressionData,
 } from "@shared/ast";
 import {
   extractExpressionsFromCode,
@@ -34,6 +35,7 @@ import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import setters from "workers/Evaluation/setters";
 import { isMemberExpressionNode } from "@shared/ast/src";
 import { generate } from "astring";
+import getInvalidModuleInputsError from "@appsmith/plugins/Linting/utils/getInvalidModuleInputsError";
 
 const EvaluationScriptPositions: Record<string, Position> = {};
 
@@ -271,20 +273,22 @@ function getInvalidWidgetPropertySetterErrors({
 }
 
 function getInvalidAppsmithStoreSetterErrors({
-  assignmentExpressions,
+  appsmithStoreMutationExpressions,
   originalBinding,
   script,
   scriptPos,
 }: {
   data: Record<string, unknown>;
-  assignmentExpressions: AssignmentExpressionData[];
+  appsmithStoreMutationExpressions: Array<
+    AssignmentExpressionData | MemberCallExpressionData
+  >;
   scriptPos: Position;
   originalBinding: string;
   script: string;
 }) {
   const assignmentExpressionErrors: LintError[] = [];
 
-  for (const { object, parentNode } of assignmentExpressions) {
+  for (const { object, parentNode } of appsmithStoreMutationExpressions) {
     if (!isMemberExpressionNode(object)) continue;
     const assignmentExpressionString = generate(parentNode);
     if (!assignmentExpressionString.startsWith("appsmith.store")) continue;
@@ -386,6 +390,7 @@ function getCustomErrorsFromScript(
   let invalidTopLevelMemberExpressions: MemberExpressionData[] = [];
   let assignmentExpressions: AssignmentExpressionData[] = [];
   let callExpressions: CallExpressionData[] = [];
+  let memberCallExpressions: MemberCallExpressionData[] = [];
   try {
     const value = extractExpressionsFromCode(
       script,
@@ -396,6 +401,7 @@ function getCustomErrorsFromScript(
       value.invalidTopLevelMemberExpressionsArray;
     assignmentExpressions = value.assignmentExpressionsData;
     callExpressions = value.callExpressionsData;
+    memberCallExpressions = value.memberCallExpressionData;
   } catch (e) {}
 
   const invalidWidgetPropertySetterErrors =
@@ -416,14 +422,29 @@ function getCustomErrorsFromScript(
     isJSObject,
   );
 
+  // This ensures that all cases where appsmith.store is getting modified
+  // either by assignment using `appsmith.store.test = ""`
+  // or by calling a function like `appsmith.store.test.push()` will result in lint error
+  const appsmithStoreMutationExpressions: Array<
+    AssignmentExpressionData | MemberCallExpressionData
+  > = [...assignmentExpressions, ...memberCallExpressions];
+
   const invalidAppsmithStorePropertyErrors =
     getInvalidAppsmithStoreSetterErrors({
-      assignmentExpressions,
+      appsmithStoreMutationExpressions,
       script,
       scriptPos,
       originalBinding,
       data,
     });
+
+  const moduleInputErrors = getInvalidModuleInputsError({
+    memberCallExpressions,
+    originalBinding,
+    scriptPos,
+    data,
+    script,
+  });
 
   const invalidActionModalErrors = getActionModalStringValueErrors({
     callExpressions,
@@ -437,6 +458,7 @@ function getCustomErrorsFromScript(
     ...invalidWidgetPropertySetterErrors,
     ...invalidAppsmithStorePropertyErrors,
     ...invalidActionModalErrors,
+    ...moduleInputErrors,
   ];
 }
 

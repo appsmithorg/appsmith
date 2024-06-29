@@ -3,21 +3,13 @@ import clsx from "clsx";
 import { getTypographyClassName } from "@design-system/theming";
 import {
   Button,
-  Label,
   ListBox,
-  Popover,
-  Select as SpectrumSelect,
+  Select as HeadlessSelect,
   SelectValue,
-  ListBoxItem as SpectrumListBoxItem,
   FieldError,
 } from "react-aria-components";
-import {
-  Text,
-  Icon,
-  Spinner,
-  ContextualHelp,
-  Flex,
-} from "@design-system/widgets";
+import { Text, Icon, Spinner, Popover, Label } from "@design-system/widgets";
+import { ListBoxItem } from "./ListBoxItem";
 import styles from "./styles.module.css";
 import type { SelectProps } from "./types";
 
@@ -34,40 +26,27 @@ export const Select = <T extends object>(props: SelectProps<T>) => {
     ...rest
   } = props;
   const triggerRef = useRef<HTMLButtonElement>(null);
+
   // place Popover in the root theme provider to get access to the CSS tokens
   const root = document.body.querySelector(
     "[data-theme-provider]",
   ) as HTMLButtonElement;
 
   return (
-    <SpectrumSelect
-      {...rest}
+    <HeadlessSelect
+      aria-label={Boolean(label) ? undefined : "Select"}
       className={styles.formField}
       data-size={size}
       isRequired={isRequired}
+      {...rest}
     >
       {({ isInvalid }) => (
         <>
-          <Flex alignItems="center" gap="spacing-1">
-            {Boolean(label) && (
-              <Label>
-                <Text fontWeight={600} variant="caption">
-                  {label}
-                  {Boolean(isRequired) && (
-                    <span
-                      aria-label="(required)"
-                      className={styles.necessityIndicator}
-                    >
-                      *
-                    </span>
-                  )}
-                </Text>
-              </Label>
-            )}
-            {Boolean(contextualHelp) && (
-              <ContextualHelp contextualHelp={contextualHelp} />
-            )}
-          </Flex>
+          <Label
+            contextualHelp={contextualHelp}
+            isRequired={isRequired}
+            text={label}
+          />
           <Button className={styles.textField} ref={triggerRef}>
             <SelectValue
               className={clsx(
@@ -87,22 +66,22 @@ export const Select = <T extends object>(props: SelectProps<T>) => {
             {errorMessage}
           </FieldError>
           {Boolean(description) && !Boolean(isInvalid) && (
-            <Text className={styles.description} variant="footnote">
+            <Text className={styles.description} lineClamp={2} size="footnote">
               {description}
             </Text>
           )}
           <Popover UNSTABLE_portalContainer={root}>
-            <ListBox className={styles.popover} items={items}>
+            <ListBox className={styles.listBox} items={items} shouldFocusWrap>
               {(item) => (
-                <SpectrumListBoxItem className={styles.item} key={item.key}>
+                <ListBoxItem key={item.id} textValue={item.label}>
                   {item.icon && <Icon name={item.icon} />}
-                  {item.name}
-                </SpectrumListBoxItem>
+                  {item.label}
+                </ListBoxItem>
               )}
             </ListBox>
           </Popover>
         </>
       )}
-    </SpectrumSelect>
+    </HeadlessSelect>
   );
 };

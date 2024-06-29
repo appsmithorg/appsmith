@@ -70,7 +70,12 @@ export const AnvilDragPreviewComponent = ({
   const initiatePositionStylesOfDragPreview = useRef(true);
   const repositionDragPreview = useCallback(
     (e: MouseEvent) => {
-      if (isDragging && dragPreviewRef.current) {
+      const isOutOfWindow =
+        e.clientX < 0 ||
+        e.clientY < 0 ||
+        e.clientY > window.innerHeight ||
+        e.clientX > window.innerWidth;
+      if (isDragging && dragPreviewRef.current && !isOutOfWindow) {
         if (initiatePositionStylesOfDragPreview.current) {
           dragPreviewRef.current.style.zIndex =
             " calc(var(--on-canvas-ui-zindex) + 2)";

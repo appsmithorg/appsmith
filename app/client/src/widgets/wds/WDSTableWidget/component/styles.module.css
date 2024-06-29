@@ -1,10 +1,9 @@
-/* TODO(pawan): can we access css module variable from packages/widgets */
-@value colors: accent, neutral, negative, warning, positive;
+@import "@design-system/widgets/src/shared/colors/colors.module.css";
 
 .table {
   --th-height: calc(
     var(--caption-line-height) + var(--caption-margin-end) +
-      var(--caption-margin-start) + (2 * var(--outer-spacing-3))
+      var(--caption-margin-start) + (2 * var(--inner-spacing-4))
   );
   --tr-height: calc(
     var(--body-line-height) + var(--body-margin-end) + var(--body-margin-start) +
@@ -24,10 +23,6 @@
   /* adding overflow hidden so that the scollbar at the bottom does not flow out */
   overflow: hidden;
 
-  & [aria-hidden]:not([role="presentation"]) {
-    opacity: 0.6;
-  }
-
   /* --------------------------------------------------------------------------
    * WRAPPER
    *-------------------------------------------------------------------------- */
@@ -37,10 +32,6 @@
     overflow: auto hidden;
     scrollbar-color: initial;
     container-type: inline-size;
-  }
-
-  &[data-type="virtualized"] [data-table-wrapper] {
-    overflow: hidden;
   }
 
   /* --------------------------------------------------------------------------
@@ -75,13 +66,11 @@
    * TH
    *-------------------------------------------------------------------------- */
   & thead [role="columnheader"] {
-    padding-inline-start: var(--outer-spacing-3);
-    padding-inline-end: var(--outer-spacing-1);
+    padding-inline: var(--outer-spacing-1);
     padding-block: var(--outer-spacing-1);
     background: var(--color-bg-elevation-3);
     font-weight: bold;
     align-items: center;
-    justify-content: flex-end;
     border-block-end: var(--border-width-1) solid var(--color-bd);
   }
 
@@ -209,18 +198,23 @@
       [data-column-type="text"],
       [data-column-type="number"],
       [data-column-type="url"],
-      [data-column-type="date"]
+      [data-column-type="date"],
+
     ) {
     padding: var(--outer-spacing-4) var(--outer-spacing-3);
   }
 
   & [role="cell"]:is([data-column-type="button"]) {
     align-items: center !important;
-    justify-content: center !important;
+    padding-inline: var(--outer-spacing-3);
   }
 
   @each $color in colors {
-    & [role="cell"][data-cell-color="$(color)"] {
+    &
+      [role="cell"][data-cell-color="$(color)"]:not(
+        [data-column-type="button"],
+        [data-column-type="url"]
+      ) {
       background-color: var(--color-bg-$(color)-subtle);
     }
 

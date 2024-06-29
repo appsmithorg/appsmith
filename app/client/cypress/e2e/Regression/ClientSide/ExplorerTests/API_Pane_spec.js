@@ -3,10 +3,6 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
-import {
-  createMessage,
-  EDITOR_PANE_TEXTS,
-} from "../../../../../src/ce/constants/messages";
 
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
@@ -29,45 +25,51 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-          createMessage(EDITOR_PANE_TEXTS.widget_blank_state_description),
+          Cypress.env(
+            "MESSAGES",
+          ).EDITOR_PANE_TEXTS.widget_blank_state_description(),
         ),
       );
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-          createMessage(EDITOR_PANE_TEXTS.widget_add_button),
+          Cypress.env("MESSAGES").EDITOR_PANE_TEXTS.widget_add_button(),
         ),
       );
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-          createMessage(EDITOR_PANE_TEXTS.query_blank_state_description),
+          Cypress.env(
+            "MESSAGES",
+          ).EDITOR_PANE_TEXTS.query_blank_state_description(),
         ),
       );
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-          createMessage(EDITOR_PANE_TEXTS.query_blank_state),
+          Cypress.env("MESSAGES").EDITOR_PANE_TEXTS.query_blank_state(),
         ),
       );
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-          createMessage(EDITOR_PANE_TEXTS.query_add_button),
+          Cypress.env("MESSAGES").EDITOR_PANE_TEXTS.query_add_button(),
         ),
       );
 
       PageLeftPane.switchSegment(PagePaneSegment.JS);
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-          createMessage(EDITOR_PANE_TEXTS.js_blank_state_description),
+          Cypress.env(
+            "MESSAGES",
+          ).EDITOR_PANE_TEXTS.js_blank_state_description(),
         ),
       );
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-          createMessage(EDITOR_PANE_TEXTS.js_blank_state),
+          Cypress.env("MESSAGES").EDITOR_PANE_TEXTS.js_blank_state(),
         ),
       );
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-          createMessage(EDITOR_PANE_TEXTS.js_add_button),
+          Cypress.env("MESSAGES").EDITOR_PANE_TEXTS.js_add_button(),
         ),
       );
     });

@@ -1,17 +1,35 @@
 import React from "react";
+import { Link as HeadlessLink } from "react-aria-components";
 
 import { Text } from "../../Text";
 import type { LinkProps } from "./types";
 import styles from "./styles.module.css";
 
 export function Link(props: LinkProps) {
-  const { children, href, rel, target, ...rest } = props;
+  const {
+    children,
+    download,
+    href,
+    ping,
+    referrerPolicy,
+    rel,
+    target,
+    ...rest
+  } = props;
 
   return (
-    <Text {...rest}>
-      <a className={styles.link} href={href} rel={rel} target={target}>
+    <HeadlessLink
+      className={styles.link}
+      download={download}
+      href={href}
+      ping={ping}
+      referrerPolicy={referrerPolicy}
+      rel={rel}
+      target={target}
+    >
+      <Text color="accent" {...rest}>
         {children}
-      </a>
-    </Text>
+      </Text>
+    </HeadlessLink>
   );
 }

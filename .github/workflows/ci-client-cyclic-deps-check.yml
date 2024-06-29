@@ -1,0 +1,87 @@
+name: Cyclic Dependency Check
+
+on:
+  workflow_call:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
+
+jobs:
+  check-cyclic-dependencies:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app/client
+        shell: bash
+
+    steps:
+      # The checkout steps MUST happen first because the default directory is set according to the code base.
+      # GitHub Action expects all future commands to be executed in the code directory. Hence, we need to check out
+      # the code before doing anything else.
+
+      # Check out merge commit with the base branch in case this workflow is invoked via pull request
+      - name: Checkout the merged commit from PR and base branch
+        uses: actions/checkout@v4
+        with:
+          ref: refs/pull/${{ inputs.pr }}/merge
+
+      - name: Check for changes in app/client/src
+        id: changed-files
+        uses: tj-actions/changed-files@v41
+        with:
+          files: |
+            app/client/src/**
+
+      - name: Count circular dependencies on PR branch
+        id: count-cyclic-deps-in-pr
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          npx dpdm ./src/* --circular --warning=false --tree=false > pr_circular_deps.txt
+          pr_count=$(cat pr_circular_deps.txt | wc -l)
+          echo "pr_count=$pr_count" >> $GITHUB_OUTPUT
+          cat pr_circular_deps.txt
+
+      - name: Checkout release branch
+        uses: actions/checkout@v4
+        if: steps.changed-files.outputs.any_changed == 'true'
+        with:
+          ref: release
+
+      - name: Count circular dependencies on release branch
+        id: coun-cyclic-deps-in-release
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          npx dpdm ./src/* --circular --warning=false --tree=false > release_circular_deps.txt
+          release_count=$(cat release_circular_deps.txt | wc -l)
+          echo "release_count=$release_count" >> $GITHUB_OUTPUT
+          cat release_circular_deps.txt
+
+      - name: Compare circular dependencies
+        id: compare-deps
+        if: steps.changed-files.outputs.any_changed == 'true'
+        run: |
+          release_count=${{ steps.coun-cyclic-deps-in-release.outputs.release_count }}
+          pr_count=${{ steps.count-cyclic-deps-in-pr.outputs.pr_count }}
+          diff=$((pr_count - release_count))
+
+          if [ "$diff" -gt 0 ]; then
+            echo "has_more_cyclic_deps=true" >> "$GITHUB_OUTPUT"
+            echo "diff=$diff" >> "$GITHUB_OUTPUT"
+          fi
+
+      # Comment on the PR if cyclic dependencies are found
+      - name: Comment the result on PR
+        if: steps.compare-deps.outputs.has_more_cyclic_deps == 'true' && steps.changed-files.outputs.any_changed == 'true'
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const message = `⚠️ Cyclic Dependency Check:\n\nThis PR has increased the number of cyclic dependencies by ${{steps.compare-deps.outputs.diff}}, when compared with the release branch.\n\nRefer [this document](https://appsmith.notion.site/How-to-check-cyclic-dependencies-c47b08fe5f2f4261a3a234b19e13f2db) to identify the cyclic dependencies introduced by this PR.`;
+            github.issues.createComment({
+              ...context.repo,
+              issue_number: prNumber,
+              body: message
+            });

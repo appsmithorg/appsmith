@@ -1,7 +1,5 @@
 import React from "react";
 import { isEmail } from "utils/formhelpers";
-import { apiRequestConfig } from "api/Api";
-import UserApi from "@appsmith/api/UserApi";
 import type {
   AdminConfigType,
   Setting,
@@ -46,21 +44,6 @@ export const APPSMITH_ADMIN_EMAILS_SETTING: Setting = {
       return "Please enter valid email id(s)";
     }
   },
-};
-
-export const APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING: Setting = {
-  id: "APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE",
-  action: () => {
-    const { host, protocol } = window.location;
-    window.open(
-      `${protocol}//${host}${apiRequestConfig.baseURL}${UserApi.downloadConfigURL}`,
-      "_blank",
-    );
-  },
-  category: SettingCategories.GENERAL,
-  controlType: SettingTypes.BUTTON,
-  label: "Generated docker compose file",
-  text: "Download",
 };
 
 export const APPSMITH_DISABLE_TELEMETRY_SETTING: Setting = {
@@ -204,7 +187,6 @@ export const config: AdminConfigType = {
   settings: [
     APPSMITH_INSTANCE_NAME_SETTING_SETTING,
     APPSMITH_ADMIN_EMAILS_SETTING,
-    APPSMITH_DOWNLOAD_DOCKER_COMPOSE_FILE_SETTING,
     APPSMITH_DISABLE_TELEMETRY_SETTING,
     APPSMITH_HIDE_WATERMARK_SETTING,
     APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING,

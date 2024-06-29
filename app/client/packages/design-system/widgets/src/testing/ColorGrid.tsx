@@ -180,7 +180,7 @@ export const ColorGrid = (props: any) => {
                     data-hovered={Boolean(isHovered) ? "" : undefined}
                     data-variant={variant}
                   >
-                    <Text lineClamp={2} textAlign="center" variant="footnote">
+                    <Text lineClamp={2} size="footnote" textAlign="center">
                       {children({
                         seed: getSeed(),
                         derived: getDerived(),

@@ -2,8 +2,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
 import { hideByColumnType } from "../../../widget/propertyUtils";
-import { BUTTON_VARIANTS } from "@design-system/widgets";
-import capitalize from "lodash/capitalize";
+import { BUTTON_VARIANTS, objectKeys } from "@design-system/widgets";
 
 export default {
   sectionName: "General",
@@ -68,30 +67,6 @@ export default {
         return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
       },
     },
-    {
-      propertyName: "allowCellWrapping",
-      dependencies: ["primaryColumns", "columnType"],
-      label: "Cell wrapping",
-      helpText: "Allows content of the cell to be wrapped",
-      defaultValue: false,
-      controlType: "SWITCH",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.TEXT,
-          ColumnTypes.NUMBER,
-          ColumnTypes.URL,
-        ]);
-      },
-    },
   ],
 };
 
@@ -104,11 +79,11 @@ export const GeneralStyle = {
       controlType: "DROP_DOWN",
       fullWidth: true,
       helpText: "Sets the variant of the button",
-      options: Object.values(BUTTON_VARIANTS).map((variant) => ({
-        label: capitalize(variant),
+      options: objectKeys(BUTTON_VARIANTS).map((variant) => ({
+        label: BUTTON_VARIANTS[variant],
         value: variant,
       })),
-      defaultValue: BUTTON_VARIANTS.filled,
+      defaultValue: objectKeys(BUTTON_VARIANTS)[0],
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -117,8 +92,8 @@ export const GeneralStyle = {
         params: {
           type: ValidationTypes.TEXT,
           params: {
-            allowedValues: Object.values(BUTTON_VARIANTS),
-            default: BUTTON_VARIANTS.filled,
+            allowedValues: objectKeys(BUTTON_VARIANTS),
+            default: objectKeys(BUTTON_VARIANTS)[0],
           },
         },
       },

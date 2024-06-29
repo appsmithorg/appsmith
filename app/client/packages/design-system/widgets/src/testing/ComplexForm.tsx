@@ -3,17 +3,15 @@ import * as React from "react";
 import {
   Button,
   Text,
-  CheckboxGroup,
+  ToggleGroup,
   Checkbox,
   TooltipRoot,
   TooltipTrigger,
   TooltipContent,
-  ActionGroup,
+  ToolbarButtons,
   Flex,
-  SwitchGroup,
   Switch,
   RadioGroup,
-  Radio,
   IconButton,
   TextArea,
   Modal,
@@ -21,7 +19,6 @@ import {
   ModalBody,
   ModalFooter,
   ModalContent,
-  Item,
 } from "@design-system/widgets";
 // This component is used only for testing purpose and is not used in the prod
 
@@ -52,37 +49,82 @@ export const ComplexForm = () => {
       }}
     >
       <Flex direction="column" gap="spacing-3">
-        <Text variant="heading">Your order</Text>
+        <Text size="heading">Your order</Text>
         <Text>Choose your favorite dishes and place an order.</Text>
       </Flex>
 
       <Flex direction="column" gap="spacing-5">
-        <ActionGroup>
-          <Item>Fast food</Item>
-          <Item>Salads</Item>
-          <Item>Drinks</Item>
-          <Item>Sauces</Item>
-        </ActionGroup>
+        <ToolbarButtons
+          items={[
+            { id: 1, label: "Fast food" },
+            { id: 2, label: "Salads" },
+            { id: 3, label: "Salads" },
+            { id: 4, label: "Sauces" },
+          ]}
+        />
 
-        <SwitchGroup label="Repeat order">
-          <Switch value="value-1">Once a week</Switch>
-          <Switch isSelected value="value-2">
-            Twice a week
-          </Switch>
-        </SwitchGroup>
+        <ToggleGroup
+          items={[
+            {
+              value: "value-1",
+              label: "Once a week",
+            },
+            { isSelected: true, value: "value-2", label: "Twice a week" },
+          ]}
+          label="Repeat order"
+        >
+          {({ isSelected, label, value }) => (
+            <Switch isSelected={isSelected} key={value} value={value}>
+              {label}
+            </Switch>
+          )}
+        </ToggleGroup>
 
-        <CheckboxGroup label="Dishes">
-          <Checkbox value="Hamburger">Hamburger</Checkbox>
-          <Checkbox value="French fries">French fries</Checkbox>
-          <Checkbox value="Coca-Cola">Coca-Cola</Checkbox>
-        </CheckboxGroup>
+        <ToggleGroup
+          items={[
+            {
+              value: "Hamburger",
+              label: "Hamburger",
+            },
+            {
+              value: "French fries",
+              label: "French fries",
+            },
+            {
+              value: "Coca-Cola",
+              label: "Coca-Cola",
+            },
+          ]}
+          label="Dishes"
+        >
+          {({ isSelected, label, value }) => (
+            <Checkbox isSelected={isSelected} key={value} value={value}>
+              {label}
+            </Checkbox>
+          )}
+        </ToggleGroup>
 
-        <RadioGroup label="Portion size">
-          <Radio value="s">S</Radio>
-          <Radio value="M">M</Radio>
-          <Radio value="L">L</Radio>
-          <Radio value="XL">XL</Radio>
-        </RadioGroup>
+        <RadioGroup
+          items={[
+            {
+              value: "s",
+              label: "S",
+            },
+            {
+              value: "m",
+              label: "M",
+            },
+            {
+              value: "l",
+              label: "L",
+            },
+            {
+              value: "xl",
+              label: "XL",
+            },
+          ]}
+          label="Portion size"
+        />
 
         <Flex direction="column" gap="spacing-3">
           <Flex direction="column" gap="spacing-2">
@@ -109,10 +151,10 @@ export const ComplexForm = () => {
           Ok
         </Button>
         <Modal
+          dataAttributes={{ "data-size": "small" }}
           initialFocus={2}
           isOpen={isModalOpen}
           setOpen={setModalOpen}
-          size="small"
           triggerRef={submitRef}
         >
           <ModalContent>

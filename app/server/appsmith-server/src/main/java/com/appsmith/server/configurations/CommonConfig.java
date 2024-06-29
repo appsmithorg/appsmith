@@ -3,6 +3,7 @@ package com.appsmith.server.configurations;
 import com.appsmith.util.JSONPrettyPrinter;
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -12,11 +13,12 @@ import jakarta.validation.ValidatorFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.maven.artifact.versioning.ComparableVersion;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -74,6 +76,8 @@ public class CommonConfig {
 
     private static final String MIN_SUPPORTED_MONGODB_VERSION = "5.0.0";
 
+    private static String adminEmailDomainHash;
+
     @Bean
     public Scheduler scheduler() {
         return Schedulers.newBoundedElastic(
@@ -97,6 +101,16 @@ public class CommonConfig {
     @Bean
     public ObjectMapper objectMapper() {
         return SerializationUtils.getDefaultObjectMapper(null);
+    }
+
+    @Bean
+    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
+        final MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+
+        converter.setObjectMapper(objectMapper()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, "CE".equals(ProjectProperties.EDITION)));
+
+        return converter;
     }
 
     @Bean
@@ -140,17 +154,21 @@ public class CommonConfig {
         isSignupDisabled = "true".equalsIgnoreCase(value);
     }
 
-    public boolean isMongoUptoDate() {
-        ComparableVersion minSupportedVersion = new ComparableVersion(MIN_SUPPORTED_MONGODB_VERSION);
-        ComparableVersion connectedMongoVersion = new ComparableVersion(mongoDBVersion);
-        return minSupportedVersion.compareTo(connectedMongoVersion) <= 0;
-    }
-
-    public boolean isConnectedMongoVersionAvailable() {
-        return mongoDBVersion != null;
-    }
-
     public Long getCurrentTimeInstantEpochMilli() {
         return Instant.now().toEpochMilli();
+    }
+
+    public String getAdminEmailDomainHash() {
+        if (StringUtils.hasLength(adminEmailDomainHash)) {
+            return adminEmailDomainHash;
+        }
+        adminEmailDomainHash = this.adminEmails.stream()
+                .map(email -> email.split("@"))
+                .filter(emailParts -> emailParts.length == 2)
+                .findFirst()
+                .map(email -> email[1])
+                .map(DigestUtils::sha256Hex)
+                .orElse("");
+        return adminEmailDomainHash;
     }
 }

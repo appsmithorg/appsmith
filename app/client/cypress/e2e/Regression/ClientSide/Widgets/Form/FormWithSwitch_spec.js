@@ -27,7 +27,7 @@ describe(
       // Verify widget label name is verified
       cy.get(widgetsPage.switchLabel).should("have.text", "Switch1");
       // Check the toggler button
-      cy.togglebar(widgetsPage.defaultcheck);
+      _.agHelper.CheckUncheck(widgetsPage.defaultcheck);
       // Type in message field and verify
       cy.getAlert("onChange");
       cy.closePropertyPane();

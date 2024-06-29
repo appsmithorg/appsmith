@@ -301,10 +301,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             GitArtifactMetadata gitData = application.getGitApplicationMetadata();
             if (gitData != null
                     && !StringUtils.isEmpty(gitData.getBranchName())
-                    && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
+                    && !StringUtils.isEmpty(gitData.getDefaultArtifactId())) {
                 applicationIdMono = this.findByBranchNameAndDefaultApplicationId(
                                 gitData.getBranchName(),
-                                gitData.getDefaultApplicationId(),
+                                gitData.getDefaultArtifactId(),
                                 applicationPermission.getEditPermission())
                         .map(Application::getId);
             } else {
@@ -659,24 +659,15 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 permissionGroupService.getPublicPermissionGroupId().cache().repeat();
 
         // Set isPublic field if the application is public
-        Flux<Application> updatedApplicationWithIsPublicFlux = permissionGroupService
-                .getPublicPermissionGroupId()
-                .cache()
-                .repeat()
-                .zipWith(applicationsFlux)
-                .map(tuple -> {
-                    Application application = tuple.getT2();
-                    String publicPermissionGroupId = tuple.getT1();
+        return publicPermissionGroupIdFlux.zipWith(applicationsFlux).map(tuple -> {
+            Application application = tuple.getT2();
+            String publicPermissionGroupId = tuple.getT1();
 
-                    application.setIsPublic(permissionGroupService.isEntityAccessible(
-                            application,
-                            applicationPermission.getReadPermission().getValue(),
-                            publicPermissionGroupId));
+            application.setIsPublic(permissionGroupService.isEntityAccessible(
+                    application, applicationPermission.getReadPermission().getValue(), publicPermissionGroupId));
 
-                    return application;
-                });
-
-        return updatedApplicationWithIsPublicFlux;
+            return application;
+        });
     }
 
     /**
@@ -699,8 +690,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     // Check if the current application is the root application
 
                     if (gitData != null
-                            && !StringUtils.isEmpty(gitData.getDefaultApplicationId())
-                            && applicationId.equals(gitData.getDefaultApplicationId())) {
+                            && !StringUtils.isEmpty(gitData.getDefaultArtifactId())
+                            && applicationId.equals(gitData.getDefaultArtifactId())) {
                         // This is the root application with update SSH key request
                         gitAuth.setRegeneratedKey(true);
                         gitData.setGitAuth(gitAuth);
@@ -716,7 +707,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     // Children application with update SSH key request for root application
                     // Fetch root application and then make updates. We are storing the git metadata only in root
                     // application
-                    if (StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
+                    if (StringUtils.isEmpty(gitData.getDefaultArtifactId())) {
                         throw new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION,
                                 "Unable to find root application, please connect your application to remote repo to resolve this issue.");
@@ -724,7 +715,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     gitAuth.setRegeneratedKey(true);
 
                     return repository
-                            .findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
+                            .findById(gitData.getDefaultArtifactId(), applicationPermission.getEditPermission())
                             .flatMap(defaultApplication -> {
                                 GitArtifactMetadata gitArtifactMetadata =
                                         defaultApplication.getGitApplicationMetadata();
@@ -779,7 +770,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                 "Can't find valid SSH key. Please configure the application with git"));
                     }
                     // Check if the application is root application
-                    if (applicationId.equals(gitData.getDefaultApplicationId())) {
+                    if (applicationId.equals(gitData.getDefaultArtifactId())) {
                         gitData.getGitAuth().setDocUrl(Assets.GIT_DEPLOY_KEY_DOC_URL);
                         GitAuthDTO gitAuthDTO = new GitAuthDTO();
                         gitAuthDTO.setPublicKey(gitData.getGitAuth().getPublicKey());
@@ -788,14 +779,14 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         gitAuthDTO.setGitSupportedSSHKeyType(gitDeployKeyDTOList);
                         return Mono.just(gitAuthDTO);
                     }
-                    if (gitData.getDefaultApplicationId() == null) {
+                    if (gitData.getDefaultArtifactId() == null) {
                         throw new AppsmithException(
                                 AppsmithError.INVALID_GIT_CONFIGURATION,
                                 "Can't find root application. Please configure the application with git");
                     }
 
                     return repository
-                            .findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
+                            .findById(gitData.getDefaultArtifactId(), applicationPermission.getEditPermission())
                             .map(rootApplication -> {
                                 GitAuthDTO gitAuthDTO = new GitAuthDTO();
                                 GitAuth gitAuth = rootApplication
@@ -884,7 +875,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         AppsmithError.NO_RESOURCE_FOUND,
                         FieldName.APPLICATION,
                         defaultApplicationId + ", " + branchName)))
-                .map(Application::getId);
+                .map(application -> application.getId());
     }
 
     public Mono<String> findBranchedApplicationId(
@@ -1049,5 +1040,24 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     return Mono.empty();
                 }))
                 .then();
+    }
+
+    /**
+     * Gets branched application with the right permission set based on mode of application
+     * @param defaultApplicationId : default app id
+     * @param branchName : branch name of the application
+     * @param mode : is it edit mode or view mode
+     * @return : returns a publisher of branched application
+     */
+    @Override
+    public Mono<Application> findByDefaultIdBranchNameAndApplicationMode(
+            String defaultApplicationId, String branchName, ApplicationMode mode) {
+        AclPermission permissionForApplication = ApplicationMode.PUBLISHED.equals(mode)
+                ? applicationPermission.getReadPermission()
+                : applicationPermission.getEditPermission();
+
+        return findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, permissionForApplication)
+                // sets isPublic field in the application
+                .flatMap(this::setTransientFields);
     }
 }

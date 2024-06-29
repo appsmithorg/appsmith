@@ -1,33 +1,27 @@
 import React, { memo } from "react";
 import { Link } from "@design-system/widgets";
 
-import type {
-  BaseCellComponentProps,
-  CellLayoutProperties,
-} from "../Constants";
+import type { BaseCellComponentProps } from "../Constants";
 
 export interface NumberCellProps {
   href?: string;
   text?: string;
-  cellColor?: CellLayoutProperties["cellColor"];
   isBold?: boolean;
   isUnderline?: boolean;
   isItalic?: boolean;
 }
 
 function URLCell(props: NumberCellProps & BaseCellComponentProps) {
-  const { allowCellWrapping, cellColor, href, isBold, isItalic, text } = props;
-  const lineClamp = allowCellWrapping ? undefined : 1;
+  const { href, isBold, isItalic, text } = props;
 
   return (
     <Link
-      color={cellColor === "default" ? undefined : cellColor}
       href={href}
       isBold={isBold}
       isItalic={isItalic}
-      lineClamp={lineClamp}
+      lineClamp={1}
+      size="body"
       title={text}
-      variant="body"
     >
       {text}
     </Link>

@@ -5,7 +5,6 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { cloneDeep, isString } from "lodash";
 import log from "loglevel";
@@ -29,7 +28,6 @@ import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import type { GridProps, SpaceMap } from "reflow/reflowTypes";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { flashElementsById } from "utils/helpers";
 import history from "utils/history";
@@ -48,9 +46,8 @@ import type { CopiedWidgetGroup } from "../WidgetOperationUtils";
 import {
   getBoundaryWidgetsFromCopiedGroups,
   getNextWidgetName,
-  getParentWidgetIdForPasting,
   getReflowedPositions,
-  getSelectedWidgetWhenPasting,
+  handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
 } from "../WidgetOperationUtils";
 
@@ -59,10 +56,10 @@ import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUt
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import {
   getNewPositions,
-  handleImageWidgetWhenPasting,
+  handleWidgetDynamicBindingPathList,
+  handleWidgetDynamicPropertyPathList,
+  handleWidgetDynamicTriggerPathList,
   handleJSONFormPropertiesListedInDynamicBindingPath,
-  handleJSONFormWidgetWhenPasting,
-  handleTextWidgetWhenPasting,
 } from "../PasteWidgetUtils";
 
 import ApplicationApi, {
@@ -72,13 +69,16 @@ import ApplicationApi, {
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { WidgetAddChild } from "actions/pageActions";
 import { runAction } from "actions/pluginActionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Template } from "api/TemplatesApi";
+import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { race } from "redux-saga/effects";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
 import {
   getCurrentApplicationId,
@@ -86,7 +86,11 @@ import {
 } from "selectors/editorSelectors";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
-import { saveBuildingBlockWidgetsToStore } from ".";
+import {
+  addNewlyAddedActionsToRedux,
+  saveBuildingBlockWidgetsToStore,
+  updateWidgetsNameInNewQueries,
+} from ".";
 import { addWidgetAndMoveWidgetsSaga } from "../CanvasSagas/DraggingCanvasSagas";
 import { validateResponse } from "../ErrorSagas";
 import { postPageAdditionSaga } from "../TemplatesSagas";
@@ -214,16 +218,20 @@ export function* loadBuildingBlocksIntoApplication(
         type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
         payload: {
           widgetId: skeletonLoaderId,
-          parentId: MAIN_CONTAINER_WIDGET_ID,
+          parentId: buildingBlockWidget.widgetId,
           disallowUndo: true,
           isShortcut: false,
         },
       });
 
-      yield pasteBuildingBlockWidgetsSaga({
-        top: topRow,
-        left: leftColumn,
-      });
+      yield pasteBuildingBlockWidgetsSaga(
+        {
+          top: topRow,
+          left: leftColumn,
+        },
+        buildingBlockWidget.widgetId,
+        response.data.newActionList,
+      );
 
       const timeTakenToDropWidgetsInSeconds =
         (Date.now() - buildingBlockDragStartTimestamp) / 1000;
@@ -282,11 +290,12 @@ export function* loadBuildingBlocksIntoApplication(
       }
     }
   } catch (error) {
+    log.error("Error loading building blocks into application", error);
     yield put({
       type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
       payload: {
         widgetId: skeletonLoaderId,
-        parentId: MAIN_CONTAINER_WIDGET_ID,
+        parentId: buildingBlockWidget.widgetId,
         disallowUndo: true,
         isShortcut: false,
       },
@@ -315,7 +324,6 @@ export function* addBuildingBlockToCanvasSaga(
       ...addEntityAction.payload,
       type: "SKELETON_WIDGET",
       widgetName: skeletonWidgetName,
-      widgetId: MAIN_CONTAINER_WIDGET_ID,
       // so that the skeleton loader does not get included when the users uses the undo/redo
       shouldReplay: false,
     },
@@ -364,7 +372,6 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
         ...actionPayload.payload.newWidget,
         type: "SKELETON_WIDGET",
         widgetName: skeletonWidgetName,
-        widgetId: MAIN_CONTAINER_WIDGET_ID,
       },
     },
   });
@@ -380,7 +387,10 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
   );
   yield call(
     loadBuildingBlocksIntoApplication,
-    actionPayload.payload.newWidget,
+    {
+      ...actionPayload.payload.newWidget,
+      widgetId: actionPayload.payload.canvasId,
+    },
     skeletonWidget.widgetId,
   );
 }
@@ -395,10 +405,14 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
  *
  * @param gridPosition - The position of the grid where the widgets will be pasted.
  */
-export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
-  top: number;
-  left: number;
-}) {
+export function* pasteBuildingBlockWidgetsSaga(
+  gridPosition: {
+    top: number;
+    left: number;
+  },
+  pastingIntoWidgetId: string,
+  newActions: Action[] = [],
+) {
   const {
     flexLayers,
     widgets: copiedWidgets,
@@ -412,20 +426,11 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
   const newlyCreatedWidgetIds: string[] = [];
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   let widgets: CanvasWidgetsReduxState = canvasWidgets;
-  const selectedWidget: FlattenedWidgetProps<undefined> =
-    yield getSelectedWidgetWhenPasting();
 
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   try {
-    let pastingIntoWidgetId: string = yield getParentWidgetIdForPasting(
-      canvasWidgets,
-      selectedWidget,
-    );
-
-    const isThereACollision = false;
-
     if (
       // to avoid invoking old way of copied widgets implementaion
       !Array.isArray(copiedWidgetGroups) ||
@@ -447,7 +452,6 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
     // new pasting positions, the variables are undefined if the positions cannot be calculated,
     // then it pastes the regular way at the bottom of the canvas
     const {
-      canvasId,
       gridProps,
       newPastingPositionMap,
       reflowedMovementMap,
@@ -463,10 +467,8 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
       topMostWidget.topRow,
       leftMostWidget.leftColumn,
       { gridPosition },
+      pastingIntoWidgetId,
     );
-
-    if (canvasId) pastingIntoWidgetId = canvasId;
-
     for (const widgetGroup of copiedWidgetGroups) {
       //This is required when you cut the widget as CanvasWidgetState doesn't have the widget anymore
       const widgetType = widgetGroup.list.find(
@@ -515,7 +517,7 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
             nextAvailableRow,
             newPastingPositionMap,
             true,
-            isThereACollision,
+            false,
             false,
           );
 
@@ -555,6 +557,13 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
                     widget.children[index] = widgetIdMap[childWidgetId];
                   }
                 },
+              );
+            }
+            if (oldWidgetName !== newWidgetName) {
+              newActions = updateWidgetsNameInNewQueries(
+                oldWidgetName,
+                newWidgetName,
+                newActions,
               );
             }
 
@@ -696,6 +705,8 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
       ),
     );
 
+    yield addNewlyAddedActionsToRedux(newActions);
+
     //calculate the new positions of the reflowed widgets
     let reflowedWidgets = getReflowedPositions(
       widgets,
@@ -834,24 +845,24 @@ function handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
   widgetNameMap: Record<string, string>,
   newWidgetList: FlattenedWidgetProps[],
 ) {
-  switch (widget?.type) {
-    case "JSON_FORM_WIDGET":
-      handleJSONFormWidgetWhenPasting(widgetNameMap, widget);
-      break;
-    case "TEXT_WIDGET":
-      handleTextWidgetWhenPasting(widgetNameMap, widget);
-      break;
-    case "IMAGE_WIDGET":
-      handleImageWidgetWhenPasting(widgetNameMap, widget);
-      break;
-    default:
-      widgets = handleSpecificCasesWhilePasting(
-        widget,
-        widgets,
-        widgetNameMap,
-        newWidgetList,
-      );
-      break;
+  if (["LIST_WIDGET", "LIST_WIDGET_V2", "MODAL_WIDGET"].includes(widget.type)) {
+    widgets = handleSpecificCasesWhilePasting(
+      widget,
+      widgets,
+      widgetNameMap,
+      newWidgetList,
+    );
   }
+  if (widget.dynamicTriggerPathList) {
+    handleWidgetDynamicTriggerPathList(widgetNameMap, widget);
+  }
+  if (widget.dynamicBindingPathList) {
+    handleWidgetDynamicBindingPathList(widgetNameMap, widget);
+  }
+  if (widget.dynamicPropertyPathList) {
+    handleWidgetDynamicPropertyPathList(widgetNameMap, widget);
+  }
+  widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
+
   return widgets;
 }

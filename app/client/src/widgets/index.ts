@@ -78,7 +78,7 @@ import { ZoneWidget } from "./anvil/ZoneWidget";
 import { WDSHeadingWidget } from "./wds/WDSHeadingWidget";
 import { WDSParagraphWidget } from "./wds/WDSParagraphWidget";
 import { WDSModalWidget } from "./wds/WDSModalWidget";
-import { WDSStatBoxWidget } from "./wds/WDSStatBoxWidget";
+import { WDSStatsWidget } from "./wds/WDSStatsWidget";
 import { WDSKeyValueWidget } from "./wds/WDSKeyValueWidget";
 import { WDSInlineButtonsWidget } from "./wds/WDSInlineButtonsWidget";
 
@@ -170,7 +170,7 @@ const WDSWidgets = [
   WDSParagraphWidget,
   WDSHeadingWidget,
   WDSModalWidget,
-  WDSStatBoxWidget,
+  WDSStatsWidget,
   WDSKeyValueWidget,
   WDSInlineButtonsWidget,
 ];

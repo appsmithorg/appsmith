@@ -12,12 +12,12 @@ metadata:
   labels:
     {{- include "appsmith.labels" . | nindent 4 }}
 data:
+  {{- if and $.Values.mongodb.enabled (not .Values.applicationConfig.APPSMITH_MONGODB_URI) (not .Values.applicationConfig.APPSMITH_DB_URL) }}
+  APPSMITH_DB_URL: |
+    mongodb+srv://{{ $mongoUser }}:{{ $mongoPassword }}@{{ $mongoServicename }}.{{ $nameSpace }}.svc.cluster.local/appsmith?retryWrites=true&authSource=admin&ssl=false
+  {{- end }}
+
   {{- range $key, $value := .Values.applicationConfig }}
-  {{- if and (eq "APPSMITH_MONGODB_URI" $key) ( not $value) }}
-  {{- if $.Values.mongodb.enabled }}
-  {{ $key }}: mongodb+srv://{{ $mongoUser }}:{{ $mongoPassword }}@{{ $mongoServicename }}.{{ $nameSpace }}.svc.cluster.local/appsmith?retryWrites=true&authSource=admin&ssl=false
-  {{- end }}
-  {{- end }}
   {{- if and (eq "APPSMITH_REDIS_URL" $key) ( not $value) }}
   {{- if $.Values.redis.enabled }}
   {{ $key }}: redis://{{ $releaseName }}-redis-master.{{ $nameSpace }}.svc.cluster.local:6379

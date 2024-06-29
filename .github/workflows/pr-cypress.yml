@@ -9,6 +9,11 @@ on:
       matrix:
         required: true
         type: string
+      is-pg-build:
+        description: "This is a boolean value in case the workflow is being called for a PG build"
+        required: false
+        type: string
+        default: "false"
 
 jobs:
   server-build:
@@ -19,6 +24,7 @@ jobs:
     with:
       pr: ${{ github.event.number }}
       skip-tests: true
+      is-pg-build: ${{ inputs.is-pg-build }}
 
   client-build:
     if: success()
@@ -27,7 +33,6 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.number }}
-      check-test-files: "true"
 
   rts-build:
     if: success()
@@ -54,6 +59,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.number }}
+      is-pg-build: ${{ inputs.is-pg-build }}
 
   ci-test:
     needs: [build-docker-image]
@@ -104,7 +110,7 @@ jobs:
           DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
           RUN_ID: ${{ github.run_id }}
           ATTEMPT_NUMBER: ${{ github.run_attempt }}
-        uses: actions/github-script@v6
+        uses: actions/github-script@v7
         with:
           script: |
             const { Pool } = require("pg");
@@ -151,12 +157,13 @@ jobs:
       # This is done for debugging
       - name: Upload combined failed spec
         if: needs.ci-test.result != 'success'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
+          overwrite: true
 
-      - name: Get Latest flaky Tests
+      - name: Get latest flaky tests
         shell: bash
         run: |
           curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
@@ -174,7 +181,7 @@ jobs:
 
       - name: Modify test response in the PR with new CI failures
         if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '1'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
           content: |
             <!-- This is an auto-generated comment: Cypress test results  -->
@@ -182,10 +189,11 @@ jobs:
             > 🔴 🔴 🔴 Some tests have failed.
             > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
             > Commit: ${{ github.event.pull_request.head.sha }}
-            > Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
+            > <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank">Cypress dashboard</a>.
+            > Tags: `${{ inputs.tags }}`
             > The following are new failures, please fix them before merging the PR: <ol>
             ${{env.new_failed_spec_env}} </ol>
-            > To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
+            > <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">List of identified flaky tests</a>.
 
             <!-- end of auto-generated comment: Cypress test results  -->
 
@@ -195,15 +203,16 @@ jobs:
 
       - name: Modify test response in the PR when ci-test is failed but no specs found
         if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '0'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
           content: |
             <!-- This is an auto-generated comment: Cypress test results  -->
             > [!WARNING]
             > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
             > Commit: ${{ github.event.pull_request.head.sha }}
-            > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
-            > It seems like **no tests ran** 😔. We are not able to recognize it, please check workflow <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">here.</a>
+            > <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Cypress dashboard</a>.
+            > Tags: `${{ inputs.tags }}`
+            > It seems like **no tests ran** 😔. We are not able to recognize it, please check <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">workflow here</a>.
 
             <!-- end of auto-generated comment: Cypress test results  -->
 
@@ -213,7 +222,7 @@ jobs:
 
       - name: Modify test response in the PR when ci-test is success
         if: needs.ci-test.result == 'success' && steps.combine_ci.outputs.specs_failed == '0'
-        uses: nefrob/pr-description@v1.1.1
+        uses: nefrob/pr-description@v1.1.2
         with:
           content: |
             <!-- This is an auto-generated comment: Cypress test results  -->
@@ -221,7 +230,8 @@ jobs:
             > 🟢 🟢 🟢 All cypress tests have passed! 🎉 🎉 🎉
             > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
             > Commit: ${{ github.event.pull_request.head.sha }}
-            > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
+            > <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Cypress dashboard</a>.
+            > Tags: `${{ inputs.tags }}`
 
             <!-- end of auto-generated comment: Cypress test results  -->
 

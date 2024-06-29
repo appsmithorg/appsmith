@@ -17,6 +17,7 @@ import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -272,6 +273,15 @@ public class Application extends BaseDomain implements Artifact {
         }
     }
 
+    @Override
+    public String getBaseId() {
+        if (this.getGitArtifactMetadata() != null
+                && StringUtils.hasLength(this.getGitArtifactMetadata().getDefaultArtifactId())) {
+            return this.getGitArtifactMetadata().getDefaultArtifactId();
+        }
+        return Artifact.super.getBaseId();
+    }
+
     @JsonView(Views.Internal.class)
     @Override
     public GitArtifactMetadata getGitArtifactMetadata() {
@@ -428,12 +438,13 @@ public class Application extends BaseDomain implements Artifact {
      */
     @Data
     @NoArgsConstructor
+    @AllArgsConstructor
     public static class AppPositioning {
         @JsonView({Views.Public.class, Git.class})
         Type type;
 
-        public AppPositioning(Type type) {
-            this.type = type;
+        public AppPositioning(String type) {
+            setType(Type.valueOf(type));
         }
 
         public enum Type {
@@ -488,6 +499,9 @@ public class Application extends BaseDomain implements Artifact {
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.gitAuth);
         public static final String gitApplicationMetadata_defaultApplicationId =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultApplicationId);
+
+        public static final String gitApplicationMetadata_defaultArtifactId =
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultArtifactId);
         public static final String gitApplicationMetadata_isAutoDeploymentEnabled =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isAutoDeploymentEnabled);
         public static final String gitApplicationMetadata_branchName =

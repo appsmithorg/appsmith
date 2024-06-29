@@ -13,17 +13,16 @@ export interface PlainTextCellProps {
 }
 
 function PlainTextCell(props: PlainTextCellProps & BaseCellComponentProps) {
-  const { allowCellWrapping, cellColor, isBold, isItalic, value } = props;
-  const lineClamp = allowCellWrapping ? undefined : 1;
+  const { cellColor, isBold, isItalic, value } = props;
 
   return (
     <Text
       color={cellColor === "default" ? undefined : cellColor}
       isBold={isBold}
       isItalic={isItalic}
-      lineClamp={lineClamp}
+      lineClamp={1}
+      size="body"
       title={value}
-      variant="body"
     >
       {value}
     </Text>

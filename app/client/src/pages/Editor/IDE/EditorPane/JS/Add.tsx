@@ -6,7 +6,10 @@ import { Flex, Tag } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import GroupedList from "../components/GroupedList";
-import { useGroupedAddJsOperations } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
+import {
+  useGroupedAddJsOperations,
+  useJSAdd,
+} from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import type { AddProps } from "../types/AddProps";
 import { createAddClassName } from "../utils";
@@ -25,6 +28,7 @@ const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
     },
     [pageId, dispatch],
   );
+  const { closeAddJS } = useJSAdd();
 
   const getListItems = (data: ActionOperation) => {
     const title = data.entityExplorerTitle || data.title;
@@ -41,6 +45,7 @@ const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
   return (
     <Flex
       data-testid="t--ide-add-pane"
+      height="100%"
       justifyContent="center"
       p="spaces-3"
       {...containerProps}
@@ -53,6 +58,7 @@ const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
         {...innerContainerProps}
       >
         <SegmentAddHeader
+          onCloseClick={closeAddJS}
           titleMessage={EDITOR_PANE_TEXTS.js_create_tab_title}
         />
 

@@ -2429,9 +2429,6 @@ export const defaultAppState = {
                   authType: "SCRAM_SHA_1",
                   username: "mockdb-admin",
                   databaseName: "movies",
-                  hasExpired: {
-                    scanAvailable: true,
-                  },
                 },
                 properties: [
                   {
@@ -2490,9 +2487,6 @@ export const defaultAppState = {
                   authenticationType: "dbAuth",
                   username: "users",
                   databaseName: "users",
-                  hasExpired: {
-                    scanAvailable: true,
-                  },
                 },
               },
               isConfigured: true,
@@ -10279,10 +10273,10 @@ export const defaultAppState = {
         useCase: "personal project",
         enableTelemetry: true,
         roles: [
-          "Upgrade to business edition to access roles and groups for conditional business logic",
+          "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
         groups: [
-          "Upgrade to business edition to access roles and groups for conditional business logic",
+          "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
         emptyInstance: false,
         accountNonExpired: true,
@@ -11216,8 +11210,6 @@ export const defaultAppState = {
     templates: {
       isImportingTemplate: false,
       isImportingTemplateToApp: false,
-      isImportingStarterBuildingBlockToApp: false,
-      starterBuildingBlockDatasourcePrompt: false,
       loadingFilters: false,
       gettingAllTemplates: false,
       gettingTemplate: false,
@@ -12707,10 +12699,10 @@ export const defaultAppState = {
           useCase: "personal project",
           enableTelemetry: true,
           roles: [
-            "Upgrade to business edition to access roles and groups for conditional business logic",
+            "Upgrade to business plan to access roles and groups for conditional business logic",
           ],
           groups: [
-            "Upgrade to business edition to access roles and groups for conditional business logic",
+            "Upgrade to business plan to access roles and groups for conditional business logic",
           ],
           emptyInstance: false,
           accountNonExpired: true,
@@ -12731,10 +12723,10 @@ export const defaultAppState = {
         useCase: "personal project",
         enableTelemetry: true,
         roles: [
-          "Upgrade to business edition to access roles and groups for conditional business logic",
+          "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
         groups: [
-          "Upgrade to business edition to access roles and groups for conditional business logic",
+          "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
         emptyInstance: false,
         accountNonExpired: true,
@@ -12769,7 +12761,6 @@ export const defaultAppState = {
           license_widget_rtl_support_enabled: false,
           release_show_new_sidebar_announcement_enabled: false,
           rollout_app_sidebar_enabled: false,
-          release_show_partial_import_export_enabled: true,
           ab_one_click_learning_popover_enabled: false,
           release_side_by_side_ide_enabled: false,
           release_global_add_pane_enabled: false,

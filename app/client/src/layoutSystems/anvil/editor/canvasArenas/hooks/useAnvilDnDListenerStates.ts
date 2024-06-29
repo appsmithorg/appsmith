@@ -16,6 +16,7 @@ import type { AnvilGlobalDnDStates } from "../../canvas/hooks/useAnvilGlobalDnDS
 import { getWidgets } from "sagas/selectors";
 import { useMemo } from "react";
 import { ZoneWidget } from "widgets/anvil/ZoneWidget";
+import { useAnvilWidgetElevation } from "../../canvas/providers/AnvilWidgetElevationProvider";
 
 interface AnvilDnDListenerStatesProps {
   anvilGlobalDragStates: AnvilGlobalDnDStates;
@@ -28,6 +29,7 @@ export interface AnvilDnDListenerStates {
   activateOverlayWidgetDrop: boolean;
   allowToDrop: boolean;
   canActivate: boolean;
+  currentWidgetHierarchy: number;
   draggedBlocks: DraggedWidget[];
   dragDetails: DragDetails;
   isCurrentDraggedCanvas: boolean;
@@ -96,6 +98,8 @@ export const useAnvilDnDListenerStates = ({
     mainCanvasLayoutId,
   } = anvilGlobalDragStates;
   const allWidgets = useSelector(getWidgets);
+  const anvilWidgetElevation = useAnvilWidgetElevation();
+  const elevatedWidgets = anvilWidgetElevation?.elevatedWidgets || {};
   const widgetProps = allWidgets[widgetId];
   const selectedWidgets = useSelector(getSelectedWidgets);
   /**
@@ -133,22 +137,21 @@ export const useAnvilDnDListenerStates = ({
       (each) => !allWidgets[each].detachFromLayout,
     ).length === 0;
 
-  const allSiblingsWidgets = useMemo(() => {
-    const allSiblings =
-      (widgetProps.parentId && allWidgets[widgetProps.parentId]?.children) ||
-      [];
-    return allSiblings.map((each) => allWidgets[each]);
+  const allSiblingsWidgetIds = useMemo(() => {
+    return (
+      (widgetProps.parentId && allWidgets[widgetProps.parentId]?.children) || []
+    );
   }, [widgetProps, allWidgets]);
 
   const isElevatedWidget = useMemo(() => {
     if (widgetProps.type === ZoneWidget.type) {
-      const isAnyZoneElevated = allSiblingsWidgets.some(
-        (each) => !!each.elevatedBackground,
+      const isAnyZoneElevated = allSiblingsWidgetIds.some(
+        (each) => !!elevatedWidgets[each],
       );
       return isAnyZoneElevated;
     }
-    return !!widgetProps.elevatedBackground;
-  }, [widgetProps, allSiblingsWidgets]);
+    return !!elevatedWidgets[widgetId];
+  }, [widgetProps, elevatedWidgets, allSiblingsWidgetIds]);
 
   const {
     edgeCompensatorValues,
@@ -167,6 +170,7 @@ export const useAnvilDnDListenerStates = ({
     activateOverlayWidgetDrop,
     allowToDrop,
     canActivate,
+    currentWidgetHierarchy,
     draggedBlocks,
     dragDetails,
     dragMeta: {

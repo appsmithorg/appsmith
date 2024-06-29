@@ -925,6 +925,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columns={tableColumns}
           delimiter={delimiter}
           disableDrag={this.toggleDrag}
+          excludeFromTabOrder={this.props.disableWidgetInteraction}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
@@ -958,7 +959,12 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }
           selectedRowIndices={this.getSelectedRowIndices()}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
-          showConnectDataOverlay={false}
+          showConnectDataOverlay={
+            primaryColumns &&
+            !Object.keys(primaryColumns).length &&
+            this.props.renderMode === RenderModes.CANVAS &&
+            !Boolean(this.props.isPreviewMode)
+          }
           sortTableColumn={this.handleColumnSorting}
           tableData={finalTableData}
           totalRecordsCount={totalRecordsCount}
@@ -1541,8 +1547,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       case "url":
         return (
           <URLCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            cellColor={cellProperties.cellColor}
             href={props.cell.value}
             isBold={cellProperties.fontStyle?.includes(FontStyleTypes.BOLD)}
             isCellVisible={cellProperties.isCellVisible ?? true}
@@ -1554,9 +1558,10 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       case "button":
         return (
           <ButtonCell
+            buttonColor={cellProperties.buttonColor}
             buttonLabel={cellProperties.buttonLabel || "Action"}
             buttonVariant={cellProperties.buttonVariant}
-            cellColor={cellProperties.cellColor}
+            excludeFromTabOrder={this.props.disableWidgetInteraction}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isDisabled={cellProperties.isDisabled}
             isHidden={isHidden}
@@ -1574,7 +1579,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       default:
         return (
           <PlainTextCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
             cellColor={cellProperties.cellColor}
             fontStyle={cellProperties.fontStyle}
             isBold={cellProperties.fontStyle?.includes(FontStyleTypes.BOLD)}

@@ -2,12 +2,12 @@ import React from "react";
 import { useMemo } from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
-import type { SizeConfig } from "WidgetProvider/constants";
 import { getWidgetSizeConfiguration } from "../utils/widgetUtils";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { AnvilEditorFlexComponent } from "./AnvilEditorFlexComponent";
 import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
+import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
 
 /**
  * AnvilEditorWidgetOnion
@@ -26,15 +26,18 @@ import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
  */
 export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
-  const widgetSize: SizeConfig = useMemo(
-    () => getWidgetSizeConfiguration(props.type, props, isPreviewMode),
-    [isPreviewMode, props.type],
-  );
-  const WidgetWrapper = useMemo(() => {
-    return isPreviewMode ? AnvilFlexComponent : AnvilEditorFlexComponent;
-  }, [isPreviewMode]);
+  const { widgetSize, WidgetWrapper } = useMemo(() => {
+    return {
+      widgetSize: getWidgetSizeConfiguration(props.type, props, isPreviewMode),
+      WidgetWrapper:
+        isPreviewMode || props.type === SKELETON_WIDGET_TYPE
+          ? AnvilFlexComponent
+          : AnvilEditorFlexComponent,
+    };
+  }, [isPreviewMode, props.type]);
   return (
     <WidgetWrapper
+      elevatedBackground={!!props.elevatedBackground}
       flexGrow={props.flexGrow}
       isVisible={!!props.isVisible}
       layoutId={props.layoutId}

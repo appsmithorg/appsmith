@@ -89,10 +89,11 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload react build bundle
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: client-build
           path: app/client/build.tar
+          overwrite: true
 
   server-build:
     needs:
@@ -136,10 +137,11 @@ jobs:
           ls -l dist
 
       - name: Upload server build bundle
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: server-build
           path: app/server/dist/
+          overwrite: true
 
   rts-build:
     needs:
@@ -189,10 +191,11 @@ jobs:
 
       # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
       - name: Upload rts build bundle
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rts-dist
           path: app/client/packages/rts/rts-dist.tar
+          overwrite: true
 
   package:
     needs: [prelude, client-build, server-build, rts-build]
@@ -210,7 +213,7 @@ jobs:
         uses: depot/setup-action@v1
 
       - name: Download the client build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: client-build
           path: app/client
@@ -223,13 +226,13 @@ jobs:
           rm app/client/build.tar
 
       - name: Download the server build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: rts-dist
           path: app/client/packages/rts/dist

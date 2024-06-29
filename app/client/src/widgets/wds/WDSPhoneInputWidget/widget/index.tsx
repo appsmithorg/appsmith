@@ -6,7 +6,6 @@ import * as Sentry from "@sentry/react";
 import { mergeWidgetConfig } from "utils/helpers";
 import type { CountryCode } from "libphonenumber-js";
 import type { WidgetState } from "widgets/BaseWidget";
-import derivedProperties from "./parsedDerivedProperties";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {
@@ -17,6 +16,7 @@ import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
+import derivedProperties from "widgets/wds/WDSCurrencyInputWidget/widget/parsedDerivedProperties";
 
 import * as config from "../config";
 import { PhoneInputComponent } from "../component";
@@ -106,7 +106,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
 
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
-      value: "",
+      rawText: "",
+      parsedText: "",
       dialCode: undefined,
     });
   }
@@ -114,6 +115,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return merge(super.getDefaultPropertiesMap(), {
       dialCode: "defaultDialCode",
+      rawText: "defaultText",
+      parsedText: "defaultText",
     });
   }
 
@@ -141,13 +144,13 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   }
 
   componentDidMount() {
-    //format the defaultText and store it in text
-    if (!!this.props.text) {
+    // format the defaultText and store it in text
+    if (!!this.props.parseText) {
       try {
-        const formattedValue = this.getFormattedPhoneNumber(this.props.text);
+        const formattedValue = this.getFormattedPhoneNumber(this.props.rawText);
 
-        this.props.updateWidgetMetaProperty("value", this.props.text);
-        this.props.updateWidgetMetaProperty("text", formattedValue);
+        this.props.updateWidgetMetaProperty("rawText", this.props.rawText);
+        this.props.updateWidgetMetaProperty("parsedText", formattedValue);
       } catch (e) {
         log.error(e);
         Sentry.captureException(e);
@@ -161,24 +164,26 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     }
 
     if (prevProps.allowFormatting !== this.props.allowFormatting) {
-      const formattedValue = this.getFormattedPhoneNumber(this.props.value);
+      const formattedValue = this.getFormattedPhoneNumber(this.props.rawText);
 
-      this.props.updateWidgetMetaProperty("text", formattedValue);
+      this.props.updateWidgetMetaProperty("parsedText", formattedValue);
     }
 
     // When the default text changes
     if (
-      prevProps.text !== this.props.text &&
-      this.props.text === this.props.defaultText
+      prevProps.parsedText !== this.props.parsedText &&
+      this.props.parsedText === this.props.defaultText
     ) {
-      const formattedValue = this.getFormattedPhoneNumber(this.props.text);
+      const formattedValue = this.getFormattedPhoneNumber(
+        this.props.parsedText,
+      );
 
       if (formattedValue) {
         this.props.updateWidgetMetaProperty(
-          "value",
+          "rawText",
           parseIncompletePhoneNumber(formattedValue),
         );
-        this.props.updateWidgetMetaProperty("text", formattedValue);
+        this.props.updateWidgetMetaProperty("parsedText", formattedValue);
       }
     }
 
@@ -196,10 +201,10 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     this.props.updateWidgetMetaProperty("dialCode", dialCode);
     this.props.updateWidgetMetaProperty("countryCode", countryCode);
 
-    if (this.props.value && this.props.allowFormatting) {
-      const formattedValue = this.getFormattedPhoneNumber(this.props.value);
+    if (this.props.rawText && this.props.allowFormatting) {
+      const formattedValue = this.getFormattedPhoneNumber(this.props.rawText);
 
-      this.props.updateWidgetMetaProperty("text", formattedValue);
+      this.props.updateWidgetMetaProperty("parsedText", formattedValue);
     }
   };
 
@@ -207,17 +212,17 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     let formattedValue;
 
     // Don't format, as value is typed, when user is deleting
-    if (value && value.length > this.props.text?.length) {
+    if (value && value.length > this.props.parsedText?.length) {
       formattedValue = this.getFormattedPhoneNumber(value);
     } else {
       formattedValue = value;
     }
 
     this.props.updateWidgetMetaProperty(
-      "value",
+      "rawText",
       parseIncompletePhoneNumber(formattedValue),
     );
-    this.props.updateWidgetMetaProperty("text", formattedValue, {
+    this.props.updateWidgetMetaProperty("parsedText", formattedValue, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
@@ -278,11 +283,11 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
 
   resetWidgetText = () => {
     super.resetWidgetText();
-    this.props.updateWidgetMetaProperty("value", undefined);
+    this.props.updateWidgetMetaProperty("rawText", undefined);
   };
 
   getWidgetView() {
-    const value = this.props.text ?? "";
+    const rawText = this.props.parsedText ?? "";
 
     const validation = validateInput(this.props);
 
@@ -293,17 +298,20 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         defaultValue={this.props.defaultText}
         dialCode={this.props.dialCode}
         errorMessage={validation.errorMessage}
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
         isReadOnly={this.props.isReadOnly}
+        isRequired={this.props.isRequired}
         label={this.props.label}
         onFocusChange={this.onFocusChange}
         onISDCodeChange={this.onISDCodeChange}
+        onKeyDown={this.onKeyDown}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         tooltip={this.props.tooltip}
-        validationStatus={validation.validattionStatus}
-        value={value}
+        validationStatus={validation.validationStatus}
+        value={rawText}
         widgetId={this.props.widgetId}
       />
     );

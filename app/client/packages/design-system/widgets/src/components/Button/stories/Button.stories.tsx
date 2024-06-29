@@ -6,6 +6,7 @@ import {
   BUTTON_VARIANTS,
   COLORS,
   SIZES,
+  objectKeys,
 } from "@design-system/widgets";
 
 /**
@@ -31,7 +32,7 @@ export const Main: Story = {
 export const Variants: Story = {
   render: () => (
     <Flex gap="spacing-4" wrap="wrap">
-      {Object.values(BUTTON_VARIANTS).map((variant) => (
+      {objectKeys(BUTTON_VARIANTS).map((variant) => (
         <Button key={`${variant}`} variant={variant}>
           {variant}
         </Button>
@@ -46,7 +47,7 @@ export const Variants: Story = {
 export const Semantic: Story = {
   render: () => (
     <Flex gap="spacing-4" wrap="wrap">
-      {Object.values(BUTTON_VARIANTS).map((variant) =>
+      {objectKeys(BUTTON_VARIANTS).map((variant) =>
         Object.values(COLORS).map((color) => (
           <Button color={color} key={`${variant}-${color}`} variant={variant}>
             {`${variant}-${color}`}

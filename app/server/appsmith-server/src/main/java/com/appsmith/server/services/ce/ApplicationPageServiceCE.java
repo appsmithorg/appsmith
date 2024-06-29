@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
@@ -9,7 +10,7 @@ import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
 import reactor.core.publisher.Mono;
 
-import java.util.Optional;
+import java.util.List;
 
 public interface ApplicationPageServiceCE {
 
@@ -48,12 +49,12 @@ public interface ApplicationPageServiceCE {
 
     Mono<PageDTO> deleteUnpublishedPageByBranchAndDefaultPageId(String defaultPageId, String branchName);
 
-    Mono<PageDTO> deleteUnpublishedPageWithOptionalPermission(
+    Mono<PageDTO> deleteUnpublishedPage(
             String id,
-            Optional<AclPermission> deletePagePermission,
-            Optional<AclPermission> readApplicationPermission,
-            Optional<AclPermission> deleteCollectionPermission,
-            Optional<AclPermission> deleteActionPermission);
+            AclPermission deletePagePermission,
+            AclPermission readApplicationPermission,
+            AclPermission deleteCollectionPermission,
+            AclPermission deleteActionPermission);
 
     Mono<PageDTO> deleteUnpublishedPage(String id);
 
@@ -70,4 +71,9 @@ public interface ApplicationPageServiceCE {
     Mono<Application> createOrUpdateSuffixedApplication(Application application, String name, int suffix);
 
     int getEvaluationVersion();
+
+    Mono<List<NewPage>> getPagesBasedOnApplicationMode(
+            Application branchedApplication, ApplicationMode applicationMode);
+
+    Mono<PageDTO> getPageDTOAfterMigratingDSL(NewPage newPage, boolean viewMode, boolean migrateDsl);
 }

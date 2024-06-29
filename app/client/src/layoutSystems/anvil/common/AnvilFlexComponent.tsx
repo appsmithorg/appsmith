@@ -15,6 +15,7 @@ import { Layers } from "constants/Layers";
 import { noop } from "utils/AppsmithUtils";
 import { convertFlexGrowToFlexBasis } from "../sectionSpaceDistributor/utils/spaceDistributionEditorUtils";
 import styles from "./styles.module.css";
+import { AnvilDataAttributes } from "widgets/anvil/constants";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
@@ -44,13 +45,13 @@ export const AnvilFlexComponent = forwardRef(
       onClick = noop,
       onClickCapture = noop,
       widgetId,
+      widgetName,
       widgetSize,
       widgetType,
     }: AnvilFlexComponentProps,
     ref: any,
   ) => {
     const _className = `${className} ${styles.anvilWidgetWrapper}`;
-
     const widgetConfigProps = useMemo(() => {
       const widgetConfig:
         | (Partial<WidgetProps> & WidgetConfigProps & { type: string })
@@ -79,7 +80,7 @@ export const AnvilFlexComponent = forwardRef(
         flexShrink: isFillWidget ? 1 : 0,
         flexBasis,
         alignItems: "center",
-        width: "max-content",
+        width: "fit-content",
       };
       if (widgetSize) {
         const {
@@ -99,12 +100,15 @@ export const AnvilFlexComponent = forwardRef(
       }
       return data;
     }, [widgetConfigProps, widgetSize, flexGrow]);
-
+    const testDataAttributes = {
+      [AnvilDataAttributes.WIDGET_NAME]: widgetName,
+    };
     // Render the Anvil Flex Component using the Flex component from WDS
     return (
       <Flex
         isInner
         {...flexProps}
+        {...testDataAttributes}
         className={_className}
         data-testid="t--anvil-widget-wrapper"
         data-widget-wrapper=""

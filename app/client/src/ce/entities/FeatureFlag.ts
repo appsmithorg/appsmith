@@ -24,8 +24,6 @@ export const FEATURE_FLAG = {
   release_git_autocommit_feature_enabled:
     "release_git_autocommit_feature_enabled",
   license_widget_rtl_support_enabled: "license_widget_rtl_support_enabled",
-  release_show_partial_import_export_enabled:
-    "release_show_partial_import_export_enabled",
   ab_one_click_learning_popover_enabled:
     "ab_one_click_learning_popover_enabled",
   release_side_by_side_ide_enabled: "release_side_by_side_ide_enabled",
@@ -68,7 +66,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_git_autocommit_feature_enabled: false,
   license_git_continuous_delivery_enabled: false,
   license_widget_rtl_support_enabled: false,
-  release_show_partial_import_export_enabled: false,
   ab_one_click_learning_popover_enabled: false,
   release_side_by_side_ide_enabled: false,
   release_global_add_pane_enabled: false,

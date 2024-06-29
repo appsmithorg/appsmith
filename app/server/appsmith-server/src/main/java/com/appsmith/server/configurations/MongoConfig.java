@@ -3,7 +3,6 @@ package com.appsmith.server.configurations;
 import com.appsmith.external.annotations.documenttype.DocumentTypeMapper;
 import com.appsmith.external.annotations.encryption.EncryptionMongoEventListener;
 import com.appsmith.external.models.AuthenticationDTO;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactoryBean;
 import com.appsmith.server.converters.StringToInstantConverter;
 import com.appsmith.server.repositories.BaseRepositoryImpl;
@@ -266,8 +265,8 @@ public class MongoConfig {
     }
 
     @Bean
-    public EncryptionMongoEventListener encryptionMongoEventListener(EncryptionService encryptionService) {
-        return new EncryptionMongoEventListener(encryptionService);
+    public EncryptionMongoEventListener encryptionMongoEventListener() {
+        return new EncryptionMongoEventListener();
     }
 
     @Bean

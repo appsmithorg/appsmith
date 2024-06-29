@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 
 import static com.amazonaws.regions.Regions.DEFAULT_REGION;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
+import static com.external.plugins.constants.S3PluginConstants.AUTO;
 import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_INDEX;
 import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX;
 import static com.external.plugins.constants.S3PluginConstants.S3_SERVICE_PROVIDER_PROPERTY_INDEX;
@@ -67,6 +68,7 @@ public class DatasourceUtils {
         DIGITAL_OCEAN_SPACES("digital-ocean-spaces"),
         DREAM_OBJECTS("dream-objects"),
         MINIO("minio"),
+        GOOGLE_CLOUD_STORAGE("google-cloud-storage"),
         OTHER("other");
 
         private String name;
@@ -95,7 +97,7 @@ public class DatasourceUtils {
      * @param datasourceConfiguration
      * @return AmazonS3ClientBuilder object
      * @throws AppsmithPluginException when (1) there is an error with parsing credentials (2) required
-     * datasourceConfiguration properties are missing (3) endpoint URL is found incorrect.
+     *                                 datasourceConfiguration properties are missing (3) endpoint URL is found incorrect.
      */
     public static AmazonS3ClientBuilder getS3ClientBuilder(DatasourceConfiguration datasourceConfiguration)
             throws AppsmithPluginException {
@@ -136,7 +138,6 @@ public class DatasourceUtils {
 
         S3ServiceProvider s3ServiceProvider = S3ServiceProvider.fromString(
                 (String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue());
-
         /**
          * AmazonS3 provides an attribute `forceGlobalBucketAccessEnabled` that automatically routes the request to a
          * region such that request should succeed.
@@ -168,6 +169,9 @@ public class DatasourceUtils {
                     /* This case can never be reached because of the if condition above. Just adding for sake of
                     completeness. */
 
+                    break;
+                case GOOGLE_CLOUD_STORAGE:
+                    region = AUTO;
                     break;
                 case UPCLOUD:
                     region = getRegionFromEndpointPattern(
@@ -233,8 +237,8 @@ public class DatasourceUtils {
     /**
      * This method checks if the S3 endpoint URL has correct format and extracts region information from it.
      *
-     * @param endpoint : endpoint URL
-     * @param regex : expected endpoint URL pattern
+     * @param endpoint         : endpoint URL
+     * @param regex            : expected endpoint URL pattern
      * @param regionGroupIndex : pattern group index for region string
      * @return S3 object storage region.
      * @throws AppsmithPluginException when then endpoint URL does not match the expected regex pattern.

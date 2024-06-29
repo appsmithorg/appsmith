@@ -3,6 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import { generateClassName } from "utils/generators";
 import type { Elevations } from "./constants";
+import { useAnvilWidgetElevationSetter } from "layoutSystems/anvil/editor/canvas/hooks/useAnvilWidgetElevationSetter";
 
 /**
  * This container component wraps the Zone and Section widgets and allows Anvil to utilise tokens from the themes
@@ -22,6 +23,7 @@ const StyledContainerComponent = styled.div<
 `;
 
 export function ContainerComponent(props: ContainerComponentProps) {
+  useAnvilWidgetElevationSetter(props.widgetId, props.elevatedBackground);
   return (
     <StyledContainerComponent
       className={`${generateClassName(props.widgetId)}`}

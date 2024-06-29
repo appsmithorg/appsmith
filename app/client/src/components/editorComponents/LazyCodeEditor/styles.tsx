@@ -1,6 +1,6 @@
 import styled, { keyframes } from "styled-components";
 import { ContentKind } from "./types";
-import { CodeEditorColors } from "../CodeEditor/styledComponents";
+import { CodeEditorColors } from "../CodeEditor/constants";
 
 export const HighlighedCodeContainer = styled("div")<{
   contentKind: ContentKind;
@@ -11,8 +11,6 @@ export const HighlighedCodeContainer = styled("div")<{
   background-color: #fff !important;
   font-weight: 400 !important;
   line-height: 21px !important;
-
-  min-height: inherit;
   padding: 6px;
 
   pre {

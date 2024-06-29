@@ -193,8 +193,9 @@ class ButtonListControl extends BaseControl<
         widgetId: generateReactKey(),
         isDisabled: false,
         itemType: isSeparator ? "SEPARATOR" : "BUTTON",
+        isSeparator,
         isVisible: true,
-        buttonVariant: "filled",
+        variant: "filled",
       },
     };
 

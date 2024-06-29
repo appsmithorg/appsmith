@@ -1,10 +1,10 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.server.domains.Layout;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import net.minidev.json.JSONObject;
 
 import java.util.List;
 
@@ -22,6 +22,8 @@ public class UpdateMultiplePageLayoutDTO {
 
         @NotNull private String layoutId;
 
-        private Layout layout;
+        private LayoutDTO layout;
     }
+
+    public record LayoutDTO(JSONObject dsl) {}
 }

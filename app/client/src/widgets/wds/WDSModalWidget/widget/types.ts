@@ -8,4 +8,5 @@ export interface ModalWidgetProps extends WidgetProps {
   submitButtonText: string;
   cancelButtonText: string;
   className: string;
+  closeOnSubmit: boolean;
 }

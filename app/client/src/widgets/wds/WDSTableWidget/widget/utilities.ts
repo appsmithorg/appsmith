@@ -185,7 +185,7 @@ export function getDefaultColumnProperties(
     originalId: id,
     id: sanitizedId,
     alias: id,
-    horizontalAlignment: "start",
+    horizontalAlignment: columnType === ColumnTypes.NUMBER ? "end" : "start",
     verticalAlignment: "center",
     columnType: columnType || ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
@@ -208,6 +208,7 @@ export function getDefaultColumnProperties(
     decimals: 0,
     thousandSeparator: true,
     notation: "standard" as Intl.NumberFormatOptions["notation"],
+    buttonColor: "accent",
   } as ColumnProperties;
 
   return columnProps;
@@ -301,7 +302,11 @@ export const getCellProperties = (
         columnProperties.cellBackground,
         rowIndex,
       ),
-      buttonColor: getPropertyValue(columnProperties.buttonColor, rowIndex),
+      buttonColor: getPropertyValue(
+        columnProperties.buttonColor,
+        rowIndex,
+        true,
+      ),
       buttonLabel: getPropertyValue(
         columnProperties.buttonLabel,
         rowIndex,

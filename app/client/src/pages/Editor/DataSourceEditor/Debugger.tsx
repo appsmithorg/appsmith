@@ -1,5 +1,4 @@
-import React, { useRef, useCallback } from "react";
-import type { RefObject } from "react";
+import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import {
@@ -13,15 +12,10 @@ import {
   setResponsePaneHeight,
   showDebugger,
 } from "actions/debuggerActions";
-import Resizable, {
-  ResizerCSS,
-} from "components/editorComponents/Debugger/Resizer";
 import EntityBottomTabs from "components/editorComponents/EntityBottomTabs";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import Errors from "components/editorComponents/Debugger/Errors";
-import DebuggerLogs, {
-  LIST_HEADER_HEIGHT,
-} from "components/editorComponents/Debugger/DebuggerLogs";
+import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import EntityDeps from "components/editorComponents/Debugger/EntityDependecies";
 import {
   getDebuggerSelectedTab,
@@ -29,33 +23,7 @@ import {
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "../APIEditor/constants";
-import { CloseDebugger } from "components/editorComponents/Debugger/DebuggerTabs";
-
-export const TabbedViewContainer = styled.div`
-  ${ResizerCSS}
-  height: ${ActionExecutionResizerHeight}px;
-  // Minimum height of bottom tabs as it can be resized
-  min-height: 36px;
-  width: 100%;
-  .ads-v2-tabs__panel {
-    overflow: hidden;
-  }
-  .ads-v2-tabs__list {
-    margin: 0px;
-  }
-  &&& {
-    ul.ads-v2-tabs__list {
-      margin: 0px ${(props) => props.theme.spaces[11]}px;
-      background-color: ${(props) =>
-        props.theme.colors.apiPane.responseBody.bg};
-    }
-    .ads-v2-tabs__panel {
-      height: calc(100% - ${LIST_HEADER_HEIGHT});
-    }
-  }
-  background-color: ${(props) => props.theme.colors.apiPane.responseBody.bg};
-  border-top: 1px solid var(--ads-v2-color-border);
-`;
+import { IDEBottomView, ViewHideBehaviour } from "IDE";
 
 export const ResizerMainContainer = styled.div`
   display: flex;
@@ -101,8 +69,6 @@ export const ResizerContentContainer = styled.div`
 
 export default function Debugger() {
   const dispatch = useDispatch();
-
-  const panelRef: RefObject<HTMLDivElement> = useRef(null);
 
   // fetch the height of the response pane from the store
   const responsePaneHeight = useSelector(getResponsePaneHeight);
@@ -154,34 +120,21 @@ export default function Debugger() {
     selectedResponseTab === DEBUGGER_TAB_KEYS.SCHEMA_TAB
   );
 
-  return shouldRender ? (
-    <TabbedViewContainer
-      className="t--datasource-bottom-pane-container select-text"
-      ref={panelRef}
+  return (
+    <IDEBottomView
+      behaviour={ViewHideBehaviour.CLOSE}
+      className="t--datasource-bottom-pane-container"
+      height={responsePaneHeight}
+      hidden={!shouldRender}
+      onHideClick={onClose}
+      setHeight={setResponsePaneHeightFn}
     >
-      <Resizable
-        initialHeight={responsePaneHeight}
-        onResizeComplete={(height: number) => setResponsePaneHeightFn(height)}
-        openResizer={false}
-        panelRef={panelRef}
-        snapToHeight={ActionExecutionResizerHeight}
-      />
-
       <EntityBottomTabs
         expandedHeight={`${ActionExecutionResizerHeight}px`}
         onSelect={setSelectedResponseTab}
         selectedTabKey={selectedResponseTab}
         tabs={DEBUGGER_TABS}
       />
-
-      <CloseDebugger
-        className="close-debugger t--close-debugger"
-        isIconButton
-        kind="tertiary"
-        onClick={onClose}
-        size="md"
-        startIcon="close-modal"
-      />
-    </TabbedViewContainer>
-  ) : null;
+    </IDEBottomView>
+  );
 }

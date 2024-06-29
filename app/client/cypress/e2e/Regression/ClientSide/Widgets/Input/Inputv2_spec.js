@@ -1,3 +1,5 @@
+import { agHelper } from "../../../../../support/Objects/ObjectsCore";
+
 const widgetName = "inputwidgetv2";
 const widgetInput = `.t--widget-${widgetName} input`;
 
@@ -364,7 +366,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
       ".t--property-control-text",
       "{{appsmith.store.textPayloadOnSubmit}}",
     );
-    cy.assertPageSave();
+    agHelper.AssertAutoSave();
 
     cy.closePropertyPane();
     cy.get(widgetInput).clear();

@@ -1,4 +1,5 @@
 import { getScriptType } from "workers/Evaluation/evaluate";
+import { CustomLintErrorCode } from "../constants";
 import getLintingErrors from "../utils/getLintingErrors";
 
 describe("getLintingErrors", () => {
@@ -100,6 +101,83 @@ describe("getLintingErrors", () => {
       });
 
       expect(lintErrors.length).toEqual(1);
+    });
+  });
+
+  describe("3. Verify lint errors are shown when mutations are performed on unmutable objects", () => {
+    const data = {
+      THIS_CONTEXT: {},
+      Input1: {
+        text: "inputValue",
+        ENTITY_TYPE: "WIDGET",
+      },
+      appsmith: {
+        store: {
+          test: "testValue",
+        },
+      },
+    };
+    it("1. Assigning values to input widget's properties", () => {
+      const originalBinding = "'myFun1() {\n\t\tInput1.text = \"\";\n\t}'";
+      const script =
+        '\n  function $$closedFn () {\n    const $$result = {myFun1() {\n\t\tInput1.text = "";\n\t}}\n    return $$result\n  }\n  $$closedFn.call(THIS_CONTEXT)\n  ';
+      const options = { isJsObject: true };
+
+      const scriptType = getScriptType(false, false);
+
+      const lintErrors = getLintingErrors({
+        data,
+        options,
+        originalBinding,
+        script,
+        scriptType,
+      });
+      expect(lintErrors.length).toEqual(1);
+      expect(lintErrors[0].code).toEqual(
+        CustomLintErrorCode.INVALID_ENTITY_PROPERTY,
+      );
+    });
+
+    it("2. Assigning values to appsmith store variables", () => {
+      const originalBinding = 'myFun1() {\n\t\tappsmith.store.test = "";\n\t}';
+      const script =
+        '\n  function $$closedFn () {\n    const $$result = {myFun1() {\n\t\tappsmith.store.test = "";\n\t}}\n    return $$result\n  }\n  $$closedFn.call(THIS_CONTEXT)\n';
+      const options = { isJsObject: true };
+
+      const scriptType = getScriptType(false, false);
+
+      const lintErrors = getLintingErrors({
+        data,
+        options,
+        originalBinding,
+        script,
+        scriptType,
+      });
+      expect(lintErrors.length).toEqual(1);
+      expect(lintErrors[0].code).toEqual(
+        CustomLintErrorCode.INVALID_APPSMITH_STORE_PROPERTY_SETTER,
+      );
+    });
+    it("3. Mutating appsmith store values by calling any functions on it", () => {
+      const originalBinding =
+        "myFun1() {\n\t\tappsmith.store.test.push(1);\n\t}";
+      const script =
+        "\n  function $$closedFn () {\n    const $$result = {myFun1() {\n\t\tappsmith.store.test.push(1);\n\t}}\n    return $$result\n  }\n  $$closedFn.call(THIS_CONTEXT)\n";
+      const options = { isJsObject: true };
+
+      const scriptType = getScriptType(false, false);
+
+      const lintErrors = getLintingErrors({
+        data,
+        options,
+        originalBinding,
+        script,
+        scriptType,
+      });
+      expect(lintErrors.length).toEqual(1);
+      expect(lintErrors[0].code).toEqual(
+        CustomLintErrorCode.INVALID_APPSMITH_STORE_PROPERTY_SETTER,
+      );
     });
   });
 });

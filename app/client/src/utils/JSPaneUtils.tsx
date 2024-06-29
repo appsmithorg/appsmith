@@ -20,10 +20,26 @@ export interface JSUpdate {
   parsedBody: ParsedBody | undefined;
 }
 
+export interface JSCollectionDifference {
+  newActions: Partial<JSAction>[];
+  updateActions: JSAction[];
+  deletedActions: JSAction[];
+  nameChangedActions: Array<{
+    id: string;
+    collectionId?: string;
+    oldName: string;
+    newName: string;
+    pageId: string;
+    moduleId?: string;
+    workflowId?: string;
+  }>;
+  changedVariables: Variable[];
+}
+
 export const getDifferenceInJSCollection = (
   parsedBody: ParsedBody,
   jsAction: JSCollection,
-) => {
+): JSCollectionDifference => {
   const newActions: ParsedJSSubAction[] = [];
   const toBearchivedActions: JSAction[] = [];
   const toBeUpdatedActions: JSAction[] = [];
@@ -89,6 +105,7 @@ export const getDifferenceInJSCollection = (
             newName: newActions[i].name,
             pageId: updateExisting.pageId,
             moduleId: updateExisting.moduleId,
+            workflowId: updateExisting.workflowId,
           });
           newActions.splice(i, 1);
           toBearchivedActions.splice(indexOfArchived, 1);
@@ -204,7 +221,7 @@ export const createDummyJSCollectionActions = (
       workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
-        body: "function (){\n\t\t//\twrite code here\n\t\t//\tthis.myVar1 = [1,2,3]\n\t}",
+        body: "function () {}",
         timeoutInMillisecond: 0,
         jsArguments: [],
       },
@@ -216,7 +233,7 @@ export const createDummyJSCollectionActions = (
       workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
-        body: "async function () {\n\t\t//\tuse async-await or promises\n\t\t//\tawait storeValue('varName', 'hello world')\n\t}",
+        body: "async function () {}",
         timeoutInMillisecond: 0,
         jsArguments: [],
       },
@@ -228,11 +245,11 @@ export const createDummyJSCollectionActions = (
   const variables = [
     {
       name: "myVar1",
-      value: [],
+      value: "[]",
     },
     {
       name: "myVar2",
-      value: {},
+      value: "{}",
     },
   ];
 
@@ -256,7 +273,7 @@ export const createSingleFunctionJsCollection = (
       workspaceId,
       executeOnLoad: false,
       actionConfiguration: {
-        body: "function (){\n\t\t//\twrite code here\n\t}",
+        body: "function () {}",
         timeoutInMillisecond: 0,
         jsArguments: [],
       },

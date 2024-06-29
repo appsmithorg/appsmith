@@ -1,11 +1,12 @@
-import type { ReactNode } from "react";
+import type { Key } from "@react-types/shared";
 import type {
   SelectProps as SpectrumSelectProps,
   ValidationResult,
 } from "react-aria-components";
 import type { IconProps, SIZES } from "@design-system/widgets";
 
-export interface SelectProps<T extends object> extends SpectrumSelectProps<T> {
+export interface SelectProps<T extends object>
+  extends Omit<SpectrumSelectProps<T>, "slot"> {
   /** Item objects in the collection. */
   items: Iterable<SelectItem>;
   /** The content to display as the label. */
@@ -22,11 +23,11 @@ export interface SelectProps<T extends object> extends SpectrumSelectProps<T> {
   /** loading state for the input */
   isLoading?: boolean;
   /** A ContextualHelp element to place next to the label. */
-  contextualHelp?: ReactNode;
+  contextualHelp?: string;
 }
 
 export interface SelectItem {
-  name: string;
-  key: number;
+  id: Key;
+  label: string;
   icon?: IconProps["name"];
 }

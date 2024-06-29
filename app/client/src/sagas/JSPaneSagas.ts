@@ -15,6 +15,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
+  getCurrentLayoutId,
   getCurrentPageId,
   getIsSavingEntity,
 } from "selectors/editorSelectors";
@@ -50,12 +51,14 @@ import JSActionAPI from "@appsmith/api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import {
   updateJSCollectionSuccess,
-  refactorJSCollectionAction,
   updateJSCollectionBodySuccess,
   updateJSFunction,
   executeJSFunctionInit,
   setJsPaneDebuggerState,
   createNewJSCollection,
+  jsSaveActionComplete,
+  jsSaveActionStart,
+  refactorJSCollectionAction,
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -75,8 +78,6 @@ import {
   PLATFORM_ERROR,
 } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
-import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
@@ -100,6 +101,7 @@ import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { setIdeEditorViewMode } from "actions/ideActions";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { updateJSCollectionAPICall } from "@appsmith/sagas/ApiCallerSagas";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -204,8 +206,8 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
     const parsedBody = update.parsedBody;
     if (parsedBody && !!jsAction) {
       const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
-      // jsActionTobeUpdated.body = jsAction.body;
       const data = getDifferenceInJSCollection(parsedBody, jsAction);
+
       if (data.nameChangedActions.length) {
         for (let i = 0; i < data.nameChangedActions.length; i++) {
           yield put(
@@ -213,8 +215,9 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
               refactorAction: {
                 actionId: data.nameChangedActions[i].id,
                 collectionName: jsAction.name,
-                pageId: data.nameChangedActions[i].pageId,
+                pageId: data.nameChangedActions[i].pageId || "",
                 moduleId: data.nameChangedActions[i].moduleId,
+                workflowId: data.nameChangedActions[i].workflowId,
                 oldName: data.nameChangedActions[i].oldName,
                 newName: data.nameChangedActions[i].newName,
               },
@@ -314,8 +317,11 @@ function* updateJSCollection(data: {
   try {
     const { deletedActions, jsCollection, newActions } = data;
     if (jsCollection) {
-      const response: JSCollectionCreateUpdateResponse =
-        yield JSActionAPI.updateJSCollection(jsCollection);
+      yield put(jsSaveActionStart({ id: jsCollection.id }));
+      const response: JSCollectionCreateUpdateResponse = yield call(
+        updateJSCollectionAPICall,
+        jsCollection,
+      );
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         if (newActions && newActions.length) {
@@ -351,6 +357,8 @@ function* updateJSCollection(data: {
       type: ReduxActionErrorTypes.UPDATE_JS_ACTION_ERROR,
       payload: { error, data: jsAction },
     });
+  } finally {
+    yield put(jsSaveActionComplete({ id: data.jsCollection.id }));
   }
 }
 
@@ -631,55 +639,50 @@ function* handleRefactorJSActionNameSaga(
     actionCollection: JSCollection;
   }>,
 ) {
-  const { pageId } = data.payload.refactorAction;
-  if (!pageId) {
+  const { actionCollection, refactorAction } = data.payload;
+  const { pageId } = refactorAction;
+  const layoutId: string | undefined = yield select(getCurrentLayoutId);
+  if (!pageId || !layoutId) {
     return;
   }
 
-  const params: FetchPageRequest = {
-    id: data.payload.refactorAction.pageId || "",
-    migrateDSL: true,
+  const requestData = {
+    ...refactorAction,
+    layoutId,
+    actionCollection: actionCollection,
   };
-  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
-  const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
-  if (isPageRequestSuccessful) {
-    // get the layoutId from the page response
-    const layoutId = pageResponse.data.layouts[0].id;
-    const requestData = {
-      ...data.payload.refactorAction,
-      layoutId: layoutId,
-      actionCollection: data.payload.actionCollection,
-    };
-    // call to refactor action
-    try {
-      const refactorResponse: ApiResponse =
-        yield JSActionAPI.updateJSCollectionActionRefactor(requestData);
+  // call to refactor action
+  try {
+    yield put(jsSaveActionStart({ id: actionCollection.id }));
+    const refactorResponse: ApiResponse =
+      yield JSActionAPI.updateJSCollectionActionRefactor(requestData);
 
-      const isRefactorSuccessful: boolean =
-        yield validateResponse(refactorResponse);
+    const isRefactorSuccessful: boolean =
+      yield validateResponse(refactorResponse);
 
-      const currentPageId: string | undefined = yield select(getCurrentPageId);
+    const currentPageId: string | undefined = yield select(getCurrentPageId);
 
-      if (isRefactorSuccessful) {
-        yield put({
-          type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME_SUCCESS,
-          payload: { collectionId: data.payload.actionCollection.id },
-        });
-        if (currentPageId === data.payload.refactorAction.pageId) {
-          yield updateCanvasWithDSL(
-            // @ts-expect-error: response is of type unknown
-            refactorResponse.data,
-            data.payload.refactorAction.pageId,
-            layoutId,
-          );
-        }
-      }
-    } catch (error) {
+    if (isRefactorSuccessful) {
       yield put({
-        type: ReduxActionErrorTypes.REFACTOR_JS_ACTION_NAME_ERROR,
-        payload: { collectionId: data.payload.actionCollection.id },
+        type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME_SUCCESS,
+        payload: { collectionId: actionCollection.id },
       });
+      if (currentPageId === refactorAction.pageId) {
+        yield updateCanvasWithDSL(
+          // @ts-expect-error: response is of type unknown
+          refactorResponse.data,
+          refactorAction.pageId,
+          layoutId,
+        );
+      }
     }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.REFACTOR_JS_ACTION_NAME_ERROR,
+      payload: { collectionId: actionCollection.id },
+    });
+  } finally {
+    yield put(jsSaveActionComplete({ id: actionCollection.id }));
   }
 }
 
@@ -724,7 +727,8 @@ function* handleUpdateJSFunctionPropertySaga(
       });
       collection.actions = updatedActions;
       const response: ApiResponse<JSCollectionCreateUpdateResponse> =
-        yield JSActionAPI.updateJSCollection(collection);
+        yield call(updateJSCollectionAPICall, collection);
+
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         yield put({

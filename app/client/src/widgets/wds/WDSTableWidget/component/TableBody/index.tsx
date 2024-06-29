@@ -1,13 +1,14 @@
 import React from "react";
-
 import { TableBodyContext } from "./context";
 import { StaticTableBody } from "./StaticTableBody";
+import type { StaticTableProps } from "./StaticTableBody";
 import type { TableBodyContextType } from "./context";
-import type { VirtualTableBodyProps } from "./VirtualTableBody";
-import { VirtualTableBody } from "./VirtualTableBody";
 
 export const TableBody = (
-  props: VirtualTableBodyProps & TableBodyContextType & { useVirtual: boolean },
+  props: TableBodyContextType &
+    StaticTableProps & {
+      excludeFromTabOrder?: boolean;
+    },
 ) => {
   const {
     accentColor,
@@ -34,7 +35,6 @@ export const TableBody = (
     selectTableRow,
     sortTableColumn,
     subPage,
-    useVirtual,
     widgetId,
     width,
     ...restOfProps
@@ -73,11 +73,7 @@ export const TableBody = (
         totalColumnsWidth: props.totalColumnsWidth,
       }}
     >
-      {useVirtual ? (
-        <VirtualTableBody rows={rows} {...restOfProps} />
-      ) : (
-        <StaticTableBody rows={rows} {...restOfProps} />
-      )}
+      <StaticTableBody rows={rows} {...restOfProps} />
     </TableBodyContext.Provider>
   );
 };

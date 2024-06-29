@@ -39,8 +39,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static com.appsmith.server.helpers.ContextTypeUtils.getDefaultContextIfNull;
-import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -204,7 +204,7 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
             Map<String, String> analyticsProperties) {
         return contextIdMono.flatMap(branchedPageId -> {
             refactorEntityNameDTO.setPageId(branchedPageId);
-            return newPageService.getById(branchedPageId).map(page -> {
+            return newPageService.getByIdWithoutPermissionCheck(branchedPageId).map(page -> {
                 analyticsProperties.put(FieldName.APPLICATION_ID, page.getApplicationId());
                 analyticsProperties.put(FieldName.PAGE_ID, refactorEntityNameDTO.getPageId());
                 return analyticsProperties;

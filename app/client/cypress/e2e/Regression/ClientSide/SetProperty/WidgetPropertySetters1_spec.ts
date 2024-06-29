@@ -123,7 +123,7 @@ Object.values(setterMethodsToTest).forEach(
   ) => {
     describe(
       `${index + 1}. ${name} method test`,
-      { tags: ["@tag.Widget"] },
+      { tags: ["@tag.Widget", "@tag.JS"] },
       () => {
         beforeEach("Adding new pag & DragDrop widget", () => {
           PageList.AddNewPage();
@@ -189,7 +189,7 @@ describe(
       );
 
       agHelper.AssertElementVisibility(locators._lintErrorElement);
-      agHelper.HoverElement(locators._lintErrorElement);
+      agHelper.GetElement(locators._lintErrorElement).realHover();
       agHelper.AssertContains(
         "Direct mutation of widget properties is not supported. Use Button1.setVisibility(value) instead.",
       );

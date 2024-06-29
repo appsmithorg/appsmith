@@ -6,10 +6,11 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.clonepage.ClonePageService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.git.autocommit.helpers.AutoCommitEligibilityHelper;
+import com.appsmith.server.git.autocommit.helpers.GitAutoCommitHelper;
+import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
-import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -47,7 +48,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             NewPageService newPageService,
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
-            GitFileUtils gitFileUtils,
+            CommonGitFileUtils commonGitFileUtils,
             ThemeService themeService,
             ResponseUtils responseUtils,
             WorkspacePermission workspacePermission,
@@ -63,9 +64,9 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             DatasourcePermission datasourcePermission,
             DSLMigrationUtils dslMigrationUtils,
             GitAutoCommitHelper gitAutoCommitHelper,
+            AutoCommitEligibilityHelper autoCommitEligibilityHelper,
             ClonePageService<NewAction> actionClonePageService,
             ClonePageService<ActionCollection> actionCollectionClonePageService) {
-
         super(
                 workspaceService,
                 applicationService,
@@ -79,7 +80,7 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 newPageService,
                 newActionService,
                 actionCollectionService,
-                gitFileUtils,
+                commonGitFileUtils,
                 themeService,
                 responseUtils,
                 workspacePermission,
@@ -94,7 +95,6 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 datasourceRepository,
                 datasourcePermission,
                 dslMigrationUtils,
-                gitAutoCommitHelper,
                 actionClonePageService,
                 actionCollectionClonePageService);
     }

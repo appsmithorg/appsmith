@@ -24,14 +24,6 @@ export const createNewJSCollection = (
   payload: { pageId, from, functionName },
 });
 
-export const updateJSCollection = (
-  body: string,
-  id: string,
-): ReduxAction<{ body: string; id: string }> => ({
-  type: ReduxActionTypes.UPDATE_JS_ACTION_INIT,
-  payload: { body, id },
-});
-
 export const updateJSCollectionBody = (
   body: string,
   id: string,
@@ -57,12 +49,26 @@ export const updateJSCollectionBodySuccess = (payload: {
   };
 };
 
+export const jsSaveActionStart = (payload: { id: string }) => {
+  return {
+    type: ReduxActionTypes.JS_ACTION_SAVE_START,
+    payload,
+  };
+};
+
 export const refactorJSCollectionAction = (payload: {
   refactorAction: RefactorAction;
   actionCollection: JSCollection;
 }) => {
   return {
     type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
+    payload,
+  };
+};
+
+export const jsSaveActionComplete = (payload: { id: string }) => {
+  return {
+    type: ReduxActionTypes.JS_ACTION_SAVE_COMPLETE,
     payload,
   };
 };

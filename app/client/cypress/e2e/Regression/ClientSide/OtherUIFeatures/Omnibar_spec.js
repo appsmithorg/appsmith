@@ -8,12 +8,6 @@ import {
   assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-import {
-  createMessage,
-  NAV_DESCRIPTION,
-  ACTION_OPERATION_DESCRIPTION,
-} from "../../../../../src/ce/constants/messages";
-
 describe("Omnibar functionality test cases", () => {
   const apiName = "Omnibar1";
   const jsObjectName = "Omnibar2";
@@ -32,12 +26,15 @@ describe("Omnibar functionality test cases", () => {
       .eq(0)
       .should("have.text", "Navigate")
       .next()
-      .should("have.text", createMessage(NAV_DESCRIPTION));
+      .should("have.text", Cypress.env("MESSAGES").NAV_DESCRIPTION());
     cy.get(omnibar.categoryTitle)
       .eq(1)
       .should("have.text", "Create new")
       .next()
-      .should("have.text", createMessage(ACTION_OPERATION_DESCRIPTION));
+      .should(
+        "have.text",
+        Cypress.env("MESSAGES").ACTION_OPERATION_DESCRIPTION(),
+      );
     cy.get("body").type("{esc}");
   });
 
