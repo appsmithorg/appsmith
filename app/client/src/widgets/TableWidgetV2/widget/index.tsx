@@ -210,7 +210,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       columnOrder: [],
       enableClientSideSearch: true,
       isVisibleSearch: true,
-      isVisibleFilters: true,
+      isVisibleFilters: false,
       isVisibleDownload: true,
       isVisiblePagination: true,
       isSortable: true,
