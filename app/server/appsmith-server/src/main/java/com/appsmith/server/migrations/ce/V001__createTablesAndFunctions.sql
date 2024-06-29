@@ -64,7 +64,7 @@ create table application
     unpublished_application_detail jsonb,
     unpublished_customjslibs jsonb,
     view_mode boolean,
-    workspace_id text
+    workspace_id text NOT NULL
 );
 
 create table application_snapshot
@@ -79,8 +79,8 @@ create table application_snapshot
     policies jsonb,
     policy_map jsonb,
     updated_at timestamp(6) with time zone,
-    application_id text,
-    chunk_order integer not null,
+    application_id text NOT NULL,
+    chunk_order integer NOT NULL,
     data bytea
 );
 
@@ -366,8 +366,8 @@ create table plugin
     max_appsmith_version_supported text,
     min_appsmith_version_supported text,
     name text,
-    package_name text,
-    plugin_name text,
+    package_name text NOT NULL,
+    plugin_name text NOT NULL,
     response_type text,
     type text,
     ui_component text,
