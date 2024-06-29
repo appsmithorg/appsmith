@@ -260,8 +260,9 @@ public class ApplicationServiceCEImpl
         return super.create(application).onErrorResume(DataIntegrityViolationException.class, error -> {
             if (error.getMessage() != null
                     // Catch only if error message contains workspace_app_deleted_git_application_metadata mongo error
-                    && (error.getMessage()
-                            .contains("application_workspace_name_deleted_git_application_metadata_key"))) {
+                    && (error.getMessage().contains("application_workspace_name_key")
+                            || error.getMessage()
+                                    .contains("application_workspace_name_git_application_metadata_key"))) {
                 if (suffix > MAX_RETRIES) {
                     return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_PAGE_RELOAD, name));
                 } else {

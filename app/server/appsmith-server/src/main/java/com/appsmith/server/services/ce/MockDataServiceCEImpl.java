@@ -239,7 +239,7 @@ public class MockDataServiceCEImpl implements MockDataServiceCE {
         final String finalPassword = password;
         return datasourceService.create(datasource).onErrorResume(DataIntegrityViolationException.class, error -> {
             if (error.getMessage() != null
-                    && error.getMessage().contains("datasource_workspace_name_deleted_key")
+                    && error.getMessage().contains("datasource_workspace_name_key")
                     && datasourceStorageDTO.getDatasourceConfiguration().getAuthentication() instanceof DBAuth) {
                 ((DBAuth) datasourceStorageDTO.getDatasourceConfiguration().getAuthentication())
                         .setPassword(finalPassword);

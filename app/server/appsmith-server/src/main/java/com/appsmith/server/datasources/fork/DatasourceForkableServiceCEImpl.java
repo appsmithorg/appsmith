@@ -157,7 +157,7 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
         final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
         datasource.setName(actualName);
         return datasourceService.create(datasource).onErrorResume(DataIntegrityViolationException.class, error -> {
-            if (error.getMessage() != null && error.getMessage().contains("datasource_workspace_name_deleted_key")) {
+            if (error.getMessage() != null && error.getMessage().contains("datasource_workspace_name_key")) {
                 return createSuffixedDatasource(datasource, name, 1 + suffix);
             }
             throw error;
