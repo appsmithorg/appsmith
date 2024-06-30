@@ -33,10 +33,10 @@ create unique index if not exists datasource_workspace_name_key
 -- application table constraints
 create unique index if not exists application_workspace_name_key
     on application(workspace_id, name)
-    WHERE deleted_at IS NULL and (git_application_metadata is null OR git_application_metadata ->> 'remoteUrl' is NULL);
+    WHERE deleted_at IS NULL AND (git_application_metadata IS NULL OR (git_application_metadata ->> 'remoteUrl' IS NULL AND git_application_metadata ->> 'branchName' IS NULL));
 create unique index if not exists application_workspace_name_git_application_metadata_key
     on application(workspace_id, name, (git_application_metadata ->> 'remoteUrl'), (git_application_metadata ->>'branchName'))
-    WHERE deleted_at IS NULL and git_application_metadata is NOT null AND git_application_metadata ->> 'remoteUrl' is NOT NULL;
+    WHERE deleted_at IS NULL AND git_application_metadata IS NOT NULL AND git_application_metadata ->> 'remoteUrl' IS NOT NULL AND git_application_metadata ->> 'branchName' IS NOT NULL;
 
 create unique index if not exists dss_datasource_id_key
     on datasource_storage_structure(datasource_id)

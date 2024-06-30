@@ -398,7 +398,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
 
         // First collect all valid action ids from before, and diff against incoming action ids
         Mono<List<ActionDTO>> deleteNonExistingActionMono = newActionService
-                .findByCollectionIdAndViewMode(actionCollectionDTO.getId(), false, actionPermission.getEditPermission())
+                .findByCollectionIdAndViewMode(id, false, actionPermission.getEditPermission())
                 .filter(newAction -> !defaultActionIds.contains(
                         newAction.getDefaultResources().getActionId()))
                 .flatMap(x -> newActionService
