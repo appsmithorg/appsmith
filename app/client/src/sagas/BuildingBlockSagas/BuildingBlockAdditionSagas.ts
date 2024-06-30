@@ -69,13 +69,16 @@ import ApplicationApi, {
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { WidgetAddChild } from "actions/pageActions";
 import { runAction } from "actions/pluginActionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Template } from "api/TemplatesApi";
+import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { race } from "redux-saga/effects";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
 import {
   getCurrentApplicationId,
@@ -83,15 +86,17 @@ import {
 } from "selectors/editorSelectors";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
-import { saveBuildingBlockWidgetsToStore } from ".";
+import {
+  addNewlyAddedActionsToRedux,
+  saveBuildingBlockWidgetsToStore,
+  updateWidgetsNameInNewQueries,
+} from ".";
 import { addWidgetAndMoveWidgetsSaga } from "../CanvasSagas/DraggingCanvasSagas";
 import { validateResponse } from "../ErrorSagas";
 import { postPageAdditionSaga } from "../TemplatesSagas";
 import { addChildSaga } from "../WidgetAdditionSagas";
 import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
 import { getDragDetails, getWidgetByName } from "../selectors";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -225,6 +230,7 @@ export function* loadBuildingBlocksIntoApplication(
           left: leftColumn,
         },
         buildingBlockWidget.widgetId,
+        response.data.newActionList,
       );
 
       const timeTakenToDropWidgetsInSeconds =
@@ -405,6 +411,7 @@ export function* pasteBuildingBlockWidgetsSaga(
     left: number;
   },
   pastingIntoWidgetId: string,
+  newActions: Action[] = [],
 ) {
   const {
     flexLayers,
@@ -552,6 +559,13 @@ export function* pasteBuildingBlockWidgetsSaga(
                 },
               );
             }
+            if (oldWidgetName !== newWidgetName) {
+              newActions = updateWidgetsNameInNewQueries(
+                oldWidgetName,
+                newWidgetName,
+                newActions,
+              );
+            }
 
             handleSelfWidgetReferencesDuringBuildingBlockPaste(
               widget,
@@ -690,6 +704,8 @@ export function* pasteBuildingBlockWidgetsSaga(
         }),
       ),
     );
+
+    yield addNewlyAddedActionsToRedux(newActions);
 
     //calculate the new positions of the reflowed widgets
     let reflowedWidgets = getReflowedPositions(

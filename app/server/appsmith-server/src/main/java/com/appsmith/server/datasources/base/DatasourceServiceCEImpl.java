@@ -839,15 +839,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Flux<Datasource> saveAll(List<Datasource> datasourceList) {
-        datasourceList.stream()
-                .filter(datasource -> datasource.getGitSyncId() == null)
-                .forEach(datasource -> datasource.setGitSyncId(
-                        datasource.getWorkspaceId() + "_" + Instant.now().toString()));
-        return repository.saveAll(datasourceList);
-    }
-
-    @Override
     public Mono<Datasource> archiveById(String id) {
         return repository
                 .findById(id, datasourcePermission.getDeletePermission())
@@ -897,6 +888,15 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService.sendDeleteEvent(datasource, analyticsProperties);
                 });
+    }
+
+    @Override
+    public Flux<Datasource> saveAll(List<Datasource> datasourceList) {
+        datasourceList.stream()
+            .filter(datasource -> datasource.getGitSyncId() == null)
+            .forEach(datasource -> datasource.setGitSyncId(
+                datasource.getWorkspaceId() + "_" + Instant.now().toString()));
+        return repository.saveAll(datasourceList);
     }
 
     private Mono<PluginExecutor> findPluginExecutor(String pluginId) {

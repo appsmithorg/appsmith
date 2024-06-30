@@ -12,6 +12,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -66,6 +67,7 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
             ActionCollectionService actionCollectionService,
             DatasourceService datasourceService,
             CustomJSLibService customJSLibService,
+            UpdateLayoutService updateLayoutService,
             DryOperationRepository dryOperationRepository) {
         super(
                 importService,
@@ -95,6 +97,7 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
                 actionCollectionService,
                 datasourceService,
                 customJSLibService,
+                updateLayoutService,
                 dryOperationRepository);
     }
 }
