@@ -2664,9 +2664,5 @@
         }
       }
     ]
-  },
-  "layoutOnLoadActions": [],
-  "layoutOnLoadActionErrors": [],
-  "id": "666a987c0b846c72d3af7fad",
-  "userPermissions": []
+  }
 }

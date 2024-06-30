@@ -255,7 +255,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         actionCollectionViewDTO.setDefaultResources(defaults);
         return newActionService
                 .findByCollectionIdAndViewMode(actionCollection.getId(), viewMode, aclPermission)
-                .map(action -> newActionService.generateActionByViewMode(action, false))
+                .map(action -> newActionService.generateActionByViewMode(action, viewMode))
                 .collectList()
                 .map(actionDTOList -> {
                     actionCollectionViewDTO.setActions(actionDTOList);
