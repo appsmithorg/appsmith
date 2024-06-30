@@ -413,7 +413,6 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             datasourceList.addAll(dryRunOpsMap.get(queryType));
             datasourceList.add(createdDatasource);
             dryRunOpsMap.put(FieldName.CREATE, datasourceList);
-            dryRunOpsMap.get(queryType).add(createdDatasource);
         } else {
             dryRunOpsMap.put(queryType, List.of(createdDatasource));
         }

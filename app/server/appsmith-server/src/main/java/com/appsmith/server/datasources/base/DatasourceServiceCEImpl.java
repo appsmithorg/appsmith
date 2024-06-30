@@ -225,14 +225,13 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     return datasourceStorageService
                             .create(datasourceStorage, isDryOps)
                             .map(datasourceStorage1 -> {
-                                if (datasourceStorageDryRunQueries != null) {
+                                if (datasourceStorageDryRunQueries != null && isDryOps) {
                                     if (datasourceStorageDryRunQueries.containsKey(FieldName.CREATE)) {
                                         List<DatasourceStorage> datasourceStorageList = new ArrayList<>();
                                         datasourceStorageList.addAll(
                                                 datasourceStorageDryRunQueries.get(FieldName.CREATE));
                                         datasourceStorageList.add(datasourceStorage1);
-                                        datasourceStorageDryRunQueries.putIfAbsent(
-                                                FieldName.CREATE, datasourceStorageList);
+                                        datasourceStorageDryRunQueries.put(FieldName.CREATE, datasourceStorageList);
                                     } else {
                                         datasourceStorageDryRunQueries.put(
                                                 FieldName.CREATE, List.of(datasourceStorage1));

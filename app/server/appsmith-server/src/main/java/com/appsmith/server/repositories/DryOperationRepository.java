@@ -26,6 +26,7 @@ public class DryOperationRepository {
     public void init() {
         final Map<Class<?>, AppsmithRepository<?>> map = new HashMap<>();
         map.put(Datasource.class, datasourceRepository);
+        map.put(DatasourceStorage.class, datasourceStorageRepository);
         repoByEntityClass = Collections.unmodifiableMap(map);
     }
 
