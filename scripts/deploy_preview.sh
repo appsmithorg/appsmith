@@ -40,7 +40,6 @@ export DBNAME="$edition$PULL_REQUEST_NUMBER"
 export DOMAINNAME="$edition-$PULL_REQUEST_NUMBER.dp.appsmith.com"
 export HELMCHART="appsmith"
 export HELMCHART_URL="http://helm-ee.appsmith.com"
-export HELMCHART_VERSION="3.1.1"
 
 
 aws eks update-kubeconfig --region "$region" --name "$cluster_name" --profile eksci
@@ -104,5 +103,4 @@ helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-n
   --set applicationConfig.APPSMITH_SENTRY_ENVIRONMENT="$NAMESPACE" \
   --set applicationConfig.APPSMITH_MONGODB_URI="mongodb+srv://$DB_USERNAME:$DB_PASSWORD@$DB_URL/$DBNAME?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin" \
   --set applicationConfig.APPSMITH_DISABLE_EMBEDDED_KEYCLOAK=\"1\" \
-  --set applicationConfig.APPSMITH_CUSTOMER_PORTAL_URL="https://release-customer.appsmith.com" \
-  --version "$HELMCHART_VERSION"
+  --set applicationConfig.APPSMITH_CUSTOMER_PORTAL_URL="https://release-customer.appsmith.com"
