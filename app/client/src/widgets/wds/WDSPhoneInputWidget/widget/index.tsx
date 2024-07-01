@@ -6,7 +6,6 @@ import * as Sentry from "@sentry/react";
 import { mergeWidgetConfig } from "utils/helpers";
 import type { CountryCode } from "libphonenumber-js";
 import type { WidgetState } from "widgets/BaseWidget";
-import derivedProperties from "./parsedDerivedProperties";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {
@@ -17,6 +16,7 @@ import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
+import derivedProperties from "widgets/wds/WDSCurrencyInputWidget/widget/parsedDerivedProperties";
 
 import * as config from "../config";
 import { PhoneInputComponent } from "../component";
@@ -310,7 +310,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         tooltip={this.props.tooltip}
-        validationStatus={validation.validattionStatus}
+        validationStatus={validation.validationStatus}
         value={rawText}
         widgetId={this.props.widgetId}
       />

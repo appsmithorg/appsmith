@@ -2617,9 +2617,5 @@
         }
       }
     ]
-  },
-  "layoutOnLoadActions": [],
-  "layoutOnLoadActionErrors": [],
-  "id": "66740df8578c385615a3d38a",
-  "userPermissions": []
+  }
 }

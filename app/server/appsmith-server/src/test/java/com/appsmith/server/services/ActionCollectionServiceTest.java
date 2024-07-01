@@ -617,14 +617,25 @@ public class ActionCollectionServiceTest {
         actionCollectionDTO.setActions(List.of(action1));
         actionCollectionDTO.setPluginType(PluginType.JS);
 
-        final ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService
+        ActionCollectionDTO createdActionCollectionDTO = layoutCollectionService
                 .createCollection(actionCollectionDTO, null)
                 .block();
         assert createdActionCollectionDTO != null;
+        assert createdActionCollectionDTO.getId() != null;
+        String createdActionCollectionId = createdActionCollectionDTO.getId();
 
-        final Mono<List<ActionCollectionViewDTO>> viewModeCollectionsMono = applicationPageService
-                .publish(testApp.getId(), true)
-                .thenMany(actionCollectionService.getActionCollectionsForViewMode(testApp.getId(), null))
+        applicationPageService.publish(testApp.getId(), true).block();
+
+        actionCollectionDTO.getActions().get(0).getActionConfiguration().setBody("updatedBody");
+
+        ActionCollectionDTO updatedActionCollectionDTO = layoutCollectionService
+                .updateUnpublishedActionCollection(createdActionCollectionId, actionCollectionDTO, null)
+                .block();
+        assert updatedActionCollectionDTO != null;
+        assert updatedActionCollectionDTO.getId() != null;
+
+        final Mono<List<ActionCollectionViewDTO>> viewModeCollectionsMono = actionCollectionService
+                .getActionCollectionsForViewMode(testApp.getId(), null)
                 .collectList();
 
         StepVerifier.create(viewModeCollectionsMono)
@@ -645,7 +656,7 @@ public class ActionCollectionServiceTest {
                     assertThat(variables.get(0).getValue()).isEqualTo("test");
 
                     // Metadata
-                    assertThat(actionCollectionViewDTO.getId()).isEqualTo(createdActionCollectionDTO.getId());
+                    assertThat(actionCollectionViewDTO.getId()).isEqualTo(createdActionCollectionId);
                     assertThat(actionCollectionViewDTO.getName()).isEqualTo("testCollection1");
                     assertThat(actionCollectionViewDTO.getApplicationId()).isEqualTo(testApp.getId());
                     assertThat(actionCollectionViewDTO.getPageId()).isEqualTo(testPage.getId());

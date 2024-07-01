@@ -36,9 +36,9 @@ export class GitSync {
   public _bottomBarMergeButton = ".t--bottom-bar-merge";
   private mergeCTA = "[data-testid=t--git-merge-button]";
   public _mergeBranchDropdownDestination =
-    ".t--merge-branch-dropdown-destination";
+    "[data-testid=t--merge-branch-dropdown-destination]";
   public _mergeBranchDropdownmenu =
-    ".t--merge-branch-dropdown-destination .rc-select-selection-search-input";
+    "[data-testid=t--merge-branch-dropdown-destination] .rc-select-selection-search-input";
   public _dropdownmenu = ".rc-select-item-option-content";
   private _openRepoButton = "[data-testid=t--git-repo-button]";
   public _commitButton = ".t--commit-button";
@@ -371,8 +371,9 @@ export class GitSync {
     this.agHelper.WaitUntilEleAppear(this._mergeBranchDropdownmenu);
     this.agHelper.WaitUntilEleDisappear(this._mergeLoader);
     this.assertHelper.AssertNetworkStatus("@getBranch", 200);
+    this.agHelper.WaitUntilEleAppear(this._mergeBranchDropdownmenu);
     this.agHelper.GetNClick(this._mergeBranchDropdownmenu, 0, true);
-    this.agHelper.WaitUntilEleAppear(this._dropdownmenu);
+    this.agHelper.AssertContains(destinationBranch);
     this.agHelper.GetNClickByContains(this._dropdownmenu, destinationBranch);
     this.agHelper.AssertElementAbsence(this._checkMergeability, 35000);
   }
