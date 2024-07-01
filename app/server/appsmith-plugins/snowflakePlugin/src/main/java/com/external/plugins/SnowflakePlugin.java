@@ -1,6 +1,5 @@
 package com.external.plugins;
 
-import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
@@ -32,12 +31,22 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import java.security.*;
-import java.sql.*;
+import java.security.PrivateKey;
 import java.sql.Connection;
-import java.util.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
 
-import static com.appsmith.external.constants.Authentication.*;
+import static com.appsmith.external.constants.Authentication.DB_AUTH;
+import static com.appsmith.external.constants.Authentication.SNOWFLAKE_KEY_PAIR_AUTH;
 import static com.appsmith.external.constants.PluginConstants.PluginName.SNOWFLAKE_PLUGIN_NAME;
 import static com.external.utils.ExecutionUtils.getRowsFromQueryResult;
 import static com.external.utils.SnowflakeDatasourceUtils.getConnectionFromHikariConnectionPool;
@@ -285,7 +294,7 @@ public class SnowflakePlugin extends BasePlugin {
             if (datasourceConfiguration.getAuthentication() == null) {
                 invalids.add(SnowflakeErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG);
             } else {
-                if (Authentication.SNOWFLAKE_KEY_PAIR_AUTH.equals(
+                if (SNOWFLAKE_KEY_PAIR_AUTH.equals(
                         datasourceConfiguration.getAuthentication().getAuthenticationType())) {
                     KeyPairAuth authentication = (KeyPairAuth) datasourceConfiguration.getAuthentication();
                     if (StringUtils.isEmpty(authentication.getUsername())) {
