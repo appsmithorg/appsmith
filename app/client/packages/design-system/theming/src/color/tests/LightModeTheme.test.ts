@@ -784,22 +784,22 @@ describe("bdFocus color", () => {
 
   it("should return correct color when lightness > 0.8", () => {
     const { bdFocus } = new LightModeTheme("oklch(0.85 0.03 60)").getColors();
-    expect(bdFocus).toEqual("rgb(26.226% 2.7922% 0%)");
+    expect(bdFocus).toEqual("rgb(64.667% 36.271% 0%)");
   });
 
   it("should return correct color when chroma < 0.15", () => {
     const { bdFocus } = new LightModeTheme("oklch(0.85 0.1 60)").getColors();
-    expect(bdFocus).toEqual("rgb(49.321% 26.506% 0%)");
+    expect(bdFocus).toEqual("rgb(64.667% 36.271% 0%)");
   });
 
   it("should return correct color when hue is between 0 and 55", () => {
     const { bdFocus } = new LightModeTheme("oklch(0.85 0.1 30)").getColors();
-    expect(bdFocus).toEqual("rgb(59.176% 15.217% 10.565%)");
+    expect(bdFocus).toEqual("rgb(72.468% 27.962% 22.197%)");
   });
 
   it("should return correct color when hue >  340", () => {
     const { bdFocus } = new LightModeTheme("oklch(0.85 0.1 350)").getColors();
-    expect(bdFocus).toEqual("rgb(55.484% 14.961% 37.943%)");
+    expect(bdFocus).toEqual("rgb(68.494% 27.322% 49.304%)");
   });
 });
 
