@@ -1,6 +1,6 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.server.constants.FieldName;
+import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.UpdateOptions;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -9,9 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
-import org.springframework.data.mongodb.core.aggregation.VariableOperators;
-import org.springframework.data.mongodb.core.query.Criteria;
+
+import java.util.List;
 
 import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
 
@@ -27,125 +26,83 @@ public class Migration057PolicySetToPolicyMap {
 
     @Execution
     public void execute() {
-        executeForCollection("config");
+        executeForCollection(mongoTemplate, "actionCollection");
+        executeForCollection(mongoTemplate, "application");
+        executeForCollection(mongoTemplate, "applicationSnapshot");
+        executeForCollection(mongoTemplate, "collection");
+        executeForCollection(mongoTemplate, "config");
+        executeForCollection(mongoTemplate, "customJSLib");
+        executeForCollection(mongoTemplate, "datasource");
+        executeForCollection(mongoTemplate, "datasourceStorage");
+        executeForCollection(mongoTemplate, "datasourceStorageStructure");
+        executeForCollection(mongoTemplate, "mongockChangeLog");
+        executeForCollection(mongoTemplate, "mongockLock");
+        executeForCollection(mongoTemplate, "newAction");
+        executeForCollection(mongoTemplate, "newPage");
+        executeForCollection(mongoTemplate, "passwordResetToken");
+        executeForCollection(mongoTemplate, "permissionGroup");
+        executeForCollection(mongoTemplate, "plugin");
+        executeForCollection(mongoTemplate, "sequence");
+        executeForCollection(mongoTemplate, "tenant");
+        executeForCollection(mongoTemplate, "theme");
+        executeForCollection(mongoTemplate, "user");
+        executeForCollection(mongoTemplate, "userData");
+        executeForCollection(mongoTemplate, "workspace");
     }
 
-    public void executeForCollection(String collectionName) {
+    public static void executeForCollection(MongoTemplate mongoTemplate, String collectionName) {
+        log.info("Migrating policies to policyMap in {}", collectionName);
+
         // Add a schema validation rule, so nothing touches `policies` field anymore hereon.
         //   Especially important for horizontally scaled deployments.
-
         mongoTemplate
                 .getDb()
                 .runCommand(new Document("collMod", collectionName)
                         .append("validator", new Document("policies", new Document("$exists", false))));
 
-        final Criteria criteria = where("policies")
-                .exists(true)
-                .and("policyMap")
-                .exists(false)
-                .and(FieldName.DELETED_AT)
-                .isNull();
-
-        final ArrayOperators.ArrayToObject setToMap =
-                ArrayOperators.ArrayToObject.arrayValueOfToObject(VariableOperators.Map.itemsOf("policies")
-                        .as("this")
-                        .andApply(agg -> new Document("k", "$$this.permission").append("v", "$$this")));
-
-        // mongoTemplate.updateMulti(new Query(criteria), update().set("policyMap").toValueOf(setToMap),
-        // collectionName);
-
-        /*mongoTemplate.getCollection(collectionName).updateMany(
-            new Query(criteria).getQueryObject().toBsonDocument(),
-            List.of(Document.parse("""
-                    {
-                        $set: {
-                            policyMap: {
-                                $arrayToObject: {
-                                    $map: {
-                                        input: "$policies",
-                                        in: {
-                                            k: "$$this.permission",
-                                            v: "$$this",
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                    }
-                """)),
-            new UpdateOptions().bypassDocumentValidation(true)
-        );//*/
-
-        /*mongoTemplate
-        .getCollection(collectionName)
-        .updateMany(
-                new Query(criteria).getQueryObject().toBsonDocument(),
-                List.of(new Document(
-                        "$set",
-                        new Document(
-                                "policies",
-                                new Document(
-                                        "$arrayToObject",
-                                        new Document(
-                                                "$map",
-                                                new Document("input", "$policies")
-                                                        .append(
-                                                                "in",
-                                                                new Document("k", "$$this.permission")
-                                                                        .append("v", "$$this"))))))),
-                new UpdateOptions().bypassDocumentValidation(true)); // */
-
-        final String updateCommand =
+        // The MongoTemplate APIs don't have a good/possible way to represent this "pipeline" update operation.
+        // So we have to resort to this pseudo-JSON.
+        final String updateSpec =
                 """
-            {
-              update: "%s",
-              bypassDocumentValidation: true,
-              updates: [
                 {
-                  q: {
-                    policies: {
-                      $exists: true
-                    },
+                  $set: {
                     policyMap: {
-                      $exists: false
-                    },
-                    deletedAt: null
-                  },
-                  u: [
-                    {
-                      $set: {
-                        policyMap: {
-                          $arrayToObject: {
-                            $map: {
-                              input: "$policies",
-                              in: {
-                                k: "$$this.permission",
-                                v: "$$this",
-                              }
-                            }
+                      $arrayToObject: {
+                        $map: {
+                          input: "$policies",
+                          in: {
+                            k: "$$this.permission",
+                            v: "$$this",
                           }
                         }
                       }
                     }
-                  ]
+                  }
                 }
-              ]
-            }
-            """;
+                """;
 
-        final Document updateDoc = Document.parse(updateCommand.formatted(collectionName));
+        final MongoCollection<Document> collection = mongoTemplate.getCollection(collectionName);
 
-        mongoTemplate.getDb().runCommand(updateDoc);
+        collection.updateMany(
+                where("policies")
+                        .exists(true)
+                        .and("policyMap")
+                        .exists(false)
+                        .and("deletedAt")
+                        .isNull()
+                        .getCriteriaObject(),
+                List.of(Document.parse(updateSpec)),
+                new UpdateOptions().bypassDocumentValidation(true));
 
-        // mongoTemplate.updateMulti(new Query(where("policyMap").exists(true).and(FieldName.DELETED_AT).isNull()),
-        // update().unset("policies").withOptions(UpdateOptions), collectionName);
-
-        mongoTemplate
-                .getCollection(collectionName)
-                .updateMany(
-                        new Document("policyMap", new Document("$exists", true))
-                                .append("policies", new Document("$exists", true)),
-                        new Document("$unset", new Document("policies", 1)),
-                        new UpdateOptions().bypassDocumentValidation(true));
+        collection.updateMany(
+                where("policies")
+                        .exists(true)
+                        .and("policyMap")
+                        .exists(true)
+                        .and("deletedAt")
+                        .isNull()
+                        .getCriteriaObject(),
+                new Document("$unset", new Document("policies", 1)),
+                new UpdateOptions().bypassDocumentValidation(true));
     }
 }
