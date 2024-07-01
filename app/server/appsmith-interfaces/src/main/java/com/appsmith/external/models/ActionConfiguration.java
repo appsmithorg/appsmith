@@ -48,7 +48,7 @@ public class ActionConfiguration implements AppsmithDomain, ExecutableConfigurat
 
     @Range(min = MIN_TIMEOUT_VALUE, max = MAX_TIMEOUT_VALUE, message = TIMEOUT_OUT_OF_RANGE_MESSAGE)
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
-    Integer timeoutInMillisecond;
+    Integer timeoutInMillisecond = DEFAULT_ACTION_EXECUTION_TIMEOUT_MS;
 
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
     PaginationType paginationType = PaginationType.NONE;
