@@ -1,16 +1,21 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.client.result.UpdateResult;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
-import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
+import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
+import org.springframework.data.mongodb.core.aggregation.VariableOperators;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
+import java.util.Set;
 
 import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
 
@@ -19,90 +24,83 @@ import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
 @ChangeUnit(order = "057", id = "policy-set-to-policy-map")
 public class Migration057PolicySetToPolicyMap {
 
-    private final MongoTemplate mongoTemplate;
+    private final ReactiveMongoTemplate mongoTemplate;
+
+    private static final Set<String> CE_COLLECTION_NAMES = Set.of(
+            "actionCollection",
+            "application",
+            "applicationSnapshot",
+            "asset",
+            "collection",
+            "config",
+            "customJSLib",
+            "datasource",
+            "datasourceStorage",
+            "datasourceStorageStructure",
+            "emailVerificationToken",
+            "gitDeployKeys",
+            "newAction",
+            "newPage",
+            "passwordResetToken",
+            "permissionGroup",
+            "plugin",
+            "tenant",
+            "theme",
+            "user",
+            "userData",
+            "workspace");
+
+    private static final Set<String> EE_COLLECTION_NAMES = Set.of(
+            // Empty here
+            );
 
     @RollbackExecution
     public void rollbackExecution() {}
 
     @Execution
     public void execute() {
-        executeForCollection(mongoTemplate, "actionCollection");
-        executeForCollection(mongoTemplate, "application");
-        executeForCollection(mongoTemplate, "applicationSnapshot");
-        executeForCollection(mongoTemplate, "collection");
-        executeForCollection(mongoTemplate, "config");
-        executeForCollection(mongoTemplate, "customJSLib");
-        executeForCollection(mongoTemplate, "datasource");
-        executeForCollection(mongoTemplate, "datasourceStorage");
-        executeForCollection(mongoTemplate, "datasourceStorageStructure");
-        executeForCollection(mongoTemplate, "mongockChangeLog");
-        executeForCollection(mongoTemplate, "mongockLock");
-        executeForCollection(mongoTemplate, "newAction");
-        executeForCollection(mongoTemplate, "newPage");
-        executeForCollection(mongoTemplate, "passwordResetToken");
-        executeForCollection(mongoTemplate, "permissionGroup");
-        executeForCollection(mongoTemplate, "plugin");
-        executeForCollection(mongoTemplate, "sequence");
-        executeForCollection(mongoTemplate, "tenant");
-        executeForCollection(mongoTemplate, "theme");
-        executeForCollection(mongoTemplate, "user");
-        executeForCollection(mongoTemplate, "userData");
-        executeForCollection(mongoTemplate, "workspace");
+        Mono.whenDelayError(
+                        Mono.whenDelayError(CE_COLLECTION_NAMES.stream()
+                                .map(c -> executeForCollection(mongoTemplate, c))
+                                .toList()),
+                        Mono.whenDelayError(EE_COLLECTION_NAMES.stream()
+                                .map(c -> executeForCollection(mongoTemplate, c))
+                                .toList()))
+                .block();
     }
 
-    public static void executeForCollection(MongoTemplate mongoTemplate, String collectionName) {
+    public static Mono<Void> executeForCollection(ReactiveMongoTemplate mongoTemplate, String collectionName) {
         log.info("Migrating policies to policyMap in {}", collectionName);
 
-        // Add a schema validation rule, so nothing touches `policies` field anymore hereon.
-        //   Especially important for horizontally scaled deployments.
-        mongoTemplate
-                .getDb()
-                .runCommand(new Document("collMod", collectionName)
-                        .append("validator", new Document("policies", new Document("$exists", false))));
+        final ArrayOperators.ArrayToObject operator =
+                ArrayOperators.ArrayToObject.arrayValueOfToObject(VariableOperators.Map.itemsOf("policies")
+                        .as("this")
+                        .andApply(agg -> new Document("k", "$$this.permission").append("v", "$$this")));
 
-        // The MongoTemplate APIs don't have a good/possible way to represent this "pipeline" update operation.
-        // So we have to resort to this pseudo-JSON.
-        final String updateSpec =
-                """
-                {
-                  $set: {
-                    policyMap: {
-                      $arrayToObject: {
-                        $map: {
-                          input: "$policies",
-                          in: {
-                            k: "$$this.permission",
-                            v: "$$this",
-                          }
-                        }
-                      }
-                    }
-                  }
-                }
-                """;
-
-        final MongoCollection<Document> collection = mongoTemplate.getCollection(collectionName);
-
-        collection.updateMany(
-                where("policies")
+        final Mono<UpdateResult> convertToMap = mongoTemplate.updateMulti(
+                new Query(where("policies")
                         .exists(true)
                         .and("policyMap")
                         .exists(false)
                         .and("deletedAt")
-                        .isNull()
-                        .getCriteriaObject(),
-                List.of(Document.parse(updateSpec)),
-                new UpdateOptions().bypassDocumentValidation(true));
+                        .isNull()),
+                AggregationUpdate.update().set("policyMap").toValueOf(operator),
+                collectionName);
 
-        collection.updateMany(
-                where("policies")
+        final Mono<UpdateResult> deletePoliciesField = mongoTemplate.updateMulti(
+                new Query(where("policies")
                         .exists(true)
                         .and("policyMap")
                         .exists(true)
                         .and("deletedAt")
-                        .isNull()
-                        .getCriteriaObject(),
-                new Document("$unset", new Document("policies", 1)),
-                new UpdateOptions().bypassDocumentValidation(true));
+                        .isNull()),
+                new Update().unset("policies"),
+                collectionName);
+
+        return convertToMap
+                .then(deletePoliciesField)
+                .elapsed()
+                .doOnSuccess(it -> log.info("{} finished in {}ms", collectionName, it.getT1()))
+                .then();
     }
 }
