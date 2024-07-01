@@ -9,6 +9,7 @@ const {
   agHelper,
   assertHelper,
   dataSources,
+  propPane,
 } = require("../../../../../support/Objects/ObjectsCore");
 const {
   default: EditorNavigation,
@@ -91,6 +92,7 @@ describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
 
     cy.get("@dsName").then((dsName) => {
       EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
+      propPane.ToggleJSMode("sourcedata", false);
 
       oneClickBinding.ChooseAndAssertForm(
         `${dsName}`,
