@@ -171,7 +171,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
     cy.wait(2000);
     gitSync.MergeToMaster();
     //cy.merge(mainBranch);
-    cy.get(gitSyncLocators.closeGitSyncModal).click();
+    // cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
     cy.latestDeployPreview();
     table.AssertTableLoaded();

@@ -74,7 +74,15 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
 Cypress.Commands.add("commitAndPush", (assertFailure) => {
   cy.get(homePage.publishButton).click();
   agHelper.AssertElementExist(gitSync._bottomBarPull);
-  cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+  agHelper.AssertElementVisibility(gitSyncLocators.gitSyncModal);
+  cy.get(gitSyncLocators.commitCommentInput).should(
+    "have.attr",
+    "placeholder",
+    "Your commit message here",
+  );
+  cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit", {
+    force: true,
+  });
   cy.get(gitSyncLocators.commitButton).click();
   if (!assertFailure) {
     // check for commit success
