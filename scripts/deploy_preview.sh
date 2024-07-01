@@ -94,8 +94,6 @@ docker run --entrypoint sh \
 
 if [[ -n "${RECREATE-}" ]]; then
   docker run \
-    -e URL="$DP_POSTGRES_URL/postgres" \
-    -e DB="$DBNAME" \
     postgres:14-alpine \
     psql \
     -c \
@@ -109,7 +107,7 @@ if [[ -n "${RECREATE-}" ]]; then
           END LOOP;
       END $$;
     ' \
-    "$URL"
+    "$DP_POSTGRES_URL/postgres"
 fi
 
 echo "Deploy appsmith helm chart"
