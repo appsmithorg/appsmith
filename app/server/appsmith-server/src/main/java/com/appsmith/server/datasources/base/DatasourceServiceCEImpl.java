@@ -232,16 +232,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                             .create(datasourceStorage, isDryOps)
                             .map(datasourceStorage1 -> {
                                 if (datasourceStorageDryRunQueries != null && isDryOps) {
-                                    if (datasourceStorageDryRunQueries.containsKey(DBOpsType.SAVE.name())) {
-                                        datasourceStorageDryRunQueries
-                                                .get(DBOpsType.SAVE.name())
-                                                .add(datasourceStorage1);
-                                    } else {
-                                        List<DatasourceStorage> datasourceStorageList = new ArrayList<>();
-                                        datasourceStorageList.add(datasourceStorage1);
-                                        datasourceStorageDryRunQueries.put(
-                                                DBOpsType.SAVE.name(), datasourceStorageList);
-                                    }
+                                    datasourceStorageDryRunQueries
+                                            .computeIfAbsent(DBOpsType.SAVE.name(), k -> new ArrayList<>())
+                                            .add(datasourceStorage1);
                                 }
                                 return datasourceStorage1;
                             });
