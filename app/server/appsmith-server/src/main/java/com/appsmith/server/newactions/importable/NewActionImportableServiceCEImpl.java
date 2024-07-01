@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -322,13 +323,19 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             Datasource datasource =
                                     newAction.getUnpublishedAction().getDatasource();
                             if (datasource == null || datasource.getPluginId() == null) {
-                                // Since the datasource are not ye saved to db, if we don't update the action with
-                                // correct datasource then
+                                // Since the datasource are not yet saved to db, if we don't update the action with
+                                // correct datasource,
                                 // the action ave will fail due to validation
-                                final String datasourceId = newAction
-                                        .getUnpublishedAction()
-                                        .getDatasource()
-                                        .getId();
+                                final String datasourceId = Objects.requireNonNull(newAction
+                                                                .getUnpublishedAction()
+                                                                .getDatasource())
+                                                        .getId()
+                                                != null
+                                        ? newAction
+                                                .getUnpublishedAction()
+                                                .getDatasource()
+                                                .getId()
+                                        : "";
                                 datasource = mappedImportableResourcesDTO.getDatasourceDryRunQueries().values().stream()
                                         .flatMap(List::stream)
                                         .filter(ds -> ds.getId().equals(datasourceId))
