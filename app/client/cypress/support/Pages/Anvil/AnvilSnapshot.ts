@@ -89,12 +89,4 @@ export class AnvilSnapshot {
 
     this.appSettings.ClosePane();
   };
-
-  public triggerInputInvalidState = () => {
-    this.enterPreviewMode();
-    cy.get("input[aria-required=true]").first().type("123");
-    cy.get("input[aria-required=true]").first().clear();
-    this.exitPreviewMode();
-    this.agHelper.GetNClick(this.locators.propertyPaneSidebar);
-  };
 }
