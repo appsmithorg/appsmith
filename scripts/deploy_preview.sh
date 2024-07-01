@@ -92,6 +92,26 @@ docker run --entrypoint sh \
   -c \
   'apk --no-cache add postgresql14-client; psql -c "create database \"$DB\"" "$URL"'
 
+if [[ -n "${RECREATE-}" ]]; then
+  docker run --entrypoint sh \
+    -e URL="$DP_POSTGRES_URL/postgres" \
+    -e DB="$DBNAME" \
+    postgres:14-alpine \
+    psql \
+    -c \
+    '
+      -- From <https://stackoverflow.com/a/36023359/151048>.
+      DO $$ DECLARE
+          r RECORD;
+      BEGIN
+          FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = current_schema()) LOOP
+              EXECUTE '\''DROP TABLE '\'' || quote_ident(r.tablename) || '\'' CASCADE'\'';
+          END LOOP;
+      END $$;
+    ' \
+    "$URL"
+fi
+
 echo "Deploy appsmith helm chart"
 helm upgrade -i $CHARTNAME appsmith-ee/$HELMCHART -n $NAMESPACE --create-namespace --recreate-pods \
   --set _image.repository=$DOCKER_HUB_ORGANIZATION/appsmith-dp --set _image.tag=$IMAGE_HASH \
