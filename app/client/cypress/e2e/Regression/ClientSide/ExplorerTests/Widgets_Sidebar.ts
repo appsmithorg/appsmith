@@ -6,7 +6,7 @@ import {
 
 describe(
   "Entity explorer tests related to widgets and validation",
-  { tags: ["@tag.IDE", "@tag.Widget", "@tag.excludeForAirgap"] },
+  { tags: ["@tag.IDE", "@tag.Widget"] },
   function () {
     // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
     const WIDGET_TAGS: Record<string, string> = {
@@ -70,8 +70,16 @@ describe(
     };
 
     if (Cypress.env("AIRGAPPED")) {
-      // Remove map widget in case of airgap
+      // Remove map and custom widget in case of airgap
       WIDGETS_CATALOG.Content = ["Progress", "Rating", "Text"];
+      WIDGETS_CATALOG.Display = [
+        "Chart",
+        "Iframe",
+        "List",
+        "Map Chart",
+        "Stats Box",
+        "Table",
+      ];
     }
 
     const getTotalNumberOfWidgets = () => {
@@ -191,9 +199,11 @@ describe(
       agHelper.TypeText(entityExplorer._widgetSearchInput, "p");
       agHelper.AssertElementLength(entityExplorer._widgetCards, 2);
 
-      agHelper.ClearNType(entityExplorer._widgetSearchInput, "cypress");
-      agHelper.AssertElementLength(entityExplorer._widgetCards, 1);
-      agHelper.AssertElementExist(".t--widget-card-draggable-customwidget");
+      if (!Cypress.env("AIRGAPPED")) {
+        agHelper.ClearNType(entityExplorer._widgetSearchInput, "cypress");
+        agHelper.AssertElementLength(entityExplorer._widgetCards, 1);
+        agHelper.AssertElementExist(".t--widget-card-draggable-customwidget");
+      }
 
       agHelper.ClearTextField(entityExplorer._widgetSearchInput);
       // click to show all building blocks
