@@ -15,6 +15,7 @@ import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
+import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -215,7 +216,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                                             .map(createdDatasource -> {
                                                 // Add dry run queries for the datasource
                                                 addDryOpsForEntity(
-                                                        FieldName.CREATE,
+                                                        DBOpsType.SAVE,
                                                         mappedImportableResourcesDTO.getDatasourceDryRunQueries(),
                                                         createdDatasource);
                                                 return Tuples.of(
@@ -247,7 +248,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                                             .map(createdDatasource -> {
                                                 // Add dry run queries for the datasource
                                                 addDryOpsForEntity(
-                                                        FieldName.CREATE,
+                                                        DBOpsType.SAVE,
                                                         mappedImportableResourcesDTO.getDatasourceDryRunQueries(),
                                                         createdDatasource);
                                                 return Tuples.of(importedDatasourceName, createdDatasource.getId());
@@ -407,14 +408,13 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
     }
 
     private void addDryOpsForEntity(
-            String queryType, Map<String, List<Datasource>> dryRunOpsMap, Datasource createdDatasource) {
-        if (dryRunOpsMap.containsKey(queryType)) {
-            List<Datasource> datasourceList = new ArrayList<>();
-            datasourceList.addAll(dryRunOpsMap.get(queryType));
-            datasourceList.add(createdDatasource);
-            dryRunOpsMap.put(FieldName.CREATE, datasourceList);
+            DBOpsType queryType, Map<String, List<Datasource>> dryRunOpsMap, Datasource createdDatasource) {
+        if (dryRunOpsMap.containsKey(queryType.name())) {
+            dryRunOpsMap.get(queryType.name()).add(createdDatasource);
         } else {
-            dryRunOpsMap.put(queryType, List.of(createdDatasource));
+            List<Datasource> datasourceList = new ArrayList<>();
+            datasourceList.add(createdDatasource);
+            dryRunOpsMap.put(queryType.name(), datasourceList);
         }
     }
 }

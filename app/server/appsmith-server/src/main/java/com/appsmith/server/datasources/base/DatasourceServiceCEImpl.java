@@ -19,6 +19,7 @@ import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -150,6 +151,11 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         return createEx(datasource, null, true, datasourceStorageDryRunQueries);
     }
 
+    @Override
+    public Mono<Datasource> createWithoutPermissions(Datasource datasource) {
+        return createEx(datasource, null, false, null);
+    }
+
     private Mono<Datasource> createEx(
             @NotNull Datasource datasource,
             AclPermission permission,
@@ -226,15 +232,15 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                             .create(datasourceStorage, isDryOps)
                             .map(datasourceStorage1 -> {
                                 if (datasourceStorageDryRunQueries != null && isDryOps) {
-                                    if (datasourceStorageDryRunQueries.containsKey(FieldName.CREATE)) {
-                                        List<DatasourceStorage> datasourceStorageList = new ArrayList<>();
-                                        datasourceStorageList.addAll(
-                                                datasourceStorageDryRunQueries.get(FieldName.CREATE));
-                                        datasourceStorageList.add(datasourceStorage1);
-                                        datasourceStorageDryRunQueries.put(FieldName.CREATE, datasourceStorageList);
+                                    if (datasourceStorageDryRunQueries.containsKey(DBOpsType.SAVE.name())) {
+                                        datasourceStorageDryRunQueries
+                                                .get(DBOpsType.SAVE.name())
+                                                .add(datasourceStorage1);
                                     } else {
+                                        List<DatasourceStorage> datasourceStorageList = new ArrayList<>();
+                                        datasourceStorageList.add(datasourceStorage1);
                                         datasourceStorageDryRunQueries.put(
-                                                FieldName.CREATE, List.of(datasourceStorage1));
+                                                DBOpsType.SAVE.name(), datasourceStorageList);
                                     }
                                 }
                                 return datasourceStorage1;
@@ -386,22 +392,16 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Mono<Datasource> save(Datasource datasource) {
-        if (datasource.getGitSyncId() == null) {
-            datasource.setGitSyncId(
-                    datasource.getWorkspaceId() + "_" + Instant.now().toString());
-        }
-        return repository.save(datasource);
-    }
-
-    @Override
     public Mono<Datasource> save(Datasource datasource, boolean isDryOps) {
         if (datasource.getGitSyncId() == null) {
             datasource.setGitSyncId(
                     datasource.getWorkspaceId() + "_" + Instant.now().toString());
         }
-        datasource.updateForBulkWriteOperation();
-        return Mono.just(datasource);
+        if (isDryOps) {
+            datasource.updateForBulkWriteOperation();
+            return Mono.just(datasource);
+        }
+        return repository.save(datasource);
     }
 
     private Mono<Datasource> validateAndSaveDatasourceToRepository(Datasource datasource, boolean isDryOps) {

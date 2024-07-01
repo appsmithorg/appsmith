@@ -1284,7 +1284,7 @@ public class DatasourceServiceTest {
             datasourceConfiguration2.setUrl("http://test.com");
             datasource1.setDatasourceConfiguration(datasourceConfiguration2);
             datasource1.setName("New Name for update to test that encryption is now gone");
-            return datasourceService.save(datasource1);
+            return datasourceService.save(datasource1, false);
         });
 
         StepVerifier.create(datasourceMono)

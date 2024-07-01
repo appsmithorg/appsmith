@@ -38,8 +38,6 @@ public interface DatasourceServiceCE {
 
     Mono<Set<MustacheBindingToken>> extractKeysFromDatasource(Datasource datasource);
 
-    Mono<Datasource> save(Datasource datasource);
-
     Mono<Datasource> save(Datasource datasource, boolean isDryOps);
 
     /**
@@ -65,6 +63,8 @@ public interface DatasourceServiceCE {
     Flux<Datasource> saveAll(List<Datasource> datasourceList);
 
     Mono<Datasource> create(Datasource datasource);
+
+    Mono<Datasource> createWithoutPermissions(Datasource datasource);
 
     Mono<Datasource> createWithoutPermissions(
             Datasource datasource, Map<String, List<DatasourceStorage>> datasourceStorageDryRunQueries);

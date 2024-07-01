@@ -32,6 +32,9 @@ public interface DatasourceStorageServiceCE {
     Mono<DatasourceStorage> findStrictlyByDatasourceIdAndEnvironmentId(String datasourceId, String environmentId);
 
     Mono<DatasourceStorage> updateDatasourceStorage(
+            DatasourceStorage datasourceStorage, String activeEnvironmentId, Boolean IsUserRefreshedUpdate);
+
+    Mono<DatasourceStorage> updateDatasourceStorage(
             DatasourceStorage datasourceStorage,
             String activeEnvironmentId,
             Boolean IsUserRefreshedUpdate,

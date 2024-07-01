@@ -135,6 +135,12 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
 
     @Override
     public Mono<DatasourceStorage> updateDatasourceStorage(
+            DatasourceStorage datasourceStorage, String activeEnvironmentId, Boolean isUserRefreshedUpdate) {
+        return updateDatasourceStorage(datasourceStorage, activeEnvironmentId, isUserRefreshedUpdate, false);
+    }
+
+    @Override
+    public Mono<DatasourceStorage> updateDatasourceStorage(
             DatasourceStorage datasourceStorage,
             String activeEnvironmentId,
             Boolean isUserRefreshedUpdate,
