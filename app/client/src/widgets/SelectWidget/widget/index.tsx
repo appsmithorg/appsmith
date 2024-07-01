@@ -93,11 +93,15 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       labelPosition: LabelPosition.Top,
       labelAlignment: Alignment.LEFT,
       labelWidth: 5,
-      sourceData: [
-        { name: "Blue", code: "BLUE" },
-        { name: "Green", code: "GREEN" },
-        { name: "Red", code: "RED" },
-      ],
+      sourceData: JSON.stringify(
+        [
+          { name: "Blue", code: "BLUE" },
+          { name: "Green", code: "GREEN" },
+          { name: "Red", code: "RED" },
+        ],
+        null,
+        2,
+      ),
       optionLabel: "name",
       optionValue: "code",
       serverSideFiltering: false,
@@ -111,6 +115,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       labelTextSize: "0.875rem",
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
+      dynamicPropertyPathList: [{ key: "sourceData" }],
     };
   }
 
