@@ -1,5 +1,7 @@
 package com.external.utils;
 
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.external.plugins.exceptions.SnowflakeErrorMessages;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -28,8 +30,9 @@ public class SnowflakeKeyUtils {
         if (pemObject instanceof PKCS8EncryptedPrivateKeyInfo) {
             // Handle the case where the private key is encrypted.
             if (isEmpty(passphrase)) {
-                throw new IllegalArgumentException(
-                        SnowflakeErrorMessages.PASSPHRASE_IS_REQUIRED_FOR_ENCRYPTED_PRIVATE_KEY);
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        SnowflakeErrorMessages.DS_MISSING_PASSPHRASE_FOR_ENCRYPTED_PRIVATE_KEY);
             }
             PKCS8EncryptedPrivateKeyInfo encryptedPrivateKeyInfo = (PKCS8EncryptedPrivateKeyInfo) pemObject;
             InputDecryptorProvider pkcs8Prov =

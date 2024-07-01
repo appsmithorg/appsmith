@@ -37,7 +37,7 @@ public class SnowflakeErrorMessages extends BasePluginErrorMessages {
 
     public static final String DS_MISSING_PRIVATE_KEY_ERROR_MSG = "Missing private key for authentication.";
 
-    public static final String PASSPHRASE_IS_REQUIRED_FOR_ENCRYPTED_PRIVATE_KEY =
+    public static final String DS_MISSING_PASSPHRASE_FOR_ENCRYPTED_PRIVATE_KEY =
             "Passphrase is required as private key is encrypted";
-    public static final String PASSPHRASE_OR_PRIVATE_KEY_INCORRECT = "Passphrase or private key is incorrect";
+    public static final String DS_INCORRECT_PASSPHRASE_OR_PRIVATE_KEY = "Passphrase or private key is incorrect";
 }
