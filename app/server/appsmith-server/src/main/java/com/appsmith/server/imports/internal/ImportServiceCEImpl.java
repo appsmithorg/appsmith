@@ -505,22 +505,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                             new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
                 // execute dry run for datasource
-                .flatMap(importableArtifact -> Flux.fromIterable(mappedImportableResourcesDTO
-                                .getDatasourceDryRunQueries()
-                                .keySet())
-                        .flatMap(key -> dryOperationRepository.saveDatasourceToDb(mappedImportableResourcesDTO
-                                .getDatasourceDryRunQueries()
-                                .get(key)))
-                        .collectList()
-                        .thenReturn(importableArtifact))
-                // execute dryOps for datasourceStorage
-                .flatMap(importableArtifact -> Flux.fromIterable(mappedImportableResourcesDTO
-                                .getDatasourceStorageDryRunQueries()
-                                .keySet())
-                        .flatMap(key -> dryOperationRepository.saveDatasourceStorageToDb(mappedImportableResourcesDTO
-                                .getDatasourceStorageDryRunQueries()
-                                .get(key)))
-                        .collectList()
+                .flatMap(importableArtifact -> dryOperationRepository
+                        .executeAllDbOps(mappedImportableResourcesDTO)
                         .thenReturn(importableArtifact))
                 .as(transactionalOperator::transactional);
 
