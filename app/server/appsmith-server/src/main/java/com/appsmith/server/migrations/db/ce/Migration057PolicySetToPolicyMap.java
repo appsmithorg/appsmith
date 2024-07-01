@@ -12,9 +12,6 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.aggregation.VariableOperators;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-
-import java.util.List;
 
 import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
 
@@ -30,7 +27,7 @@ public class Migration057PolicySetToPolicyMap {
 
     @Execution
     public void execute() {
-        executeForCollection("tenant");
+        executeForCollection("config");
     }
 
     public void executeForCollection(String collectionName) {
@@ -98,41 +95,47 @@ public class Migration057PolicySetToPolicyMap {
                                                                         .append("v", "$$this"))))))),
                 new UpdateOptions().bypassDocumentValidation(true)); // */
 
-        mongoTemplate
-                .getDb()
-                .runCommand(
-                        new Document("update", collectionName)
-                                .append("bypassDocumentValidation", true)
-                                .append(
-                                        "updates",
-                                        List.of(
-                                                new Document()
-                                                        .append(
-                                                                "q",
-                                                                new Query(criteria)
-                                                                        .getQueryObject()
-                                                                        .toBsonDocument())
-                                                        .append(
-                                                                "u",
-                                                                List.of(
-                                                                        Document.parse(
-                                                                                """
+        final String updateCommand =
+                """
+            {
+              update: "%s",
+              bypassDocumentValidation: true,
+              updates: [
                 {
-                    $set: {
-                        policyMap: {
-                            $arrayToObject: {
-                                $map: {
-                                    input: "$policies",
-                                    in: {
-                                        k: "$$this.permission",
-                                        v: "$$this",
-                                    }
-                                }
-                            }
-                        }
+                  q: {
+                    policies: {
+                      $exists: true
                     },
+                    policyMap: {
+                      $exists: false
+                    },
+                    deletedAt: null
+                  },
+                  u: [
+                    {
+                      $set: {
+                        policyMap: {
+                          $arrayToObject: {
+                            $map: {
+                              input: "$policies",
+                              in: {
+                                k: "$$this.permission",
+                                v: "$$this",
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ]
                 }
-            """)))))); // */
+              ]
+            }
+            """;
+
+        final Document updateDoc = Document.parse(updateCommand.formatted(collectionName));
+
+        mongoTemplate.getDb().runCommand(updateDoc);
 
         // mongoTemplate.updateMulti(new Query(where("policyMap").exists(true).and(FieldName.DELETED_AT).isNull()),
         // update().unset("policies").withOptions(UpdateOptions), collectionName);
