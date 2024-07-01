@@ -230,7 +230,7 @@ export default function Merge() {
           <Space size={2} />
           <Row style={{ overflow: "unset", paddingBottom: "4px" }}>
             <Select
-              className="t--merge-branch-dropdown-destination"
+              data-testid="t--merge-branch-dropdown-destination"
               dropdownClassName={Classes.MERGE_DROPDOWN}
               dropdownMatchSelectWidth
               getPopupContainer={(triggerNode) => triggerNode.parentNode}
