@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+early_access: false
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: true
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false
+  path_instructions:
+    - path: "**/*.js"
+      instructions: |
+        Review the JavaScript code against the Google JavaScript style guide and point out any mismatches
+    - path: "tests/**.*"
+      instructions: |
+        Review the following unit test code written using the Mocha test library. Ensure that:
+        - The code adheres to best practices associated with Mocha.
+        - Descriptive test names are used to clearly convey the intent of each test.
+        - All file name should start with Capital lettets.
+chat:
+  auto_reply: true
