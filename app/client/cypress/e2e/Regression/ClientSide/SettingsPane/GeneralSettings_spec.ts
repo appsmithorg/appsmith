@@ -1,0 +1,49 @@
+import * as _ from "../../../../support/Objects/ObjectsCore";
+
+let guid: string;
+describe("General Settings", { tags: ["@tag.Settings"] }, () => {
+  before(() => {
+    _.agHelper.GenerateUUID();
+    cy.get("@guid").then((uid: any) => {
+      guid = uid;
+    });
+  });
+
+  it("1. App name change updates URL", () => {
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToGeneralSettings();
+    _.generalSettings.UpdateAppNameAndVerifyUrl({
+      reset: true,
+      newAppName: guid,
+      restOfUrl: "/settings",
+    });
+    _.homePage.GetAppName().then((appName) => {
+      _.deployMode.DeployApp();
+      _.appSettings.CheckUrl(appName as string, "Page1", undefined, false);
+      _.deployMode.NavigateBacktoEditor();
+    });
+
+    //Handles app icon change
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToGeneralSettings();
+    _.generalSettings.UpdateAppIcon();
+    _.appSettings.ClosePane();
+
+    //App name allows special and accented character
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToGeneralSettings();
+    _.generalSettings.UpdateAppNameAndVerifyUrl({
+      reset: true,
+      newAppName: guid + "!@#œ™¡",
+      verifyAppNameAs: guid,
+      restOfUrl: "/settings",
+    });
+    _.appSettings.ClosePane();
+
+    //Veirfy App name doesn't allow empty
+    _.appSettings.OpenAppSettings();
+    _.appSettings.GoToGeneralSettings();
+    _.generalSettings.AssertAppErrorMessage("", "App name cannot be empty");
+    _.appSettings.ClosePane();
+  });
+});
