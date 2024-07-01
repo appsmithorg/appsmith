@@ -64,6 +64,22 @@ describe("accessNestedObjectValue", () => {
 
     expect(result).toBeUndefined();
   });
+
+  it("4. should work for null/undefined object", () => {
+    const obj = null;
+
+    const oldValue = "oldValue";
+    const newValue = "newValue";
+
+    const result = accessNestedObjectValue(
+      obj,
+      "foo.bar.qux",
+      oldValue,
+      newValue,
+    );
+
+    expect(result).toBeUndefined();
+  });
 });
 
 describe("handleJSONFormPropertiesListedInDynamicBindingPath", () => {

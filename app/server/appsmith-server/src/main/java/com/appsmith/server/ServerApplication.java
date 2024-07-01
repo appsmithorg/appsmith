@@ -26,7 +26,6 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import reactor.tools.agent.ReactorDebugAgent;
 
 import java.time.Duration;
 
@@ -56,7 +55,6 @@ public class ServerApplication {
     }
 
     public static void main(String[] args) {
-        ReactorDebugAgent.init();
         new SpringApplicationBuilder(ServerApplication.class)
                 .bannerMode(Banner.Mode.OFF)
                 .run(args);
