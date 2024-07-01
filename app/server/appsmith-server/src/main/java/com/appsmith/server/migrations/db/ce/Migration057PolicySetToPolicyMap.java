@@ -16,7 +16,7 @@ import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
 
 @Slf4j
 @RequiredArgsConstructor
-@ChangeUnit(order = "057", id = "policy-set-to-policy-map", runAlways = true)
+@ChangeUnit(order = "057", id = "policy-set-to-policy-map")
 public class Migration057PolicySetToPolicyMap {
 
     private final MongoTemplate mongoTemplate;
