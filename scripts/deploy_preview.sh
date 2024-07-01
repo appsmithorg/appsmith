@@ -93,7 +93,7 @@ docker run --entrypoint sh \
   'apk --no-cache add postgresql14-client; psql -c "create database \"$DB\"" "$URL"'
 
 if [[ -n "${RECREATE-}" ]]; then
-  docker run --entrypoint sh \
+  docker run \
     -e URL="$DP_POSTGRES_URL/postgres" \
     -e DB="$DBNAME" \
     postgres:14-alpine \
