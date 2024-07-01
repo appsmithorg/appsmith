@@ -199,7 +199,10 @@ describe(
       agHelper.TypeText(entityExplorer._widgetSearchInput, "p");
       agHelper.AssertElementLength(entityExplorer._widgetCards, 2);
 
-      if (!Cypress.env("AIRGAPPED")) {
+      if (Cypress.env("AIRGAPPED")) {
+        agHelper.ClearNType(entityExplorer._widgetSearchInput, "cypress");
+        agHelper.AssertElementLength(entityExplorer._widgetCards, 0);
+      } else {
         agHelper.ClearNType(entityExplorer._widgetSearchInput, "cypress");
         agHelper.AssertElementLength(entityExplorer._widgetCards, 1);
         agHelper.AssertElementExist(".t--widget-card-draggable-customwidget");
