@@ -20,6 +20,6 @@ reviews:
         Review the following unit test code written using the Mocha test library. Ensure that:
         - The code adheres to best practices associated with Mocha.
         - Descriptive test names are used to clearly convey the intent of each test.
-        - All file name should start with Capital lettets.
+        - All file names should start with Capital letters.
 chat:
   auto_reply: true
