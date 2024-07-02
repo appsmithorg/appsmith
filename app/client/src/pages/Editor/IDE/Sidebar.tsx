@@ -25,9 +25,12 @@ function Sidebar() {
   const pageId = useSelector(getCurrentPageId);
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
   const datasources = useSelector(getDatasources);
+  const datasourcesExist = datasources.length > 0;
 
+  // Updates the top button config based on datasource existence
   useEffect(() => {
-    if (datasources.length === 0) {
+    if (!datasourcesExist) {
+      // Update the data button to show a warning
       setTopButtons(
         TopButtons.map((button) => {
           if (button.state === EditorState.DATA) {
@@ -40,14 +43,15 @@ function Sidebar() {
           return button;
         }),
       );
-    } else {
-      setTopButtons(TopButtons);
+      return;
     }
-  }, [datasources]);
+    // Datasource exists, so reset to standard button config
+    setTopButtons(TopButtons);
+  }, [datasourcesExist]);
 
   useEffect(() => {
     dispatch(fetchWorkspace(currentWorkspaceId));
-  }, [currentWorkspaceId]);
+  }, [currentWorkspaceId, dispatch]);
 
   const onClick = useCallback(
     (suffix) => {
@@ -66,8 +70,8 @@ function Sidebar() {
 
   return (
     <IDESidebar
-      appState={appState}
       bottomButtons={BottomButtons}
+      editorState={appState}
       id={"t--app-sidebar"}
       onClick={onClick}
       topButtons={topButtons}

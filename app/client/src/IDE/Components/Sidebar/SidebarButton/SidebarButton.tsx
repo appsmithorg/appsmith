@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Icon, Text, Tooltip } from "design-system";
 import styled from "styled-components";
-import { Condition } from "../../Interfaces/Condition";
+
+import { Condition } from "../../../enums";
 
 const ConditionConfig: Record<Condition, { icon: string; color: string }> = {
   [Condition.Warn]: {
@@ -63,6 +64,11 @@ const ConditionIcon = styled(Icon)`
 `;
 
 function SidebarButton(props: SidebarButtonProps) {
+  const handleOnClick = useCallback(() => {
+    if (!props.selected) {
+      props.onClick();
+    }
+  }, [props]);
   return (
     <Container>
       <Tooltip
@@ -73,7 +79,7 @@ function SidebarButton(props: SidebarButtonProps) {
         <IconContainer
           className={`t--sidebar-${props.title || props.tooltip}`}
           data-selected={props.selected}
-          onClick={props.onClick}
+          onClick={handleOnClick}
           selected={props.selected}
         >
           <Icon name={props.icon} size="lg" />

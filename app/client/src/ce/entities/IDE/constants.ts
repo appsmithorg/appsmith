@@ -22,7 +22,7 @@ import {
 } from "pages/Editor/SaaSEditor/constants";
 import type { PluginType } from "entities/Action";
 import type { ComponentType, ReactNode } from "react";
-import type { ISidebarButton } from "IDE";
+import type { IDESidebarButton } from "IDE";
 
 export enum EditorState {
   DATA = "DATA",
@@ -58,7 +58,7 @@ export enum EditorViewMode {
   SplitScreen = "SplitScreen",
 }
 
-export const TopButtons: ISidebarButton[] = [
+export const TopButtons: IDESidebarButton[] = [
   {
     state: EditorState.EDITOR,
     icon: "editor-v3",
@@ -73,7 +73,7 @@ export const TopButtons: ISidebarButton[] = [
   },
 ];
 
-export const BottomButtons: ISidebarButton[] = [
+export const BottomButtons: IDESidebarButton[] = [
   {
     state: EditorState.LIBRARIES,
     icon: "packages-v3",
