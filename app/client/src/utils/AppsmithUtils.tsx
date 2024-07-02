@@ -517,3 +517,32 @@ function extractSentryException(event: Sentry.Event) {
   const value = event.exception.values ? event.exception.values[0] : null;
   return value;
 }
+
+export const getNextWorkspaceNameWithRandomString = (
+  basePrefix: string,
+  existingNames: string[],
+) => {
+  const regex = new RegExp(`^${basePrefix} (\\d+)-[a-z]{3}$`);
+
+  const usedIndices: number[] = existingNames.map((name) => {
+    if (name && regex.test(name)) {
+      const matches = name.match(regex);
+      const ind =
+        matches && Array.isArray(matches) ? parseInt(matches[1], 10) : 0;
+      return Number.isNaN(ind) ? 0 : ind;
+    }
+    return 0;
+  }) as number[];
+
+  const lastIndex = Math.max(...usedIndices, 0);
+  const nextIndex = lastIndex + 1;
+
+  const characters = "abcdefghijklmnopqrstuvwxyz";
+  let randomString = "";
+  for (let i = 0; i < 3; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    randomString += characters[randomIndex];
+  }
+
+  return `${basePrefix} ${nextIndex}-${randomString}`;
+};

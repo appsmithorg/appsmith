@@ -33,6 +33,8 @@ interface WorkspaceMenuProps {
   workspace: Workspace;
   workspaceNameChange: (newName: string, workspaceId: string) => void;
   workspaceToOpenMenu: string | null;
+  allWorkSpaces: Workspace[];
+  activeWorkspaceId: string;
 }
 
 const WorkspaceRename = styled(EditableText)`
@@ -76,7 +78,17 @@ function WorkspaceMenu({
   workspace,
   workspaceNameChange,
   workspaceToOpenMenu,
+  allWorkSpaces,
+  activeWorkspaceId,
 }: WorkspaceMenuProps) {
+  const isWorkspaceNameTaken = (newName: string, workspaces: Workspace[]) => {
+    return workspaces
+      .filter((workspace) => workspace.id !== activeWorkspaceId)
+      .some(
+        (workspace) =>
+          workspace.name.toLowerCase().trim() === newName.toLowerCase().trim(),
+      );
+  };
   return (
     <Menu
       className="t--workspace-name"
@@ -121,10 +133,14 @@ function WorkspaceMenu({
                 hideEditIcon={false}
                 isEditingDefault={false}
                 isInvalid={(value: string) => {
-                  return notEmptyValidator(value).message;
+                  const isTaken = isWorkspaceNameTaken(value, allWorkSpaces);
+                  return isTaken
+                    ? "A workspace with this name already exists"
+                    : notEmptyValidator(value).message;
                 }}
                 onBlur={(value: string) => {
-                  workspaceNameChange(value, workspace.id);
+                  !isWorkspaceNameTaken(value, allWorkSpaces) &&
+                    workspaceNameChange(value, workspace.id);
                 }}
                 placeholder="Workspace name"
                 savingState={
