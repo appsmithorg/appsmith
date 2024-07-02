@@ -1,5 +1,7 @@
 package com.appsmith.server.dtos.ce;
 
+import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.domains.Context;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
@@ -44,6 +46,11 @@ public class MappedImportableResourcesCE_DTO {
 
     // This is being used to carry the resources from ArtifactExchangeJson
     Map<String, Object> resourceStoreFromArtifactExchangeJson = new HashMap<>();
+
+    // Dry ops queries
+    Map<String, List<Datasource>> datasourceDryRunQueries = new HashMap<>();
+
+    Map<String, List<DatasourceStorage>> datasourceStorageDryRunQueries = new HashMap<>();
 
     Map<String, List<CustomJSLib>> customJSLibsDryOps = new HashMap<>();
 }
