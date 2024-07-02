@@ -1,4 +1,4 @@
-module.exports = function ({core, context}) {
+module.exports = function ({core, context, github}) {
   let tags;
   try {
     tags = parseTags(context.payload.pull_request.body);
