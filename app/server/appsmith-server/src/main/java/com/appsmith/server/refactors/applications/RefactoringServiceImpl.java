@@ -14,7 +14,6 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.validations.EntityValidationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Service
 @Slf4j
@@ -28,7 +27,6 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
             PagePermission pagePermission,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            TransactionalOperator transactionalOperator,
             EntityValidationService entityValidationService,
             EntityRefactoringService<Void> jsActionEntityRefactoringService,
             EntityRefactoringService<NewAction> newActionEntityRefactoringService,
@@ -42,7 +40,6 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
                 pagePermission,
                 analyticsService,
                 sessionUserService,
-                transactionalOperator,
                 entityValidationService,
                 jsActionEntityRefactoringService,
                 newActionEntityRefactoringService,

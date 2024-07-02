@@ -6,7 +6,7 @@ import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,7 +14,7 @@ public class ActionCollectionApplicationImportableServiceImpl extends ActionColl
         implements ArtifactBasedImportableService<ActionCollection, Application> {
 
     public ActionCollectionApplicationImportableServiceImpl(
-            ActionCollectionRepository repository,
+            ActionCollectionRepositoryCake repository,
             DefaultResourcesService<ActionCollection> defaultResourcesService,
             DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService,
             ActionCollectionService actionCollectionService) {

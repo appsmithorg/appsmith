@@ -1,7 +1,7 @@
 package com.appsmith.server.authentication.handlers;
 
 import com.appsmith.server.domains.User;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 public class CustomFormLoginServiceImplUnitTest {
     @MockBean
-    private UserRepository repository;
+    private UserRepositoryCake repository;
 
     private ReactiveUserDetailsService reactiveUserDetailsService;
 

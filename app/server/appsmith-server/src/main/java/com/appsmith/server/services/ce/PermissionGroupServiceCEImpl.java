@@ -13,9 +13,10 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
-import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.SessionUserService;
@@ -39,31 +40,33 @@ import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static java.lang.Boolean.TRUE;
 
-public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRepository, PermissionGroup, String>
+public class PermissionGroupServiceCEImpl
+        extends BaseService<PermissionGroupRepository, PermissionGroupRepositoryCake, PermissionGroup, String>
         implements PermissionGroupServiceCE {
 
     private final SessionUserService sessionUserService;
     private final TenantService tenantService;
-    private final UserRepository userRepository;
+    private final UserRepositoryCake userRepository;
     private final PolicySolution policySolution;
 
-    private final ConfigRepository configRepository;
+    private final ConfigRepositoryCake configRepository;
     private final PermissionGroupPermission permissionGroupPermission;
 
     private PermissionGroup publicPermissionGroup = null;
 
     public PermissionGroupServiceCEImpl(
             Validator validator,
-            PermissionGroupRepository repository,
+            PermissionGroupRepository repositoryDirect,
+            PermissionGroupRepositoryCake repository,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
             TenantService tenantService,
-            UserRepository userRepository,
+            UserRepositoryCake userRepository,
             PolicySolution policySolution,
-            ConfigRepository configRepository,
+            ConfigRepositoryCake configRepository,
             PermissionGroupPermission permissionGroupPermission) {
 
-        super(validator, repository, analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
         this.userRepository = userRepository;
@@ -90,7 +93,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Flux<PermissionGroup> findAllByIds(Set<String> ids) {
-        return repository.findAllById(ids);
+        return repository.findAllByIdIn(ids);
     }
 
     @Override
@@ -124,7 +127,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<Void> deleteWithoutPermission(String id) {
-
         return repository.findById(id).flatMap(permissionGroup -> {
             Mono<Void> returnMono = null;
 
@@ -161,6 +163,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         ensureAssignedToUserIds(pg);
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         pg.getAssignedToUserIds().addAll(userIds);
+        pg.setAssignedToUserIds(new HashSet<>(pg.getAssignedToUserIds()));
         Mono<PermissionGroup> permissionGroupUpdateMono = repository
                 .updateById(pg.getId(), pg, permissionGroupPermission.getAssignPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND)));
@@ -198,6 +201,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
         ensureAssignedToUserIds(pg);
         List<String> userIds = users.stream().map(User::getId).collect(Collectors.toList());
         pg.getAssignedToUserIds().removeAll(userIds);
+        pg.setAssignedToUserIds(new HashSet<>(pg.getAssignedToUserIds()));
         Mono<PermissionGroup> updatePermissionGroupMono =
                 repository.updateById(pg.getId(), pg, permissionGroupPermission.getUnAssignPermission());
         Mono<Boolean> clearCacheForUsersMono =
@@ -229,6 +233,7 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
     @Override
     public Mono<Boolean> bulkUnassignUsersFromPermissionGroupsWithoutPermission(
             Set<String> userIds, Set<String> permissionGroupIds) {
+        // TODO: This isn't bulk, it's updating each entry in turn.
         return repository
                 .findAllById(permissionGroupIds)
                 .flatMap(pg -> {
@@ -374,7 +379,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<Boolean> leaveExplicitlyAssignedSelfRole(String permissionGroupId) {
-
         Mono<User> currentUserMono = sessionUserService.getCurrentUser();
 
         Mono<PermissionGroup> permissionGroupMono = repository.findById(permissionGroupId);
@@ -415,6 +419,6 @@ public class PermissionGroupServiceCEImpl extends BaseService<PermissionGroupRep
 
     @Override
     public Mono<Set<String>> getSessionUserPermissionGroupIds() {
-        return sessionUserService.getCurrentUser().flatMap(repository::getAllPermissionGroupsIdsForUser);
+        return sessionUserService.getCurrentUser().flatMap(usr -> repository.getAllPermissionGroupsIdsForUser(usr));
     }
 }

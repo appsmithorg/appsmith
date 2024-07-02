@@ -22,10 +22,11 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.EmailVerificationTokenRepository;
-import com.appsmith.server.repositories.PasswordResetTokenRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
+import com.appsmith.server.repositories.cakes.EmailVerificationTokenRepositoryCake;
+import com.appsmith.server.repositories.cakes.PasswordResetTokenRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import lombok.extern.slf4j.Slf4j;
@@ -43,7 +44,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -66,9 +66,9 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
-@ExtendWith(SpringExtension.class)
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class UserServiceTest {
 
     @Autowired
@@ -87,7 +87,7 @@ public class UserServiceTest {
     ApplicationService applicationService;
 
     @Autowired
-    UserRepository userRepository;
+    UserRepositoryCake userRepository;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -96,10 +96,10 @@ public class UserServiceTest {
     UserDataService userDataService;
 
     @MockBean
-    PasswordResetTokenRepository passwordResetTokenRepository;
+    PasswordResetTokenRepositoryCake passwordResetTokenRepository;
 
     @MockBean
-    EmailVerificationTokenRepository emailVerificationTokenRepository;
+    EmailVerificationTokenRepositoryCake emailVerificationTokenRepository;
 
     @Autowired
     TenantService tenantService;
@@ -110,7 +110,7 @@ public class UserServiceTest {
     UserSignup userSignup;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @SpyBean
     CommonConfig commonConfig;

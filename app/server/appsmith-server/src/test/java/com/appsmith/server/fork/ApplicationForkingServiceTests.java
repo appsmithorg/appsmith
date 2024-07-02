@@ -41,6 +41,7 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -48,10 +49,10 @@ import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -83,7 +84,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -119,10 +119,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  * forking the application
  */
 @Slf4j
-@ExtendWith(SpringExtension.class)
+@ExtendWith(AfterAllCleanUpExtension.class)
 @TestMethodOrder(MethodOrderer.MethodName.class)
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ApplicationForkingServiceTests {
 
     private static String sourceAppId;
@@ -154,7 +154,7 @@ public class ApplicationForkingServiceTests {
     private ActionCollectionService actionCollectionService;
 
     @Autowired
-    private PluginRepository pluginRepository;
+    private PluginRepositoryCake pluginRepository;
 
     @MockBean
     private PluginExecutorHelper pluginExecutorHelper;
@@ -172,10 +172,10 @@ public class ApplicationForkingServiceTests {
     private SessionUserService sessionUserService;
 
     @Autowired
-    private NewPageRepository newPageRepository;
+    private NewPageRepositoryCake newPageRepository;
 
     @Autowired
-    private ApplicationRepository applicationRepository;
+    private ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     private LayoutCollectionService layoutCollectionService;
@@ -202,7 +202,7 @@ public class ApplicationForkingServiceTests {
     private WorkspacePermission workspacePermission;
 
     @Autowired
-    private WorkspaceRepository workspaceRepository;
+    private WorkspaceRepositoryCake workspaceRepository;
 
     private Plugin installedPlugin;
 
@@ -1421,7 +1421,6 @@ public class ApplicationForkingServiceTests {
                     app1.setName("that great app");
                     app1.setForkWithConfiguration(Boolean.TRUE);
                     app1.setWorkspaceId(workspace.getId());
-                    app1.setIsPublic(true);
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");
@@ -1649,7 +1648,6 @@ public class ApplicationForkingServiceTests {
                     app1.setName("that great app");
                     app1.setForkWithConfiguration(Boolean.FALSE);
                     app1.setWorkspaceId(workspace.getId());
-                    app1.setIsPublic(true);
 
                     final Datasource ds1 = new Datasource();
                     ds1.setName("datasource 1");

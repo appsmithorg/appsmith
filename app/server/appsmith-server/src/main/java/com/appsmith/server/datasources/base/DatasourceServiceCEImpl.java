@@ -25,7 +25,8 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.DatasourceContextService;
 import com.appsmith.server.services.FeatureFlagService;
@@ -74,14 +75,14 @@ import static org.springframework.util.StringUtils.hasText;
 @Slf4j
 public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
-    private final DatasourceRepository repository;
+    private final DatasourceRepositoryCake repository;
     private final WorkspaceService workspaceService;
     private final SessionUserService sessionUserService;
     protected final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final PolicyGenerator policyGenerator;
     private final SequenceService sequenceService;
-    private final NewActionRepository newActionRepository;
+    private final NewActionRepositoryCake newActionRepository;
     private final DatasourceContextService datasourceContextService;
     private final DatasourcePermission datasourcePermission;
     private final WorkspacePermission workspacePermission;
@@ -101,7 +102,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Autowired
     public DatasourceServiceCEImpl(
-            DatasourceRepository repository,
+            DatasourceRepository repositoryDirect,
+            DatasourceRepositoryCake repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
@@ -109,7 +111,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             PluginExecutorHelper pluginExecutorHelper,
             PolicyGenerator policyGenerator,
             SequenceService sequenceService,
-            NewActionRepository newActionRepository,
+            NewActionRepositoryCake newActionRepository,
             DatasourceContextService datasourceContextService,
             DatasourcePermission datasourcePermission,
             WorkspacePermission workspacePermission,
@@ -377,15 +379,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
         return Mono.just(datasource)
                 .flatMap(this::validateDatasource)
-                .flatMap(unsavedDatasource -> {
-                    return repository.save(unsavedDatasource).map(savedDatasource -> {
-                        // datasource.pluginName is a transient field. It was set by validateDatasource method
-                        // object from db will have pluginName=null so set it manually from the unsaved datasource obj
-                        savedDatasource.setPluginName(unsavedDatasource.getPluginName());
-                        return savedDatasource;
-                    });
-                })
-                .flatMap(repository::setUserPermissionsInObject);
+                .flatMap(repository::save)
+                .zipWith(sessionUserService.getCurrentUser())
+                .flatMap(object -> repository.setUserPermissionsInObject(object.getT1(), object.getT2()));
     }
 
     @Override

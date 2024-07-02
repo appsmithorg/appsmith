@@ -10,8 +10,9 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -26,9 +27,10 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 
 @Slf4j
-public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, String> implements ThemeServiceCE {
+public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeRepositoryCake, Theme, String>
+        implements ThemeServiceCE {
 
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationRepositoryCake applicationRepository;
     private final ApplicationService applicationService;
     private final PolicyGenerator policyGenerator;
     private final ApplicationPermission applicationPermission;
@@ -36,13 +38,14 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
 
     public ThemeServiceCEImpl(
             Validator validator,
-            ThemeRepository repository,
+            ThemeRepository repositoryDirect,
+            ThemeRepositoryCake repository,
             AnalyticsService analyticsService,
-            ApplicationRepository applicationRepository,
+            ApplicationRepositoryCake applicationRepository,
             ApplicationService applicationService,
             PolicyGenerator policyGenerator,
             ApplicationPermission applicationPermission) {
-        super(validator, repository, analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.applicationRepository = applicationRepository;
         this.applicationService = applicationService;
         this.policyGenerator = policyGenerator;
@@ -81,9 +84,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
                     if (StringUtils.hasLength(themeId)) {
                         return repository
                                 .findById(themeId, READ_THEMES)
-                                .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
+                                .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES));
                     } else { // theme id is not present, return default theme
-                        return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
+                        return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES);
                     }
                 });
     }
@@ -175,10 +178,12 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     @Override
     public Mono<String> getDefaultThemeId() {
         if (StringUtils.isEmpty(defaultThemeId)) {
-            return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).map(theme -> {
-                defaultThemeId = theme.getId();
-                return theme.getId();
-            });
+            return repository
+                    .getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES)
+                    .map(theme -> {
+                        defaultThemeId = theme.getId();
+                        return theme.getId();
+                    });
         }
         return Mono.just(defaultThemeId);
     }
@@ -214,7 +219,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
                     Mono<Theme> editModeThemeMono;
                     if (!StringUtils.hasLength(
                             application.getEditModeThemeId())) { // theme id is empty, use the default theme
-                        editModeThemeMono = repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME);
+                        editModeThemeMono = repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME, READ_THEMES);
                     } else { // theme id is not empty, fetch it by id
                         editModeThemeMono = repository.findById(application.getEditModeThemeId(), READ_THEMES);
                     }
@@ -401,7 +406,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
 
     @Override
     public Mono<Theme> getSystemTheme(String themeName) {
-        return repository.getSystemThemeByName(themeName);
+        return repository.getSystemThemeByName(themeName, READ_THEMES);
     }
 
     @Override
@@ -434,11 +439,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     @Override
     public Mono<Theme> getOrSaveTheme(Theme theme, Application destApplication) {
         if (theme == null) { // this application was exported without theme, assign the legacy theme to it
-            return repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME); // return the default theme
+            return repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME, READ_THEMES); // return the default theme
         } else if (theme.isSystemTheme()) {
             return repository
-                    .getSystemThemeByName(theme.getName())
-                    .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
+                    .getSystemThemeByName(theme.getName(), READ_THEMES)
+                    .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES));
         } else {
             // create a new theme
             Theme newTheme = new Theme();
@@ -464,9 +469,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     @Override
     public Mono<Application> archiveApplicationThemes(Application application) {
         return repository
-                .archiveByApplicationId(application.getId())
+                .archiveByApplicationId(application.getId(), MANAGE_THEMES)
                 .then(repository.archiveDraftThemesById(
-                        application.getEditModeThemeId(), application.getPublishedModeThemeId()))
+                        application.getEditModeThemeId(), application.getPublishedModeThemeId(), MANAGE_THEMES))
                 .thenReturn(application);
     }
 }

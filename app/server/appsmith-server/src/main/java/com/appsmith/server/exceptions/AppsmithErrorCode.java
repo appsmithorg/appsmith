@@ -132,6 +132,7 @@ public enum AppsmithErrorCode {
             "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed"),
     TRIGGER_PARAMETERS_EMPTY("AE-DS-4001", "Trigger parameters empty."),
     INSUFFICIENT_PASSWORD_STRENGTH("AE-PSW-4002", "Insufficient password strength"),
+    USER_CONTEXT_NOT_FOUND("AE-USR-4005", "User context not found"),
     ;
     private final String code;
     private final String description;

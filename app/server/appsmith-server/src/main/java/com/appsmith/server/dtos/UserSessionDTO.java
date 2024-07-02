@@ -73,7 +73,7 @@ public class UserSessionDTO {
         final UserSessionDTO session = new UserSessionDTO();
         final User user = (User) authentication.getPrincipal();
 
-        session.userId = user.getId();
+        session.userId = String.valueOf(user.getId());
         session.email = user.getEmail();
         session.hashedEmail = user.getHashedEmail();
         session.name = user.getName();

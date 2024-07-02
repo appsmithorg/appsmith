@@ -10,12 +10,12 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.projections.UserDataProfilePhotoProjection;
-import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.UserDataRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserDataRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
@@ -38,11 +38,12 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
+import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
-public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserData, String>
+public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserDataRepositoryCake, UserData, String>
         implements UserDataServiceCE {
 
-    private final UserRepository userRepository;
+    private final UserRepositoryCake userRepository;
 
     private final SessionUserService sessionUserService;
 
@@ -52,7 +53,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     private final FeatureFlagService featureFlagService;
 
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationRepositoryCake applicationRepository;
 
     private final TenantService tenantService;
 
@@ -65,16 +66,17 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     @Autowired
     public UserDataServiceCEImpl(
             Validator validator,
-            UserDataRepository repository,
+            UserDataRepository repositoryDirect,
+            UserDataRepositoryCake repository,
             AnalyticsService analyticsService,
-            UserRepository userRepository,
+            UserRepositoryCake userRepository,
             SessionUserService sessionUserService,
             AssetService assetService,
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
-            ApplicationRepository applicationRepository,
+            ApplicationRepositoryCake applicationRepository,
             TenantService tenantService) {
-        super(validator, repository, analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.userRepository = userRepository;
         this.releaseNotesService = releaseNotesService;
         this.assetService = assetService;
@@ -145,10 +147,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, UserData.Fields.userId));
         }
 
-        return repository
-                .queryBuilder()
-                .criteria(Bridge.equal(UserData.Fields.userId, userId))
-                .updateFirst(resource)
+        return asMonoDirect(() -> repositoryDirect.updateByUserId(userId, resource))
                 .flatMap(count -> count == 0 ? Mono.empty() : repository.findByUserId(userId))
                 .flatMap(analyticsService::sendUpdateEvent);
     }

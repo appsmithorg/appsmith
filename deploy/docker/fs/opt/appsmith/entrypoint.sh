@@ -58,11 +58,6 @@ init_env_file() {
     # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
     tlog "Generating default configuration file"
     mkdir -p "$CONF_PATH"
-    local default_appsmith_mongodb_user="appsmith"
-    local generated_appsmith_mongodb_password=$(
-      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ""
-    )
     local generated_appsmith_encryption_password=$(
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ""
@@ -75,7 +70,7 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
-    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
   fi
 
 
@@ -372,13 +367,14 @@ configure_supervisord() {
 
   # Disable services based on configuration
   if [[ -z "${DYNO}" ]]; then
-    if [[ $isUriLocal -eq 0 ]]; then
+    if [[ $isUriLocal -eq 0 && $isMongoUrl -eq 1 ]]; then
       cp "$supervisord_conf_source/mongodb.conf" "$SUPERVISORD_CONF_TARGET"
     fi
     if [[ $APPSMITH_REDIS_URL == *"localhost"* || $APPSMITH_REDIS_URL == *"127.0.0.1"* ]]; then
       cp "$supervisord_conf_source/redis.conf" "$SUPERVISORD_CONF_TARGET"
       mkdir -p "$stacks_path/data/redis"
     fi
+    echo "Run Embedded Postgres: $runEmbeddedPostgres"
     if [[ $runEmbeddedPostgres -eq 1 ]]; then
       cp "$supervisord_conf_source/postgres.conf" "$SUPERVISORD_CONF_TARGET"
     fi

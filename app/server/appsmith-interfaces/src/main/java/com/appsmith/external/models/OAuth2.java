@@ -1,14 +1,15 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.annotations.documenttype.DocumentType;
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -16,7 +17,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.logging.log4j.util.Strings;
-import org.springframework.data.annotation.Transient;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
@@ -31,7 +31,6 @@ import java.util.stream.Collectors;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@DocumentType(Authentication.OAUTH2)
 public class OAuth2 extends AuthenticationDTO {
 
     public enum Type {
@@ -58,7 +57,7 @@ public class OAuth2 extends AuthenticationDTO {
     @JsonView({Views.Public.class, FromRequest.class})
     String clientId;
 
-    @Encrypted @JsonView(FromRequest.class)
+    @Encrypted @JsonView({Views.Internal.class, FromRequest.class})
     String clientSecret;
 
     @JsonView({Views.Public.class, FromRequest.class})
@@ -83,6 +82,7 @@ public class OAuth2 extends AuthenticationDTO {
     @JsonView({Views.Public.class, FromRequest.class})
     String headerPrefix;
 
+    @org.hibernate.annotations.Type(CustomJsonType.class)
     Set<Property> customTokenParameters;
 
     @JsonView({Views.Public.class, FromRequest.class})

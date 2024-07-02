@@ -4,6 +4,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.plugins.base.PluginServiceCE;
 import com.appsmith.server.plugins.base.PluginServiceCEImpl;
 import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.WorkspaceService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -40,7 +41,10 @@ public class PluginServiceCEImplTest {
     Validator validator;
 
     @MockBean
-    PluginRepository repository;
+    PluginRepository repositoryDirect;
+
+    @MockBean
+    PluginRepositoryCake repository;
 
     @MockBean
     AnalyticsService analyticsService;
@@ -66,6 +70,7 @@ public class PluginServiceCEImplTest {
         objectMapper = new ObjectMapper();
         pluginService = new PluginServiceCEImpl(
                 validator,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 workspaceService,

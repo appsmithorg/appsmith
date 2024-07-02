@@ -8,10 +8,10 @@ import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.LayoutActionService;
@@ -41,7 +41,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
             ApplicationPermission applicationPermission,
             ImportService importService,
             ApplicationPageService applicationPageService,
-            NewPageRepository newPageRepository,
+            NewPageRepositoryCake newPageRepository,
             NewActionService newActionService,
             LayoutActionService layoutActionService,
             ActionCollectionService actionCollectionService,
@@ -49,9 +49,9 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
             PagePermission pagePermission,
             ActionPermission actionPermission,
             PermissionGroupService permissionGroupService,
-            ActionCollectionRepository actionCollectionRepository,
-            NewActionRepository newActionRepository,
-            WorkspaceRepository workspaceRepository,
+            ActionCollectionRepositoryCake actionCollectionRepository,
+            NewActionRepositoryCake newActionRepository,
+            WorkspaceRepositoryCake workspaceRepository,
             ForkableService<Datasource> datasourceForkableService,
             UpdateLayoutService updateLayoutService) {
         super(

@@ -7,12 +7,13 @@ import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.TenantRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.EnvManager;
 import org.junit.jupiter.api.AfterEach;
@@ -27,7 +28,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -50,8 +51,9 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
-class TenantServiceCETest {
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
+public class TenantServiceCETest {
 
     @Autowired
     TenantService tenantService;
@@ -60,10 +62,10 @@ class TenantServiceCETest {
     EnvManager envManager;
 
     @Autowired
-    UserRepository userRepository;
+    UserRepositoryCake userRepository;
 
     @Autowired
-    TenantRepository tenantRepository;
+    TenantRepositoryCake tenantRepository;
 
     @Autowired
     UserUtils userUtils;

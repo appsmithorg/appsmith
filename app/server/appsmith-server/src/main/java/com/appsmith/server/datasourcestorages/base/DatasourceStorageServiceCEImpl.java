@@ -16,6 +16,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.DatasourceStorageRepository;
+import com.appsmith.server.repositories.cakes.DatasourceStorageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import lombok.extern.slf4j.Slf4j;
@@ -36,14 +37,15 @@ import static java.lang.Boolean.TRUE;
 @Slf4j
 public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceCE {
 
-    protected final DatasourceStorageRepository repository;
+    protected final DatasourceStorageRepositoryCake repository;
     private final DatasourcePermission datasourcePermission;
     private final PluginService pluginService;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final AnalyticsService analyticsService;
 
     public DatasourceStorageServiceCEImpl(
-            DatasourceStorageRepository repository,
+            DatasourceStorageRepository repositoryDirect,
+            DatasourceStorageRepositoryCake repository,
             DatasourcePermission datasourcePermission,
             PluginService pluginService,
             PluginExecutorHelper pluginExecutorHelper,
@@ -217,8 +219,7 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 .map(this::sanitizeDatasourceStorage)
                 .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1))
                 .flatMap(this::executePreSaveActions)
-                .flatMap(unsavedDatasourceStorage ->
-                        repository.save(unsavedDatasourceStorage).thenReturn(unsavedDatasourceStorage));
+                .flatMap(repository::save);
     }
 
     @Override

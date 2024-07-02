@@ -1,18 +1,23 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.Permission;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 
 import java.util.HashSet;
 import java.util.Set;
 
-@Document
+@Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 @NoArgsConstructor
 @Getter
@@ -33,11 +38,17 @@ public class PermissionGroup extends BaseDomain {
     String defaultDomainId;
     String defaultDomainType;
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @Deprecated
-    Set<Permission> permissions = new HashSet<>();
+    private Set<Permission> permissions = new HashSet<>();
 
-    Set<String> assignedToUserIds = new HashSet<>();
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
+    private Set<String> assignedToUserIds = new HashSet<>();
 
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     Set<String> assignedToGroupIds = new HashSet<>();
 
     public static class Fields extends BaseDomain.Fields {}

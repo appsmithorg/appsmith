@@ -13,11 +13,12 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.ThemeRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.themes.base.ThemeService;
@@ -29,7 +30,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -50,12 +51,13 @@ import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Slf4j
 public class ThemeServiceTest {
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     ApplicationService applicationService;
@@ -75,13 +77,13 @@ public class ThemeServiceTest {
     private ThemeService themeService;
 
     @Autowired
-    private PermissionGroupRepository permissionGroupRepository;
+    private PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     private UserWorkspaceService userWorkspaceService;
 
     @Autowired
-    private ThemeRepository themeRepository;
+    private ThemeRepositoryCake themeRepository;
 
     @Autowired
     private UserAndAccessManagementService userAndAccessManagementService;
@@ -90,7 +92,7 @@ public class ThemeServiceTest {
     ApplicationPermission applicationPermission;
 
     @Autowired
-    UserRepository userRepository;
+    UserRepositoryCake userRepository;
 
     @Autowired
     PermissionGroupService permissionGroupService;
@@ -661,7 +663,7 @@ public class ThemeServiceTest {
         Application publishedApp =
                 applicationPageService.publish(savedApplication.getId(), TRUE).block();
 
-        Mono<Theme> classicThemeMono = themeRepository.getSystemThemeByName(Theme.LEGACY_THEME_NAME);
+        Mono<Theme> classicThemeMono = themeRepository.getSystemThemeByName(Theme.LEGACY_THEME_NAME, READ_THEMES);
 
         Mono<Tuple2<Application, Theme>> appAndThemeTuple =
                 Mono.just(publishedApp).zipWith(classicThemeMono);

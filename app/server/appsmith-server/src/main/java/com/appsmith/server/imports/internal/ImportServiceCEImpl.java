@@ -24,7 +24,7 @@ import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -37,7 +37,6 @@ import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -58,8 +57,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
             applicationImportService;
     private final SessionUserService sessionUserService;
     private final WorkspaceService workspaceService;
-    private final PermissionGroupRepository permissionGroupRepository;
-    private final TransactionalOperator transactionalOperator;
+    private final PermissionGroupRepositoryCake permissionGroupRepository;
     private final AnalyticsService analyticsService;
     private final ImportableService<Plugin> pluginImportableService;
     private final ImportableService<Datasource> datasourceImportableService;
@@ -176,8 +174,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
         ArtifactBasedImportService<?, ?, ?> contextBasedImportService =
                 getArtifactBasedImportService(artifactExchangeJson);
-        return permissionGroupRepository
-                .getCurrentUserPermissionGroups()
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                 .zipWhen(userPermissionGroup -> {
                     return Mono.just(contextBasedImportService.getImportArtifactPermissionProviderForImportingArtifact(
                             userPermissionGroup));
@@ -226,8 +225,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                         AppsmithError.UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION));
             } else {
                 contextBasedImportService.setJsonArtifactNameToNullBeforeUpdate(artifactId, artifactExchangeJson);
-                return permissionGroupRepository
-                        .getCurrentUserPermissionGroups()
+                return sessionUserService
+                        .getCurrentUser()
+                        .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                         .zipWhen(userPermissionGroup -> {
                             return Mono.just(
                                     contextBasedImportService.getImportArtifactPermissionProviderForUpdatingArtifact(
@@ -274,8 +274,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
 
         ArtifactBasedImportService<?, ?, ?> artifactBasedImportService =
                 getArtifactBasedImportService(artifactExchangeJson);
-        return permissionGroupRepository
-                .getCurrentUserPermissionGroups()
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                 .zipWhen(userPermissionGroups -> {
                     return Mono.just(artifactBasedImportService.getImportArtifactPermissionProviderForConnectingToGit(
                             userPermissionGroups));
@@ -304,8 +305,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
          */
         ArtifactBasedImportService<?, ?, ?> contextBasedImportService =
                 getArtifactBasedImportService(artifactExchangeJson);
-        return permissionGroupRepository
-                .getCurrentUserPermissionGroups()
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                 .zipWhen(userPermissionGroups -> {
                     return Mono.just(contextBasedImportService.getImportArtifactPermissionProviderForRestoringSnapshot(
                             userPermissionGroups));
@@ -349,8 +351,9 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 getArtifactBasedImportService(artifactExchangeJson);
         contextBasedImportService.updateArtifactExchangeJsonWithEntitiesToBeConsumed(
                 artifactExchangeJson, entitiesToImport);
-        return permissionGroupRepository
-                .getCurrentUserPermissionGroups()
+        return sessionUserService
+                .getCurrentUser()
+                .flatMap(permissionGroupRepository::getPermissionGroupsForUser)
                 .zipWhen(userPermissionGroups -> {
                     return Mono.just(
                             contextBasedImportService.getImportArtifactPermissionProviderForMergingJsonWithArtifact(
@@ -486,23 +489,27 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .cache();
 
         final Mono<? extends Artifact> importMono = importableArtifactMono
-                .then(Mono.defer(() -> generateImportableEntities(
-                        importingMetaDTO,
-                        mappedImportableResourcesDTO,
-                        workspaceMono,
-                        importableArtifactMono,
-                        importedDoc)))
-                .then(importableArtifactMono)
-                .flatMap(importableArtifact -> updateImportableEntities(
-                        contextBasedImportService, importableArtifact, mappedImportableResourcesDTO, importingMetaDTO))
-                .flatMap(importableArtifact -> updateImportableArtifact(contextBasedImportService, importableArtifact))
-                .onErrorResume(throwable -> {
-                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
-                    log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
-                })
-                .as(transactionalOperator::transactional);
+                        .then(Mono.defer(() -> generateImportableEntities(
+                                importingMetaDTO,
+                                mappedImportableResourcesDTO,
+                                workspaceMono,
+                                importableArtifactMono,
+                                importedDoc)))
+                        .then(importableArtifactMono)
+                        .flatMap(importableArtifact -> updateImportableEntities(
+                                contextBasedImportService,
+                                importableArtifact,
+                                mappedImportableResourcesDTO,
+                                importingMetaDTO))
+                        .flatMap(importableArtifact ->
+                                updateImportableArtifact(contextBasedImportService, importableArtifact))
+                        .onErrorResume(throwable -> {
+                            String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                            log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
+                        })
+                /*.as(transactionalOperator::transactional)*/ ;
 
         final Mono<? extends Artifact> resultMono = importMono
                 .flatMap(importableArtifact -> sendImportedContextAnalyticsEvent(

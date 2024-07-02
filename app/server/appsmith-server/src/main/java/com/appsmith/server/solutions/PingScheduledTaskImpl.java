@@ -5,12 +5,12 @@ import com.appsmith.server.configurations.DeploymentProperties;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.helpers.NetworkUtils;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.solutions.ce.PingScheduledTaskCEImpl;
@@ -32,12 +32,12 @@ public class PingScheduledTaskImpl extends PingScheduledTaskCEImpl implements Pi
             ConfigService configService,
             SegmentConfig segmentConfig,
             CommonConfig commonConfig,
-            WorkspaceRepository workspaceRepository,
-            ApplicationRepository applicationRepository,
-            NewPageRepository newPageRepository,
-            NewActionRepository newActionRepository,
-            DatasourceRepository datasourceRepository,
-            UserRepository userRepository,
+            WorkspaceRepositoryCake workspaceRepository,
+            ApplicationRepositoryCake applicationRepository,
+            NewPageRepositoryCake newPageRepository,
+            NewActionRepositoryCake newActionRepository,
+            DatasourceRepositoryCake datasourceRepository,
+            UserRepositoryCake userRepository,
             ProjectProperties projectProperties,
             DeploymentProperties deploymentProperties,
             NetworkUtils networkUtils,

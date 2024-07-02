@@ -1,7 +1,8 @@
 package com.appsmith.server.widgets.refactors;
 
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -14,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -23,7 +24,8 @@ import java.io.InputStream;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @Slf4j
 @SpringBootTest
 class WidgetRefactoringServiceCEImplTest {
@@ -43,7 +45,7 @@ class WidgetRefactoringServiceCEImplTest {
     ObjectMapper mapper = new ObjectMapper();
 
     @MockBean
-    ActionCollectionRepository actionCollectionRepository;
+    ActionCollectionRepositoryCake actionCollectionRepository;
 
     @Autowired
     WidgetRefactorUtil widgetRefactorUtil;

@@ -22,16 +22,20 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.time.Duration;
 
 @SpringBootApplication
 @ComponentScan({"com.appsmith"})
 @EnableScheduling
+@EntityScan({"com.appsmith.external.models", "com.appsmith.server.domains", "com.appsmith.server.dtos"})
+@EnableTransactionManagement
 @Slf4j
 public class ServerApplication {
     public static final String NEW_RELIC_MICROMETER_METRICS_ENDPOINT = "https://otlp.nr-data.net:4317";

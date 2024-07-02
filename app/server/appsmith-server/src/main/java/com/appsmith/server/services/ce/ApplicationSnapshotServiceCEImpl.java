@@ -13,7 +13,7 @@ import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
-import com.appsmith.server.repositories.ApplicationSnapshotRepository;
+import com.appsmith.server.repositories.cakes.ApplicationSnapshotRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServiceCE {
-    private final ApplicationSnapshotRepository applicationSnapshotRepository;
+    private final ApplicationSnapshotRepositoryCake applicationSnapshotRepository;
     private final ApplicationService applicationService;
     private final ImportService importService;
     private final ExportService exportService;

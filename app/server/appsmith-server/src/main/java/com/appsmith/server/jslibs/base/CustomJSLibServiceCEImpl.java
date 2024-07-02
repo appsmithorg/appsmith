@@ -6,6 +6,7 @@ import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibService;
 import com.appsmith.server.repositories.CustomJSLibRepository;
+import com.appsmith.server.repositories.cakes.CustomJSLibRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;
@@ -22,16 +23,18 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
 
 @Slf4j
-public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository, CustomJSLib, String>
+public class CustomJSLibServiceCEImpl
+        extends BaseService<CustomJSLibRepository, CustomJSLibRepositoryCake, CustomJSLib, String>
         implements CustomJSLibServiceCE {
     protected final ContextBasedJsLibService<Application> applicationContextBasedJsLibService;
 
     public CustomJSLibServiceCEImpl(
             Validator validator,
-            CustomJSLibRepository repository,
+            CustomJSLibRepository repositoryDirect,
+            CustomJSLibRepositoryCake repository,
             AnalyticsService analyticsService,
             ContextBasedJsLibService<Application> applicationContextBasedJsLibService) {
-        super(validator, repository, analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.applicationContextBasedJsLibService = applicationContextBasedJsLibService;
     }
 

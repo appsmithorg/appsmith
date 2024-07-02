@@ -16,9 +16,11 @@ import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
+import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -84,7 +86,10 @@ public class NewActionServiceUnitTest {
     PermissionGroupService permissionGroupService;
 
     @MockBean
-    NewActionRepository newActionRepository;
+    NewActionRepository newActionRepositoryDirect;
+
+    @MockBean
+    NewActionRepositoryCake newActionRepository;
 
     @MockBean
     DatasourcePermission datasourcePermission;
@@ -112,10 +117,14 @@ public class NewActionServiceUnitTest {
     @MockBean
     DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
 
+    @MockBean
+    SessionUserService sessionUserService;
+
     @BeforeEach
     public void setup() {
         newActionService = new NewActionServiceCEImpl(
                 validator,
+                newActionRepositoryDirect,
                 newActionRepository,
                 analyticsService,
                 datasourceService,

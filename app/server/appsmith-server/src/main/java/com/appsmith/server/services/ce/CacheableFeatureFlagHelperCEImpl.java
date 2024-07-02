@@ -16,7 +16,7 @@ import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagIdentityTraits;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.SignatureVerifier;
-import com.appsmith.server.repositories.TenantRepository;
+import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.server.solutions.ReleaseNotesService;
@@ -45,7 +45,7 @@ import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 @Slf4j
 @RequiredArgsConstructor
 public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHelperCE {
-    private final TenantRepository tenantRepository;
+    private final TenantRepositoryCake tenantRepository;
     private final ConfigService configService;
     private final CloudServicesConfig cloudServicesConfig;
     private final CommonConfig commonConfig;
@@ -120,7 +120,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                             objects.getT1(), tenantId, Set.of(userIdentifier), objects.getT3(), appsmithVersion);
                     return this.getRemoteFeatureFlagsByIdentity(featureFlagIdentityTraits);
                 })
-                .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of()));
+                .map(newValue -> ObjectUtils.defaultIfNull(newValue.get(userIdentifier), Map.of())); // */
     }
 
     /**

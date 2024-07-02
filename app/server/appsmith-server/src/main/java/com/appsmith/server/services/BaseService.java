@@ -5,15 +5,18 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
+import com.appsmith.server.repositories.cakes.BaseCake;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.repository.CrudRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -23,16 +26,25 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import static com.appsmith.server.helpers.ReactorUtils.asFlux;
+import static com.appsmith.server.helpers.ReactorUtils.asMono;
 
 @Slf4j
 @RequiredArgsConstructor
 public abstract class BaseService<
-                R extends BaseRepository<T, ID> & AppsmithRepository<T>, T extends BaseDomain, ID extends Serializable>
+                R extends BaseRepository<T, ID> & AppsmithRepository<T>,
+                C extends BaseCake<T, ? extends CrudRepository<T, String>>,
+                T extends BaseDomain,
+                ID extends Serializable>
         implements CrudService<T, ID> {
 
     protected final Validator validator;
 
-    protected final R repository;
+    protected final R repositoryDirect;
+
+    protected final C repository;
 
     protected final AnalyticsService analyticsService;
 
@@ -44,15 +56,29 @@ public abstract class BaseService<
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
-        resource.setUpdatedAt(Instant.now());
+        /* Original Pg-only implementation:
+        // In case the update is not used to update the policies, then set the policies to null to ensure that the
+        // existing policies are not overwritten.
+        if (CollectionUtils.isNullOrEmpty(resource.getPolicies())) {
+            resource.setPolicies(null);
+        }
 
         return repository
-                .queryBuilder()
-                .byId((String) id)
-                .updateFirst(resource)
-                .flatMap(obj -> repository.findById(id))
+                .findOne((root, query, builder) -> builder.equal(root.get(key), id))
+                .flatMap(dbResource -> {
+                    AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, dbResource);
+                    dbResource.setUpdatedAt(Instant.now());
+                    return repository.save(dbResource);
+                });
+        */
+
+        resource.setUpdatedAt(Instant.now());
+
+        return ReactiveContextUtils.getCurrentUser().flatMap(user -> asMono(
+                        () -> Optional.of(repositoryDirect.updateById((String) id, resource, null, user)))
+                .flatMap(obj -> repository.findById((String) id))
                 .flatMap(savedResource ->
-                        analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
+                        analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource))));
     }
 
     @Override
@@ -62,14 +88,13 @@ public abstract class BaseService<
         }
 
         return repository
-                .findById(id)
+                .findById((String) id)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "resource", id)));
     }
 
     @Override
     public Mono<T> create(T object) {
-        return Mono.just(object)
-                .flatMap(this::validateObject)
+        return validateObject(object)
                 .flatMap(repository::save)
                 .flatMap(savedResource ->
                         analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));
@@ -124,13 +149,15 @@ public abstract class BaseService<
             criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
         }
 
-        Flux<T> result = repository
-                .queryBuilder()
-                .criteria(Bridge.or(criteria))
-                .permission(permission)
-                .sort(sort)
-                .includeAnonymousUserPermissions(false)
-                .all();
+        Flux<T> result = ReactiveContextUtils.getCurrentUser().flatMapMany(user -> {
+            return asFlux(() -> repositoryDirect
+                    .queryBuilder()
+                    .criteria(Bridge.or(criteria))
+                    .permission(permission, user)
+                    .sort(sort)
+                    .includeAnonymousUserPermissions(false)
+                    .all());
+        });
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }

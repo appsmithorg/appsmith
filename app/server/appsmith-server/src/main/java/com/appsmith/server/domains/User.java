@@ -1,15 +1,21 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
-import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.mapping.Document;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -27,7 +33,8 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-@Document
+@Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class User extends BaseDomain implements UserDetails, OidcUser {
 
@@ -49,9 +56,11 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     private Boolean passwordResetInitiated = false;
 
     @JsonView(Views.Public.class)
+    @Enumerated(EnumType.STRING)
     private LoginSource source = LoginSource.FORM;
 
     @JsonView(Views.Public.class)
+    @Enumerated(EnumType.STRING)
     private UserState state;
 
     @JsonView(Views.Public.class)
@@ -64,6 +73,8 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     private Boolean emailVerified;
 
     @JsonView(Views.Public.class)
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     private Set<String> workspaceIds;
 
     @JsonView(Views.Public.class)
@@ -72,6 +83,8 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     // There is a many-to-many relationship with groups. If this value is modified, please also modify the list of
     // users in that particular group document as well.
     @JsonView(Views.Public.class)
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     private Set<String> groupIds = new HashSet<>();
 
     // These permissions are in addition to the privileges provided by the groupIds. We can assign individual
@@ -79,6 +92,8 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     // to users instead of creating a group for them. To be used only for one-off permissions.
     // During evaluation a union of the group permissions and user-specific permissions will take effect.
     @JsonView(Views.Public.class)
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     private Set<String> permissions = new HashSet<>();
 
     // This field is used when a user is invited to appsmith. This inviteToken is used to confirm the identity in verify
@@ -104,12 +119,14 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     // TODO: Populate these attributes for a user. Generally required for OAuth2 logins
     @Override
     @JsonView(Views.Public.class)
+    @Transient
     public Map<String, Object> getAttributes() {
         return null;
     }
 
     @Override
     @JsonView(Views.Public.class)
+    @Transient
     public Collection<GrantedAuthority> getAuthorities() {
         return null;
     }
@@ -149,6 +166,7 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     // TODO: Check the return value for the functions below to ensure that correct values are being returned
     @Override
     @JsonView(Views.Public.class)
+    @Transient
     public Map<String, Object> getClaims() {
         return new HashMap<>();
     }

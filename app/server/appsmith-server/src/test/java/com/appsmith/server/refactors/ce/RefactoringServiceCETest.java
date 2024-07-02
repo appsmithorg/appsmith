@@ -27,6 +27,7 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
@@ -34,8 +35,8 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.PluginRepository;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
@@ -58,7 +59,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
@@ -78,10 +78,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith({AfterAllCleanUpExtension.class})
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 class RefactoringServiceCETest {
 
     @SpyBean
@@ -97,7 +97,7 @@ class RefactoringServiceCETest {
     WorkspaceService workspaceService;
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
@@ -118,7 +118,7 @@ class RefactoringServiceCETest {
     NewPageService newPageService;
 
     @Autowired
-    NewActionRepository actionRepository;
+    NewActionRepositoryCake actionRepository;
 
     @Autowired
     ActionCollectionService actionCollectionService;
@@ -462,7 +462,7 @@ class RefactoringServiceCETest {
         refactorActionNameDTO.setLayoutId(firstLayout.getId());
         refactorActionNameDTO.setOldName("Query1");
         refactorActionNameDTO.setNewName("NewActionName");
-        refactorActionNameDTO.setActionId(firstAction.getId());
+        refactorActionNameDTO.setActionId(secondAction.getId());
 
         refactoringService.refactorEntityName(refactorActionNameDTO, null).block();
 

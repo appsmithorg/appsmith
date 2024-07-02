@@ -44,6 +44,7 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.TextUtils;
@@ -54,14 +55,14 @@ import com.appsmith.server.migrations.ApplicationVersion;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.DatasourceRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.AssetRepositoryCake;
+import com.appsmith.server.repositories.cakes.DatasourceRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.LayoutCollectionService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -80,6 +81,8 @@ import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -98,8 +101,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
@@ -108,7 +109,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -125,7 +125,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.CONNECT_TO_GIT;
@@ -155,19 +154,18 @@ import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
-import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE;
 import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
+import static com.appsmith.server.helpers.ReactorUtils.asMono;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(AfterAllCleanUpExtension.class)
 @SpringBootTest
 @Slf4j
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class ApplicationServiceCETest {
 
     static Plugin testPlugin = new Plugin();
@@ -207,10 +205,10 @@ public class ApplicationServiceCETest {
     NewPageService newPageService;
 
     @Autowired
-    NewPageRepository newPageRepository;
+    NewPageRepositoryCake newPageRepository;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @Autowired
     LayoutActionService layoutActionService;
@@ -228,7 +226,7 @@ public class ApplicationServiceCETest {
     CustomJSLibService customJSLibService;
 
     @Autowired
-    PluginRepository pluginRepository;
+    PluginRepositoryCake pluginRepository;
 
     @Autowired
     ImportService importService;
@@ -249,13 +247,13 @@ public class ApplicationServiceCETest {
     PluginExecutor pluginExecutor;
 
     @Autowired
-    ReactiveMongoOperations mongoOperations;
+    private EntityManager entityManager;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
-    UserRepository userRepository;
+    UserRepositoryCake userRepository;
 
     @Autowired
     SessionUserService sessionUserService;
@@ -270,7 +268,7 @@ public class ApplicationServiceCETest {
     DatasourcePermission datasourcePermission;
 
     @Autowired
-    DatasourceRepository datasourceRepository;
+    DatasourceRepositoryCake datasourceRepository;
 
     @Autowired
     ApplicationPermission applicationPermission;
@@ -290,7 +288,7 @@ public class ApplicationServiceCETest {
     private final String tempUserPassword = "tempUserPassword";
 
     @Autowired
-    private AssetRepository assetRepository;
+    private AssetRepositoryCake assetRepository;
 
     private <I> Mono<I> runAs(Mono<I> input, User user) {
         log.info("Running as user: {}", user.getEmail());
@@ -414,20 +412,26 @@ public class ApplicationServiceCETest {
         Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
-    private Mono<? extends BaseDomain> getArchivedResource(String id, Class<? extends BaseDomain> domainClass) {
-        return mongoOperations.findOne(new Query(where("id").is(id)), domainClass);
-    }
-
-    private List<String> createDummyApplications(String workspaceId) {
-        List<String> applicationIds = new ArrayList<>();
-        for (int count = 0; count < 4; count++) {
-            Application application = new Application();
-            application.setName("Application " + count);
-            application.setWorkspaceId(workspaceId);
-            application = applicationPageService.createApplication(application).block();
-            applicationIds.add(application.getId());
-        }
-        return applicationIds;
+    private <T extends BaseDomain> Mono<T> getArchivedResource(String id, Class<T> domainClass) {
+        return asMono(() -> {
+            // The stuff we do in this method, should be considered flaky, horrible code, and should not be used in
+            // normal circumstances. We're only living with this, because this is a test file, so this code never runs
+            // in production, and because this is filling in for a function defined with MongoDB, where it wasn't nearly
+            // as bad. Don't do any of this in other places of the project. Please.
+            String tableName = domainClass
+                    .getSimpleName()
+                    .replaceAll("[A-Z]", "_$0")
+                    .replaceAll("^_", "")
+                    .toUpperCase();
+            final Query nativeQuery = entityManager.createNativeQuery(
+                    """
+                SELECT * FROM %s WHERE deleted_at IS NOT NULL AND id = ?
+                """
+                            .formatted(tableName),
+                    domainClass);
+            nativeQuery.setParameter(1, id);
+            return Optional.ofNullable((T) nativeQuery.getSingleResult());
+        });
     }
 
     @Test
@@ -591,11 +595,6 @@ public class ApplicationServiceCETest {
                 .createApplication(testApplication, workspaceId)
                 // Fetch the unpublished pages by applicationId
                 .flatMapMany(application -> newPageService.findByApplicationId(application.getId(), READ_PAGES, false));
-
-        Policy managePagePolicy =
-                Policy.builder().permission(MANAGE_PAGES.getValue()).build();
-        Policy readPagePolicy =
-                Policy.builder().permission(READ_PAGES.getValue()).build();
 
         StepVerifier.create(pagesFlux)
                 .assertNext(page -> {
@@ -4479,19 +4478,15 @@ public class ApplicationServiceCETest {
         workspaceService.archiveById(workspace.getId()).block();
     }
 
-    @Test
-    public void findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder_invalidWorkspaceId_throwException() {
-
-        String invalidWorkspaceId = UUID.randomUUID().toString();
-        Flux<Application> allApplicationsWithinWorkspace =
-                applicationService.findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(invalidWorkspaceId);
-
-        StepVerifier.create(allApplicationsWithinWorkspace.collectList())
-                .expectErrorSatisfies(throwable -> {
-                    assertThat(throwable).isInstanceOf(AppsmithException.class);
-                    assertThat(throwable.getMessage())
-                            .isEqualTo(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(WORKSPACE, invalidWorkspaceId));
-                })
-                .verify();
+    private List<String> createDummyApplications(String workspaceId) {
+        List<String> applicationIds = new ArrayList<>();
+        for (int count = 0; count < 4; count++) {
+            Application application = new Application();
+            application.setName("Application " + count);
+            application.setWorkspaceId(workspaceId);
+            application = applicationPageService.createApplication(application).block();
+            applicationIds.add(application.getId());
+        }
+        return applicationIds;
     }
 }

@@ -34,10 +34,10 @@ import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.NewActionRepository;
-import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.LayoutActionService;
@@ -52,7 +52,6 @@ import com.appsmith.server.themes.base.ThemeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.bson.types.ObjectId;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -64,6 +63,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
@@ -79,7 +79,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     protected final ApplicationPermission applicationPermission;
     private final ImportService importService;
     private final ApplicationPageService applicationPageService;
-    protected final NewPageRepository newPageRepository;
+    protected final NewPageRepositoryCake newPageRepository;
     private final NewActionService newActionService;
     private final LayoutActionService layoutActionService;
     private final ActionCollectionService actionCollectionService;
@@ -87,9 +87,10 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     protected final PagePermission pagePermission;
     protected final ActionPermission actionPermission;
     private final PermissionGroupService permissionGroupService;
-    private final ActionCollectionRepository actionCollectionRepository;
-    private final NewActionRepository newActionRepository;
-    private final WorkspaceRepository workspaceRepository;
+    private final ActionCollectionRepositoryCake actionCollectionRepository;
+    private final NewActionRepositoryCake newActionRepository;
+    private final WorkspaceRepositoryCake workspaceRepository;
+
     private final ForkableService<Datasource> datasourceForkableService;
     private final UpdateLayoutService updateLayoutService;
     /**
@@ -167,7 +168,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
                     if (page.getLayouts() != null) {
                         for (final Layout layout : page.getLayouts()) {
-                            layout.setId(new ObjectId().toString());
+                            layout.setId(UUID.randomUUID().toString());
                         }
                     }
 
@@ -404,7 +405,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             editModeTheme.getId(),
                             publishedModeTheme.getId(),
                             applicationPermission.getEditPermission());
-                });
+                }); // */
     }
 
     private Mono<Application> forkApplicationDocument(Application application) {
@@ -430,7 +431,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
         return applicationPageService
                 .setApplicationPolicies(userMono, workspaceId, application)
-                .flatMap(applicationService::createDefaultApplication);
+                .flatMap(applicationService::createDefaultApplication); // */
     }
 
     @Override
@@ -497,7 +498,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         // means that even if the subscriber has cancelled its subscription, the create method still generates its
         // event.
         return Mono.create(
-                sink -> forkApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
+                sink -> forkApplicationMono.subscribe(sink::success, sink::error, null, sink.currentContext())); // */
     }
 
     public Mono<ApplicationImportDTO> forkApplicationToWorkspace(
@@ -585,6 +586,9 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
+        Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
+        Flux<User> currentUserFlux = currentUserMono.repeat();
+
         // For sample apps that are marked as forked, we allow forking to any workspace without any permission checks
         return isForkingEnabled(applicationMonoWithOutPermission).flatMap(isForkingEnabled -> {
             if (isForkingEnabled) {
@@ -607,7 +611,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         newPage.setPolicies(idPoliciesOnly.getPolicies());
                         return newPage;
                     })
-                    .flatMap(newPageRepository::setUserPermissionsInObject));
+                    .zipWith(currentUserFlux)
+                    .flatMap(object -> newPageRepository.setUserPermissionsInObject(object.getT1(), object.getT2())));
 
             Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
                     .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
@@ -617,16 +622,20 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                         newAction.setPolicies(idPoliciesOnly.getPolicies());
                         return newAction;
                     })
-                    .flatMap(newActionRepository::setUserPermissionsInObject));
+                    .zipWith(currentUserFlux)
+                    .flatMap(object -> newActionRepository.setUserPermissionsInObject(object.getT1(), object.getT2())));
 
             Flux<BaseDomain> actionCollectionFlux =
                     applicationMono.flatMapMany(application -> actionCollectionRepository
                             .findByApplicationId(application.getId(), Optional.empty(), Optional.empty())
-                            .flatMap(actionCollectionRepository::setUserPermissionsInObject));
+                            .zipWith(currentUserFlux)
+                            .flatMap(object -> actionCollectionRepository.setUserPermissionsInObject(
+                                    object.getT1(), object.getT2())));
 
             Flux<BaseDomain> workspaceFlux = Flux.from(workspaceRepository
                     .findById(targetWorkspaceId)
-                    .flatMap(workspaceRepository::setUserPermissionsInObject));
+                    .zipWith(currentUserMono)
+                    .flatMap(object -> workspaceRepository.setUserPermissionsInObject(object.getT1(), object.getT2())));
 
             Mono<Set<String>> permissionGroupIdsMono =
                     permissionGroupService.getSessionUserPermissionGroupIds().cache();

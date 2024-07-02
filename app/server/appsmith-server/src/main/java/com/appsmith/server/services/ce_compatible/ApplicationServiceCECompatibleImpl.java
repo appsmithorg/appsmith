@@ -3,7 +3,8 @@ package com.appsmith.server.services.ce_compatible;
 import com.appsmith.server.applications.base.ApplicationServiceCEImpl;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -22,12 +23,13 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
         implements ApplicationServiceCECompatible {
     public ApplicationServiceCECompatibleImpl(
             Validator validator,
-            ApplicationRepository repository,
+            ApplicationRepository repositoryDirect,
+            ApplicationRepositoryCake repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
             ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
-            NewActionRepository newActionRepository,
+            NewActionRepositoryCake newActionRepository,
             AssetService assetService,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
@@ -37,6 +39,7 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
             WorkspacePermission workspacePermission) {
         super(
                 validator,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 policySolution,

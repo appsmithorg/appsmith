@@ -6,14 +6,13 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
@@ -25,20 +24,21 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     @Deprecated
-    public Flux<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
+    public List<ActionCollection> findByApplicationId(
+            String applicationId, AclPermission permission, User currentUser, Sort sort) {
         final BridgeQuery<ActionCollection> bridgeQuery =
                 Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
 
         return queryBuilder()
                 .criteria(bridgeQuery)
-                .permission(aclPermission)
+                .permission(permission, currentUser)
                 .sort(sort)
                 .all();
     }
 
     @Override
-    public Flux<ActionCollection> findByApplicationId(
-            String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
+    public List<ActionCollection> findByApplicationId(
+            String applicationId, Optional<AclPermission> permission, User currentUser, Optional<Sort> sort) {
 
         final BridgeQuery<ActionCollection> bridgeQuery = Bridge.<ActionCollection>equal(
                         ActionCollection.Fields.applicationId, applicationId)
@@ -46,7 +46,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         return queryBuilder()
                 .criteria(bridgeQuery)
-                .permission(aclPermission.orElse(null))
+                .permission(permission.orElse(null), currentUser)
                 .sort(sort.orElse(null))
                 .all();
     }
@@ -66,14 +66,21 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByApplicationIdAndViewMode(
-            String applicationId, boolean viewMode, AclPermission aclPermission) {
+    public List<ActionCollection> findByApplicationIdAndViewMode(
+            String applicationId, boolean viewMode, AclPermission permission, User currentUser) {
         BridgeQuery<ActionCollection> bridgeQuery =
                 getBridgeQueryForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
-        return queryBuilder().criteria(bridgeQuery).permission(aclPermission).all();
+        return queryBuilder()
+                .criteria(bridgeQuery)
+                .permission(permission, currentUser)
+                .all();
     }
 
+    /**
+     * Keeping it here temporarily till EE file is migrated because EE file uses it. It will be removed as part of the
+     * EE PR.
+     */
     protected BridgeQuery<ActionCollection>
             getBridgeQueryForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
                     String branchName, boolean viewMode, String name, List<String> pageIds) {
@@ -125,12 +132,13 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+    public List<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
             String name,
             List<String> pageIds,
             boolean viewMode,
             String branchName,
-            AclPermission aclPermission,
+            AclPermission permission,
+            User currentUser,
             Sort sort) {
         BridgeQuery<ActionCollection> criteriaList =
                 this.getBridgeQueryForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
@@ -138,90 +146,101 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         return queryBuilder()
                 .criteria(criteriaList)
-                .permission(aclPermission)
+                .permission(permission, currentUser)
                 .sort(sort)
                 .all();
     }
 
     @Override
-    public Flux<ActionCollection> findByPageId(String pageId, AclPermission aclPermission) {
+    public List<ActionCollection> findByPageId(String pageId, AclPermission permission, User currentUser) {
         String unpublishedPage = ActionCollection.Fields.unpublishedCollection_pageId;
         String publishedPage = ActionCollection.Fields.publishedCollection_pageId;
 
         BridgeQuery<ActionCollection> bridgeQuery =
                 Bridge.or(Bridge.equal(unpublishedPage, pageId), Bridge.equal(publishedPage, pageId));
 
-        return queryBuilder().criteria(bridgeQuery).permission(aclPermission).all();
+        return queryBuilder()
+                .criteria(bridgeQuery)
+                .permission(permission, currentUser)
+                .all();
     }
 
     @Override
-    public Flux<ActionCollection> findByPageId(String pageId) {
-        return this.findByPageId(pageId, null);
+    public List<ActionCollection> findByPageId(String pageId) {
+        return this.findByPageId(pageId, null, null);
     }
 
     @Override
-    public Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
-            String branchName, String defaultCollectionId, AclPermission permission) {
+    public Optional<ActionCollection> findByBranchNameAndDefaultCollectionId(
+            String branchName, String defaultCollectionId, AclPermission permission, User currentUser) {
         final BridgeQuery<ActionCollection> bq = Bridge.<ActionCollection>equal(
                         ActionCollection.Fields.defaultResources_collectionId, defaultCollectionId)
                 .equal(ActionCollection.Fields.defaultResources_branchName, branchName);
 
-        return queryBuilder().criteria(bq).permission(permission).one();
+        return queryBuilder().criteria(bq).permission(permission, currentUser).one();
     }
 
     @Override
-    public Flux<ActionCollection> findByDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
+    public List<ActionCollection> findByDefaultApplicationId(
+            String defaultApplicationId, AclPermission permission, User currentUser) {
         BridgeQuery<ActionCollection> query = Bridge.<ActionCollection>equal(
                         BranchAwareDomain.Fields.defaultResources_applicationId, defaultApplicationId)
                 .isNull(ActionCollection.Fields.unpublishedCollection_deletedAt);
 
-        return queryBuilder().criteria(query).permission(permission).all();
+        return queryBuilder()
+                .criteria(query)
+                .permission(permission, currentUser)
+                .all();
     }
 
     @Override
-    public Flux<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
+    public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission, User currentUser) {
         BridgeQuery<ActionCollection> pageIdCriteria =
                 Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds);
-        return queryBuilder().criteria(pageIdCriteria).permission(permission).all();
+        return queryBuilder()
+                .criteria(pageIdCriteria)
+                .permission(permission, currentUser)
+                .all();
     }
 
     @Override
-    public Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
+    public List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
         BridgeQuery<ActionCollection> applicationCriteria = Bridge.in(FieldName.APPLICATION_ID, applicationIds);
         return queryBuilder()
-                .criteria(applicationCriteria)
+                .criteria(Bridge.in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
                 .all();
     }
 
     @Override
-    public Flux<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
-            String contextId, CreatorContextType contextType, AclPermission permission) {
+    public List<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission, User currentUser) {
         String contextIdPath = ActionCollection.Fields.unpublishedCollection_pageId;
         String contextTypePath = ActionCollection.Fields.unpublishedCollection_contextType;
         BridgeQuery<ActionCollection> contextIdAndContextTypeCriteria =
                 Bridge.<ActionCollection>equal(contextIdPath, contextId).equal(contextTypePath, contextType);
         return queryBuilder()
                 .criteria(contextIdAndContextTypeCriteria)
-                .permission(permission)
+                .permission(permission, currentUser)
                 .all();
     }
 
     @Override
-    public Flux<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
-            String contextId, CreatorContextType contextType, AclPermission permission) {
+    public List<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
+            String contextId, CreatorContextType contextType, AclPermission permission, User currentUser) {
         String contextIdPath = ActionCollection.Fields.publishedCollection_pageId;
         String contextTypePath = ActionCollection.Fields.publishedCollection_contextType;
         BridgeQuery<ActionCollection> contextIdAndContextTypeCriteria =
                 Bridge.<ActionCollection>equal(contextIdPath, contextId).equal(contextTypePath, contextType);
         return queryBuilder()
                 .criteria(contextIdAndContextTypeCriteria)
-                .permission(permission)
+                .permission(permission, currentUser)
                 .all();
     }
 
     @Override
-    public Flux<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
+    public List<ActionCollection> findByPageIdAndViewMode(
+            String pageId, boolean viewMode, AclPermission permission, User currentUser) {
         final BridgeQuery<ActionCollection> query = Bridge.query();
 
         if (Boolean.TRUE.equals(viewMode)) {
@@ -238,6 +257,9 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             query.isNull(ActionCollection.Fields.unpublishedCollection_deletedAt);
         }
 
-        return queryBuilder().criteria(query).permission(permission).all();
+        return queryBuilder()
+                .criteria(query)
+                .permission(permission, currentUser)
+                .all();
     }
 }

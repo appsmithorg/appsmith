@@ -12,15 +12,17 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.UserRepository;
-import com.appsmith.server.repositories.WorkspaceRepository;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
+import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -40,11 +42,11 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@ExtendWith(AfterAllCleanUpExtension.class)
 @Slf4j
 @SpringBootTest
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 public class UserWorkspaceServiceTest {
-
     @Autowired
     WorkspaceService workspaceService;
 
@@ -52,7 +54,7 @@ public class UserWorkspaceServiceTest {
     NewPageService newPageService;
 
     @Autowired
-    PermissionGroupRepository permissionGroupRepository;
+    PermissionGroupRepositoryCake permissionGroupRepository;
 
     @Autowired
     SessionUserService sessionUserService;
@@ -64,10 +66,10 @@ public class UserWorkspaceServiceTest {
     private UserWorkspaceService userWorkspaceService;
 
     @Autowired
-    private WorkspaceRepository workspaceRepository;
+    private WorkspaceRepositoryCake workspaceRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserRepositoryCake userRepository;
 
     @Autowired
     private PolicySolution policySolution;
@@ -103,7 +105,7 @@ public class UserWorkspaceServiceTest {
         Set<String> permissionGroupIds = testWorkspace.getDefaultPermissionGroups();
 
         List<PermissionGroup> permissionGroups = permissionGroupRepository
-                .findAllById(permissionGroupIds)
+                .findAllByIdIn(permissionGroupIds)
                 .collectList()
                 .block();
 
@@ -145,7 +147,7 @@ public class UserWorkspaceServiceTest {
                 .flatMapMany(afterWorkspace -> {
                     Set<String> defaultPermissionGroups = afterWorkspace.getDefaultPermissionGroups();
 
-                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                    return permissionGroupRepository.findAllByIdIn(defaultPermissionGroups);
                 })
                 .flatMap(permissionGroup -> {
                     Set<String> userIds = permissionGroup.getAssignedToUserIds();
@@ -222,7 +224,7 @@ public class UserWorkspaceServiceTest {
         Set<String> permissionGroupIds = createdWorkspace.getDefaultPermissionGroups();
 
         List<PermissionGroup> permissionGroups = permissionGroupRepository
-                .findAllById(permissionGroupIds)
+                .findAllByIdIn(permissionGroupIds)
                 .collectList()
                 .block();
 
@@ -268,7 +270,7 @@ public class UserWorkspaceServiceTest {
         Set<String> permissionGroupIds = createdWorkspace.getDefaultPermissionGroups();
 
         List<PermissionGroup> permissionGroups = permissionGroupRepository
-                .findAllById(permissionGroupIds)
+                .findAllByIdIn(permissionGroupIds)
                 .collectList()
                 .block();
 

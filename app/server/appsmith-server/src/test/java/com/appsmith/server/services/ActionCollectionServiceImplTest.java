@@ -14,15 +14,18 @@ import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ReactiveContextUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -37,6 +40,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -77,7 +81,10 @@ public class ActionCollectionServiceImplTest {
     RefactoringService refactoringService;
 
     @MockBean
-    ActionCollectionRepository actionCollectionRepository;
+    ActionCollectionRepository actionCollectionRepositoryDirect;
+
+    @MockBean
+    ActionCollectionRepositoryCake actionCollectionRepository;
 
     @MockBean
     NewActionService newActionService;
@@ -113,6 +120,9 @@ public class ActionCollectionServiceImplTest {
     @MockBean
     private DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService;
 
+    @MockBean
+    private SessionUserService sessionUserService;
+
     @BeforeEach
     public void setUp() {
         applicationPermission = new ApplicationPermissionImpl();
@@ -120,6 +130,7 @@ public class ActionCollectionServiceImplTest {
         actionPermission = new ActionPermissionImpl();
         actionCollectionService = new ActionCollectionServiceImpl(
                 validator,
+                actionCollectionRepositoryDirect,
                 actionCollectionRepository,
                 analyticsService,
                 newActionService,
@@ -294,7 +305,7 @@ public class ActionCollectionServiceImplTest {
             argument.setId("testActionCollectionId");
             return Mono.just(argument);
         });
-        Mockito.when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))
+        Mockito.when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any(), Mockito.any(User.class)))
                 .thenAnswer(invocation -> {
                     final ActionCollection argument =
                             (ActionCollection) invocation.getArguments()[0];
@@ -311,15 +322,19 @@ public class ActionCollectionServiceImplTest {
                     return argument;
                 });
 
-        final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                layoutCollectionService.createCollection(actionCollectionDTO, null);
+        try (MockedStatic<ReactiveContextUtils> mockedStatic = Mockito.mockStatic(ReactiveContextUtils.class)) {
+            // Define the behavior of the static method
+            mockedStatic.when(ReactiveContextUtils::getCurrentUser).thenReturn(Mono.just(new User()));
+            final Mono<ActionCollectionDTO> actionCollectionDTOMono =
+                    layoutCollectionService.createCollection(actionCollectionDTO, null);
 
-        StepVerifier.create(actionCollectionDTOMono)
-                .assertNext(actionCollectionDTO1 -> {
-                    assertTrue(actionCollectionDTO1.getActions().isEmpty());
-                    assertThat(actionCollectionDTO1.getUserPermissions()).hasSize(2);
-                })
-                .verifyComplete();
+            StepVerifier.create(actionCollectionDTOMono)
+                    .assertNext(actionCollectionDTO1 -> {
+                        assertTrue(actionCollectionDTO1.getActions().isEmpty());
+                        assertThat(actionCollectionDTO1.getUserPermissions()).hasSize(2);
+                    })
+                    .verifyComplete();
+        }
     }
 
     @Test
@@ -395,7 +410,7 @@ public class ActionCollectionServiceImplTest {
                     return Mono.just(argument);
                 });
 
-        Mockito.when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any()))
+        Mockito.when(actionCollectionRepository.setUserPermissionsInObject(Mockito.any(), Mockito.any(User.class)))
                 .thenAnswer(invocation -> {
                     final ActionCollection argument =
                             (ActionCollection) invocation.getArguments()[0];
@@ -412,24 +427,28 @@ public class ActionCollectionServiceImplTest {
                     return argument;
                 });
 
-        final Mono<ActionCollectionDTO> actionCollectionDTOMono =
-                layoutCollectionService.createCollection(actionCollectionDTO, null);
+        try (MockedStatic<ReactiveContextUtils> mockedStatic = Mockito.mockStatic(ReactiveContextUtils.class)) {
+            // Define the behavior of the static method
+            mockedStatic.when(ReactiveContextUtils::getCurrentUser).thenReturn(Mono.just(new User()));
+            final Mono<ActionCollectionDTO> actionCollectionDTOMono =
+                    layoutCollectionService.createCollection(actionCollectionDTO, null);
 
-        StepVerifier.create(actionCollectionDTOMono)
-                .assertNext(actionCollectionDTO1 -> {
-                    assertEquals(1, actionCollectionDTO1.getActions().size());
-                    assertThat(actionCollectionDTO1.getUserPermissions()).hasSize(2);
-                    final ActionDTO actionDTO =
-                            actionCollectionDTO1.getActions().get(0);
-                    assertEquals("testAction", actionDTO.getName());
-                    assertEquals("testActionId", actionDTO.getId());
-                    assertEquals("testCollection.testAction", actionDTO.getFullyQualifiedName());
-                    assertEquals(
-                            "testActionCollectionId",
-                            actionDTO.getDefaultResources().getCollectionId());
-                    assertTrue(actionDTO.getClientSideExecution());
-                })
-                .verifyComplete();
+            StepVerifier.create(actionCollectionDTOMono)
+                    .assertNext(actionCollectionDTO1 -> {
+                        assertEquals(1, actionCollectionDTO1.getActions().size());
+                        assertThat(actionCollectionDTO1.getUserPermissions()).hasSize(2);
+                        final ActionDTO actionDTO =
+                                actionCollectionDTO1.getActions().get(0);
+                        assertEquals("testAction", actionDTO.getName());
+                        assertEquals("testActionId", actionDTO.getId());
+                        assertEquals("testCollection.testAction", actionDTO.getFullyQualifiedName());
+                        assertEquals(
+                                "testActionCollectionId",
+                                actionDTO.getDefaultResources().getCollectionId());
+                        assertTrue(actionDTO.getClientSideExecution());
+                    })
+                    .verifyComplete();
+        }
     }
 
     @Test

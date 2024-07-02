@@ -1,0 +1,5 @@
+{"config":{"value":2},"name":"schemaVersion","deleted":false,"policies":[],"_class":"com.appsmith.server.domains.Config","id":"66613785e543f5710d7897ef"}
+{"config":{"value":"66613786e543f5710d7897f4"},"name":"instance-id","deleted":false,"policies":[],"_class":"com.appsmith.server.domains.Config","id":"66613786e543f5710d7897f5"}
+{"config":{"value":true},"name":"appsmith_registered","updatedAt":"2024-06-06T04:14:01.596Z","deleted":false,"policies":[],"_class":"com.appsmith.server.domains.Config","id":"66613786e543f5710d7897fe"}
+{"config":{"defaultPermissionGroup":"66613786e543f5710d789806"},"name":"instanceConfig","deleted":false,"policies":[{"permission":"manageInstanceConfiguration:config","permissionGroups":["66613786e543f5710d789806"]},{"permission":"readInstanceConfiguration:config","permissionGroups":["66613786e543f5710d789806"]}],"_class":"com.appsmith.server.domains.Config","id":"66613786e543f5710d789805"}
+{"config":{"permissionGroupId":"66613786e543f5710d789807"},"name":"publicPermissionGroup","deleted":false,"policies":[],"_class":"com.appsmith.server.domains.Config","id":"66613786e543f5710d789808"}

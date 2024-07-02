@@ -3,6 +3,7 @@ package com.appsmith.server.newpages.base;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.NewPageRepository;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -17,7 +18,8 @@ public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageS
 
     public NewPageServiceImpl(
             Validator validator,
-            NewPageRepository repository,
+            NewPageRepository repositoryDirect,
+            NewPageRepositoryCake repository,
             AnalyticsService analyticsService,
             ApplicationService applicationService,
             UserDataService userDataService,
@@ -27,6 +29,7 @@ public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageS
 
         super(
                 validator,
+                repositoryDirect,
                 repository,
                 analyticsService,
                 applicationService,

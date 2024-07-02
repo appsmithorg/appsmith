@@ -52,7 +52,7 @@ import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.GitDeployKeysRepository;
+import com.appsmith.server.repositories.cakes.GitDeployKeysRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.GitArtifactHelper;
 import com.appsmith.server.services.SessionUserService;
@@ -75,7 +75,6 @@ import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.Exceptions;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
@@ -118,7 +117,7 @@ import static org.springframework.util.StringUtils.hasText;
 @RequiredArgsConstructor
 public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
-    private final GitDeployKeysRepository gitDeployKeysRepository;
+    private final GitDeployKeysRepositoryCake gitDeployKeysRepository;
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
     private final CommonGitFileUtils commonGitFileUtils;
     private final GitRedisUtils gitRedisUtils;
@@ -126,7 +125,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
     private final UserDataService userDataService;
     protected final UserService userService;
     private final EmailConfig emailConfig;
-    private final TransactionalOperator transactionalOperator;
+    // private final TransactionalOperator transactionalOperator;
 
     protected final AnalyticsService analyticsService;
     private final ObservationRegistry observationRegistry;
@@ -3258,32 +3257,31 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         Mono<? extends Artifact> defaultArtifactMono =
                 gitArtifactHelper.getArtifactById(defaultArtifactId, artifactManageProtectedBranchPermission);
 
-        return defaultArtifactMono
-                .flatMap(defaultArtifact -> {
-                    GitArtifactMetadata metadata = defaultArtifact.getGitArtifactMetadata();
-                    String defaultBranchName = metadata.getDefaultBranchName();
+        return defaultArtifactMono.flatMap(defaultArtifact -> {
+            GitArtifactMetadata metadata = defaultArtifact.getGitArtifactMetadata();
+            String defaultBranchName = metadata.getDefaultBranchName();
 
-                    if (branchNames.isEmpty()
-                            || (branchNames.size() == 1 && branchNames.get(0).equals(defaultBranchName))) {
-                        // keep a copy of old protected branches as it's required to send analytics event later
-                        List<String> oldProtectedBranches = metadata.getBranchProtectionRules() != null
-                                ? metadata.getBranchProtectionRules()
-                                : List.of();
+            if (branchNames.isEmpty()
+                    || (branchNames.size() == 1 && branchNames.get(0).equals(defaultBranchName))) {
+                // keep a copy of old protected branches as it's required to send analytics event later
+                List<String> oldProtectedBranches =
+                        metadata.getBranchProtectionRules() != null ? metadata.getBranchProtectionRules() : List.of();
 
-                        // user wants to unprotect all branches or user wants to protect only default branch
-                        metadata.setBranchProtectionRules(branchNames);
-                        return gitArtifactHelper
-                                .saveArtifact(defaultArtifact)
-                                .then(gitArtifactHelper.updateArtifactWithProtectedBranches(
-                                        defaultArtifactId, branchNames))
-                                .then(sendBranchProtectionAnalytics(defaultArtifact, oldProtectedBranches, branchNames))
-                                .thenReturn(branchNames);
-                    } else {
-                        // user want to protect multiple branches, not allowed
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
-                })
-                .as(transactionalOperator::transactional);
+                // user wants to unprotect all branches or user wants to protect only default branch
+                metadata.setBranchProtectionRules(branchNames);
+                return gitArtifactHelper
+                        .saveArtifact(defaultArtifact)
+                        .then(gitArtifactHelper.updateArtifactWithProtectedBranches(defaultArtifactId, branchNames))
+                        .then(sendBranchProtectionAnalytics(defaultArtifact, oldProtectedBranches, branchNames))
+                        .thenReturn(branchNames);
+            } else {
+                // user want to protect multiple branches, not allowed
+                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+            }
+        });
+        /*
+        .as(transactionalOperator::transactional);
+         */
     }
 
     /**

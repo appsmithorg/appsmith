@@ -9,13 +9,12 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
-import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.google.gson.GsonBuilder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Service
 public class ImportServiceImpl extends ImportServiceCEImpl implements ImportService {
@@ -23,8 +22,7 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
             ArtifactBasedImportService<Application, ApplicationImportDTO, ApplicationJson> applicationImportService,
             SessionUserService sessionUserService,
             WorkspaceService workspaceService,
-            PermissionGroupRepository permissionGroupRepository,
-            TransactionalOperator transactionalOperator,
+            PermissionGroupRepositoryCake permissionGroupRepository,
             AnalyticsService analyticsService,
             ImportableService<Plugin> pluginImportableService,
             ImportableService<Datasource> datasourceImportableService,
@@ -36,7 +34,6 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
                 sessionUserService,
                 workspaceService,
                 permissionGroupRepository,
-                transactionalOperator,
                 analyticsService,
                 pluginImportableService,
                 datasourceImportableService,

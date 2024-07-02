@@ -4,7 +4,7 @@ import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.Security;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.repositories.ApplicationRepository;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
@@ -38,7 +38,7 @@ public class RedirectHelper {
     private static final String FORK_APP_ID_QUERY_PARAM = "appId";
     public static final String FIRST_TIME_USER_EXPERIENCE_PARAM = "enableFirstTimeUserExperience";
 
-    private final ApplicationRepository applicationRepository;
+    private final ApplicationRepositoryCake applicationRepository;
     private final ApplicationPermission applicationPermission;
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -69,7 +69,7 @@ public class RedirectHelper {
                         String pageId = null;
                         for (final ApplicationPage page : application.getPages()) {
                             if (pageId == null || page.isDefault()) {
-                                pageId = page.getId();
+                                // pageId = page.getId();
                             }
                             if (page.isDefault()) {
                                 break;

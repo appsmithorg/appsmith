@@ -11,6 +11,7 @@ import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
 import com.appsmith.server.repositories.ThemeRepository;
+import com.appsmith.server.repositories.cakes.ThemeRepositoryCake;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.themes.base.ThemeService;
 import org.springframework.util.StringUtils;
@@ -21,13 +22,14 @@ import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
 public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> {
 
     private final ThemeService themeService;
-    private final ThemeRepository repository;
+    private final ThemeRepositoryCake repository;
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
 
     public ThemeImportableServiceCEImpl(
             ThemeService themeService,
-            ThemeRepository repository,
+            ThemeRepository repositoryDirect,
+            ThemeRepositoryCake repository,
             ApplicationService applicationService,
             ApplicationPermission applicationPermission) {
         this.themeService = themeService;

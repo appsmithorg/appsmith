@@ -1,20 +1,27 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Column;
+import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.Type;
 
 import static com.appsmith.external.helpers.StringUtils.dotted;
 
 @Setter
 @Getter
+@MappedSuperclass
 @FieldNameConstants
 public abstract class BranchAwareDomain extends BaseDomain {
     // This field will be used to store the default/root resource IDs for branched resources generated for git
     // connected applications and will be used to connect resources across the branches
     @JsonView(Views.Internal.class)
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     DefaultResources defaultResources;
 
     @Override

@@ -5,14 +5,14 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
-import com.appsmith.server.repositories.NewActionRepository;
+import com.appsmith.server.extensions.AfterAllCleanUpExtension;
+import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.solutions.ActionPermission;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.annotation.DirtiesContext;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -25,12 +25,13 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
+@ExtendWith(AfterAllCleanUpExtension.class)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest
 public class CustomNewActionRepositoryCEImplTest {
 
     @Autowired
-    NewActionRepository newActionRepository;
+    NewActionRepositoryCake newActionRepository;
 
     @Autowired
     ActionPermission actionPermission;
@@ -54,7 +55,7 @@ public class CustomNewActionRepositoryCEImplTest {
                     newActions.forEach(newAction -> {
                         newAction.setWorkspaceId("workspace-" + newAction.getId());
                     });
-                    return newActionRepository.bulkUpdate(newActions);
+                    return newActionRepository.bulkUpdate(newActionRepository, newActions);
                 })
                 .thenMany(newActionRepository.findByApplicationId(applicationId));
 
@@ -71,16 +72,18 @@ public class CustomNewActionRepositoryCEImplTest {
 
     @Test
     public void bulkInsert_WhenDuplicateId_ExceptionThrown() {
-        String duplicateId = new ObjectId().toString();
+        String duplicateId = UUID.randomUUID().toString();
         List<NewAction> actionList = new ArrayList<>();
 
         for (int i = 0; i < 2; i++) {
             NewAction action = new NewAction();
+            action.setModifiedBy("user " + i);
             action.setId(duplicateId);
             actionList.add(action);
         }
 
-        StepVerifier.create(newActionRepository.bulkInsert(actionList)).verifyError();
+        StepVerifier.create(newActionRepository.bulkInsert(newActionRepository, actionList))
+                .verifyError();
     }
 
     @Test
@@ -89,7 +92,7 @@ public class CustomNewActionRepositoryCEImplTest {
         String applicationId = UUID.randomUUID().toString();
 
         for (int i = 0; i < 5; i++) {
-            String generatedId = new ObjectId().toString();
+            String generatedId = UUID.randomUUID().toString();
             NewAction action = new NewAction();
             action.setId(generatedId);
             action.setApplicationId(applicationId);
@@ -99,7 +102,7 @@ public class CustomNewActionRepositoryCEImplTest {
         }
 
         Mono<List<NewAction>> newActionsMono = newActionRepository
-                .bulkInsert(actionList)
+                .bulkInsert(newActionRepository, actionList)
                 .thenMany(newActionRepository.findByApplicationId(applicationId))
                 .collectList();
 

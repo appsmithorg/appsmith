@@ -4,19 +4,18 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.projections.IdPoliciesOnly;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomDatasourceRepository;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface DatasourceRepositoryCE extends BaseRepository<Datasource, String>, CustomDatasourceRepository {
 
-    Flux<Datasource> findByIdIn(List<String> ids);
+    List<Datasource> findByIdIn(List<String> ids);
 
-    Flux<Datasource> findAllByWorkspaceId(String workspaceId);
+    List<Datasource> findAllByWorkspaceId(String workspaceId);
 
-    Mono<Long> countByDeletedAtNull();
+    Optional<Long> countByDeletedAtNull();
 
-    Flux<IdPoliciesOnly> findIdsAndPoliciesByIdIn(Set<String> datasourceIds);
+    List<IdPoliciesOnly> findIdsAndPoliciesByIdIn(Set<String> datasourceIds);
 }

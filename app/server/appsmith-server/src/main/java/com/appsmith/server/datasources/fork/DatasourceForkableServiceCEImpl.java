@@ -11,7 +11,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ForkingMetaDTO;
 import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.fork.forkable.ForkableServiceCE;
-import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.DataIntegrityViolationException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -117,7 +117,7 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
                         newDs.getDatasourceStorages().put(targetMeta.getEnvironmentId(), storageDTO);
                         return createSuffixedDatasource(newDs);
                     }));
-        });
+        }); // */
     }
 
     /**
@@ -156,10 +156,8 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
     private Mono<Datasource> createSuffixedDatasource(Datasource datasource, String name, int suffix) {
         final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
         datasource.setName(actualName);
-        return datasourceService.create(datasource).onErrorResume(DuplicateKeyException.class, error -> {
-            if (error.getMessage() != null
-                    && error.getMessage().contains("workspace_datasource_deleted_compound_index")) {
-                // The duplicate key error is because of the `name` field.
+        return datasourceService.create(datasource).onErrorResume(DataIntegrityViolationException.class, error -> {
+            if (error.getMessage() != null && error.getMessage().contains("datasource_workspace_name_key")) {
                 return createSuffixedDatasource(datasource, name, 1 + suffix);
             }
             throw error;

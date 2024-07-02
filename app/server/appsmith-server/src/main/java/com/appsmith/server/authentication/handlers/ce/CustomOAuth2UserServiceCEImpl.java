@@ -4,6 +4,7 @@ import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,12 @@ import reactor.core.publisher.Mono;
 @Slf4j
 public class CustomOAuth2UserServiceCEImpl extends DefaultReactiveOAuth2UserService {
 
-    private UserRepository repository;
+    private UserRepositoryCake repository;
     private UserService userService;
 
     @Autowired
-    public CustomOAuth2UserServiceCEImpl(UserRepository repository, UserService userService) {
+    public CustomOAuth2UserServiceCEImpl(
+            UserRepository repositoryDirect, UserRepositoryCake repository, UserService userService) {
         this.repository = repository;
         this.userService = userService;
     }
@@ -65,6 +67,6 @@ public class CustomOAuth2UserServiceCEImpl extends DefaultReactiveOAuth2UserServ
                         return repository.save(user);
                     }
                     return Mono.just(user);
-                });
+                }); // */
     }
 }
