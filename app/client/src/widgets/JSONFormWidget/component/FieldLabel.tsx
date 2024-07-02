@@ -31,7 +31,7 @@ export interface LabelStyles {
 
 export type FieldLabelProps = PropsWithChildren<
   LabelStyles & {
-    direction?: "row" | "column";
+    direction?: "row" | "column" | "row-reverse";
     isRequiredField?: boolean;
     label: string;
     tooltip?: string;
@@ -89,6 +89,7 @@ const StyledLabelText = styled.p<StyledLabelTextProps>`
   font-weight: ${({ fontWeight }) => fontWeight};
   font-style: ${({ fontStyle }) => fontStyle};
   text-decoration: ${({ textDecoration }) => textDecoration};
+  width: max-content;
 `;
 
 const ToolTipIcon = styled(IconWrapper)`

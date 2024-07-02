@@ -2,6 +2,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import type { HiddenFnParams } from "../helper";
 import { getSchemaItem, getAutocompleteProperties } from "../helper";
+import { LabelPosition } from "components/constants";
 
 const PROPERTIES = {
   content: {
@@ -23,22 +24,22 @@ const PROPERTIES = {
     ],
     label: [
       {
-        propertyName: "alignWidget",
+        propertyName: "labelPosition",
         helpText: "Sets the position of the field",
         label: "Position",
         controlType: "ICON_TABS",
-        defaultValue: "LEFT",
+        defaultValue: LabelPosition.Left,
         fullWidth: true,
         isBindProperty: true,
         isTriggerProperty: false,
         options: [
           {
             label: "Left",
-            value: "LEFT",
+            value: LabelPosition.Left,
           },
           {
             label: "Right",
-            value: "RIGHT",
+            value:  LabelPosition.Right,
           },
         ],
         hidden: (...args: HiddenFnParams) =>
