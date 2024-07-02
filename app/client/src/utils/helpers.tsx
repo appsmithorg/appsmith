@@ -172,13 +172,9 @@ function removeClass(ele: HTMLElement, cls: string) {
   }
 }
 
-export const removeSpecialChars = (value: string, limit?: number) => {
-  const separatorRegex = /\W+/;
-  return value
-    .split(separatorRegex)
-    .join("_")
-    .slice(0, limit || 30);
-};
+export const removeSpecialChars = (value: string) => {
+  return value.replace(/\W+/g, '_'); 
+}
 
 export const flashElement = (
   el: HTMLElement,
