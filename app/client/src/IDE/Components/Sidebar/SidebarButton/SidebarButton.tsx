@@ -68,7 +68,7 @@ function SidebarButton(props: SidebarButtonProps) {
     if (!props.selected) {
       props.onClick();
     }
-  }, [props]);
+  }, [props.selected, props.onClick]);
   return (
     <Container>
       <Tooltip

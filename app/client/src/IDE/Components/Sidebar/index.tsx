@@ -1,2 +1,2 @@
 export { default } from "./Sidebar";
-export { IDESidebarButton } from "./Sidebar";
+export type { IDESidebarButton } from "./Sidebar";
