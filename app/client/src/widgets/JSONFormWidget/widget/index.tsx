@@ -152,7 +152,7 @@ class JSONFormWidget extends BaseWidget<
       name: "JSON Form",
       iconSVG: IconSVG,
       thumbnailSVG: ThumbnailSVG,
-      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.LAYOUT],
+      tags: [WIDGET_TAGS.LAYOUT],
       needsMeta: true,
     };
   }

@@ -34,6 +34,7 @@ const LoadingContainer = styled.div`
 `;
 
 interface Props {
+  isInitiallyOpen: boolean;
   tag: string;
   cards: WidgetCardProps[];
   isLoading: boolean;
@@ -80,7 +81,7 @@ const UIEntityTagGroup = (props: Props) => {
       className={`pb-2 widget-tag-collapisble widget-tag-collapisble-${props.tag
         .toLowerCase()
         .replace(/ /g, "-")}`}
-      isOpen
+      isOpen={props.isInitiallyOpen}
       key={props.tag}
     >
       <CollapsibleHeader arrowPosition="start">
