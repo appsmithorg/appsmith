@@ -354,6 +354,14 @@ jobs:
           name: cypress-console-logs
           path: ${{ github.workspace }}/app/client/cypress/cypress-logs
           overwrite: true
+      
+      - name: Upload __diff_output__ artifact
+        if: needs.ci-test.result != 'success' && -d "__diff_output__"
+        uses: actions/upload-artifact@v3
+        with:
+          name: diff-output
+          path: __diff_output__
+          overwrite: true
 
       - name: Upload cypress snapshots
         if: always()
