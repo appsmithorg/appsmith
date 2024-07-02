@@ -167,6 +167,13 @@ jobs:
         run: |
           rm -f ~/combined_failed_spec_ci
           cat ~/failed_spec_ci/failed_spec_ci* >> ~/combined_failed_spec_ci
+      
+       - name: Upload __diff_output__ artifact
+        if: needs.ci-test.result != 'success' && -d "__diff_output__"
+        uses: actions/upload-artifact@v3
+        with:
+          name: diff-output
+          path: __diff_output__
 
       - name: CI test failures
         if: needs.ci-test.result != 'success'
