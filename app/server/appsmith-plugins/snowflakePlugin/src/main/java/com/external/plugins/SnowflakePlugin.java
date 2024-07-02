@@ -204,13 +204,9 @@ public class SnowflakePlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration, Properties properties) {
             // Only for username password auth, we need to set these properties, for others
             // like key-pair auth, authentication specific properties need to be set on config itself
-            // check for authenticationType == null is added to provide backwards compatibility
             AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
-            String authenticationType =
-                    datasourceConfiguration.getAuthentication().getAuthenticationType();
-            Boolean isDBAuth =
-                    (authenticationType != null && DB_AUTH.equals(authenticationType)) || authenticationType == null;
-            if (isDBAuth) {
+            String authenticationType = getAuthenticationType(authentication);
+            if (DB_AUTH.equals(authenticationType)) {
                 DBAuth dbAuth = (DBAuth) authentication;
                 properties.setProperty("user", dbAuth.getUsername());
                 properties.setProperty("password", dbAuth.getPassword());
@@ -288,7 +284,7 @@ public class SnowflakePlugin extends BasePlugin {
                 invalids.add(SnowflakeErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG);
             } else {
                 if (SNOWFLAKE_KEY_PAIR_AUTH.equals(
-                        datasourceConfiguration.getAuthentication().getAuthenticationType())) {
+                        getAuthenticationType(datasourceConfiguration.getAuthentication()))) {
                     KeyPairAuth authentication = (KeyPairAuth) datasourceConfiguration.getAuthentication();
                     if (StringUtils.isEmpty(authentication.getUsername())) {
                         invalids.add(SnowflakeErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
@@ -467,8 +463,7 @@ public class SnowflakePlugin extends BasePlugin {
             HikariConfig commonConfig = getCommonHikariConfig(properties);
             Mono<HikariConfig> configMono = Mono.empty();
 
-            String authenticationType =
-                    datasourceConfiguration.getAuthentication().getAuthenticationType();
+            String authenticationType = getAuthenticationType(datasourceConfiguration.getAuthentication());
             if (authenticationType != null) {
                 switch (authenticationType) {
                     case DB_AUTH:
@@ -480,10 +475,6 @@ public class SnowflakePlugin extends BasePlugin {
                     default:
                         break;
                 }
-            } else {
-                // Else cases added for older datasources, they would not have authenticationType in their config object
-                // As this is newly introduced
-                configMono = getBasicAuthConfig(commonConfig, datasourceConfiguration);
             }
             return configMono;
         }
@@ -571,6 +562,16 @@ public class SnowflakePlugin extends BasePlugin {
             StringBuilder urlBuilder =
                     new StringBuilder("jdbc:snowflake://" + dsConfig.getUrl() + ".snowflakecomputing.com?");
             return urlBuilder.toString();
+        }
+
+        private String getAuthenticationType(AuthenticationDTO authentication) {
+            String authenticationType = authentication.getAuthenticationType();
+            if (authenticationType == null) {
+                // This is required to provide backwards compatibility for older snowflake datasources
+                // Where authenticationType property is null, in that case it should default to DB_AUTH
+                authentication.setAuthenticationType(DB_AUTH);
+            }
+            return authentication.getAuthenticationType();
         }
     }
 }
