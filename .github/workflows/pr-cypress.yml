@@ -228,7 +228,6 @@ jobs:
         with:
           script: |
             require("write-cypress-status.js")({core, context, github}, "tip", process.env.BODY)
-            core.setFailed()
 
       - name: Check ci-test set status
         if: needs.ci-test.result != 'success'

@@ -25,6 +25,6 @@ public class KeyPairAuth extends AuthenticationDTO {
     @JsonView({Views.Public.class, FromRequest.class})
     UploadedFile privateKey;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Internal.class, FromRequest.class})
     @Encrypted String passphrase;
 }
