@@ -41,6 +41,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>io.projectreactor.tools</groupId>
+            <artifactId>blockhound-junit-platform</artifactId>
+            <version>1.0.9.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>io.opentelemetry.instrumentation</groupId>
             <artifactId>opentelemetry-micrometer-1.5</artifactId>
             <version>2.0.0-alpha</version>
@@ -222,6 +228,11 @@
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-tracing-bridge-brave</artifactId>
             <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.projectreactor.tools</groupId>
+            <artifactId>blockhound</artifactId>
+            <version>1.0.9.RELEASE</version>
         </dependency>
         <dependency>
             <groupId>io.zipkin.reporter2</groupId>
