@@ -9,7 +9,6 @@ const Container = (props: { children: ReactNode }) => {
       backgroundColor="#FFFFFF"
       borderBottom="1px solid var(--ads-v2-color-border-muted)"
       gap="spaces-2"
-      id="ide-tabs-container"
       maxHeight="32px"
       minHeight="32px"
       px="spaces-2"

@@ -214,7 +214,7 @@ export const useIDETabClickHandlers = () => {
   );
 
   const closeClickHandler = useCallback(
-    (actionId?: string) => {
+    (actionId: string | undefined) => {
       if (!actionId) {
         // handle JS
         return segment === EditorEntityTab.JS ? closeAddJS() : closeAddQuery();

@@ -77,11 +77,12 @@ describe("URL slug names", () => {
   });
 
   it("verifies that the baseURLBuilder uses applicationVersion", () => {
-    const pageId = "0123456789abcdef00000000";
+    const applicationId = "a0123456789abcdef0000000";
+    const pageId = "b0123456789abcdef0000000";
     const params = {
-      applicationId: "appId",
+      applicationId,
       applicationSlug: "appSlug",
-      pageId: pageId,
+      pageId,
       pageSlug: "pageSlug",
       customSlug: "customSlug",
     };
@@ -113,9 +114,9 @@ describe("URL slug names", () => {
       payload: { applicationVersion: ApplicationVersion.SLUG_URL },
     });
     const url4 = builderURL({ pageId: params.pageId });
-    expect(url1).toBe(`/applications/appId/pages/${pageId}/edit`);
+    expect(url1).toBe(`/applications/${applicationId}/pages/${pageId}/edit`);
     expect(url2).toBe(`/app/appSlug/pageSlug-${pageId}/edit`);
-    expect(url3).toBe(`/applications/appId/pages/${pageId}/edit`);
+    expect(url3).toBe(`/applications/${applicationId}/pages/${pageId}/edit`);
     expect(url4).toBe(`/app/appSlug/pageSlug-${pageId}/edit`);
   });
 
