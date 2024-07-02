@@ -48,10 +48,9 @@ public class Migration030TagUsersWithNoUserManagementRoles {
 
         Criteria criteriaUsersWithNoUserManagementRoles =
                 Criteria.where(BaseDomain.Fields.id).nin(userIdsWithUserManagementRoles);
-        Criteria criteriaUsersPoliciesExists =
-                Criteria.where(BaseDomain.Fields.policies).exists(true);
+        Criteria criteriaUsersPoliciesExists = Criteria.where("policies").exists(true);
         Criteria criteriaUsersPoliciesNotEmpty =
-                Criteria.where(BaseDomain.Fields.policies).not().size(0);
+                Criteria.where("policies").not().size(0);
         Criteria criteriaUsersWithNoUserManagementRolesAndUserPoliciesExists = new Criteria()
                 .andOperator(
                         criteriaUsersWithNoUserManagementRoles,

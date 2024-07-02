@@ -105,11 +105,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             return null;
         }
         // Check if the permission is being provided by any of the permission groups
-        return Criteria.where(BaseDomain.Fields.policies)
-                .elemMatch(Criteria.where("permissionGroups")
-                        .in(permissionGroups)
-                        .and("permission")
-                        .is(permission.getValue()));
+        return Criteria.where(BaseDomain.Fields.policyMap + "." + permission.getValue() + ".permissionGroups")
+                .in(permissionGroups);
     }
 
     public Mono<T> findById(String id, AclPermission permission) {

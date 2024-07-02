@@ -108,7 +108,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         List<String> includedFields = List.of(
                 FieldName.APPLICATION_ID,
                 FieldName.DEFAULT_RESOURCES,
-                NewPage.Fields.policies,
+                NewPage.Fields.policyMap,
                 NewPage.Fields.unpublishedPage_name,
                 NewPage.Fields.unpublishedPage_icon,
                 NewPage.Fields.unpublishedPage_isHidden,

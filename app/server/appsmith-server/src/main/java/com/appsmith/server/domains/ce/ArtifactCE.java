@@ -1,12 +1,9 @@
 package com.appsmith.server.domains.ce;
 
-import com.appsmith.external.models.Policy;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.fasterxml.jackson.annotation.JsonView;
-
-import java.util.Set;
 
 public interface ArtifactCE {
 
@@ -40,8 +37,6 @@ public interface ArtifactCE {
     void setUnpublishedThemeId(String themeId);
 
     void setPublishedThemeId(String themeId);
-
-    Set<Policy> getPolicies();
 
     ArtifactType getArtifactType();
 }

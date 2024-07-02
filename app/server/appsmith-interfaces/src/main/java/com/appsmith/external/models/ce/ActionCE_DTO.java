@@ -28,8 +28,10 @@ import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -144,7 +146,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @Transient
     @JsonView(Views.Internal.class)
-    protected Set<Policy> policies = new HashSet<>();
+    protected Map<String, Policy> policyMap = new HashMap<>();
 
     @Transient
     @JsonView({Views.Public.class, FromRequest.class})
@@ -168,6 +170,26 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @Transient
     @JsonView({Views.Public.class, FromRequest.class})
     ActionCreationSourceTypeEnum source;
+
+    /**
+     * An unmodifiable set of policies.
+     */
+    @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    public Set<Policy> getPolicies() {
+        return policyMap == null ? null : Set.copyOf(policyMap.values());
+    }
+
+    @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    public void setPolicies(Set<Policy> policies) {
+        if (policies == null) {
+            policyMap = null;
+        } else {
+            policyMap.clear();
+            for (Policy policy : policies) {
+                policyMap.put(policy.getPermission(), policy);
+            }
+        }
+    }
 
     @Override
     @JsonView({Views.Internal.class})
@@ -217,10 +239,10 @@ public class ActionCE_DTO implements Identifiable, Executable {
         } else {
             this.setUserPermissions(Set.of());
         }
-        if (this.getPolicies() != null) {
-            this.getPolicies().clear();
+        if (this.getPolicyMap() != null) {
+            this.getPolicyMap().clear();
         } else {
-            this.setPolicies(Set.of());
+            this.setPolicyMap(Map.of());
         }
     }
 
