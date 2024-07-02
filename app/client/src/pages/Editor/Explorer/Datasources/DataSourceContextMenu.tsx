@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { deleteDatasource } from "actions/datasourceActions";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
-  CONTEXT_EDIT_NAME,
+  CONTEXT_RENAME,
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
   createMessage,
@@ -59,7 +59,7 @@ export function DataSourceContextMenu(props: {
       value: "rename",
       className: "single-select t--datasource-rename",
       onSelect: editDatasourceName,
-      label: createMessage(CONTEXT_EDIT_NAME),
+      label: createMessage(CONTEXT_RENAME),
     },
     canDeleteDatasource && {
       confirmDelete: confirmDelete,

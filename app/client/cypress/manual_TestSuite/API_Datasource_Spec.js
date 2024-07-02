@@ -1,15 +1,15 @@
 const commonlocators = require("../../../locators/commonlocators.json");
 
 describe("API associated with Datasource", function () {
-  it("Edit name of the Datasource from Pane and refeclected in the Page ", function () {
+  it("Rename of the Datasource from Pane and refeclected in the Page ", function () {
     // Click on the API datasource
     // Click on Action icon (Three Dots)
-    // Click on "Edit Name"
+    // Click on "Rename"
     // Rename the Datasource
     // Click on the datasource
     // Ensure the name is updated on the Page
   });
-  it("Edit name of the Datasource from Page and refeclected in the Pane", function () {
+  it("Rename of the Datasource from Page and refeclected in the Pane", function () {
     // Click on the API datasource
     // Navigate to respective
     // Click on "Edit " option next to the Name of the datasource

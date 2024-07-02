@@ -28,7 +28,7 @@ interface EntityActionParams {
   entityNameinLeftSidebar: string;
   action?:
     | "Show bindings"
-    | "Edit name"
+    | "Rename"
     | "Delete"
     | "Clone"
     | "Settings"
@@ -271,7 +271,7 @@ export class EntityExplorer {
     if (viaMenu)
       this.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: entityName,
-        action: "Edit name",
+        action: "Rename",
         entityType,
       });
     else cy.xpath(PageLeftPane.listItemSelector(entityName)).dblclick();
