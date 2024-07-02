@@ -18,7 +18,7 @@ jobs:
       run:
         shell: bash
     outputs:
-      tags: ${{ steps.checkAll.outputs.tags }}
+      tags: ${{ steps.parseTags.outputs.tags }}
       matrix: ${{ steps.checkAll.outputs.matrix }}
     steps:
 
