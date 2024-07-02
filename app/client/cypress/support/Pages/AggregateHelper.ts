@@ -134,14 +134,15 @@ export class AggregateHelper {
   }
 
   /**
-   * Extract the pageId out of the URL, supporting both ObjectID and UUIDv4 values.
+   * Extract the pageId out of the URL, supporting both ObjectID and UUIDv4 values. This implementation is for tests
+   * only. Do NOT copy this over to production code.
    * @param urlFragment can be either a full absolute URL (like https://dev.appsmith.com/app/name/page1-...) or just a
-   *        path fragment (like /app/name/page1-...)
+   *        path fragment (like /app/name/page1-...) or even a custom slug URL (like /app/custom-slug-...).
    */
   public extractPageIdFromUrl(urlFragment: string): null | string {
     return (
       urlFragment.match(
-        /\/app(?:\/[^/]+)?\/[^/]+-([0-9a-f]{24}$|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/,
+        /\/app(?:\/[^/]+)?\/[^/]+-([0-9a-f]{24}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b/,
       )?.[1] ?? null
     );
   }
