@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class DatasourceStructureServiceImpl extends DatasourceStructureServiceCEImpl
         implements DatasourceStructureService {
+    private String tempChange;
+
     public DatasourceStructureServiceImpl(DatasourceStorageStructureRepositoryCake repository) {
         super(repository);
     }
