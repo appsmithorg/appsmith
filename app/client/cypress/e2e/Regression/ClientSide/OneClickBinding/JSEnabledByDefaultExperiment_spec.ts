@@ -8,6 +8,7 @@ import {
   draggableWidgets,
   entityExplorer,
   locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -75,6 +76,7 @@ describe(
         },
       );
 
+      propPane.ToggleJSMode("sourcedata", false);
       agHelper.GetNClick(OneClickBindingLocator.connectData);
 
       agHelper.AssertClassExists(locators._jsToggle("sourcedata"), "is-active");
