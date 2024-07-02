@@ -133,19 +133,17 @@ export class AggregateHelper {
     });
   }
 
-  public extractPageIdFromUrl(url: string): null | string {
-    const parts = url.split("/");
-
-    if (parts[3] !== "app") {
-      // Not a app URL.
-      return null;
-    }
-
-    // Extract the page ID, either as an ObjectID or as a UUID.
+  /**
+   * Extract the pageId out of the URL, supporting both ObjectID and UUIDv4 values. This implementation is for tests
+   * only. Do NOT copy this over to production code.
+   * @param urlFragment can be either a full absolute URL (like https://dev.appsmith.com/app/name/page1-...) or just a
+   *        path fragment (like /app/name/page1-...) or even a custom slug URL (like /app/custom-slug-...).
+   */
+  public extractPageIdFromUrl(urlFragment: string): null | string {
     return (
-      parts[5]?.match(
-        /[0-9a-f]{24}$|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
-      )?.[0] ?? null
+      urlFragment.match(
+        /\/app(?:\/[^/]+)?\/[^/]+-([0-9a-f]{24}|[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b/,
+      )?.[1] ?? null
     );
   }
 
