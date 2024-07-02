@@ -54,8 +54,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
       cy.wait(1000);
       dataSources.FillMongoDSForm();
       cy.testDatasource(true);
-      agHelper.GetNClick(dataSources._saveDs);
-      cy.wait(2000);
+      dataSources.SaveDatasource(true);
       cy.wait("@getWorkspace");
       cy.get(reconnectDatasourceModal.ImportSuccessModal).should("be.visible");
       cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
@@ -170,8 +169,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
     agHelper.AssertElementExist(gitSync._bottomBarPull);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
-    cy.merge(mainBranch);
-    cy.get(gitSyncLocators.closeGitSyncModal).click();
+    gitSync.MergeToMaster();
     cy.wait(2000);
     cy.latestDeployPreview();
     table.AssertTableLoaded();
