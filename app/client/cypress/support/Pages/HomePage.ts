@@ -522,7 +522,7 @@ export class HomePage {
       "not.include",
       "edit",
     );
-    this.agHelper.WaitUntilEleAppear(element ?? this.locator._backToEditor);
+    if (element) this.agHelper.WaitUntilEleAppear(this.locator._backToEditor);
     this.agHelper.AssertElementExist(this.deployHelper._deployPageWidgets);
     this.agHelper.AssertElementVisibility(this.deployHelper._deployPageWidgets);
     this.agHelper.AssertElementVisibility(this.deployHelper._appViewPageName);
