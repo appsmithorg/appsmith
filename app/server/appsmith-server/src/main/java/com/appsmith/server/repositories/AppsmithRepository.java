@@ -23,8 +23,6 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     Mono<T> setUserPermissionsInObject(T obj);
 
-    Mono<T> updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission);
-
     /**
      * This method uses the mongodb bulk operation to save a list of new actions. When calling this method, please note
      * the following points:
