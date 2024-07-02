@@ -1,10 +1,8 @@
 import React from "react";
 import { fireEvent, render } from "test/testUtils";
 import FileTabs from "./FileTabs";
-import { EditorState, type EntityItem } from "@appsmith/entities/IDE/constants";
+import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import { PluginType } from "entities/Action";
-import { FocusEntity } from "navigation/FocusEntity";
-import { sanitizeString } from "utils/URLUtils";
 
 describe("FileTabs", () => {
   const mockTabs: EntityItem[] = [
@@ -16,26 +14,22 @@ describe("FileTabs", () => {
 
   const mockNavigateToTab = jest.fn();
   const mockOnClose = jest.fn();
-  const activeEntity = {
-    entity: FocusEntity.API,
-    id: "File 1",
-    appState: EditorState.EDITOR,
-    params: {},
-  };
 
   it("renders tabs correctly", () => {
     const { getByTestId, getByText } = render(
       <FileTabs
-        currentEntity={activeEntity}
         navigateToTab={mockNavigateToTab}
         onClose={mockOnClose}
         tabs={mockTabs}
       />,
     );
 
+    const editorTabsContainer = getByTestId("t--editor-tabs");
+    expect(editorTabsContainer).not.toBeNull();
+
     // Check if each tab is rendered with correct content
     mockTabs.forEach((tab) => {
-      const tabElement = getByTestId(`t--ide-tab-${sanitizeString(tab.title)}`);
+      const tabElement = getByTestId(`t--ide-tab-${tab.title}`);
       expect(tabElement).not.toBeNull();
 
       const tabTitleElement = getByText(tab.title);
@@ -46,15 +40,12 @@ describe("FileTabs", () => {
   it("check tab click", () => {
     const { getByTestId } = render(
       <FileTabs
-        currentEntity={activeEntity}
         navigateToTab={mockNavigateToTab}
         onClose={mockOnClose}
         tabs={mockTabs}
       />,
     );
-    const tabElement = getByTestId(
-      `t--ide-tab-${sanitizeString(mockTabs[0].title)}`,
-    );
+    const tabElement = getByTestId(`t--ide-tab-${mockTabs[0].title}`);
     fireEvent.click(tabElement);
 
     expect(mockNavigateToTab).toHaveBeenCalledWith(mockTabs[0]);
@@ -63,15 +54,12 @@ describe("FileTabs", () => {
   it("check for close click", () => {
     const { getByTestId } = render(
       <FileTabs
-        currentEntity={activeEntity}
         navigateToTab={mockNavigateToTab}
         onClose={mockOnClose}
         tabs={mockTabs}
       />,
     );
-    const tabElement = getByTestId(
-      `t--ide-tab-${sanitizeString(mockTabs[1].title)}`,
-    );
+    const tabElement = getByTestId(`t--ide-tab-${mockTabs[1].title}`);
     const closeElement = tabElement.querySelector(
       "[data-testid='t--tab-close-btn']",
     ) as HTMLElement;
