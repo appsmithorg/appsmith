@@ -1,7 +1,18 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Icon, Text, Tooltip } from "design-system";
 import styled from "styled-components";
-import { SidebarTopButtonTitles } from "@appsmith/entities/IDE/constants";
+
+import { Condition } from "../../../enums";
+
+const ConditionConfig: Record<Condition, { icon: string; color: string }> = {
+  [Condition.Warn]: {
+    icon: "warning",
+    color: "#ffe283",
+  },
+  // TODO add this information for further conditions
+  // Error: { color: "", icon: "" },
+  // Success: { color: "", icon: "" },
+};
 
 export interface SidebarButtonProps {
   title?: string;
@@ -9,7 +20,7 @@ export interface SidebarButtonProps {
   icon: string;
   onClick: () => void;
   tooltip?: string;
-  conditionIcon?: string;
+  condition?: Condition;
 }
 
 const Container = styled.div`
@@ -46,15 +57,20 @@ const ConditionIcon = styled(Icon)`
   position: absolute;
   bottom: 3px;
   right: -1px;
-  &.t--sidebar-${SidebarTopButtonTitles.DATA}-condition-icon {
-    color: #ffe283;
+  &.t--sidebar-${Condition.Warn}-condition-icon {
+    color: ${ConditionConfig[Condition.Warn].color};
   }
+  // TODO add more condition colors here
 `;
 
 function SidebarButton(props: SidebarButtonProps) {
+  const handleOnClick = useCallback(() => {
+    if (!props.selected) {
+      props.onClick();
+    }
+  }, [props.selected, props.onClick]);
   return (
     <Container>
-      {props.title === SidebarTopButtonTitles.DATA}
       <Tooltip
         content={props.tooltip}
         isDisabled={!!props.title && !props.tooltip}
@@ -63,14 +79,14 @@ function SidebarButton(props: SidebarButtonProps) {
         <IconContainer
           className={`t--sidebar-${props.title || props.tooltip}`}
           data-selected={props.selected}
-          onClick={props.onClick}
+          onClick={handleOnClick}
           selected={props.selected}
         >
           <Icon name={props.icon} size="lg" />
-          {props.conditionIcon && (
+          {props.condition && (
             <ConditionIcon
-              className={`t--sidebar-${props.title}-condition-icon`}
-              name={props.conditionIcon}
+              className={`t--sidebar-${props.condition}-condition-icon`}
+              name={ConditionConfig[props.condition].icon}
               size="md"
             />
           )}
