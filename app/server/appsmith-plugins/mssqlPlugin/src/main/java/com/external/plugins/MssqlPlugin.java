@@ -49,6 +49,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.Time;
 import java.sql.Timestamp;
@@ -363,30 +364,47 @@ public class MssqlPlugin extends BasePlugin {
         public Set<String> validateDatasource(@NonNull DatasourceConfiguration datasourceConfiguration) {
             Set<String> invalids = new HashSet<>();
 
-            if (isEmpty(datasourceConfiguration.getEndpoints())) {
-                invalids.add(MssqlErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
-            }
+            validateConnectionMode(datasourceConfiguration, invalids);
+            validateEndpoints(datasourceConfiguration, invalids);
+            validateAuthentication(datasourceConfiguration, invalids);
+            return invalids;
+        }
 
+        private void validateConnectionMode(DatasourceConfiguration datasourceConfiguration, Set<String> invalids) {
             if (datasourceConfiguration.getConnection() != null
                     && datasourceConfiguration.getConnection().getMode() == null) {
                 invalids.add(MssqlErrorMessages.DS_MISSING_CONNECTION_MODE_ERROR_MSG);
             }
+        }
 
+        private void validateEndpoints(DatasourceConfiguration datasourceConfiguration, Set<String> invalids) {
+            if (StringUtils.isEmpty(datasourceConfiguration.getUrl())
+                    && isEmpty(datasourceConfiguration.getEndpoints())) {
+                invalids.add(MssqlErrorMessages.DS_MISSING_ENDPOINT_ERROR_MSG);
+            } else if (!isEmpty(datasourceConfiguration.getEndpoints())) {
+                for (final Endpoint endpoint : datasourceConfiguration.getEndpoints()) {
+                    if (endpoint.getHost() == null || endpoint.getHost().isBlank()) {
+                        invalids.add(MssqlErrorMessages.DS_MISSING_HOSTNAME_ERROR_MSG);
+                    }
+                }
+            }
+        }
+
+        private void validateAuthentication(DatasourceConfiguration datasourceConfiguration, Set<String> invalids) {
             DBAuth auth = (DBAuth) datasourceConfiguration.getAuthentication();
             if (auth == null) {
                 invalids.add(MssqlErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG);
-
             } else {
-                if (StringUtils.isEmpty(auth.getUsername())) {
+                if (auth.getUsername() == null || auth.getUsername().isBlank()) {
                     invalids.add(MssqlErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
                 }
-
-                if (StringUtils.isEmpty(auth.getPassword())) {
+                if (auth.getPassword() == null || auth.getPassword().isBlank()) {
                     invalids.add(MssqlErrorMessages.DS_MISSING_PASSWORD_ERROR_MSG);
                 }
+                if (auth.getDatabaseName() == null || auth.getDatabaseName().isBlank()) {
+                    invalids.add(MssqlErrorMessages.DS_MISSING_DATABASE_NAME_ERROR_MSG);
+                }
             }
-
-            return invalids;
         }
 
         @Override
@@ -593,12 +611,26 @@ public class MssqlPlugin extends BasePlugin {
         hikariConfig.setJdbcUrl(urlBuilder.toString());
 
         try {
+            // Try to establish a connection to validate the configuration
+            DriverManager.getConnection(
+                            hikariConfig.getJdbcUrl(), hikariConfig.getUsername(), hikariConfig.getPassword())
+                    .close();
+        } catch (SQLException e) {
+            // If connection fails, throw an exception with the error message
+            String errorMessage = e.getMessage();
+            if (errorMessage.contains("Connection refused")) {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        "Connection refused : Invalid Port Number Specified");
+            } else {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, e.getMessage());
+            }
+        }
+
+        try {
             hikariDatasource = new HikariDataSource(hikariConfig);
         } catch (HikariPool.PoolInitializationException e) {
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    MssqlErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
-                    e.getMessage());
+            throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, e.getMessage());
         }
 
         return hikariDatasource;
