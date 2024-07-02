@@ -85,6 +85,7 @@ helm repo update
 helm plugin install https://github.com/helm/helm-mapkubeapis -n "$NAMESPACE"
 helm plugin ls
 helm mapkubeapis "$CHARTNAME" -n "$NAMESPACE"
+helm show chart appsmith-ee/$HELMCHART
 
 echo "Deploy appsmith helm chart"
 helm upgrade -i "$CHARTNAME" "appsmith-ee/$HELMCHART" -n "$NAMESPACE" --create-namespace --recreate-pods \
