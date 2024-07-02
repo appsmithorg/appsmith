@@ -4,17 +4,22 @@ import React, { useEffect, useRef } from "react";
 import styled from "styled-components";
 import { debounce, isEmpty } from "lodash";
 import { FormProvider, useForm } from "react-hook-form";
-import { Text } from "@blueprintjs/core";
+import { Position, Text } from "@blueprintjs/core";
 import { klona } from "klona";
 
 import useFixedFooter from "./useFixedFooter";
 import type { ButtonStyleProps } from "widgets/ButtonWidget/component";
-import { BaseButton as Button } from "widgets/ButtonWidget/component";
+import {
+  BaseButton as Button,
+  ToolTipWrapper,
+  TooltipStyles,
+} from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
 import { FORM_PADDING_Y, FORM_PADDING_X } from "./styleConstants";
 import type { Schema } from "../constants";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
+import { Popover2 } from "@blueprintjs/popover2";
 
 export type FormProps<TValues = any> = PropsWithChildren<{
   backgroundColor?: string;
@@ -285,25 +290,47 @@ function Form<TValues = any>(
             ref={footerRef}
           >
             {showReset && (
-              <StyledResetButtonWrapper>
-                <Button
-                  {...resetButtonStyles}
-                  className="t--jsonform-reset-btn"
-                  onClick={(e) => onReset(schema, e)}
-                  text={resetButtonLabel}
-                  type="reset"
-                />
-              </StyledResetButtonWrapper>
+              <ToolTipWrapper>
+                <TooltipStyles />
+                <Popover2
+                  content={resetButtonLabel}
+                  hoverOpenDelay={200}
+                  interactionKind="hover"
+                  portalClassName="btnTooltipContainer"
+                  position={Position.TOP}
+                >
+                  <StyledResetButtonWrapper>
+                    <Button
+                      {...resetButtonStyles}
+                      className="t--jsonform-reset-btn"
+                      onClick={(e) => onReset(schema, e)}
+                      text={resetButtonLabel}
+                      type="reset"
+                    />
+                  </StyledResetButtonWrapper>
+                </Popover2>
+              </ToolTipWrapper>
             )}
-            <Button
-              {...submitButtonStyles}
-              className="t--jsonform-submit-btn"
-              disabled={disabledWhenInvalid && isFormInValid}
-              loading={isSubmitting}
-              onClick={onSubmit}
-              text={submitButtonLabel}
-              type="submit"
-            />
+            <ToolTipWrapper>
+              <TooltipStyles />
+              <Popover2
+                content={submitButtonLabel}
+                hoverOpenDelay={200}
+                interactionKind="hover"
+                portalClassName="btnTooltipContainer"
+                position={Position.TOP}
+              >
+                <Button
+                  {...submitButtonStyles}
+                  className="t--jsonform-submit-btn"
+                  disabled={disabledWhenInvalid && isFormInValid}
+                  loading={isSubmitting}
+                  onClick={onSubmit}
+                  text={submitButtonLabel}
+                  type="submit"
+                />
+              </Popover2>
+            </ToolTipWrapper>
           </StyledFormFooter>
         )}
       </StyledForm>

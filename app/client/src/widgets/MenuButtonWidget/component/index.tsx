@@ -7,6 +7,7 @@ import {
   Menu,
   MenuItem as BlueprintMenuItem,
   Classes as BlueprintClasses,
+  Position,
 } from "@blueprintjs/core";
 import { Classes, Popover2 } from "@blueprintjs/popover2";
 import type { IconName } from "@blueprintjs/icons";
@@ -34,6 +35,7 @@ import type {
   PopoverContentProps,
 } from "../constants";
 import type { ThemeProp } from "WidgetProvider/constants";
+import { ToolTipWrapper, TooltipStyles } from "widgets/ButtonWidget/component";
 
 const PopoverStyles = createGlobalStyle<{
   parentWidth: number;
@@ -325,30 +327,41 @@ function PopoverTargetButton(props: PopoverTargetButtonProps) {
   const isRightAlign = iconAlign === Alignment.RIGHT;
 
   return (
-    <DragContainer
-      buttonColor={buttonColor}
-      buttonVariant={buttonVariant}
-      disabled={isDisabled}
-      maxWidth={maxWidth}
-      minHeight={minHeight}
-      minWidth={minWidth}
-      renderMode={renderMode}
-      shouldFitContent={shouldFitContent}
-    >
-      <BaseButton
-        alignText={getAlignText(isRightAlign, iconName)}
-        borderRadius={borderRadius}
-        boxShadow={boxShadow}
-        buttonColor={buttonColor}
-        buttonVariant={buttonVariant}
-        disabled={isDisabled}
-        fill
-        icon={!isRightAlign && iconName ? iconName : null}
-        placement={placement}
-        rightIcon={isRightAlign && iconName ? iconName : null}
-        text={label}
-      />
-    </DragContainer>
+    <ToolTipWrapper>
+      <TooltipStyles />
+      <Popover2
+        content={label}
+        hoverOpenDelay={200}
+        interactionKind="hover"
+        portalClassName="btnTooltipContainer"
+        position={Position.TOP}
+      >
+        <DragContainer
+          buttonColor={buttonColor}
+          buttonVariant={buttonVariant}
+          disabled={isDisabled}
+          maxWidth={maxWidth}
+          minHeight={minHeight}
+          minWidth={minWidth}
+          renderMode={renderMode}
+          shouldFitContent={shouldFitContent}
+        >
+          <BaseButton
+            alignText={getAlignText(isRightAlign, iconName)}
+            borderRadius={borderRadius}
+            boxShadow={boxShadow}
+            buttonColor={buttonColor}
+            buttonVariant={buttonVariant}
+            disabled={isDisabled}
+            fill
+            icon={!isRightAlign && iconName ? iconName : null}
+            placement={placement}
+            rightIcon={isRightAlign && iconName ? iconName : null}
+            text={label}
+          />
+        </DragContainer>
+      </Popover2>
+    </ToolTipWrapper>
   );
 }
 

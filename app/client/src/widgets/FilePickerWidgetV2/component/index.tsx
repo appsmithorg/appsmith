@@ -1,7 +1,13 @@
 import React from "react";
 import type { ComponentProps } from "widgets/BaseComponent";
-import { BaseButton } from "widgets/ButtonWidget/component";
+import {
+  BaseButton,
+  ToolTipWrapper,
+  TooltipStyles,
+} from "widgets/ButtonWidget/component";
 import { Colors } from "constants/Colors";
+import { Popover2 } from "@blueprintjs/popover2";
+import { Position } from "@blueprintjs/core";
 
 function FilePickerComponent(props: FilePickerComponentProps) {
   let computedLabel = props.label;
@@ -11,19 +17,30 @@ function FilePickerComponent(props: FilePickerComponentProps) {
   }
 
   return (
-    <BaseButton
-      borderRadius={props.borderRadius}
-      boxShadow={props.boxShadow}
-      buttonColor={props.buttonColor}
-      disabled={props.isDisabled}
-      loading={props.isLoading}
-      maxWidth={props.maxWidth}
-      minHeight={props.minHeight}
-      minWidth={props.minWidth}
-      onClick={props.openModal}
-      shouldFitContent={props.shouldFitContent}
-      text={computedLabel}
-    />
+    <ToolTipWrapper>
+      <TooltipStyles />
+      <Popover2
+        content={computedLabel}
+        hoverOpenDelay={200}
+        interactionKind="hover"
+        portalClassName="btnTooltipContainer"
+        position={Position.TOP}
+      >
+        <BaseButton
+          borderRadius={props.borderRadius}
+          boxShadow={props.boxShadow}
+          buttonColor={props.buttonColor}
+          disabled={props.isDisabled}
+          loading={props.isLoading}
+          maxWidth={props.maxWidth}
+          minHeight={props.minHeight}
+          minWidth={props.minWidth}
+          onClick={props.openModal}
+          shouldFitContent={props.shouldFitContent}
+          text={computedLabel}
+        />
+      </Popover2>
+    </ToolTipWrapper>
   );
 }
 export interface FilePickerComponentProps extends ComponentProps {
