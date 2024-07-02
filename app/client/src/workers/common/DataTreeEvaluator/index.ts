@@ -77,7 +77,7 @@ import {
 } from "lodash";
 
 import type { Diff } from "deep-diff";
-import { applyChange, diff } from "deep-diff";
+import { applyChange } from "deep-diff";
 import {
   EXECUTION_PARAM_KEY,
   EXECUTION_PARAM_REFERENCE_REGEX,
@@ -625,9 +625,11 @@ export default class DataTreeEvaluator {
       undefined,
       webworkerTelemetry,
       () =>
-        diff(
-          oldUnEvalTreeWithStringifiedJSFunctions,
-          unEvalTreeWithStringifiedJSFunctions,
+        convertMicroDiffToDeepDiff(
+          microDiff(
+            oldUnEvalTreeWithStringifiedJSFunctions,
+            unEvalTreeWithStringifiedJSFunctions,
+          ),
         ) || [],
     );
     // Since eval tree is listening to possible events that don't cause differences
@@ -642,7 +644,7 @@ export default class DataTreeEvaluator {
       };
     }
 
-    DataStore.update(differences);
+    DataStore.update(differences as Diff<DataTree, DataTree>[]);
 
     //find all differences which can lead to updating of dependency map
     const translatedDiffs = flatten(
