@@ -8,7 +8,7 @@ import type { TenantReduxState } from "@appsmith/reducers/tenantReducer";
 import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
 
 export const initialState: SettingsReduxState = {
-  isLoading: false,
+  isLoading: true,
   isSaving: false,
   isRestarting: false,
   showReleaseNotes: false,
