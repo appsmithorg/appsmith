@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import React, { useCallback, useEffect } from "react";
 import styled, { useTheme, css } from "styled-components";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setWorkspaceIdForImport } from "@appsmith/actions/applicationActions";
 import {
   createMessage,
@@ -21,6 +21,7 @@ import type { Theme } from "constants/DefaultTheme";
 import { Icon, Modal, ModalContent, ModalHeader, Text } from "design-system";
 import useMessages from "@appsmith/hooks/importModal/useMessages";
 import useMethods from "@appsmith/hooks/importModal/useMethods";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 
 const TextWrapper = styled.div`
   padding: 0;
@@ -201,6 +202,8 @@ function ImportModal(props: ImportModalProps) {
     resetAppFileToBeUploaded,
     uploadingText,
   } = useMethods({ editorId, workspaceId });
+
+  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
   const dispatch = useDispatch();
   const onGitImport = useCallback(() => {
     onClose && onClose();
@@ -277,7 +280,9 @@ function ImportModal(props: ImportModalProps) {
                 uploadIcon="file-line"
               />
             </FileImportCard>
-            {!toEditor && <GitImportCard handler={onGitImport} />}
+            {!toEditor && !isAnvilEnabled && (
+              <GitImportCard handler={onGitImport} />
+            )}
           </Row>
         )}
         {isImporting && (

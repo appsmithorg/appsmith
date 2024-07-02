@@ -26,6 +26,7 @@ import {
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { isEnabledForPreviewData } from "utils/editorContextUtils";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 import history from "utils/history";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { EditorNames } from "./";
@@ -60,6 +61,7 @@ export const useHeaderActions = (
   const showGenerateButton = useShowPageGenerationOnHeader(
     datasource as Datasource,
   );
+  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
   const plugin = useSelector((state: AppState) =>
     getPlugin(state, datasource?.pluginId || ""),
@@ -112,7 +114,7 @@ export const useHeaderActions = (
     );
 
     const generatePageButton =
-      showGenerateButton && !showReconnectButton ? (
+      showGenerateButton && !showReconnectButton && !isAnvilEnabled ? (
         <Button
           className={"t--generate-template"}
           isDisabled={!canGeneratePage}

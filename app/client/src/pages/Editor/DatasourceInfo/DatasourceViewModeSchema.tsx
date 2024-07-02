@@ -52,6 +52,7 @@ import { useEditorType } from "@appsmith/hooks";
 import history from "utils/history";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import { setDatasourcePreviewSelectedTableName } from "actions/datasourceActions";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 
 interface Props {
   datasource: Datasource;
@@ -77,6 +78,7 @@ const DatasourceViewModeSchema = (props: Props) => {
   );
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
   const releaseDragDropBuildingBlocks = useFeatureFlag(
     FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
   );
@@ -142,7 +144,7 @@ const DatasourceViewModeSchema = (props: Props) => {
       setPreviewDataError(true);
       dispatch(setDatasourcePreviewSelectedTableName(""));
     }
-  }, [datasourceStructure, isDatasourceStructureLoading]);
+  }, [datasourceStructure, isDatasourceStructureLoading, dispatch]);
 
   // this fetches the preview data when the table name changes
   useEffect(() => {
@@ -241,7 +243,8 @@ const DatasourceViewModeSchema = (props: Props) => {
     !failedFetchingPreviewData &&
     tableName &&
     canCreateDatasourceActions &&
-    canCreatePages;
+    canCreatePages &&
+    !isAnvilEnabled;
 
   return (
     <ViewModeSchemaContainer>

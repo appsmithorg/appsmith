@@ -15,6 +15,7 @@ import {
 export const AvailableFeaturesToOverride: FeatureFlag[] = [
   "release_anvil_enabled",
   "release_layout_conversion_enabled",
+  "release_anvil_toggle_enabled",
 ];
 export type OverriddenFeatureFlags = Partial<Record<FeatureFlag, boolean>>;
 

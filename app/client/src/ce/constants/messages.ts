@@ -210,6 +210,8 @@ export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
   `Learn about Appsmith Partner Program`;
 export const NEW_APPLICATION = () => `New application`;
 export const APPLICATIONS = () => `Applications`;
+export const FIXED_APPLICATIONS = () => `Classic Applications`;
+export const ANVIL_APPLICATIONS = () => `New Applications`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -402,6 +404,10 @@ export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
 export const ERROR_WIDGET_CUT_NOT_ALLOWED = () =>
   `This selected widget cannot be cut.`;
+export const ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT = () =>
+  `Apps made with Anvil α are not compatible with widgets from the classic layout system`;
+export const ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT = () =>
+  `Apps using the classic layout system are not compatible with Anvil α widgets`;
 export const SELECT_ALL_WIDGETS_MSG = () =>
   `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
