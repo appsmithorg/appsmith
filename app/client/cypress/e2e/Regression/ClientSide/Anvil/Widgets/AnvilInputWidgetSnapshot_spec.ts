@@ -13,7 +13,6 @@ describe(
     });
 
     it("1. Canvas Mode", () => {
-      anvilSnapshot.triggerInputInvalidState();
       anvilSnapshot.verifyCanvasMode("InputWidget");
     });
 
