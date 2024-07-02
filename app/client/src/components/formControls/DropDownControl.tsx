@@ -185,6 +185,20 @@ function renderDropdown(
     }
   };
 
+  const clearAllOptions = () => {
+    if (!isNil(selectedValue)) {
+      if (props.isMultiSelect) {
+        if (Array.isArray(selectedValue)) {
+          selectedValue = [];
+          props.input?.onChange([]);
+        }
+      } else {
+        selectedValue = "";
+        props.input?.onChange("");
+      }
+    }
+  };
+
   if (props.options.length > 0) {
     if (props.isMultiSelect) {
       const tempSelectedValues: string[] = [];
@@ -243,6 +257,8 @@ function renderDropdown(
       placeholder={props?.placeholderText}
       showSearch={props.isSearchable}
       value={props.isMultiSelect ? selectedOptions : selectedOptions[0]}
+      allowClear={props.isMultiSelect && !isEmpty(selectedValue)}
+      onClear={clearAllOptions}
     >
       {options.map((option) => {
         return (
