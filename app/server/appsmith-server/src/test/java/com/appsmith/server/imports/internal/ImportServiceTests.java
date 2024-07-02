@@ -5180,7 +5180,7 @@ public class ImportServiceTests {
                     Application application = objects.getT2();
                     datasource.setName("DS_FOR_RENAME_TEST_RENAMED");
                     return datasourceService
-                            .save(datasource)
+                            .save(datasource, false)
                             .then(exportService.exportByArtifactId(application.getId(), VERSION_CONTROL, APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
