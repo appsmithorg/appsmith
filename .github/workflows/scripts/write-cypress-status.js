@@ -2,7 +2,20 @@ const HEADER = '<!-- This is an auto-generated comment: Cypress test results  --
 const FOOTER = '<!-- end of auto-generated comment: Cypress test results  -->';
 const PATTERN = new RegExp(HEADER + ".*?" + FOOTER, "ims");
 
-module.exports = async function({core, context, github}, note) {
+// Ref: https://github.com/orgs/community/discussions/16925
+const VALID_ALERT_TYPES = ["note", "tip", "important", "warning", "caution"]
+
+const ALERT_PREFIXES = {
+  tip: "🟢 🟢 🟢 ",
+  important: "🟣 🟣 🟣 ",
+  caution: "🔴 🔴 🔴 ",
+}
+
+module.exports = async function({core, context, github}, alertType, note) {
+  if (!VALID_ALERT_TYPES.includes(alertType)) {
+    core.setFailed("Invalid alert type: '" + alertType + "'. Allowed: " + VALID_ALERT_TYPES.join(", ") + ".");
+  }
+
   const prNumber = context.payload.pull_request?.number;
 
   if (!prNumber) {
@@ -23,7 +36,12 @@ module.exports = async function({core, context, github}, note) {
     return;
   }
 
-  note = [HEADER, note, FOOTER].join("\n");
+  note = [
+    HEADER,
+    `> [!${alertType.toUpperCase()}]`,
+    ((ALERT_PREFIXES[alertType] ?? "") + note.trim()).replaceAll(/^/gm, "> "),
+    FOOTER,
+  ].join("\n");
 
   if (body.match(PATTERN)) {
     body = body.replace(PATTERN, note);

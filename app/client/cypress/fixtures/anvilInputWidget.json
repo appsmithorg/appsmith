@@ -3410,9 +3410,5 @@
         }
       }
     ]
-  },
-  "layoutOnLoadActions": [],
-  "layoutOnLoadActionErrors": [],
-  "id": "667a94f99da472349cd2d47c",
-  "userPermissions": []
+  }
 }
