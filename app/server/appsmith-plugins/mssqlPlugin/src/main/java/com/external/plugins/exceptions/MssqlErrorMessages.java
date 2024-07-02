@@ -26,9 +26,9 @@ public class MssqlErrorMessages extends BasePluginErrorMessages {
     ************************************************************************************************************************************************
     */
     public static final String DS_MISSING_ENDPOINT_ERROR_MSG = "Missing endpoint.";
-
+    public static final String DS_MISSING_HOSTNAME_ERROR_MSG = "Host value cannot be empty.";
+    public static final String DS_MISSING_DATABASE_NAME_ERROR_MSG = "Missing database name.";
     public static final String DS_MISSING_CONNECTION_MODE_ERROR_MSG = "Missing connection mode.";
-
     public static final String DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG = "Missing authentication details.";
 
     public static final String DS_MISSING_USERNAME_ERROR_MSG = "Missing username for authentication.";
