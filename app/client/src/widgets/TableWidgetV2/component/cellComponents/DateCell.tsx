@@ -213,8 +213,9 @@ export const DateCell = (props: DateComponentProps) => {
   }, [value, props.outputFormat]);
 
   const onDateSelected = (date: string) => {
+    const formattedDate: string = date ? moment(date).format(inputFormat) : "";
     if (isNewRow) {
-      updateNewRowValues(alias, date, date);
+      updateNewRowValues(alias, date, formattedDate);
       return;
     }
 
@@ -227,7 +228,6 @@ export const DateCell = (props: DateComponentProps) => {
     setShowRequiredError(false);
     setHasFocus(false);
 
-    const formattedDate = date ? moment(date).format(inputFormat) : "";
     onDateSave(rowIndex, alias, formattedDate, onDateSelectedString);
   };
 
