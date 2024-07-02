@@ -116,6 +116,7 @@ export interface PropertyPaneControlConfig {
   defaultValue?: unknown;
   /** used to mark a property as reusable so that it can be reused in next dropping widget */
   isReusable?: boolean;
+  showAutocompleteMenuByDefault?: boolean;
 }
 
 interface ValidationConfigParams {

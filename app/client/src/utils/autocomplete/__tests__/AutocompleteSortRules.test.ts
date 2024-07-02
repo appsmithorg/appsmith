@@ -125,6 +125,16 @@ describe("Autocomplete Ranking", () => {
         isHeader: false,
       },
     ];
+    const defEntityInformation: Map<string, DataTreeDefEntityInformation> =
+      new Map();
+    defEntityInformation.set("sameEntity", {
+      type: ENTITY_TYPE.WIDGET,
+      subType: "TABLE_WIDGET",
+    });
+    defEntityInformation.set("sameEntity", {
+      type: ENTITY_TYPE.WIDGET,
+      subType: "TABLE_WIDGET_V2",
+    });
     const currentFieldInfo: unknown = {
       expectedType: "ARRAY",
       example: '[{ "name": "John" }]',
@@ -180,6 +190,7 @@ describe("Autocomplete Ranking", () => {
     const sortedCompletionsText = AutocompleteSorter.sort(
       completions as Completion<TernCompletionResult>[],
       currentFieldInfo as FieldEntityInformation,
+      defEntityInformation,
       entityInfo,
       true,
     ).map((c) => c.displayText);

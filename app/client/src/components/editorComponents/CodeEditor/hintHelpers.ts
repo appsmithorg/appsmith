@@ -65,6 +65,7 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
       editor.closeHint();
       return shouldShow;
     },
+    fireOnFocus: true,
   };
 };
 

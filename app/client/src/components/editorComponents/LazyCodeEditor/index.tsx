@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { LazyEditorWrapper } from "./styles";
 import { REQUEST_IDLE_CALLBACK_TIMEOUT } from "constants/AppConstants";
 import type {
@@ -198,19 +198,7 @@ function LazyCodeEditor({
     stateMachine.current.transition("RENDERED");
   }, []);
 
-  const editorWrapperRef = useCallback(
-    (editorWrapper: HTMLDivElement) => {
-      if (editorWrapper && renderTarget === "editor-focused") {
-        const editor = editorWrapper.querySelector(
-          ".CodeEditorTarget",
-        ) as HTMLElement | null;
-        if (editor) {
-          editor.focus();
-        }
-      }
-    },
-    [renderTarget],
-  );
+  const editorWrapperRef = React.createRef<HTMLDivElement>();
 
   useEffect(() => {
     if (

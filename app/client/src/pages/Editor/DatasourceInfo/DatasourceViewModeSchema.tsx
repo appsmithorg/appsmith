@@ -236,7 +236,8 @@ const DatasourceViewModeSchema = (props: Props) => {
     !failedFetchingPreviewData &&
     tableName &&
     canCreateDatasourceActions &&
-    canCreatePages;
+    canCreatePages &&
+    false;
 
   return (
     <ViewModeSchemaContainer>

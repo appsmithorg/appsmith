@@ -251,6 +251,7 @@ export const contentConfig = [
           },
         },
         evaluationSubstitutionType: EvaluationSubstitutionType.SMART_SUBSTITUTE,
+        showAutocompleteMenuByDefault: true,
       },
       {
         propertyName: "autoGenerateForm",

@@ -1,6 +1,6 @@
 import { Colors } from "constants/Colors";
 
-import { Button } from "design-system";
+// import { Button } from "design-system";
 import React from "react";
 import styled from "styled-components";
 
@@ -38,18 +38,18 @@ const Header = styled.div`
   margin-bottom: 12px;
 `;
 
-const ConnecData = styled(Button)`
-  margin-bottom: 16px;
-`;
+// const ConnecData = styled(Button)`
+//   margin-bottom: 16px;
+// `;
 
 export function ConnectDataOverlay(props: {
   onConnectData: () => void;
   message: string;
   btnText: string;
 }) {
-  const onClick = () => {
-    props.onConnectData();
-  };
+  // const onClick = () => {
+  //   props.onConnectData();
+  // };
 
   return (
     <Wrapper>
@@ -57,14 +57,15 @@ export function ConnectDataOverlay(props: {
         <Header className="t--cypress-table-overlay-header">
           {props.message}
         </Header>
-        <ConnecData
+        {/* <ConnecData
           className="t--cypress-table-overlay-connectdata"
           id={"table-overlay-connectdata"}
           onClick={onClick}
           size="md"
+          isDisabled={true}
         >
           {props.btnText}
-        </ConnecData>
+        </ConnecData> */}
       </Container>
     </Wrapper>
   );

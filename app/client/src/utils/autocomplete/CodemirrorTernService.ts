@@ -19,7 +19,7 @@ import {
   getCodeMirrorNamespaceFromEditor,
 } from "../getCodeMirrorNamespace";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { findIndex, isString } from "lodash";
+import { debounce, findIndex, isString } from "lodash";
 import { renderTernTooltipContent } from "./ternDocTooltip";
 
 const bigDoc = 250;
@@ -40,10 +40,11 @@ export interface Completion<
   isHeader?: boolean;
   recencyWeight?: number;
   isEntityName?: boolean;
+  fullPath?: string;
 }
 
 export interface CommandsCompletion
-  extends Omit<Completion, "type" | "origin" | "data"> {
+  extends Omit<Completion, "type" | "origin" | "data" | "fullPath"> {
   data: unknown;
   action?: (callback?: (completion: string) => void) => void;
   shortcut?: string;
@@ -201,6 +202,9 @@ class CodeMirrorTernService {
   entityDef: Def;
   options: { async: boolean };
   recentEntities: string[] = [];
+  cm?: CodeMirror.Editor = undefined;
+  tooltipContainerClicked: boolean = false;
+  isJsonViewClick = false;
 
   constructor(options: { async: boolean }) {
     this.options = options;
@@ -232,6 +236,7 @@ class CodeMirrorTernService {
           }
         },
       },
+      closeOnUnfocus: false,
     });
   }
 
@@ -428,12 +433,80 @@ class CodeMirrorTernService {
     this.server.deleteDefs(name);
   }
 
+  jsonViewClicked = () => {
+    this.isJsonViewClick = true;
+  };
+
+  tooltipClickHandler = debounce((event: MouseEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+    if (!this.cm) return;
+    if (
+      (event.target as HTMLElement).closest(".CodeMirror-Tern-tooltip") ||
+      this.isJsonViewClick
+    ) {
+      this.isJsonViewClick = false;
+      this.cm.focus();
+      this.tooltipContainerClicked = true;
+    } else {
+      // @ts-expect-error: Types are not available
+      this.cm.closeHint();
+      this.removeTooltipClickFunction();
+    }
+  }, 200);
+
+  closeHintHandler = debounce(() => {
+    if (!this.cm) return;
+    if (this.tooltipContainerClicked) {
+      this.tooltipContainerClicked = false;
+      return;
+    }
+    // @ts-expect-error: Types are not available
+    this.cm.closeHint();
+    this.removeTooltipClickFunction();
+  }, 200);
+
+  addTooltipClickFunction = () => {
+    document.addEventListener("click", this.tooltipClickHandler.bind(this));
+    document.addEventListener("close-hint", this.closeHintHandler.bind(this));
+  };
+
+  removeTooltipClickFunction = () => {
+    document.removeEventListener("click", this.tooltipClickHandler.bind(this));
+    document.removeEventListener(
+      "close-hint",
+      this.closeHintHandler.bind(this),
+    );
+  };
+
+  getParentPath(inputQuery: string) {
+    // inputQuery is "app" then parentPath will be ""
+    // inputQuery is "app." then parentPath will be "app."
+    // if inputQuery is "app.aa" then parentPath will be "app."
+    // if inputQuery is 'app[/"' then parentPath will be "app."
+    // if inputQuery is 'app[/"mod' then parentPath will be "app."
+    // if inputQuery is 'app.bc[/"' then parentPath will be "app.bc"
+    // logic 1st first if dot or '[/"' which one is last special char and then remove the extra char after it.
+    let parentPath = "";
+    const dotIndex = inputQuery.lastIndexOf(".");
+    const bracketIndex = inputQuery.lastIndexOf('[/"');
+    const lastSpecialCharIndex = Math.max(dotIndex, bracketIndex);
+
+    if (lastSpecialCharIndex !== -1) {
+      parentPath = inputQuery.slice(0, lastSpecialCharIndex + 1);
+    }
+    return parentPath;
+  }
+
   requestCallback(
     error: any,
     data: QueryRegistry["completions"]["result"],
     cm: CodeMirror.Editor,
     resolve: any,
   ) {
+    this.cm = cm;
+    this.addTooltipClickFunction();
+
     if (error) return this.showError(cm, error);
     if (data.completions.length === 0) return;
     const doc = this.findDoc(cm.getDoc());
@@ -467,6 +540,9 @@ class CodeMirrorTernService {
 
     const token = cm.getTokenAt(cursor);
     const handleAutocompleteSelection = dotToBracketNotationAtToken(token);
+
+    const inputQuery = this.getQueryForAutocomplete(cm);
+    const parentPath = this.getParentPath(inputQuery.trim());
 
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
@@ -506,6 +582,7 @@ class CodeMirrorTernService {
         isHeader: false,
         recencyWeight,
         isEntityName: isCompletionADataTreeEntityName,
+        fullPath: parentPath + completion.name,
       };
 
       if (isKeyword) {
@@ -549,6 +626,7 @@ class CodeMirrorTernService {
     completions = AutocompleteSorter.sort(
       completions,
       { ...this.fieldEntityInformation, token },
+      this.defEntityInformation,
       this.defEntityInformation.get(
         this.fieldEntityInformation.entityName || "",
       ),
@@ -562,7 +640,7 @@ class CodeMirrorTernService {
       list: completions,
       selectedHint: indexToBeSelected,
       lineValue,
-      query: this.getQueryForAutocomplete(cm),
+      query: inputQuery,
     };
     let tooltip: HTMLElement | undefined = undefined;
     const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
@@ -578,10 +656,12 @@ class CodeMirrorTernService {
       (cur: Completion<TernCompletionResult>, node: any) => {
         this.active = cur;
         this.remove(tooltip);
-        const content = cur.data.doc;
-        if (!content) return;
         const docTooltipContainer = this.elt("div", "flex flex-col pb-1");
-        renderTernTooltipContent(docTooltipContainer, cur);
+        renderTernTooltipContent(
+          docTooltipContainer,
+          cur,
+          this.jsonViewClicked.bind(this),
+        );
         tooltip = this.makeTooltip(
           node.parentNode.getBoundingClientRect().right + window.pageXOffset,
           node.getBoundingClientRect().top + window.pageYOffset + 2,
