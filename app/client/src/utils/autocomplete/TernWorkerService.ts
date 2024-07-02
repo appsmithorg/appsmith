@@ -1,4 +1,4 @@
-import type { Def, Server } from "tern";
+import type { Server } from "tern";
 import type { CallbackFn } from "./types";
 import { TernWorkerAction } from "./types";
 
@@ -75,8 +75,8 @@ function TernWorkerServer(this: any, ts: any) {
   this.request = function (body: any, c: CallbackFn) {
     send({ type: TernWorkerAction.REQUEST, body: body }, c);
   };
-  this.addDefs = function (defs: Def) {
-    send({ type: TernWorkerAction.ADD_DEF, defs });
+  this.addDefs = function () {
+    // send({ type: TernWorkerAction.ADD_DEF, defs });
   };
   this.deleteDefs = function (name: string) {
     send({ type: TernWorkerAction.DELETE_DEF, name });

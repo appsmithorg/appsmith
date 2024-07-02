@@ -89,7 +89,7 @@ import type {
   DataTree,
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
-import { initiateLinting, lintWorker } from "./LintingSagas";
+import { lintWorker } from "./LintingSagas";
 import type {
   EvalTreeRequestData,
   EvalTreeResponseData,
@@ -637,9 +637,9 @@ function* evalAndLintingHandler(
       ),
     );
   }
-  if (requiresLinting) {
-    effects.push(fn(initiateLinting, unEvalAndConfigTree, forceEvaluation));
-  }
+  // if (requiresLinting) {
+  //   effects.push(fn(initiateLinting, unEvalAndConfigTree, forceEvaluation));
+  // }
 
   yield all(effects);
   endSpan(span);
