@@ -204,13 +204,16 @@ public class SnowflakePlugin extends BasePlugin {
                 DatasourceConfiguration datasourceConfiguration, Properties properties) {
             // Only for username password auth, we need to set these properties, for others
             // like key-pair auth, authentication specific properties need to be set on config itself
+            // check for authenticationType == null is added to provide backwards compatibility
             AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
-            switch (authentication.getAuthenticationType()) {
-                case DB_AUTH:
-                    DBAuth dbAuth = (DBAuth) authentication;
-                    properties.setProperty("user", dbAuth.getUsername());
-                    properties.setProperty("password", dbAuth.getPassword());
-                    break;
+            String authenticationType =
+                    datasourceConfiguration.getAuthentication().getAuthenticationType();
+            Boolean isDBAuth =
+                    (authenticationType != null && DB_AUTH.equals(authenticationType)) || authenticationType == null;
+            if (isDBAuth) {
+                DBAuth dbAuth = (DBAuth) authentication;
+                properties.setProperty("user", dbAuth.getUsername());
+                properties.setProperty("password", dbAuth.getPassword());
             }
             properties.setProperty(
                     "warehouse",
@@ -477,6 +480,10 @@ public class SnowflakePlugin extends BasePlugin {
                     default:
                         break;
                 }
+            } else {
+                // Else cases added for older datasources, they would not have authenticationType in their config object
+                // As this is newly introduced
+                configMono = getBasicAuthConfig(commonConfig, datasourceConfiguration);
             }
             return configMono;
         }
