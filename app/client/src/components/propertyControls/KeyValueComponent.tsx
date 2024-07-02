@@ -6,6 +6,7 @@ import { Button } from "design-system";
 import { generateReactKey } from "utils/generators";
 import { debounce } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
+import { ReactComponent as WarningErrorIcon } from 'assets/icons/alert/warning-error.svg';
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -38,9 +39,45 @@ function updateOptionValue<T>(
     };
   });
 }
+const FlexBox = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+`;
+
+const ErrorMessageBox = styled.div`
+  color: ${props => props.theme.colors.error};
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
+  align-items: center;
+  justify-content:center;
+  margin-left: 0;
+  margin-bottom: 12px;
+`;
 
 const StyledBox = styled.div`
   width: 10px;
+`;
+
+const StyledInputGroup = styled(InputGroup)<{ hasError: boolean }>`
+  > .ads-v2-input__input-section > div {
+    min-width: 0px;
+  }
+  & input {
+    ${props => props.hasError && `
+      border-color: ${props.theme.colors.error};
+    `}
+    ${props => !props.hasError && `
+      border-color: #cdd5df;
+      &:focus {
+        border-color: #4c5664;
+      }
+      &:hover {
+        border-color: #99a4b3;
+      }
+    `}
+  }
 `;
 
 type UpdatePairFunction = (
@@ -58,17 +95,12 @@ type SegmentedControlOptionWithKey = SegmentedControlOption & {
   key: string;
 };
 
-const StyledInputGroup = styled(InputGroup)`
-  > .ads-v2-input__input-section > div {
-    min-width: 0px;
-  }
-`;
-
 export function KeyValueComponent(props: KeyValueComponentProps) {
   const [renderPairs, setRenderPairs] = useState<
     SegmentedControlOptionWithKey[]
   >([]);
   const [typing, setTyping] = useState<boolean>(false);
+  const [errorMessages, setErrorMessages] = useState<string[]>([]);
   const { pairs } = props;
   useEffect(() => {
     let { pairs } = props;
@@ -84,6 +116,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     );
 
     pairs.length !== 0 && !typing && setRenderPairs(newRenderPairs);
+    validatePairs(newRenderPairs);
   }, [props, pairs.length, renderPairs.length]);
 
   const debouncedUpdatePairs = useCallback(
@@ -105,6 +138,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
     setRenderPairs(updatedRenderPairs);
     debouncedUpdatePairs(updatedPairs);
+    validatePairs(updatedRenderPairs);
   }
 
   function updateValue(index: number, updatedValue: string) {
@@ -119,6 +153,17 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
 
     setRenderPairs(updatedRenderPairs);
     debouncedUpdatePairs(updatedPairs);
+    validatePairs(updatedRenderPairs);
+  }
+
+  function validatePairs(pairs: SegmentedControlOptionWithKey[]) {
+    const newErrorMessages = pairs.map((pair) => {
+      if (!pair.label && !pair.value) {
+        return "Both Name and Value can't be empty";
+      }
+      return "";
+    });
+    setErrorMessages(newErrorMessages);
   }
 
   function deletePair(index: number, isUpdatedViaKeyboard = false) {
@@ -129,6 +174,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     const newRenderPairs = renderPairs.filter((o, i) => i !== index);
 
     setRenderPairs(newRenderPairs);
+    validatePairs(newRenderPairs);
     props.updatePairs(newPairs, isUpdatedViaKeyboard);
   }
 
@@ -162,6 +208,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     });
 
     setRenderPairs(updatedRenderPairs);
+    validatePairs(updatedRenderPairs);
     props.updatePairs(pairs, e.detail === 0);
   }
 
@@ -176,41 +223,52 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
   return (
     <>
       {renderPairs.map((pair: SegmentedControlOptionWithKey, index) => {
+        const hasError = !!errorMessages[index];
         return (
-          <ControlWrapper key={pair.key} orientation={"HORIZONTAL"}>
-            <StyledInputGroup
-              dataType={"text"}
-              onBlur={onInputBlur}
-              onChange={(value: string) => {
-                updateKey(index, value);
-              }}
-              onFocus={onInputFocus}
-              placeholder={"Name"}
-              value={pair.label}
-            />
-            <StyledBox />
-            <StyledInputGroup
-              dataType={"text"}
-              onBlur={onInputBlur}
-              onChange={(value: string) => {
-                updateValue(index, value);
-              }}
-              onFocus={onInputFocus}
-              placeholder={"Value"}
-              value={pair.value}
-            />
-            <StyledBox />
-            <Button
-              isIconButton
-              kind="tertiary"
-              onClick={(e: React.MouseEvent) => {
-                deletePair(index, e.detail === 0);
-              }}
-              size="sm"
-              startIcon="delete-bin-line"
-              style={{ width: "50px" }}
-            />
-          </ControlWrapper>
+          <FlexBox key={pair.key}>
+            <ControlWrapper orientation={"HORIZONTAL"}>
+              <StyledInputGroup
+                dataType={"text"}
+                hasError={hasError}
+                onBlur={onInputBlur}
+                onChange={(value: string) => {
+                  updateKey(index, value);
+                }}
+                onFocus={onInputFocus}
+                placeholder={"Name"}
+                value={pair.label}
+              />
+              <StyledBox />
+              <StyledInputGroup
+                dataType={"text"}
+                hasError={hasError}
+                onBlur={onInputBlur}
+                onChange={(value: string) => {
+                  updateValue(index, value);
+                }}
+                onFocus={onInputFocus}
+                placeholder={"Value"}
+                value={pair.value}
+              />
+              <StyledBox />
+              <Button
+                isIconButton
+                kind="tertiary"
+                onClick={(e: React.MouseEvent) => {
+                  deletePair(index, e.detail === 0);
+                }}
+                size="sm"
+                startIcon="delete-bin-line"
+                style={{ width: "50px" }}
+              />
+            </ControlWrapper>
+            {errorMessages[index] && (
+              <ErrorMessageBox>
+                <WarningErrorIcon />
+                {errorMessages[index]}
+              </ErrorMessageBox>
+            )}
+          </FlexBox>
         );
       })}
 
