@@ -43,7 +43,7 @@ const RecaptchaWrapper = styled.div`
   }
 `;
 
-const ToolTipWrapper = styled.div`
+export const ToolTipWrapper = styled.div`
   height: 100%;
   && .bp3-popover2-target {
     height: 100%;
@@ -54,7 +54,7 @@ const ToolTipWrapper = styled.div`
   }
 `;
 
-const TooltipStyles = createGlobalStyle`
+export const TooltipStyles = createGlobalStyle`
   .btnTooltipContainer {
     .bp3-popover2-content {
       max-width: 350px;
@@ -482,7 +482,9 @@ function ButtonComponent(props: ButtonComponentProps & RecaptchaProps) {
         <TooltipStyles />
         <Popover2
           autoFocus={false}
-          content={<Interweave content={props.tooltip} />}
+          content={
+            <Interweave content={props.tooltip ? props.tooltip : props.text} />
+          }
           hoverOpenDelay={200}
           interactionKind="hover"
           portalClassName="btnTooltipContainer"
