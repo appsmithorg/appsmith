@@ -66,6 +66,7 @@ describe(
 
       EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
 
+      propPane.ToggleJSMode("sourcedata", false);
       oneClickBinding.ChooseAndAssertForm(
         `${datasourceName}`,
         datasourceName,
@@ -76,9 +77,7 @@ describe(
         },
       );
 
-      propPane.ToggleJSMode("sourcedata", false);
       agHelper.GetNClick(OneClickBindingLocator.connectData);
-
       agHelper.AssertClassExists(locators._jsToggle("sourcedata"), "is-active");
 
       EditorNavigation.SelectEntityByName("Select2", EntityType.Widget);
