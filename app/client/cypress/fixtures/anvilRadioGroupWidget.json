@@ -17,7 +17,7 @@
     "minHeight": 1292,
     "layout": [
       {
-        "layoutId": "lgzn0uodm1",
+        "layoutId": "w1uzh1www2",
         "layoutType": "ALIGNED_LAYOUT_COLUMN",
         "layout": [
           {
@@ -27,11 +27,11 @@
             "layout": [
               {
                 "alignment": "start",
-                "widgetId": "rknrktein9",
+                "widgetId": "6cjx3vrmlr",
                 "widgetType": "SECTION_WIDGET"
               }
             ],
-            "layoutId": "i3tk9jwbza",
+            "layoutId": "bdzj4e2iay",
             "layoutType": "WIDGET_ROW",
             "maxChildLimit": 1
           },
@@ -42,11 +42,11 @@
             "layout": [
               {
                 "alignment": "start",
-                "widgetId": "09nss42ws7",
+                "widgetId": "djv3t3rf0r",
                 "widgetType": "SECTION_WIDGET"
               }
             ],
-            "layoutId": "9p0uz80gmu",
+            "layoutId": "xk1plonypl",
             "layoutType": "WIDGET_ROW",
             "maxChildLimit": 1
           },
@@ -57,11 +57,11 @@
             "layout": [
               {
                 "alignment": "start",
-                "widgetId": "tjijzml7u1",
+                "widgetId": "zc3lsxvt8q",
                 "widgetType": "SECTION_WIDGET"
               }
             ],
-            "layoutId": "tx84zsz97b",
+            "layoutId": "puaq8fuk82",
             "layoutType": "WIDGET_ROW",
             "maxChildLimit": 1
           },
@@ -72,11 +72,11 @@
             "layout": [
               {
                 "alignment": "start",
-                "widgetId": "autojzw60p",
+                "widgetId": "iem3hko8nv",
                 "widgetType": "SECTION_WIDGET"
               }
             ],
-            "layoutId": "zqlwwgv5wo",
+            "layoutId": "zdohqnjycx",
             "layoutType": "WIDGET_ROW",
             "maxChildLimit": 1
           }
@@ -160,29 +160,44 @@
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
-                "dynamicTriggerPathList": [],
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "diuo2u3sdw",
+                "widgetId": "guirmbwfzk",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -191,10 +206,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": false,
+                "label": "Size",
                 "version": 1,
-                "parentId": "leexrfs5n3",
+                "parentId": "0loxlhnhb7",
                 "tags": [
                   "Toggles"
                 ],
@@ -204,34 +218,51 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               },
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1CopyCopy",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup2",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "dynamicTriggerPathList": [],
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "end",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "horizontal",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "t3kje3ysey",
+                "widgetId": "fwecbzj257",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -240,10 +271,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": false,
+                "label": "Size",
                 "version": 1,
-                "parentId": "leexrfs5n3",
+                "parentId": "0loxlhnhb7",
                 "tags": [
                   "Toggles"
                 ],
@@ -253,34 +283,51 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               },
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1CopyCopyCopy",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup3",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "dynamicTriggerPathList": [],
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "end",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "npu5el497b",
+                "widgetId": "hkzwucrof2",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -289,10 +336,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book",
-                "defaultSwitchState": false,
+                "label": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
                 "version": 1,
-                "parentId": "leexrfs5n3",
+                "parentId": "0loxlhnhb7",
                 "tags": [
                   "Toggles"
                 ],
@@ -302,34 +348,248 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               },
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy1",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup4",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "dynamicTriggerPathList": [],
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": true,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "8eo6finlav",
+                "widgetId": "kq1lpmjwk4",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup4Copy",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelTooltip": "Tooltip",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": true,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "az79jne2kz",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup4CopyCopy",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelTooltip": "Tooltip",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium with but long label that can't fit at all and it will need a very big space to fill it and we can't afford that right now. But surely in future",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "g48m8iewfh",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup5",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "8jq2lqtnf7",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -338,10 +598,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": false,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "leexrfs5n3",
+                "parentId": "0loxlhnhb7",
                 "tags": [
                   "Toggles"
                 ],
@@ -351,34 +610,51 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               },
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy1Copy",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup6",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "dynamicTriggerPathList": [],
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": true,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "rrka0cwkjp",
+                "widgetId": "wvj31gdsix",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -387,10 +663,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "leexrfs5n3",
+                "parentId": "0loxlhnhb7",
                 "tags": [
                   "Toggles"
                 ],
@@ -400,34 +675,51 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               },
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy1Copy1",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup6Copy",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "dynamicTriggerPathList": [],
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": true,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "8b325g99w8",
+                "widgetId": "ghejw9p91s",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -436,10 +728,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": false,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "leexrfs5n3",
+                "parentId": "0loxlhnhb7",
                 "tags": [
                   "Toggles"
                 ],
@@ -449,34 +740,50 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               },
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy2Copy",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1Copy",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
-                "dynamicTriggerPathList": [],
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "r3zw697c1q",
+                "widgetId": "2u7l4yy3me",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -485,10 +792,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "leexrfs5n3",
+                "parentId": "0loxlhnhb7",
                 "tags": [
                   "Toggles"
                 ],
@@ -498,34 +804,50 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               },
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy2",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1CopyCopy",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
-                "dynamicTriggerPathList": [],
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "end",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "x8ifqrcrkr",
+                "widgetId": "qxr21udarr",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -534,10 +856,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "leexrfs5n3",
+                "parentId": "0loxlhnhb7",
                 "tags": [
                   "Toggles"
                 ],
@@ -547,33 +868,50 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               },
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy5",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1CopyCopy1",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "mvrifip5m8",
+                "widgetId": "p9ph4mba84",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -582,10 +920,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "leexrfs5n3",
+                "parentId": "0loxlhnhb7",
                 "tags": [
                   "Toggles"
                 ],
@@ -595,33 +932,50 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               },
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy7",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1CopyCopy2",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "t2ysaz01fo",
+                "widgetId": "372ampmu4f",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -630,10 +984,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "leexrfs5n3",
+                "parentId": "0loxlhnhb7",
                 "tags": [
                   "Toggles"
                 ],
@@ -643,400 +996,17 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
-                "minDynamicHeight": 4
-              },
-              {
-                "needsErrorInfo": false,
-                "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy8",
-                "displayName": "Switch",
-                "searchTags": [
-                  "boolean"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
-                "hideCard": false,
-                "mobileRightColumn": 64,
-                "animateLoading": true,
-                "parentColumnSpace": 1,
-                "leftColumn": 0,
-                "dynamicBindingPathList": [],
-                "labelPosition": "start",
-                "isDisabled": false,
-                "key": "p91243oe65",
-                "isDeprecated": false,
-                "rightColumn": 64,
-                "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "9mv6wcg6yx",
-                "onCanvasUI": {
-                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
-                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
-                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
-                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
-                  "disableParentSelection": false
-                },
-                "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
-                "version": 1,
-                "parentId": "leexrfs5n3",
-                "tags": [
-                  "Toggles"
-                ],
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "mobileTopRow": 0,
-                "responsiveBehavior": "fill",
-                "mobileLeftColumn": 0,
-                "maxDynamicHeight": 9000,
-                "minDynamicHeight": 4
-              },
-              {
-                "needsErrorInfo": false,
-                "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy9",
-                "displayName": "Switch",
-                "searchTags": [
-                  "boolean"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
-                "hideCard": false,
-                "mobileRightColumn": 64,
-                "animateLoading": true,
-                "parentColumnSpace": 1,
-                "leftColumn": 0,
-                "dynamicBindingPathList": [],
-                "labelPosition": "start",
-                "isDisabled": false,
-                "key": "p91243oe65",
-                "isDeprecated": false,
-                "rightColumn": 64,
-                "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "dwh9klrqmd",
-                "onCanvasUI": {
-                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
-                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
-                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
-                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
-                  "disableParentSelection": false
-                },
-                "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
-                "version": 1,
-                "parentId": "leexrfs5n3",
-                "tags": [
-                  "Toggles"
-                ],
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "mobileTopRow": 0,
-                "responsiveBehavior": "fill",
-                "mobileLeftColumn": 0,
-                "maxDynamicHeight": 9000,
-                "minDynamicHeight": 4
-              },
-              {
-                "needsErrorInfo": false,
-                "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy10",
-                "displayName": "Switch",
-                "searchTags": [
-                  "boolean"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
-                "hideCard": false,
-                "mobileRightColumn": 64,
-                "animateLoading": true,
-                "parentColumnSpace": 1,
-                "leftColumn": 0,
-                "dynamicBindingPathList": [],
-                "labelPosition": "start",
-                "isDisabled": false,
-                "key": "p91243oe65",
-                "isDeprecated": false,
-                "rightColumn": 64,
-                "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "c951m95mmv",
-                "onCanvasUI": {
-                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
-                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
-                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
-                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
-                  "disableParentSelection": false
-                },
-                "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
-                "version": 1,
-                "parentId": "leexrfs5n3",
-                "tags": [
-                  "Toggles"
-                ],
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "mobileTopRow": 0,
-                "responsiveBehavior": "fill",
-                "mobileLeftColumn": 0,
-                "maxDynamicHeight": 9000,
-                "minDynamicHeight": 4
-              },
-              {
-                "needsErrorInfo": false,
-                "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy11",
-                "displayName": "Switch",
-                "searchTags": [
-                  "boolean"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
-                "hideCard": false,
-                "mobileRightColumn": 64,
-                "animateLoading": true,
-                "parentColumnSpace": 1,
-                "leftColumn": 0,
-                "dynamicBindingPathList": [],
-                "labelPosition": "start",
-                "isDisabled": false,
-                "key": "p91243oe65",
-                "isDeprecated": false,
-                "rightColumn": 64,
-                "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "0o5qjtqm6p",
-                "onCanvasUI": {
-                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
-                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
-                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
-                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
-                  "disableParentSelection": false
-                },
-                "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
-                "version": 1,
-                "parentId": "leexrfs5n3",
-                "tags": [
-                  "Toggles"
-                ],
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "mobileTopRow": 0,
-                "responsiveBehavior": "fill",
-                "mobileLeftColumn": 0,
-                "maxDynamicHeight": 9000,
-                "minDynamicHeight": 4
-              },
-              {
-                "needsErrorInfo": false,
-                "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy12",
-                "displayName": "Switch",
-                "searchTags": [
-                  "boolean"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
-                "hideCard": false,
-                "mobileRightColumn": 64,
-                "animateLoading": true,
-                "parentColumnSpace": 1,
-                "leftColumn": 0,
-                "dynamicBindingPathList": [],
-                "labelPosition": "start",
-                "isDisabled": false,
-                "key": "p91243oe65",
-                "isDeprecated": false,
-                "rightColumn": 64,
-                "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "us1k85awkg",
-                "onCanvasUI": {
-                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
-                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
-                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
-                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
-                  "disableParentSelection": false
-                },
-                "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
-                "version": 1,
-                "parentId": "leexrfs5n3",
-                "tags": [
-                  "Toggles"
-                ],
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "mobileTopRow": 0,
-                "responsiveBehavior": "fill",
-                "mobileLeftColumn": 0,
-                "maxDynamicHeight": 9000,
-                "minDynamicHeight": 4
-              },
-              {
-                "needsErrorInfo": false,
-                "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy7Copy",
-                "displayName": "Switch",
-                "searchTags": [
-                  "boolean"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
-                "hideCard": false,
-                "mobileRightColumn": 64,
-                "animateLoading": true,
-                "parentColumnSpace": 1,
-                "leftColumn": 0,
-                "dynamicBindingPathList": [],
-                "labelPosition": "start",
-                "isDisabled": false,
-                "key": "p91243oe65",
-                "isDeprecated": false,
-                "rightColumn": 64,
-                "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "uh3rvqeufj",
-                "onCanvasUI": {
-                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
-                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
-                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
-                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
-                  "disableParentSelection": false
-                },
-                "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
-                "version": 1,
-                "parentId": "leexrfs5n3",
-                "tags": [
-                  "Toggles"
-                ],
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "mobileTopRow": 0,
-                "responsiveBehavior": "fill",
-                "mobileLeftColumn": 0,
-                "maxDynamicHeight": 9000,
-                "minDynamicHeight": 4
-              },
-              {
-                "needsErrorInfo": false,
-                "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy7Copy1",
-                "displayName": "Switch",
-                "searchTags": [
-                  "boolean"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
-                "hideCard": false,
-                "mobileRightColumn": 64,
-                "animateLoading": true,
-                "parentColumnSpace": 1,
-                "leftColumn": 0,
-                "dynamicBindingPathList": [],
-                "labelPosition": "start",
-                "isDisabled": false,
-                "key": "p91243oe65",
-                "isDeprecated": false,
-                "rightColumn": 64,
-                "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "xhntjtex7i",
-                "onCanvasUI": {
-                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
-                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
-                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
-                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
-                  "disableParentSelection": false
-                },
-                "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
-                "version": 1,
-                "parentId": "leexrfs5n3",
-                "tags": [
-                  "Toggles"
-                ],
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "mobileTopRow": 0,
-                "responsiveBehavior": "fill",
-                "mobileLeftColumn": 0,
-                "maxDynamicHeight": 9000,
-                "minDynamicHeight": 4
-              },
-              {
-                "needsErrorInfo": false,
-                "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy14",
-                "displayName": "Switch",
-                "searchTags": [
-                  "boolean"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
-                "hideCard": false,
-                "mobileRightColumn": 64,
-                "animateLoading": true,
-                "parentColumnSpace": 1,
-                "leftColumn": 0,
-                "dynamicBindingPathList": [],
-                "labelPosition": "start",
-                "isDisabled": false,
-                "key": "p91243oe65",
-                "isDeprecated": false,
-                "rightColumn": 64,
-                "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "ofvmji95kl",
-                "onCanvasUI": {
-                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
-                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
-                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
-                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
-                  "disableParentSelection": false
-                },
-                "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
-                "version": 1,
-                "parentId": "leexrfs5n3",
-                "tags": [
-                  "Toggles"
-                ],
-                "renderMode": "CANVAS",
-                "isLoading": false,
-                "mobileTopRow": 0,
-                "responsiveBehavior": "fill",
-                "mobileLeftColumn": 0,
-                "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               }
             ],
             "elevatedBackground": true,
             "flexVerticalAlignment": "stretch",
-            "key": "2mmq8pdcwu",
+            "key": "q4mmtpnhi7",
             "isDeprecated": false,
             "rightColumn": 64,
             "detachFromLayout": false,
-            "widgetId": "leexrfs5n3",
+            "widgetId": "0loxlhnhb7",
             "onCanvasUI": {
               "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
               "focusBGCSSVar": "--on-canvas-ui-zone-focus",
@@ -1046,7 +1016,7 @@
             },
             "isVisible": true,
             "version": 1,
-            "parentId": "rknrktein9",
+            "parentId": "6cjx3vrmlr",
             "tags": [
               "Layout"
             ],
@@ -1061,13 +1031,18 @@
                 "layout": [
                   {
                     "insertChild": true,
-                    "layoutId": "aiqbw5bzk3",
+                    "layoutId": "kb23breox6",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "ofvmji95kl",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "guirmbwfzk",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "fwecbzj257",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -1077,23 +1052,13 @@
                   },
                   {
                     "insertChild": true,
-                    "layoutId": "fx2x0db75k",
+                    "layoutId": "mqgb5mwhqj",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "diuo2u3sdw",
-                        "widgetType": "WDS_SWITCH_WIDGET"
-                      },
-                      {
-                        "alignment": "start",
-                        "widgetId": "t3kje3ysey",
-                        "widgetType": "WDS_SWITCH_WIDGET"
-                      },
-                      {
-                        "alignment": "start",
-                        "widgetId": "npu5el497b",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "hkzwucrof2",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -1103,23 +1068,23 @@
                   },
                   {
                     "insertChild": true,
-                    "layoutId": "okut71x42t",
+                    "layoutId": "43ljpytgz3",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "8eo6finlav",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "kq1lpmjwk4",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       },
                       {
                         "alignment": "start",
-                        "widgetId": "rrka0cwkjp",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "az79jne2kz",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       },
                       {
                         "alignment": "start",
-                        "widgetId": "8b325g99w8",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "g48m8iewfh",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -1129,18 +1094,23 @@
                   },
                   {
                     "insertChild": true,
-                    "layoutId": "od6ei2tpec",
+                    "layoutId": "svh6o1nmp9",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "r3zw697c1q",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "8jq2lqtnf7",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       },
                       {
                         "alignment": "start",
-                        "widgetId": "x8ifqrcrkr",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "wvj31gdsix",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "ghejw9p91s",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -1150,75 +1120,28 @@
                   },
                   {
                     "insertChild": true,
-                    "layoutId": "uw1gkvw0su",
+                    "layoutId": "52ggtbuue1",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "uh3rvqeufj",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "2u7l4yy3me",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       },
                       {
                         "alignment": "start",
-                        "widgetId": "xhntjtex7i",
-                        "widgetType": "WDS_SWITCH_WIDGET"
-                      }
-                    ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
-                  },
-                  {
-                    "insertChild": true,
-                    "layoutId": "jhlp2neavz",
-                    "layoutType": "ALIGNED_WIDGET_ROW",
-                    "layout": [
-                      {
-                        "alignment": "start",
-                        "widgetId": "mvrifip5m8",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "qxr21udarr",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       },
                       {
                         "alignment": "start",
-                        "widgetId": "t2ysaz01fo",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "p9ph4mba84",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       },
                       {
                         "alignment": "start",
-                        "widgetId": "9mv6wcg6yx",
-                        "widgetType": "WDS_SWITCH_WIDGET"
-                      }
-                    ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
-                  },
-                  {
-                    "insertChild": true,
-                    "layoutId": "nqmeofdub3",
-                    "layoutType": "ALIGNED_WIDGET_ROW",
-                    "layout": [
-                      {
-                        "alignment": "start",
-                        "widgetId": "dwh9klrqmd",
-                        "widgetType": "WDS_SWITCH_WIDGET"
-                      },
-                      {
-                        "alignment": "start",
-                        "widgetId": "c951m95mmv",
-                        "widgetType": "WDS_SWITCH_WIDGET"
-                      },
-                      {
-                        "alignment": "start",
-                        "widgetId": "0o5qjtqm6p",
-                        "widgetType": "WDS_SWITCH_WIDGET"
-                      },
-                      {
-                        "alignment": "start",
-                        "widgetId": "us1k85awkg",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "372ampmu4f",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -1227,7 +1150,7 @@
                     "maxChildLimit": 0
                   }
                 ],
-                "layoutId": "a666k9z40f",
+                "layoutId": "vvhrapeyzw",
                 "layoutStyle": {
                   "border": "none",
                   "height": "100%"
@@ -1241,11 +1164,11 @@
           }
         ],
         "elevatedBackground": false,
-        "key": "rtjfnota6o",
+        "key": "76kdpy4p17",
         "isDeprecated": false,
         "rightColumn": 64,
         "detachFromLayout": false,
-        "widgetId": "rknrktein9",
+        "widgetId": "6cjx3vrmlr",
         "onCanvasUI": {
           "selectionBGCSSVar": "--on-canvas-ui-section-selection",
           "focusBGCSSVar": "--on-canvas-ui-section-focus",
@@ -1271,11 +1194,11 @@
             "layout": [
               {
                 "alignment": "start",
-                "widgetId": "leexrfs5n3",
+                "widgetId": "0loxlhnhb7",
                 "widgetType": "ZONE_WIDGET"
               }
             ],
-            "layoutId": "euowlxqn6d",
+            "layoutId": "o893r5a4zi",
             "layoutStyle": {
               "border": "none"
             },
@@ -1286,7 +1209,7 @@
         "responsiveBehavior": "fill",
         "mobileLeftColumn": 0,
         "spaceDistributed": {
-          "leexrfs5n3": 12
+          "0loxlhnhb7": 12
         }
       },
       {
@@ -1344,28 +1267,44 @@
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy13",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1CopyCopy3",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "nd1hd766lh",
+                "widgetId": "ajmr3kyp22",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -1374,10 +1313,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "n19s98bol6",
+                "parentId": "kgte2wtlux",
                 "tags": [
                   "Toggles"
                 ],
@@ -1387,16 +1325,17 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               }
             ],
             "elevatedBackground": true,
             "flexVerticalAlignment": "stretch",
-            "key": "2mmq8pdcwu",
+            "key": "q4mmtpnhi7",
             "isDeprecated": false,
             "rightColumn": 64,
             "detachFromLayout": false,
-            "widgetId": "n19s98bol6",
+            "widgetId": "kgte2wtlux",
             "onCanvasUI": {
               "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
               "focusBGCSSVar": "--on-canvas-ui-zone-focus",
@@ -1406,7 +1345,7 @@
             },
             "isVisible": true,
             "version": 1,
-            "parentId": "09nss42ws7",
+            "parentId": "djv3t3rf0r",
             "tags": [
               "Layout"
             ],
@@ -1421,13 +1360,13 @@
                 "layout": [
                   {
                     "insertChild": true,
-                    "layoutId": "wfzzq9ugr0",
+                    "layoutId": "pfmoono2fn",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "nd1hd766lh",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "ajmr3kyp22",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -1436,7 +1375,7 @@
                     "maxChildLimit": 0
                   }
                 ],
-                "layoutId": "i3qnybff0r",
+                "layoutId": "vjhg0me4h8",
                 "layoutStyle": {
                   "border": "none",
                   "height": "100%"
@@ -1481,28 +1420,44 @@
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy13Copy",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1CopyCopy3Copy",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "3wpbc1xq7k",
+                "widgetId": "7w0c4qxi0p",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -1511,10 +1466,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "q508nkw2jx",
+                "parentId": "xiwwz6d8iq",
                 "tags": [
                   "Toggles"
                 ],
@@ -1524,16 +1478,17 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               }
             ],
             "elevatedBackground": true,
             "flexVerticalAlignment": "stretch",
-            "key": "2mmq8pdcwu",
+            "key": "q4mmtpnhi7",
             "isDeprecated": false,
             "rightColumn": 64,
             "detachFromLayout": false,
-            "widgetId": "q508nkw2jx",
+            "widgetId": "xiwwz6d8iq",
             "onCanvasUI": {
               "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
               "focusBGCSSVar": "--on-canvas-ui-zone-focus",
@@ -1543,7 +1498,7 @@
             },
             "isVisible": true,
             "version": 1,
-            "parentId": "09nss42ws7",
+            "parentId": "djv3t3rf0r",
             "tags": [
               "Layout"
             ],
@@ -1558,13 +1513,13 @@
                 "layout": [
                   {
                     "insertChild": true,
-                    "layoutId": "rf9qtp222j",
+                    "layoutId": "uhfha5z2xj",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "3wpbc1xq7k",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "7w0c4qxi0p",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -1573,7 +1528,7 @@
                     "maxChildLimit": 0
                   }
                 ],
-                "layoutId": "b2wolgakkn",
+                "layoutId": "pon2yhus38",
                 "layoutStyle": {
                   "border": "none",
                   "height": "100%"
@@ -1587,11 +1542,11 @@
           }
         ],
         "elevatedBackground": false,
-        "key": "rtjfnota6o",
+        "key": "76kdpy4p17",
         "isDeprecated": false,
         "rightColumn": 64,
         "detachFromLayout": false,
-        "widgetId": "09nss42ws7",
+        "widgetId": "djv3t3rf0r",
         "onCanvasUI": {
           "selectionBGCSSVar": "--on-canvas-ui-section-selection",
           "focusBGCSSVar": "--on-canvas-ui-section-focus",
@@ -1617,16 +1572,16 @@
             "layout": [
               {
                 "alignment": "start",
-                "widgetId": "n19s98bol6",
+                "widgetId": "kgte2wtlux",
                 "widgetType": "ZONE_WIDGET"
               },
               {
                 "alignment": "start",
-                "widgetId": "q508nkw2jx",
+                "widgetId": "xiwwz6d8iq",
                 "widgetType": "ZONE_WIDGET"
               }
             ],
-            "layoutId": "xv9virdoan",
+            "layoutId": "3cm51cep2g",
             "layoutStyle": {
               "border": "none"
             },
@@ -1637,8 +1592,8 @@
         "responsiveBehavior": "fill",
         "mobileLeftColumn": 0,
         "spaceDistributed": {
-          "n19s98bol6": 6,
-          "q508nkw2jx": 6
+          "kgte2wtlux": 6,
+          "xiwwz6d8iq": 6
         }
       },
       {
@@ -1696,28 +1651,44 @@
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy13Copy1",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1CopyCopy3Copy1",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "wxzm34bcrj",
+                "widgetId": "w090rtsgbp",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -1726,10 +1697,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "4v92cbyz34",
+                "parentId": "skzypqyco7",
                 "tags": [
                   "Toggles"
                 ],
@@ -1739,16 +1709,17 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               }
             ],
             "elevatedBackground": true,
             "flexVerticalAlignment": "stretch",
-            "key": "2mmq8pdcwu",
+            "key": "q4mmtpnhi7",
             "isDeprecated": false,
             "rightColumn": 64,
             "detachFromLayout": false,
-            "widgetId": "4v92cbyz34",
+            "widgetId": "skzypqyco7",
             "onCanvasUI": {
               "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
               "focusBGCSSVar": "--on-canvas-ui-zone-focus",
@@ -1758,7 +1729,7 @@
             },
             "isVisible": true,
             "version": 1,
-            "parentId": "tjijzml7u1",
+            "parentId": "zc3lsxvt8q",
             "tags": [
               "Layout"
             ],
@@ -1773,13 +1744,13 @@
                 "layout": [
                   {
                     "insertChild": true,
-                    "layoutId": "7wkq2pqa6i",
+                    "layoutId": "wdkmh6y0gi",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "wxzm34bcrj",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "w090rtsgbp",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -1788,7 +1759,7 @@
                     "maxChildLimit": 0
                   }
                 ],
-                "layoutId": "qwk4qm41sl",
+                "layoutId": "fa81s3dord",
                 "layoutStyle": {
                   "border": "none",
                   "height": "100%"
@@ -1833,28 +1804,44 @@
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy13Copy2",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1CopyCopy3Copy2",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "acbzwob2vi",
+                "widgetId": "6rqomxmdac",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -1863,10 +1850,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "ov1k2l62f5",
+                "parentId": "e3a7k46jus",
                 "tags": [
                   "Toggles"
                 ],
@@ -1876,16 +1862,17 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               }
             ],
             "elevatedBackground": true,
             "flexVerticalAlignment": "stretch",
-            "key": "2mmq8pdcwu",
+            "key": "q4mmtpnhi7",
             "isDeprecated": false,
             "rightColumn": 64,
             "detachFromLayout": false,
-            "widgetId": "ov1k2l62f5",
+            "widgetId": "e3a7k46jus",
             "onCanvasUI": {
               "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
               "focusBGCSSVar": "--on-canvas-ui-zone-focus",
@@ -1895,7 +1882,7 @@
             },
             "isVisible": true,
             "version": 1,
-            "parentId": "tjijzml7u1",
+            "parentId": "zc3lsxvt8q",
             "tags": [
               "Layout"
             ],
@@ -1910,13 +1897,13 @@
                 "layout": [
                   {
                     "insertChild": true,
-                    "layoutId": "6tee5g9cqa",
+                    "layoutId": "eqyf7ls18b",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "acbzwob2vi",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "6rqomxmdac",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -1925,7 +1912,7 @@
                     "maxChildLimit": 0
                   }
                 ],
-                "layoutId": "wwly1ey51h",
+                "layoutId": "8fngfu6m6m",
                 "layoutStyle": {
                   "border": "none",
                   "height": "100%"
@@ -1970,28 +1957,44 @@
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy13Copy3",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1CopyCopy3Copy3",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "xhy4d9jo9t",
+                "widgetId": "1q3wbaeivx",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -2000,10 +2003,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "7yo15l9bj0",
+                "parentId": "xdgxxt2ghi",
                 "tags": [
                   "Toggles"
                 ],
@@ -2013,16 +2015,17 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               }
             ],
             "elevatedBackground": true,
             "flexVerticalAlignment": "stretch",
-            "key": "2mmq8pdcwu",
+            "key": "q4mmtpnhi7",
             "isDeprecated": false,
             "rightColumn": 64,
             "detachFromLayout": false,
-            "widgetId": "7yo15l9bj0",
+            "widgetId": "xdgxxt2ghi",
             "onCanvasUI": {
               "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
               "focusBGCSSVar": "--on-canvas-ui-zone-focus",
@@ -2032,7 +2035,7 @@
             },
             "isVisible": true,
             "version": 1,
-            "parentId": "tjijzml7u1",
+            "parentId": "zc3lsxvt8q",
             "tags": [
               "Layout"
             ],
@@ -2047,13 +2050,13 @@
                 "layout": [
                   {
                     "insertChild": true,
-                    "layoutId": "n07kw7oopx",
+                    "layoutId": "qxqiycwjn8",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "xhy4d9jo9t",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "1q3wbaeivx",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -2062,7 +2065,7 @@
                     "maxChildLimit": 0
                   }
                 ],
-                "layoutId": "eynrcik1xh",
+                "layoutId": "7g5m03t1py",
                 "layoutStyle": {
                   "border": "none",
                   "height": "100%"
@@ -2076,11 +2079,11 @@
           }
         ],
         "elevatedBackground": false,
-        "key": "rtjfnota6o",
+        "key": "76kdpy4p17",
         "isDeprecated": false,
         "rightColumn": 64,
         "detachFromLayout": false,
-        "widgetId": "tjijzml7u1",
+        "widgetId": "zc3lsxvt8q",
         "onCanvasUI": {
           "selectionBGCSSVar": "--on-canvas-ui-section-selection",
           "focusBGCSSVar": "--on-canvas-ui-section-focus",
@@ -2106,21 +2109,21 @@
             "layout": [
               {
                 "alignment": "start",
-                "widgetId": "4v92cbyz34",
+                "widgetId": "skzypqyco7",
                 "widgetType": "ZONE_WIDGET"
               },
               {
                 "alignment": "start",
-                "widgetId": "ov1k2l62f5",
+                "widgetId": "e3a7k46jus",
                 "widgetType": "ZONE_WIDGET"
               },
               {
                 "alignment": "start",
-                "widgetId": "7yo15l9bj0",
+                "widgetId": "xdgxxt2ghi",
                 "widgetType": "ZONE_WIDGET"
               }
             ],
-            "layoutId": "83o4qwc44v",
+            "layoutId": "3sctg2izng",
             "layoutStyle": {
               "border": "none"
             },
@@ -2131,9 +2134,9 @@
         "responsiveBehavior": "fill",
         "mobileLeftColumn": 0,
         "spaceDistributed": {
-          "4v92cbyz34": 4,
-          "ov1k2l62f5": 4,
-          "7yo15l9bj0": 4
+          "skzypqyco7": 4,
+          "e3a7k46jus": 4,
+          "xdgxxt2ghi": 4
         }
       },
       {
@@ -2191,28 +2194,44 @@
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy13Copy4",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1CopyCopy3Copy4",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "hdeg2mhqw3",
+                "widgetId": "n7yb63dz70",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -2221,10 +2240,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "q2r1qsx1up",
+                "parentId": "4yip4cahbe",
                 "tags": [
                   "Toggles"
                 ],
@@ -2234,16 +2252,17 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               }
             ],
             "elevatedBackground": true,
             "flexVerticalAlignment": "stretch",
-            "key": "2mmq8pdcwu",
+            "key": "q4mmtpnhi7",
             "isDeprecated": false,
             "rightColumn": 64,
             "detachFromLayout": false,
-            "widgetId": "q2r1qsx1up",
+            "widgetId": "4yip4cahbe",
             "onCanvasUI": {
               "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
               "focusBGCSSVar": "--on-canvas-ui-zone-focus",
@@ -2253,7 +2272,7 @@
             },
             "isVisible": true,
             "version": 1,
-            "parentId": "autojzw60p",
+            "parentId": "iem3hko8nv",
             "tags": [
               "Layout"
             ],
@@ -2268,13 +2287,13 @@
                 "layout": [
                   {
                     "insertChild": true,
-                    "layoutId": "3us9rw84gq",
+                    "layoutId": "7bbt041sow",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "hdeg2mhqw3",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "n7yb63dz70",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -2283,7 +2302,7 @@
                     "maxChildLimit": 0
                   }
                 ],
-                "layoutId": "76phew220b",
+                "layoutId": "o2h2b1yeol",
                 "layoutStyle": {
                   "border": "none",
                   "height": "100%"
@@ -2328,28 +2347,44 @@
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy13Copy5",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1CopyCopy3Copy5",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "gfiw64jvqb",
+                "widgetId": "gbvjxkfa5v",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -2358,10 +2393,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "109g5fcqtb",
+                "parentId": "k828j0b4dy",
                 "tags": [
                   "Toggles"
                 ],
@@ -2371,16 +2405,17 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               }
             ],
             "elevatedBackground": true,
             "flexVerticalAlignment": "stretch",
-            "key": "2mmq8pdcwu",
+            "key": "q4mmtpnhi7",
             "isDeprecated": false,
             "rightColumn": 64,
             "detachFromLayout": false,
-            "widgetId": "109g5fcqtb",
+            "widgetId": "k828j0b4dy",
             "onCanvasUI": {
               "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
               "focusBGCSSVar": "--on-canvas-ui-zone-focus",
@@ -2390,7 +2425,7 @@
             },
             "isVisible": true,
             "version": 1,
-            "parentId": "autojzw60p",
+            "parentId": "iem3hko8nv",
             "tags": [
               "Layout"
             ],
@@ -2405,13 +2440,13 @@
                 "layout": [
                   {
                     "insertChild": true,
-                    "layoutId": "oyixl6gjoj",
+                    "layoutId": "j4qnam6h7v",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "gfiw64jvqb",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "gbvjxkfa5v",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -2420,7 +2455,7 @@
                     "maxChildLimit": 0
                   }
                 ],
-                "layoutId": "0bgnh3q2iv",
+                "layoutId": "aqk7130pdu",
                 "layoutStyle": {
                   "border": "none",
                   "height": "100%"
@@ -2465,28 +2500,44 @@
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy13Copy6",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1CopyCopy3Copy6",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "bnakylghoo",
+                "widgetId": "ex9xmhyc5o",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -2495,10 +2546,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "ja7skxbz57",
+                "parentId": "34hmalhmxy",
                 "tags": [
                   "Toggles"
                 ],
@@ -2508,16 +2558,17 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               }
             ],
             "elevatedBackground": true,
             "flexVerticalAlignment": "stretch",
-            "key": "2mmq8pdcwu",
+            "key": "q4mmtpnhi7",
             "isDeprecated": false,
             "rightColumn": 64,
             "detachFromLayout": false,
-            "widgetId": "ja7skxbz57",
+            "widgetId": "34hmalhmxy",
             "onCanvasUI": {
               "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
               "focusBGCSSVar": "--on-canvas-ui-zone-focus",
@@ -2527,7 +2578,7 @@
             },
             "isVisible": true,
             "version": 1,
-            "parentId": "autojzw60p",
+            "parentId": "iem3hko8nv",
             "tags": [
               "Layout"
             ],
@@ -2542,13 +2593,13 @@
                 "layout": [
                   {
                     "insertChild": true,
-                    "layoutId": "v4dp4gwubj",
+                    "layoutId": "oosk4svfn4",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "bnakylghoo",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "ex9xmhyc5o",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -2557,7 +2608,7 @@
                     "maxChildLimit": 0
                   }
                 ],
-                "layoutId": "0k46l9pn8b",
+                "layoutId": "vi1a7j3e2f",
                 "layoutStyle": {
                   "border": "none",
                   "height": "100%"
@@ -2602,28 +2653,44 @@
               {
                 "needsErrorInfo": false,
                 "mobileBottomRow": 10,
-                "widgetName": "Switch1Copy13Copy7",
-                "displayName": "Switch",
+                "widgetName": "RadioGroup1CopyCopy3Copy7",
+                "displayName": "Radio Group",
                 "searchTags": [
-                  "boolean"
+                  "choice"
                 ],
                 "topRow": 0,
                 "bottomRow": 10,
                 "parentRowSpace": 10,
-                "type": "WDS_SWITCH_WIDGET",
+                "type": "WDS_RADIO_GROUP_WIDGET",
                 "hideCard": false,
                 "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
                 "animateLoading": true,
                 "parentColumnSpace": 1,
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
-                "labelPosition": "start",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
                 "isDisabled": false,
-                "key": "p91243oe65",
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
                 "isDeprecated": false,
                 "rightColumn": 64,
                 "dynamicHeight": "AUTO_HEIGHT",
-                "widgetId": "kwe9ghj6mq",
+                "widgetId": "1l77kxp9gk",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
                   "focusBGCSSVar": "--on-canvas-ui-widget-focus",
@@ -2632,10 +2699,9 @@
                   "disableParentSelection": false
                 },
                 "isVisible": true,
-                "label": "Label",
-                "defaultSwitchState": true,
+                "label": "Size",
                 "version": 1,
-                "parentId": "pxczuzucmh",
+                "parentId": "botuulur73",
                 "tags": [
                   "Toggles"
                 ],
@@ -2645,16 +2711,17 @@
                 "responsiveBehavior": "fill",
                 "mobileLeftColumn": 0,
                 "maxDynamicHeight": 9000,
+                "isInline": true,
                 "minDynamicHeight": 4
               }
             ],
             "elevatedBackground": true,
             "flexVerticalAlignment": "stretch",
-            "key": "2mmq8pdcwu",
+            "key": "q4mmtpnhi7",
             "isDeprecated": false,
             "rightColumn": 64,
             "detachFromLayout": false,
-            "widgetId": "pxczuzucmh",
+            "widgetId": "botuulur73",
             "onCanvasUI": {
               "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
               "focusBGCSSVar": "--on-canvas-ui-zone-focus",
@@ -2664,7 +2731,7 @@
             },
             "isVisible": true,
             "version": 1,
-            "parentId": "autojzw60p",
+            "parentId": "iem3hko8nv",
             "tags": [
               "Layout"
             ],
@@ -2679,13 +2746,13 @@
                 "layout": [
                   {
                     "insertChild": true,
-                    "layoutId": "fwgm23hrm8",
+                    "layoutId": "cyum302bia",
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
                         "alignment": "start",
-                        "widgetId": "kwe9ghj6mq",
-                        "widgetType": "WDS_SWITCH_WIDGET"
+                        "widgetId": "1l77kxp9gk",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
                       }
                     ],
                     "allowedWidgetTypes": [
@@ -2694,7 +2761,7 @@
                     "maxChildLimit": 0
                   }
                 ],
-                "layoutId": "eumhrzwpj7",
+                "layoutId": "nihs6glabs",
                 "layoutStyle": {
                   "border": "none",
                   "height": "100%"
@@ -2708,11 +2775,11 @@
           }
         ],
         "elevatedBackground": false,
-        "key": "rtjfnota6o",
+        "key": "76kdpy4p17",
         "isDeprecated": false,
         "rightColumn": 64,
         "detachFromLayout": false,
-        "widgetId": "autojzw60p",
+        "widgetId": "iem3hko8nv",
         "onCanvasUI": {
           "selectionBGCSSVar": "--on-canvas-ui-section-selection",
           "focusBGCSSVar": "--on-canvas-ui-section-focus",
@@ -2738,26 +2805,26 @@
             "layout": [
               {
                 "alignment": "start",
-                "widgetId": "q2r1qsx1up",
+                "widgetId": "4yip4cahbe",
                 "widgetType": "ZONE_WIDGET"
               },
               {
                 "alignment": "start",
-                "widgetId": "109g5fcqtb",
+                "widgetId": "k828j0b4dy",
                 "widgetType": "ZONE_WIDGET"
               },
               {
                 "alignment": "start",
-                "widgetId": "ja7skxbz57",
+                "widgetId": "34hmalhmxy",
                 "widgetType": "ZONE_WIDGET"
               },
               {
                 "alignment": "start",
-                "widgetId": "pxczuzucmh",
+                "widgetId": "botuulur73",
                 "widgetType": "ZONE_WIDGET"
               }
             ],
-            "layoutId": "9ysol23e0n",
+            "layoutId": "p7eukv7487",
             "layoutStyle": {
               "border": "none"
             },
@@ -2768,16 +2835,12 @@
         "responsiveBehavior": "fill",
         "mobileLeftColumn": 0,
         "spaceDistributed": {
-          "q2r1qsx1up": 3,
-          "109g5fcqtb": 3,
-          "ja7skxbz57": 3,
-          "pxczuzucmh": 3
+          "4yip4cahbe": 3,
+          "k828j0b4dy": 3,
+          "34hmalhmxy": 3,
+          "botuulur73": 3
         }
       }
     ]
-  },
-  "layoutOnLoadActions": [],
-  "layoutOnLoadActionErrors": [],
-  "id": "667c051c9da472349cd2d640",
-  "userPermissions": []
+  }
 }

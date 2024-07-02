@@ -554,6 +554,7 @@
                 "mobileRightColumn": 64,
                 "animateLoading": true,
                 "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
                 "leftColumn": 0,
                 "dynamicBindingPathList": [],
                 "labelPosition": "end",
@@ -628,7 +629,7 @@
                     "value": "BLUE"
                   },
                   {
-                    "label": "Green",
+                    "label": "Green with but long label that can't fit at all and it will need a very big space to fill it and we can't afford that right now. But surely in future",
                     "value": "GREEN"
                   },
                   {
@@ -2750,9 +2751,5 @@
         }
       }
     ]
-  },
-  "layoutOnLoadActions": [],
-  "layoutOnLoadActionErrors": [],
-  "id": "667c078b9da472349cd2d65f",
-  "userPermissions": []
+  }
 }
