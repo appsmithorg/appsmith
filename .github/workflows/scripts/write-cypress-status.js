@@ -6,7 +6,9 @@ const PATTERN = new RegExp(HEADER + ".*?" + FOOTER, "ims");
 const VALID_ALERT_TYPES = ["note", "tip", "important", "warning", "caution"]
 
 const ALERT_PREFIXES = {
+  tip: "🟢 🟢 🟢 ",
   important: "🟣 🟣 🟣 ",
+  caution: "🔴 🔴 🔴 ",
 }
 
 module.exports = async function({core, context, github}, alertType, note) {

@@ -85,6 +85,7 @@ helm repo update
 helm plugin install https://github.com/helm/helm-mapkubeapis -n "$NAMESPACE"
 helm plugin ls
 helm mapkubeapis "$CHARTNAME" -n "$NAMESPACE"
+helm show chart appsmith-ee/$HELMCHART
 
 docker run --entrypoint sh \
   -e URL="$DP_POSTGRES_URL/postgres" \
