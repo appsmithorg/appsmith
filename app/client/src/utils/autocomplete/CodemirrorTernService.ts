@@ -414,8 +414,7 @@ class CodeMirrorTernService {
       // Need to remove previous def as def aren't overwritten
       this.removeDef(name);
       // addDefs doesn't work for [def] and instead works with single def
-      // @ts-expect-error: Types are not available
-      this.server.addDefs(def);
+      // this.server.addDefs(def);
     } else {
       this.server.deleteDefs(name);
     }
