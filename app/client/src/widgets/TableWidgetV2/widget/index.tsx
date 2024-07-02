@@ -264,6 +264,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             onSearchTextChanged: formConfig.searchableColumn
               ? queryConfig.select.run
               : undefined,
+            onHoverTable: queryConfig.select.run,
             onSort: queryConfig.select.run,
             enableClientSideSearch: !formConfig.searchableColumn,
             primaryColumnId: formConfig.primaryColumn,
@@ -1302,6 +1303,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
           widgetId={this.props.widgetId}
           widgetName={this.props.widgetName}
           width={componentWidth}
+          onHoverCell={this.handleHoverTable}
         />
       </Suspense>
     );
@@ -1526,6 +1528,22 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     });
 
     commitBatchMetaUpdates();
+  };
+
+  handleHoverTable = () => {
+    const { onHoverTable } = this.props;
+
+    this.props.updateWidgetMetaProperty(
+      "transientTableData",
+      this.props.transientTableData,
+      {
+        triggerPropertyName: "onHoverTable",
+        dynamicString: onHoverTable,
+        event: {
+          type: EventType.ON_HOVER,
+        },
+      },
+    );
   };
 
   /**
@@ -2525,6 +2543,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             value={props.cell.value}
             verticalAlignment={cellProperties.verticalAlignment}
             widgetId={this.props.widgetId}
+            onHoverCell={this.handleHoverTable}
           />
         );
     }

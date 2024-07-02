@@ -62,6 +62,7 @@ export type RenderDefaultPropsType = BaseCellComponentProps & {
   widgetId: string;
   disabledEditIconMessage: string;
   isNewRow: boolean;
+  onHoverCell?: () => void;
 };
 
 export interface RenderCurrencyPropsType {
@@ -141,6 +142,7 @@ function PlainTextCell(
     validationErrorMessage,
     verticalAlignment,
     widgetId,
+    onHoverCell,
   } = props;
 
   let value = props.value;
@@ -317,6 +319,7 @@ function PlainTextCell(
         url={columnType === ColumnTypes.URL ? props.value : null}
         value={formattedValue}
         verticalAlignment={verticalAlignment}
+        onHoverCell={onHoverCell}
       />
       {editor}
     </Container>

@@ -108,6 +108,8 @@ export interface TableWidgetProps
   firstEditableColumnIdByOrder: string;
   enableServerSideFiltering: boolean;
   onTableFilterUpdate: string;
+  hoverValue: string;
+  onHoverTable: string;
 }
 
 export enum TableVariantTypes {

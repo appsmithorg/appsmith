@@ -131,7 +131,7 @@ export default [
       },
       {
         helpText:
-          "Assigns a unique column which helps maintain selectedRows and triggeredRows based on value",
+          "Assigns a unique column which helps maintain selectedRows and triggeredRows based on this value",
         propertyName: "primaryColumnId",
         dependencies: ["primaryColumns"],
         label: "Primary key column",
@@ -284,6 +284,15 @@ export default [
         isTriggerProperty: true,
         hidden: (props: TableWidgetProps) => !props.isVisibleSearch,
         dependencies: ["isVisibleSearch"],
+      },
+      {
+        propertyName: "onHoverTable",
+        label: "onHoverTable",
+        helpText: "when hover on cell by user",
+        controlType: "ACTION_SELECTOR",
+        isJSConvertible: true,
+        isBindProperty: true,
+        isTriggerProperty: true,
       },
       {
         propertyName: "isVisibleFilters",
@@ -479,7 +488,7 @@ export default [
     sectionName: "General",
     children: [
       {
-        helpText: "Controls the visibility of the widget",
+        helpText: "Controls visibility of the widget ",
         propertyName: "isVisible",
         isJSConvertible: true,
         label: "Visible",
@@ -494,7 +503,7 @@ export default [
         propertyName: "animateLoading",
         label: "Animate loading",
         controlType: "SWITCH",
-        helpText: "Controls the loading of the widget",
+        helpText: "Controls the widget's loading state",
         defaultValue: true,
         isJSConvertible: true,
         isBindProperty: true,

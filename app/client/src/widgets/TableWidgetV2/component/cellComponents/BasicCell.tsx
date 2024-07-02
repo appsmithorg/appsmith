@@ -87,6 +87,7 @@ type PropType = BaseCellComponentProps & {
   onEdit?: () => void;
   url?: string;
   disabledEditIconMessage: string;
+  onHoverCell?: () => void;
 };
 
 export const BasicCell = React.forwardRef(
@@ -114,6 +115,7 @@ export const BasicCell = React.forwardRef(
       url,
       value,
       verticalAlignment,
+      onHoverCell
     }: PropType,
     contentRef: Ref<HTMLDivElement>,
   ) => {
@@ -155,7 +157,9 @@ export const BasicCell = React.forwardRef(
           url={url}
           verticalAlignment={verticalAlignment}
         >
-          <Content ref={contentRef}>{value}</Content>
+          <Content onMouseOver={onHoverCell} ref={contentRef}>
+            {value}
+          </Content>
         </StyledAutoToolTipComponent>
         {isCellEditable && (
           <StyledEditIcon
