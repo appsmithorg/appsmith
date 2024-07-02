@@ -1,35 +1,35 @@
-import React from "react";
-import { useSelector } from "react-redux";
-import NewActionButton from "pages/Editor/DataSourceEditor/NewActionButton";
-import { EditorNames } from "./";
-import type { Datasource } from "entities/Datasource";
-import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
-import { Button } from "design-system";
+import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
 import {
   GENERATE_NEW_PAGE_BUTTON_TEXT,
   createMessage,
 } from "@appsmith/constants/messages";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import type { AppState } from "@appsmith/reducers";
+import { getPlugin } from "@appsmith/selectors/entitiesSelector";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import history from "utils/history";
-import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
+import {
+  getHasCreatePagePermission,
+  hasCreateDSActionPermissionInApp,
+} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { Button } from "design-system";
+import type { Datasource } from "entities/Datasource";
+import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
+import NewActionButton from "pages/Editor/DataSourceEditor/NewActionButton";
+import { useShowPageGenerationOnHeader } from "pages/Editor/DataSourceEditor/hooks";
+import React from "react";
+import { useSelector } from "react-redux";
 import {
   getCurrentApplication,
   getCurrentApplicationId,
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { useShowPageGenerationOnHeader } from "pages/Editor/DataSourceEditor/hooks";
-import type { AppState } from "@appsmith/reducers";
-import {
-  getHasCreatePagePermission,
-  hasCreateDSActionPermissionInApp,
-} from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { isEnabledForPreviewData } from "utils/editorContextUtils";
-import { getPlugin } from "@appsmith/selectors/entitiesSelector";
 import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
+import history from "utils/history";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { EditorNames } from "./";
 
 export interface HeaderActionProps {
   datasource: Datasource | ApiDatasourceForm | undefined;
@@ -49,6 +49,9 @@ export const useHeaderActions = (
 ) => {
   const pageId = useSelector(getCurrentPageId);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const releaseDragDropBuildingBlocks = useFeatureFlag(
+    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
+  );
   const userAppPermissions = useSelector(
     (state: AppState) => getCurrentApplication(state)?.userPermissions ?? [],
   );
@@ -66,6 +69,10 @@ export const useHeaderActions = (
 
   const isPluginAllowedToPreviewData =
     !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
+
+  const shouldShowSecondaryGenerateButton = releaseDragDropBuildingBlocks
+    ? false
+    : !!isPluginAllowedToPreviewData;
 
   if (editorType === EditorNames.APPLICATION) {
     const canCreateDatasourceActions = hasCreateDSActionPermissionInApp({
@@ -101,7 +108,7 @@ export const useHeaderActions = (
         datasource={datasource as Datasource}
         disabled={!canCreateDatasourceActions || !isPluginAuthorized}
         eventFrom="datasource-pane"
-        isNewQuerySecondaryButton={!!isPluginAllowedToPreviewData}
+        isNewQuerySecondaryButton={shouldShowSecondaryGenerateButton}
         pluginType={pluginType}
       />
     );
