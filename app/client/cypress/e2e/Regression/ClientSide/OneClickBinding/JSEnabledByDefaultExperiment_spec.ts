@@ -81,6 +81,7 @@ describe(
       agHelper.AssertClassExists(locators._jsToggle("sourcedata"), "is-active");
 
       EditorNavigation.SelectEntityByName("Select2", EntityType.Widget);
+      propPane.ToggleJSMode("sourcedata", false);
       oneClickBinding.ChooseQuery(`Api1`);
       agHelper.AssertClassExists(locators._jsToggle("sourcedata"), "is-active");
     });
