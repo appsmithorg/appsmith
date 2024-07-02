@@ -1,9 +1,9 @@
-module.exports = function ({core, context}) {
+module.exports = function ({core, context, github}) {
   let tags;
   try {
     tags = parseTags(context.payload.pull_request.body);
   } catch (error) {
-    core.setFailure(error.message);
+    core.setFailed(error.message);
     core.setOutput("outcome", "failure");
     const body = [
       "Invalid tags. Please use `/ok-to-test tags=\"@tag.All\"` or `/test all` in the PR body to run all tests.",
