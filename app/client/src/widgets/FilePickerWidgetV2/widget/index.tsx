@@ -18,7 +18,7 @@ import { importUppy, isUppyLoaded } from "utils/importUppy";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 import FilePickerComponent from "../component";
-import FileDataTypes from "../constants";
+import FileDataTypes, { ERROR_MESSAGE } from "../constants";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
@@ -49,6 +49,7 @@ class FilePickerWidget extends BaseWidget<
       areFilesLoading: false,
       isWaitingForUppyToLoad: false,
       isUppyModalOpen: false,
+      errorMessage: null,
     };
   }
 
@@ -318,7 +319,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "isVisible",
             label: "Visible",
-            helpText: "Controls the visibility of the widget",
+            helpText: "Controls visibility of the widget ",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -328,7 +329,7 @@ class FilePickerWidget extends BaseWidget<
           {
             propertyName: "isDisabled",
             label: "Disable",
-            helpText: "Disables input to this widget",
+            helpText: "Disables input for this widget",
             controlType: "SWITCH",
             isJSConvertible: true,
             isBindProperty: true,
@@ -339,7 +340,7 @@ class FilePickerWidget extends BaseWidget<
             propertyName: "animateLoading",
             label: "Animate loading",
             controlType: "SWITCH",
-            helpText: "Controls the loading of the widget",
+            helpText: "Controls the widget's loading state",
             defaultValue: true,
             isJSConvertible: true,
             isBindProperty: true,
@@ -374,7 +375,7 @@ class FilePickerWidget extends BaseWidget<
         children: [
           {
             propertyName: "buttonColor",
-            helpText: "Changes the color of the button",
+            helpText: "Changes color of the button",
             label: "Button color",
             controlType: "COLOR_PICKER",
             isJSConvertible: true,
@@ -391,7 +392,7 @@ class FilePickerWidget extends BaseWidget<
             propertyName: "borderRadius",
             label: "Border radius",
             helpText:
-              "Rounds the corners of the icon button's outer border edge",
+              "Rounds the corners of the icon button's outer border",
             controlType: "BORDER_RADIUS_OPTIONS",
 
             isJSConvertible: true,
@@ -708,6 +709,11 @@ class FilePickerWidget extends BaseWidget<
       await this.reinitializeUppy(this.props);
     }
     this.clearFilesFromMemory(prevProps.selectedFiles);
+    const prevMaxNumFiles = prevProps.maxNumFiles ?? 0;
+    const currentMaxNumFiles = this.props.maxNumFiles ?? 0;
+    if (prevMaxNumFiles === 0 && currentMaxNumFiles > 0) {
+      this.setState({ errorMessage: null });
+    }
   }
 
   // Reclaim the memory used by blobs.
@@ -794,6 +800,11 @@ class FilePickerWidget extends BaseWidget<
           minHeight={this.props.minHeight}
           minWidth={this.props.minWidth}
           openModal={async () => {
+            if (this.props.maxNumFiles === 0) {
+              this.setState({ errorMessage: ERROR_MESSAGE });
+              return;
+            }
+            this.setState({ errorMessage: null });
             // If Uppy is still loading, show a spinner to indicate that handling the click
             // will take some time.
             //
@@ -813,6 +824,7 @@ class FilePickerWidget extends BaseWidget<
           }}
           shouldFitContent={this.isAutoLayoutMode}
           widgetId={this.props.widgetId}
+          errorMessage={this.state.errorMessage}
         />
 
         {this.state.isUppyModalOpen && (
@@ -827,6 +839,7 @@ interface FilePickerWidgetState extends WidgetState {
   areFilesLoading: boolean;
   isWaitingForUppyToLoad: boolean;
   isUppyModalOpen: boolean;
+  errorMessage: string | null;
 }
 
 interface FilePickerWidgetProps extends WidgetProps {
