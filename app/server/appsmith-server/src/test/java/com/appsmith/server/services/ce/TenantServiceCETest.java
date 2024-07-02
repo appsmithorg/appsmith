@@ -9,7 +9,6 @@ import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -88,9 +87,9 @@ class TenantServiceCETest {
         assert tenant != null;
         originalTenantConfiguration = tenant.getTenantConfiguration();
 
-        tenantRepository
-                .updateAndReturn(tenant.getId(), Bridge.update().set(Tenant.Fields.tenantConfiguration, null), null)
-                .block();
+        Tenant update = new Tenant();
+        update.setTenantConfiguration(null);
+        tenantRepository.updateById(tenant.getId(), update, null).block();
 
         // Make api_user super-user to test tenant admin functionality
         // Todo change this to tenant admin once we introduce multitenancy

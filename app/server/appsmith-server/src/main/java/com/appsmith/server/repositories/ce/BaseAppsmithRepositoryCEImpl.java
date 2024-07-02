@@ -20,7 +20,6 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.annotation.Transient;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -478,36 +477,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     protected Mono<Set<String>> getAnonymousUserPermissionGroups() {
         return cacheableRepositoryHelper.getPermissionGroupsOfAnonymousUser();
-    }
-
-    /**
-     * Updates a document in the database that matches the provided query and returns the modified document.
-     * This method performs a find-and-modify operation internally to atomically update a document in the database.
-     *
-     * @param id The unique identifier of the document to be updated.
-     * @param updateObj The update object specifying the modifications to be applied to the document.
-     * @param permission An optional permission parameter for access control.
-     * @return A Mono emitting the updated document after modification.
-     *
-     * @implNote
-     * The `findAndModify` method operates at the database level and does not automatically handle encryption or decryption of fields. If the document contains encrypted fields, it is the responsibility of the caller to handle encryption and decryption both before and after using this method.
-     *
-     * @see FindAndModifyOptions
-     */
-    public Mono<T> updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission) {
-        Query query = new Query(Criteria.where("id").is(id));
-
-        FindAndModifyOptions findAndModifyOptions =
-                FindAndModifyOptions.options().returnNew(Boolean.TRUE);
-
-        if (permission == null) {
-            return mongoOperations.findAndModify(query, updateObj, findAndModifyOptions, this.genericDomain);
-        }
-
-        return getCurrentUserPermissionGroupsIfRequired(permission, true).flatMap(permissionGroups -> {
-            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
-            return mongoOperations.findAndModify(query, updateObj, findAndModifyOptions, this.genericDomain);
-        });
     }
 
     public Mono<Void> bulkInsert(List<T> domainList) {
