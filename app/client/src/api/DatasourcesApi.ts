@@ -143,6 +143,9 @@ class DatasourcesApi extends API {
       toastMessage: undefined,
       datasourceConfiguration: datasourceConfig.datasourceConfiguration && {
         ...datasourceConfig.datasourceConfiguration,
+        authentication: DatasourcesApi.cleanAuthenticationObject(
+          datasourceConfig.datasourceConfiguration.authentication,
+        ),
         connection: datasourceConfig.datasourceConfiguration.connection && {
           ...datasourceConfig.datasourceConfiguration.connection,
           ssl: {
@@ -175,6 +178,9 @@ class DatasourcesApi extends API {
       toastMessage: undefined,
       datasourceConfiguration: datasourceStorage.datasourceConfiguration && {
         ...datasourceStorage.datasourceConfiguration,
+        authentication: DatasourcesApi.cleanAuthenticationObject(
+          datasourceStorage.datasourceConfiguration.authentication,
+        ),
         connection: datasourceStorage.datasourceConfiguration.connection && {
           ...datasourceStorage.datasourceConfiguration.connection,
           ssl: {

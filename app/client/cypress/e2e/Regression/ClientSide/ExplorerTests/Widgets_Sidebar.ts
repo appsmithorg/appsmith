@@ -70,8 +70,13 @@ describe(
     };
 
     if (Cypress.env("AIRGAPPED")) {
-      // Remove map widget in case of airgap
-      WIDGETS_CATALOG.Content = ["Progress", "Rating", "Text"];
+      // Remove map and custom widget in case of airgap
+      WIDGETS_CATALOG.Content = WIDGETS_CATALOG.Display.filter(
+        (widget) => widget !== "Map",
+      );
+      WIDGETS_CATALOG.Display = WIDGETS_CATALOG.Display.filter(
+        (widget) => widget !== "Custom",
+      );
     }
 
     const getTotalNumberOfWidgets = () => {
@@ -192,8 +197,12 @@ describe(
       agHelper.AssertElementLength(entityExplorer._widgetCards, 2);
 
       agHelper.ClearNType(entityExplorer._widgetSearchInput, "cypress");
-      agHelper.AssertElementLength(entityExplorer._widgetCards, 1);
-      agHelper.AssertElementExist(".t--widget-card-draggable-customwidget");
+      if (Cypress.env("AIRGAPPED")) {
+        agHelper.AssertElementLength(entityExplorer._widgetCards, 0);
+      } else {
+        agHelper.AssertElementLength(entityExplorer._widgetCards, 1);
+        agHelper.AssertElementExist(".t--widget-card-draggable-customwidget");
+      }
 
       agHelper.ClearTextField(entityExplorer._widgetSearchInput);
       // click to show all building blocks

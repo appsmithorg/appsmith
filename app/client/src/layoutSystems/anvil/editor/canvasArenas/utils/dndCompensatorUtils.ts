@@ -67,7 +67,7 @@ const getMainCanvasCompensators = (
   mainCanvasSpacing: number,
 ) => {
   const widgetCompensatorValues = {
-    left: 0,
+    left: -mainCanvasSpacing,
     top: 0,
   };
   const edgeCompensatorValues = {
@@ -149,7 +149,7 @@ const getZoneCompensators = (
   };
   const edgeCompensatorValues = isElevatedWidget
     ? {
-        left: zoneSpacing,
+        left: 0,
         top: zoneSpacing,
       }
     : {
