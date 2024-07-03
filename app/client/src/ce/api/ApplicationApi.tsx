@@ -1,20 +1,20 @@
+import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
+import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
 import Api from "api/Api";
 import type { ApiResponse } from "api/ApiResponses";
 import type { AxiosProgressEvent, AxiosPromise } from "axios";
-import type { AppColorCode } from "constants/DefaultTheme";
-import type { IconNames } from "design-system";
-import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import type { APP_MODE } from "entities/App";
-import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
-import type { Datasource } from "entities/Datasource";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
-import { getSnapShotAPIRoute } from "@appsmith/constants/ApiConstants";
+import type { AppColorCode } from "constants/DefaultTheme";
+import type { EvaluationVersion } from "constants/EvalConstants";
+import type { IconNames } from "design-system";
+import type { Action, BaseAction } from "entities/Action";
+import type { APP_MODE } from "entities/App";
+import type { Datasource } from "entities/Datasource";
 import type {
   LayoutSystemTypeConfig,
   LayoutSystemTypes,
 } from "layoutSystems/types";
-import type { BaseAction } from "entities/Action";
-import type { EvaluationVersion } from "constants/EvalConstants";
+import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
 
 export interface PublishApplicationRequest {
   applicationId: string;
@@ -276,6 +276,8 @@ interface ImportBuildingBlockOnPageActions extends BaseAction {
 export interface ImportBuildingBlockToApplicationResponse {
   widgetDsl: string;
   onPageLoadActions: ImportBuildingBlockOnPageActions[];
+  newActionList: Action[];
+  datasourceList: Datasource[];
 }
 
 export class ApplicationApi extends Api {
