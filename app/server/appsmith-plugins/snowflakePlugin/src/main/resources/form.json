@@ -124,10 +124,11 @@
           }
         },
         {
-          "label": "Private key passphrase",
+          "label": "Passphrase",
           "configProperty": "datasourceConfiguration.authentication.passphrase",
           "controlType": "INPUT_TEXT",
           "placeholderText": "private key passphrase",
+          "encrypted": true,
           "hidden": {
             "conditionType": "OR",
             "conditions": [
