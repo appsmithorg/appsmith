@@ -12,6 +12,10 @@ const gitSync = ObjectsRegistry.GitSync;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const dataManager = ObjectsRegistry.DataManager;
 const assertHelper = ObjectsRegistry.AssertHelper;
+import {
+  createMessage,
+  GIT_COMMIT_MESSAGE_PLACEHOLDER,
+} from "../../src/ce/constants/messages";
 
 const commonLocators = require("../locators/commonlocators.json");
 
@@ -72,13 +76,13 @@ Cypress.Commands.add("switchGitBranch", (branch, expectError) => {
 });
 
 Cypress.Commands.add("commitAndPush", (assertFailure) => {
-  cy.get(homePage.publishButton).click();
+  agHelper.GetNClick(homePage.publishButton).click();
   agHelper.AssertElementExist(gitSync._bottomBarPull);
   agHelper.AssertElementVisibility(gitSyncLocators.gitSyncModal);
   cy.get(gitSyncLocators.commitCommentInput).should(
     "have.attr",
     "placeholder",
-    "Your commit message here",
+    createMessage(GIT_COMMIT_MESSAGE_PLACEHOLDER),
   );
   cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit", {
     force: true,
