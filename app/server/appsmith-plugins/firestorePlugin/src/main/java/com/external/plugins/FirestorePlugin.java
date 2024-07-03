@@ -27,7 +27,6 @@ import com.google.api.core.ApiFuture;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.Timestamp;
 import com.google.cloud.firestore.*;
-import com.google.cloud.firestore.DocumentReference;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
 import com.google.firebase.cloud.FirestoreClient;
@@ -91,6 +90,12 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class FirestorePlugin extends BasePlugin {
 
     private static final String FIELDVALUE_TIMESTAMP_METHOD_NAME = "serverTimestamp";
+    private static final Pattern REFERENCE_PATTERN = Pattern.compile("^/?[^/]+/[^/]+(/[^/]+/[^/]+)*$");
+    private static final String LATITUDE = "latitude";
+    private static final String LONGITUDE = "longitude";
+    private static final String STRING_SEPERATOR = "/";
+    private static final String SECONDS = "second";
+    private static final String NANO_SECONDS = "nanoseconds";
 
     public FirestorePlugin(PluginWrapper wrapper) {
         super(wrapper);
@@ -829,24 +834,21 @@ public class FirestorePlugin extends BasePlugin {
         }
 
         private Object checkAndConvertDataType(Object value, CollectionReference collection) {
-            if (value instanceof Map) {
-                Map<?, ?> mapValue = (Map<?, ?>) value;
-                if (mapValue.containsKey("seconds") && mapValue.containsKey("nanoseconds")) {
-                    long seconds = ((Number) mapValue.get("seconds")).longValue();
-                    int nanos = ((Number) mapValue.get("nanoseconds")).intValue();
+            if (value instanceof Map<?, ?> mapValue) {
+                if (mapValue.containsKey(SECONDS) && mapValue.containsKey(NANO_SECONDS)) {
+                    long seconds = ((Number) mapValue.get(SECONDS)).longValue();
+                    int nanos = ((Number) mapValue.get(NANO_SECONDS)).intValue();
                     return Timestamp.ofTimeSecondsAndNanos(seconds, nanos);
-                } else if (mapValue.containsKey("latitude") && mapValue.containsKey("longitude")) {
-                    double latitude = ((Number) mapValue.get("latitude")).doubleValue();
-                    double longitude = ((Number) mapValue.get("longitude")).doubleValue();
+                } else if (mapValue.containsKey(LATITUDE) && mapValue.containsKey(LONGITUDE)) {
+                    double latitude = ((Number) mapValue.get(LATITUDE)).doubleValue();
+                    double longitude = ((Number) mapValue.get(LONGITUDE)).doubleValue();
                     return new GeoPoint(latitude, longitude);
                 }
-            } else if (value instanceof String) {
-                String stringValue = (String) value;
+            } else if (value instanceof String stringValue) {
                 // Validate the string as a Firestore document reference using regex
-                Pattern referencePattern = Pattern.compile("^/?[^/]+/[^/]+(/[^/]+/[^/]+)*$");
-                if (referencePattern.matcher(stringValue).matches()) {
+                if (REFERENCE_PATTERN.matcher(stringValue).matches()) {
                     // Remove leading slash if present
-                    if (stringValue.startsWith("/")) {
+                    if (stringValue.startsWith(STRING_SEPERATOR)) {
                         stringValue = stringValue.substring(1);
                     }
                     return collection.getFirestore().document(stringValue);
