@@ -48,11 +48,9 @@ public class DryOperationRepository {
         return datasourceStorageRepository.saveAll(datasourceStorage);
     }
 
-
     private Flux<CustomJSLib> saveCustomJSLibToDb(List<CustomJSLib> customJSLibs) {
         return customJSLibRepository.saveAll(customJSLibs);
     }
-
 
     public Mono<Void> executeAllDbOps(MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
@@ -75,7 +73,6 @@ public class DryOperationRepository {
                             .get(key);
                     return saveDatasourceStorageToDb(datasourceStorageList).collectList();
                 });
-
 
         Flux<List<CustomJSLib>> customJSLibFLux = Flux.fromIterable(
                         mappedImportableResourcesDTO.getCustomJSLibsDryOps().keySet())
