@@ -1,5 +1,9 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
+cypress/e2e/Regression/ClientSide/Anvil/Widgets/AnvilCurrencyInputWidgetSnapshot_spec.ts
+cypress/e2e/Regression/ClientSide/Anvil/Widgets/AnvilHeadingWidgetSnapshot_spec.ts
+cypress/e2e/Regression/ClientSide/Anvil/Widgets/AnvilInputWidgetSnapshot_spec.ts
+cypress/e2e/Regression/ClientSide/Anvil/Widgets/AnvilParagraphWidgetSnapshot_spec.ts
+cypress/e2e/Regression/ClientSide/Anvil/Widgets/AnvilPhoneInputWidgetSnapshot_spec.ts
 
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
