@@ -51,12 +51,8 @@
         function getChunkUrls(chunkName) {
             return compilation.namedChunkGroups.get(chunkName).chunks.flatMap(chunk => [...chunk.files]);
           }
-
       return JSON.stringify([...getChunkUrls("evalWorker")]);
-
       })()
-
-     
       %>
 
     </script>
@@ -65,7 +61,7 @@
         var link = document.createElement("link");
         link.rel = "preload";
         link.as = "script";
-        link.href = url;
+        link.href = "/" + url; // The base url in EE would be the app cdn url.
         document.head.appendChild(link);
       });
 
