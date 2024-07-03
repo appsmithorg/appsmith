@@ -78,7 +78,7 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
     }
 
     // Filtering for enums does not work with hibernate even if the field is annotated with @Enumerated(String.class)
-    public BridgeQuery<T> in(@NonNull String key, @NonNull List<Enum<?>> value) {
+    public BridgeQuery<T> enumIn(@NonNull String key, @NonNull Collection<Enum<?>> value) {
         checks.add(Criteria.where(key).in(value));
         return this;
     }
