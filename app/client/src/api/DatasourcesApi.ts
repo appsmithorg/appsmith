@@ -106,6 +106,7 @@ class DatasourcesApi extends API {
         clean.audience = authentication.audience;
         clean.resource = authentication.resource;
         clean.useSelfSignedCert = authentication.useSelfSignedCert;
+        clean.authenticationStatus = authentication.authenticationStatus;
         break;
       case "basic":
         clean.username = authentication.username;
