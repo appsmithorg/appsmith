@@ -1403,6 +1403,7 @@ Cypress.Commands.add("editTableSelectCell", (x, y) => {
 Cypress.Commands.add("makeColumnEditable", (column) => {
   table.EditColumn(column, "v2");
   propPane.TogglePropertyState("Editable", "On");
+  propPane.NavigateBackToPropertyPane();
 });
 
 Cypress.Commands.add("enterTableCellValue", (x, y, text) => {
