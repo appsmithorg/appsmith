@@ -3,7 +3,6 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomUserRepository;
-import org.springframework.data.jpa.repository.Query;
 
 import java.time.Instant;
 import java.util.List;
@@ -33,8 +32,4 @@ public interface UserRepositoryCE extends BaseRepository<User, String>, CustomUs
             Instant lastActiveAt, Boolean excludeSystemGenerated);
 
     Optional<User> findByEmailAndTenantId(String email, String tenantId);
-
-    // There's _probably_ a better way to do this, but, problem for later.
-    @Query("select count(u) = 0 from User u where u.email != 'anonymousUser'")
-    Optional<Boolean> isUsersEmpty();
 }
