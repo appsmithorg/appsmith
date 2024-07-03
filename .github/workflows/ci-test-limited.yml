@@ -362,6 +362,14 @@ jobs:
           name: snapshots
           path: ${{ github.workspace }}/app/client/cypress/snapshots
           overwrite: true
+      
+      - name: Download cypress snapshots
+        if: failure()
+        uses: actions/download-artifact@v2
+        with:
+          name: snapshots
+          path: ${{ github.workspace }}/app/client/cypress/snapshots
+          overwrite: true
 
       - name: Collect CI container logs
         if: failure()
