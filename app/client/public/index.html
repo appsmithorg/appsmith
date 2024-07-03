@@ -42,7 +42,37 @@
         const ZIPY_KEY = parseConfig('{{env "APPSMITH_ZIPY_SDK_KEY"}}');
         const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
       </script>
+
     <script>
+      window.__APPSMITH_PRELOAD =
+      <%=
+
+      (function(){
+        function getChunkUrls(chunkName) {
+            return compilation.namedChunkGroups.get(chunkName).chunks.flatMap(chunk => [...chunk.files]);
+          }
+
+      return JSON.stringify([...getChunkUrls("evalWorker")]);
+
+      })()
+
+     
+      %>
+
+    </script>
+    <script>
+      window.__APPSMITH_PRELOAD.forEach(function (url) {
+        var link = document.createElement("link");
+        link.rel = "preload";
+        link.as = "script";
+        link.href = url;
+        document.head.appendChild(link);
+      });
+
+    </script>
+
+    <script>
+        
         window.__APPSMITH_CHUNKS_TO_PRELOAD =
       <%=
         (function () {
@@ -51,8 +81,8 @@
           //  1) Give your import a name (use the `webpackChunkName` comment: `import(/* webpackChunkName: "my-name" */ "./my-file")`)
           //  2) Add the name into the `chunksToPreload` array below
           let chunksToPreload = {
-            'edit-mode': ["static/js/evalWorker.chunk.js", ...getChunkUrls("editor"), ...getChunkUrls("global-search") ],
-            'view-mode': ["static/js/evalWorker.chunk.js",...getChunkUrls("AppViewer")]
+            'edit-mode': [ ...getChunkUrls("editor"), ...getChunkUrls("global-search") ],
+            'view-mode': [...getChunkUrls("AppViewer")]
           };
 
           return JSON.stringify(chunksToPreload);
