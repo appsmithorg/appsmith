@@ -102,7 +102,6 @@ public class SnowflakePluginTest {
         DBAuth auth = new DBAuth();
         auth.setUsername("test");
         auth.setPassword("test");
-        auth.setAuthenticationType("dbAuth");
         datasourceConfiguration.setAuthentication(auth);
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("warehouse", "warehouse"));
