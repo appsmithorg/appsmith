@@ -71,12 +71,15 @@ describe(
 
     if (Cypress.env("AIRGAPPED")) {
       // Remove map and custom widget in case of airgap
-      WIDGETS_CATALOG.Content = WIDGETS_CATALOG.Display.filter(
-        (widget) => widget !== "Map",
-      );
-      WIDGETS_CATALOG.Display = WIDGETS_CATALOG.Display.filter(
-        (widget) => widget !== "Custom",
-      );
+      WIDGETS_CATALOG.Content = ["Progress", "Rating", "Text"];
+      WIDGETS_CATALOG.Display = [
+        "Chart",
+        "Iframe",
+        "List",
+        "Map Chart",
+        "Stats Box",
+        "Table",
+      ];
     }
 
     const getTotalNumberOfWidgets = () => {
