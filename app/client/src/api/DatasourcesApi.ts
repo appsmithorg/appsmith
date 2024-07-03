@@ -106,6 +106,7 @@ class DatasourcesApi extends API {
         clean.audience = authentication.audience;
         clean.resource = authentication.resource;
         clean.useSelfSignedCert = authentication.useSelfSignedCert;
+        clean.authenticationStatus = authentication.authenticationStatus;
         break;
       case "basic":
         clean.username = authentication.username;
@@ -178,6 +179,9 @@ class DatasourcesApi extends API {
       toastMessage: undefined,
       datasourceConfiguration: datasourceStorage.datasourceConfiguration && {
         ...datasourceStorage.datasourceConfiguration,
+        authentication: DatasourcesApi.cleanAuthenticationObject(
+          datasourceStorage.datasourceConfiguration.authentication,
+        ),
         connection: datasourceStorage.datasourceConfiguration.connection && {
           ...datasourceStorage.datasourceConfiguration.connection,
           ssl: {
