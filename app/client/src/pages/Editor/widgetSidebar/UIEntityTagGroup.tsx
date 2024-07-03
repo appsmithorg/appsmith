@@ -41,6 +41,7 @@ interface Props {
 }
 
 const UIEntityTagGroup = (props: Props) => {
+  const [isOpen, setIsOpen] = React.useState(props.isInitiallyOpen);
   const [showFullItems, setShowFullItems] = React.useState(false);
   const toggleShowFullItems = () => {
     setShowFullItems(!showFullItems);
@@ -78,11 +79,12 @@ const UIEntityTagGroup = (props: Props) => {
 
   return (
     <Collapsible
-      className={`pb-2 widget-tag-collapisble widget-tag-collapisble-${props.tag
+      className={`pb-2 widget-tag-collapsible widget-tag-collapsible-${props.tag
         .toLowerCase()
         .replace(/ /g, "-")}`}
-      isOpen={props.isInitiallyOpen}
+      isOpen={isOpen}
       key={props.tag}
+      onOpenChange={setIsOpen}
     >
       <CollapsibleHeader arrowPosition="start">
         <Text
@@ -96,6 +98,7 @@ const UIEntityTagGroup = (props: Props) => {
       <CollapsibleContent>
         <div
           className="grid items-stretch grid-cols-3 gap-x-1 gap-y-1 justify-items-stretch"
+          data-collapsed={!isOpen}
           data-testid="ui-entity-tag-group"
         >
           {props.tag === WIDGET_TAGS.SUGGESTED_WIDGETS
