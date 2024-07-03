@@ -395,6 +395,14 @@ jobs:
           name: results-${{github.run_attempt}}
           path: ~/results
           overwrite: true
+      
+      - name: Upload cypress snapshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: snapshots-${{github.run_attempt}}
+          path: ${{ github.workspace }}/app/client/cypress/snapshots
+          overwrite: true
 
       # Set status = failedtest
       - name: Set fail if there are test failures
