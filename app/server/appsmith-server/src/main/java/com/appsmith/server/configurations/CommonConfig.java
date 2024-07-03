@@ -3,7 +3,6 @@ package com.appsmith.server.configurations;
 import com.appsmith.util.JSONPrettyPrinter;
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.PrettyPrinter;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -18,7 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -101,16 +99,6 @@ public class CommonConfig {
     @Bean
     public ObjectMapper objectMapper() {
         return SerializationUtils.getDefaultObjectMapper(null);
-    }
-
-    @Bean
-    public MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
-        final MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-
-        converter.setObjectMapper(objectMapper()
-                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, "CE".equals(ProjectProperties.EDITION)));
-
-        return converter;
     }
 
     @Bean
