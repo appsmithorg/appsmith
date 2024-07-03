@@ -377,7 +377,7 @@ class DatePickerComponent extends React.Component<
               }}
               maxDate={maxDate}
               minDate={minDate}
-              onChange={this.onDateSelected}
+              onChange={this.handleDateChange}
               parseDate={this.parseDate}
               placeholder={"Select Date"}
               popoverProps={{
@@ -480,6 +480,14 @@ class DatePickerComponent extends React.Component<
       });
       onDateSelected(date);
     }
+  };
+  handleDateChange = (selectedDate: Date | null) => {
+    const formattedDate = selectedDate
+      ? moment(selectedDate).format(ISO_DATE_FORMAT)
+      : "";
+    this.setState({ selectedDate: formattedDate }, () => {
+      this.props.onDateSelected(formattedDate);
+    });
   };
 }
 
