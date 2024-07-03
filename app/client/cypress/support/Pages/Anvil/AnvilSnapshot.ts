@@ -1,3 +1,4 @@
+import { agHelper } from "../../Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../Objects/Registry";
 
 export class AnvilSnapshot {
@@ -67,6 +68,7 @@ export class AnvilSnapshot {
         .matchImageSnapshot(`anvil${widgetName}Deploy${device}`, {
           comparisonMethod: "ssim",
         });
+      agHelper.Sleep(500);
     });
   };
 
