@@ -139,7 +139,7 @@ describe("DatasourceViewModeSchema Component", () => {
 });
 
 describe("GoogleSheetSchema Component", () => {
-  it("should not render the 'generate page' button when release_drag_drop_building_blocks_enabled is enabled", () => {
+  it("1. should not render the 'generate page' button when release_drag_drop_building_blocks_enabled is enabled", () => {
     (useFeatureFlag as jest.Mock).mockReturnValue(true);
     (useParams as jest.Mock).mockReturnValue({
       pageId: unitTestBaseMockStore.entities.pageList.currentPageId,
@@ -551,6 +551,12 @@ const baseStoreForSpec = {
     datasourceName: {
       isSaving: [mockDatasource.id],
       errors: [mockDatasource.id],
+    },
+  },
+  environments: {
+    currentEnvironmentDetails: {
+      id: "unused_env",
+      name: "",
     },
   },
 };
