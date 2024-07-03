@@ -77,6 +77,11 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
+    public BridgeQuery<T> notIn(@NonNull String needle, @NonNull Collection<String> haystack) {
+        checks.add(Criteria.where(needle).not().in(haystack));
+        return this;
+    }
+
     public BridgeQuery<T> exists(@NonNull String key) {
         checks.add(Criteria.where(key).exists(true));
         return this;

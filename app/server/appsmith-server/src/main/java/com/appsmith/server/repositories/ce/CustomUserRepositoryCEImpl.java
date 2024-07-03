@@ -37,13 +37,9 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     @Override
     public Mono<Boolean> isUsersEmpty() {
         return queryBuilder()
-                .fields(User.Fields.email)
-                // Basically limit to system generated emails plus 1 more.
-                .limit(getSystemGeneratedUserEmails().size() + 1)
-                .all()
-                .filter(user -> !getSystemGeneratedUserEmails().contains(user.getEmail()))
+                .criteria(Bridge.notIn(User.Fields.email, getSystemGeneratedUserEmails()))
                 .count()
-                .map(count -> count == 0);
+                .map(v -> v == 0);
     }
 
     protected Set<String> getSystemGeneratedUserEmails() {
