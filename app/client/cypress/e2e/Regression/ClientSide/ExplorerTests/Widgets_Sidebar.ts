@@ -2,7 +2,9 @@ import {
   entityExplorer,
   agHelper,
   locators,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
+import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Entity explorer tests related to widgets and validation",
@@ -26,16 +28,14 @@ describe(
     // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
     const SUGGESTED_WIDGETS_ORDER: Record<string, number> = {
       TABLE_WIDGET_V2: 1,
-      JSON_FORM_WIDGET: 2,
-      INPUT_WIDGET_V2: 3,
-      TEXT_WIDGET: 4,
-      SELECT_WIDGET: 5,
-      LIST_WIDGET_V2: 6,
+      INPUT_WIDGET_V2: 2,
+      TEXT_WIDGET: 3,
+      SELECT_WIDGET: 4,
     };
 
     // When adding a new widget or tag, we need to manually add it to this list.
     const WIDGETS_CATALOG: Record<string, string[]> = {
-      Suggested: ["Input", "JSON Form", "List", "Select", "Table", "Text"],
+      Suggested: ["Input", "Select", "Table", "Text"],
       Inputs: [
         "Currency Input",
         "DatePicker",
@@ -86,7 +86,12 @@ describe(
       );
     };
 
-    it("1. All widget tags should be visible and open by default.", () => {
+    before(() => {
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
+      PageLeftPane.switchToAddNew();
+    });
+
+    it("1. All widget tags should be visible but only Suggested tag is open.", () => {
       agHelper.AssertElementLength(
         entityExplorer._widgetTagsList,
         Object.keys(WIDGET_TAGS).length,
