@@ -71,7 +71,7 @@ describe(
 
     if (Cypress.env("AIRGAPPED")) {
       // Remove map and custom widget in case of airgap
-      WIDGETS_CATALOG.Content = WIDGETS_CATALOG.Display.filter(
+      WIDGETS_CATALOG.Content = WIDGETS_CATALOG.Content.filter(
         (widget) => widget !== "Map",
       );
       WIDGETS_CATALOG.Display = WIDGETS_CATALOG.Display.filter(
