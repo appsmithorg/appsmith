@@ -51,13 +51,14 @@
           //  1) Give your import a name (use the `webpackChunkName` comment: `import(/* webpackChunkName: "my-name" */ "./my-file")`)
           //  2) Add the name into the `chunksToPreload` array below
           let chunksToPreload = {
-            'edit-mode': [...getChunkUrls("editor"), ...getChunkUrls("global-search")],
-            'view-mode': getChunkUrls("AppViewer")
+            'edit-mode': ["static/js/evalWorker.chunk.js", ...getChunkUrls("editor"), ...getChunkUrls("global-search") ],
+            'view-mode': ["static/js/evalWorker.chunk.js",...getChunkUrls("AppViewer")]
           };
 
           return JSON.stringify(chunksToPreload);
 
           function getChunkUrls(chunkName) {
+            console.log("*** check ",compilation.namedChunkGroups);
             return compilation.namedChunkGroups.get(chunkName).chunks.flatMap(chunk => [...chunk.files]);
           }
         })()

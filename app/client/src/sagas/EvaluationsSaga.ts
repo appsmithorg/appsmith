@@ -96,25 +96,20 @@ import type {
 } from "workers/Evaluation/types";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import { handleEvalWorkerRequestSaga } from "./EvalWorkerActionSagas";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { executeJSUpdates } from "actions/pluginActionActions";
 import { setEvaluatedActionSelectorField } from "actions/actionSelectorActions";
 import { waitForWidgetConfigBuild } from "./InitSagas";
 import { logDynamicTriggerExecution } from "@appsmith/sagas/analyticsSaga";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import { fetchFeatureFlagsInit } from "actions/userActions";
 import type { AffectedJSObjects } from "./EvaluationsSagaUtils";
 import {
   getAffectedJSObjectIdsFromAction,
   parseUpdatesAndDeleteUndefinedUpdates,
 } from "./EvaluationsSagaUtils";
-import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSelectors";
 import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
-const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
   new Worker(
     new URL("../workers/Evaluation/evaluation.worker.ts", import.meta.url),
@@ -647,25 +642,15 @@ function* evalAndLintingHandler(
 
 function* evaluationChangeListenerSaga(): any {
   // Explicitly shutdown old worker if present
+
   yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
+
   const [evalWorkerListenerChannel] = yield all([
     call(evalWorker.start),
     call(lintWorker.start),
   ]);
+  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {});
 
-  const isFFFetched = yield select(getFeatureFlagsFetched);
-  if (!isFFFetched) {
-    yield call(fetchFeatureFlagsInit);
-    yield take(ReduxActionTypes.FETCH_FEATURE_FLAGS_SUCCESS);
-  }
-
-  const featureFlags: Record<string, boolean> =
-    yield select(selectFeatureFlags);
-
-  yield call(evalWorker.request, EVAL_WORKER_ACTIONS.SETUP, {
-    cloudHosting: !!APPSMITH_CONFIGS.cloudHosting,
-    featureFlags: featureFlags,
-  });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
   const initAction: EvaluationReduxAction<unknown> = yield take(
