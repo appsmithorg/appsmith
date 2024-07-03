@@ -81,11 +81,12 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
                     predicate = cb.isNotNull(keyToExpression(String.class, root, cb, key));
 
                 } else if (op == Op.IN) {
-                    final CriteriaBuilder.In<Object> inCluse = cb.in(keyToExpression(String.class, root, cb, key));
-                    for (Object item : (Collection<?>) value) {
-                        inCluse.value(item);
-                    }
-                    predicate = inCluse;
+                    predicate = keyToExpression(String.class, root, cb, key).in((Collection) value);
+
+                } else if (op == Op.NOT_IN) {
+                    predicate = keyToExpression(String.class, root, cb, key)
+                            .in((Collection) value)
+                            .not();
 
                 } else if (op == Op.EXISTS) {
                     if (key.contains(".")) {
@@ -179,6 +180,11 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
     // Filtering for enums does not work with hibernate even if the field is annotated with @Enumerated(String.class)
     public BridgeQuery<T> in(@NonNull String needle, @NonNull List<Enum<?>> haystack) {
         checks.add(new Check.Unit(Op.IN, needle, haystack));
+        return this;
+    }
+
+    public BridgeQuery<T> notIn(@NonNull String needle, @NonNull Collection<String> haystack) {
+        checks.add(new Check.Unit(Op.NOT_IN, needle, haystack));
         return this;
     }
 

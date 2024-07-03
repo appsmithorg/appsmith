@@ -8,6 +8,7 @@ public enum Op {
     IS_NOT_NULL,
     IS_TRUE,
     IS_FALSE,
+    NOT_IN,
     IN,
     JSON_IN,
     EXISTS,

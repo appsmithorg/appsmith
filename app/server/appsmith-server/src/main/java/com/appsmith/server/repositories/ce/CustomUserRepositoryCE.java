@@ -9,4 +9,6 @@ import java.util.Optional;
 public interface CustomUserRepositoryCE extends AppsmithRepository<User> {
 
     Optional<User> findByEmail(String email, AclPermission permission, User currentUser);
+
+    Optional<Boolean> isUsersEmpty();
 }

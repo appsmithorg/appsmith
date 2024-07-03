@@ -72,6 +72,11 @@ public class Bridge {
         return Bridge.<T>query().in(needle, haystack);
     }
 
+    public static <T extends BaseDomain> BridgeQuery<T> notIn(
+            @NonNull String needle, @NonNull Collection<String> haystack) {
+        return Bridge.<T>query().notIn(needle, haystack);
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> exists(@NonNull String key) {
         return Bridge.<T>query().exists(key);
     }
