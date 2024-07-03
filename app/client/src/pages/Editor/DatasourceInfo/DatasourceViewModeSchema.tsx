@@ -232,6 +232,7 @@ const DatasourceViewModeSchema = (props: Props) => {
   // if there was a failure in the fetching of the data
   // if tableName from schema is availble
   // if the user has permissions
+  // Also, if Anvil is enabled, we donot allow page generation. As Anvil doesn't work well with this feature yet.
   const showGeneratePageBtn =
     !isDatasourceStructureLoading &&
     !isLoading &&

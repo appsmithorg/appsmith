@@ -24,6 +24,9 @@ export const DeployLinkButton = (props: Props) => {
   const dispatch = useDispatch();
   const isGitConnected = useSelector(getIsGitConnected);
   const isConnectToGitPermitted = useHasConnectToGitPermission();
+  // We check if the current application is an Anvil application.
+  // If it is an Anvil application, we remove the Git features from the deploy button
+  // as they donot yet work correctly with Anvil.
   const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
   const goToGitConnectionPopup = () => {

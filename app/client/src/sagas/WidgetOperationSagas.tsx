@@ -1847,6 +1847,13 @@ function* widgetBatchUpdatePropertySaga() {
   }
 }
 
+/**
+ * This saga check if the paste operation is performed on a layout system compatible with the widgets being pasted
+ * If the widgets are not compatible, we show a toast warning to the user and prevent the paste operation
+ * If the widgets are compatible, we call the paste action
+ * @param action The page action payload and verify paste action type
+ * @returns void
+ */
 function* verifyPasteFeasibilitySaga(
   action: ReduxAction<PasteWidgetReduxAction>,
 ) {
@@ -1931,6 +1938,9 @@ export default function* widgetOperationSagas() {
       shouldCallSaga,
       pasteWidgetSaga,
     ),
+    // This was originally PASTE_COPIED_WIDGET_INIT, however, we now need to make sure
+    // that the paste happens between compatible widgets and layout systems.
+    // This saga is the intermidiary between the paste trigger and the actual paste operation
     takeLeading(
       ReduxActionTypes.VERIFY_LAYOUT_SYSTEM_AND_PASTE_WIDGETS,
       verifyPasteFeasibilitySaga,

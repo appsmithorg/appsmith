@@ -261,10 +261,15 @@ const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
   }
 `;
 
+// Tags for some reason take all available space.
+// We're changing the max width to fit the contents as Tags are supposed to be
 const TitleTag = styled(Tag)`
   max-width: fit-content;
 `;
 
+// A static component that is a tag signifying Anvil applications
+// This will be passed down to the ApplicationCardsList component
+// in the titleTag prop.
 const AnvilTitleTag = (
   <TitleTag isClosable={false} onClose={() => {}}>
     Anvil α
@@ -861,7 +866,7 @@ export function ApplicationsSection(props: any) {
             <ResourceListLoader isMobile={isMobile} resources={applications} />
           ) : (
             <>
-              {isAnvilEnabled && (
+              {isAnvilEnabled && ( // Anvil Applications list
                 <ApplicationCardList
                   applications={anvilApplications}
                   canInviteToWorkspace={canInviteToWorkspace}
@@ -887,6 +892,9 @@ export function ApplicationsSection(props: any) {
                 canInviteToWorkspace={canInviteToWorkspace}
                 deleteApplication={deleteApplication}
                 emptyStateMessage={
+                  // We let the original message includded in the ApplicationCardList component
+                  // show if Anvil is not enabled. If Anvil is enabled, we need to pass the message
+                  // to make them appropriate to the context.
                   isAnvilEnabled
                     ? createMessage(CLASSIC_APPLICATION_CARD_LIST_ZERO_STATE)
                     : undefined
@@ -898,9 +906,12 @@ export function ApplicationsSection(props: any) {
                 hasManageWorkspacePermissions={hasManageWorkspacePermissions}
                 isMobile={isMobile}
                 onClickAddNewButton={onClickAddNewAppButton}
-                title={createMessage(
-                  isAnvilEnabled ? FIXED_APPLICATIONS : APPLICATIONS,
-                )}
+                title={
+                  // The title is different based on whether Anvil is enabled or not
+                  createMessage(
+                    isAnvilEnabled ? FIXED_APPLICATIONS : APPLICATIONS,
+                  )
+                }
                 updateApplicationDispatch={updateApplicationDispatch}
                 workspaceId={activeWorkspace.id}
               />

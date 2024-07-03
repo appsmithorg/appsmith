@@ -16,6 +16,9 @@ import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integ
 export default function BottomBar({ viewMode }: { viewMode: boolean }) {
   const appId = useSelector(getCurrentApplicationId) || "";
   const dispatch = useDispatch();
+  // We check if the current application is an Anvil application.
+  // If it is an Anvil application, we remove the Git features from the bottomBar
+  // as they donot yet work correctly with Anvil.
   const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
   const onChangeEnv = () => {

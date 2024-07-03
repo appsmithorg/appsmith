@@ -42,6 +42,7 @@ const StyledPageHeader = styled(StyledHeader)<{
   ${({ isBannerVisible, isMobile }) =>
     isBannerVisible ? (isMobile ? `top: 70px;` : `top: 40px;`) : ""};
 
+  /* intentionally "hacky" approach to show the Anvil toggle in the header. This will be removed once all features work well with Anvil */
   & .ads-v2-switch {
     display: block;
     width: 100%;
@@ -87,6 +88,11 @@ export function PageHeader(props: PageHeaderProps) {
 
   log.debug("Is Anvil Enabled:", isAnvilEnabled);
 
+  /*
+    If Anvil toggle is enabled, the switch allows us to enable or disable Anvil
+    We pass the anvil feature's value via the toggle. We also passthrough the original
+    anvil toggle feature flag value as-is.
+  */
   function handleAnvilToggle(isSelected: boolean) {
     dispatch(
       setFeatureFlagOverridesAction({
@@ -106,13 +112,16 @@ export function PageHeader(props: PageHeaderProps) {
         isMobile={isMobile}
         showSeparator={props.showSeparator || false}
       >
-        {shouldShowAnvilToggle && (
-          <Switch isSelected={isAnvilEnabled} onChange={handleAnvilToggle}>
-            <Tooltip content="Toggles Anvil Layout System" trigger="hover">
-              <b>&alpha;</b>
-            </Tooltip>
-          </Switch>
-        )}
+        {
+          // Based on a feature flag, show the switch that enables/disables Anvil
+          shouldShowAnvilToggle && (
+            <Switch isSelected={isAnvilEnabled} onChange={handleAnvilToggle}>
+              <Tooltip content="Toggles Anvil Layout System" trigger="hover">
+                <b>&alpha;</b>
+              </Tooltip>
+            </Switch>
+          )
+        }
         <EntitySearchBar user={user} />
       </StyledPageHeader>
     </>

@@ -270,11 +270,15 @@ function ImportModal(props: ImportModalProps) {
                 ? createMessage(UPLOADING_JSON)
                 : mainDescription}
           </Text>
-          {isAnvilEnabled && (
-            <Callout kind="warning" onClose={() => {}}>
-              {createMessage(IMPORT_FROM_GIT_DISABLED_IN_ANVIL)}
-            </Callout>
-          )}
+          {
+            // If Anvil is enabled, we disable the import via Git option.
+            // This callout informs the user of this.
+            isAnvilEnabled && (
+              <Callout kind="warning" onClose={() => {}}>
+                {createMessage(IMPORT_FROM_GIT_DISABLED_IN_ANVIL)}
+              </Callout>
+            )
+          }
         </TextWrapper>
 
         {!isImporting && (

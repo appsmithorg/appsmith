@@ -117,7 +117,7 @@ export function* partialExportWidgetSaga(widgetIds: string[]) {
     canvasId ? canvasWidgets[canvasId] : undefined,
   );
   const widgetsDSL = {
-    layoutSystemType,
+    layoutSystemType, // We pass the layout system type, so that we can check if the widgets are compatible when importing
     widgets: widgetListsToStore,
     flexLayers,
   };

@@ -58,6 +58,10 @@ export const useHeaderActions = (
   const showGenerateButton = useShowPageGenerationOnHeader(
     datasource as Datasource,
   );
+
+  // We allow creating pages basedon the datasource. However,
+  // this doesn't work well with Anvil today. So, until this is fixed
+  // for Anvil, we're removing the button that generates the page for users in Anvil
   const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
   const plugin = useSelector((state: AppState) =>
