@@ -1,5 +1,8 @@
+import { MAIN_CONTAINER_WIDGET_ID } from "../../../constants/WidgetConstants";
+
 export const unitTestBaseMockStore = {
   entities: {
+    canvasWidgets: { [MAIN_CONTAINER_WIDGET_ID]: {} },
     pageList: {
       pages: [
         {
