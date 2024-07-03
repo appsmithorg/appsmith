@@ -126,8 +126,9 @@
         {
           "label": "Passphrase",
           "configProperty": "datasourceConfiguration.authentication.passphrase",
+          "dataType": "PASSWORD",
           "controlType": "INPUT_TEXT",
-          "placeholderText": "private key passphrase",
+          "placeholderText": "Private key passphrase",
           "encrypted": true,
           "hidden": {
             "conditionType": "OR",
