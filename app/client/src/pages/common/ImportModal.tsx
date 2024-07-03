@@ -9,6 +9,7 @@ import {
   IMPORT_APP_FROM_FILE_TITLE,
   IMPORT_APP_FROM_GIT_MESSAGE,
   IMPORT_APP_FROM_GIT_TITLE,
+  IMPORT_FROM_GIT_DISABLED_IN_ANVIL,
   UPLOADING_JSON,
 } from "@appsmith/constants/messages";
 import { FilePickerV2, FileType } from "design-system-old";
@@ -18,7 +19,14 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
-import { Icon, Modal, ModalContent, ModalHeader, Text } from "design-system";
+import {
+  Callout,
+  Icon,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  Text,
+} from "design-system";
 import useMessages from "@appsmith/hooks/importModal/useMessages";
 import useMethods from "@appsmith/hooks/importModal/useMethods";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
@@ -262,7 +270,13 @@ function ImportModal(props: ImportModalProps) {
                 ? createMessage(UPLOADING_JSON)
                 : mainDescription}
           </Text>
+          {isAnvilEnabled && (
+            <Callout kind="warning" onClose={() => {}}>
+              {createMessage(IMPORT_FROM_GIT_DISABLED_IN_ANVIL)}
+            </Callout>
+          )}
         </TextWrapper>
+
         {!isImporting && (
           <Row>
             <FileImportCard

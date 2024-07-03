@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import React from "react";
 import { Text } from "design-system";
 import { useSelector } from "react-redux";
@@ -31,17 +32,21 @@ interface ApplicationCardListProps {
     data: UpdateApplicationPayload,
   ) => void;
   title: string;
+  emptyStateMessage?: string;
+  titleTag?: ReactNode;
 }
 
 function ApplicationCardList({
   applications,
   canInviteToWorkspace,
   deleteApplication,
+  emptyStateMessage,
   enableImportExport,
   hasCreateNewApplicationPermission,
   hasManageWorkspacePermissions,
   isMobile,
   title,
+  titleTag,
   updateApplicationDispatch,
   workspaceId,
 }: ApplicationCardListProps) {
@@ -52,6 +57,7 @@ function ApplicationCardList({
       isLoading={isFetchingApplications}
       isMobile={isMobile}
       title={title}
+      titleTag={titleTag}
     >
       {applications.map((application: any) => {
         return (
@@ -81,7 +87,8 @@ function ApplicationCardList({
             src={getAssetUrl(`${ASSETS_CDN_URL}/no-applications.svg`)}
           />
           <Text kind="heading-xs">
-            {createMessage(APPLICATION_CARD_LIST_ZERO_STATE)}
+            {emptyStateMessage ||
+              createMessage(APPLICATION_CARD_LIST_ZERO_STATE)}
           </Text>
           {/* below component is duplicate. This is because of cypress test were failing */}
         </NoAppsFound>

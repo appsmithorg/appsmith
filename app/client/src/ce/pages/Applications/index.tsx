@@ -10,10 +10,12 @@ import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import {
   ANVIL_APPLICATIONS,
   APPLICATIONS,
+  CLASSIC_APPLICATION_CARD_LIST_ZERO_STATE,
   CREATE_A_NEW_WORKSPACE,
   createMessage,
   FIXED_APPLICATIONS,
   INVITE_USERS_PLACEHOLDER,
+  NEW_APPLICATION_CARD_LIST_ZERO_STATE,
   NO_APPS_FOUND,
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
@@ -48,6 +50,7 @@ import {
   Option,
   Select,
   Tooltip,
+  Tag,
 } from "design-system";
 import {
   AppIconCollection,
@@ -257,6 +260,16 @@ const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
     height: 34px !important;
   }
 `;
+
+const TitleTag = styled(Tag)`
+  max-width: fit-content;
+`;
+
+const AnvilTitleTag = (
+  <TitleTag isClosable={false} onClose={() => {}}>
+    Anvil α
+  </TitleTag>
+);
 
 export function LeftPaneSection(props: {
   heading: string;
@@ -506,6 +519,8 @@ export function ApplicationsSection(props: any) {
   const isDeletingWorkspace = useSelector(getIsDeletingWorkspace);
   const { isFetchingPackages } = usePackage();
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
+  // This checks if the Anvil feature flag is enabled and shows different sections in the workspace
+  // for Anvil and Classic applications
   const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
@@ -744,6 +759,8 @@ export function ApplicationsSection(props: any) {
       }
     };
 
+    // The following filters the applications into classic and Anvil applications
+    // So, that they can be listed in different card lists depending on whether Anvil is enabled
     const anvilApplications: ApplicationPayload[] = [];
     const nonAnvilApplications: ApplicationPayload[] = [];
     applications.forEach((application: ApplicationPayload) => {
@@ -849,6 +866,9 @@ export function ApplicationsSection(props: any) {
                   applications={anvilApplications}
                   canInviteToWorkspace={canInviteToWorkspace}
                   deleteApplication={deleteApplication}
+                  emptyStateMessage={createMessage(
+                    NEW_APPLICATION_CARD_LIST_ZERO_STATE,
+                  )}
                   enableImportExport={enableImportExport}
                   hasCreateNewApplicationPermission={
                     hasCreateNewApplicationPermission
@@ -857,6 +877,7 @@ export function ApplicationsSection(props: any) {
                   isMobile={isMobile}
                   onClickAddNewButton={onClickAddNewAppButton}
                   title={createMessage(ANVIL_APPLICATIONS)}
+                  titleTag={AnvilTitleTag}
                   updateApplicationDispatch={updateApplicationDispatch}
                   workspaceId={activeWorkspace.id}
                 />
@@ -865,6 +886,11 @@ export function ApplicationsSection(props: any) {
                 applications={nonAnvilApplications}
                 canInviteToWorkspace={canInviteToWorkspace}
                 deleteApplication={deleteApplication}
+                emptyStateMessage={
+                  isAnvilEnabled
+                    ? createMessage(CLASSIC_APPLICATION_CARD_LIST_ZERO_STATE)
+                    : undefined
+                }
                 enableImportExport={enableImportExport}
                 hasCreateNewApplicationPermission={
                   hasCreateNewApplicationPermission

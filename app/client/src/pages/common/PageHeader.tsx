@@ -16,6 +16,8 @@ import { Switch, Tooltip } from "design-system";
 import { setFeatureFlagOverridesAction } from "actions/featureFlagActions";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 import log from "loglevel";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -79,12 +81,18 @@ export function PageHeader(props: PageHeaderProps) {
   const isHomePage = useRouteMatch("/applications")?.isExact;
   const isLicensePage = useRouteMatch("/license")?.isExact;
   const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
+  const shouldShowAnvilToggle = useFeatureFlag(
+    FEATURE_FLAG.release_anvil_toggle_enabled,
+  );
 
   log.debug("Is Anvil Enabled:", isAnvilEnabled);
 
   function handleAnvilToggle(isSelected: boolean) {
     dispatch(
-      setFeatureFlagOverridesAction({ release_anvil_enabled: isSelected }),
+      setFeatureFlagOverridesAction({
+        release_anvil_enabled: isSelected,
+        release_anvil_toggle_enabled: shouldShowAnvilToggle,
+      }),
     );
   }
 
@@ -98,11 +106,13 @@ export function PageHeader(props: PageHeaderProps) {
         isMobile={isMobile}
         showSeparator={props.showSeparator || false}
       >
-        <Switch isSelected={isAnvilEnabled} onChange={handleAnvilToggle}>
-          <Tooltip content="Toggles Anvil Layout System" trigger="hover">
-            <b>&alpha;</b>
-          </Tooltip>
-        </Switch>
+        {shouldShowAnvilToggle && (
+          <Switch isSelected={isAnvilEnabled} onChange={handleAnvilToggle}>
+            <Tooltip content="Toggles Anvil Layout System" trigger="hover">
+              <b>&alpha;</b>
+            </Tooltip>
+          </Switch>
+        )}
         <EntitySearchBar user={user} />
       </StyledPageHeader>
     </>
