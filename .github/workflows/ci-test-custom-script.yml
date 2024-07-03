@@ -216,7 +216,11 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         run: |
           echo 'tags_to_exclude=airgap' >> "$GITHUB_ENV"
-          echo "CYPRESS_grepTags=${{ inputs.tags }}" >> $GITHUB_ENV
+          if [[ "${{ inputs.tags }}" = "@tag.All" ]]; then
+            echo "CYPRESS_grepTags=" >> "$GITHUB_ENV"
+          else
+            echo "CYPRESS_grepTags=${{ inputs.tags }}" >> "$GITHUB_ENV"
+          fi
 
       - name: Print the tags
         run: |
