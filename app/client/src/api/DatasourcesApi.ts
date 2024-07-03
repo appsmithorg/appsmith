@@ -50,9 +50,6 @@ class DatasourcesApi extends API {
             datasourceConfiguration: {
               ...storage.datasourceConfiguration,
               isValid: undefined,
-              authentication: DatasourcesApi.cleanAuthenticationObject(
-                storage.datasourceConfiguration.authentication,
-              ),
               connection: storage.datasourceConfiguration.connection && {
                 ...storage.datasourceConfiguration.connection,
                 ssl: {
@@ -70,6 +67,7 @@ class DatasourcesApi extends API {
     return API.post(DatasourcesApi.url, datasourceConfig);
   }
 
+  // Need for when we add strict type checking back on server
   static cleanAuthenticationObject(authentication: any): any {
     if (!authentication) {
       return undefined;
@@ -106,6 +104,7 @@ class DatasourcesApi extends API {
         clean.audience = authentication.audience;
         clean.resource = authentication.resource;
         clean.useSelfSignedCert = authentication.useSelfSignedCert;
+        clean.authenticationStatus = authentication.authenticationStatus;
         break;
       case "basic":
         clean.username = authentication.username;

@@ -1,12 +1,12 @@
 package com.external.plugins;
 
-import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionExecutionRequest;
 import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.DBAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
@@ -15,12 +15,15 @@ import com.appsmith.external.models.KeyPairAuth;
 import com.appsmith.external.plugins.BasePlugin;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.external.plugins.exceptions.SnowflakeErrorMessages;
+import com.external.utils.SnowflakeKeyUtils;
 import com.external.utils.SqlUtils;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import com.zaxxer.hikari.pool.HikariPool;
 import lombok.extern.slf4j.Slf4j;
+import net.snowflake.client.jdbc.SnowflakeBasicDataSource;
+import org.bouncycastle.pkcs.PKCSException;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.springframework.util.StringUtils;
@@ -28,19 +31,12 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Properties;
-import java.util.Set;
+import java.security.PrivateKey;
+import java.sql.*;
+import java.util.*;
 
+import static com.appsmith.external.constants.Authentication.DB_AUTH;
+import static com.appsmith.external.constants.Authentication.SNOWFLAKE_KEY_PAIR_AUTH;
 import static com.appsmith.external.constants.PluginConstants.PluginName.SNOWFLAKE_PLUGIN_NAME;
 import static com.external.utils.ExecutionUtils.getRowsFromQueryResult;
 import static com.external.utils.SnowflakeDatasourceUtils.getConnectionFromHikariConnectionPool;
@@ -159,58 +155,30 @@ public class SnowflakePlugin extends BasePlugin {
         @Override
         public Mono<HikariDataSource> createConnectionClient(
                 DatasourceConfiguration datasourceConfiguration, Properties properties) {
-            return Mono.fromCallable(() -> {
-                        HikariConfig config = new HikariConfig();
+            return getHikariConfig(datasourceConfiguration, properties)
+                    .flatMap(config -> Mono.fromCallable(() -> {
+                                // Set up the connection URL
+                                String jdbcUrl = getJDBCUrl(datasourceConfiguration);
+                                config.setJdbcUrl(jdbcUrl);
 
-                        config.setDriverClassName(properties.getProperty("driver_name"));
+                                config.setDataSourceProperties(properties);
 
-                        config.setMinimumIdle(
-                                Integer.parseInt(properties.get("minimumIdle").toString()));
-                        config.setMaximumPoolSize(Integer.parseInt(
-                                properties.get("maximunPoolSize").toString()));
+                                // Now create the connection pool from the configuration
+                                HikariDataSource datasource = null;
+                                try {
+                                    datasource = new HikariDataSource(config);
+                                } catch (HikariPool.PoolInitializationException e) {
+                                    throw new AppsmithPluginException(
+                                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, e.getMessage());
+                                }
 
-                        config.setInitializationFailTimeout(Long.parseLong(
-                                properties.get("initializationFailTimeout").toString()));
-                        config.setConnectionTimeout(Long.parseLong(
-                                properties.get("connectionTimeoutMillis").toString()));
-
-                        if (Authentication.SNOWFLAKE_KEY_PAIR_AUTH.equals(
-                                datasourceConfiguration.getAuthentication().getAuthenticationType())) {
-                            KeyPairAuth authentication = (KeyPairAuth) datasourceConfiguration.getAuthentication();
-                            // Set authentication properties
-                            if (authentication.getUsername() != null) {
-                                config.setUsername(authentication.getUsername());
-                            }
-                        } else {
-                            // Set authentication properties
-                            DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                            if (authentication.getUsername() != null) {
-                                config.setUsername(authentication.getUsername());
-                            }
-                            if (authentication.getPassword() != null) {
-                                config.setPassword(authentication.getPassword());
-                            }
-                        }
-
-                        // Set up the connection URL
-                        StringBuilder urlBuilder = new StringBuilder(
-                                "jdbc:snowflake://" + datasourceConfiguration.getUrl() + ".snowflakecomputing.com?");
-                        config.setJdbcUrl(urlBuilder.toString());
-
-                        config.setDataSourceProperties(properties);
-
-                        // Now create the connection pool from the configuration
-                        HikariDataSource datasource = null;
-                        try {
-                            datasource = new HikariDataSource(config);
-                        } catch (HikariPool.PoolInitializationException e) {
-                            throw new AppsmithPluginException(
-                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, e.getMessage());
-                        }
-
-                        return datasource;
-                    })
-                    .subscribeOn(scheduler);
+                                return datasource;
+                            })
+                            .subscribeOn(scheduler))
+                    .onErrorMap(
+                            AppsmithPluginException.class,
+                            error -> new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, error.getMessage()));
         }
 
         @Override
@@ -234,17 +202,15 @@ public class SnowflakePlugin extends BasePlugin {
         @Override
         public Properties addAuthParamsToConnectionConfig(
                 DatasourceConfiguration datasourceConfiguration, Properties properties) {
-
-            if (Authentication.SNOWFLAKE_KEY_PAIR_AUTH.equals(
-                    datasourceConfiguration.getAuthentication().getAuthenticationType())) {
-                KeyPairAuth authentication = (KeyPairAuth) datasourceConfiguration.getAuthentication();
-                properties.setProperty("user", authentication.getUsername());
-            } else {
-                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
-                properties.setProperty("user", authentication.getUsername());
-                properties.setProperty("password", authentication.getPassword());
+            // Only for username password auth, we need to set these properties, for others
+            // like key-pair auth, authentication specific properties need to be set on config itself
+            AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
+            String authenticationType = getAuthenticationType(authentication);
+            if (DB_AUTH.equals(authenticationType)) {
+                DBAuth dbAuth = (DBAuth) authentication;
+                properties.setProperty("user", dbAuth.getUsername());
+                properties.setProperty("password", dbAuth.getPassword());
             }
-
             properties.setProperty(
                     "warehouse",
                     String.valueOf(
@@ -317,8 +283,8 @@ public class SnowflakePlugin extends BasePlugin {
             if (datasourceConfiguration.getAuthentication() == null) {
                 invalids.add(SnowflakeErrorMessages.DS_MISSING_AUTHENTICATION_DETAILS_ERROR_MSG);
             } else {
-                if (Authentication.SNOWFLAKE_KEY_PAIR_AUTH.equals(
-                        datasourceConfiguration.getAuthentication().getAuthenticationType())) {
+                if (SNOWFLAKE_KEY_PAIR_AUTH.equals(
+                        getAuthenticationType(datasourceConfiguration.getAuthentication()))) {
                     KeyPairAuth authentication = (KeyPairAuth) datasourceConfiguration.getAuthentication();
                     if (StringUtils.isEmpty(authentication.getUsername())) {
                         invalids.add(SnowflakeErrorMessages.DS_MISSING_USERNAME_ERROR_MSG);
@@ -490,6 +456,122 @@ public class SnowflakePlugin extends BasePlugin {
                         return structure;
                     })
                     .subscribeOn(scheduler);
+        }
+
+        private Mono<HikariConfig> getHikariConfig(
+                DatasourceConfiguration datasourceConfiguration, Properties properties) {
+            HikariConfig commonConfig = getCommonHikariConfig(properties);
+            Mono<HikariConfig> configMono = Mono.empty();
+
+            String authenticationType = getAuthenticationType(datasourceConfiguration.getAuthentication());
+            if (authenticationType != null) {
+                switch (authenticationType) {
+                    case DB_AUTH:
+                        configMono = getBasicAuthConfig(commonConfig, datasourceConfiguration);
+                        break;
+                    case SNOWFLAKE_KEY_PAIR_AUTH:
+                        configMono = getKeyPairAuthConfig(commonConfig, datasourceConfiguration);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            return configMono;
+        }
+
+        private Mono<HikariConfig> getKeyPairAuthConfig(
+                HikariConfig config, DatasourceConfiguration datasourceConfiguration) {
+            KeyPairAuth keyPairAuthConfig = (KeyPairAuth) datasourceConfiguration.getAuthentication();
+            byte[] keyBytes = keyPairAuthConfig.getPrivateKey().getDecodedContent();
+            String passphrase = keyPairAuthConfig.getPassphrase();
+            return getPrivateKeyFromBase64(keyBytes, passphrase)
+                    .flatMap(privateKey -> {
+                        String jdbcUrl = getJDBCUrl(datasourceConfiguration);
+
+                        // Prepare datasource object to be passed to hikariConfig
+                        SnowflakeBasicDataSource ds = new SnowflakeBasicDataSource();
+                        ds.setPrivateKey(privateKey);
+                        ds.setUser(keyPairAuthConfig.getUsername());
+                        ds.setUrl(jdbcUrl);
+                        ds.setWarehouse(String.valueOf(
+                                datasourceConfiguration.getProperties().get(0).getValue()));
+                        ds.setDatabaseName(String.valueOf(
+                                datasourceConfiguration.getProperties().get(1).getValue()));
+                        ds.setRole(String.valueOf(
+                                datasourceConfiguration.getProperties().get(3).getValue()));
+                        ds.setSchema(String.valueOf(
+                                datasourceConfiguration.getProperties().get(2).getValue()));
+                        config.setDataSource(ds);
+
+                        return Mono.just(config);
+                    })
+                    .onErrorMap(
+                            AppsmithPluginException.class,
+                            error -> new AppsmithPluginException(
+                                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR, error.getMessage()));
+        }
+
+        private Mono<HikariConfig> getBasicAuthConfig(
+                HikariConfig config, DatasourceConfiguration datasourceConfiguration) {
+            return Mono.fromCallable(() -> {
+                DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+                if (authentication.getUsername() != null) {
+                    config.setUsername(authentication.getUsername());
+                }
+                if (authentication.getPassword() != null) {
+                    config.setPassword(authentication.getPassword());
+                }
+                return config;
+            });
+        }
+
+        private HikariConfig getCommonHikariConfig(Properties properties) {
+            HikariConfig config = new HikariConfig();
+            config.setDriverClassName(properties.getProperty("driver_name"));
+
+            config.setMinimumIdle(Integer.parseInt(properties.get("minimumIdle").toString()));
+            config.setMaximumPoolSize(
+                    Integer.parseInt(properties.get("maximunPoolSize").toString()));
+
+            config.setInitializationFailTimeout(
+                    Long.parseLong(properties.get("initializationFailTimeout").toString()));
+            config.setConnectionTimeout(
+                    Long.parseLong(properties.get("connectionTimeoutMillis").toString()));
+            return config;
+        }
+
+        private Mono<PrivateKey> getPrivateKeyFromBase64(byte[] keyBytes, String passphrase) {
+            try {
+                return Mono.just(SnowflakeKeyUtils.readEncryptedPrivateKey(keyBytes, passphrase));
+            } catch (AppsmithPluginException e) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        SnowflakeErrorMessages.DS_MISSING_PASSPHRASE_FOR_ENCRYPTED_PRIVATE_KEY));
+            } catch (PKCSException e) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        SnowflakeErrorMessages.DS_INCORRECT_PASSPHRASE_OR_PRIVATE_KEY));
+            } catch (Exception e) {
+                return Mono.error(new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        SnowflakeErrorMessages.UNABLE_TO_CREATE_CONNECTION_ERROR_MSG));
+            }
+        }
+
+        private String getJDBCUrl(DatasourceConfiguration dsConfig) {
+            StringBuilder urlBuilder =
+                    new StringBuilder("jdbc:snowflake://" + dsConfig.getUrl() + ".snowflakecomputing.com?");
+            return urlBuilder.toString();
+        }
+
+        private String getAuthenticationType(AuthenticationDTO authentication) {
+            String authenticationType = authentication.getAuthenticationType();
+            if (authenticationType == null) {
+                // This is required to provide backwards compatibility for older snowflake datasources
+                // Where authenticationType property is null, in that case it should default to DB_AUTH
+                authentication.setAuthenticationType(DB_AUTH);
+            }
+            return authentication.getAuthenticationType();
         }
     }
 }
