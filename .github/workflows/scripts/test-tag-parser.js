@@ -87,7 +87,7 @@ function parseTags(body) {
 function matchCodeFence(body) {
   const re = /^```\n\/test\n((?:.|\n)+?)^```\n/gm;
 
-  const spec = body.match(re)?.[1] ?? null;
+  const spec = body.match(re)?.[1];
 
-  return { spec };
+  return spec ? { spec } : null;
 }
