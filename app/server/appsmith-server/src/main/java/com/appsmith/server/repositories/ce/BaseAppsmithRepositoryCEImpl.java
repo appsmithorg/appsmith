@@ -796,6 +796,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     private static boolean isValidUser(User user) {
-        return user != null && StringUtils.hasLength(user.getEmail()) && StringUtils.hasLength(user.getId());
+        return user != null
+                && StringUtils.hasLength(user.getEmail())
+                && (user.isAnonymous() || StringUtils.hasLength(user.getId()));
     }
 }
