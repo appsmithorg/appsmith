@@ -41,9 +41,8 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
                 .criteria(Bridge.notIn(User.Fields.email, getSystemGeneratedUserEmails()))
                 .limit(1)
                 .all(IdOnly.class)
-                .single()
-                .map(ignored -> true)
-                .defaultIfEmpty(false);
+                .count()
+                .map(count -> count == 0);
     }
 
     protected Set<String> getSystemGeneratedUserEmails() {
