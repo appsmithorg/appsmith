@@ -63,7 +63,7 @@ export const getUpdatedLocalUnEvalTreeAfterJSUpdates = (
   return localUnEvalTree;
 };
 
-export const validJSBodyRegex = new RegExp(/^export default[\s]*?({[\s\S]*?})/);
+export const validJSBodyRegex = new RegExp(/^\s*export default[\s]*?({[\s\S]*?})/);
 
 /**
  * Here we parse the JSObject and then determine
