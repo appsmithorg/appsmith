@@ -17,7 +17,6 @@ import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
 import { getJSUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
-import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
 
 export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);
@@ -96,7 +95,7 @@ export const useJSSegmentRoutes = (path: string): UseRoutes => {
       },
       {
         key: "JSEmpty",
-        component: JSBlankState,
+        component: ListJS,
         exact: true,
         path: [path],
       },

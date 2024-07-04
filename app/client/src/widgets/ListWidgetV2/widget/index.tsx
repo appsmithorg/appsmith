@@ -159,7 +159,7 @@ class ListWidget extends BaseWidget<
       name: "List",
       iconSVG: IconSVG,
       thumbnailSVG: ThumbnailSVG,
-      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.DISPLAY],
+      tags: [WIDGET_TAGS.DISPLAY],
       needsMeta: true,
       isCanvas: true,
     };
