@@ -117,7 +117,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
     cy.wait(3000); //for uncommited changes to appear if any!
     cy.get("body").then(($body) => {
       if ($body.find(gitSyncLocators.gitPullCount).length > 0) {
-        cy.commitAndPush();
+        gitSync.CommitAndPush();
       }
     });
   });
@@ -209,7 +209,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
     cy.wait(2000); // wait for transition
     cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 600 });
     cy.wait(3000);
-    cy.commitAndPush();
+    gitSync.CommitAndPush();
     cy.merge(newBranch);
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.wait(2000);
