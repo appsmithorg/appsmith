@@ -540,10 +540,11 @@ export default function* executePluginActionTriggerSaga(
     },
     actionId,
   );
-  span &&
-    setAttributesToSpan(span, {
-      actionId: actionId,
-    });
+
+  setAttributesToSpan(span, {
+    actionId: actionId,
+  });
+
   const action = shouldBeDefined<Action>(
     yield select(getAction, actionId),
     `Action not found for id - ${actionId}`,
@@ -1286,7 +1287,7 @@ function* executePageLoadActionsSaga(
       getLayoutOnLoadIssues,
     );
     const actionCount = flatten(pageActions).length;
-    span && setAttributesToSpan(span, { numActions: actionCount });
+    setAttributesToSpan(span, { numActions: actionCount });
     // when cyclical depedency issue is there,
     // none of the page load actions would be executed
     PerformanceTracker.startAsyncTracking(
@@ -1343,11 +1344,12 @@ function* executePluginActionSaga(
 ) {
   const actionId = pluginAction.id;
   const pluginActionNameToDisplay = getPluginActionNameToDisplay(pluginAction);
-  parentSpan &&
-    setAttributesToSpan(parentSpan, {
-      actionId,
-      pluginName: pluginActionNameToDisplay,
-    });
+
+  setAttributesToSpan(parentSpan, {
+    actionId,
+    pluginName: pluginActionNameToDisplay,
+  });
+
   if (pluginAction.confirmBeforeExecute) {
     const modalPayload = {
       name: pluginActionNameToDisplay,

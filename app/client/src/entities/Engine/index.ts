@@ -19,6 +19,8 @@ import URLGeneratorFactory from "entities/URLRedirect/factory";
 import { updateBranchLocally } from "actions/gitSyncActions";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { restoreIDEEditorViewMode } from "actions/ideActions";
+import type { Span } from "@opentelemetry/api";
+import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
 
 export interface AppEnginePayload {
   applicationId?: string;
@@ -29,10 +31,14 @@ export interface AppEnginePayload {
 }
 
 export interface IAppEngine {
-  setupEngine(payload: AppEnginePayload): any;
-  loadAppData(payload: AppEnginePayload): any;
+  setupEngine(payload: AppEnginePayload, rootSpan: Span): any;
+  loadAppData(payload: AppEnginePayload, rootSpan: Span): any;
   loadAppURL(pageId: string, pageIdInUrl?: string): any;
-  loadAppEntities(toLoadPageId: string, applicationId: string): any;
+  loadAppEntities(
+    toLoadPageId: string,
+    applicationId: string,
+    rootSpan: Span,
+  ): any;
   loadGit(applicationId: string): any;
   completeChore(): any;
 }
@@ -55,13 +61,19 @@ export default abstract class AppEngine {
     toLoadPageId: string,
     applicationId: string,
     allResponses: InitConsolidatedApi,
+    rootSpan: Span,
   ): any;
-  abstract loadGit(applicationId: string): any;
+  abstract loadGit(applicationId: string, rootSpan: Span): any;
   abstract startPerformanceTracking(): any;
   abstract stopPerformanceTracking(): any;
-  abstract completeChore(): any;
+  abstract completeChore(rootSpan: Span): any;
 
-  *loadAppData(payload: AppEnginePayload, allResponses: InitConsolidatedApi) {
+  *loadAppData(
+    payload: AppEnginePayload,
+    allResponses: InitConsolidatedApi,
+    rootSpan: Span,
+  ) {
+    const loadAppDataSpan = startNestedSpan("AppEngine.loadAppData", rootSpan);
     const { applicationId, branch, pageId } = payload;
     const { pages } = allResponses;
     const apiCalls: boolean = yield failFastApiCalls(
@@ -82,8 +94,11 @@ export default abstract class AppEngine {
         ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
       ],
     );
-    if (!apiCalls)
+
+    if (!apiCalls) {
       throw new PageNotFoundError(`Cannot find page with id: ${pageId}`);
+    }
+
     const application: ApplicationPayload = yield select(getCurrentApplication);
     const currentGitBranch: ReturnType<typeof getCurrentGitBranch> =
       yield select(getCurrentGitBranch);
@@ -97,25 +112,36 @@ export default abstract class AppEngine {
       application.applicationVersion,
       this._mode,
     );
+
+    endSpan(loadAppDataSpan);
     return { toLoadPageId, applicationId: application.id };
   }
 
-  *setupEngine(payload: AppEnginePayload): any {
+  *setupEngine(payload: AppEnginePayload, rootSpan: Span): any {
+    const setupEngineSpan = startNestedSpan("AppEngine.setupEngine", rootSpan);
+
     const { branch } = payload;
     yield put(updateBranchLocally(branch || ""));
     yield put(setAppMode(this._mode));
     yield put(restoreIDEEditorViewMode());
     yield put({ type: ReduxActionTypes.START_EVALUATION });
+
+    endSpan(setupEngineSpan);
   }
 
-  *loadAppURL(pageId: string, pageIdInUrl?: string) {
+  *loadAppURL(pageId: string, pageIdInUrl: string = "", rootSpan: Span) {
     try {
+      const loadAppUrlSpan = startNestedSpan("AppEngine.loadAppURL", rootSpan);
+
       if (!this._urlRedirect) return;
       const newURL: string = yield call(
         this._urlRedirect.generateRedirectURL.bind(this),
         pageId,
         pageIdInUrl,
       );
+
+      endSpan(loadAppUrlSpan);
+
       if (!newURL) return;
       history.replace(newURL);
     } catch (e) {
