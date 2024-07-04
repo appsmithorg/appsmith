@@ -21,6 +21,7 @@ import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
 import { useSelector } from "react-redux";
 import { widgetsExistCurrentPage } from "@appsmith/selectors/entitiesSelector";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 function UIEntitySidebar({
   focusSearchInput,
@@ -38,6 +39,7 @@ function UIEntitySidebar({
   const isDragDropBuildingBlocksEnabled = useFeatureFlag(
     FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
   );
+  const isAnvil = useSelector(getIsAnvilLayout);
   const hasWidgets = useSelector(widgetsExistCurrentPage);
   const hideSuggestedWidgets = useMemo(
     () =>
@@ -152,8 +154,10 @@ function UIEntitySidebar({
             // Do not expand all the widget tags when the user does not have any
             // widgets yet.
             // Only show Suggested or Building Blocks
+            // This behavior should not be used if Anvil layout is active
             let isInitiallyOpen = false;
             if (
+              isAnvil ||
               hasWidgets ||
               [
                 WIDGET_TAGS.SUGGESTED_WIDGETS as string,
