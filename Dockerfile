@@ -12,12 +12,12 @@ ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
 COPY deploy/docker/fs /
 
 RUN <<END
-  if ! [[ -f info.json ]]; then
+  if ! [ -f info.json ]; then
     echo "Missing info.json" >&2
     exit 1
   fi
 
-  if ! [[ -f server/mongo/server.jar && -f server/pg/server.jar ]]; then
+  if ! [ -f server/mongo/server.jar && -f server/pg/server.jar ]; then
     echo "Missing one or both server.jar files in the right place. Are you using the build script?" >&2
     exit 1
   fi
