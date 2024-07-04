@@ -35,6 +35,7 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
+import com.appsmith.server.repositories.DryOperationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -99,6 +100,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final DatasourceService datasourceService;
     private final CustomJSLibService customJSLibService;
     private final UpdateLayoutService updateLayoutService;
+    private final DryOperationRepository dryOperationRepository;
 
     @Override
     public Mono<Application> importResourceInPage(
@@ -247,6 +249,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                         .thenReturn(application);
                             });
                 })
+                // execute dry run ops
+                .flatMap(importableArtifact -> dryOperationRepository
+                        .executeAllDbOps(mappedImportableResourcesDTO)
+                        .thenReturn(importableArtifact))
                 .flatMap(application -> {
                     Map<String, Object> fieldNameValueMap = Map.of(
                             FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS,
