@@ -324,12 +324,11 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       rootSpan,
     );
 
-    yield call(
-      engine.loadAppURL,
-      toLoadPageId,
-      action.payload.pageId,
+    yield call(engine.loadAppURL, {
+      pageId: toLoadPageId,
+      pageIdInUrl: action.payload.pageId,
       rootSpan,
-    );
+    });
 
     yield call(
       engine.loadAppEntities,

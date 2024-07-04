@@ -129,7 +129,15 @@ export default abstract class AppEngine {
     endSpan(setupEngineSpan);
   }
 
-  *loadAppURL(pageId: string, pageIdInUrl: string = "", rootSpan: Span) {
+  *loadAppURL({
+    pageId,
+    pageIdInUrl,
+    rootSpan,
+  }: {
+    pageId: string;
+    pageIdInUrl?: string;
+    rootSpan: Span;
+  }) {
     try {
       const loadAppUrlSpan = startNestedSpan("AppEngine.loadAppURL", rootSpan);
 
