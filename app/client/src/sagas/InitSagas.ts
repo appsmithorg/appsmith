@@ -338,8 +338,8 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       allResponses,
       rootSpan,
     );
-    yield call(engine.loadGit, applicationId, rootSpan); // Separate methods
-    yield call(engine.completeChore, rootSpan); // Separate methods
+    yield call(engine.loadGit, applicationId, rootSpan);
+    yield call(engine.completeChore, rootSpan);
     yield put(generateAutoHeightLayoutTreeAction(true, false));
     engine.stopPerformanceTracking();
   } catch (e) {
