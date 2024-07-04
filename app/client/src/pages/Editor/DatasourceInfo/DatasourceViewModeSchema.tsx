@@ -79,6 +79,9 @@ const DatasourceViewModeSchema = (props: Props) => {
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
+  const releaseDragDropBuildingBlocks = useFeatureFlag(
+    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
+  );
 
   const editorType = useEditorType(history.location.pathname);
 
@@ -232,8 +235,10 @@ const DatasourceViewModeSchema = (props: Props) => {
   // if there was a failure in the fetching of the data
   // if tableName from schema is availble
   // if the user has permissions
+  // if drag and drop building blocks are not enabled
   // Also, if Anvil is enabled, we donot allow page generation. As Anvil doesn't work well with this feature yet.
   const showGeneratePageBtn =
+    !releaseDragDropBuildingBlocks &&
     !isDatasourceStructureLoading &&
     !isLoading &&
     !failedFetchingPreviewData &&
