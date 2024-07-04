@@ -122,9 +122,7 @@ export const parseJSObject = (code: string) => {
     };
 
     if (isPropertyAFunctionNode(node.value)) {
-      // if in future we need default values of each param, we could implement that in getFunctionalParamsFromNode
-      // currently we don't consume it anywhere hence avoiding to calculate that.
-      const params = getFunctionalParamsFromNode(node.value);
+      const params = getFunctionalParamsFromNode(node.value, true, code);
       property = {
         ...property,
         arguments: [...params],

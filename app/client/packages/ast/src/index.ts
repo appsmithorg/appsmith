@@ -104,6 +104,7 @@ export interface ObjectExpression extends Expression {
 interface AssignmentPatternNode extends Node {
   type: NodeTypes.AssignmentPattern;
   left: Pattern;
+  right: ArgumentTypes;
 }
 
 // doc: https://github.com/estree/estree/blob/master/es5.md#literal
@@ -519,6 +520,7 @@ export const getFunctionalParamsFromNode = (
     | FunctionExpressionNode
     | ArrowFunctionExpressionNode,
   needValue = false,
+  code = "",
 ): Set<functionParam> => {
   const functionalParams = new Set<functionParam>();
   node.params.forEach((paramNode) => {
@@ -530,14 +532,22 @@ export const getFunctionalParamsFromNode = (
     } else if (isAssignmentPatternNode(paramNode)) {
       if (isIdentifierNode(paramNode.left)) {
         const paramName = paramNode.left.name;
-        if (!needValue) {
+        if (!needValue || !code) {
           functionalParams.add({ paramName, defaultValue: undefined });
         } else {
-          // figure out how to get value of paramNode.right for each node type
-          // currently we don't use params value, hence skipping it
-          // functionalParams.add({
-          //   defaultValue: paramNode.right.value,
-          // });
+          const defaultValueInString = code.slice(
+            paramNode.right.start,
+            paramNode.right.end,
+          );
+          const defaultValue =
+            paramNode.right.type === "Literal" &&
+            typeof paramNode.right.value === "string"
+              ? paramNode.right.value
+              : `{{${defaultValueInString}}}`;
+          functionalParams.add({
+            paramName,
+            defaultValue,
+          });
         }
       }
     }
