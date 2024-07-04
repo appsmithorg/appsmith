@@ -1297,7 +1297,7 @@ public class DatasourceServiceTest {
             datasourceConfiguration2.setUrl("http://test.com");
             datasource1.setDatasourceConfiguration(datasourceConfiguration2);
             datasource1.setName("New Name for update to test that encryption is now gone");
-            return datasourceService.save(datasource1);
+            return datasourceService.save(datasource1, false);
         });
 
         StepVerifier.create(datasourceMono)
@@ -2007,7 +2007,7 @@ public class DatasourceServiceTest {
                 datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
         Mockito.doReturn(Mono.just(datasourceStorage))
                 .when(datasourceStorageService)
-                .create(Mockito.any());
+                .create(Mockito.any(), Mockito.anyBoolean());
         Datasource dbDatasource = datasourceService.create(datasource).block();
 
         assertThat(dbDatasource.getId()).isNotNull();

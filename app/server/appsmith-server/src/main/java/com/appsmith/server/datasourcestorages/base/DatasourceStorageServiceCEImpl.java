@@ -60,7 +60,16 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     @Override
     public Mono<DatasourceStorage> create(DatasourceStorage datasourceStorage) {
         return this.checkDuplicateDatasourceStorage(datasourceStorage)
-                .then(this.validateAndSaveDatasourceStorageToRepository(datasourceStorage))
+                .then(validateAndSaveDatasourceStorageToRepository(datasourceStorage, false))
+                .flatMap(this::populateHintMessages) // For REST API datasource create flow.
+                .flatMap(savedDatasourceStorage -> analyticsService.sendCreateEvent(
+                        savedDatasourceStorage, getAnalyticsProperties(savedDatasourceStorage)));
+    }
+
+    @Override
+    public Mono<DatasourceStorage> create(DatasourceStorage datasourceStorage, boolean isDryOps) {
+        return this.checkDuplicateDatasourceStorage(datasourceStorage)
+                .then(validateAndSaveDatasourceStorageToRepository(datasourceStorage, isDryOps))
                 .flatMap(this::populateHintMessages) // For REST API datasource create flow.
                 .flatMap(savedDatasourceStorage -> analyticsService.sendCreateEvent(
                         savedDatasourceStorage, getAnalyticsProperties(savedDatasourceStorage)));
@@ -129,6 +138,15 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
     @Override
     public Mono<DatasourceStorage> updateDatasourceStorage(
             DatasourceStorage datasourceStorage, String activeEnvironmentId, Boolean isUserRefreshedUpdate) {
+        return updateDatasourceStorage(datasourceStorage, activeEnvironmentId, isUserRefreshedUpdate, false);
+    }
+
+    @Override
+    public Mono<DatasourceStorage> updateDatasourceStorage(
+            DatasourceStorage datasourceStorage,
+            String activeEnvironmentId,
+            Boolean isUserRefreshedUpdate,
+            boolean isDryOps) {
         String datasourceId = datasourceStorage.getDatasourceId();
         String environmentId = datasourceStorage.getEnvironmentId();
 
@@ -145,7 +163,8 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                     }
                     return dbStorage;
                 })
-                .flatMap(this::validateAndSaveDatasourceStorageToRepository)
+                .flatMap(datasourceStorage1 ->
+                        validateAndSaveDatasourceStorageToRepository(datasourceStorage1, isDryOps))
                 .flatMap(savedDatasourceStorage -> {
                     Map<String, Object> analyticsProperties = getAnalyticsProperties(savedDatasourceStorage);
                     Boolean isUserInvokedUpdate = TRUE.equals(isUserRefreshedUpdate) ? TRUE : FALSE;
@@ -213,13 +232,20 @@ public class DatasourceStorageServiceCEImpl implements DatasourceStorageServiceC
                 });
     }
 
-    private Mono<DatasourceStorage> validateAndSaveDatasourceStorageToRepository(DatasourceStorage datasourceStorage) {
+    private Mono<DatasourceStorage> validateAndSaveDatasourceStorageToRepository(
+            DatasourceStorage datasourceStorage, boolean isDryOps) {
 
         return Mono.just(datasourceStorage)
                 .map(this::sanitizeDatasourceStorage)
                 .flatMap(datasourceStorage1 -> validateDatasourceStorage(datasourceStorage1))
                 .flatMap(this::executePreSaveActions)
-                .flatMap(repository::save);
+                .flatMap(unsavedDatasourceStorage -> {
+                    if (isDryOps) {
+                        unsavedDatasourceStorage.updateForBulkWriteOperation();
+                        return Mono.just(unsavedDatasourceStorage);
+                    }
+                    return repository.save(unsavedDatasourceStorage);
+                });
     }
 
     @Override

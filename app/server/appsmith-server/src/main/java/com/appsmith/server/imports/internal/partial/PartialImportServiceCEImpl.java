@@ -35,6 +35,7 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
+import com.appsmith.server.repositories.DryOperationRepository;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -97,6 +98,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final DatasourceService datasourceService;
     private final CustomJSLibService customJSLibService;
     private final UpdateLayoutService updateLayoutService;
+    private final DryOperationRepository dryOperationRepository;
 
     @Override
     public Mono<Application> importResourceInPage(
@@ -189,112 +191,114 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                             permissionProvider.getRequiredPermissionOnTargetApplication())
                                     .cache();
 
-                            return newPageService
-                                    .findByBranchNameAndDefaultPageId(branchName, pageId, AclPermission.MANAGE_PAGES)
-                                    .flatMap(page -> {
-                                        Layout layout = page.getUnpublishedPage()
-                                                .getLayouts()
-                                                .get(0);
-                                        return refactoringService.getAllExistingEntitiesMono(
-                                                page.getId(), CreatorContextType.PAGE, layout.getId(), true);
-                                    })
-                                    .flatMap(nameSet -> {
-                                        // Fetch name of the existing resources in the page to avoid name clashing
-                                        Map<String, String> nameMap =
-                                                nameSet.stream().collect(Collectors.toMap(name -> name, name -> name));
-                                        mappedImportableResourcesDTO.setRefactoringNameReference(nameMap);
-                                        return importedApplicationMono;
-                                    })
-                                    .flatMap(application -> {
-                                        applicationJson.setExportedApplication(application);
-                                        return Mono.just(applicationJson);
-                                    })
-                                    // Import Custom Js Lib and Datasource
-                                    .then(getApplicationImportableEntities(
-                                            importingMetaDTO,
-                                            mappedImportableResourcesDTO,
-                                            workspaceMono,
-                                            importedApplicationMono,
-                                            applicationJson))
-                                    .thenReturn("done")
-                                    // Update the pageName map for actions and action collection
-                                    .then(paneNameMapForActionAndActionCollectionInAppJson(
-                                            branchedPageIdMono, applicationJson, mappedImportableResourcesDTO))
-                                    .thenReturn("done")
-                                    // Import Actions and action collection
-                                    .then(getActionAndActionCollectionImport(
-                                            importingMetaDTO,
-                                            mappedImportableResourcesDTO,
-                                            workspaceMono,
-                                            importedApplicationMono,
-                                            applicationJson))
-                                    .thenReturn("done")
-                                    .flatMap(result -> {
-                                        Application application = applicationJson.getExportedApplication();
-                                        // Keep existing JS Libs and add the imported ones
-                                        application
-                                                .getUnpublishedCustomJSLibs()
-                                                .addAll(new HashSet<>(
-                                                        mappedImportableResourcesDTO.getInstalledJsLibsList()));
-                                        if (mappedImportableResourcesDTO.getActionResultDTO() == null) {
-                                            return applicationService.update(application.getId(), application);
-                                        }
-                                        return newActionImportableService
-                                                .updateImportedEntities(
-                                                        application, importingMetaDTO, mappedImportableResourcesDTO)
-                                                .then(newPageImportableService.updateImportedEntities(
-                                                        application, importingMetaDTO, mappedImportableResourcesDTO))
-                                                .thenReturn(application);
-                                    });
-                        })
-                        .flatMap(application -> {
-                            Map<String, Object> fieldNameValueMap = Map.of(
-                                    FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS,
-                                    application.getUnpublishedCustomJSLibs());
-                            return applicationService
-                                    .update(applicationId, fieldNameValueMap, branchName)
-                                    .then(Mono.just(application));
-                        })
-                        // Update the refactored names of the actions and action collections in the DSL bindings
-                        .flatMap(application -> {
-                            // Partial export can have no pages
-                            if (applicationJson.getPageList() == null) {
+                    return newPageService
+                            .findByBranchNameAndDefaultPageId(branchName, pageId, AclPermission.MANAGE_PAGES)
+                            .flatMap(page -> {
+                                Layout layout =
+                                        page.getUnpublishedPage().getLayouts().get(0);
+                                return refactoringService.getAllExistingEntitiesMono(
+                                        page.getId(), CreatorContextType.PAGE, layout.getId(), true);
+                            })
+                            .flatMap(nameSet -> {
+                                // Fetch name of the existing resources in the page to avoid name clashing
+                                Map<String, String> nameMap =
+                                        nameSet.stream().collect(Collectors.toMap(name -> name, name -> name));
+                                mappedImportableResourcesDTO.setRefactoringNameReference(nameMap);
+                                return importedApplicationMono;
+                            })
+                            .flatMap(application -> {
+                                applicationJson.setExportedApplication(application);
+                                return Mono.just(applicationJson);
+                            })
+                            // Import Custom Js Lib and Datasource
+                            .then(getApplicationImportableEntities(
+                                    importingMetaDTO,
+                                    mappedImportableResourcesDTO,
+                                    workspaceMono,
+                                    importedApplicationMono,
+                                    applicationJson))
+                            .thenReturn("done")
+                            // Update the pageName map for actions and action collection
+                            .then(paneNameMapForActionAndActionCollectionInAppJson(
+                                    branchedPageIdMono, applicationJson, mappedImportableResourcesDTO))
+                            .thenReturn("done")
+                            // Import Actions and action collection
+                            .then(getActionAndActionCollectionImport(
+                                    importingMetaDTO,
+                                    mappedImportableResourcesDTO,
+                                    workspaceMono,
+                                    importedApplicationMono,
+                                    applicationJson))
+                            .thenReturn("done")
+                            .flatMap(result -> {
+                                Application application = applicationJson.getExportedApplication();
+                                // Keep existing JS Libs and add the imported ones
+                                application
+                                        .getUnpublishedCustomJSLibs()
+                                        .addAll(new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
+                                if (mappedImportableResourcesDTO.getActionResultDTO() == null) {
+                                    return applicationService.update(application.getId(), application);
+                                }
+                                return newActionImportableService
+                                        .updateImportedEntities(
+                                                application, importingMetaDTO, mappedImportableResourcesDTO)
+                                        .then(newPageImportableService.updateImportedEntities(
+                                                application, importingMetaDTO, mappedImportableResourcesDTO))
+                                        .thenReturn(application);
+                            });
+                })
+                // execute dry run ops
+                .flatMap(importableArtifact -> dryOperationRepository
+                        .executeAllDbOps(mappedImportableResourcesDTO)
+                        .thenReturn(importableArtifact))
+                .flatMap(application -> {
+                    Map<String, Object> fieldNameValueMap = Map.of(
+                            FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS,
+                            application.getUnpublishedCustomJSLibs());
+                    return applicationService
+                            .update(applicationId, fieldNameValueMap, branchName)
+                            .then(Mono.just(application));
+                })
+                // Update the refactored names of the actions and action collections in the DSL bindings
+                .flatMap(application -> {
+                    // Partial export can have no pages
+                    if (applicationJson.getPageList() == null) {
+                        return Mono.just(application);
+                    }
+                    Stopwatch processStopwatch1 = new Stopwatch("Refactoring the widget in DSL ");
+                    // The building block is stored as a page in an application
+                    final JsonNode dsl = widgetRefactorUtil.convertDslStringToJsonNode(applicationJson
+                            .getPageList()
+                            .get(0)
+                            .getUnpublishedPage()
+                            .getLayouts()
+                            .get(0)
+                            .getDsl());
+                    return Flux.fromIterable(mappedImportableResourcesDTO
+                                    .getRefactoringNameReference()
+                                    .keySet())
+                            .filter(name -> !name.equals(mappedImportableResourcesDTO
+                                    .getRefactoringNameReference()
+                                    .get(name)))
+                            .flatMap(name -> {
+                                String refactoredName = mappedImportableResourcesDTO
+                                        .getRefactoringNameReference()
+                                        .get(name);
+                                return widgetRefactorUtil.refactorNameInDsl(
+                                        dsl,
+                                        name,
+                                        refactoredName,
+                                        applicationPageService.getEvaluationVersion(),
+                                        Pattern.compile(name));
+                            })
+                            .collectList()
+                            .flatMap(refactoredDsl -> {
+                                processStopwatch1.stopAndLogTimeInMillis();
+                                applicationJson.setWidgets(dsl.toString());
                                 return Mono.just(application);
-                            }
-                            Stopwatch processStopwatch1 = new Stopwatch("Refactoring the widget in DSL ");
-                            // The building block is stored as a page in an application
-                            final JsonNode dsl = widgetRefactorUtil.convertDslStringToJsonNode(applicationJson
-                                    .getPageList()
-                                    .get(0)
-                                    .getUnpublishedPage()
-                                    .getLayouts()
-                                    .get(0)
-                                    .getDsl());
-                            return Flux.fromIterable(mappedImportableResourcesDTO
-                                            .getRefactoringNameReference()
-                                            .keySet())
-                                    .filter(name -> !name.equals(mappedImportableResourcesDTO
-                                            .getRefactoringNameReference()
-                                            .get(name)))
-                                    .flatMap(name -> {
-                                        String refactoredName = mappedImportableResourcesDTO
-                                                .getRefactoringNameReference()
-                                                .get(name);
-                                        return widgetRefactorUtil.refactorNameInDsl(
-                                                dsl,
-                                                name,
-                                                refactoredName,
-                                                applicationPageService.getEvaluationVersion(),
-                                                Pattern.compile(name));
-                                    })
-                                    .collectList()
-                                    .flatMap(refactoredDsl -> {
-                                        processStopwatch1.stopAndLogTimeInMillis();
-                                        applicationJson.setWidgets(dsl.toString());
-                                        return Mono.just(application);
-                                    });
-                        })
-                /*.as(transactionalOperator::transactional)*/ ;
+                            });
+                })
+                /*.as(transactionalOperator::transactional)*/;
 
         return partiallyImportedAppMono.map(application -> {
             BuildingBlockImportDTO buildingBlockImportDTO = new BuildingBlockImportDTO();

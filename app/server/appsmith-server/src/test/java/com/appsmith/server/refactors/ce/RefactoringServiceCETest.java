@@ -156,7 +156,7 @@ class RefactoringServiceCETest {
 
     @BeforeEach
     public void setup() {
-        newPageService.deleteAll();
+        newPageService.deleteAll().block();
         User currentUser = sessionUserService.getCurrentUser().block();
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutActionServiceTest");

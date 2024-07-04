@@ -1239,6 +1239,6 @@ public class PageServiceTest {
 
     @AfterEach
     public void purgeAllPages() {
-        newPageService.deleteAll();
+        newPageService.deleteAll().block();
     }
 }
