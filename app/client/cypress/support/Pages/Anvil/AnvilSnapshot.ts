@@ -49,26 +49,26 @@ export class AnvilSnapshot {
   public verifyDeployMode = (widgetName: string) => {
     this.deployMode.DeployApp(this.locators.appViewerPage);
 
-    this.verifyForDifferentDevices(widgetName, [
-      "macbook-13",
-      "iphone-6",
-      "ipad-2",
-    ]);
-  };
+    cy.viewport("macbook-13");
+    this.agHelper
+      .GetElement(this.locators.appViewerPage)
+      .matchImageSnapshot(`anvil${widgetName}DeployMacbook`, {
+        comparisonMethod: "ssim",
+      });
 
-  private verifyForDifferentDevices = (
-    widgetName: string,
-    devices: Cypress.ViewportPreset[],
-  ) => {
-    devices.forEach((device) => {
-      cy.viewport(device);
+    cy.viewport("iphone-6");
+    this.agHelper
+      .GetElement(this.locators.appViewerPage)
+      .matchImageSnapshot(`anvil${widgetName}DeployIphone`, {
+        comparisonMethod: "ssim",
+      });
 
-      this.agHelper
-        .GetElement(this.locators.appViewerPage)
-        .matchImageSnapshot(`anvil${widgetName}Deploy${device}`, {
-          comparisonMethod: "ssim",
-        });
-    });
+    cy.viewport("ipad-2");
+    this.agHelper
+      .GetElement(this.locators.appViewerPage)
+      .matchImageSnapshot(`anvil${widgetName}DeployIpad`, {
+        comparisonMethod: "ssim",
+      });
   };
 
   private enterPreviewMode = (shouldOpen = true) => {
