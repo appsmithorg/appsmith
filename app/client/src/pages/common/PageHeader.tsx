@@ -13,11 +13,11 @@ import { Banner } from "@appsmith/utils/licenseHelpers";
 import bootIntercom from "utils/bootIntercom";
 import EntitySearchBar from "pages/common/SearchBar/EntitySearchBar";
 import { Switch, Tooltip } from "design-system";
-import { setFeatureFlagOverridesAction } from "actions/featureFlagActions";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
-import log from "loglevel";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { setFeatureFlagOverrideValues } from "utils/storage";
+import { updateFeatureFlagOverrideAction } from "actions/featureFlagActions";
 
 const StyledPageHeader = styled(StyledHeader)<{
   hideShadow?: boolean;
@@ -86,20 +86,18 @@ export function PageHeader(props: PageHeaderProps) {
     FEATURE_FLAG.release_anvil_toggle_enabled,
   );
 
-  log.debug("Is Anvil Enabled:", isAnvilEnabled);
-
   /*
     If Anvil toggle is enabled, the switch allows us to enable or disable Anvil
     We pass the anvil feature's value via the toggle. We also passthrough the original
     anvil toggle feature flag value as-is.
   */
   function handleAnvilToggle(isSelected: boolean) {
-    dispatch(
-      setFeatureFlagOverridesAction({
-        release_anvil_enabled: isSelected,
-        release_anvil_toggle_enabled: shouldShowAnvilToggle,
-      }),
-    );
+    const featureFlags = {
+      release_anvil_enabled: isSelected,
+      release_anvil_toggle_enabled: shouldShowAnvilToggle,
+    };
+    dispatch(updateFeatureFlagOverrideAction(featureFlags));
+    setFeatureFlagOverrideValues(featureFlags);
   }
 
   return (

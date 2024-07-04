@@ -45,7 +45,7 @@ export const useFeatureFlagOverride = () => {
         }
       });
     }
-  }, [areFeatureFlagsFetched]);
+  }, [areFeatureFlagsFetched, dispatch]);
 
   /**
    * Sets up a global function to toggle the feature flag override.
