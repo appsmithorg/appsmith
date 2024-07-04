@@ -42,7 +42,9 @@
     "prettier:ci": "yarn workspaces foreach -ptv run prettier",
     "check-types": "yarn tsc --noEmit",
     "init-husky": "cd ../.. && husky install app/client/.husky",
-    "clean:workspaces": "yarn workspaces foreach -pAv exec rm -rf node_modules"
+    "clean:workspaces": "yarn workspaces foreach -pAv exec rm -rf node_modules",
+    "snapshot:customer-functional": "npx cypress run --browser chromium --spec './cypress/e2e/Regression/ClientSide/Anvil/Widgets/*_spec.ts'",
+    "snapshot:customer-functional:docker": "docker run --network='host' -it --rm -e CYPRESS_updateSnapshots=%CYPRESS_updateSnapshots% -v $PWD:/cypress -w /cypress snapshot-testing"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.441.0",

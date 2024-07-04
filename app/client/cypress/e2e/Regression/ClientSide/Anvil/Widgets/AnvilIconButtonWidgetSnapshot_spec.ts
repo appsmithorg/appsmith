@@ -13,7 +13,6 @@ describe(
     });
 
     it("1. Canvas Mode", () => {
-      cy.wait(5000);
       anvilSnapshot.verifyCanvasMode("IconButtonWidget");
     });
 

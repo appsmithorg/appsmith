@@ -1,4 +1,3 @@
-import { agHelper } from "../../Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../Objects/Registry";
 
 export class AnvilSnapshot {
@@ -25,9 +24,7 @@ export class AnvilSnapshot {
 
     this.agHelper
       .GetElement(this.locators.canvas)
-      .matchImageSnapshot(`anvil${widgetName}CanvasDark`, {
-        comparisonMethod: "ssim",
-      });
+      .matchImageSnapshot(`anvil${widgetName}CanvasDark`);
 
     this.setTheme("light");
   };
@@ -49,26 +46,26 @@ export class AnvilSnapshot {
   public verifyDeployMode = (widgetName: string) => {
     this.deployMode.DeployApp(this.locators.appViewerPage);
 
-    cy.viewport("macbook-13");
-    this.agHelper
-      .GetElement(this.locators.appViewerPage)
-      .matchImageSnapshot(`anvil${widgetName}DeployMacbook`, {
-        comparisonMethod: "ssim",
-      });
+    this.verifyForDifferentDevices(widgetName, [
+      "macbook-13",
+      "iphone-6",
+      "ipad-2",
+    ]);
+  };
 
-    cy.viewport("iphone-6");
-    this.agHelper
-      .GetElement(this.locators.appViewerPage)
-      .matchImageSnapshot(`anvil${widgetName}DeployIphone`, {
-        comparisonMethod: "ssim",
-      });
+  private verifyForDifferentDevices = (
+    widgetName: string,
+    devices: Cypress.ViewportPreset[],
+  ) => {
+    devices.forEach((device) => {
+      cy.viewport(device);
 
-    cy.viewport("ipad-2");
-    this.agHelper
-      .GetElement(this.locators.appViewerPage)
-      .matchImageSnapshot(`anvil${widgetName}DeployIpad`, {
-        comparisonMethod: "ssim",
-      });
+      this.agHelper
+        .GetElement(this.locators.appViewerPage)
+        .matchImageSnapshot(`anvil${widgetName}Deploy${device}`, {
+          comparisonMethod: "ssim",
+        });
+    });
   };
 
   private enterPreviewMode = (shouldOpen = true) => {
@@ -88,5 +85,13 @@ export class AnvilSnapshot {
     );
 
     this.appSettings.ClosePane();
+  };
+
+  public triggerInputInvalidState = () => {
+    this.enterPreviewMode();
+    cy.get("input[aria-required=true]").first().type("123");
+    cy.get("input[aria-required=true]").first().clear();
+    this.exitPreviewMode();
+    this.agHelper.GetNClick(this.locators.propertyPaneSidebar);
   };
 }
