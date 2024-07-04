@@ -1,11 +1,15 @@
 import React from "react";
-import { Button, Flex, SegmentedControl } from "design-system";
+import { Button, Flex, SegmentedControl, Tag } from "design-system";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 import history from "utils/history";
 import { globalAddURL } from "@appsmith/RouteBuilder";
 import { useSelector } from "react-redux";
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
+import {
+  getCurrentActions,
+  getCurrentJSCollections,
+  getCurrentPageId,
+} from "@appsmith/selectors/entitiesSelector";
 import { useCurrentEditorState, useSegmentNavigation } from "../../hooks";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -22,6 +26,12 @@ const Container = styled(Flex)`
   }
 `;
 
+const Label = styled(Flex)`
+  font-weight: 500;
+  align-items: center;
+  gap: 5px;
+`;
+
 const SegmentedHeader = () => {
   const isGlobalAddPaneEnabled = useFeatureFlag(
     FEATURE_FLAG.release_global_add_pane_enabled,
@@ -32,6 +42,8 @@ const SegmentedHeader = () => {
   };
   const { segment } = useCurrentEditorState();
   const { onSegmentChange } = useSegmentNavigation();
+  const currentActions = useSelector(getCurrentActions);
+  const currentJSCollections = useSelector(getCurrentJSCollections);
 
   return (
     <Container
@@ -47,15 +59,29 @@ const SegmentedHeader = () => {
         onChange={onSegmentChange}
         options={[
           {
-            label: createMessage(EDITOR_PANE_TEXTS.queries_tab),
+            label: (
+              <Label>
+                {createMessage(EDITOR_PANE_TEXTS.queries_tab)}
+                <Tag isClosable={false} kind="special">
+                  {currentActions.length}
+                </Tag>
+              </Label>
+            ),
             value: EditorEntityTab.QUERIES,
           },
           {
-            label: createMessage(EDITOR_PANE_TEXTS.js_tab),
+            label: (
+              <Label>
+                {createMessage(EDITOR_PANE_TEXTS.js_tab)}
+                <Tag isClosable={false} kind="special">
+                  {currentJSCollections.length}
+                </Tag>
+              </Label>
+            ),
             value: EditorEntityTab.JS,
           },
           {
-            label: createMessage(EDITOR_PANE_TEXTS.ui_tab),
+            label: <Label>{createMessage(EDITOR_PANE_TEXTS.ui_tab)}</Label>,
             value: EditorEntityTab.UI,
           },
         ]}

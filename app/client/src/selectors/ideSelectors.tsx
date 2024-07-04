@@ -28,10 +28,13 @@ export const getIDEViewMode = createSelector(
   },
 );
 
-export const getActionsCount = (pageId: string) =>
-  createSelector(getPageActions(pageId), (actions) => {
+export const getActionsCount = createSelector(
+  getCurrentPageId,
+  getPageActions,
+  (pageId, actions) => {
     return actions.length || 0;
-  });
+  },
+);
 
 export const getJsActionsCount = (state: AppState, pageId: string) =>
   state.entities.jsActions.filter((v) => v.config.pageId === pageId).length ||
