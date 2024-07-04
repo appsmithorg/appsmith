@@ -139,9 +139,9 @@ export default abstract class AppEngine {
     rootSpan: Span;
   }) {
     try {
-      const loadAppUrlSpan = startNestedSpan("AppEngine.loadAppURL", rootSpan);
-
       if (!this._urlRedirect) return;
+
+      const loadAppUrlSpan = startNestedSpan("AppEngine.loadAppURL", rootSpan);
       const newURL: string = yield call(
         this._urlRedirect.generateRedirectURL.bind(this),
         pageId,
