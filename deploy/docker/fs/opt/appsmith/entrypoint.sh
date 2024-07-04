@@ -487,9 +487,6 @@ if [[ -z "${DYNO}" ]]; then
     tlog "Initializing MongoDB"
     init_mongodb
     init_replica_set
-  elif [[ $isPostgresUrl -eq 1 ]]; then
-    tlog "Initializing Postgres"
-    # init_postgres
   fi
 else
   # These functions are used to limit heap size for Backend process when deployed on Heroku

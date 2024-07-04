@@ -231,16 +231,16 @@ jobs:
           curl --location --request POST ${{secrets.CYPRESS_WORKFLOW_API}}    \
           --header 'x-appsmith-key: ${{ secrets.CYPRESS_WORKFLOW_KEY }}'      \
           --header 'Content-Type: application/json' \
-          --data-raw '{ "workflow_id" : ${{ github.run_id }} , 
-                        "commit_id" : "${{ github.sha }}" , 
-                        "repo" : "${{  github.event.repository.full_name }}" , 
-                        "task" : "${{  github.job }}" ,   
-                        "workflow_type" : "${{ github.event_name }}",  
-                        "workflow_name" : "${{ github.workflow }}", 
-                        "job_id" : "",     
-                        "job_data": { 
-                            "ci_test_result_sample_data" : "sample_data" 
-                         }  
+          --data-raw '{ "workflow_id" : ${{ github.run_id }} ,
+                        "commit_id" : "${{ github.sha }}" ,
+                        "repo" : "${{  github.event.repository.full_name }}" ,
+                        "task" : "${{  github.job }}" ,
+                        "workflow_type" : "${{ github.event_name }}",
+                        "workflow_name" : "${{ github.workflow }}",
+                        "job_id" : "",
+                        "job_data": {
+                            "ci_test_result_sample_data" : "sample_data"
+                         }
            }'
 
       # Force save the CI failed spec list into a cache
@@ -296,7 +296,8 @@ jobs:
       id-token: write
 
     # Run this job as soon as the docker image is ready, if this is the release branch
-    if: ( always() && github.ref == 'refs/heads/release' )
+    if: |
+      always() && (github.ref_name == 'release' || github.ref_name == 'pg')
 
     steps:
       - name: Checkout the head commit of the branch
@@ -339,6 +340,10 @@ jobs:
             scripts/generate_info_json.sh
           fi
 
+      - name: Place server artifacts-es
+        run: |
+          scripts/prepare_server_artifacts.sh
+
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
 
@@ -348,7 +353,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-      - name: Build and push release image to Docker Hub
+      - name: Build and push image to Docker Hub
         if: success()
         uses: depot/build-push-action@v1
         with:
@@ -358,9 +363,9 @@ jobs:
           build-args: |
             APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
-            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release
+            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ github.ref_name }}
           tags: |
-            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release
+            ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{ github.ref_name }}
 
   package-master:
     needs: [ci-test, client-unit-tests, server-unit-tests]

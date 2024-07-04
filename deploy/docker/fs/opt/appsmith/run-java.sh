@@ -5,6 +5,14 @@ set -o pipefail
 set -o nounset
 set -o noglob
 
+mode=mongo
+if [[ "$APPSMITH_DB_URL" = postgresql://* ]]; then
+  mode=pg
+fi
+
+tlog "Running with $mode."
+cd "/opt/appsmith/server/$mode"
+
 declare -a extra_args
 proxy_configured=0
 
