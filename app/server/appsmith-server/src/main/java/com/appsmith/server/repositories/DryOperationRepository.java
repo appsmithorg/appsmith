@@ -2,7 +2,12 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Theme;
+import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
+import com.appsmith.server.themes.base.ThemeService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,6 +27,12 @@ public class DryOperationRepository {
 
     private final DatasourceStorageRepository datasourceStorageRepository;
 
+    private final ThemeRepository themeRepository;
+
+    private final ThemeService themeService;
+
+    private final ApplicationRepository applicationRepository;
+
     private Map<Class<?>, AppsmithRepository<?>> repoByEntityClass;
 
     @PostConstruct
@@ -29,6 +40,7 @@ public class DryOperationRepository {
         final Map<Class<?>, AppsmithRepository<?>> map = new HashMap<>();
         map.put(Datasource.class, datasourceRepository);
         map.put(DatasourceStorage.class, datasourceStorageRepository);
+        map.put(Theme.class, themeRepository);
         repoByEntityClass = Collections.unmodifiableMap(map);
     }
 
@@ -42,6 +54,22 @@ public class DryOperationRepository {
 
     public Flux<DatasourceStorage> saveDatasourceStorageToDb(List<DatasourceStorage> datasourceStorage) {
         return datasourceStorageRepository.saveAll(datasourceStorage);
+    }
+
+    private Mono<Theme> saveThemeToDb(Theme theme) {
+        return themeRepository.save(theme);
+    }
+
+    private Mono<Theme> archiveTheme(Theme theme) {
+        return themeService.archiveById(theme.getId());
+    }
+
+    private Mono<Theme> updateTheme(Theme theme) {
+        return themeRepository.updateById(theme.getId(), theme, AclPermission.MANAGE_THEMES);
+    }
+
+    private Mono<Application> updateApplication(Application application) {
+        return applicationRepository.updateById(application.getId(), application, AclPermission.MANAGE_APPLICATIONS);
     }
 
     public Mono<Void> executeAllDbOps(MappedImportableResourcesDTO mappedImportableResourcesDTO) {
@@ -65,6 +93,46 @@ public class DryOperationRepository {
                             .get(key);
                     return saveDatasourceStorageToDb(datasourceStorageList).collectList();
                 });
-        return Flux.merge(datasourceFLux, datasourceStorageFLux).then();
+
+        Flux<List<Theme>> themeFLux = Flux.fromIterable(
+                        mappedImportableResourcesDTO.getThemeDryRunQueries().keySet())
+                .flatMap(key -> {
+                    List<Theme> themeList =
+                            mappedImportableResourcesDTO.getThemeDryRunQueries().get(key);
+                    if (key.equals(DBOpsType.SAVE.name())) {
+                        return Flux.fromIterable(themeList)
+                                .flatMap(this::saveThemeToDb)
+                                .collectList();
+                    } else if (key.equals(DBOpsType.DELETE.name())) {
+                        return Flux.fromIterable(themeList)
+                                .flatMap(this::archiveTheme)
+                                .collectList();
+                    } else {
+                        return Flux.fromIterable(themeList)
+                                .flatMap(this::updateTheme)
+                                .collectList();
+                    }
+                });
+
+        Flux<List<Application>> applicationFLux = Flux.fromIterable(mappedImportableResourcesDTO
+                        .getApplicationDryRunQueries()
+                        .keySet())
+                .flatMap(key -> {
+                    List<Application> applicationList = mappedImportableResourcesDTO
+                            .getApplicationDryRunQueries()
+                            .get(key);
+                    if (key.equals(DBOpsType.SAVE.name())) {
+                        return Flux.fromIterable(applicationList)
+                                .flatMap(this::updateApplication)
+                                .collectList();
+                    } else {
+                        return Flux.fromIterable(applicationList)
+                                .flatMap(this::updateApplication)
+                                .collectList();
+                    }
+                });
+
+        return Flux.merge(datasourceFLux, datasourceStorageFLux, themeFLux, applicationFLux)
+                .then();
     }
 }
