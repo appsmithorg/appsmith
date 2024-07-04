@@ -6,6 +6,9 @@ on:
       tags:
         required: true
         type: string
+      spec:
+        required: false
+        type: string
       matrix:
         required: true
         type: string
@@ -71,6 +74,7 @@ jobs:
     with:
       pr: ${{ github.event.number }}
       tags: ${{ inputs.tags }}
+      spec: ${{ inputs.spec }}
       matrix: ${{ inputs.matrix }}
 
   ci-test-result:
