@@ -491,27 +491,31 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .cache();
 
         final Mono<? extends Artifact> importMono = importableArtifactMono
-                .then(Mono.defer(() -> generateImportableEntities(
-                        importingMetaDTO,
-                        mappedImportableResourcesDTO,
-                        workspaceMono,
-                        importableArtifactMono,
-                        importedDoc)))
-                .then(importableArtifactMono)
-                .flatMap(importableArtifact -> updateImportableEntities(
-                        contextBasedImportService, importableArtifact, mappedImportableResourcesDTO, importingMetaDTO))
-                .flatMap(importableArtifact -> updateImportableArtifact(contextBasedImportService, importableArtifact))
-                .onErrorResume(throwable -> {
-                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
-                    log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
-                    return Mono.error(
-                            new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
-                })
-                // execute dry run for datasource
-                .flatMap(importableArtifact -> dryOperationRepository
-                        .executeAllDbOps(mappedImportableResourcesDTO)
-                        .thenReturn(importableArtifact))
-                /*.as(transactionalOperator::transactional)*/;
+                        .then(Mono.defer(() -> generateImportableEntities(
+                                importingMetaDTO,
+                                mappedImportableResourcesDTO,
+                                workspaceMono,
+                                importableArtifactMono,
+                                importedDoc)))
+                        .then(importableArtifactMono)
+                        .flatMap(importableArtifact -> updateImportableEntities(
+                                contextBasedImportService,
+                                importableArtifact,
+                                mappedImportableResourcesDTO,
+                                importingMetaDTO))
+                        .flatMap(importableArtifact ->
+                                updateImportableArtifact(contextBasedImportService, importableArtifact))
+                        .onErrorResume(throwable -> {
+                            String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                            log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
+                        })
+                        // execute dry run for datasource
+                        .flatMap(importableArtifact -> dryOperationRepository
+                                .executeAllDbOps(mappedImportableResourcesDTO)
+                                .thenReturn(importableArtifact))
+                /*.as(transactionalOperator::transactional)*/ ;
 
         final Mono<? extends Artifact> resultMono = importMono
                 .flatMap(importableArtifact -> sendImportedContextAnalyticsEvent(

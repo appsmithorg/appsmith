@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.server.helpers.ReactorUtils.asFlux;
+
 @Component
 @RequiredArgsConstructor
 public class DryOperationRepository {
@@ -37,11 +39,11 @@ public class DryOperationRepository {
     }
 
     public Flux<Datasource> saveDatasourceToDb(List<Datasource> datasources) {
-        return datasourceRepository.saveAll(datasources);
+        return asFlux(() -> datasourceRepository.saveAll(datasources));
     }
 
     public Flux<DatasourceStorage> saveDatasourceStorageToDb(List<DatasourceStorage> datasourceStorage) {
-        return datasourceStorageRepository.saveAll(datasourceStorage);
+        return asFlux(() -> datasourceStorageRepository.saveAll(datasourceStorage));
     }
 
     public Mono<Void> executeAllDbOps(MappedImportableResourcesDTO mappedImportableResourcesDTO) {
