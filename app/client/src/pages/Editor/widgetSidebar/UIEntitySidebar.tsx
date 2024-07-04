@@ -21,7 +21,7 @@ import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
 import { useSelector } from "react-redux";
 import { widgetsExistCurrentPage } from "@appsmith/selectors/entitiesSelector";
-import { getIsAnvilLayout } from "../../../layoutSystems/anvil/integrations/selectors";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 function UIEntitySidebar({
   focusSearchInput,
