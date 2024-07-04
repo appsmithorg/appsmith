@@ -81,7 +81,7 @@ function validateDefaultRate(value: unknown, props: any, _: any) {
         messages: [
           {
             name: "ValidationError",
-            message: `This value can be a decimal only if 'Allow half' is true`,
+            message: `This value can be a decimal only if 'Allow half stars' is true`,
           },
         ],
       };
