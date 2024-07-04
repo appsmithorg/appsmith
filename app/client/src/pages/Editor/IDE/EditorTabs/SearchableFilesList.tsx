@@ -13,7 +13,7 @@ import {
   MenuTrigger,
   SearchInput,
 } from "design-system";
-import { ListIconContainer, ListTitle } from "./StyledComponents";
+import { ListIconContainer, TabTextContainer } from "./StyledComponents";
 
 interface Props {
   allItems: EntityItem[];
@@ -64,7 +64,7 @@ const SearchableFilesList = (props: Props) => {
           gap="spaces-2"
         >
           <ListIconContainer>{file.icon}</ListIconContainer>
-          <ListTitle>{file.title}</ListTitle>
+          <TabTextContainer>{file.title}</TabTextContainer>
         </Flex>
       </MenuItem>
     ));

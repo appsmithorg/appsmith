@@ -16,13 +16,13 @@ describe("Slug URLs", () => {
   it("1. Checks URL redirection from legacy URLs to slug URLs", () => {
     applicationId = localStorage.getItem("applicationId");
     cy.location("pathname").then((pathname) => {
-      const pageId = pathname.split("/")[3]?.split("-").pop();
+      const pageId = agHelper.extractPageIdFromUrl(pathname);
       cy.visit(`/applications/${applicationId}/pages/${pageId}/edit`, {
         timeout: Cypress.config().pageLoadTimeout,
       }).then(() => {
         agHelper.WaitUntilEleAppear(locators._sidebar);
         cy.location("pathname").then((pathname) => {
-          const pageId = pathname.split("/")[3]?.split("-").pop();
+          const pageId = agHelper.extractPageIdFromUrl(pathname);
           const appName = localStorage
             .getItem("appName")
             .replace(/\s+/g, "-")
@@ -38,7 +38,7 @@ describe("Slug URLs", () => {
       applicationName = appName;
       homePage.RenameApplication(applicationName);
       cy.location("pathname").then((pathname) => {
-        const pageId = pathname.split("/")[3]?.split("-").pop();
+        const pageId = agHelper.extractPageIdFromUrl(pathname);
         expect(pathname).to.be.equal(`/app/${appName}/page1-${pageId}/edit`);
       });
     });
@@ -53,7 +53,7 @@ describe("Slug URLs", () => {
     cy.url().then((url) => {
       const urlObject = new URL(url);
       const pathname = urlObject.pathname;
-      const pageId = pathname.split("/")[3]?.split("-").pop();
+      const pageId = agHelper.extractPageIdFromUrl(pathname);
       expect(pathname).to.be.equal(
         `/app/${applicationName}/renamed-${pageId}/edit`,
       );
