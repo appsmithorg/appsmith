@@ -22,7 +22,6 @@ let pageidcopy = " ";
 const ee = ObjectsRegistry.EntityExplorer;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const propPane = ObjectsRegistry.PropertyPane;
-const table = ObjectsRegistry.Table;
 
 export const initLocalstorage = () => {
   cy.window().then((window) => {
@@ -1401,9 +1400,9 @@ Cypress.Commands.add("editTableSelectCell", (x, y) => {
 });
 
 Cypress.Commands.add("makeColumnEditable", (column) => {
-  table.EditColumn(column, "v2");
-  propPane.TogglePropertyState("Editable", "On");
-  propPane.NavigateBackToPropertyPane();
+  cy.get(
+    `[data-rbd-draggable-id="${column}"] .t--card-checkbox input+span`,
+  ).click();
 });
 
 Cypress.Commands.add("enterTableCellValue", (x, y, text) => {
