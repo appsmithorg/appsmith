@@ -68,7 +68,6 @@ export class AnvilSnapshot {
         .matchImageSnapshot(`anvil${widgetName}Deploy${device}`, {
           comparisonMethod: "ssim",
         });
-      agHelper.Sleep(500);
     });
   };
 

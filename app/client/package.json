@@ -32,7 +32,6 @@
     "g:jest": "cd $INIT_CWD && jest --colors --no-cache --silent --maxWorkers=50%",
     "test:unit:ci": "yarn workspaces foreach -tv run test:unit",
     "generate:widget": "plop --plopfile generators/index.js",
-    "generate:anvil-snapshots": "rm -rf cypress/snapshots/Anvil* && npx cypress run --spec cypress/e2e/Regression/ClientSide/Anvil/Widgets/** --browser chrome --reporter cypress-image-snapshot/reporter",
     "postinstall": "node cypress/apply-patches.js && yarn init-husky",
     "storybook": "yarn workspace @design-system/storybook storybook",
     "lint": "eslint --cache ./src && cd ./cypress && eslint -c .eslintrc.json --cache ./",
