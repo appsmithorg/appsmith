@@ -1,23 +1,20 @@
 module.exports = function ({core, context, github}) {
-  let tags;
+  let parseResult;
   try {
-    tags = parseTags(context.payload.pull_request.body);
+    parseResult = parseTags(context.payload.pull_request.body);
   } catch (error) {
     core.setFailed(error.message);
-    core.setOutput("outcome", "failure");
     const body = [
       "Invalid tags. Please use `/ok-to-test tags=\"@tag.All\"` or `/test all` in the PR body to run all tests.",
       "[Tags documentation](https://www.notion.so/appsmith/7c0fc64d4efb4afebf53348cd6252918)",
       "[List of valid tags](https://github.com/appsmithorg/appsmith/blob/release/app/client/cypress/tags.js)",
     ].join("\n");
     require("write-cypress-status.js")({core, context, github}, "warning", body);
+    return;
   }
 
-  core.setOutput("tags", tags);
-  core.setOutput("outcome", "success");
-
-  // Shouldn't be needed anymore, but remove in separate PR.
-  return tags;
+  core.setOutput("tags", parseResult.tags ?? "");
+  core.setOutput("spec", parseResult.spec ?? "");
 }
 
 function parseTags(body) {
@@ -27,7 +24,7 @@ function parseTags(body) {
   const strictMatch = body.match(/\/ok-to-test tags="(.+?)"/)?.[1];
   if (strictMatch) {
     if (strictMatch === "@tag.All") {
-      return strictMatch;
+      return { tags: strictMatch };
     }
     const parts = strictMatch.split(/\s*,\s*/);
     for (const part of parts) {
@@ -35,7 +32,13 @@ function parseTags(body) {
         throw new Error("Unknown tag: " + part);
       }
     }
-    return strictMatch;
+    return { tags: strictMatch };
+  }
+
+  // "/test" code-fence matcher.
+  const result = matchCodeFence(body);
+  if (result) {
+    return result;
   }
 
   // "/test" matcher.
@@ -43,7 +46,7 @@ function parseTags(body) {
   const concreteTags = [];
 
   if (config.toLowerCase() === "all") {
-    return "@tag.All"
+    return { tags: "@tag.All" };
   }
 
   for (const [rawTag] of config.matchAll(/\w+/g)) {
@@ -78,5 +81,13 @@ function parseTags(body) {
     throw new Error("Tags were not found!")
   }
 
-  return concreteTags.join(", ");
+  return { tags: concreteTags.join(", ") };
+}
+
+function matchCodeFence(body) {
+  const re = /^```\n\/test\n((?:.|\n)+?)^```\n/gm;
+
+  const spec = body.match(re)?.[1] ?? null;
+
+  return { spec };
 }

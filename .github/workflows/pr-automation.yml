@@ -19,6 +19,7 @@ jobs:
         shell: bash
     outputs:
       tags: ${{ steps.parseTags.outputs.tags }}
+      spec: ${{ steps.parseTags.outputs.spec }}
       matrix: ${{ steps.checkAll.outputs.matrix }}
     steps:
 
@@ -72,5 +73,6 @@ jobs:
     secrets: inherit
     with:
       tags: ${{ needs.parse-tags.outputs.tags}}
+      spec: ${{ needs.parse-tags.outputs.spec}}
       matrix: ${{ needs.parse-tags.outputs.matrix}}
       is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
