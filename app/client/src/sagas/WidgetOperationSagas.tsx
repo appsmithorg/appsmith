@@ -1857,35 +1857,44 @@ function* widgetBatchUpdatePropertySaga() {
 function* verifyPasteFeasibilitySaga(
   action: ReduxAction<PasteWidgetReduxAction>,
 ) {
-  const {
-    layoutSystemType,
-  }: {
-    layoutSystemType?: LayoutSystemTypes;
-  } = yield getCopiedWidgets();
+  try {
+    const {
+      layoutSystemType,
+    }: {
+      layoutSystemType?: LayoutSystemTypes;
+    } = yield getCopiedWidgets();
 
-  const currentLayoutSystemType: LayoutSystemTypes =
-    yield select(getLayoutSystemType);
+    const currentLayoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
 
-  const isConflicting = isLayoutSystemConflictingForPaste(
-    currentLayoutSystemType,
-    layoutSystemType,
-  );
+    const isConflicting = isLayoutSystemConflictingForPaste(
+      currentLayoutSystemType,
+      layoutSystemType,
+    );
 
-  if (isConflicting) {
-    const message =
-      currentLayoutSystemType === LayoutSystemTypes.ANVIL
-        ? ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT
-        : ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT;
-    toast.show(createMessage(message), {
-      kind: "warning",
+    if (isConflicting) {
+      const message =
+        currentLayoutSystemType === LayoutSystemTypes.ANVIL
+          ? ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT
+          : ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT;
+      toast.show(createMessage(message), {
+        kind: "warning",
+      });
+      return;
+    }
+
+    yield put({
+      type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+      payload: action.payload,
     });
-    return;
+  } finally {
+    if (action.payload.existingWidgets) {
+      yield call(
+        saveCopiedWidgets,
+        JSON.stringify(action.payload.existingWidgets),
+      );
+    }
   }
-
-  yield put({
-    type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
-    payload: action.payload,
-  });
 }
 
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {

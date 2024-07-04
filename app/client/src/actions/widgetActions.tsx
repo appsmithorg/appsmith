@@ -97,6 +97,7 @@ export const copyWidget = (isShortcut: boolean) => {
 };
 
 export const pasteWidget = ({
+  existingWidgets,
   gridPosition,
   groupWidgets = false,
   mouseLocation,
@@ -107,6 +108,7 @@ export const pasteWidget = ({
       groupWidgets,
       mouseLocation,
       gridPosition,
+      existingWidgets,
     },
   };
 };
