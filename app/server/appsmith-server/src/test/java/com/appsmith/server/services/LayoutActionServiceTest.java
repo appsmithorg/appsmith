@@ -162,7 +162,7 @@ public class LayoutActionServiceTest {
 
     @BeforeEach
     public void setup() {
-        newPageService.deleteAll();
+        newPageService.deleteAll().block();
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutActionServiceTest");
