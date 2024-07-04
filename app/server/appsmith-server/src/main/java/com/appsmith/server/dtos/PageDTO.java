@@ -82,6 +82,7 @@ public class PageDTO {
     @JsonView(Views.Public.class)
     Map<String, List<String>> dependencyMap;
 
+    // TODO Abhijeet: Remove this method once we have migrated all the usages of policies to policyMap
     /**
      * An unmodifiable set of policies.
      */

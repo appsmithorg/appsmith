@@ -222,7 +222,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "029", id = "add-instance-config-object", author = "")
+    @ChangeSet(order = "029", id = "add-instance-config-object", author = "", runAlways = true)
     public void addInstanceConfigurationPlaceHolder(MongoTemplate mongoTemplate) {
         Query instanceConfigurationQuery = new Query();
         instanceConfigurationQuery.addCriteria(where(Config.Fields.name).is(FieldName.INSTANCE_CONFIG));
@@ -243,8 +243,12 @@ public class DatabaseChangelog2 {
                 Set.of(new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION)));
 
         Query adminUserQuery = new Query();
-        adminUserQuery.addCriteria(
-                where("policies").elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue())));
+        // Oring for backward compatibility where policies are stored in a set instead of map
+        Criteria policyCriteria =
+                where("policies").elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue()));
+        Criteria policyMapCriteria =
+                where("policyMap" + "." + MANAGE_INSTANCE_ENV.getValue()).exists(true);
+        adminUserQuery.addCriteria(new Criteria().orOperator(policyCriteria, policyMapCriteria));
         List<User> adminUsers = mongoTemplate.find(adminUserQuery, User.class);
 
         instanceManagerPermissionGroup.setAssignedToUserIds(
@@ -632,8 +636,7 @@ public class DatabaseChangelog2 {
     }
 
     @ChangeSet(order = "039", id = "change-readPermissionGroup-to-readPermissionGroupMembers", author = "")
-    public void modifyReadPermissionGroupToReadPermissionGroupMembers(
-            MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution) {
+    public void modifyReadPermissionGroupToReadPermissionGroupMembers(MongoTemplate mongoTemplate) {
 
         Query query = new Query(Criteria.where("policies.permission").is("read:permissionGroups"));
         Update update = new Update().set("policies.$.permission", "read:permissionGroupMembers");

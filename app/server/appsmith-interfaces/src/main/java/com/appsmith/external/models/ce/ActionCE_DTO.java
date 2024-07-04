@@ -171,6 +171,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView({Views.Public.class, FromRequest.class})
     ActionCreationSourceTypeEnum source;
 
+    // TODO Abhijeet: Remove this method once we have migrated all the usages of policies to policyMap
     /**
      * An unmodifiable set of policies.
      */

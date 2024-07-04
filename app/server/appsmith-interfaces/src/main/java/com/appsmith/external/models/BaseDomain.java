@@ -100,16 +100,18 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView({Views.Internal.class, Git.class})
     String gitSyncId;
 
+    // TODO Abhijeet: Remove this method once we have migrated all the usages of policies to policyMap
     /**
      * An unmodifiable set of policies.
      */
-    @JsonView({Views.Internal.class, Git.class})
+    @JsonView({Views.Internal.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public Set<Policy> getPolicies() {
         return policyMap == null ? null : Set.copyOf(policyMap.values());
     }
 
-    @JsonView({Views.Internal.class, Git.class})
+    // TODO Abhijeet: Remove this method once we have migrated all the usages of policies to policyMap
+    @JsonView({Views.Internal.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public void setPolicies(Set<Policy> policies) {
         if (policies == null) {
