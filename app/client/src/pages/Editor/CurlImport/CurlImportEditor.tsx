@@ -1,21 +1,20 @@
 import React from "react";
 
 import CurlImportForm from "./CurlImportForm";
-import { curlImportSubmitHandler } from "./helpers";
-import { getNewEntityName } from "@appsmith/selectors/entitiesSelector";
+import {
+  getCurrentPageId,
+  getNewEntityName,
+} from "@appsmith/selectors/entitiesSelector";
 import { getIsImportingCurl } from "selectors/ui";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { useSelector } from "react-redux";
-import type { RouteComponentProps } from "react-router";
-import type { BuilderRouteParams } from "constants/routes";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
-import { DEFAULT_PREFIX } from "sagas/ActionSagas";
+import { DEFAULT_PREFIX } from "../../../sagas/ActionSagas";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
+import { curlImportSubmitHandler } from "./helpers";
 
-type CurlImportEditorProps = RouteComponentProps<BuilderRouteParams>;
-
-function CurlImportEditor(props: CurlImportEditorProps) {
-  const { pageId } = props.match.params;
+function CurlImportEditor() {
+  const pageId = useSelector(getCurrentPageId);
   const actionName = useSelector((state) =>
     getNewEntityName(state, {
       prefix: DEFAULT_PREFIX.API,

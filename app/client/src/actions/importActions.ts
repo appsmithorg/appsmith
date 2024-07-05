@@ -1,5 +1,6 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
+
+import type { curlImportFormValues } from "../pages/Editor/CurlImport/helpers";
 
 export const submitCurlImportForm = (payload: curlImportFormValues) => {
   return {

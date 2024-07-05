@@ -143,7 +143,6 @@ import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
-import type { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
 import { matchBasePath } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   findDatatype,
@@ -186,6 +185,7 @@ import {
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
 import { setApiPaneDebuggerState } from "../../actions/apiPaneActions";
+import type { curlImportFormValues } from "../../pages/Editor/CurlImport/helpers";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -1328,6 +1328,7 @@ interface ExecutePluginActionResponse {
   payload: ActionResponse;
   isError: boolean;
 }
+
 /*
  * This saga handles the complete plugin action execution flow. It will respond with a
  * payload and isError property which indicates if the response is of an error type.

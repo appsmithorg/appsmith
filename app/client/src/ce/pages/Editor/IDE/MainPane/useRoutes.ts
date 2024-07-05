@@ -28,7 +28,6 @@ import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist"
 import ApiEditor from "pages/Editor/APIEditor";
 import QueryEditor from "pages/Editor/QueryEditor";
 import JSEditor from "pages/Editor/JSEditor";
-import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
 import ListView from "pages/Editor/SaaSEditor/ListView";
 import {
   SAAS_EDITOR_API_ID_ADD_PATH,
@@ -221,12 +220,6 @@ function useRoutes(path: string): RouteReturnType[] {
       component: JSEditor,
       exact: true,
       path: [`${path}${JS_COLLECTION_ID_PATH}`],
-    },
-    {
-      key: "CurlImportEditor",
-      component: CurlImportEditor,
-      exact: true,
-      path: [`${path}${CURL_IMPORT_PAGE_PATH}`],
     },
     {
       key: "SAASList",

@@ -47,6 +47,7 @@ import ReconfigureCDKeyModal from "@appsmith/components/gitComponents/Reconfigur
 import DisableCDModal from "@appsmith/components/gitComponents/DisableCDModal";
 import { PartialExportModal } from "components/editorComponents/PartialImportExport/PartialExportModal";
 import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
+import CurlImport from "pages/Editor/CurlImport";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -81,6 +82,7 @@ class Editor extends Component<Props> {
       this.props.widgetConfigBuildSuccess();
     });
   }
+
   shouldComponentUpdate(nextProps: Props) {
     const isBranchUpdated = getIsBranchUpdated(
       this.props.location,
@@ -182,6 +184,7 @@ class Editor extends Component<Props> {
             <SignpostingOverlay />
             <PartialExportModal />
             <PartialImportModal />
+            <CurlImport />
           </GlobalHotKeys>
         </div>
         <RequestConfirmationModal />
