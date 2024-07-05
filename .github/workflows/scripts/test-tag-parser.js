@@ -94,20 +94,17 @@ function parseTags(core, body) {
 function matchCodeFence(core, body) {
   console.log("Given: '" + body + "'");
 
-  console.log("Match other found:", body.match(/^\**\/test\s+(.+?)\**$/m));
+  console.log("Match found:", body.match(/^```\s/m));
+  console.log("Match found:", body.match(/^```\s\//m));
+  console.log("Match found:", body.match(/^```\s\/test/m));
+  console.log("Match found:", body.match(/^```\s\/test\s/m));
+  console.log("Match found:", body.match(/^```\s\/test\s((.|\s)+?)/m));
+  console.log("Match found:", body.match(/^```\s\/test\s((.|\s)+?)```/m));
+  console.log("Match found:", body.match(/^```\s\/test\s((.|\s)+?)^```/m));
+  console.log("Match found:", body.match(/^```\s\/test\s((.|\s)+?)^```\s/m));
+  console.log("Match found:", body.match(/^```\s\/test\s((.|\s)+?)^```\s/m));
 
-  console.log("Match crazy found:", body.match(/^...\n\/test\n((.|\n)+?)^...\n/m));
-
-  console.log("Match found:", body.match(/```/m));
-  console.log("Match found:", body.match(/^```/m));
-  console.log("Match found:", body.match(/^```\n/m));
-  console.log("Match found:", body.match(/^```\n\//m));
-  console.log("Match found:", body.match(/^```\n\/test/m));
-  console.log("Match found:", body.match(/^```\n\/test\n/m));
-  console.log("Match found:", body.match(/^```\n\/test\n((.|\n)+?)/m));
-  console.log("Match found:", body.match(/^```\n\/test\n((.|\n)+?)```/m));
-  console.log("Match found:", body.match(/^```\n\/test\n((.|\n)+?)^```/m));
-  console.log("Match found:", body.match(/^```\n\/test\n((.|\n)+?)^```\n/m));
+  console.log("Match better:", body.match(/^```\s^\/test\s((.|\s)+?)^```$/m));
 
   const re = /^```\n\/test\n((.|\n)+?)^```\n/m;
 
