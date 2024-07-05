@@ -23,7 +23,7 @@ function parseTags(core, body) {
   const allTags = require(process.env.GITHUB_WORKSPACE + "/app/client/cypress/tags.js").Tag;
 
   // "/ok-to-test" matcher. Takes precedence over the "/test" matcher.
-  core.info("/ok-to-test matcher")
+  console.log("/ok-to-test matcher")
   const strictMatch = body.match(/^\/ok-to-test tags="(.+?)"/m)?.[1];
   if (strictMatch) {
     if (strictMatch === "@tag.All") {
@@ -39,14 +39,16 @@ function parseTags(core, body) {
   }
 
   // "/test" code-fence matcher.
-  core.info("/test code fence matcher")
+  console.log("/test code fence matcher")
+  console.log("1 Match other found:", body.match(/^\**\/test\s+(.+?)\**$/m));
   const result = matchCodeFence(core, body);
+  console.log("2 Match other found:", body.match(/^\**\/test\s+(.+?)\**$/m));
   if (result) {
     return result;
   }
 
   // "/test" matcher.
-  core.info("/test matcher")
+  console.log("/test matcher")
   const config = body.match(/^\**\/test\s+(.+?)\**$/m)?.[1] ?? "";
   const concreteTags = [];
 
@@ -90,28 +92,28 @@ function parseTags(core, body) {
 }
 
 function matchCodeFence(core, body) {
-  core.info("Given: '" + body + "'");
+  console.log("Given: '" + body + "'");
 
-  core.info("Match other found:", body.match(/^\**\/test\s+(.+?)\**$/m));
+  console.log("Match other found:", body.match(/^\**\/test\s+(.+?)\**$/m));
 
-  core.info("Match crazy found:", body.match(/^...\n\/test\n((.|\n)+?)^...\n/m));
+  console.log("Match crazy found:", body.match(/^...\n\/test\n((.|\n)+?)^...\n/m));
 
-  core.info("Match found:", body.match(/```/m));
-  core.info("Match found:", body.match(/^```/m));
-  core.info("Match found:", body.match(/^```\n/m));
-  core.info("Match found:", body.match(/^```\n\//m));
-  core.info("Match found:", body.match(/^```\n\/test/m));
-  core.info("Match found:", body.match(/^```\n\/test\n/m));
-  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)/m));
-  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)```/m));
-  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)^```/m));
-  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)^```\n/m));
+  console.log("Match found:", body.match(/```/m));
+  console.log("Match found:", body.match(/^```/m));
+  console.log("Match found:", body.match(/^```\n/m));
+  console.log("Match found:", body.match(/^```\n\//m));
+  console.log("Match found:", body.match(/^```\n\/test/m));
+  console.log("Match found:", body.match(/^```\n\/test\n/m));
+  console.log("Match found:", body.match(/^```\n\/test\n((.|\n)+?)/m));
+  console.log("Match found:", body.match(/^```\n\/test\n((.|\n)+?)```/m));
+  console.log("Match found:", body.match(/^```\n\/test\n((.|\n)+?)^```/m));
+  console.log("Match found:", body.match(/^```\n\/test\n((.|\n)+?)^```\n/m));
 
   const re = /^```\n\/test\n((.|\n)+?)^```\n/m;
 
-  core.info("Match found:", body.match(re));
+  console.log("Match found:", body.match(re));
   const spec = body.match(re)?.[1];
-  core.info("Match spec:", spec);
+  console.log("Match spec:", spec);
 
   return spec ? { spec } : null;
 }
