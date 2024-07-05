@@ -95,25 +95,9 @@ function parseTags(core, body) {
 }
 
 function matchCodeFence(core, body) {
-  console.log("Given: '" + body + "'");
+  const re = /^```\n\/test\n(.+?)^```\n/ms;
 
-  console.log("1 Match found:", body.match(/^```\n/m));
-  console.log("2 Match found:", body.match(/^```\n\//m));
-  console.log("3 Match found:", body.match(/^```\n\/test/m));
-  console.log("4 Match found:", body.match(/^```\n\/test\n/m));
-  console.log("5 Match found:", body.match(/^```\n\/test\n((.|\s)+?)/m));
-  console.log("6 Match found:", body.match(/^```\n\/test\n((.|\s)+?)```/m));
-  console.log("7 Match found:", body.match(/^```\n\/test\n((.|\s)+?)^```/m));
-  console.log("8 Match found:", body.match(/^```\n\/test\n((.|\s)+?)^```\n/m));
-  console.log("9 Match found:", body.match(/^```\n\/test\n((.|\s)+?)^```\n/m));
-
-  console.log("Match better:", body.match(/^```\n^\/test\n((.|\s)+?)^```$/m));
-
-  const re = /^```\n\/test\n((.|\n)+?)^```\n/m;
-
-  console.log("Match found:", body.match(re));
   const spec = body.match(re)?.[1];
-  console.log("Match spec:", spec);
 
   return spec ? { spec } : null;
 }
