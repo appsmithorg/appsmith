@@ -287,6 +287,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> validateAction(NewAction newAction) {
+        return validateAction(newAction, false);
+    }
+
+    @Override
+    public Mono<NewAction> validateAction(NewAction newAction, boolean isDryOps) {
         this.setGitSyncIdInNewAction(newAction);
 
         ActionDTO action = newAction.getUnpublishedAction();
@@ -373,10 +378,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     datasourceMono = datasourceService
                             .findById(action.getDatasource().getId())
                             .switchIfEmpty(Mono.defer(() -> {
-                                action.setIsValid(false);
-                                invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                        FieldName.DATASOURCE,
-                                        action.getDatasource().getId()));
+                                if (!isDryOps) {
+                                    action.setIsValid(false);
+                                    invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                                            FieldName.DATASOURCE,
+                                            action.getDatasource().getId()));
+                                }
                                 return Mono.just(action.getDatasource());
                             }))
                             .map(datasource -> {
@@ -441,7 +448,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<Void> bulkValidateAndInsertActionInRepository(List<NewAction> newActionList) {
         return Flux.fromIterable(newActionList)
-                .flatMap(this::validateAction)
+                .flatMap(newAction -> validateAction(newAction, true))
                 .collectList()
                 .flatMap(repository::bulkInsert);
     }
@@ -449,7 +456,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<Void> bulkValidateAndUpdateActionInRepository(List<NewAction> newActionList) {
         return Flux.fromIterable(newActionList)
-                .flatMap(this::validateAction)
+                .flatMap(newAction -> validateAction(newAction, true))
                 .collectList()
                 .flatMap(repository::bulkUpdate);
     }
