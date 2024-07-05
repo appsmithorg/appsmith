@@ -129,20 +129,32 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return queryBuilder().byId(id).updateFirst(update);
     }
 
-    public Mono<Integer> updateFieldByDefaultIdAndBranchName(
-            String defaultId,
-            String defaultIdPath,
+    public Mono<Integer> updateFieldByBaseIdAndBranchName(
+            String baseId,
+            String baseIdPath,
             Map<String, Object> fieldNameValueMap,
             String branchName,
             String branchNamePath,
             AclPermission permission) {
         final QueryAllParams<T> builder = queryBuilder();
 
-        builder.criteria(Criteria.where(defaultIdPath).is(defaultId));
+        builder.criteria(Criteria.where(baseIdPath).is(baseId));
 
         if (!isBlank(branchName)) {
             builder.criteria(Criteria.where(branchNamePath).is(branchName));
         }
+
+        Update update = new Update();
+        fieldNameValueMap.forEach(update::set);
+
+        return builder.permission(permission).updateFirst(update);
+    }
+
+    public Mono<Integer> updateFieldById(
+            String id, String idPath, Map<String, Object> fieldNameValueMap, AclPermission permission) {
+        final QueryAllParams<T> builder = queryBuilder();
+
+        builder.criteria(Criteria.where(idPath).is(id));
 
         Update update = new Update();
         fieldNameValueMap.forEach(update::set);

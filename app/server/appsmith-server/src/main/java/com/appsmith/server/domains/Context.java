@@ -7,4 +7,6 @@ public interface Context {
     String getArtifactId();
 
     Layout getLayout();
+
+    String getBranchName();
 }

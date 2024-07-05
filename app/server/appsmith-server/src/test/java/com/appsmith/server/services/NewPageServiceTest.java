@@ -98,7 +98,7 @@ public class NewPageServiceTest {
     @Test
     @WithUserDetails("api_user")
     public void findApplicationPages_WhenApplicationIdAndPageIdNotPresent_ThrowsException() {
-        StepVerifier.create(newPageService.findApplicationPages(null, null, "master", ApplicationMode.EDIT))
+        StepVerifier.create(newPageService.findApplicationPages(null, null, ApplicationMode.EDIT))
                 .expectError(AppsmithException.class)
                 .verify();
     }
@@ -117,8 +117,8 @@ public class NewPageServiceTest {
                     pageDTO.setApplicationId(application1.getId());
                     return applicationPageService.createPage(pageDTO);
                 })
-                .flatMap(pageDTO -> newPageService.findApplicationPages(
-                        pageDTO.getApplicationId(), null, null, ApplicationMode.EDIT));
+                .flatMap(pageDTO ->
+                        newPageService.findApplicationPages(pageDTO.getApplicationId(), null, ApplicationMode.EDIT));
 
         StepVerifier.create(applicationPagesDTOMono)
                 .assertNext(applicationPagesDTO -> {
@@ -153,7 +153,7 @@ public class NewPageServiceTest {
                             .then(pageDTOMono);
                 })
                 .flatMap(pageDTO -> newPageService.findApplicationPages(
-                        pageDTO.getApplicationId(), null, null, ApplicationMode.PUBLISHED));
+                        pageDTO.getApplicationId(), null, ApplicationMode.PUBLISHED));
 
         StepVerifier.create(applicationPagesDTOMono)
                 .assertNext(applicationPagesDTO -> {
@@ -183,8 +183,7 @@ public class NewPageServiceTest {
                     pageDTO.setApplicationId(application1.getId());
                     return applicationPageService.createPage(pageDTO);
                 })
-                .flatMap(pageDTO ->
-                        newPageService.findApplicationPages(null, pageDTO.getId(), null, ApplicationMode.EDIT));
+                .flatMap(pageDTO -> newPageService.findApplicationPages(null, pageDTO.getId(), ApplicationMode.EDIT));
 
         StepVerifier.create(applicationPagesDTOMono)
                 .assertNext(applicationPagesDTO -> {
@@ -213,7 +212,7 @@ public class NewPageServiceTest {
                     return applicationService
                             .save(application1)
                             .then(newPageService.findApplicationPages(
-                                    null, applicationPage.getId(), null, ApplicationMode.EDIT));
+                                    null, applicationPage.getId(), ApplicationMode.EDIT));
                 });
 
         StepVerifier.create(applicationPagesDTOMono)
@@ -239,7 +238,7 @@ public class NewPageServiceTest {
                     pageDTO.setApplicationId(application1.getId());
                     return applicationPageService.createPage(pageDTO);
                 })
-                .flatMap(pageDTO -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+                .flatMap(pageDTO -> applicationPageService.getPageAndMigrateDslByBranchAndBasePageId(
                         pageDTO.getId(), null, false, false));
 
         StepVerifier.create(applicationPageDTOMono)
@@ -466,7 +465,7 @@ public class NewPageServiceTest {
                     dependencyMap.put("key3", List.of("val1", "val2"));
                     return newPageService
                             .updateDependencyMap(pageDTO.getId(), dependencyMap, null)
-                            .flatMap(page -> applicationPageService.publish(application.getId(), null, false))
+                            .flatMap(page -> applicationPageService.publish(application.getId(), false))
                             .then(newPageService.findById(pageDTO.getId(), null));
                 });
 

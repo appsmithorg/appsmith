@@ -60,6 +60,7 @@ public class SessionUserServiceCEImpl implements SessionUserServiceCE {
                                 user,
                                 currentToken.getAuthorities(),
                                 ((OAuth2AuthenticationToken) currentToken).getAuthorizedClientRegistrationId());
+                        // Here also update the userdata to contain the new access token.
                     } else {
                         log.error(
                                 "Unrecognized session token type when updating user in session: {}.",

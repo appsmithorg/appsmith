@@ -220,8 +220,11 @@ public class AutoCommitServiceTest {
         baseRepoSuffix = Paths.get(WORKSPACE_ID, DEFAULT_APP_ID, REPO_NAME);
 
         // used for fetching application on autocommit service and gitAutoCommitHelper.autocommit
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
+                .thenReturn(Mono.just(testApplication));
+
+        Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(testApplication));
 
         // create page-dto
@@ -243,8 +246,7 @@ public class AutoCommitServiceTest {
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(TRUE));
 
-        Mockito.when(commonGitService.fetchRemoteChanges(
-                        any(Application.class), any(Application.class), anyString(), anyBoolean()))
+        Mockito.when(commonGitService.fetchRemoteChanges(any(Application.class), any(Application.class), anyBoolean()))
                 .thenReturn(Mono.just(branchTrackingStatus));
 
         Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(0);
@@ -303,7 +305,7 @@ public class AutoCommitServiceTest {
         Mockito.when(redisUtils.getAutoCommitProgress(DEFAULT_APP_ID)).thenReturn(Mono.empty());
 
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -377,7 +379,7 @@ public class AutoCommitServiceTest {
 
         // this would trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -433,7 +435,7 @@ public class AutoCommitServiceTest {
 
         // this would not trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -468,7 +470,7 @@ public class AutoCommitServiceTest {
 
         // this would not trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -489,7 +491,7 @@ public class AutoCommitServiceTest {
 
         // this would not trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -505,13 +507,16 @@ public class AutoCommitServiceTest {
     public void testAutoCommit_whenNoGitMetadata_returnsNonGitApp() {
         testApplication.setGitApplicationMetadata(null);
         // used for fetching application on autocommit service and gitAutoCommitHelper.autocommit
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
+                .thenReturn(Mono.just(testApplication));
+
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(testApplication));
 
         // this would not trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -536,7 +541,7 @@ public class AutoCommitServiceTest {
 
         // this would not trigger autocommit
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> {
@@ -584,7 +589,7 @@ public class AutoCommitServiceTest {
         Mockito.when(redisUtils.getAutoCommitProgress(DEFAULT_APP_ID)).thenReturn(Mono.empty());
 
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> assertThat(autoCommitResponseDTO.getAutoCommitResponse())
@@ -595,7 +600,7 @@ public class AutoCommitServiceTest {
         Mockito.when(redisUtils.getRunningAutoCommitBranchName(DEFAULT_APP_ID)).thenReturn(Mono.just(BRANCH_NAME));
         Mockito.when(redisUtils.getAutoCommitProgress(DEFAULT_APP_ID)).thenReturn(Mono.just(20));
 
-        StepVerifier.create(autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME))
+        StepVerifier.create(autoCommitService.autoCommitApplication(testApplication.getId()))
                 .assertNext(autoCommitResponseDTO -> {
                     assertThat(autoCommitResponseDTO.getAutoCommitResponse())
                             .isEqualTo(AutoCommitResponseDTO.AutoCommitResponse.IN_PROGRESS);
@@ -654,23 +659,23 @@ public class AutoCommitServiceTest {
 
         // redis-utils fixing
         Mockito.when(redisUtils.getRunningAutoCommitBranchName(DEFAULT_APP_ID)).thenReturn(Mono.empty());
-
         Mockito.when(redisUtils.getAutoCommitProgress(DEFAULT_APP_ID)).thenReturn(Mono.empty());
 
         Mono<AutoCommitResponseDTO> autoCommitResponseDTOMono =
-                autoCommitService.autoCommitApplication(testApplication.getId(), BRANCH_NAME);
+                autoCommitService.autoCommitApplication(testApplication.getId());
 
         StepVerifier.create(autoCommitResponseDTOMono)
                 .assertNext(autoCommitResponseDTO -> assertThat(autoCommitResponseDTO.getAutoCommitResponse())
                         .isEqualTo(AutoCommitResponseDTO.AutoCommitResponse.PUBLISHED))
                 .verifyComplete();
 
+        testApplication.getGitApplicationMetadata().setBranchName("another-branch-name");
+
         // redis-utils fixing
         Mockito.when(redisUtils.getRunningAutoCommitBranchName(DEFAULT_APP_ID)).thenReturn(Mono.just(BRANCH_NAME));
-
         Mockito.when(redisUtils.getAutoCommitProgress(DEFAULT_APP_ID)).thenReturn(Mono.just(20));
 
-        StepVerifier.create(autoCommitService.autoCommitApplication(testApplication.getId(), DEFAULT_BRANCH_NAME))
+        StepVerifier.create(autoCommitService.autoCommitApplication(testApplication.getId()))
                 .assertNext(autoCommitResponseDTO -> {
                     assertThat(autoCommitResponseDTO.getAutoCommitResponse())
                             .isEqualTo(AutoCommitResponseDTO.AutoCommitResponse.LOCKED);

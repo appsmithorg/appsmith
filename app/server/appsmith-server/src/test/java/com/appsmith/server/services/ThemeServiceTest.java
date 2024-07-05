@@ -199,13 +199,11 @@ public class ThemeServiceTest {
         Application savedApplication = createApplication();
 
         // Apply Sharp theme to the application
-        Mono<Theme> applySharpTheme =
-                themeService.changeCurrentTheme(sharpTheme.getId(), savedApplication.getId(), null);
+        Mono<Theme> applySharpTheme = themeService.changeCurrentTheme(sharpTheme.getId(), savedApplication.getId());
         // Publish app
         Mono<Application> publishApp = applicationPageService.publish(savedApplication.getId(), TRUE);
         // apply classic theme to the application
-        Mono<Theme> applyClassicTheme =
-                themeService.changeCurrentTheme(classicTheme.getId(), savedApplication.getId(), null);
+        Mono<Theme> applyClassicTheme = themeService.changeCurrentTheme(classicTheme.getId(), savedApplication.getId());
 
         Mono<Tuple2<Theme, Theme>> applicationThemesMono = applySharpTheme
                 .then(publishApp)
@@ -233,13 +231,11 @@ public class ThemeServiceTest {
         Theme sharpTheme = themeService.getSystemTheme("Sharp").block();
         Theme classicTheme = themeService.getSystemTheme("Classic").block();
         // Apply Sharp theme to the application
-        Mono<Theme> applySharpTheme =
-                themeService.changeCurrentTheme(sharpTheme.getId(), savedApplication.getId(), null);
+        Mono<Theme> applySharpTheme = themeService.changeCurrentTheme(sharpTheme.getId(), savedApplication.getId());
         // Publish app
         Mono<Application> publishApp = applicationPageService.publish(savedApplication.getId(), TRUE);
         // apply classic theme to the application
-        Mono<Theme> applyClassicTheme =
-                themeService.changeCurrentTheme(classicTheme.getId(), savedApplication.getId(), null);
+        Mono<Theme> applyClassicTheme = themeService.changeCurrentTheme(classicTheme.getId(), savedApplication.getId());
 
         // Set the themes in edit and published mode before the user is removed from the workspace
         applySharpTheme.then(publishApp).then(applyClassicTheme).block();
@@ -288,11 +284,9 @@ public class ThemeServiceTest {
                 applicationPageService.publish(savedApplication.getId(), TRUE).block();
 
         // apply classic theme to the application
-        Mono<Theme> applyClassicTheme =
-                themeService.changeCurrentTheme(classicTheme.getId(), savedApplication.getId(), null);
+        Mono<Theme> applyClassicTheme = themeService.changeCurrentTheme(classicTheme.getId(), savedApplication.getId());
         // apply rounded theme to the application
-        Mono<Theme> applyRoundedTheme =
-                themeService.changeCurrentTheme(roundedTheme.getId(), savedApplication.getId(), null);
+        Mono<Theme> applyRoundedTheme = themeService.changeCurrentTheme(roundedTheme.getId(), savedApplication.getId());
 
         Mono<Application> applicationPostThemeUpdatesMono = applyClassicTheme
                 .then(applyRoundedTheme)
@@ -329,8 +323,7 @@ public class ThemeServiceTest {
         // Publish app
         Mono<Application> publishApp = applicationPageService.publish(savedApplication.getId(), TRUE);
         // apply classic theme to the application
-        Mono<Theme> applyClassicTheme =
-                themeService.changeCurrentTheme(classicTheme.getId(), savedApplication.getId(), null);
+        Mono<Theme> applyClassicTheme = themeService.changeCurrentTheme(classicTheme.getId(), savedApplication.getId());
 
         // Set the themes in edit and published mode before the user is removed from the workspace
         applyClassicTheme.then(publishApp).block();
@@ -339,7 +332,7 @@ public class ThemeServiceTest {
 
         // Change the app theme as api_user (after api_user has been removed from the workspace)
         Mono<Theme> changeCurrentThemeMono =
-                themeService.changeCurrentTheme(savedApplication.getEditModeThemeId(), savedApplication.getId(), null);
+                themeService.changeCurrentTheme(savedApplication.getEditModeThemeId(), savedApplication.getId());
 
         StepVerifier.create(changeCurrentThemeMono)
                 .expectError(AppsmithException.class)
@@ -357,7 +350,7 @@ public class ThemeServiceTest {
         Application savedApplication = createApplication();
 
         Mono<Theme> applicationThemeMono = defaultThemeIdMono.flatMap(themeId -> themeService
-                .changeCurrentTheme(themeId, savedApplication.getId(), null)
+                .changeCurrentTheme(themeId, savedApplication.getId())
                 .then(themeService.getApplicationTheme(savedApplication.getId(), ApplicationMode.EDIT, null)));
 
         StepVerifier.create(applicationThemeMono)
@@ -380,7 +373,7 @@ public class ThemeServiceTest {
         Mono<Theme> createAndApplyCustomThemeMono = themeService
                 .persistCurrentTheme(savedApplication.getId(), null, customTheme)
                 // Apply the newly created custom theme to the application
-                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), savedApplication.getId(), null))
+                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), savedApplication.getId()))
                 .flatMap(theme -> {
                     // Mark this custom theme as not an application theme
                     // Don't know why a theme will not be associated with an application if it is not a system theme
@@ -390,7 +383,7 @@ public class ThemeServiceTest {
 
         Mono<Theme> applyDefaultThemeMono = themeService
                 .getDefaultThemeId()
-                .flatMap(themeId -> themeService.changeCurrentTheme(themeId, savedApplication.getId(), null));
+                .flatMap(themeId -> themeService.changeCurrentTheme(themeId, savedApplication.getId()));
 
         Mono<Theme> newApplicationThemeMono = createAndApplyCustomThemeMono
                 .then(applyDefaultThemeMono)
@@ -510,7 +503,7 @@ public class ThemeServiceTest {
         Mono<Theme> classicThemeMono = themeService.getSystemTheme("classic").cache();
 
         Mono<Tuple2<Application, Theme>> appAndThemeTuple = classicThemeMono
-                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), savedApplication.getId(), null))
+                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), savedApplication.getId()))
                 .then(themeService.publishTheme(savedApplication.getId()))
                 .then(applicationRepository.findById(savedApplication.getId()))
                 .zipWith(classicThemeMono);
@@ -537,7 +530,7 @@ public class ThemeServiceTest {
         customTheme.setName("my-custom-theme");
         Mono<Theme> createAndApplyCustomThemeMono = themeService
                 .persistCurrentTheme(application.getId(), null, customTheme)
-                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), application.getId(), null));
+                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), application.getId()));
         // publish the theme
         Mono<Theme> publishThemeMono = themeService.publishTheme(application.getId());
 
@@ -573,7 +566,7 @@ public class ThemeServiceTest {
         updatesToSystemTheme.setDisplayName("My updates to existing system theme");
 
         Mono<Tuple2<Theme, Theme>> appThemesMono = themeService
-                .updateTheme(application.getId(), null, updatesToSystemTheme)
+                .updateTheme(application.getId(), updatesToSystemTheme)
                 .then(Mono.zip(
                         themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT, null),
                         themeService.getApplicationTheme(application.getId(), ApplicationMode.PUBLISHED, null)));
@@ -610,14 +603,14 @@ public class ThemeServiceTest {
         customTheme.setDisplayName("My custom theme");
         themeService
                 .persistCurrentTheme(application.getId(), null, customTheme)
-                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), applicationId, null))
+                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), applicationId))
                 .block();
         application = applicationRepository.findById(applicationId).block();
 
         // Apply theme customization.
         Theme themeCustomization = new Theme();
         themeCustomization.setDisplayName("Updated name");
-        Mono<Theme> updateThemeMono = themeService.updateTheme(application.getId(), null, themeCustomization);
+        Mono<Theme> updateThemeMono = themeService.updateTheme(application.getId(), themeCustomization);
 
         Mono<Tuple3<Theme, Theme, Application>> appThemesMono = updateThemeMono.then(Mono.zip(
                 themeService.getApplicationTheme(application.getId(), ApplicationMode.EDIT, null),
@@ -689,7 +682,7 @@ public class ThemeServiceTest {
         customTheme.setName("my-custom-theme");
         Mono<Theme> createAndApplyCustomThemeMono = themeService
                 .persistCurrentTheme(savedApplication.getId(), null, customTheme)
-                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), savedApplication.getId(), null));
+                .flatMap(theme -> themeService.changeCurrentTheme(theme.getId(), savedApplication.getId()));
 
         // Make the app public.
         Mono<Application> makeAppPublicMono = applicationPageService.publish(savedApplication.getId(), TRUE);
@@ -815,7 +808,7 @@ public class ThemeServiceTest {
         Theme themeCustomization = new Theme();
         themeCustomization.setDisplayName("Updated name");
         Mono<Theme> deleteThemeMono = themeService
-                .updateTheme(savedApplication.getId(), null, themeCustomization)
+                .updateTheme(savedApplication.getId(), themeCustomization)
                 .flatMap(customizedTheme -> themeService.archiveById(customizedTheme.getId()));
 
         StepVerifier.create(deleteThemeMono)
