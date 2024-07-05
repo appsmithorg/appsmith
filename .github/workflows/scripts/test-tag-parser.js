@@ -91,6 +91,18 @@ function parseTags(core, body) {
 
 function matchCodeFence(core, body) {
   core.info("Given: '" + body + "'");
+
+  core.info("Match found:", body.match(/```/gm));
+  core.info("Match found:", body.match(/^```/gm));
+  core.info("Match found:", body.match(/^```\n/gm));
+  core.info("Match found:", body.match(/^```\n\//gm));
+  core.info("Match found:", body.match(/^```\n\/test/gm));
+  core.info("Match found:", body.match(/^```\n\/test\n/gm));
+  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)/gm));
+  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)```/gm));
+  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)^```/gm));
+  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)^```\n/gm));
+
   const re = /^```\n\/test\n((.|\n)+?)^```\n/gm;
 
   core.info("Match found:", body.match(re));
