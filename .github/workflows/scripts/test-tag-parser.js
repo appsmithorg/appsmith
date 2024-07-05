@@ -1,7 +1,10 @@
 module.exports = function ({core, context, github}) {
+  // Get predictable newlines in the body content. Cause for _so_ much unneeded pain in this world!
+  const body = context.payload.pull_request.body?.replaceAll(/\r(\n)?/g, "\n");
+
   let parseResult;
   try {
-    parseResult = parseTags(core, context.payload.pull_request.body);
+    parseResult = parseTags(core, body);
   } catch (error) {
     core.setFailed(error.message);
     const body = [
@@ -94,17 +97,17 @@ function parseTags(core, body) {
 function matchCodeFence(core, body) {
   console.log("Given: '" + body + "'");
 
-  console.log("1 Match found:", body.match(/^```\s+/m));
-  console.log("2 Match found:", body.match(/^```\s+\//m));
-  console.log("3 Match found:", body.match(/^```\s+\/test/m));
-  console.log("4 Match found:", body.match(/^```\s+\/test\s+/m));
-  console.log("5 Match found:", body.match(/^```\s+\/test\s+((.|\s)+?)/m));
-  console.log("6 Match found:", body.match(/^```\s+\/test\s+((.|\s)+?)```/m));
-  console.log("7 Match found:", body.match(/^```\s+\/test\s+((.|\s)+?)^```/m));
-  console.log("8 Match found:", body.match(/^```\s+\/test\s+((.|\s)+?)^```\s+/m));
-  console.log("9 Match found:", body.match(/^```\s+\/test\s+((.|\s)+?)^```\s+/m));
+  console.log("1 Match found:", body.match(/^```\n/m));
+  console.log("2 Match found:", body.match(/^```\n\//m));
+  console.log("3 Match found:", body.match(/^```\n\/test/m));
+  console.log("4 Match found:", body.match(/^```\n\/test\n/m));
+  console.log("5 Match found:", body.match(/^```\n\/test\n((.|\s)+?)/m));
+  console.log("6 Match found:", body.match(/^```\n\/test\n((.|\s)+?)```/m));
+  console.log("7 Match found:", body.match(/^```\n\/test\n((.|\s)+?)^```/m));
+  console.log("8 Match found:", body.match(/^```\n\/test\n((.|\s)+?)^```\n/m));
+  console.log("9 Match found:", body.match(/^```\n\/test\n((.|\s)+?)^```\n/m));
 
-  console.log("Match better:", body.match(/^```\s+^\/test\s+((.|\s)+?)^```$/m));
+  console.log("Match better:", body.match(/^```\n^\/test\n((.|\s)+?)^```$/m));
 
   const re = /^```\n\/test\n((.|\n)+?)^```\n/m;
 
