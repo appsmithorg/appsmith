@@ -5,6 +5,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
 
@@ -32,11 +33,11 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
      */
     @Override
     public Optional<Boolean> isUsersEmpty() {
-        return queryBuilder()
+        return Optional.of(queryBuilder()
                 .criteria(Bridge.notIn(User.Fields.email, getSystemGeneratedUserEmails()))
-                .fields(User.Fields.email)
-                .count()
-                .map(v -> v == 0);
+                .limit(1)
+                .all(IdOnly.class)
+                .isEmpty());
     }
 
     protected Set<String> getSystemGeneratedUserEmails() {
