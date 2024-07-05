@@ -69,7 +69,14 @@ public class DryOperationRepository {
     }
 
     private Mono<Application> updateApplication(Application application) {
-        return applicationRepository.updateById(application.getId(), application, AclPermission.MANAGE_APPLICATIONS);
+        String id = application.getId();
+        application.setId(null);
+        return applicationRepository
+                .updateById(id, application, AclPermission.MANAGE_APPLICATIONS)
+                .map(app -> {
+                    System.out.println("Updated application: " + app.getPublishedModeThemeId());
+                    return app;
+                });
     }
 
     public Mono<Void> executeAllDbOps(MappedImportableResourcesDTO mappedImportableResourcesDTO) {

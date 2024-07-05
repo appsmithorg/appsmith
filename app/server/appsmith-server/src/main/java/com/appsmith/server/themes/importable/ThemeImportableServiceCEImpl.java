@@ -96,6 +96,8 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                         Application application = new Application();
                         application.setPublishedModeThemeId(publishedModeThemeId);
                         application.setUnpublishedThemeId(editModeThemeId);
+                        application.setId(importableArtifact.getId());
+
                         addDryOpsForApplication(
                                 DBOpsType.UPDATE,
                                 mappedImportableResourcesDTO.getApplicationDryRunQueries(),
