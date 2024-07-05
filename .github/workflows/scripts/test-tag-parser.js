@@ -24,7 +24,7 @@ function parseTags(core, body) {
 
   // "/ok-to-test" matcher. Takes precedence over the "/test" matcher.
   core.info("/ok-to-test matcher")
-  const strictMatch = body.match(/\/ok-to-test tags="(.+?)"/)?.[1];
+  const strictMatch = body.match(/^\/ok-to-test tags="(.+?)"/m)?.[1];
   if (strictMatch) {
     if (strictMatch === "@tag.All") {
       return { tags: strictMatch };
