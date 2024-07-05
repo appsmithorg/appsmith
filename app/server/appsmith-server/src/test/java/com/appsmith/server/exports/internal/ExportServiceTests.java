@@ -2073,7 +2073,7 @@ public class ExportServiceTests {
                     Application application = objects.getT2();
                     datasource.setName("DS_FOR_RENAME_TEST_RENAMED");
                     return datasourceService
-                            .save(datasource)
+                            .save(datasource, false)
                             .then(exportService.exportByArtifactId(
                                     application.getId(),
                                     SerialiseArtifactObjective.VERSION_CONTROL,

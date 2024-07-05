@@ -28,8 +28,8 @@ export const getViewerPath = (
 ) => `${BUILDER_VIEWER_PATH_PREFIX}${applicationSlug}/${pageSlug}-${pageId}`;
 export const getViewerCustomPath = (customSlug: string, pageId: string) =>
   `${BUILDER_VIEWER_PATH_PREFIX}${customSlug}-${pageId}`;
-export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
-export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
+export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId${ID_EXTRACTION_REGEX}/pages/:pageId${ID_EXTRACTION_REGEX}/edit`;
+export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId${ID_EXTRACTION_REGEX}/pages/:pageId${ID_EXTRACTION_REGEX}`;
 export const VIEWER_PATH_DEPRECATED_REGEX =
   /\/applications\/[^/]+\/pages\/[^/]+/;
 
