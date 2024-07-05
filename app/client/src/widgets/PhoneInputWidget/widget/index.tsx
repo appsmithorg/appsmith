@@ -52,6 +52,10 @@ export function defaultValueValidation(
     name: "TypeError",
     message: "This value must be string",
   };
+  const NUMBER_ERROR_MESSAGE = {
+    name: "TypeError",
+    message: "This value must be number",
+  };
   const EMPTY_ERROR_MESSAGE = { name: "", message: "" };
   if (_.isObject(value)) {
     return {
@@ -71,6 +75,14 @@ export function defaultValueValidation(
         messages: [STRING_ERROR_MESSAGE],
       };
     }
+  }
+  const parsedValue: any = Number(value);
+  if (!Number.isFinite(parsedValue)) {
+    return {
+      isValid: false,
+      parsed: undefined,
+      messages: [NUMBER_ERROR_MESSAGE],
+    };
   }
   return {
     isValid: _.isString(parsed),
