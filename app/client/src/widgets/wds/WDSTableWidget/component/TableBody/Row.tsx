@@ -44,9 +44,10 @@ export function Row(props: RowType) {
     (primaryColumnId && (props.row.original[primaryColumnId] as Key)) ||
     props.index;
 
-  const onClickRow = () => {
+  const onClickRow = (e: React.MouseEvent) => {
     props.row.toggleRowSelected();
     selectTableRow?.(props.row);
+    e.stopPropagation();
   };
 
   return (
@@ -59,6 +60,7 @@ export function Row(props: RowType) {
       data-is-new={isAddRowInProgress && props.index === 0 ? "" : undefined}
       data-rowindex={props.index}
       key={key}
+      onClick={onClickRow}
     >
       {multiRowSelection && (
         <CellCheckboxWrapper
@@ -70,7 +72,10 @@ export function Row(props: RowType) {
           <Checkbox
             excludeFromTabOrder={props.excludeFromTabOrder}
             isSelected={!!isRowSelected}
-            onChange={onClickRow}
+            onChange={() => {
+              props.row.toggleRowSelected();
+              selectTableRow?.(props.row);
+            }}
           />
         </CellCheckboxWrapper>
       )}
