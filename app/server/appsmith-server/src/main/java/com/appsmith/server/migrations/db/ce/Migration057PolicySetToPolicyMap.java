@@ -87,18 +87,19 @@ public class Migration057PolicySetToPolicyMap {
                 AggregationUpdate.update().set("policyMap").toValueOf(operator),
                 collectionName);
 
-        final Mono<UpdateResult> deletePoliciesField = mongoTemplate.updateMulti(
+        // Create a backup of the policies field so that we can rollback if needed
+        final Mono<UpdateResult> backupPoliciesField = mongoTemplate.updateMulti(
                 new Query(where("policies")
                         .exists(true)
                         .and("policyMap")
                         .exists(true)
                         .and("deletedAt")
                         .isNull()),
-                new Update().unset("policies"),
+                new Update().rename("policies", "_policies"),
                 collectionName);
 
         return convertToMap
-                .then(deletePoliciesField)
+                .then(backupPoliciesField)
                 .elapsed()
                 .doOnSuccess(it -> log.info("{} finished in {}ms", collectionName, it.getT1()))
                 .then();
