@@ -23,6 +23,7 @@ function parseTags(body) {
   const allTags = require(process.env.GITHUB_WORKSPACE + "/app/client/cypress/tags.js").Tag;
 
   // "/ok-to-test" matcher. Takes precedence over the "/test" matcher.
+  core.info("/ok-to-test matcher")
   const strictMatch = body.match(/\/ok-to-test tags="(.+?)"/)?.[1];
   if (strictMatch) {
     if (strictMatch === "@tag.All") {
@@ -38,12 +39,14 @@ function parseTags(body) {
   }
 
   // "/test" code-fence matcher.
+  core.info("/test code fence matcher")
   const result = matchCodeFence(body);
   if (result) {
     return result;
   }
 
   // "/test" matcher.
+  core.info("/test matcher")
   const config = body.match(/^\**\/test\s+(.+?)\**$/m)?.[1] ?? "";
   const concreteTags = [];
 
@@ -87,12 +90,12 @@ function parseTags(body) {
 }
 
 function matchCodeFence(body) {
-  console.log("Given: '" + body + "'");
+  core.info("Given: '" + body + "'");
   const re = /^```\n\/test\n((.|\n)+?)^```\n/gm;
 
-  console.log("Match found:", body.match(re));
+  core.info("Match found:", body.match(re));
   const spec = body.match(re)?.[1];
-  console.log("Match spec:", spec);
+  core.info("Match spec:", spec);
 
   return spec ? { spec } : null;
 }
