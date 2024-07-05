@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -19,7 +19,6 @@ import {
 } from "@appsmith/constants/messages";
 
 function Sidebar() {
-  const [topButtons, setTopButtons] = useState(TopButtons);
   const dispatch = useDispatch();
   const appState = useCurrentAppState();
   const pageId = useSelector(getCurrentPageId);
@@ -28,11 +27,10 @@ function Sidebar() {
   const datasourcesExist = datasources.length > 0;
 
   // Updates the top button config based on datasource existence
-  useEffect(() => {
-    if (!datasourcesExist) {
-      // Update the data button to show a warning
-      setTopButtons(
-        TopButtons.map((button) => {
+  const topButtons = React.useMemo(() => {
+    return datasourcesExist
+      ? TopButtons
+      : TopButtons.map((button) => {
           if (button.state === EditorState.DATA) {
             return {
               ...button,
@@ -41,12 +39,7 @@ function Sidebar() {
             };
           }
           return button;
-        }),
-      );
-      return;
-    }
-    // Datasource exists, so reset to standard button config
-    setTopButtons(TopButtons);
+        });
   }, [datasourcesExist]);
 
   useEffect(() => {

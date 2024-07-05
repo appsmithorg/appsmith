@@ -3,12 +3,12 @@ import styled from "styled-components";
 import SidebarButton from "./SidebarButton";
 import type { EditorState } from "@appsmith/entities/IDE/constants";
 import type { SidebarButtonProps } from "./SidebarButton/SidebarButton";
+import { Flex } from "design-system";
 
-const Container = styled.div`
+const Container = styled(Flex)`
   width: 50px;
   border-right: 1px solid var(--ads-v2-color-border);
   height: 100%;
-  display: flex;
   flex-direction: column;
   justify-content: space-between;
   background-color: var(--ads-v2-color-bg);
@@ -41,10 +41,11 @@ function IDESidebar(props: IDESidebarProps) {
           <SidebarButton
             icon={button.icon}
             key={button.state}
-            onClick={onClick.bind(null, button.urlSuffix)}
+            onClick={onClick}
             selected={editorState === button.state}
             title={button.title}
             tooltip={button.tooltip}
+            urlSuffix={button.urlSuffix}
           />
         ))}
       </div>
@@ -53,10 +54,11 @@ function IDESidebar(props: IDESidebarProps) {
           <SidebarButton
             icon={button.icon}
             key={button.state}
-            onClick={onClick.bind(null, button.urlSuffix)}
+            onClick={onClick}
             selected={editorState === button.state}
             title={button.title}
             tooltip={button.tooltip}
+            urlSuffix={button.urlSuffix}
           />
         ))}
       </div>

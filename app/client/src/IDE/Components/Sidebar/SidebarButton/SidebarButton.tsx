@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Icon, Text, Tooltip } from "design-system";
+import { Flex, Icon, Text, Tooltip } from "design-system";
 import styled from "styled-components";
 
 import { Condition } from "../../../enums";
@@ -18,13 +18,13 @@ export interface SidebarButtonProps {
   title?: string;
   selected: boolean;
   icon: string;
-  onClick: () => void;
+  onClick: (urlSuffix: string) => void;
+  urlSuffix: string;
   tooltip?: string;
   condition?: Condition;
 }
 
-const Container = styled.div`
-  display: flex;
+const Container = styled(Flex)`
   justify-content: center;
   flex-direction: column;
   width: 50px;
@@ -45,6 +45,7 @@ const IconContainer = styled.div<{ selected: boolean }>`
   justify-content: center;
   cursor: pointer;
   position: relative;
+
   &:hover {
     background: ${(props) =>
       props.selected
@@ -57,42 +58,46 @@ const ConditionIcon = styled(Icon)`
   position: absolute;
   bottom: 3px;
   right: -1px;
+
   &.t--sidebar-${Condition.Warn}-condition-icon {
     color: ${ConditionConfig[Condition.Warn].color};
   }
+
   // TODO add more condition colors here
 `;
 
 function SidebarButton(props: SidebarButtonProps) {
+  const { condition, icon, onClick, selected, title, tooltip, urlSuffix } =
+    props;
   const handleOnClick = useCallback(() => {
-    if (!props.selected) {
-      props.onClick();
+    if (!selected) {
+      onClick(urlSuffix);
     }
-  }, [props.selected, props.onClick]);
+  }, [selected, onClick, urlSuffix]);
   return (
     <Container>
       <Tooltip
-        content={props.tooltip}
-        isDisabled={!!props.title && !props.tooltip}
+        content={tooltip}
+        isDisabled={!!title && !tooltip}
         placement={"right"}
       >
         <IconContainer
-          className={`t--sidebar-${props.title || props.tooltip}`}
-          data-selected={props.selected}
+          className={`t--sidebar-${title || tooltip}`}
+          data-selected={selected}
           onClick={handleOnClick}
-          selected={props.selected}
+          selected={selected}
         >
-          <Icon name={props.icon} size="lg" />
-          {props.condition && (
+          <Icon name={icon} size="lg" />
+          {condition && (
             <ConditionIcon
-              className={`t--sidebar-${props.condition}-condition-icon`}
-              name={ConditionConfig[props.condition].icon}
+              className={`t--sidebar-${condition}-condition-icon`}
+              name={ConditionConfig[condition].icon}
               size="md"
             />
           )}
         </IconContainer>
       </Tooltip>
-      {props.title ? <Text kind="body-s">{props.title}</Text> : null}
+      {title ? <Text kind="body-s">{title}</Text> : null}
     </Container>
   );
 }
