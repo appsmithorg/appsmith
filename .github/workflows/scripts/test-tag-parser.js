@@ -1,6 +1,10 @@
 module.exports = function ({core, context, github}) {
   // Get predictable newlines in the body content. Cause for _so_ much unneeded pain in this world!
   const body = context.payload.pull_request.body?.replaceAll(/\r(\n)?/g, "\n");
+  if (!body) {
+    core.setFailed("Empty payload body!");
+    return;
+  }
 
   let parseResult;
   try {
@@ -18,8 +22,6 @@ module.exports = function ({core, context, github}) {
 
   core.setOutput("tags", parseResult.tags ?? "");
   core.setOutput("spec", parseResult.spec ?? "");
-
-  core.setFailed("temp");
 }
 
 function parseTags(body) {
