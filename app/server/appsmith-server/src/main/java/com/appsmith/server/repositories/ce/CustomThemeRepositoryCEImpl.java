@@ -44,6 +44,13 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
                 .one();
     }
 
+    @Override
+    public Optional<Theme> getSystemThemeByName(String themeName) {
+        return queryBuilder()
+                .criteria(Bridge.equalIgnoreCase(Theme.Fields.name, themeName).isTrue(Theme.Fields.isSystemTheme))
+                .one();
+    }
+
     public Optional<Boolean> archiveThemeByCriteria(
             BridgeQuery<Theme> criteria, AclPermission permission, User currentUser) {
         return Optional.of(queryBuilder()

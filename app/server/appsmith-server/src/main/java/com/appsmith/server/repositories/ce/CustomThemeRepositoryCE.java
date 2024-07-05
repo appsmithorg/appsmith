@@ -15,6 +15,8 @@ public interface CustomThemeRepositoryCE extends AppsmithRepository<Theme> {
 
     Optional<Theme> getSystemThemeByName(String themeName, AclPermission permission, User currentUser);
 
+    Optional<Theme> getSystemThemeByName(String themeName);
+
     Optional<Boolean> archiveByApplicationId(String applicationId, AclPermission permission, User currentUser);
 
     Optional<Boolean> archiveDraftThemesById(
