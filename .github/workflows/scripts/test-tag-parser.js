@@ -92,6 +92,8 @@ function parseTags(core, body) {
 function matchCodeFence(core, body) {
   core.info("Given: '" + body + "'");
 
+  core.info("Match crazy found:", body.match(/^...\n\/test\n((.|\n)+?)^...\n/gm));
+
   core.info("Match found:", body.match(/```/gm));
   core.info("Match found:", body.match(/^```/gm));
   core.info("Match found:", body.match(/^```\n/gm));
