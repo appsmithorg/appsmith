@@ -61,6 +61,7 @@ jobs:
             Commit: ${{ github.event.pull_request.head.sha }}
             Workflow: `${{ github.workflow }}`
             Tags: `${{ steps.parseTags.outputs.tags }}`
+            Spec: `${{ steps.parseTags.outputs.spec }}`
         with:
           script: |
             require("write-cypress-status.js")({core, context, github}, "important", process.env.BODY)
