@@ -1,5 +1,5 @@
-import React from "react";
-import { Button, Flex, Text } from "design-system";
+import React, { useState } from "react";
+import { Flex, Text } from "design-system";
 import { useSelector } from "react-redux";
 
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
@@ -14,18 +14,23 @@ import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 import { QueryListItem } from "@appsmith/pages/Editor/IDE/EditorPane/Query/ListItem";
 import { getShowWorkflowFeature } from "@appsmith/selectors/workflowSelectors";
 import { BlankState } from "./BlankState";
+import { AddAndSearchbar } from "../components/AddAndSearchbar";
+import { fuzzySearchInFiles } from "../utils";
+import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
 
 const ListQuery = () => {
+  const [searchTerm, setSearchTerm] = useState("");
   const pageId = useSelector(getCurrentPageId) as string;
   const files = useSelector(selectQuerySegmentEditorList);
   const activeActionId = useActiveAction();
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const localFiles = fuzzySearchInFiles(searchTerm, files);
 
   const canCreateActions = getHasCreateActionPermission(
     isFeatureEnabled,
@@ -36,6 +41,10 @@ const ListQuery = () => {
   const { openAddQuery } = useQueryAdd();
   const showWorkflows = useSelector(getShowWorkflowFeature);
 
+  const onSearch = (str: string) => {
+    setSearchTerm(str);
+  };
+
   return (
     <Flex
       flex="1"
@@ -44,26 +53,20 @@ const ListQuery = () => {
       overflow="hidden"
       py="spaces-3"
     >
-      {files.length > 0 && canCreateActions && (
-        <Flex flexDirection={"column"} px="spaces-3">
-          <Button
-            className="t--add-item"
-            kind={"secondary"}
-            onClick={openAddQuery}
-            size={"sm"}
-            startIcon={"add-line"}
-          >
-            {createMessage(EDITOR_PANE_TEXTS.query_add_button)}
-          </Button>
-        </Flex>
-      )}
+      {files.length > 0 ? (
+        <AddAndSearchbar
+          hasAddPermission={canCreateActions}
+          onAddClick={openAddQuery}
+          onSearch={onSearch}
+        />
+      ) : null}
       <Flex
         flexDirection={"column"}
         gap="spaces-4"
         overflowY="auto"
         px="spaces-3"
       >
-        {files.map(({ group, items }) => {
+        {localFiles.map(({ group, items }) => {
           return (
             <Flex flexDirection={"column"} key={group}>
               <Flex px="spaces-3" py="spaces-1">
@@ -96,6 +99,15 @@ const ListQuery = () => {
             </Flex>
           );
         })}
+        {localFiles.length === 0 && searchTerm !== "" ? (
+          <Text
+            className="font-normal text-center"
+            color="var(--ads-v2-color-fg-muted)"
+            kind="body-s"
+          >
+            {createMessage(EDITOR_PANE_TEXTS.empty_search_result, "queries")}
+          </Text>
+        ) : null}
       </Flex>
 
       {Object.keys(files).length === 0 && <BlankState />}
