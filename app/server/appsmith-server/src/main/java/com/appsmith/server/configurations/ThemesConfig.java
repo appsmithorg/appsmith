@@ -11,7 +11,7 @@ import com.appsmith.server.repositories.ThemeRepository;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,7 +30,7 @@ import static com.appsmith.server.constants.ce.FieldNameCE.PUBLIC_PERMISSION_GRO
 
 @Configuration
 @Slf4j
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ThemesConfig {
     private final ConfigRepository configRepository;
     private final PermissionGroupRepository permissionGroupRepository;
