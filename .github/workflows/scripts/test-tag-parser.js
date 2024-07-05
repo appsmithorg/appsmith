@@ -15,6 +15,8 @@ module.exports = function ({core, context, github}) {
 
   core.setOutput("tags", parseResult.tags ?? "");
   core.setOutput("spec", parseResult.spec ?? "");
+
+  core.setFailed("temp");
 }
 
 function parseTags(body) {
