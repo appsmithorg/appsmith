@@ -1,7 +1,7 @@
 module.exports = function ({core, context, github}) {
   let parseResult;
   try {
-    parseResult = parseTags(context.payload.pull_request.body);
+    parseResult = parseTags(core, context.payload.pull_request.body);
   } catch (error) {
     core.setFailed(error.message);
     const body = [
@@ -19,7 +19,7 @@ module.exports = function ({core, context, github}) {
   core.setFailed("temp");
 }
 
-function parseTags(body) {
+function parseTags(core, body) {
   const allTags = require(process.env.GITHUB_WORKSPACE + "/app/client/cypress/tags.js").Tag;
 
   // "/ok-to-test" matcher. Takes precedence over the "/test" matcher.
@@ -40,7 +40,7 @@ function parseTags(body) {
 
   // "/test" code-fence matcher.
   core.info("/test code fence matcher")
-  const result = matchCodeFence(body);
+  const result = matchCodeFence(core, body);
   if (result) {
     return result;
   }
@@ -89,7 +89,7 @@ function parseTags(body) {
   return { tags: concreteTags.join(", ") };
 }
 
-function matchCodeFence(body) {
+function matchCodeFence(core, body) {
   core.info("Given: '" + body + "'");
   const re = /^```\n\/test\n((.|\n)+?)^```\n/gm;
 
