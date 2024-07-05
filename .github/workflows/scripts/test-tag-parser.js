@@ -92,20 +92,22 @@ function parseTags(core, body) {
 function matchCodeFence(core, body) {
   core.info("Given: '" + body + "'");
 
-  core.info("Match crazy found:", body.match(/^...\n\/test\n((.|\n)+?)^...\n/gm));
+  core.info("Match other found:", body.match(/^\**\/test\s+(.+?)\**$/m));
 
-  core.info("Match found:", body.match(/```/gm));
-  core.info("Match found:", body.match(/^```/gm));
-  core.info("Match found:", body.match(/^```\n/gm));
-  core.info("Match found:", body.match(/^```\n\//gm));
-  core.info("Match found:", body.match(/^```\n\/test/gm));
-  core.info("Match found:", body.match(/^```\n\/test\n/gm));
-  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)/gm));
-  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)```/gm));
-  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)^```/gm));
-  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)^```\n/gm));
+  core.info("Match crazy found:", body.match(/^...\n\/test\n((.|\n)+?)^...\n/m));
 
-  const re = /^```\n\/test\n((.|\n)+?)^```\n/gm;
+  core.info("Match found:", body.match(/```/m));
+  core.info("Match found:", body.match(/^```/m));
+  core.info("Match found:", body.match(/^```\n/m));
+  core.info("Match found:", body.match(/^```\n\//m));
+  core.info("Match found:", body.match(/^```\n\/test/m));
+  core.info("Match found:", body.match(/^```\n\/test\n/m));
+  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)/m));
+  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)```/m));
+  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)^```/m));
+  core.info("Match found:", body.match(/^```\n\/test\n((.|\n)+?)^```\n/m));
+
+  const re = /^```\n\/test\n((.|\n)+?)^```\n/m;
 
   core.info("Match found:", body.match(re));
   const spec = body.match(re)?.[1];
