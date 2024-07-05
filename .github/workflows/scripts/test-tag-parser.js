@@ -6,10 +6,10 @@ module.exports = function ({core, context, github}) {
     core.setFailed(error.message);
     const body = [
       "Invalid tags. Please use `/ok-to-test tags=\"@tag.All\"` or `/test all` in the PR body to run all tests.",
-      "[Tags documentation](https://www.notion.so/appsmith/7c0fc64d4efb4afebf53348cd6252918)",
-      "[List of valid tags](https://github.com/appsmithorg/appsmith/blob/release/app/client/cypress/tags.js)",
+      "[Tags documentation](https://www.notion.so/appsmith/7c0fc64d4efb4afebf53348cd6252918).",
+      "[List of valid tags](https://github.com/appsmithorg/appsmith/blob/release/app/client/cypress/tags.js).",
     ].join("\n");
-    require("write-cypress-status.js")({core, context, github}, "warning", body);
+    require("./write-cypress-status.js")({core, context, github}, "warning", body);
     return;
   }
 
@@ -85,9 +85,12 @@ function parseTags(body) {
 }
 
 function matchCodeFence(body) {
+  console.log("Given: '" + body + "'");
   const re = /^```\n\/test\n((?:.|\n)+?)^```\n/gm;
 
+  console.log("Match found:", body.match(re));
   const spec = body.match(re)?.[1];
+  console.log("Match spec:", spec);
 
   return spec ? { spec } : null;
 }
