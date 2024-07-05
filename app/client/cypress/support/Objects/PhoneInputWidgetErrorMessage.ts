@@ -1,0 +1,1 @@
+export const NUMBER_ERROR_MESSAGE =  "This value must be number";
