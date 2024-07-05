@@ -276,4 +276,5 @@ export type EitherMouseLocationORGridPosition =
 
 export type PasteWidgetReduxAction = {
   groupWidgets: boolean;
+  existingWidgets?: unknown;
 } & EitherMouseLocationORGridPosition;
