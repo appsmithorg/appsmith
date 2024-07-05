@@ -4,7 +4,7 @@ module.exports = function ({core, context, github}) {
 
   let parseResult;
   try {
-    parseResult = parseTags(core, body);
+    parseResult = parseTags(body);
   } catch (error) {
     core.setFailed(error.message);
     const body = [
@@ -22,11 +22,10 @@ module.exports = function ({core, context, github}) {
   core.setFailed("temp");
 }
 
-function parseTags(core, body) {
+function parseTags(body) {
   const allTags = require(process.env.GITHUB_WORKSPACE + "/app/client/cypress/tags.js").Tag;
 
   // "/ok-to-test" matcher. Takes precedence over the "/test" matcher.
-  console.log("/ok-to-test matcher")
   const strictMatch = body.match(/^\/ok-to-test tags="(.+?)"/m)?.[1];
   if (strictMatch) {
     if (strictMatch === "@tag.All") {
@@ -42,16 +41,13 @@ function parseTags(core, body) {
   }
 
   // "/test" code-fence matcher.
-  console.log("/test code fence matcher")
-  console.log("1 Match other found:", body.match(/^\**\/test\s+(.+?)\**$/m));
-  const result = matchCodeFence(core, body);
-  console.log("2 Match other found:", body.match(/^\**\/test\s+(.+?)\**$/m));
+  const result = matchCodeFence(body);
   if (result) {
+    console.log("Code fence match:\n" + result.spec);
     return result;
   }
 
   // "/test" matcher.
-  console.log("/test matcher")
   const config = body.match(/^\**\/test\s+(.+?)\**$/m)?.[1] ?? "";
   const concreteTags = [];
 
@@ -94,7 +90,7 @@ function parseTags(core, body) {
   return { tags: concreteTags.join(", ") };
 }
 
-function matchCodeFence(core, body) {
+function matchCodeFence(body) {
   const re = /^```\n\/test\n(.+?)^```\n/ms;
 
   const spec = body.match(re)?.[1];
