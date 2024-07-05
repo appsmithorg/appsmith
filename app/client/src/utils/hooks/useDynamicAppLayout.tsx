@@ -1,5 +1,5 @@
 import { debounce, get } from "lodash";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
@@ -69,6 +69,13 @@ export const useDynamicAppLayout = () => {
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
 
   const isPreviewing = isPreviewMode;
+
+  // /**
+  //  * calculates min height
+  //  */
+  // const calculatedMinHeight = useMemo(() => {
+  //   return calculateDynamicHeight();
+  // }, [mainCanvasProps]);
 
   /**
    * app layout range i.e minWidth and maxWidth for the current layout
@@ -187,6 +194,9 @@ export const useDynamicAppLayout = () => {
 
   /**
    * resizes the layout based on the layout type
+   *
+   * @param screenWidth
+   * @param appLayout
    */
   const resizeToLayout = () => {
     const calculatedWidth = calculateCanvasWidth();
@@ -197,29 +207,47 @@ export const useDynamicAppLayout = () => {
     return calculatedWidth;
   };
 
-  const debouncedResize = useRef(debounce(resizeToLayout, 250));
-  const immediateDebouncedResize = useRef(debounce(resizeToLayout));
+  const debouncedResize = useCallback(debounce(resizeToLayout, 250), [
+    mainCanvasProps,
+    screenWidth,
+  ]);
 
+  const immediateDebouncedResize = useCallback(debounce(resizeToLayout), [
+    mainCanvasProps,
+    screenWidth,
+    currentPageId,
+    appMode,
+    appLayout,
+    isPreviewing,
+  ]);
+
+  const resizeObserver = new ResizeObserver(immediateDebouncedResize);
   useEffect(() => {
-    const resizeObserver = new ResizeObserver(immediateDebouncedResize.current);
-    const canvasViewportElement = document.getElementById(CANVAS_VIEWPORT);
-
-    if (
-      canvasViewportElement &&
-      canvasViewportElement instanceof HTMLElement &&
-      appLayout?.type === "FLUID"
-    ) {
-      resizeObserver.observe(canvasViewportElement);
-
-      return () => {
-        resizeObserver.unobserve(canvasViewportElement);
-      };
+    const ele: any = document.getElementById(CANVAS_VIEWPORT);
+    if (ele) {
+      if (appLayout?.type === "FLUID") {
+        resizeObserver.observe(ele);
+      } else {
+        resizeObserver.unobserve(ele);
+      }
     }
-  }, [appLayout, currentPageId, immediateDebouncedResize, isPreviewing]);
+    return () => {
+      ele && resizeObserver.unobserve(ele);
+    };
+  }, [appLayout, currentPageId, isPreviewing]);
+
+  /**
+   * when screen height is changed, update canvas layout
+   */
+  // useEffect(() => {
+  //   if (calculatedMinHeight !== mainCanvasProps?.height) {
+  //     // dispatch(updateCanvasLayoutAction(mainCanvasProps?.width));
+  //   }
+  // }, [screenHeight, mainCanvasProps?.height]);
 
   useEffect(() => {
-    if (isCanvasInitialized) debouncedResize.current();
-  }, [isCanvasInitialized, screenWidth]);
+    if (isCanvasInitialized) debouncedResize();
+  }, [screenWidth]);
 
   /**
    * resize the layout if any of the following thing changes:
