@@ -62,6 +62,7 @@ export interface EvalTreeResponseData {
   jsVarsCreatedEvent?: { path: string; type: string }[];
   webworkerTelemetry?: Record<string, WebworkerSpanData | SpanAttributes>;
   updates: string;
+  messageId: any;
 }
 
 export interface UpdateTreeResponse {
