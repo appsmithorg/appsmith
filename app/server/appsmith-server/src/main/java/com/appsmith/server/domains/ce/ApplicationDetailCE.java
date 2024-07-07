@@ -20,10 +20,6 @@ import org.hibernate.annotations.Type;
 @ToString
 @EqualsAndHashCode
 public class ApplicationDetailCE {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
     @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView({Views.Public.class, Git.class})
