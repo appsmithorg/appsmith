@@ -1,4 +1,4 @@
-import React from "react";
+import React , { useState } from "react";
 import styled from "styled-components";
 import SidebarButton from "./SidebarButton";
 import type { SidebarButton as SidebarButtonType } from "@appsmith/entities/IDE/constants";
@@ -24,8 +24,8 @@ interface SidebarComponentProps {
   onClick: (suffix: string) => void;
 }
 
-function SidebarComponent(props: SidebarComponentProps) {
-  const { appState, bottomButtons, onClick, topButtons } = props;
+function SidebarComponent({ topButtons, bottomButtons, appState, onClick }: SidebarComponentProps) {
+  const [selectedState, setSelectedState] = useState<string | null>(appState);
   const datasources = useSelector(getDatasources);
   const getConditionalIconAndTooltip = (
     type?: SideButtonType,
@@ -43,44 +43,39 @@ function SidebarComponent(props: SidebarComponentProps) {
         return {};
     }
   };
+  
+  const handleButtonClick = (state: string, urlSuffix: string) => {
+    const newState = selectedState === state ? null : state;
+    setSelectedState(newState);
+    onClick(newState ? urlSuffix : "");
+  };
 
   return (
     <Container className="t--sidebar" id="t--app-sidebar">
-      <div>
-        {topButtons.map((b) => (
-          <SidebarButton
-            icon={b.icon}
-            key={b.state}
-            onClick={() => {
-              if (appState !== b.state) {
-                onClick(b.urlSuffix);
-              }
-            }}
-            selected={appState === b.state}
-            title={b.title}
-            {...getConditionalIconAndTooltip(
-              b.conditionType,
-              b.conditionTooltip,
-            )}
-          />
-        ))}
-      </div>
-      <div>
-        {bottomButtons.map((b) => (
-          <SidebarButton
-            icon={b.icon}
-            key={b.state}
-            onClick={() => {
-              if (appState !== b.state) {
-                onClick(b.urlSuffix);
-              }
-            }}
-            selected={appState === b.state}
-            tooltip={b.title}
-          />
-        ))}
-      </div>
-    </Container>
+    <div>
+      {topButtons.map(({ state, icon, urlSuffix, title, conditionType, conditionTooltip }) => (
+        <SidebarButton
+          key={state}
+          icon={icon}
+          onClick={() => handleButtonClick(state, urlSuffix)}
+          selected={selectedState === state}
+          title={title}
+          {...getConditionalIconAndTooltip(conditionType, conditionTooltip)}
+        />
+      ))}
+    </div>
+    <div>
+      {bottomButtons.map(({ state, icon, urlSuffix, title }) => (
+        <SidebarButton
+          key={state}
+          icon={icon}
+          onClick={() => handleButtonClick(state, urlSuffix)}
+          selected={selectedState === state}
+          tooltip={title}
+        />
+      ))}
+    </div>
+  </Container>
   );
 }
 
