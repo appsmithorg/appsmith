@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { Def, Server } from "tern";
 import type { CallbackFn } from "./types";
 import { TernWorkerAction } from "./types";
@@ -39,7 +40,9 @@ function TernWorkerServer(this: any, ts: any) {
       data.id = ++msgId;
       pending[msgId] = c;
     }
+    console.time("TernWorkerServer.postMessage");
     worker.postMessage(data);
+    console.timeEnd("TernWorkerServer.postMessage");
   }
   worker.onmessage = function (e) {
     const data = e.data;

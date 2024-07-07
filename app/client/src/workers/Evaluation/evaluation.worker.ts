@@ -25,6 +25,8 @@ function syncRequestMessageListener(
   const responseData = messageHandler(body);
   const transmissionErrorHandler = transmissionErrorHandlerMap[method];
   const endTime = Date.now();
+  console.time("*** post " + messageId);
+
   WorkerMessenger.respond(
     messageId,
     responseData,
@@ -32,6 +34,7 @@ function syncRequestMessageListener(
     endTime,
     transmissionErrorHandler,
   );
+  console.timeEnd("*** post " + messageId);
 }
 
 async function asyncRequestMessageListener(

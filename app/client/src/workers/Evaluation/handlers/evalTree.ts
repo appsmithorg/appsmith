@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type ReplayEntity from "entities/Replay";
 import ReplayCanvas from "entities/Replay/ReplayEntity/ReplayCanvas";
@@ -48,8 +49,8 @@ export let canvasWidgets: CanvasWidgetsReduxState;
 export function evalTree(
   request: EvalWorkerSyncRequest<EvalTreeRequestData>,
 ): EvalTreeResponseData {
-  const { data, webworkerTelemetry } = request;
-
+  const { data, messageId, webworkerTelemetry } = request;
+  console.time("*** evalTree " + messageId);
   webworkerTelemetry["transferDataToWorkerThread"].endTime = Date.now();
 
   let evalOrder: string[] = [];
@@ -299,6 +300,7 @@ export function evalTree(
       return updates;
     },
   );
+  console.timeEnd("*** evalTree " + messageId);
 
   const evalTreeResponse = {
     updates,

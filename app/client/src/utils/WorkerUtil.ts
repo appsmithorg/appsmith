@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { cancelled, delay, put, take } from "redux-saga/effects";
 import type { Channel } from "redux-saga";
 import { channel, buffers } from "redux-saga";
@@ -240,6 +241,7 @@ export class GracefulWorkerService {
       method,
       data,
       webworkerTelemetry: webworkerTelemetryData,
+      messageId,
     };
 
     let webworkerTelemetryResponse: Record<
@@ -248,14 +250,19 @@ export class GracefulWorkerService {
     > = {};
 
     try {
+      console.time(`*** request-${messageId}`); // eslint-disable-line no-console
+
       sendMessage.call(this._Worker, {
         messageType: MessageType.REQUEST,
         body: body,
         messageId,
       });
 
+      console.log("*** channels ", this._channels);
+      console.log("*** listenerChannel ", this.listenerChannel);
       // The `this._broker` method is listening to events and will pass response to us over this channel.
       const response = yield take(ch);
+      console.log("*** response ", messageId, response);
       const { data, endTime, startTime } = response;
       webworkerTelemetryResponse = data.webworkerTelemetry;
 
@@ -300,6 +307,8 @@ export class GracefulWorkerService {
       // Cleanup
       ch.close();
       this._channels.delete(messageId);
+      console.timeEnd(`*** request-${messageId}`); // eslint-disable-line no-console
+      console.log("*** deleted ", messageId);
     }
   }
 
@@ -310,8 +319,14 @@ export class GracefulWorkerService {
       const { messageId } = event.data;
       if (!messageId) return;
       const ch = this._channels.get(messageId);
+      console.log("*** ch ", messageId, this._channels);
       if (ch) {
+        const start = performance.now();
+        console.time("*** received " + messageId);
         ch.put(body);
+        const end = performance.now();
+        console.timeEnd("*** received " + messageId);
+        console.log("*** time taken ", end - start);
         this._channels.delete(messageId);
       }
     } else {

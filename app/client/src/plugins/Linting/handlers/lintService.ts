@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { get, intersection, isEmpty, uniq } from "lodash";
 import {
   convertPathToString,

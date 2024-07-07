@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import type { ActionPattern, CallEffect, ForkEffect } from "redux-saga/effects";
 import {
   actionChannel,
@@ -597,6 +598,7 @@ function* evalAndLintingHandler(
     affectedJSObjects: AffectedJSObjects;
   }>,
 ) {
+  console.time("*** evalAndLintingHandler");
   const span = startRootSpan("evalAndLintingHandler");
   const { affectedJSObjects, forceEvaluation, requiresLogging, shouldReplay } =
     options;
@@ -640,6 +642,7 @@ function* evalAndLintingHandler(
   if (requiresLinting) {
     effects.push(fn(initiateLinting, unEvalAndConfigTree, forceEvaluation));
   }
+  console.timeEnd("*** evalAndLintingHandler");
 
   yield all(effects);
   endSpan(span);
@@ -647,6 +650,7 @@ function* evalAndLintingHandler(
 
 function* evaluationChangeListenerSaga(): any {
   // Explicitly shutdown old worker if present
+  console.time("*** evaluationChangeListenerSaga");
   yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
   const [evalWorkerListenerChannel] = yield all([
     call(evalWorker.start),
@@ -667,19 +671,23 @@ function* evaluationChangeListenerSaga(): any {
     featureFlags: featureFlags,
   });
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
+  console.time("*** FIRST_EVAL_REDUX_ACTIONS");
 
   const initAction: EvaluationReduxAction<unknown> = yield take(
     FIRST_EVAL_REDUX_ACTIONS,
   );
+  console.timeEnd("*** FIRST_EVAL_REDUX_ACTIONS");
 
   // Wait for widget config build to complete before starting evaluation only if the current editor is not a workflow
   const isCurrentEditorWorkflowType = yield select(
     getIsCurrentEditorWorkflowType,
   );
+  console.time("*** waitForWidgetConfigBuild");
 
   if (!isCurrentEditorWorkflowType) {
     yield call(waitForWidgetConfigBuild);
   }
+  console.timeEnd("*** waitForWidgetConfigBuild");
 
   widgetTypeConfigMap = WidgetFactory.getWidgetTypeConfigMap();
   yield fork(evalAndLintingHandler, false, initAction, {
@@ -695,7 +703,7 @@ function* evaluationChangeListenerSaga(): any {
     EVAL_AND_LINT_REDUX_ACTIONS,
     evalQueueBuffer(),
   );
-
+  console.timeEnd("*** evaluationChangeListenerSaga");
   while (true) {
     const action: EvaluationReduxAction<unknown | unknown[]> =
       yield take(evtActionChannel);
