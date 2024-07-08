@@ -114,6 +114,9 @@ describe(
       apiPage.CreateApi("FirstAPI", "POST");
       apiPage.SelectPaneTab("Body");
       apiPage.SelectSubTab("MULTIPART_FORM_DATA");
+      apiPage.SelectSubTab("JSON");
+      apiPage.SelectPaneTab("Params");
+      apiPage.SelectPaneTab("Body");
       apiPage.SelectSubTab("NONE");
       apiPage.ValidateImportedHeaderParamsAbsence(true);
       agHelper.ActionContextMenuWithInPane({
