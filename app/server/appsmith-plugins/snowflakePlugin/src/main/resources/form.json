@@ -95,7 +95,7 @@
               },
               {
                 "path": "datasourceConfiguration.authentication.authenticationType",
-                "comparison": "NOT_EQUALS",
+                "comparison": "DEFINED_AND_NOT_EQUALS",
                 "value": "dbAuth"
               }
             ]
