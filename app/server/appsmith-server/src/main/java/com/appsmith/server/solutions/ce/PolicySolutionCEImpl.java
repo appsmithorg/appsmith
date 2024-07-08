@@ -59,13 +59,15 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
         // TODO: Investigate a solution without using deep-copy.
         // TODO: Do we need to return the domain object?
         final Map<String, Policy> policyMap1 = new HashMap<>();
-        for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
-            Policy entryValue = entry.getValue();
-            Policy policy = Policy.builder()
-                    .permission(entryValue.getPermission())
-                    .permissionGroups(new HashSet<>(entryValue.getPermissionGroups()))
-                    .build();
-            policyMap1.put(entry.getKey(), policy);
+        if (policyMap != null) {
+            for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
+                Policy entryValue = entry.getValue();
+                Policy policy = Policy.builder()
+                        .permission(entryValue.getPermission())
+                        .permissionGroups(new HashSet<>(entryValue.getPermissionGroups()))
+                        .build();
+                policyMap1.put(entry.getKey(), policy);
+            }
         }
 
         final Set<Policy> policies = new HashSet<>(obj.getPolicies());
