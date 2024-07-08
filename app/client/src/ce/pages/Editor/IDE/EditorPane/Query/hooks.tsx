@@ -36,6 +36,7 @@ import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { Tag, type ListItemProps } from "design-system";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
+import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -146,7 +147,7 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
       },
       {
         key: "QueryEmpty",
-        component: ListQuery,
+        component: QueriesBlankState,
         exact: true,
         path: [path],
       },

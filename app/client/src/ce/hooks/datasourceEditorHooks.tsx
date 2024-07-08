@@ -25,6 +25,7 @@ import {
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 import { isEnabledForPreviewData } from "utils/editorContextUtils";
 import history from "utils/history";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -60,6 +61,11 @@ export const useHeaderActions = (
   const showGenerateButton = useShowPageGenerationOnHeader(
     datasource as Datasource,
   );
+
+  // We allow creating pages basedon the datasource. However,
+  // this doesn't work well with Anvil today. So, until this is fixed
+  // for Anvil, we're removing the button that generates the page for users in Anvil
+  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
   const plugin = useSelector((state: AppState) =>
     getPlugin(state, datasource?.pluginId || ""),
@@ -112,7 +118,7 @@ export const useHeaderActions = (
     );
 
     const generatePageButton =
-      showGenerateButton && !showReconnectButton ? (
+      showGenerateButton && !showReconnectButton && !isAnvilEnabled ? (
         <Button
           className={"t--generate-template"}
           isDisabled={!canGeneratePage}
