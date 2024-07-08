@@ -4,6 +4,7 @@ import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
+import com.appsmith.util.PolicyUtil;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AccessLevel;
@@ -114,18 +115,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView({Views.Internal.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public void setPolicies(Set<Policy> policies) {
-        if (policies == null) {
-            policyMap = null;
-        } else {
-            if (policyMap == null) {
-                policyMap = new HashMap<>();
-            } else {
-                policyMap.clear();
-            }
-            for (Policy policy : policies) {
-                policyMap.put(policy.getPermission(), policy);
-            }
-        }
+        policyMap = PolicyUtil.setPolicies(policies);
     }
 
     public void sanitiseToExportDBObject() {
