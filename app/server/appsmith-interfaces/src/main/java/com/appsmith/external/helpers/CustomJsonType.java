@@ -5,11 +5,8 @@ import com.appsmith.external.models.AppsmithDomain;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import io.hypersistence.utils.hibernate.type.util.ObjectMapperWrapper;
-import org.springframework.security.crypto.encrypt.Encryptors;
-import org.springframework.security.crypto.encrypt.TextEncryptor;
 
 import java.lang.reflect.Type;
-import java.util.HexFormat;
 
 /**
  * Extends the default JsonBinaryType to use a custom ObjectMapper for database serialization.
@@ -21,10 +18,6 @@ import java.util.HexFormat;
 public final class CustomJsonType extends JsonBinaryType {
 
     public static final EncryptionHandler ENCRYPTION_HANDLER = new EncryptionHandler();
-
-    private static final TextEncryptor textEncryptor = Encryptors.delux(
-            System.getenv("APPSMITH_ENCRYPTION_PASSWORD"),
-            HexFormat.of().formatHex(System.getenv("APPSMITH_ENCRYPTION_SALT").getBytes()));
 
     public CustomJsonType() {
         super(new CustomWrapper());
@@ -75,7 +68,7 @@ public final class CustomJsonType extends JsonBinaryType {
                 return null;
             }
             if (AppsmithDomain.class.isAssignableFrom(obj.getClass())) {
-                ENCRYPTION_HANDLER.convertEncryption(obj, textEncryptor::decrypt);
+                ENCRYPTION_HANDLER.convertEncryption(obj, EncryptionHelper::decrypt);
             }
             return obj;
         }
