@@ -14,10 +14,6 @@ import com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector;
 import com.fasterxml.jackson.databind.util.Converter;
 import com.fasterxml.jackson.databind.util.StdConverter;
 import jakarta.persistence.Transient;
-import org.springframework.security.crypto.encrypt.Encryptors;
-import org.springframework.security.crypto.encrypt.TextEncryptor;
-
-import java.util.HexFormat;
 
 /**
  * Owner of ObjectMapper configuration designed for serialization/deserialization of objects into/from the database.
@@ -35,16 +31,12 @@ public final class JsonForDatabase {
      */
     private static final ObjectMapper objectMapper = create();
 
-    private static final TextEncryptor textEncryptor = Encryptors.delux(
-            System.getenv("APPSMITH_ENCRYPTION_PASSWORD"),
-            HexFormat.of().formatHex(System.getenv("APPSMITH_ENCRYPTION_SALT").getBytes()));
-
     private static final Converter<Object, String> encConverter = new StdConverter<>() {
         @Override
         public String convert(Object value) {
             // Ideally, this shouldn't be `Object`, it should be `String`. We need `Object` here for the
             // `AuthenticationResponse.tokenResponse` field, which also, may be should've been a JSON string instead.
-            return textEncryptor.encrypt(String.valueOf(value));
+            return EncryptionHelper.encrypt(String.valueOf(value));
         }
     };
 
