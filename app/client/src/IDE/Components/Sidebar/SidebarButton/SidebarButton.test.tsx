@@ -9,6 +9,7 @@ const sidebarButtonProps: SidebarButtonProps = {
   onClick: () => {},
   selected: false,
   title: "Test",
+  urlSuffix: "/test",
 };
 
 describe("SidebarButton", () => {
