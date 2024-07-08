@@ -53,7 +53,7 @@ import static org.mockito.Mockito.doReturn;
 @SpringBootTest
 @ExtendWith(AfterAllCleanUpExtension.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
-public class TenantServiceCETest {
+class TenantServiceCETest {
 
     @Autowired
     TenantService tenantService;

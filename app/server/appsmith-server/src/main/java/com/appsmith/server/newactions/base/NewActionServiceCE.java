@@ -40,6 +40,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<NewAction> validateAction(NewAction newAction);
 
+    Mono<NewAction> validateAction(NewAction newAction, boolean isDryOps);
+
     Mono<Void> bulkValidateAndInsertActionInRepository(List<NewAction> newActionList);
 
     Mono<Void> bulkValidateAndUpdateActionInRepository(List<NewAction> newActionList);
