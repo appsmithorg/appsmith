@@ -14,6 +14,11 @@ on:
         required: false
         type: string
         default: ""
+      spec:
+        description: "Spec files to run, one per line"
+        required: false
+        type: string
+        default: ""
       matrix:
         description: "Matrix jobs"
         required: false
@@ -350,6 +355,7 @@ jobs:
           browser: ${{ env.BROWSER_PATH }}
           install: false
           config-file: cypress_ci_custom.config.ts
+          spec: ${{ inputs.spec }}
           working-directory: app/client
           env: "NODE_ENV=development"
 
