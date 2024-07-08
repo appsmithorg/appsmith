@@ -1,5 +1,6 @@
 package com.appsmith.server.migrations.db.ce;
 
+import com.appsmith.external.models.BaseDomain;
 import com.mongodb.client.result.UpdateResult;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -17,8 +18,15 @@ import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
+import static com.appsmith.server.constants.DeprecatedFieldName.POLICIES;
 import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
 
+/**
+ * Migration to convert the policies field to a policyMap field in all the collections. The key defines the permission
+ * whereas the value is the actual policy object. This makes it easier to use this data in code, to query as a MongoDB
+ * nested document, and as a Postgres jsonb column.
+ * Migration also creates a backup of the policies field in case we need to rollback or for debugging purpose.
+ */
 @Slf4j
 @RequiredArgsConstructor
 @ChangeUnit(order = "057", id = "policy-set-to-policy-map")
@@ -89,13 +97,13 @@ public class Migration057PolicySetToPolicyMap {
 
         // Create a backup of the policies field so that we can rollback if needed
         final Mono<UpdateResult> backupPoliciesField = mongoTemplate.updateMulti(
-                new Query(where("policies")
+                new Query(where(POLICIES)
                         .exists(true)
-                        .and("policyMap")
+                        .and(BaseDomain.Fields.policyMap)
                         .exists(true)
-                        .and("deletedAt")
+                        .and(BaseDomain.Fields.deletedAt)
                         .isNull()),
-                new Update().rename("policies", "_policies"),
+                new Update().rename(POLICIES, "_policies"),
                 collectionName);
 
         return convertToMap
