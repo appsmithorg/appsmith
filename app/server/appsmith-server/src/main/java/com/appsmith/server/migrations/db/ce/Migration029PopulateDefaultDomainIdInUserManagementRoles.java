@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static com.appsmith.server.acl.AclPermission.RESET_PASSWORD_USERS;
+import static com.appsmith.server.constants.DeprecatedFieldName.POLICIES;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
@@ -45,7 +46,7 @@ public class Migration029PopulateDefaultDomainIdInUserManagementRoles {
                 .is(RESET_PASSWORD_USERS.getValue())
                 .andOperator(notDeleted());
         Query queryExistingUsersWithResetPasswordPolicy = new Query(resetPasswordPolicyExistsAndNotDeleted);
-        queryExistingUsersWithResetPasswordPolicy.fields().include("policies");
+        queryExistingUsersWithResetPasswordPolicy.fields().include(POLICIES);
         Map<String, String> userManagementRoleIdToUserIdMap = new HashMap<>();
         mongoTemplate.stream(queryExistingUsersWithResetPasswordPolicy, User.class)
                 .forEach(existingUser -> {

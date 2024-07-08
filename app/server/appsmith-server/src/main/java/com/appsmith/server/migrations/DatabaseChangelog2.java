@@ -55,6 +55,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.StringUtils.dotted;
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
@@ -62,6 +63,7 @@ import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
+import static com.appsmith.server.constants.DeprecatedFieldName.POLICIES;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
@@ -222,7 +224,7 @@ public class DatabaseChangelog2 {
         }
     }
 
-    @ChangeSet(order = "029", id = "add-instance-config-object", author = "", runAlways = true)
+    @ChangeSet(order = "029", id = "add-instance-config-object", author = "")
     public void addInstanceConfigurationPlaceHolder(MongoTemplate mongoTemplate) {
         Query instanceConfigurationQuery = new Query();
         instanceConfigurationQuery.addCriteria(where(Config.Fields.name).is(FieldName.INSTANCE_CONFIG));
@@ -243,11 +245,10 @@ public class DatabaseChangelog2 {
                 Set.of(new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION)));
 
         Query adminUserQuery = new Query();
-        // Oring for backward compatibility where policies are stored in a set instead of map
-        Criteria policyCriteria =
-                where("policies").elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue()));
-        Criteria policyMapCriteria =
-                where("policyMap" + "." + MANAGE_INSTANCE_ENV.getValue()).exists(true);
+        // OR-ing for backward compatibility where policies are stored in a set instead of map
+        Criteria policyCriteria = where(POLICIES).elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue()));
+        Criteria policyMapCriteria = where(dotted(BaseDomain.Fields.policyMap, MANAGE_INSTANCE_ENV.getValue()))
+                .exists(true);
         adminUserQuery.addCriteria(new Criteria().orOperator(policyCriteria, policyMapCriteria));
         List<User> adminUsers = mongoTemplate.find(adminUserQuery, User.class);
 

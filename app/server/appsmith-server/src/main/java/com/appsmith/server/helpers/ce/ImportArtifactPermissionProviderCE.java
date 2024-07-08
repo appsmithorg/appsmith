@@ -13,6 +13,7 @@ import com.appsmith.server.solutions.ArtifactPermission;
 import com.appsmith.server.solutions.ContextPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.util.PolicyUtil;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

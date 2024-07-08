@@ -37,6 +37,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.PluginConstants.PackageName.APPSMITH_AI_PLUGIN;
+import static com.appsmith.server.constants.DeprecatedFieldName.POLICIES;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -123,7 +124,7 @@ public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
      */
     private Pair<Boolean, Set<String>> getAllApplicationIdsOfDatasourceAndCheckIfAnyAppPublic(String datasourceId) {
         Query newActionsQuery = new Query().addCriteria(newActionCriteria(datasourceId));
-        newActionsQuery.fields().include(FieldName.ID, FieldName.APPLICATION_ID, "policies");
+        newActionsQuery.fields().include(FieldName.ID, FieldName.APPLICATION_ID, POLICIES);
 
         Set<String> allApplicationIds = new HashSet<>();
         AtomicReference<Boolean> isPublic = new AtomicReference<>(false);

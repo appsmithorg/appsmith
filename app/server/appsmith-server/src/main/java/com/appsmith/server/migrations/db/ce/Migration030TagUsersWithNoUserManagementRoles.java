@@ -15,6 +15,8 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.List;
 
+import static com.appsmith.server.constants.DeprecatedFieldName.POLICIES;
+
 @Slf4j
 @RequiredArgsConstructor
 @ChangeUnit(order = "030", id = "tag-users-with-no-user-management-roles")
@@ -48,9 +50,8 @@ public class Migration030TagUsersWithNoUserManagementRoles {
 
         Criteria criteriaUsersWithNoUserManagementRoles =
                 Criteria.where(BaseDomain.Fields.id).nin(userIdsWithUserManagementRoles);
-        Criteria criteriaUsersPoliciesExists = Criteria.where("policies").exists(true);
-        Criteria criteriaUsersPoliciesNotEmpty =
-                Criteria.where("policies").not().size(0);
+        Criteria criteriaUsersPoliciesExists = Criteria.where(POLICIES).exists(true);
+        Criteria criteriaUsersPoliciesNotEmpty = Criteria.where(POLICIES).not().size(0);
         Criteria criteriaUsersWithNoUserManagementRolesAndUserPoliciesExists = new Criteria()
                 .andOperator(
                         criteriaUsersWithNoUserManagementRoles,
