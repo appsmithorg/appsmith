@@ -1,13 +1,6 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
-import {
-  agHelper,
-  entityExplorer,
-  propPane,
-  table,
-  draggableWidgets,
-} from "../../../../../support/Objects/ObjectsCore";
-import { PROPERTY_SELECTOR } from "../../../../../locators/WidgetLocators";
+import { agHelper, table } from "../../../../../support/Objects/ObjectsCore";
 
 describe(
   "Table widget inline editing functionality",
@@ -26,14 +19,14 @@ describe(
 
     it("1. should check that save/discard column is added/removed when inline save option is changed", () => {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
+      table.toggleColumnEditableViaColSettingsPane("step");
       cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
       cy.get(".t--property-control-updatemode .t--property-control-label")
         .last()
         .click();
       cy.get(".ads-v2-segmented-control-value-CUSTOM").click({ force: true });
       cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
-      cy.makeColumnEditable("task");
+      table.toggleColumnEditableViaColSettingsPane("task");
       cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
       cy.get(".t--property-control-updatemode .t--property-control-label")
         .last()
@@ -47,8 +40,8 @@ describe(
         .click();
       cy.get(".ads-v2-segmented-control-value-CUSTOM").click({ force: true });
       cy.get("[data-rbd-draggable-id='EditActions1']").should("not.exist");
-      cy.makeColumnEditable("step");
-      cy.makeColumnEditable("task");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", false, true);
+      table.toggleColumnEditableViaColSettingsPane("task", "v2", false, true);
       cy.get(".t--property-control-updatemode .t--property-control-label")
         .last()
         .click();
@@ -60,7 +53,7 @@ describe(
 
     it("2. should check that cell of an editable column is editable", () => {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
+      table.toggleColumnEditableViaColSettingsPane("step");
       // click the edit icon
       cy.editTableCell(0, 0);
       cy.get(
@@ -89,7 +82,7 @@ describe(
       cy.readTableV2data(0, 0).then((val) => {
         value = val;
       });
-      cy.makeColumnEditable("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", false, true);
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "newValue");
       cy.discardTableCellValue(0, 0);
@@ -107,7 +100,7 @@ describe(
       cy.readTableV2data(0, 0).then((val) => {
         value = val;
       });
-      cy.makeColumnEditable("step");
+      table.toggleColumnEditableViaColSettingsPane("step");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "newValue");
       cy.saveTableCellValue(0, 0);
@@ -136,7 +129,7 @@ describe(
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(".t--property-control-text", `{{Table1.updatedRows}}`);
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", false, true);
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "newValue");
       cy.saveTableCellValue(0, 0);
