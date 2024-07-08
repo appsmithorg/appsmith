@@ -8,9 +8,24 @@ import isUndefined from "lodash/isUndefined";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Button } from "design-system";
+import { map, includes } from "lodash";
+import {
+  getduplicateLabelWidgetIds,
+  getWidgetIdsWithDuplicateLabelWhenUpdated,
+} from "components/utils/getWidgetIdsWithDuplicateLabel";
 
 interface State {
   focusedIndex: number | null;
+  duplicateMenuIds: string[];
+}
+
+export interface MenuItem {
+  id: string;
+  label: string;
+  isDisabled: boolean;
+  isVisible: boolean;
+  widgetId: string;
+  isDuplicateLabel: boolean;
 }
 
 class MenuItemsControl extends BaseControl<ControlProps, State> {
@@ -19,6 +34,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
 
     this.state = {
       focusedIndex: null,
+      duplicateMenuIds: getduplicateLabelWidgetIds(this.props.propertyValue),
     };
   }
 
@@ -45,19 +61,18 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
   };
 
   getMenuItems = () => {
-    const menuItems: Array<{
-      id: string;
-      label: string;
-      isDisabled: boolean;
-      isVisible: boolean;
-      widgetId: string;
-    }> =
+    let menuItems: MenuItem[] =
       isString(this.props.propertyValue) ||
       isUndefined(this.props.propertyValue)
         ? []
         : Object.values(this.props.propertyValue);
 
-    return orderBy(menuItems, ["index"], ["asc"]);
+    menuItems = orderBy(menuItems, ["index"], ["asc"]);
+    menuItems = menuItems.map((button: MenuItem) => ({
+      ...button,
+      isDuplicateLabel: includes(this.state.duplicateMenuIds, button.id),
+    }));
+    return menuItems;
   };
 
   onEdit = (index: number) => {
@@ -137,12 +152,33 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
       },
       {},
     );
+    const duplicateIds = getduplicateLabelWidgetIds(updatedObj);
+    this.setState({ duplicateMenuIds: duplicateIds });
     this.updateProperty(this.props.propertyName, updatedObj);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
     const menuItemsArray = this.getMenuItems();
     const itemId = menuItemsArray[index].id;
+    const MenuButtonNames = map(menuItemsArray, "label");
+    const updateMenuProperty = (widgetId: string, isDuplicate = false) => {
+      this.updateProperty(
+        `${this.props.propertyName}.${widgetId}.isDuplicateLabel`,
+        isDuplicate,
+      );
+    };
+    const duplicateMenuIds = getWidgetIdsWithDuplicateLabelWhenUpdated(
+      this.state.duplicateMenuIds,
+      MenuButtonNames,
+      updatedLabel,
+      itemId,
+      index,
+      updateMenuProperty,
+      menuItemsArray,
+    );
+    this.setState({
+      duplicateMenuIds: duplicateMenuIds,
+    });
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,
@@ -163,6 +199,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
         widgetId: generateReactKey(),
         isDisabled: false,
         isVisible: true,
+        isDuplicateLabel: false,
       },
     };
 

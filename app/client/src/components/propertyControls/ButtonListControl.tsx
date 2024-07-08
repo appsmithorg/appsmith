@@ -13,18 +13,25 @@ import {
   createMessage,
   BUTTON_WIDGET_DEFAULT_LABEL,
 } from "@appsmith/constants/messages";
+import { map, includes } from "lodash";
+import {
+  getduplicateLabelWidgetIds,
+  getWidgetIdsWithDuplicateLabelWhenUpdated,
+} from "components/utils/getWidgetIdsWithDuplicateLabel";
 
 interface State {
   focusedIndex: number | null;
+  duplicateButtonIds: string[];
 }
 
-interface MenuItem {
+export interface MenuItem {
   id: string;
   label: string;
   isDisabled: boolean;
   isVisible: boolean;
   widgetId: string;
   itemType: "SEPARATOR" | "BUTTON";
+  isDuplicateLabel?: boolean;
 }
 
 class ButtonListControl extends BaseControl<
@@ -36,6 +43,7 @@ class ButtonListControl extends BaseControl<
 
     this.state = {
       focusedIndex: null,
+      duplicateButtonIds: getduplicateLabelWidgetIds(this.props.propertyValue),
     };
   }
 
@@ -50,13 +58,18 @@ class ButtonListControl extends BaseControl<
   }
 
   getMenuItems = () => {
-    const menuItems: MenuItem[] =
+    let menuItems: MenuItem[] =
       isString(this.props.propertyValue) ||
       isUndefined(this.props.propertyValue)
         ? []
         : Object.values(this.props.propertyValue);
 
-    return orderBy(menuItems, ["index"], ["asc"]);
+      menuItems = orderBy(menuItems, ["index"], ["asc"]);
+      menuItems = menuItems.map((button: MenuItem) => ({
+        ...button,
+        isDuplicateLabel: includes(this.state.duplicateButtonIds, button.id),
+     }));
+      return menuItems;
   };
 
   updateItems = (items: Array<Record<string, any>>) => {
@@ -165,12 +178,33 @@ class ButtonListControl extends BaseControl<
       },
       {},
     );
+    const duplicateIds = getduplicateLabelWidgetIds(updatedObj);
+    this.setState({ duplicateButtonIds: duplicateIds });
     this.updateProperty(this.props.propertyName, updatedObj);
   };
 
   updateOption = (index: number, updatedLabel: string) => {
     const menuItemsArray = this.getMenuItems();
     const itemId = menuItemsArray[index].id;
+    const ButtonNames = map(menuItemsArray, "label");
+    const updateMenuProperty = (widgetId: string, isDuplicate = false) => {
+      this.updateProperty(
+        `${this.props.propertyName}.${widgetId}.isDuplicateLabel`,
+        isDuplicate,
+      );
+    };
+    const duplicateButtonIds = getWidgetIdsWithDuplicateLabelWhenUpdated(
+      this.state.duplicateButtonIds,
+      ButtonNames,
+      updatedLabel,
+      itemId,
+      index,
+      updateMenuProperty,
+      menuItemsArray,
+    );
+    this.setState({
+      duplicateButtonIds: duplicateButtonIds,
+    });
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,
@@ -196,6 +230,7 @@ class ButtonListControl extends BaseControl<
         isSeparator,
         isVisible: true,
         variant: "filled",
+        isDuplicateLabel: false,
       },
     };
 

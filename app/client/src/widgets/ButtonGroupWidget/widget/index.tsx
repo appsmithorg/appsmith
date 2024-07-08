@@ -67,6 +67,7 @@ class ButtonGroupWidget extends BaseWidget<
           isDisabled: false,
           index: 0,
           menuItems: {},
+          isDuplicateLabel: false,
         },
         groupButton2: {
           label: "Add",
@@ -79,6 +80,7 @@ class ButtonGroupWidget extends BaseWidget<
           isDisabled: false,
           index: 1,
           menuItems: {},
+          isDuplicateLabel: false,
         },
         groupButton3: {
           label: "More",
@@ -90,6 +92,7 @@ class ButtonGroupWidget extends BaseWidget<
           isVisible: true,
           isDisabled: false,
           index: 2,
+          isDuplicateLabel: false,
           menuItems: {
             menuItem1: {
               label: "First Option",
@@ -100,6 +103,7 @@ class ButtonGroupWidget extends BaseWidget<
               isVisible: true,
               isDisabled: false,
               index: 0,
+              isDuplicateLabel: false,
             },
             menuItem2: {
               label: "Second Option",
@@ -110,6 +114,7 @@ class ButtonGroupWidget extends BaseWidget<
               isVisible: true,
               isDisabled: false,
               index: 1,
+              isDuplicateLabel: false,
             },
             menuItem3: {
               label: "Delete",
@@ -124,6 +129,7 @@ class ButtonGroupWidget extends BaseWidget<
               isVisible: true,
               isDisabled: false,
               index: 2,
+              isDuplicateLabel: false,
             },
           },
         },

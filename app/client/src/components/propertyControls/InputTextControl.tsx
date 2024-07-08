@@ -17,6 +17,8 @@ import LazyCodeEditor from "../editorComponents/LazyCodeEditor";
 import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import store from "store";
+import { onUpdatedlabel } from "components/utils/getWidgetIdsWithDuplicateLabel";
 
 export function InputText(props: {
   label: string;
@@ -139,6 +141,20 @@ class InputTextControl extends BaseControl<InputControlProps> {
     let value = event;
     if (typeof event !== "string") {
       value = event.target.value;
+    }
+    const updateIsDuplicateLabel = (property: string, isDuplicate: boolean) => {
+      this.updateProperty(property, isDuplicate);
+    };
+    if (this.props.widgetProperties.type === "BUTTON_GROUP_WIDGET") {
+      const state = store.getState();
+      onUpdatedlabel(
+        this.props.widgetProperties.widgetId,
+        state,
+        this.props.widgetProperties.groupButtons,
+        this.props.propertyName,
+        value as string,
+        updateIsDuplicateLabel,
+      );
     }
     this.updateProperty(this.props.propertyName, value, true);
   };
