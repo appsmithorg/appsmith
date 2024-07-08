@@ -3,6 +3,7 @@ import React from "react";
 import SidebarButton, { type SidebarButtonProps } from "./SidebarButton";
 
 import { Condition } from "../../../enums";
+import userEvent from "@testing-library/user-event";
 
 const sidebarButtonProps: SidebarButtonProps = {
   icon: "down-arrow",
@@ -23,5 +24,28 @@ describe("SidebarButton", () => {
 
     const svgs = container.querySelectorAll("svg");
     expect(svgs).toHaveLength(2);
+  });
+
+  it("should call onClick with urlSuffix", async () => {
+    const checkOnClick = {
+      ...sidebarButtonProps,
+      onClick: jest.fn(),
+    };
+    const { getByRole } = render(<SidebarButton {...checkOnClick} />);
+
+    await userEvent.click(getByRole("button"));
+    expect(checkOnClick.onClick).toHaveBeenCalledWith(checkOnClick.urlSuffix);
+  });
+
+  it("should not call onClick when button is already selected", async () => {
+    const withSelected = {
+      ...sidebarButtonProps,
+      selected: true,
+      onClick: jest.fn(),
+    };
+    const { getByRole } = render(<SidebarButton {...withSelected} />);
+
+    await userEvent.click(getByRole("button"));
+    expect(withSelected.onClick).not.toHaveBeenCalled();
   });
 });

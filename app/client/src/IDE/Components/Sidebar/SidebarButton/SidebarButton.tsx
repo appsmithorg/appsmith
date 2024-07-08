@@ -85,6 +85,7 @@ function SidebarButton(props: SidebarButtonProps) {
           className={`t--sidebar-${title || tooltip}`}
           data-selected={selected}
           onClick={handleOnClick}
+          role="button"
           selected={selected}
         >
           <Icon name={icon} size="lg" />
