@@ -92,10 +92,8 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
             }
             usagePulse.setUser(hashedEmail);
             updateUser.setLastActiveAt(Instant.now());
-            // Avoid updating the ACL fields
-            updateUser.setGroupIds(null);
+            // Avoid updating policies
             updateUser.setPolicies(null);
-            updateUser.setPermissions(null);
 
             return userService.updateWithoutPermission(user.getId(), updateUser).then(save(usagePulse));
         });
