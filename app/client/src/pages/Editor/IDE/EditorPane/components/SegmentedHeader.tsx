@@ -30,6 +30,10 @@ const Label = styled(Flex)`
   font-weight: 500;
   align-items: center;
   gap: 5px;
+
+  & > span {
+    border: 1px solid var(--ads-v2-color-border);
+  }
 `;
 
 const SegmentedHeader = () => {
@@ -62,7 +66,7 @@ const SegmentedHeader = () => {
             label: (
               <Label>
                 {createMessage(EDITOR_PANE_TEXTS.queries_tab)}
-                <Tag isClosable={false} kind="special">
+                <Tag isClosable={false} kind="neutral">
                   {currentActions.length}
                 </Tag>
               </Label>
@@ -73,7 +77,7 @@ const SegmentedHeader = () => {
             label: (
               <Label>
                 {createMessage(EDITOR_PANE_TEXTS.js_tab)}
-                <Tag isClosable={false} kind="special">
+                <Tag isClosable={false} kind="neutral">
                   {currentJSCollections.length}
                 </Tag>
               </Label>
