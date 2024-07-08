@@ -6,11 +6,10 @@ import {
   getNewEntityName,
 } from "@appsmith/selectors/entitiesSelector";
 import { getIsImportingCurl } from "selectors/ui";
-import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { useSelector } from "react-redux";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
-import { DEFAULT_PREFIX } from "../../../sagas/ActionSagas";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
+import { DEFAULT_PREFIX } from "sagas/ActionSagas";
 import { curlImportSubmitHandler } from "./helpers";
 
 function CurlImportEditor() {
@@ -23,7 +22,6 @@ function CurlImportEditor() {
     }),
   );
 
-  const showDebugger = useSelector(showDebuggerFlag);
   const isImportingCurl = useSelector(getIsImportingCurl);
 
   const initialFormValues = {
@@ -37,7 +35,6 @@ function CurlImportEditor() {
       curlImportSubmitHandler={curlImportSubmitHandler}
       initialValues={initialFormValues}
       isImportingCurl={isImportingCurl}
-      showDebugger={showDebugger}
     />
   );
 }

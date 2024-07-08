@@ -78,7 +78,6 @@ const CurlImportFormContainer = styled.div`
 
 interface OwnProps {
   isImportingCurl: boolean;
-  showDebugger: boolean;
   curlImportSubmitHandler: (
     values: curlImportFormValues,
     dispatch: any,
