@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Slf4j
 @Import({GitExecutorImpl.class})
 @ExtendWith(AfterAllCleanUpExtension.class)
-@DirtiesContext
+@DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_CLASS)
 @SpringBootTest
 public class GitExecutorTest {
 
