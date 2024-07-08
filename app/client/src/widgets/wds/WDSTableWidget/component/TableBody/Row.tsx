@@ -45,9 +45,13 @@ export function Row(props: RowType) {
     props.index;
 
   const onClickRow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    triggerRowSelected();
+  };
+
+  const triggerRowSelected = () => {
     props.row.toggleRowSelected();
     selectTableRow?.(props.row);
-    e.stopPropagation();
   };
 
   return (
@@ -72,10 +76,7 @@ export function Row(props: RowType) {
           <Checkbox
             excludeFromTabOrder={props.excludeFromTabOrder}
             isSelected={!!isRowSelected}
-            onChange={() => {
-              props.row.toggleRowSelected();
-              selectTableRow?.(props.row);
-            }}
+            onChange={triggerRowSelected}
           />
         </CellCheckboxWrapper>
       )}
