@@ -1,7 +1,9 @@
-package com.appsmith.server.helpers.ce;
+package com.appsmith.util;
 
 import com.appsmith.external.models.Policy;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -31,5 +33,16 @@ public class PolicyUtil {
                 .findFirst()
                 .map(permissionGroup -> TRUE)
                 .orElse(FALSE);
+    }
+
+    public static Map<String, Policy> setPolicies(Set<Policy> policies) {
+        if (policies == null) {
+            return null;
+        }
+        Map<String, Policy> policyMap = new HashMap<>();
+        for (Policy policy : policies) {
+            policyMap.put(policy.getPermission(), policy);
+        }
+        return policyMap;
     }
 }

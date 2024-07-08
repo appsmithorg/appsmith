@@ -5,6 +5,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.util.PolicyUtil;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -93,14 +94,7 @@ public class PageDTO {
 
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public void setPolicies(Set<Policy> policies) {
-        if (policies == null) {
-            policyMap = null;
-        } else {
-            policyMap.clear();
-            for (Policy policy : policies) {
-                policyMap.put(policy.getPermission(), policy);
-            }
-        }
+        policyMap = PolicyUtil.setPolicies(policies);
     }
 
     public void sanitiseToExportDBObject() {
