@@ -43,6 +43,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.helpers.StringUtils.dotted;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -105,7 +106,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             return null;
         }
         // Check if the permission is being provided by any of the permission groups
-        return Criteria.where(BaseDomain.Fields.policyMap + "." + permission.getValue() + ".permissionGroups")
+        return Criteria.where(dotted(BaseDomain.Fields.policyMap, permission.getValue(), "permissionGroups"))
                 .in(permissionGroups);
     }
 
