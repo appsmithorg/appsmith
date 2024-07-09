@@ -91,7 +91,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad(0, 0, "v2");
       homePage.NavigateToHome();
-      homePage.ImportApp("Table/TableFilterImportAppV2.json");
+      homePage.ImportApp("Table/TableFilterImportAppWithVersionTwo.json");
       homePage.AssertImportToast();
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
       table.WaitUntilTableLoad(0, 0, "v2");
