@@ -7,7 +7,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
-import com.appsmith.server.themes.base.ThemeService;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -28,8 +27,6 @@ public class DryOperationRepository {
     private final DatasourceStorageRepository datasourceStorageRepository;
 
     private final ThemeRepository themeRepository;
-
-    private final ThemeService themeService;
 
     private final ApplicationRepository applicationRepository;
 
@@ -61,7 +58,7 @@ public class DryOperationRepository {
     }
 
     private Mono<Theme> archiveTheme(Theme theme) {
-        return themeService.archiveById(theme.getId());
+        return themeRepository.archive(theme);
     }
 
     private Mono<Theme> updateTheme(Theme theme) {

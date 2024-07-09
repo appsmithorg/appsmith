@@ -100,9 +100,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                         application.setId(importableArtifact.getId());
 
                         addDryOpsForApplication(
-                                DBOpsType.UPDATE,
-                                mappedImportableResourcesDTO.getApplicationDryRunQueries(),
-                                application);
+                                mappedImportableResourcesDTO.getApplicationDryRunQueries(), application);
                         return Mono.just(importableArtifact);
                     })
                     .then();
@@ -192,8 +190,13 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
         }
     }
 
-    private void addDryOpsForApplication(
-            DBOpsType queryType, Map<String, List<Application>> dryRunOpsMap, Application application) {
-        dryRunOpsMap.computeIfAbsent(queryType.name(), k -> new ArrayList<>()).add(application);
+    private void addDryOpsForApplication(Map<String, List<Application>> dryRunOpsMap, Application application) {
+        if (dryRunOpsMap.containsKey(DBOpsType.UPDATE.name())) {
+            dryRunOpsMap.get(DBOpsType.UPDATE.name()).add(application);
+        } else {
+            List<Application> applicationList = new ArrayList<>();
+            applicationList.add(application);
+            dryRunOpsMap.put(DBOpsType.UPDATE.name(), applicationList);
+        }
     }
 }
