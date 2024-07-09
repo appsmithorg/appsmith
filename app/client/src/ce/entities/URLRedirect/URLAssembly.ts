@@ -276,7 +276,7 @@ export class URLBuilder {
       branch,
       hash = "",
       params = {},
-      persistExistingParams = false,
+      persistExistingParams = true,
       suffix,
     } = builderParams;
 
