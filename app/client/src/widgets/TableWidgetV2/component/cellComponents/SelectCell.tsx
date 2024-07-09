@@ -149,7 +149,7 @@ export const SelectCell = (props: SelectProps) => {
   const onSelect = useCallback(
     (option: DropdownOption) => {
       onItemSelect(
-        option.value || "",
+        option.label || "",
         rowIndex,
         alias,
         onOptionSelectActionString,
