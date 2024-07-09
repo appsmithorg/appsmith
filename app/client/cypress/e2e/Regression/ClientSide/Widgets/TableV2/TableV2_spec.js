@@ -185,12 +185,7 @@ describe(
       });
 
       cy.get("[data-testid='t--property-pane-back-btn']").click();
-      _.table.toggleColumnEditableViaColSettingsPane(
-        "step",
-        "v2",
-        true,
-        true,
-      );
+      _.table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.get(".t--table-filter-columns-dropdown").click();
       cy.get(".t--dropdown-option").should("not.contain", "Save / Discard");
     });
