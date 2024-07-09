@@ -2,7 +2,14 @@ package com.external.plugins;
 
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.StaleConnectionException;
-import com.appsmith.external.models.*;
+import com.appsmith.external.models.ActionConfiguration;
+import com.appsmith.external.models.ActionExecutionResult;
+import com.appsmith.external.models.DBAuth;
+import com.appsmith.external.models.DatasourceConfiguration;
+import com.appsmith.external.models.DatasourceTestResult;
+import com.appsmith.external.models.KeyPairAuth;
+import com.appsmith.external.models.Property;
+import com.appsmith.external.models.UploadedFile;
 import com.external.plugins.exceptions.SnowflakeErrorMessages;
 import com.external.plugins.exceptions.SnowflakePluginError;
 import com.external.utils.ExecutionUtils;
@@ -50,32 +57,7 @@ public class SnowflakePluginTest {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private static String getValidUnEncryptedPrivateKey() throws Exception {
-        // Generate a private key
-        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
-        keyPairGenerator.initialize(2048);
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
-        PrivateKey privateKey = keyPair.getPrivate();
-
-        // Get encoded bytes of the private key
-        byte[] privateKeyEncoded = privateKey.getEncoded();
-
-        // Encode bytes to Base64
-        String privateKeyBase64 = Base64.getEncoder().encodeToString(privateKeyEncoded);
-
-        // Format as PEM format
-        StringBuilder pemFormat = new StringBuilder();
-        pemFormat.append("-----BEGIN PRIVATE KEY-----\n");
-        pemFormat.append(privateKeyBase64);
-        pemFormat.append("\n-----END PRIVATE KEY-----\n");
-
-        String finalEncodedString =
-                Base64.getEncoder().encodeToString(pemFormat.toString().getBytes(StandardCharsets.UTF_8));
-
-        return finalEncodedString;
-    }
-
-    private static String getInvalidPEMFormatPrivateKey() throws Exception {
+    private static String getPrivateKeyWithoutPEMFormatting() throws Exception {
         // Generate a private key
         KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
         keyPairGenerator.initialize(2048);
@@ -88,6 +70,21 @@ public class SnowflakePluginTest {
         // Encode bytes to Base64
         String privateKeyBase64 = Base64.getEncoder().encodeToString(privateKeyEncoded);
         return privateKeyBase64;
+    }
+
+    private static String getValidUnEncryptedPrivateKey() throws Exception {
+        String privateKeyBase64 = getPrivateKeyWithoutPEMFormatting();
+
+        // Format as PEM format
+        StringBuilder pemFormat = new StringBuilder();
+        pemFormat.append("-----BEGIN PRIVATE KEY-----\n");
+        pemFormat.append(privateKeyBase64);
+        pemFormat.append("\n-----END PRIVATE KEY-----\n");
+
+        String finalEncodedString =
+                Base64.getEncoder().encodeToString(pemFormat.toString().getBytes(StandardCharsets.UTF_8));
+
+        return finalEncodedString;
     }
 
     private static DatasourceConfiguration createBasicAuthConfig() {
@@ -367,7 +364,7 @@ public class SnowflakePluginTest {
 
     @Test
     public void testKeyAuthPairAuthInvalidPrivateKey_shouldThrowError() throws Exception {
-        DatasourceConfiguration datasourceConfiguration = createKeyPairAuthConfig(getInvalidPEMFormatPrivateKey());
+        DatasourceConfiguration datasourceConfiguration = createKeyPairAuthConfig(getPrivateKeyWithoutPEMFormatting());
 
         Mono<HikariDataSource> datasourceCreateMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
 
