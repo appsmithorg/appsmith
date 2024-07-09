@@ -92,7 +92,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                 .switchIfEmpty(Mono.defer(() -> {
                     if (isDryOps) {
                         jsLib.updateForBulkWriteOperation();
-                        addDryOpsForEntity("SAVE", customJSLibsDryOps, jsLib);
+                        addDryOpsForEntity(DBOpsType.SAVE.name(), customJSLibsDryOps, jsLib);
                         return Mono.just(jsLib);
                     }
                     return repository.save(jsLib);
