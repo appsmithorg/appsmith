@@ -197,8 +197,7 @@ describe(
       });
 
       cy.get(propPaneBack).click();
-      cy.makeColumnEditable("step");
-      cy.editColumn("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", true, false);
 
       [
         {
@@ -251,8 +250,7 @@ describe(
 
     it("7. should check that onsubmit event is triggered when changes are saved", () => {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
-      cy.editColumn("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", false, false);
       cy.getAlert("onSubmit", "Submitted!!");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "NewValue");
@@ -270,8 +268,7 @@ describe(
     it("8. should check that onSubmit events has access to edit values through triggeredRow", () => {
       const value = "newCellValue";
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
-      cy.editColumn("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", true, false);
       cy.getAlert("onSubmit", "{{Table1.triggeredRow.step}}");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, value);
@@ -288,7 +285,7 @@ describe(
 
     it("9. should check that onSave is working", () => {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", false, true);
       cy.editColumn("EditActions1");
       //cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
       cy.get(".t--property-pane-section-collapse-discardbutton").click({
@@ -310,7 +307,7 @@ describe(
 
     it("10. should check that onSave events has access to edit values through triggeredRow", () => {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.editColumn("EditActions1");
       //cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
       cy.get(".t--property-pane-section-collapse-discardbutton").click({
