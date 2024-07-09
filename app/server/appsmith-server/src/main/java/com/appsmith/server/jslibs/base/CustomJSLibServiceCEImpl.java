@@ -4,6 +4,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
+import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibService;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -105,7 +106,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
                         jsLib.setId(foundJSLib.getId());
                         if (isDryOps) {
-                            addDryOpsForEntity("SAVE", customJSLibsDryOps, jsLib);
+                            addDryOpsForEntity(DBOpsType.SAVE.name(), customJSLibsDryOps, jsLib);
                             return Mono.just(jsLib);
                         }
                         return repository.save(jsLib);
@@ -167,12 +168,11 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     private void addDryOpsForEntity(
             String queryType, Map<String, List<CustomJSLib>> dryRunOpsMap, CustomJSLib createdCustomJsLib) {
         if (dryRunOpsMap.containsKey(queryType)) {
-            List<CustomJSLib> CustomJsLibList = new ArrayList<>();
-            CustomJsLibList.addAll(dryRunOpsMap.get(queryType));
-            CustomJsLibList.add(createdCustomJsLib);
-            dryRunOpsMap.put(queryType, CustomJsLibList);
+            dryRunOpsMap.get(queryType).add(createdCustomJsLib);
         } else {
-            dryRunOpsMap.put(queryType, List.of(createdCustomJsLib));
+            List<CustomJSLib> customJsLibList = new ArrayList<>();
+            customJsLibList.add(createdCustomJsLib);
+            dryRunOpsMap.put(queryType, customJsLibList);
         }
     }
 }
