@@ -10,10 +10,7 @@ public class DBCleanup {
                 jdbcTemplate.queryForList("SELECT tablename FROM pg_tables WHERE schemaname = 'public'", String.class);
 
         for (String tableName : tableNames) {
-            if (tableName.equals("user")) {
-                tableName = "\"user\"";
-            }
-            jdbcTemplate.execute("DROP TABLE IF EXISTS " + tableName + " CASCADE");
+            jdbcTemplate.execute("DROP TABLE IF EXISTS \"" + tableName + "\" CASCADE");
         }
     }
 
