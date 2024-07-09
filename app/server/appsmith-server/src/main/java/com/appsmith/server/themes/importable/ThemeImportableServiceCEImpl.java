@@ -93,8 +93,6 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                         importableArtifact.setPublishedThemeId(publishedModeThemeId);
                         // this will update the theme in the application and will be updated to db in the dry ops
                         // execution
-                        artifactExchangeJson.getArtifact().setUnpublishedThemeId(editModeThemeId);
-                        artifactExchangeJson.getArtifact().setPublishedThemeId(publishedModeThemeId);
 
                         Application application = new Application();
                         application.setPublishedModeThemeId(publishedModeThemeId);
