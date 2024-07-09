@@ -20,12 +20,12 @@ const sampleFiles: EditorSegmentList = [
 ];
 
 describe("fuzzySearchInFiles", () => {
-  it("should return all files if searchStr is empty", () => {
+  it("should return all files when the search string is empty", () => {
     const result = fuzzySearchInFiles("", sampleFiles);
     expect(result).toEqual(sampleFiles);
   });
 
-  it("should return filtered files based on searchStr", () => {
+  it("should return the correct file when the search string exactly matches a file title", () => {
     const result = fuzzySearchInFiles("file1", sampleFiles);
     expect(result).toEqual([
       {
@@ -35,12 +35,12 @@ describe("fuzzySearchInFiles", () => {
     ]);
   });
 
-  it("should return empty array if no match found", () => {
+  it("should return an empty array when no files match the search string", () => {
     const result = fuzzySearchInFiles("nonexistentfile", sampleFiles);
     expect(result).toEqual([]);
   });
 
-  it("should return filtered files from multiple groups", () => {
+  it("should return all files containing the common substring in their titles", () => {
     const result = fuzzySearchInFiles("file", sampleFiles);
     expect(result).toEqual(sampleFiles);
   });
