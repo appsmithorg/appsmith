@@ -53,7 +53,7 @@ const ListJSObjects = () => {
 
   const { openAddJS } = useJSAdd();
 
-  const onSearch = (str: string) => {
+  const handleSearch = (str: string) => {
     setSearchTerm(str);
   };
 
@@ -70,7 +70,7 @@ const ListJSObjects = () => {
         <AddAndSearchbar
           hasAddPermission={canCreateActions}
           onAddClick={openAddJS}
-          onSearch={onSearch}
+          onSearch={handleSearch}
         />
       ) : null}
       <FilesContextProvider

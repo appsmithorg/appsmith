@@ -41,7 +41,7 @@ const ListQuery = () => {
   const { openAddQuery } = useQueryAdd();
   const showWorkflows = useSelector(getShowWorkflowFeature);
 
-  const onSearch = (str: string) => {
+  const handleSearch = (str: string) => {
     setSearchTerm(str);
   };
 
@@ -57,7 +57,7 @@ const ListQuery = () => {
         <AddAndSearchbar
           hasAddPermission={canCreateActions}
           onAddClick={openAddQuery}
-          onSearch={onSearch}
+          onSearch={handleSearch}
         />
       ) : null}
       <Flex
