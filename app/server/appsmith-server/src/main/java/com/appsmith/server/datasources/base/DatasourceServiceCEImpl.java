@@ -19,6 +19,7 @@ import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -147,7 +148,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     // TODO: Check usage
     @Override
     public Mono<Datasource> createWithoutPermissions(
-            Datasource datasource, Map<String, List<DatasourceStorage>> datasourceStorageDryRunQueries) {
+            Datasource datasource, Map<DBOpsType, List<DatasourceStorage>> datasourceStorageDryRunQueries) {
         return createEx(datasource, null, true, datasourceStorageDryRunQueries);
     }
 
@@ -160,7 +161,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             @NotNull Datasource datasource,
             AclPermission permission,
             boolean isDryOps,
-            Map<String, List<DatasourceStorage>> datasourceStorageDryRunQueries) {
+            Map<DBOpsType, List<DatasourceStorage>> datasourceStorageDryRunQueries) {
         // Validate incoming request
         String workspaceId = datasource.getWorkspaceId();
         if (!hasText(workspaceId)) {
@@ -233,12 +234,12 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                             .map(datasourceStorage1 -> {
                                 if (datasourceStorageDryRunQueries != null && isDryOps) {
                                     List<DatasourceStorage> datasourceStorages =
-                                            datasourceStorageDryRunQueries.get(SAVE.name());
+                                            datasourceStorageDryRunQueries.get(SAVE);
                                     if (datasourceStorages == null) {
                                         datasourceStorages = new ArrayList<>();
                                     }
                                     datasourceStorages.add(datasourceStorage1);
-                                    datasourceStorageDryRunQueries.put(SAVE.name(), datasourceStorages);
+                                    datasourceStorageDryRunQueries.put(SAVE, datasourceStorages);
                                 }
                                 return datasourceStorage1;
                             });
