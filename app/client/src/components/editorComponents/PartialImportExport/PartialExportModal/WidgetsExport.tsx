@@ -71,6 +71,9 @@ function WidgetSelector({
     toggleNestedChildrenSelection(node, prevSelectedWidgetIds, checked);
     updateSelectedWidgets(prevSelectedWidgetIds);
     if (!checked) updateSelectAllChecked(false);
+    updateSelectAllChecked(
+      prevSelectedWidgetIds.length === getTotalWidgetCount(widgetList),
+    );
   };
 
   function renderWidget(
@@ -112,6 +115,16 @@ function WidgetSelector({
     });
     updateSelectedWidgets(prevSelectedWidgetIds);
     updateSelectAllChecked(checked);
+  };
+  const getTotalWidgetCount = (widgetList: CanvasStructure[]) => {
+    let count = 0;
+    widgetList.forEach((widget) => {
+      count += 1;
+      if (widget.children) {
+        count += getTotalWidgetCount(widget.children);
+      }
+    });
+    return count;
   };
   return (
     <CheckboxWrapper data-testid="t--partialExportModal-widgetsSection">
