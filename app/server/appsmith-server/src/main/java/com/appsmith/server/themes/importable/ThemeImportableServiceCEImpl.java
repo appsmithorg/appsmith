@@ -93,6 +93,9 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                         importableArtifact.setPublishedThemeId(publishedModeThemeId);
                         // this will update the theme in the application and will be updated to db in the dry ops
                         // execution
+                        artifactExchangeJson.getArtifact().setUnpublishedThemeId(editModeThemeId);
+                        artifactExchangeJson.getArtifact().setPublishedThemeId(publishedModeThemeId);
+
                         Application application = new Application();
                         application.setPublishedModeThemeId(publishedModeThemeId);
                         application.setUnpublishedThemeId(editModeThemeId);
@@ -182,7 +185,13 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
     }
 
     private void addDryOpsForEntity(DBOpsType queryType, Map<String, List<Theme>> dryRunOpsMap, Theme createdTheme) {
-        dryRunOpsMap.computeIfAbsent(queryType.name(), k -> new ArrayList<>()).add(createdTheme);
+        if (dryRunOpsMap.containsKey(queryType.name())) {
+            dryRunOpsMap.get(queryType.name()).add(createdTheme);
+        } else {
+            List<Theme> themes = new ArrayList<>();
+            themes.add(createdTheme);
+            dryRunOpsMap.put(queryType.name(), themes);
+        }
     }
 
     private void addDryOpsForApplication(
