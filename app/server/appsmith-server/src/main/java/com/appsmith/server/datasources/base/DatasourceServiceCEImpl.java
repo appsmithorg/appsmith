@@ -806,7 +806,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                 .flatMap(objects -> {
                     final Long actionsCount = objects.getT2();
                     if (actionsCount > 0) {
-                        return Mono.error(new AppsmithException(AppsmithError.DATASOURCE_HAS_ACTIONS, actionsCount));
+                        String queryWord = actionsCount == 1 ? "query" : "queries";
+                        return Mono.error(
+                                new AppsmithException(AppsmithError.DATASOURCE_HAS_ACTIONS, actionsCount, queryWord));
                     }
                     return Mono.just(objects.getT1());
                 })
