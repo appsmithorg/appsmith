@@ -39,26 +39,18 @@ async function readJSONFile(file: File) {
 
 function* partialImportWidgetsSaga(file: File) {
   const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
-  try {
-    // assume that action.payload.applicationFile is a JSON file. Parse it and extract widgets property
-    const userUploadedJSON: { widgets: string } = yield call(
-      readJSONFile,
-      file,
+  // assume that action.payload.applicationFile is a JSON file. Parse it and extract widgets property
+  const userUploadedJSON: { widgets: string } = yield call(readJSONFile, file);
+  if ("widgets" in userUploadedJSON && userUploadedJSON.widgets.length > 0) {
+    yield saveCopiedWidgets(userUploadedJSON.widgets);
+    yield put(selectWidgetInitAction(SelectionRequestType.Empty));
+    yield put(
+      pasteWidget({
+        groupWidgets: false,
+        mouseLocation: { x: 0, y: 0 },
+        existingWidgets: existingCopiedWidgets,
+      }),
     );
-    if ("widgets" in userUploadedJSON && userUploadedJSON.widgets.length > 0) {
-      yield saveCopiedWidgets(userUploadedJSON.widgets);
-      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-      yield put(
-        pasteWidget({
-          groupWidgets: false,
-          mouseLocation: { x: 0, y: 0 },
-        }),
-      );
-    }
-  } finally {
-    if (existingCopiedWidgets) {
-      yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
-    }
   }
 }
 
