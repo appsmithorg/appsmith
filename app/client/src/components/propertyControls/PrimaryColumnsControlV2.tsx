@@ -211,7 +211,6 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               renderComponent={(props: any) =>
                 DraggableListCard({
                   ...props,
-                  showCheckbox: false,
                   placeholder: "Column title",
                 })
               }
