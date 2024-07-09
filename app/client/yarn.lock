@@ -10547,6 +10547,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/cypress-image-snapshot@npm:^3.1.9":
+  version: 3.1.9
+  resolution: "@types/cypress-image-snapshot@npm:3.1.9"
+  checksum: 8afbeb26c575275d02861cfafde5bfae3a7d25f35d0c18bbc1c70a72b45a8bc021ff73de3b5d4a36c7cb22bc86442fee14308ef096f9650dc5eddd941f923f2f
+  languageName: node
+  linkType: hard
+
 "@types/d3-geo@npm:^3.1.0":
   version: 3.1.0
   resolution: "@types/d3-geo@npm:3.1.0"
@@ -13128,6 +13135,7 @@ __metadata:
     "@tinymce/tinymce-react": ^5.0.0
     "@types/babel__standalone": ^7.1.7
     "@types/codemirror": ^0.0.96
+    "@types/cypress-image-snapshot": ^3.1.9
     "@types/d3-geo": ^3.1.0
     "@types/deep-diff": ^1.0.0
     "@types/dom-mediacapture-record": ^1.0.11

@@ -19,7 +19,7 @@ export const Label = (props: LabelProps) => {
       elementType="label"
       {...rest}
     >
-      <Text fontWeight={600} size="caption">
+      <Text fontWeight={600} lineClamp={1} size="caption">
         {text}
         {Boolean(isRequired) && (
           <span aria-label="(required)" className={styles.necessityIndicator}>
