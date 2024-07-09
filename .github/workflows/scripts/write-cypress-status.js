@@ -40,6 +40,7 @@ module.exports = async function({core, context, github}, alertType, note) {
     HEADER,
     `> [!${alertType.toUpperCase()}]`,
     ((ALERT_PREFIXES[alertType] ?? "") + note.trim()).replaceAll(/^/gm, "> "),
+    "> <hr>" + new Date().toUTCString().replace("GMT", "UTC"),
     FOOTER,
   ].join("\n");
 

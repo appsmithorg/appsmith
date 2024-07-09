@@ -13,7 +13,7 @@ const { match } = require("path-to-regexp");
 const MONGO_OBJECT_ID_REGEX = "[0-9a-f]{24}";
 const UUID_REGEX =
   "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-const ID_EXTRACTION_REGEX = `(${MONGO_OBJECT_ID_REGEX}|${UUID_REGEX})`;
+export const ID_EXTRACTION_REGEX = `(${MONGO_OBJECT_ID_REGEX}|${UUID_REGEX})`;
 
 export const BUILDER_BASE_PATH_DEPRECATED = "/applications";
 export const BUILDER_VIEWER_PATH_PREFIX = "/app/";

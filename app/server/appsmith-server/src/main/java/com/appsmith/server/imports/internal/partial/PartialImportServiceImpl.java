@@ -16,6 +16,7 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
+import com.appsmith.server.repositories.DryOperationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -66,7 +67,8 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
             ActionCollectionService actionCollectionService,
             DatasourceService datasourceService,
             CustomJSLibService customJSLibService,
-            UpdateLayoutService updateLayoutService) {
+            UpdateLayoutService updateLayoutService,
+            DryOperationRepository dryOperationRepository) {
         super(
                 importService,
                 workspaceService,
@@ -95,6 +97,7 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
                 actionCollectionService,
                 datasourceService,
                 customJSLibService,
-                updateLayoutService);
+                updateLayoutService,
+                dryOperationRepository);
     }
 }
