@@ -106,7 +106,6 @@ export const evaluateAndGenerateResponse = (
     defaultResponse.evalMetaUpdates = [...(metaUpdates || [])];
     return {
       workerResponse: defaultResponse,
-      unevalTree: {},
     };
   }
 
@@ -134,7 +133,6 @@ export const evaluateAndGenerateResponse = (
   );
 
   defaultResponse.staleMetaIds = updateResponse.staleMetaIds;
-  const unevalTree = dataTreeEvaluator.getOldUnevalTree();
 
   // when additional paths are required to be added as updates, we extract the updates from the data tree using these paths.
   const additionalUpdates = getNewDataTreeUpdates(
@@ -159,7 +157,6 @@ export const evaluateAndGenerateResponse = (
 
   return {
     workerResponse: defaultResponse,
-    unevalTree,
   };
 };
 
