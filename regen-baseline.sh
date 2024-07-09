@@ -25,8 +25,12 @@ reads these files.
 DOC
 
 container_name=appsmith-for-baseline
-edition=ce
 project_root="$(git rev-parse --show-toplevel)"
+
+edition=ce
+if [[ "$(git remote get-url origin)" == *appsmithorg/appsmith-ee.git ]]; then
+  edition=ee
+fi
 
 docker rm --force "$container_name"
 docker run \
@@ -54,8 +58,7 @@ done
 supervisorctl stop editor postgres rts backend redis
 
 source /appsmith-stacks/configuration/docker.env
-node utils/export.mjs --mongodb-url="$APPSMITH_DB_URL"
-rm mongo-data/mongock*.jsonl || true
+node utils/export.mjs --mongodb-url="$APPSMITH_DB_URL" --baseline
 '
 
 baseline_dir="$project_root/deploy/docker/fs/opt/appsmith/baseline-$edition"
