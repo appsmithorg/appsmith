@@ -1,4 +1,5 @@
 import { Buffer } from "buffer";
+import log from "loglevel";
 export const urlToBase64 = async (url: string) => {
   if (!url) return "";
   try {
@@ -11,7 +12,7 @@ export const urlToBase64 = async (url: string) => {
     const base64String = Buffer.from(buffer).toString("base64");
     return `data:${contentType};base64,${base64String}`;
   } catch (error) {
-    console.error("Failed to fetch image for download", error);
+    log.error("Failed to fetch image for download", error);
     return "";
   }
 };

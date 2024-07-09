@@ -5,6 +5,7 @@ import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 import { createMessage, IMAGE_LOAD_ERROR } from "@appsmith/constants/messages";
 import { importSvg } from "design-system-old";
 import { urlToBase64 } from "../helper";
+import log from "loglevel";
 
 const RotateLeftIcon = importSvg(
   async () => import("assets/icons/widget/image/rotate-left.svg"),
@@ -182,17 +183,21 @@ class ImageComponent extends React.Component<
   };
 
   updateDownloadUrl = async () => {
-    /* This solution only works for images that are hosted on server which allows cross origin request 
-       For images that are hosted on server which doesn't allow cross origin request, the backend should also return base64 url
-    */
-    const { defaultImageUrl, imageUrl } = this.props;
-    const url = imageUrl || defaultImageUrl;
+    try {
+      /* This solution only works for images that are hosted on server which allows cross origin request 
+         For images that are hosted on server which doesn't allow cross origin request, the backend should also return base64 url
+      */
+      const { defaultImageUrl, imageUrl } = this.props;
+      const url = imageUrl || defaultImageUrl;
 
-    const base64Url = await urlToBase64(url);
-    if (base64Url) {
-      this.setState({ downloadUrl: base64Url });
-    } else {
-      this.setState({ downloadUrl: "" });
+      const base64Url = await urlToBase64(url);
+      if (base64Url) {
+        this.setState({ downloadUrl: base64Url });
+      } else {
+        this.setState({ downloadUrl: "" });
+      }
+    } catch (error) {
+      log.error("Could not fetch image for download", error);
     }
   };
 
@@ -338,6 +343,7 @@ class ImageComponent extends React.Component<
     const { showImageControl } = this.state;
     const showDownloadBtn = enableDownload && (!!imageUrl || !!defaultImageUrl);
     const hrefUrl = this.state.downloadUrl || imageUrl || defaultImageUrl;
+    if (!hrefUrl) return null;
 
     if (showImageControl && (enableRotation || showDownloadBtn)) {
       return (
