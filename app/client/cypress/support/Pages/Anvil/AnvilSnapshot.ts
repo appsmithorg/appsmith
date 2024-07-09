@@ -2,9 +2,9 @@ import { ObjectsRegistry } from "../../Objects/Registry";
 
 export class AnvilSnapshot {
   private appSettings = ObjectsRegistry.AppSettings;
-  private agHelper = ObjectsRegistry.AggregateHelper;
+  public agHelper = ObjectsRegistry.AggregateHelper;
   private deployMode = ObjectsRegistry.DeployMode;
-  private locators = {
+  public locators = {
     enterPreviewMode: ObjectsRegistry.CommonLocators._enterPreviewMode,
     exitPreviewMode: ObjectsRegistry.CommonLocators._exitPreviewMode,
     canvas: "[data-testid=t--canvas-artboard]",
@@ -14,20 +14,22 @@ export class AnvilSnapshot {
   };
 
   public verifyCanvasMode = async (widgetName: string) => {
-    this.agHelper
-      .GetElement(this.locators.canvas)
-      .matchImageSnapshot(`anvil${widgetName}Canvas`, {
-        comparisonMethod: "ssim",
-      });
+    this.verifySnapshot(`anvil${widgetName}Canvas`);
 
     this.setTheme("dark");
 
-    this.agHelper
-      .GetElement(this.locators.canvas)
-      .matchImageSnapshot(`anvil${widgetName}CanvasDark`);
+    this.verifySnapshot(`anvil${widgetName}CanvasDark`);
 
     this.setTheme("light");
   };
+
+  public verifySnapshot(name: string) {
+    this.agHelper
+      .GetElement(this.locators.canvas)
+      .matchImageSnapshot(name, {
+        comparisonMethod: "ssim",
+      });
+  }
 
   public verifyPreviewMode = (widgetName: string) => {
     this.enterPreviewMode();
@@ -76,7 +78,7 @@ export class AnvilSnapshot {
     this.agHelper.GetNClick(this.locators.exitPreviewMode);
   };
 
-  private setTheme = (theme: "light" | "dark") => {
+  public setTheme = (theme: "light" | "dark") => {
     this.appSettings.OpenAppSettings();
     this.appSettings.GoToThemeSettings();
 
