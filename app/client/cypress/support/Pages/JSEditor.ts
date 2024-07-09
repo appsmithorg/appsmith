@@ -105,7 +105,8 @@ export class JSEditor {
     this.agHelper.ClickOutside(); //to enable click of below!
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.JS);
-    cy.get(this._newJSobj).eq(0).click({ force: true });
+    PageLeftPane.switchToAddNew();
+    // cy.get(this._newJSobj).eq(0).click({ force: true });
 
     this.agHelper.RemoveUIElement(
       "Tooltip",
