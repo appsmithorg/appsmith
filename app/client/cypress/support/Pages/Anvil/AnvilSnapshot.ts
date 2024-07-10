@@ -37,6 +37,10 @@ export class AnvilSnapshot {
     });
   }
 
+  public matchSanpshotForCanvasMode = (name: string, theme: Parameters<typeof this.matchSnapshot>[3] = "light") => {
+    this.matchSnapshot(this.locators.canvas, name, "canvas", theme);
+  }
+
   public matchSnapshotForPreviewMode = (name: string, theme: Parameters<typeof this.matchSnapshot>[3] = "light") => {
     this.enterPreviewMode();
 

@@ -15,18 +15,18 @@ describe(
     });
 
     it("1. Theme - Light and Dark", () => {
-      anvilSnapshot.matchSnapshot(locators.canvas, "AppTheming");
+      anvilSnapshot.matchSanpshotForCanvasMode("AppTheming");
       anvilSnapshot.matchSnapshotForPreviewMode("AppTheming");
       anvilSnapshot.matchSnapshotForDeployMode("AppTheming");
 
       anvilSnapshot.setTheme("dark");
 
-      anvilSnapshot.matchSnapshot(locators.canvas, "AppTheming", "canvas", "dark");
+      anvilSnapshot.matchSanpshotForCanvasMode("AppTheming", "dark");
       anvilSnapshot.matchSnapshotForPreviewMode("AppTheming", "dark");
       anvilSnapshot.matchSnapshotForDeployMode("AppTheming", "dark");
     });
 
-    it("2. Preview Mode", () => {
+    it("2. Typography", () => {
       anvilSnapshot.verifyPreviewMode("ButtonWidget");
     });
 
