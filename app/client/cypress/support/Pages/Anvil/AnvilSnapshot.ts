@@ -13,6 +13,7 @@ export class AnvilSnapshot {
     colorMode: "[data-testid=t--anvil-theme-settings-color-mode]",
     appViewerPage: "[data-testid=t--app-viewer-page]",
     propertyPaneSidebar: "[data-testid=t--property-pane-sidebar]",
+    fontFamilySectionInput: "[data-testid=t--anvil-theme-settings-typography] input",
   };
 
   public verifyCanvasMode = async (widgetName: string) => {
@@ -103,6 +104,22 @@ export class AnvilSnapshot {
 
     this.appSettings.ClosePane();
   };
+
+  public setTypography = (name: string) => {
+    this.appSettings.OpenAppSettings();
+    this.appSettings.GoToThemeSettings();
+
+    cy.get(this.locators.fontFamilySectionInput).click({ force: true })
+
+    cy.get(".rc-virtual-list .rc-select-item-option")
+      .find(".leading-normal")
+      .contains(name)
+      .click({ force: true })
+
+    cy.contains("Typography").click({ force: true });
+
+    this.appSettings.ClosePane();
+  }
 
   public triggerInputInvalidState = () => {
     this.enterPreviewMode();

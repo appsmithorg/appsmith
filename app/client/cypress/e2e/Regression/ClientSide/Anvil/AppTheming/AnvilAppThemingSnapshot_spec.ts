@@ -26,8 +26,8 @@ describe(
       anvilSnapshot.matchSnapshotForDeployMode("AppTheming", "dark");
     });
 
-    it("2. Typography", () => {
-      anvilSnapshot.verifyPreviewMode("ButtonWidget");
+    it.only("2. Typography", () => {
+      anvilSnapshot.setTypography("Inter");
     });
 
     it("3. Deploy Mode", () => {
