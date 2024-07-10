@@ -54,7 +54,7 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
                 } else if (op == Op.SEARCH_IGNORE_CASE) {
                     // TODO(Shri): Use `ilike` here with a custom function.
                     final String escapedNeedle = ((String) value).toLowerCase().replaceAll("[_%]", "\\\\$0");
-                    predicate = cb.like(cb.lower(root.get(key)), cb.literal("%" + escapedNeedle + "%"));
+                    predicate = cb.like(cb.lower(root.get(key)), cb.literal("%" + escapedNeedle + "%"), '\\');
 
                 } else if (op == Op.IS_TRUE) {
                     if (key.contains(".")) {
