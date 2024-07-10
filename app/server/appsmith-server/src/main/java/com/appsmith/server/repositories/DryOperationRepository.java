@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,8 @@ public class DryOperationRepository {
 
     private final DatasourceStorageRepository datasourceStorageRepository;
 
+    private final CustomJSLibRepository customJSLibRepository;
+
     private Map<Class<?>, AppsmithRepository<?>> repoByEntityClass;
 
     @PostConstruct
@@ -29,6 +32,7 @@ public class DryOperationRepository {
         final Map<Class<?>, AppsmithRepository<?>> map = new HashMap<>();
         map.put(Datasource.class, datasourceRepository);
         map.put(DatasourceStorage.class, datasourceStorageRepository);
+        map.put(CustomJSLib.class, customJSLibRepository);
         repoByEntityClass = Collections.unmodifiableMap(map);
     }
 
@@ -42,6 +46,10 @@ public class DryOperationRepository {
 
     public Flux<DatasourceStorage> saveDatasourceStorageToDb(List<DatasourceStorage> datasourceStorage) {
         return datasourceStorageRepository.saveAll(datasourceStorage);
+    }
+
+    private Flux<CustomJSLib> saveCustomJSLibToDb(List<CustomJSLib> customJSLibs) {
+        return customJSLibRepository.saveAll(customJSLibs);
     }
 
     public Mono<Void> executeAllDbOps(MappedImportableResourcesDTO mappedImportableResourcesDTO) {
@@ -65,6 +73,16 @@ public class DryOperationRepository {
                             .get(key);
                     return saveDatasourceStorageToDb(datasourceStorageList).collectList();
                 });
-        return Flux.merge(datasourceFLux, datasourceStorageFLux).then();
+
+        Flux<List<CustomJSLib>> customJSLibFLux = Flux.fromIterable(
+                        mappedImportableResourcesDTO.getCustomJSLibsDryOps().keySet())
+                .flatMap(key -> {
+                    List<CustomJSLib> customJSLibList =
+                            mappedImportableResourcesDTO.getCustomJSLibsDryOps().get(key);
+                    return saveCustomJSLibToDb(customJSLibList).collectList();
+                });
+
+        return Flux.merge(datasourceFLux, datasourceStorageFLux, customJSLibFLux)
+                .then();
     }
 }

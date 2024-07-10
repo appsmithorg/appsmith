@@ -98,6 +98,7 @@ export interface TableProps {
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
   excludeFromTabOrder?: boolean;
+  disableScroll?: boolean;
 }
 
 const defaultColumn = {
@@ -294,6 +295,7 @@ export function Table(props: TableProps) {
         )}
         <div
           className={`tableWrap ${props.isLoading ? Classes.SKELETON : ""}`}
+          data-disable-scroll={props.disableScroll ? "" : undefined}
           data-table-wrapper=""
         >
           <div {...getTableProps()} className="table column-freeze">
