@@ -105,10 +105,6 @@ export const CardContentWrapper = styled.div`
 `;
 
 interface Props {
-  history: {
-    replace: (data: string) => void;
-    push: (data: string) => void;
-  };
   location: {
     search: string;
   };

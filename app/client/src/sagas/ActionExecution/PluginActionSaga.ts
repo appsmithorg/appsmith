@@ -120,7 +120,6 @@ import {
   API_EDITOR_BASE_PATH,
   API_EDITOR_ID_PATH,
   API_EDITOR_PATH_WITH_SELECTED_PAGE_ID,
-  CURL_IMPORT_PAGE_PATH,
   INTEGRATION_EDITOR_PATH,
   matchQueryBuilderPath,
   QUERIES_EDITOR_BASE_PATH,
@@ -140,9 +139,6 @@ import {
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
-import { getFormNames, getFormValues } from "redux-form";
-import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
-import { submitCurlImportForm } from "actions/importActions";
 import { matchBasePath } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   findDatatype,
@@ -185,7 +181,6 @@ import {
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
 import { setApiPaneDebuggerState } from "../../actions/apiPaneActions";
-import type { curlImportFormValues } from "../../pages/Editor/CurlImport/helpers";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",
@@ -688,14 +683,10 @@ function* runActionShortcutSaga() {
       trimQueryString(`${path}${API_EDITOR_PATH_WITH_SELECTED_PAGE_ID}`),
       trimQueryString(`${path}${INTEGRATION_EDITOR_PATH}`),
       trimQueryString(`${path}${SAAS_EDITOR_API_ID_PATH}`),
-      `${path}${CURL_IMPORT_PAGE_PATH}`,
     ],
     exact: true,
     strict: false,
   });
-
-  // get the current form name
-  const currentFormNames: string[] = yield select(getFormNames());
 
   if (!match || !match.params) return;
   const { apiId, pageId, queryId } = match.params;
@@ -712,21 +703,6 @@ function* runActionShortcutSaga() {
       actionId,
     });
     yield put(runAction(actionId));
-  } else if (
-    !!currentFormNames &&
-    currentFormNames.includes(CURL_IMPORT_FORM) &&
-    !actionId
-  ) {
-    // if the current form names include the curl form and there are no actionIds i.e. its not an api or query
-    // get the form values and call the submit curl import form function with its data
-    const formValues: curlImportFormValues = yield select(
-      getFormValues(CURL_IMPORT_FORM),
-    );
-
-    // if the user has not edited the curl input field, assign an empty string to it, so it doesnt throw an error.
-    if (!formValues?.curl) formValues["curl"] = "";
-
-    yield put(submitCurlImportForm(formValues));
   } else {
     return;
   }

@@ -1,7 +1,8 @@
-import { submitCurlImportForm } from "actions/importActions";
+import { submitCurlImportForm } from "../../../actions/importActions";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
-export interface curlImportFormValues {
+export interface CurlImportFormValues {
   curl: string;
   contextId: string;
   name: string;
@@ -9,8 +10,20 @@ export interface curlImportFormValues {
 }
 
 export const curlImportSubmitHandler = (
-  values: curlImportFormValues,
+  values: CurlImportFormValues,
   dispatch: any,
 ) => {
   dispatch(submitCurlImportForm(values));
+};
+
+export const openCurlImportModal = () => {
+  return {
+    type: ReduxActionTypes.SET_CURL_MODAL_OPEN,
+  };
+};
+
+export const closeCurlImportModal = () => {
+  return {
+    type: ReduxActionTypes.SET_CURL_MODAL_CLOSE,
+  };
 };
