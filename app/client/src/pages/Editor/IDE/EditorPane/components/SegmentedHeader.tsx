@@ -1,23 +1,20 @@
 import React from "react";
-import { Button, Flex, SegmentedControl, Tag } from "design-system";
+import { Button, Flex, Icon, SegmentedControl } from "design-system";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 import history from "utils/history";
 import { globalAddURL } from "@appsmith/RouteBuilder";
 import { useSelector } from "react-redux";
-import {
-  getCurrentActions,
-  getCurrentJSCollections,
-  getCurrentPageId,
-} from "@appsmith/selectors/entitiesSelector";
+import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { useCurrentEditorState, useSegmentNavigation } from "../../hooks";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import QuerySVG from "assets/icons/ads/query.svg";
 
 const Container = styled(Flex)`
   #editor-pane-segment-control {
-    max-width: 247px;
+    max-width: 280px;
   }
 
   button {
@@ -31,7 +28,7 @@ const Label = styled(Flex)`
   align-items: center;
   gap: 5px;
 
-  & > span {
+  .ads-tag {
     border: 1px solid var(--ads-v2-color-border);
   }
 `;
@@ -46,8 +43,6 @@ const SegmentedHeader = () => {
   };
   const { segment } = useCurrentEditorState();
   const { onSegmentChange } = useSegmentNavigation();
-  const currentActions = useSelector(getCurrentActions);
-  const currentJSCollections = useSelector(getCurrentJSCollections);
 
   return (
     <Container
@@ -65,10 +60,8 @@ const SegmentedHeader = () => {
           {
             label: (
               <Label>
+                <img src={QuerySVG} />
                 {createMessage(EDITOR_PANE_TEXTS.queries_tab)}
-                <Tag isClosable={false} kind="neutral">
-                  {currentActions.length}
-                </Tag>
               </Label>
             ),
             value: EditorEntityTab.QUERIES,
@@ -76,16 +69,19 @@ const SegmentedHeader = () => {
           {
             label: (
               <Label>
+                <Icon name="binding-new" size="md" />
                 {createMessage(EDITOR_PANE_TEXTS.js_tab)}
-                <Tag isClosable={false} kind="neutral">
-                  {currentJSCollections.length}
-                </Tag>
               </Label>
             ),
             value: EditorEntityTab.JS,
           },
           {
-            label: <Label>{createMessage(EDITOR_PANE_TEXTS.ui_tab)}</Label>,
+            label: (
+              <Label>
+                <Icon name="dashboard-line" />
+                {createMessage(EDITOR_PANE_TEXTS.ui_tab)}
+              </Label>
+            ),
             value: EditorEntityTab.UI,
           },
         ]}
