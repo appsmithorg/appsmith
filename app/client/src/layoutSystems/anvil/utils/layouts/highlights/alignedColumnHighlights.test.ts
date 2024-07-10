@@ -5,7 +5,6 @@ import {
   type WidgetLayoutProps,
 } from "../../anvilTypes";
 import { deriveAlignedColumnHighlights } from "./alignedColumnHighlights";
-import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { registerLayoutComponents } from "../layoutUtils";
@@ -43,7 +42,8 @@ describe("AlignedColumnHighlights tests", () => {
           responsiveBehavior: ResponsiveBehavior.Hug,
         },
       ]);
-      const highlightWidth: number = HIGHLIGHT_SIZE;
+      const highlightWidth: number =
+        positions[layout.layoutId].width / res.length;
       expect(res.length).toEqual(3);
       // Each highlight should be of equal width.
       expect(res[0].width).toEqual(highlightWidth);

@@ -9,9 +9,11 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.KeyPairAuth;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.UploadedFile;
 import com.external.plugins.exceptions.SnowflakeErrorMessages;
 import com.external.plugins.exceptions.SnowflakePluginError;
 import com.external.utils.ExecutionUtils;
+import com.external.utils.SnowflakeKeyUtils;
 import com.external.utils.ValidationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.MapType;
@@ -19,6 +21,7 @@ import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.zaxxer.hikari.HikariDataSource;
 import com.zaxxer.hikari.HikariPoolMXBean;
 import lombok.extern.slf4j.Slf4j;
+import net.snowflake.client.jdbc.SnowflakeBasicDataSource;
 import net.snowflake.client.jdbc.SnowflakeReauthenticationRequest;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -27,32 +30,25 @@ import org.springframework.core.io.ClassPathResource;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
+import java.security.*;
+import java.security.PrivateKey;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.Base64;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.appsmith.external.constants.Authentication.DB_AUTH;
+import static com.appsmith.external.constants.Authentication.SNOWFLAKE_KEY_PAIR_AUTH;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @Slf4j
 public class SnowflakePluginTest {
@@ -60,6 +56,82 @@ public class SnowflakePluginTest {
     SnowflakePlugin.SnowflakePluginExecutor pluginExecutor = new SnowflakePlugin.SnowflakePluginExecutor();
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private static String getPrivateKeyWithoutPEMFormatting() throws Exception {
+        // Generate a private key
+        KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+        keyPairGenerator.initialize(2048);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        // Get encoded bytes of the private key
+        byte[] privateKeyEncoded = privateKey.getEncoded();
+
+        // Encode bytes to Base64
+        String privateKeyBase64 = Base64.getEncoder().encodeToString(privateKeyEncoded);
+        return privateKeyBase64;
+    }
+
+    private static String getValidUnEncryptedPrivateKey() throws Exception {
+        String privateKeyBase64 = getPrivateKeyWithoutPEMFormatting();
+
+        // Format as PEM format
+        StringBuilder pemFormat = new StringBuilder();
+        pemFormat.append("-----BEGIN PRIVATE KEY-----\n");
+        pemFormat.append(privateKeyBase64);
+        pemFormat.append("\n-----END PRIVATE KEY-----\n");
+
+        String finalEncodedString =
+                Base64.getEncoder().encodeToString(pemFormat.toString().getBytes(StandardCharsets.UTF_8));
+
+        return finalEncodedString;
+    }
+
+    private static DatasourceConfiguration createBasicAuthConfig() {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+
+        // Creates authentication object
+        DBAuth auth = new DBAuth();
+        auth.setUsername("test");
+        auth.setPassword("test");
+        auth.setAuthenticationType(DB_AUTH);
+        datasourceConfiguration.setAuthentication(auth);
+
+        // Sets default properties
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("warehouse", "warehouse"));
+        properties.add(new Property("db", "dbName"));
+        properties.add(new Property("schema", "schemaName"));
+        properties.add(new Property("role", "userRole"));
+        datasourceConfiguration.setUrl("invalid.host.name");
+        datasourceConfiguration.setProperties(properties);
+
+        return datasourceConfiguration;
+    }
+
+    private static DatasourceConfiguration createKeyPairAuthConfig(String privateKeyBase64) {
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        UploadedFile privateKeyFile = new UploadedFile("privateKeyFile", privateKeyBase64);
+
+        // Creates authentication object
+        KeyPairAuth auth = new KeyPairAuth();
+        auth.setUsername("test");
+        auth.setPrivateKey(privateKeyFile);
+        auth.setPassphrase("test");
+        auth.setAuthenticationType(SNOWFLAKE_KEY_PAIR_AUTH);
+        datasourceConfiguration.setAuthentication(auth);
+
+        // Sets default properties
+        List<Property> properties = new ArrayList<>();
+        properties.add(new Property("warehouse", "warehouse"));
+        properties.add(new Property("db", "dbName"));
+        properties.add(new Property("schema", "schemaName"));
+        properties.add(new Property("role", "userRole"));
+        datasourceConfiguration.setUrl("invalid.host.name");
+        datasourceConfiguration.setProperties(properties);
+
+        return datasourceConfiguration;
+    }
 
     @Test
     public void testValidateDatasource_withInvalidCredentials_returnsInvalids() {
@@ -102,7 +174,6 @@ public class SnowflakePluginTest {
         DBAuth auth = new DBAuth();
         auth.setUsername("test");
         auth.setPassword("test");
-        auth.setAuthenticationType("dbAuth");
         datasourceConfiguration.setAuthentication(auth);
         List<Property> properties = new ArrayList<>();
         properties.add(new Property("warehouse", "warehouse"));
@@ -272,5 +343,57 @@ public class SnowflakePluginTest {
             // test case can then be adjusted accordingly.
             assertEquals(mustacheMatchCount, enclosedMustacheMatchCount);
         }
+    }
+
+    @Test
+    public void testKeyAuthPairAuthValidPrivateKey_shouldCreateHikariConfigWithoutErrors() throws Exception {
+        DatasourceConfiguration datasourceConfiguration = createKeyPairAuthConfig(getValidUnEncryptedPrivateKey());
+
+        Mono<HikariDataSource> datasourceCreateMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        StepVerifier.create(datasourceCreateMono)
+                .assertNext(dataSource -> {
+                    // These are null as these get set inside datasource object and not on HikariConfig itself
+                    // For key pair authentication, username and password should be null
+                    assertEquals(null, dataSource.getUsername());
+                    assertEquals(null, dataSource.getPassword());
+                    assertInstanceOf(SnowflakeBasicDataSource.class, dataSource.getDataSource());
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void testKeyAuthPairAuthInvalidPrivateKey_shouldThrowError() throws Exception {
+        DatasourceConfiguration datasourceConfiguration = createKeyPairAuthConfig(getPrivateKeyWithoutPEMFormatting());
+
+        Mono<HikariDataSource> datasourceCreateMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        StepVerifier.create(datasourceCreateMono)
+                .verifyErrorMessage(SnowflakeErrorMessages.UNABLE_TO_CREATE_CONNECTION_ERROR_MSG);
+    }
+
+    @Test
+    public void testBasicAuth_shouldCreateHikariConfigWithoutErrors() throws Exception {
+        DatasourceConfiguration datasourceConfiguration = createBasicAuthConfig();
+
+        Mono<HikariDataSource> datasourceCreateMono = pluginExecutor.datasourceCreate(datasourceConfiguration);
+
+        StepVerifier.create(datasourceCreateMono)
+                .assertNext(dataSource -> {
+                    // Datasource object would be null in this case as it gets set only in case of key pair config
+                    assertEquals("test", dataSource.getUsername());
+                    assertEquals("test", dataSource.getPassword());
+                    assertEquals(null, dataSource.getDataSource());
+                })
+                .verifyComplete();
+    }
+
+    public void testReadEncryptedPrivateKeyReturnsValidPrivateKey() throws Exception {
+        DatasourceConfiguration datasourceConfiguration = createKeyPairAuthConfig(getValidUnEncryptedPrivateKey());
+
+        KeyPairAuth auth = (KeyPairAuth) datasourceConfiguration.getAuthentication();
+        PrivateKey privateKey = SnowflakeKeyUtils.readEncryptedPrivateKey(
+                auth.getPrivateKey().getDecodedContent(), auth.getPassphrase());
+        assertInstanceOf(PrivateKey.class, privateKey);
     }
 }

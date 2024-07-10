@@ -18,6 +18,8 @@ export type getColumns = (
   renderMode: RenderMode,
 ) => ReactTableColumnProps[];
 
+const BORDER_WIDTH = 1;
+
 //TODO: (Vamsi) need to unit test this function
 
 export const getColumnsPureFn: getColumns = (
@@ -94,7 +96,9 @@ export const getColumnsPureFn: getColumns = (
         columns[lastColumnIndex].width || DEFAULT_COLUMN_WIDTH;
       const remainingWidth = componentWidth - totalColumnWidth;
       // Adding the remaining width i.e. space left towards the right, to the last column width
-      columns[lastColumnIndex].width = lastColumnWidth + remainingWidth;
+      // Note: subtracting 2 * BORDER_WIDTH to account for the border width, as componentWidth includes the border width as well
+      columns[lastColumnIndex].width =
+        lastColumnWidth + remainingWidth - 2 * BORDER_WIDTH;
     }
   } else if (totalColumnWidth > componentWidth) {
     /*

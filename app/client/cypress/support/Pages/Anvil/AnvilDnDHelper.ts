@@ -60,14 +60,8 @@ export class AnvilDnDHelper {
       eventConstructor: "MouseEvent",
       force: true,
     });
-    cy.get(dropAreaSelector).first().trigger("mousemove", xPos, yPos, {
-      eventConstructor: "MouseEvent",
-      force: true,
-    });
-    cy.get(dropAreaSelector).first().trigger("mousemove", xPos, yPos, {
-      eventConstructor: "MouseEvent",
-      force: true,
-    });
+    cy.get(dropAreaSelector).first().realMouseMove(xPos, yPos);
+    cy.get(dropAreaSelector).first().realMouseMove(xPos, yPos);
     if (!options.dropTargetDetails?.dropModal) {
       // no need to show highlight for modal drop
       cy.get(this.locator._anvilDnDHighlight);

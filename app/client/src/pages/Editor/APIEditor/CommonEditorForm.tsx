@@ -322,6 +322,10 @@ const StyledTabPanel = styled(TabPanel)`
   padding: 0 var(--ads-v2-spaces-7);
 `;
 
+const StyledNotificationWrapper = styled.div`
+  padding-top: var(--ads-v2-spaces-5);
+`;
+
 function ImportedKeyValue(props: {
   datas: { key: string; value: string; isInvalid?: boolean }[];
   keyValueName: string;
@@ -608,7 +612,11 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               </Button>
             </ActionButtons>
           </FormRow>
-          {notification}
+          {notification && (
+            <StyledNotificationWrapper>
+              {notification}
+            </StyledNotificationWrapper>
+          )}
           <FormRow className="api-info-row">
             <div>
               {/* eslint-disable-next-line */}

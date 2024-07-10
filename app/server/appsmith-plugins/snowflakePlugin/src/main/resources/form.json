@@ -95,7 +95,7 @@
               },
               {
                 "path": "datasourceConfiguration.authentication.authenticationType",
-                "comparison": "NOT_EQUALS",
+                "comparison": "DEFINED_AND_NOT_EQUALS",
                 "value": "dbAuth"
               }
             ]
@@ -124,10 +124,12 @@
           }
         },
         {
-          "label": "Private key passphrase",
+          "label": "Passphrase",
           "configProperty": "datasourceConfiguration.authentication.passphrase",
+          "dataType": "PASSWORD",
           "controlType": "INPUT_TEXT",
-          "placeholderText": "private key passphrase",
+          "placeholderText": "Private key passphrase",
+          "encrypted": true,
           "hidden": {
             "conditionType": "OR",
             "conditions": [

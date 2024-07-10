@@ -9,7 +9,7 @@ import {
   MenuTrigger,
   Text,
 } from "design-system";
-import { ListIconContainer, TabTextContainer } from "./StyledComponents";
+import { ListIconContainer, ListTitle } from "./StyledComponents";
 
 interface Props {
   items: EntityItem[];
@@ -50,7 +50,7 @@ const ListButton = (props: Props) => {
               gap="spaces-2"
             >
               <ListIconContainer>{item.icon}</ListIconContainer>
-              <TabTextContainer>{item.title}</TabTextContainer>
+              <ListTitle>{item.title}</ListTitle>
             </Flex>
           </MenuItem>
         ))}
