@@ -933,7 +933,7 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get bdAccent() {
-    // Accent border color
+    // Accent border color. Lighter and less saturated than accent to put focus on the text label and create nice-looking harmony.
     const color = this.seedColor.clone();
 
     // For dark content on light background APCA contrast is positive. 15 is “The absolute minimum for any non-text that needs to be discernible and differentiable, but does not apply to semantic non-text such as icons”. In practice, thin borders are perceptually too subtle when using this as a threshould. 25 is used as the required minimum instead. Failure to reach this contrast level is most likely due to high lightness. Lightness and chroma are set to ones that reach the threshold universally regardless of hue.
@@ -954,7 +954,9 @@ export class LightModeTheme implements ColorModeTheme {
 
   private get bdFocus() {
     // Keyboard focus outline
-    const color = this.bdAccent.clone();
+    const color = this.bgAccent.clone();
+
+    color.oklch.l = 0.55;
 
     // Achromatic seeds still produce colorful focus; this is good for accessibility even though it affects visual style
     if (this.seedChroma < 0.15) {
@@ -969,14 +971,14 @@ export class LightModeTheme implements ColorModeTheme {
     // Used in checkbox, radio button
     const color = this.bdAccent.clone();
 
-    color.oklch.c = 0.001;
+    color.oklch.c = 0.01;
 
     if (this.seedIsAchromatic) {
       color.oklch.c = 0;
     }
 
-    if (this.bg.contrastAPCA(color) < 25) {
-      color.oklch.l -= 0.2;
+    if (this.bg.contrastAPCA(color) <= 15) {
+      color.oklch.l -= 0.05;
     }
 
     return color;
@@ -1008,13 +1010,14 @@ export class LightModeTheme implements ColorModeTheme {
     // Positive (green) border. Additional compensations are applied if seed is withing green range.
     const color = this.bgPositive.clone();
 
+    color.oklch.l = 0.8;
+
     if (
       this.bdAccent.oklch.l > 0.5 &&
       this.bdAccent.oklch.c > 0.11 &&
       this.bdAccent.oklch.h < 145 &&
       this.bdAccent.oklch.h >= 116
     ) {
-      color.oklch.l += 0.1;
       color.oklch.h += 5;
     }
 
@@ -1024,7 +1027,6 @@ export class LightModeTheme implements ColorModeTheme {
       this.bdAccent.oklch.h >= 145 &&
       this.bdAccent.oklch.h < 166
     ) {
-      color.oklch.l += 0.05;
       color.oklch.h -= 5;
     }
 
@@ -1044,13 +1046,14 @@ export class LightModeTheme implements ColorModeTheme {
     // Negative (red) border. Produced out of bgNegative. Additional compensations are applied if seed is within red range.
     const color = this.bgNegative.clone();
 
+    color.oklch.l = 0.78;
+
     if (
       this.bdAccent.oklch.l > 0.5 &&
       this.bdAccent.oklch.c > 0.15 &&
       this.bdAccent.oklch.h < 27 &&
       this.bdAccent.oklch.h >= 5
     ) {
-      color.oklch.l += 0.1;
       color.oklch.h += 5;
     }
 
@@ -1060,7 +1063,6 @@ export class LightModeTheme implements ColorModeTheme {
       this.bdAccent.oklch.h >= 27 &&
       this.bdAccent.oklch.h < 50
     ) {
-      color.oklch.l += 0.05;
       color.oklch.h -= 5;
     }
 
@@ -1080,13 +1082,14 @@ export class LightModeTheme implements ColorModeTheme {
     // Warning (yellow) border. Produced out of bgNegative. Additional compensations are applied if seed is within yellow range.
     const color = this.bgWarning.clone();
 
+    color.oklch.l = 0.82;
+
     if (
       this.bdAccent.oklch.l > 0.5 &&
       this.bdAccent.oklch.c > 0.09 &&
       this.bdAccent.oklch.h < 85 &&
       this.bdAccent.oklch.h >= 60
     ) {
-      color.oklch.l += 0.1;
       color.oklch.h += 10;
     }
 
@@ -1096,7 +1099,6 @@ export class LightModeTheme implements ColorModeTheme {
       this.bdAccent.oklch.h >= 85 &&
       this.bdAccent.oklch.h < 110
     ) {
-      color.oklch.l += 0.05;
       color.oklch.h -= 10;
     }
 

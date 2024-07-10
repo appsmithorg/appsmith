@@ -779,7 +779,7 @@ describe("bdAccent color", () => {
 describe("bdFocus color", () => {
   it("should return correct color when lightness < 0.6", () => {
     const { bdFocus } = new LightModeTheme("oklch(0.45 0.4 60)").getColors();
-    expect(bdFocus).toEqual("rgb(56.074% 13.73% 0%)");
+    expect(bdFocus).toEqual("rgb(64.509% 31.604% 0%)");
   });
 
   it("should return correct color when lightness > 0.8", () => {
@@ -824,7 +824,7 @@ describe("bdPositive", () => {
     const { bdPositive } = new LightModeTheme(
       "oklch(0.45 0.03 60)",
     ).getColors();
-    expect(bdPositive).toEqual("rgb(6.7435% 63.436% 18.481%)");
+    expect(bdPositive).toEqual("rgb(37.9% 86.464% 41.821%)");
   });
 });
 
@@ -833,7 +833,7 @@ describe("bdPositiveHover", () => {
     const { bdPositiveHover } = new LightModeTheme(
       "oklch(0.45 0.03 60)",
     ).getColors();
-    expect(bdPositiveHover).toEqual("rgb(26.362% 76.094% 31.718%)");
+    expect(bdPositiveHover).toEqual("rgb(51.497% 99.713% 54.439%)");
   });
 });
 
@@ -842,7 +842,7 @@ describe("bdNegative", () => {
     const { bdNegative } = new LightModeTheme(
       "oklch(0.45 0.03 60)",
     ).getColors();
-    expect(bdNegative).toEqual("rgb(83.108% 4.6651% 10.252%)");
+    expect(bdNegative).toEqual("rgb(100% 54.045% 48.162%)");
   });
 });
 
@@ -851,14 +851,14 @@ describe("bdNegativeHover", () => {
     const { bdNegativeHover } = new LightModeTheme(
       "oklch(0.45 0.03 60)",
     ).getColors();
-    expect(bdNegativeHover).toEqual("rgb(94.628% 22.524% 21.261%)");
+    expect(bdNegativeHover).toEqual("rgb(100% 70.673% 65.818%)");
   });
 });
 
 describe("bdWarning", () => {
   it("should return correct color", () => {
     const { bdWarning } = new LightModeTheme("oklch(0.45 0.03 60)").getColors();
-    expect(bdWarning).toEqual("rgb(85.145% 64.66% 8.0286%)");
+    expect(bdWarning).toEqual("rgb(94.272% 73.467% 23.044%)");
   });
 });
 
@@ -867,7 +867,7 @@ describe("bdWarningHover", () => {
     const { bdWarningHover } = new LightModeTheme(
       "oklch(0.45 0.03 60)",
     ).getColors();
-    expect(bdWarningHover).toEqual("rgb(98.232% 77.293% 27.893%)");
+    expect(bdWarningHover).toEqual("rgb(100% 87.513% 57.392%)");
   });
 });
 
