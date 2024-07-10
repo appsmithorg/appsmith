@@ -41,7 +41,7 @@ public class Migration028TagUserManagementRolesWithoutDefaultDomainTypeAndId {
                 .is(RESET_PASSWORD_USERS.getValue())
                 .andOperator(notDeleted());
         Query queryExistingUsersWithResetPasswordPolicy = new Query(resetPasswordPolicyExistsAndNotDeleted);
-        queryExistingUsersWithResetPasswordPolicy.fields().include(POLICIES);
+        queryExistingUsersWithResetPasswordPolicy.fields().include(POLICIES, PermissionGroup.Fields.policyMap);
 
         List<User> existingUsers = mongoTemplate.find(queryExistingUsersWithResetPasswordPolicy, User.class);
 

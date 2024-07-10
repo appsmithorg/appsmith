@@ -41,7 +41,7 @@ public class Migration025RemoveUnassignPermissionFromUnnecessaryRoles {
 
         Query queryInterestingPermissionGroups = new Query(workspaceDeveloperAndAppViewerRolesCriteria);
         queryInterestingPermissionGroups.fields().include("id");
-        queryInterestingPermissionGroups.fields().include(POLICIES);
+        queryInterestingPermissionGroups.fields().include(POLICIES, PermissionGroup.Fields.policyMap);
 
         Query optimizedQueryForInterestingPermissionGroups =
                 optimizeQueryForNoCursorTimeout(mongoTemplate, queryInterestingPermissionGroups, PermissionGroup.class);

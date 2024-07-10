@@ -51,7 +51,7 @@ public class Migration031CreateUserManagementRolesForUsersTaggedIn030 {
 
         Query queryUsersTaggedInMigration030 = new Query(criteriaUsersTaggedInMigration030);
         queryUsersTaggedInMigration030.fields().include(User.Fields.id);
-        queryUsersTaggedInMigration030.fields().include(POLICIES);
+        queryUsersTaggedInMigration030.fields().include(POLICIES, User.Fields.policyMap);
         queryUsersTaggedInMigration030.fields().include(User.Fields.email);
 
         Query optimisedQueryUsersTaggedInMigration030 = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
