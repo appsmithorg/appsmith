@@ -1,6 +1,6 @@
 import type { match } from "react-router";
 import { matchPath } from "react-router";
-import { ADD_PATH, CURL_IMPORT_PAGE_PATH } from "constants/routes";
+import { ADD_PATH } from "constants/routes";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import type { IDEType } from "@appsmith/entities/IDE/constants";
 import { EditorState, EntityPaths } from "@appsmith/entities/IDE/constants";
@@ -270,17 +270,6 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
         params: match.params,
       };
     }
-  }
-  if (
-    match.url.endsWith(CURL_IMPORT_PAGE_PATH) ||
-    match.url.endsWith(CURL_IMPORT_PAGE_PATH + ADD_PATH)
-  ) {
-    return {
-      entity: FocusEntity.QUERY,
-      id: "curl",
-      appState: EditorState.EDITOR,
-      params: match.params,
-    };
   }
   return {
     entity: FocusEntity.CANVAS,
