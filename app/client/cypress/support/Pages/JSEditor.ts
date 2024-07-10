@@ -106,7 +106,6 @@ export class JSEditor {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.JS);
     PageLeftPane.switchToAddNew();
-    // cy.get(this._newJSobj).eq(0).click({ force: true });
 
     this.agHelper.RemoveUIElement(
       "Tooltip",
