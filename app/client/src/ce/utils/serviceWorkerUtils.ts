@@ -2,13 +2,14 @@ import { Mutex } from "async-mutex";
 import { APP_MODE } from "entities/App";
 import type { Match, TokensToRegexpOptions } from "path-to-regexp";
 import { match } from "path-to-regexp";
-
-const BUILDER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
-const BUILDER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId/edit`;
-const VIEWER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId`;
-const VIEWER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId`;
-const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
-const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
+import {
+  BUILDER_PATH,
+  BUILDER_CUSTOM_PATH,
+  VIEWER_PATH,
+  VIEWER_CUSTOM_PATH,
+  BUILDER_PATH_DEPRECATED,
+  VIEWER_PATH_DEPRECATED,
+} from "@appsmith/constants/routes/appRoutes";
 
 interface TMatchResult {
   pageId?: string;
