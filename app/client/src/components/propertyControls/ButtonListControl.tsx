@@ -17,6 +17,7 @@ import { map, includes } from "lodash";
 import {
   getduplicateLabelWidgetIds,
   getWidgetIdsWithDuplicateLabelWhenUpdated,
+  onDeleteGetDuplicateIds,
 } from "components/utils/getWidgetIdsWithDuplicateLabel";
 
 interface State {
@@ -168,7 +169,8 @@ class ButtonListControl extends BaseControl<
     const updatedArray = menuItemsArray.filter((eachItem: any, i: number) => {
       return i !== index;
     });
-    const updatedObj = updatedArray.reduce(
+    const labels = map(updatedArray, "label");
+    const updatedObj: MenuItem[] = updatedArray.reduce(
       (obj: any, each: any, index: number) => {
         obj[each.id] = {
           ...each,
@@ -178,7 +180,18 @@ class ButtonListControl extends BaseControl<
       },
       {},
     );
-    const duplicateIds = getduplicateLabelWidgetIds(updatedObj);
+    const updateMenuProperty = (widgetId: string, isDuplicate = false) => {
+      this.updateProperty(
+        `${this.props.propertyName}.${widgetId}.isDuplicateLabel`,
+        isDuplicate,
+      );
+    };
+    const duplicateIds = onDeleteGetDuplicateIds(
+      updatedArray,
+      this.state.duplicateButtonIds,
+      labels,
+      updateMenuProperty,
+    );
     this.setState({ duplicateButtonIds: duplicateIds });
     this.updateProperty(this.props.propertyName, updatedObj);
   };
@@ -239,12 +252,16 @@ class ButtonListControl extends BaseControl<
        * These properties are required for "BUTTON_GROUP_WIDGET" but not for
        * "WDS_TOOLBAR_BUTTONS_GROUP_WIDGET"
        */
+      const buttonNames = map(groupButtonsArray, "label");
       const optionalButtonGroupItemProperties = {
         menuItems: {},
         buttonType: "SIMPLE",
         placement: ButtonPlacementTypes.CENTER,
         buttonColor:
           this.props.widgetProperties.childStylesheet.button.buttonColor,
+        isDuplicateLabel: includes(
+            buttonNames,
+            createMessage(BUTTON_WIDGET_DEFAULT_LABEL),)
       };
 
       groupButtons[newGroupButtonId] = {
@@ -283,6 +300,14 @@ class ButtonListControl extends BaseControl<
     }
 
     this.updateProperty(this.props.propertyName, groupButtons);
+    if (groupButtons[newGroupButtonId].isDuplicateLabel) {
+      this.setState({
+        duplicateButtonIds: [
+          ...this.state.duplicateButtonIds,
+          newGroupButtonId,
+        ],
+      });
+    }
   };
 
   updateFocus = (index: number, isFocused: boolean) => {

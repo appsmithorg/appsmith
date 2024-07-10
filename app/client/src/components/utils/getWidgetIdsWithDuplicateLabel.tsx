@@ -59,6 +59,35 @@ export const getWidgetIdsWithDuplicateLabelWhenUpdated = (
   return DuplicateId;
 };
 
+export const onDeleteGetDuplicateIds = (
+  updatedobj: (ButtonMenuItem | MenuItem)[],
+  duplicateIds: string[],
+  labels: string[],
+  updateMenuProperty: (widgetId: string, isDuplicate?: boolean) => void,
+) => {
+  const duplicateMenuButtonIds = [...duplicateIds];
+  const widgetIdToLabelMap = new Map<string, string>();
+  updatedobj.forEach((item) => {
+    widgetIdToLabelMap.set(item.id, item.label);
+  });
+  const DuplicateId: string[] = [];
+  duplicateMenuButtonIds.forEach((id: string) => {
+    let count = 0;
+    labels.forEach((label) => {
+      if (label === widgetIdToLabelMap.get(id)) {
+        count++;
+      }
+    });
+    if (count > 1) {
+      DuplicateId.push(id);
+    } else {
+      updateMenuProperty(id);
+    }
+  });
+  return DuplicateId;
+};
+
+
 //This function is used to update the isDuplicateLabel property of the button and menu items when it is edited from input text control.
 export const onUpdatedlabel = (
   widgetId: string,

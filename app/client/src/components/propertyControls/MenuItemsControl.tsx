@@ -12,6 +12,7 @@ import { map, includes } from "lodash";
 import {
   getduplicateLabelWidgetIds,
   getWidgetIdsWithDuplicateLabelWhenUpdated,
+  onDeleteGetDuplicateIds,
 } from "components/utils/getWidgetIdsWithDuplicateLabel";
 
 interface State {
@@ -142,6 +143,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
     const updatedArray = menuItemsArray.filter((eachItem: any, i: number) => {
       return i !== index;
     });
+    const labels = map(updatedArray, "label");
     const updatedObj = updatedArray.reduce(
       (obj: any, each: any, index: number) => {
         obj[each.id] = {
@@ -152,7 +154,18 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
       },
       {},
     );
-    const duplicateIds = getduplicateLabelWidgetIds(updatedObj);
+    const updateMenuProperty = (widgetId: string, isDuplicate = false) => {
+      this.updateProperty(
+        `${this.props.propertyName}.${widgetId}.isDuplicateLabel`,
+        isDuplicate,
+      );
+    };
+    const duplicateIds = onDeleteGetDuplicateIds(
+      updatedArray,
+      this.state.duplicateMenuIds,
+      labels,
+      updateMenuProperty,
+    );
     this.setState({ duplicateMenuIds: duplicateIds });
     this.updateProperty(this.props.propertyName, updatedObj);
   };
@@ -189,7 +202,7 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
     let menuItems = this.props.propertyValue || [];
     const menuItemsArray = this.getMenuItems();
     const newMenuItemId = generateReactKey({ prefix: "menuItem" });
-
+    const menuNames = map(menuItemsArray, "label");
     menuItems = {
       ...menuItems,
       [newMenuItemId]: {
@@ -202,7 +215,9 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
         isDuplicateLabel: false,
       },
     };
-
+    if(includes(menuNames, "Menu Item")){ this.setState({
+          duplicateMenuIds: [...this.state.duplicateMenuIds, newMenuItemId],
+        })}
     this.updateProperty(this.props.propertyName, menuItems);
   };
 
