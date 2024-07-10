@@ -4,9 +4,9 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.DBOpsType;
-import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -61,16 +61,16 @@ public class DryOperationRepository {
         return customJSLibRepository.saveAll(customJSLibs);
     }
 
-    private Mono<Theme> saveThemeToDb(Theme theme) {
-        return themeRepository.save(theme);
+    private Flux<Theme> saveThemeToDb(List<Theme> theme) {
+        return themeRepository.saveAll(theme);
     }
 
     private Mono<Theme> archiveTheme(Theme theme) {
         return themeRepository.archive(theme);
     }
 
-    private Mono<Theme> updateTheme(Theme theme) {
-        return themeRepository.updateById(theme.getId(), theme, AclPermission.MANAGE_THEMES);
+    private Mono<List<Theme>> updateTheme(List<Theme> theme) {
+        return themeRepository.bulkUpdate(theme).thenReturn(theme);
     }
 
     private Mono<Application> updateApplication(Application application) {
@@ -115,17 +115,13 @@ public class DryOperationRepository {
                     List<Theme> themeList =
                             mappedImportableResourcesDTO.getThemeDryRunQueries().get(key);
                     if (key.equals(DBOpsType.SAVE.name())) {
-                        return Flux.fromIterable(themeList)
-                                .flatMap(this::saveThemeToDb)
-                                .collectList();
+                        return saveThemeToDb(themeList).collectList();
                     } else if (key.equals(DBOpsType.DELETE.name())) {
                         return Flux.fromIterable(themeList)
                                 .flatMap(this::archiveTheme)
                                 .collectList();
                     } else {
-                        return Flux.fromIterable(themeList)
-                                .flatMap(this::updateTheme)
-                                .collectList();
+                        return updateTheme(themeList);
                     }
                 });
 
