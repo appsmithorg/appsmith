@@ -49,7 +49,8 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
                     customJSLib.setId(null);
                     customJSLib.setCreatedAt(null);
                     customJSLib.setUpdatedAt(null);
-                    return customJSLibService.persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(customJSLib, false);
+                    return customJSLibService.persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
+                            customJSLib, false, mappedImportableResourcesDTO.getCustomJSLibsDryOps(), true);
                 })
                 .collectList()
                 .doOnNext(mappedImportableResourcesDTO::setInstalledJsLibsList)
