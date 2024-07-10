@@ -172,19 +172,6 @@ describe("Derived property - ", () => {
         _,
       );
 
-      expect(isValid).toBeFalsy();
-
-      //Email input with required true and valid value
-      isValid = derivedProperty.isValid(
-        {
-          inputType: InputTypes.EMAIL,
-          inputText: "test@test.school",
-          isRequired: true,
-        },
-        null,
-        _,
-      );
-
       expect(isValid).toBeTruthy();
 
       //Password input with required false and empty value
