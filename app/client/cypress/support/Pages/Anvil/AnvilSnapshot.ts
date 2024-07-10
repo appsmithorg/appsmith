@@ -1,9 +1,11 @@
+import { camelCase } from "lodash";
 import { ObjectsRegistry } from "../../Objects/Registry";
 
 export class AnvilSnapshot {
   private appSettings = ObjectsRegistry.AppSettings;
   private agHelper = ObjectsRegistry.AggregateHelper;
   private deployMode = ObjectsRegistry.DeployMode;
+
   private locators = {
     enterPreviewMode: ObjectsRegistry.CommonLocators._enterPreviewMode,
     exitPreviewMode: ObjectsRegistry.CommonLocators._exitPreviewMode,
@@ -14,11 +16,7 @@ export class AnvilSnapshot {
   };
 
   public verifyCanvasMode = async (widgetName: string) => {
-    this.agHelper
-      .GetElement(this.locators.canvas)
-      .matchImageSnapshot(`anvil${widgetName}Canvas`, {
-        comparisonMethod: "ssim",
-      });
+    this.matchSnapshot(this.locators.canvas, `anvil${widgetName}Canvas`);
 
     this.setTheme("dark");
 
@@ -31,19 +29,30 @@ export class AnvilSnapshot {
     this.setTheme("light");
   };
 
-  public verifyPreviewMode = (widgetName: string) => {
+  public matchSnapshot(locator: string, name: string, mode: "canvas" | "preview" | "deploy" = "canvas", theme: "light" | "dark" = "light") {
+    const snapshotName = camelCase(`anvil_${name}$_${mode}${theme == "dark" ? "_dark" : ""}`);
+
+    this.agHelper.GetElement(locator).matchImageSnapshot(snapshotName, {
+      comparisonMethod: "ssim",
+    });
+  }
+
+  public matchSnapshotForPreviewMode = (name: string, theme: Parameters<typeof this.matchSnapshot>[3] = "light") => {
     this.enterPreviewMode();
 
-    this.agHelper.GetNClick(this.locators.canvas);
-
-    this.agHelper
-      .GetElement(this.locators.canvas)
-      .matchImageSnapshot(`anvil${widgetName}Preview`, {
-        comparisonMethod: "ssim",
-      });
+    this.matchSnapshot(this.locators.canvas, name, "preview", theme);
 
     this.exitPreviewMode();
   };
+
+  public matchSnapshotForDeployMode = (name: string, theme: Parameters<typeof this.matchSnapshot>[3] = "light") => {
+    this.deployMode.DeployApp(this.locators.appViewerPage);
+
+    this.matchSnapshot(this.locators.canvas, name, "deploy", theme);
+
+    this.agHelper.BrowserNavigation(-1);
+  }
+
 
   public verifyDeployMode = (widgetName: string) => {
     this.deployMode.DeployApp(this.locators.appViewerPage);
@@ -70,15 +79,17 @@ export class AnvilSnapshot {
     });
   };
 
-  private enterPreviewMode = (shouldOpen = true) => {
+  public enterPreviewMode = (shouldOpen = true) => {
     this.agHelper.GetNClick(this.locators.enterPreviewMode);
+    this.agHelper.GetNClick(this.locators.canvas);
   };
 
   private exitPreviewMode = () => {
     this.agHelper.GetNClick(this.locators.exitPreviewMode);
+    this.agHelper.GetNClick(this.locators.canvas);
   };
 
-  private setTheme = (theme: "light" | "dark") => {
+  public setTheme = (theme: "light" | "dark") => {
     this.appSettings.OpenAppSettings();
     this.appSettings.GoToThemeSettings();
 
@@ -112,4 +123,8 @@ export class AnvilSnapshot {
     this.exitPreviewMode();
     this.agHelper.GetNClick(this.locators.propertyPaneSidebar);
   };
+
+  public getLocators = () => {
+    return this.locators;
+  }
 }
