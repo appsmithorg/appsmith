@@ -39,14 +39,10 @@ const EditorTabs = () => {
 
   // Show list view if all tabs is closed
   useEffect(() => {
-    if (
-      files.length === 0 &&
-      segmentMode !== EditorEntityTabState.Add &&
-      currentEntity.id !== "curl"
-    ) {
+    if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) {
       setShowListView(true);
     }
-  }, [files, segmentMode, currentEntity.entity, currentEntity.id]);
+  }, [files, segmentMode, currentEntity.entity]);
 
   // scroll to the active tab
   useEffect(() => {
@@ -74,12 +70,7 @@ const EditorTabs = () => {
   if (segment === EditorEntityTab.UI) return null;
 
   const handleHamburgerClick = () => {
-    if (
-      files.length === 0 &&
-      segmentMode !== EditorEntityTabState.Add &&
-      currentEntity.id !== "curl"
-    )
-      return;
+    if (files.length === 0 && segmentMode !== EditorEntityTabState.Add) return;
     setShowListView(!showListView);
   };
 

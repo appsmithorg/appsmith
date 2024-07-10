@@ -255,7 +255,7 @@ describe("EditorTabs render checks", () => {
       },
     });
     const { queryByTestId } = renderComponent(
-      `/app/applicationSlug/pageSlug-${page.pageId}/edit/queries/curl/curl-import`,
+      `/app/applicationSlug/pageSlug-${page.pageId}/edit/saas/google-sheets-plugin/api/api_id`,
       state,
     );
 
