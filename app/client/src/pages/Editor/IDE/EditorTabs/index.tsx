@@ -97,6 +97,7 @@ const EditorTabs = () => {
       <Container>
         {ideViewMode === EditorViewMode.SplitScreen && (
           <ToggleButton
+            data-testid="t--list-toggle"
             icon="hamburger"
             isSelected={showListView}
             onClick={handleHamburgerClick}
@@ -114,7 +115,12 @@ const EditorTabs = () => {
           }}
           size={"sm"}
         >
-          <Flex className="items-center" gap="spaces-2" height="100%">
+          <Flex
+            className="items-center"
+            data-testid="t--tabs-container"
+            gap="spaces-2"
+            height="100%"
+          >
             <FileTabs
               currentEntity={currentEntity}
               isListActive={showListView}
