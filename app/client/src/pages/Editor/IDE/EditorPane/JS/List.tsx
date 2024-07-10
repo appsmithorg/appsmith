@@ -53,10 +53,6 @@ const ListJSObjects = () => {
 
   const { openAddJS } = useJSAdd();
 
-  const handleSearch = (str: string) => {
-    setSearchTerm(str);
-  };
-
   return (
     <JSContainer
       className="ide-editor-left-pane__content-js"
@@ -70,7 +66,7 @@ const ListJSObjects = () => {
         <AddAndSearchbar
           hasAddPermission={canCreateActions}
           onAddClick={openAddJS}
-          onSearch={handleSearch}
+          onSearch={setSearchTerm}
         />
       ) : null}
       <FilesContextProvider
