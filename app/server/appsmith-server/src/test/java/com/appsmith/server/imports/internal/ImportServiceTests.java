@@ -1575,6 +1575,8 @@ public class ImportServiceTests {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
     public void importArtifactIntoWorkspace_pageRemovedAndUpdatedDefaultPageNameInBranchApplication_Success() {
         Application testApplication = new Application();
         testApplication.setName("importApplicationIntoWorkspace_pageRemovedInBranchApplication_Success");

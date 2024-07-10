@@ -6,6 +6,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.DBOpsType;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -26,6 +27,8 @@ public class DryOperationRepository {
 
     private final DatasourceStorageRepository datasourceStorageRepository;
 
+    private final CustomJSLibRepository customJSLibRepository;
+
     private final ThemeRepository themeRepository;
 
     private final ApplicationRepository applicationRepository;
@@ -38,6 +41,7 @@ public class DryOperationRepository {
         map.put(Datasource.class, datasourceRepository);
         map.put(DatasourceStorage.class, datasourceStorageRepository);
         map.put(Theme.class, themeRepository);
+        map.put(CustomJSLib.class, customJSLibRepository);
         repoByEntityClass = Collections.unmodifiableMap(map);
     }
 
@@ -51,6 +55,10 @@ public class DryOperationRepository {
 
     public Flux<DatasourceStorage> saveDatasourceStorageToDb(List<DatasourceStorage> datasourceStorage) {
         return datasourceStorageRepository.saveAll(datasourceStorage);
+    }
+
+    private Flux<CustomJSLib> saveCustomJSLibToDb(List<CustomJSLib> customJSLibs) {
+        return customJSLibRepository.saveAll(customJSLibs);
     }
 
     private Mono<Theme> saveThemeToDb(Theme theme) {
@@ -74,7 +82,7 @@ public class DryOperationRepository {
     public Mono<Void> executeAllDbOps(MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
         Flux<List<Datasource>> datasourceFLux = Flux.fromIterable(mappedImportableResourcesDTO
-                        .getDatasourceStorageDryRunQueries()
+                        .getDatasourceDryRunQueries()
                         .keySet())
                 .flatMap(key -> {
                     List<Datasource> datasourceList = mappedImportableResourcesDTO
@@ -93,7 +101,15 @@ public class DryOperationRepository {
                     return saveDatasourceStorageToDb(datasourceStorageList).collectList();
                 });
 
-        Flux<List<Theme>> themeFLux = Flux.fromIterable(
+        Flux<List<CustomJSLib>> customJSLibFlux = Flux.fromIterable(
+                        mappedImportableResourcesDTO.getCustomJSLibsDryOps().keySet())
+                .flatMap(key -> {
+                    List<CustomJSLib> customJSLibList =
+                            mappedImportableResourcesDTO.getCustomJSLibsDryOps().get(key);
+                    return saveCustomJSLibToDb(customJSLibList).collectList();
+                });
+
+        Flux<List<Theme>> themeFlux = Flux.fromIterable(
                         mappedImportableResourcesDTO.getThemeDryRunQueries().keySet())
                 .flatMap(key -> {
                     List<Theme> themeList =
@@ -113,7 +129,7 @@ public class DryOperationRepository {
                     }
                 });
 
-        Flux<List<Application>> applicationFLux = Flux.fromIterable(mappedImportableResourcesDTO
+        Flux<List<Application>> applicationFlux = Flux.fromIterable(mappedImportableResourcesDTO
                         .getApplicationDryRunQueries()
                         .keySet())
                 .flatMap(key -> {
@@ -131,7 +147,7 @@ public class DryOperationRepository {
                     }
                 });
 
-        return Flux.merge(datasourceFLux, datasourceStorageFLux, themeFLux, applicationFLux)
+        return Flux.merge(datasourceFLux, datasourceStorageFLux, customJSLibFlux, themeFlux, applicationFlux)
                 .then();
     }
 }
