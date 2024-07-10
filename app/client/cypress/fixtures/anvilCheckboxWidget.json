@@ -1,0 +1,2771 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 4896,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 380,
+    "containerStyle": "none",
+    "snapRows": 124,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 89,
+    "minHeight": 1292,
+    "layout": [
+      {
+        "layoutId": "2s1pokfn1y",
+        "layoutType": "ALIGNED_LAYOUT_COLUMN",
+        "layout": [
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "2vucu43ktq",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "g74gvx619n",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "sjal5kq1cj",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "0gr3dvqhoy",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "33zwrunz46",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "f22bwtrb9i",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "kuz7ittc1v",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "rwu198w1ab",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          }
+        ],
+        "layoutStyle": {
+          "border": "none",
+          "height": "100%",
+          "padding": "spacing-4",
+          "gap": "spacing-4"
+        },
+        "isDropTarget": true,
+        "isPermanent": true,
+        "childTemplate": {
+          "insertChild": true,
+          "isDropTarget": false,
+          "isPermanent": false,
+          "layout": [],
+          "layoutId": "",
+          "layoutType": "WIDGET_ROW",
+          "maxChildLimit": 1
+        }
+      }
+    ],
+    "dynamicTriggerPathList": [],
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section1",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone1",
+            "flexGrow": 12,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox1",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "quptiva9fh",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "p3wlx3wq4x",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": false,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox2",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "quptiva9fh",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "g7vqn1w22r",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox3",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "quptiva9fh",
+                "isRequired": true,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "u3s0qdzm8d",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": false,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox4",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "quptiva9fh",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "j5v89vtuci",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 150",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox5",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": true,
+                "key": "quptiva9fh",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "4qi0z8h32v",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox7",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": true,
+                "key": "quptiva9fh",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "vn79wcvwrr",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": false,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox6",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "quptiva9fh",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "hkaiwvt2kg",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": false,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox8",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "quptiva9fh",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "sp6fcgwdh4",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox10",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "rx4axm1k5g",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox10Copy",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "jyv7t73jfk",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox10Copy1",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "rw3ayn9gb6",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox10Copy2",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "mrk66fr07j",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox10Copy3",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "moqeqbz20d",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox10Copy4",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "937nroib2l",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox10Copy5",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "hqm7d98e81",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox10Copy6",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "sx0qsr5v7i",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox10Copy7",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "77evpc0n3o",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox10Copy8",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "m16tc46rd2",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "z8glc4xmlr",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "e5e6296sf4",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "z8glc4xmlr",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "2vucu43ktq",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "0utbmbulmh",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "g7vqn1w22r",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "p3wlx3wq4x",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "u3s0qdzm8d",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "j5v89vtuci",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "gsnkgoox6g",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "hkaiwvt2kg",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "4qi0z8h32v",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "vn79wcvwrr",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "sp6fcgwdh4",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "87l573jm27",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "rx4axm1k5g",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "f95hov5jd0",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "jyv7t73jfk",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "rw3ayn9gb6",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "npyv5wywsw",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "mrk66fr07j",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "moqeqbz20d",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "937nroib2l",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "7jl0exf8pe",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "hqm7d98e81",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "sx0qsr5v7i",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "77evpc0n3o",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "m16tc46rd2",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "uqht6ayq3z",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "mx9um1v1y1",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "2vucu43ktq",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 1,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "z8glc4xmlr",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "fisavjeyxk",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "z8glc4xmlr": 12
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section2",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox9",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "pwkodeoi0n",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "evezo0qu8e",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "1e09hgprnc",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "evezo0qu8e",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "sjal5kq1cj",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "id3404zco9",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "pwkodeoi0n",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "ubghu78srq",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone3",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox9Copy",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "cu4ung12z2",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "akbues56xb",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "1e09hgprnc",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "akbues56xb",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "sjal5kq1cj",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "igpgj9efgl",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "cu4ung12z2",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "4ymj4yz7o4",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone3Copy",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox9CopyCopy",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "9e8pn6tcye",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "fq2orz6qnz",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "1e09hgprnc",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "fq2orz6qnz",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "sjal5kq1cj",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "v9gu6drcmx",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "9e8pn6tcye",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "ospx93bt18",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "8bs7f9x7aq",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "sjal5kq1cj",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 3,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "evezo0qu8e",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "akbues56xb",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "fq2orz6qnz",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "rszybfwqnp",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "evezo0qu8e": 4,
+          "akbues56xb": 4,
+          "fq2orz6qnz": 4
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section3",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone3Copy1",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox9CopyCopy1",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "misnsqtf6d",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "oa00omoj6d",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "1e09hgprnc",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "oa00omoj6d",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "33zwrunz46",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "iawbubgj0r",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "misnsqtf6d",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "47teioon5i",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone3Copy2",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox9CopyCopy2",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "byllen0fvw",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "l8zt7ltn7w",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "1e09hgprnc",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "l8zt7ltn7w",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "33zwrunz46",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "x9w8b5wtys",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "byllen0fvw",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "w0bv3eyfvc",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone3Copy3",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox9CopyCopy3",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "jjqj8amego",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "wr959lwkiw",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "1e09hgprnc",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "wr959lwkiw",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "33zwrunz46",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "49hez201no",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "jjqj8amego",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "6vkyp7v7ax",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone3Copy4",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox9CopyCopy4",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "wxzltq6smt",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "io3tpqwag3",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "1e09hgprnc",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "io3tpqwag3",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "33zwrunz46",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "fm7ak4yvin",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "wxzltq6smt",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "etxvsc3msb",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "8bs7f9x7aq",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "33zwrunz46",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 4,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "oa00omoj6d",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "l8zt7ltn7w",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "wr959lwkiw",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "io3tpqwag3",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "37u6h8263n",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "oa00omoj6d": 3,
+          "l8zt7ltn7w": 3,
+          "wr959lwkiw": 3,
+          "io3tpqwag3": 3
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section4",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone3Copy5",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox9CopyCopy5",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "c8ms1z9rbh",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "bz4iybyed8",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "1e09hgprnc",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "bz4iybyed8",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "kuz7ittc1v",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "r18hu3abuc",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "c8ms1z9rbh",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "zvqt9akyuk",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone3Copy6",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "Checkbox9CopyCopy6",
+                "displayName": "Checkbox",
+                "searchTags": [
+                  "boolean"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_CHECKBOX_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "gicz0cliq1",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "ag0kmpfbb8",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Label",
+                "version": 1,
+                "parentId": "95xthgi5vp",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "defaultCheckedState": true,
+                "maxDynamicHeight": 9000,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "1e09hgprnc",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "95xthgi5vp",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "kuz7ittc1v",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "gugp83wfz0",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "ag0kmpfbb8",
+                        "widgetType": "WDS_CHECKBOX_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "e494cy7g7a",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "8bs7f9x7aq",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "kuz7ittc1v",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 2,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "bz4iybyed8",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "95xthgi5vp",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "l5b6p7i4an",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "bz4iybyed8": 6,
+          "95xthgi5vp": 6
+        }
+      }
+    ]
+  },
+  "layoutOnLoadActions": [],
+  "layoutOnLoadActionErrors": [],
+  "id": "667bf0319da472349cd2d5df",
+  "userPermissions": []
+}

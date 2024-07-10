@@ -34,6 +34,10 @@
     container-type: inline-size;
   }
 
+  [data-disable-scroll] {
+    overflow: hidden;
+  }
+
   /* --------------------------------------------------------------------------
    * TABLE
    *-------------------------------------------------------------------------- */
@@ -161,6 +165,10 @@
 
   &[data-variant="default"] [role="cell"]:not(:last-child) {
     border-inline-end: var(--border-width-1) solid var(--color-bd);
+  }
+
+  &[data-variant="default"] [role="row"]:last-child [role="cell"] {
+    border-block-end-color: transparent;
   }
 
   &:is([data-variant="horizontal-borders"], [data-variant="default"])
