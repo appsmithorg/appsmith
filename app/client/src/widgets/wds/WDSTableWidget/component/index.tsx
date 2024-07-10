@@ -82,6 +82,7 @@ interface ReactTableComponentProps {
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
   excludeFromTabOrder?: boolean;
+  disableScroll?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -98,6 +99,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     delimiter,
     disabledAddNewRowSave,
     disableDrag,
+    disableScroll,
     editableCell,
     editMode,
     filters,
@@ -209,6 +211,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       data={tableData}
       delimiter={delimiter}
       disableDrag={memoziedDisableDrag}
+      disableScroll={disableScroll}
       disabledAddNewRowSave={disabledAddNewRowSave}
       editMode={editMode}
       editableCell={editableCell}
@@ -312,6 +315,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.allowSorting === next.allowSorting &&
     prev.disabledAddNewRowSave === next.disabledAddNewRowSave &&
     prev.canFreezeColumn === next.canFreezeColumn &&
-    prev.showConnectDataOverlay === next.showConnectDataOverlay
+    prev.showConnectDataOverlay === next.showConnectDataOverlay &&
+    prev.disableScroll === next.disableScroll
   );
 });
