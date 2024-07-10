@@ -32,6 +32,7 @@ import {
 } from "@appsmith/constants/messages";
 import { createNewApiActionBasedOnEditorType } from "@appsmith/actions/helpers";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import history from "utils/history";
 
 // This function remove the given key from queryParams and return string
 const removeQueryParams = (paramKeysToRemove: Array<string>) => {
@@ -122,10 +123,6 @@ interface DatasourceHomeScreenProps {
   location: {
     search: string;
   };
-  history: {
-    replace: (data: string) => void;
-    push: (data: string) => void;
-  };
   showMostPopularPlugins?: boolean;
   isCreating?: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
@@ -164,7 +161,6 @@ class DatasourceHomeScreen extends React.Component<Props> {
     const {
       currentApplication,
       generateCRUDSupportedPlugin,
-      history,
       showUnsupportedPluginDialog,
     } = this.props;
 
