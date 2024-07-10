@@ -228,31 +228,6 @@ export const CellCheckboxWrapper = styled(CellWrapper)`
   height: auto;
 `;
 
-export const CellCheckbox = styled.div`
-  height: 14px;
-  width: 14px;
-  background: ${Colors.WHITE};
-  cursor: pointer;
-  position: relative;
-  .th-svg {
-    display: block;
-    position: absolute;
-    left: 2px;
-    top: 2px;
-  }
-`;
-
-export const TableHeaderContentWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: ${HEADER_CONTROL_FONT_SIZE};
-  line-height: 20px;
-  color: ${Colors.GRAY};
-  margin: 0 4px;
-  white-space: nowrap;
-`;
-
 export const TableIconWrapper = styled.div<{
   selected?: boolean;
   disabled?: boolean;
@@ -300,7 +275,7 @@ export const TooltipContentWrapper = styled.div<{ width?: number }>`
   max-width: ${(props) => props.width}px;
 `;
 
-export const EmptyRow = styled.div`
+export const EmptyRow = styled.tr`
   display: flex;
   flex: 1 0 auto;
 `;

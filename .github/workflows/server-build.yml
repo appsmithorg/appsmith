@@ -78,17 +78,17 @@ jobs:
 
       - name: Get changed files in the server folder
         id: changed-files-specific
-        uses: tj-actions/changed-files@v41
+        uses: tj-actions/changed-files@v44
         with:
           files: "app/server/**"
+          write_output_files: true
 
       - name: Run step if any file(s) in the server folder change
         if: steps.changed-files-specific.outputs.any_changed == 'true'
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
         run: |
           echo "One or more files in the server folder has changed."
-          echo "List all the files that have changed: $ALL_CHANGED_FILES"
+          echo "List all the files that have changed:"
+          cat "${{ github.workspace }}/.github/outputs/all_changed_files.txt"
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
@@ -139,10 +139,10 @@ jobs:
           java-version: "17"
 
       - name: Conditionally start PostgreSQL
+        if: |
+          inputs.is-pg-build == 'true' && inputs.skip-tests != 'true'
         run: |
-          if [[ inputs.is-pg-build == 'true' ]]; then
-            docker run --name appsmith-pg -p 5432:5432 -d -e POSTGRES_PASSWORD=password postgres:alpine
-          fi
+          docker run --name appsmith-pg -p 5432:5432 -d -e POSTGRES_PASSWORD=password postgres:alpine postgres -N 1500
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies

@@ -14,15 +14,6 @@ export interface CreateDatasourceConfig {
   appName?: string;
 }
 
-export interface EmbeddedRestDatasourceRequest {
-  datasourceConfiguration: { url: string };
-  invalids: Array<string>;
-  isValid: boolean;
-  name: string;
-  workspaceId: string;
-  pluginId: string;
-}
-
 // type executeQueryData = Array<{ key?: string; value?: string }>;
 type executeQueryData = Record<string, any>;
 
@@ -43,7 +34,98 @@ class DatasourcesApi extends API {
   static async createDatasource(
     datasourceConfig: Partial<Datasource>,
   ): Promise<any> {
+    // This here abomination is to remove several fields that are not accepted by the server.
+    for (const [name, storage] of Object.entries(
+      datasourceConfig.datasourceStorages || {},
+    )) {
+      datasourceConfig = {
+        ...datasourceConfig,
+        isValid: undefined,
+        datasourceStorages: {
+          ...datasourceConfig.datasourceStorages,
+          [name]: {
+            ...storage,
+            isValid: undefined,
+            toastMessage: undefined,
+            datasourceConfiguration: {
+              ...storage.datasourceConfiguration,
+              isValid: undefined,
+              connection: storage.datasourceConfiguration.connection && {
+                ...storage.datasourceConfiguration.connection,
+                ssl: {
+                  ...storage.datasourceConfiguration.connection.ssl,
+                  authTypeControl: undefined,
+                  certificateType: undefined,
+                },
+              },
+            },
+          },
+        },
+      } as any;
+    }
+
     return API.post(DatasourcesApi.url, datasourceConfig);
+  }
+
+  // Need for when we add strict type checking back on server
+  static cleanAuthenticationObject(authentication: any): any {
+    if (!authentication) {
+      return undefined;
+    }
+
+    const clean: any = {
+      authenticationType: authentication.authenticationType ?? "dbAuth",
+    };
+
+    switch (clean.authenticationType) {
+      case "dbAuth":
+        clean.authType = authentication.authType;
+        clean.username = authentication.username;
+        clean.password = authentication.password;
+        clean.databaseName = authentication.databaseName;
+        break;
+      case "oAuth2":
+        clean.grantType = authentication.grantType;
+        clean.isTokenHeader = authentication.isTokenHeader;
+        clean.isAuthorizationHeader = authentication.isAuthorizationHeader;
+        clean.clientId = authentication.clientId;
+        clean.clientSecret = authentication.clientSecret;
+        clean.authorizationUrl = authentication.authorizationUrl;
+        clean.expiresIn = authentication.expiresIn;
+        clean.accessTokenUrl = authentication.accessTokenUrl;
+        clean.scopeString = authentication.scopeString;
+        clean.scope = authentication.scope;
+        clean.sendScopeWithRefreshToken =
+          authentication.sendScopeWithRefreshToken;
+        clean.refreshTokenClientCredentialsLocation =
+          authentication.refreshTokenClientCredentialsLocation;
+        clean.headerPrefix = authentication.headerPrefix;
+        clean.customTokenParameters = authentication.customTokenParameters;
+        clean.audience = authentication.audience;
+        clean.resource = authentication.resource;
+        clean.useSelfSignedCert = authentication.useSelfSignedCert;
+        clean.authenticationStatus = authentication.authenticationStatus;
+        break;
+      case "basic":
+        clean.username = authentication.username;
+        clean.password = authentication.password;
+        break;
+      case "apiKey":
+        clean.addTo = authentication.addTo;
+        clean.label = authentication.label;
+        clean.headerPrefix = authentication.headerPrefix;
+        clean.value = authentication.value;
+        break;
+      case "bearerToken":
+        clean.bearerToken = authentication.bearerToken;
+        break;
+      case "snowflakeKeyPairAuth":
+        clean.username = authentication.username;
+        clean.privateKey = authentication.privateKey;
+        clean.passphrase = authentication.passphrase;
+    }
+
+    return clean;
   }
 
   // Api to test current environment datasource
@@ -52,14 +134,26 @@ class DatasourcesApi extends API {
     pluginId: string,
     workspaceId: string,
   ): Promise<any> {
-    return API.post(
-      `${DatasourcesApi.url}/test`,
-      { ...datasourceConfig, pluginId, workspaceId },
-      undefined,
-      {
-        timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
+    const payload = {
+      ...datasourceConfig,
+      pluginId,
+      workspaceId,
+      isValid: undefined,
+      toastMessage: undefined,
+      datasourceConfiguration: datasourceConfig.datasourceConfiguration && {
+        ...datasourceConfig.datasourceConfiguration,
+        connection: datasourceConfig.datasourceConfiguration.connection && {
+          ...datasourceConfig.datasourceConfiguration.connection,
+          ssl: {
+            ...datasourceConfig.datasourceConfiguration.connection.ssl,
+            certificateType: undefined,
+          },
+        },
       },
-    );
+    };
+    return API.post(`${DatasourcesApi.url}/test`, payload, undefined, {
+      timeout: DEFAULT_TEST_DATA_SOURCE_TIMEOUT_MS,
+    });
   }
 
   // Api to update datasource name.
@@ -72,12 +166,25 @@ class DatasourcesApi extends API {
 
   // Api to update specific datasource storage/environment configuration
   static async updateDatasourceStorage(
-    datasourceConfig: Partial<DatasourceStorage>,
+    datasourceStorage: Partial<DatasourceStorage>,
   ): Promise<any> {
-    return API.put(
-      DatasourcesApi.url + `/datasource-storages`,
-      datasourceConfig,
-    );
+    const payload = {
+      ...datasourceStorage,
+      isValid: undefined,
+      toastMessage: undefined,
+      datasourceConfiguration: datasourceStorage.datasourceConfiguration && {
+        ...datasourceStorage.datasourceConfiguration,
+        connection: datasourceStorage.datasourceConfiguration.connection && {
+          ...datasourceStorage.datasourceConfiguration.connection,
+          ssl: {
+            ...datasourceStorage.datasourceConfiguration.connection.ssl,
+            authTypeControl: undefined,
+            certificateType: undefined,
+          },
+        },
+      },
+    };
+    return API.put(DatasourcesApi.url + `/datasource-storages`, payload);
   }
 
   static async deleteDatasource(id: string): Promise<any> {

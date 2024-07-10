@@ -40,6 +40,7 @@ import QueryEditorHeader from "./QueryEditorHeader";
 import ActionEditor from "../IDE/EditorPane/components/ActionEditor";
 import QueryResponseTab from "./QueryResponseTab";
 import DatasourceSelector from "./DatasourceSelector";
+import RunHistory from "@appsmith/components/RunHistory";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -136,6 +137,11 @@ export const SegmentedControlContainer = styled.div`
   gap: var(--ads-v2-spaces-4);
   overflow-y: clip;
   overflow-x: scroll;
+`;
+
+const StyledNotificationWrapper = styled.div`
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-3)
+    var(--ads-v2-spaces-7);
 `;
 
 interface QueryFormProps {
@@ -306,7 +312,9 @@ export function EditorJSONtoForm(props: Props) {
           onRunClick={onRunClick}
           plugin={plugin}
         />
-        {notification}
+        {notification && (
+          <StyledNotificationWrapper>{notification}</StyledNotificationWrapper>
+        )}
         <Wrapper>
           <div className="flex flex-1 w-full">
             <SecondaryWrapper>
@@ -386,6 +394,7 @@ export function EditorJSONtoForm(props: Props) {
                 runErrorMessage={runErrorMessage}
                 showSchema={showSchema}
               />
+              <RunHistory />
             </SecondaryWrapper>
           </div>
           <ActionRightPane

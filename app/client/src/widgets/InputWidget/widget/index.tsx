@@ -1,45 +1,51 @@
-import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import BaseWidget from "widgets/BaseWidget";
-import { Alignment } from "@blueprintjs/core";
-import type { IconName } from "@blueprintjs/icons";
-import type { TextSize } from "constants/WidgetConstants";
-import { GridDefaults, RenderModes } from "constants/WidgetConstants";
-import type { InputComponentProps } from "../component";
-import InputComponent from "../component";
-import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
 import {
-  createMessage,
   FIELD_REQUIRED_ERROR,
   INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+  createMessage,
 } from "@appsmith/constants/messages";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import type { InputType } from "../constants";
-import { InputTypes } from "../constants";
+import { Alignment } from "@blueprintjs/core";
+import type { IconName } from "@blueprintjs/icons";
+import type {
+  AutocompletionDefinitions,
+  PropertyUpdates,
+  SnipingModeProperty,
+  WidgetCallout,
+} from "WidgetProvider/constants";
 import { COMPACT_MODE_MIN_ROWS } from "WidgetProvider/constants";
-import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
-import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
+import { LabelPosition } from "components/constants";
+import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { TextSize } from "constants/WidgetConstants";
+import {
+  GridDefaults,
+  RenderModes,
+  WIDGET_TAGS,
+} from "constants/WidgetConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/WidgetValidation";
+import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
+import React from "react";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
+import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import BaseWidget from "widgets/BaseWidget";
+import {
+  DefaultAutocompleteDefinitions,
+  isCompactMode,
+} from "widgets/WidgetUtils";
+import type { InputComponentProps } from "../component";
+import InputComponent from "../component";
+import { CurrencyDropdownOptions } from "../component/CurrencyCodeDropdown";
+import { ISDCodeDropdownOptions } from "../component/ISDCodeDropdown";
 import {
   formatCurrencyNumber,
   getDecimalSeparator,
   getLocale,
 } from "../component/utilities";
-import { LabelPosition } from "components/constants";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { checkInputTypeTextByProps } from "widgets/BaseInputWidget/utils";
-import {
-  DefaultAutocompleteDefinitions,
-  isCompactMode,
-} from "widgets/WidgetUtils";
-import type {
-  AutocompletionDefinitions,
-  PropertyUpdates,
-  SnipingModeProperty,
-} from "WidgetProvider/constants";
+import type { InputType } from "../constants";
+import { InputTypes } from "../constants";
 import IconSVG from "../icon.svg";
 
 export function defaultValueValidation(
@@ -144,6 +150,7 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
       hideCard: true,
       isDeprecated: true,
       replacement: "INPUT_WIDGET_V2",
+      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.INPUTS],
     };
   }
 
@@ -180,6 +187,15 @@ class InputWidget extends BaseWidget<InputWidgetProps, WidgetState> {
             propertyPath: "defaultText",
             propertyValue: propValueMap.data,
             isDynamicPropertyPath: true,
+          },
+        ];
+      },
+      getEditorCallouts(): WidgetCallout[] {
+        return [
+          {
+            message: buildDeprecationWidgetMessage(
+              InputWidget.getConfig().name,
+            ),
           },
         ];
       },

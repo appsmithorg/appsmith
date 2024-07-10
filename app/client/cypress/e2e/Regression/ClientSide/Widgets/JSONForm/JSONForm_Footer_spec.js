@@ -1,5 +1,5 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-
+const commonlocators = require("../../../../../locators/commonlocators.json");
 describe(
   "JSONForm Footer spec",
   { tags: ["@tag.Widget", "@tag.JSONForm"] },
@@ -42,7 +42,7 @@ describe(
 
     it("2. sticks to the content when fixed footer is off", () => {
       // Disable fixed footer
-      cy.togglebarDisable(".t--property-control-fixedfooter input");
+      _.agHelper.CheckUncheck(commonlocators.fixedFooterInput, false);
 
       // Check if there is a gap between body and footer
       cy.get(".t--jsonform-body").then(($body) => {
@@ -82,7 +82,7 @@ describe(
 
     it("4. floats to the bottom when fixed footer is false and content overflows", () => {
       // Disable fixed footer
-      cy.togglebarDisable(".t--property-control-fixedfooter input");
+      _.agHelper.CheckUncheck(commonlocators.fixedFooterInput, false);
 
       // Check if footer is floating
       cy.get(".t--draggable-jsonformwidget")

@@ -85,7 +85,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -100,7 +99,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -142,7 +140,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -231,6 +228,12 @@ public class ImportServiceTests {
 
     @Autowired
     SessionUserService sessionUserService;
+
+    @Autowired
+    JsonSchemaMigration jsonSchemaMigration;
+
+    @Autowired
+    JsonSchemaVersions jsonSchemaVersions;
 
     @BeforeEach
     public void setup() {
@@ -354,7 +357,7 @@ public class ImportServiceTests {
                 .map(data -> {
                     return gson.fromJson(data, ApplicationJson.class);
                 })
-                .map(JsonSchemaMigration::migrateArtifactToLatestSchema)
+                .map(jsonSchemaMigration::migrateArtifactToLatestSchema)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
@@ -747,8 +750,10 @@ public class ImportServiceTests {
 
                     NewPage newPage = pageList.get(0);
 
-                    assertThat(applicationJson.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
-                    assertThat(applicationJson.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
+                    assertThat(applicationJson.getServerSchemaVersion())
+                            .isEqualTo(jsonSchemaVersions.getServerVersion());
+                    assertThat(applicationJson.getClientSchemaVersion())
+                            .isEqualTo(jsonSchemaVersions.getClientVersion());
 
                     assertThat(exportedApp.getName()).isNotNull();
                     assertThat(exportedApp.getWorkspaceId()).isNull();
@@ -1564,6 +1569,8 @@ public class ImportServiceTests {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
     public void importArtifactIntoWorkspace_pageRemovedAndUpdatedDefaultPageNameInBranchApplication_Success() {
         Application testApplication = new Application();
         testApplication.setName("importApplicationIntoWorkspace_pageRemovedInBranchApplication_Success");
@@ -2713,7 +2720,7 @@ public class ImportServiceTests {
         Mono<ApplicationJson> migratedApplicationMono = v1ApplicationMono.map(applicationJson -> {
             ApplicationJson applicationJson1 = new ApplicationJson();
             AppsmithBeanUtils.copyNestedNonNullProperties(applicationJson, applicationJson1);
-            return (ApplicationJson) JsonSchemaMigration.migrateArtifactToLatestSchema(applicationJson1);
+            return (ApplicationJson) jsonSchemaMigration.migrateArtifactToLatestSchema(applicationJson1);
         });
 
         StepVerifier.create(Mono.zip(v1ApplicationMono, migratedApplicationMono))
@@ -2725,9 +2732,9 @@ public class ImportServiceTests {
                     assertThat(v1ApplicationJson.getClientSchemaVersion()).isEqualTo(1);
 
                     assertThat(latestApplicationJson.getServerSchemaVersion())
-                            .isEqualTo(JsonSchemaVersions.serverVersion);
+                            .isEqualTo(jsonSchemaVersions.getServerVersion());
                     assertThat(latestApplicationJson.getClientSchemaVersion())
-                            .isEqualTo(JsonSchemaVersions.clientVersion);
+                            .isEqualTo(jsonSchemaVersions.getClientVersion());
                 })
                 .verifyComplete();
     }
@@ -4592,8 +4599,14 @@ public class ImportServiceTests {
                 .assertNext(applicationJson -> {
                     List<NewPage> pages = applicationJson.getPageList();
                     assertThat(pages).hasSize(2);
-                    assertThat(pages.get(1).getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
-                    assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");
+                    NewPage page = pages.stream()
+                            .filter(page1 ->
+                                    page1.getUnpublishedPage().getName().equals("page_" + randomId))
+                            .findFirst()
+                            .orElse(null);
+                    assertThat(page).isNotNull();
+                    assertThat(page.getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
+                    assertThat(page.getUnpublishedPage().getIcon()).isEqualTo("flight");
                 })
                 .verifyComplete();
     }
@@ -5015,8 +5028,8 @@ public class ImportServiceTests {
         testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
-        testApplication.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
-        testApplication.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        testApplication.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
+        testApplication.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
 
         Mono<ApplicationJson> applicationJsonMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -5113,8 +5126,8 @@ public class ImportServiceTests {
         testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
-        testApplication.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
-        testApplication.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        testApplication.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
+        testApplication.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
 
         Mono<ApplicationJson> applicationJsonMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -5166,7 +5179,7 @@ public class ImportServiceTests {
                     Application application = objects.getT2();
                     datasource.setName("DS_FOR_RENAME_TEST_RENAMED");
                     return datasourceService
-                            .save(datasource)
+                            .save(datasource, false)
                             .then(exportService.exportByArtifactId(application.getId(), VERSION_CONTROL, APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });

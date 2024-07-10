@@ -1,19 +1,18 @@
+import { Checkbox } from "@design-system/widgets";
 import React, { memo } from "react";
 import { getDragHandlers } from "widgets/wds/WDSTableWidget/widget/utilities";
 import { HeaderCell } from "../cellComponents/HeaderCell";
 import type { ReactTableColumnProps } from "../Constants";
-import { StickyType } from "../Constants";
+import { CheckboxState, StickyType } from "../Constants";
 import type { Row as ReactTableRowType } from "react-table";
-import { renderHeaderCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
+import { CellCheckboxWrapper } from "../TableStyledWrappers";
 
 export interface TableColumnHeaderProps {
   enableDrag: () => void;
   disableDrag: () => void;
   multiRowSelection?: boolean;
-  handleAllRowSelectClick: (
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
-  ) => void;
+  handleAllRowSelectClick: () => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   accentColor: string;
   borderRadius: string;
@@ -31,6 +30,7 @@ export interface TableColumnHeaderProps {
   headerWidth?: number;
   rowSelectionState: 0 | 1 | 2 | null;
   widgetId: string;
+  excludeFromTabOrder?: boolean;
 }
 
 const TableColumnHeader = (props: TableColumnHeaderProps) => {
@@ -64,11 +64,23 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
             key={index}
             style={{ width: props.headerWidth }}
           >
-            {props.multiRowSelection &&
-              renderHeaderCheckBoxCell(
-                props.handleAllRowSelectClick,
-                props.rowSelectionState,
-              )}
+            {props.multiRowSelection && (
+              <CellCheckboxWrapper
+                className="td t--table-multiselect"
+                data-sticky-td="true"
+                isCellVisible
+                role="cell"
+              >
+                <Checkbox
+                  excludeFromTabOrder={props.excludeFromTabOrder}
+                  isIndeterminate={
+                    props.rowSelectionState === CheckboxState.PARTIAL
+                  }
+                  isSelected={!!props.rowSelectionState}
+                  onChange={props.handleAllRowSelectClick}
+                />
+              </CellCheckboxWrapper>
+            )}
 
             {headerGroup.headers.map((column: any, columnIndex: number) => {
               const stickyRightModifier = !column.isHidden
@@ -87,6 +99,7 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
                   columnName={column.Header}
                   columnOrder={columnOrder}
                   editMode={props.editMode}
+                  excludeFromTabOrder={props.excludeFromTabOrder}
                   handleColumnFreeze={props.handleColumnFreeze}
                   handleReorderColumn={props.handleReorderColumn}
                   isAscOrder={column.isAscOrder}
@@ -124,6 +137,7 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
           props.borderRadius,
           {},
           props.prepareRow,
+          true,
         )}
     </thead>
   );

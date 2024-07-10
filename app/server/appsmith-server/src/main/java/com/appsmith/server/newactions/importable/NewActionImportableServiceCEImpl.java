@@ -1,6 +1,7 @@
 package com.appsmith.server.newactions.importable;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
@@ -36,7 +37,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -89,9 +89,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         Set<String> invalidActionIds = new HashSet<>();
                         if (Boolean.FALSE.equals(importingMetaDTO.getIsPartialImport())) {
                             for (NewAction action : importActionResultDTO.getExistingActions()) {
-                                if (!importActionResultDTO
-                                        .getImportedActionIds()
-                                        .contains(action.getId())) {
+                                if (isExistingActionInvalid(importActionResultDTO, action)) {
                                     invalidActionIds.add(action.getId());
                                 }
                             }
@@ -99,7 +97,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         log.info("Deleting {} actions which are no more used", invalidActionIds.size());
                         return Flux.fromIterable(invalidActionIds)
                                 .flatMap(actionId -> newActionService
-                                        .deleteUnpublishedActionWithOptionalPermission(actionId, Optional.empty())
+                                        .deleteUnpublishedAction(actionId, null)
                                         // return an empty action so that the filter can remove it from the list
                                         .onErrorResume(throwable -> {
                                             log.debug("Failed to delete action with id {} during import", actionId);
@@ -116,6 +114,30 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     return Mono.error(throwable);
                 })
                 .then();
+    }
+
+    /**
+     * Checks if the given action is invalid based on the import results.
+     *
+     * @param importActionResultDTO The import result containing information about imported action IDs.
+     * @param action The action to check for validity.
+     * @return {@code true} if the action is invalid (i.e., its ID is not present in the imported action IDs),
+     *         {@code false} otherwise.
+     */
+    protected boolean isExistingActionInvalid(ImportActionResultDTO importActionResultDTO, NewAction action) {
+        return !importActionResultDTO.getImportedActionIds().contains(action.getId());
+    }
+
+    /**
+     * Checks if the given actionCollection is invalid based on the import results.
+     *
+     * @param savedCollectionIds The list of already saved Ids of the actionCollections.
+     * @param collection The actionCollection to check for validity.
+     * @return {@code true} if the actionCollection is invalid (i.e., its ID is not present in the savedCollectionIds),
+     *         {@code false} otherwise.
+     */
+    protected boolean isExistingActionCollectionInvalid(List<String> savedCollectionIds, ActionCollection collection) {
+        return !savedCollectionIds.contains(collection.getId());
     }
 
     protected Mono<List<NewAction>> getImportableEntities(ArtifactExchangeJson artifactExchangeJson) {
@@ -157,7 +179,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                         Set<String> invalidCollectionIds = new HashSet<>();
                         for (ActionCollection collection :
                                 importActionCollectionResultDTO.getExistingActionCollections()) {
-                            if (!savedCollectionIds.contains(collection.getId())) {
+                            if (isExistingActionCollectionInvalid(savedCollectionIds, collection)) {
                                 invalidCollectionIds.add(collection.getId());
                             }
                         }
@@ -261,7 +283,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
             Mono<Map<String, NewAction>> actionsInCurrentArtifactMono = artifactBasedImportableService
                     .getExistingResourcesInCurrentArtifactFlux(artifact)
-                    .filter(collection -> collection.getGitSyncId() != null)
+                    .filter(newAction -> newAction.getGitSyncId() != null)
                     .collectMap(NewAction::getGitSyncId);
 
             // find existing actions in all the branches of this artifact and put them in a map
@@ -317,6 +339,16 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                                     artifact,
                                     branchedNewAction,
                                     newAction);
+
+                            // Check if the action has datasource is present and contains pluginId
+                            Datasource datasource =
+                                    newAction.getUnpublishedAction().getDatasource();
+                            if (datasource != null) {
+                                // Since the datasource are not yet saved to db, if we don't update the action with
+                                // correct datasource,
+                                // the action ave will fail due to validation
+                                updateDatasourceInAction(newAction, mappedImportableResourcesDTO, datasource);
+                            }
 
                             // Check if the action has gitSyncId and if it's already in DB
                             if (existingArtifactContainsAction(actionsInCurrentArtifact, newAction)) {
@@ -547,5 +579,23 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 actionIds.put(defaultResourcesActionId, newAction.getId());
             }
         }
+    }
+
+    private void updateDatasourceInAction(
+            NewAction newAction, MappedImportableResourcesDTO mappedImportableResourcesDTO, Datasource datasource) {
+        if (!StringUtils.isEmpty(
+                newAction.getUnpublishedAction().getDatasource().getId())) {
+            final String datasourceId =
+                    newAction.getUnpublishedAction().getDatasource().getId();
+            datasource = mappedImportableResourcesDTO.getDatasourceDryRunQueries().values().stream()
+                    .flatMap(List::stream)
+                    .filter(ds -> ds.getId().equals(datasourceId))
+                    .findFirst()
+                    .orElse(datasource);
+            datasource.setIsAutoGenerated(false);
+            newAction.setWorkspaceId(datasource.getWorkspaceId());
+        }
+
+        newAction.getUnpublishedAction().setDatasource(datasource);
     }
 }

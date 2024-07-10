@@ -33,6 +33,7 @@ import type {
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 import { validateWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
+import type { Difference } from "microdiff";
 
 // Dropdown1.options[1].value -> Dropdown1.options[1]
 // Dropdown1.options[1] -> Dropdown1.options
@@ -993,29 +994,29 @@ export const isEntityAction = (entity: DataTreeEntity) => {
   return isAction(entity);
 };
 export const convertMicroDiffToDeepDiff = (
-  microDiffDifferences: Record<string, any>[],
-) =>
-  microDiffDifferences.map((v: Record<string, any>) => {
-    const { oldValue, path, type, value } = v;
+  microDiffDifferences: Difference[],
+): Diff<unknown, unknown>[] =>
+  microDiffDifferences.map((microDifference) => {
+    const { path, type } = microDifference;
     //convert microDiff format to deepDiff format
     if (type === "CREATE") {
       return {
         kind: "N",
         path,
-        rhs: value,
+        rhs: microDifference.value,
       };
     }
     if (type === "REMOVE") {
       return {
         kind: "D",
         path,
-        lhs: oldValue,
+        lhs: microDifference.oldValue,
       };
     }
     return {
       kind: "E",
       path,
-      lhs: oldValue,
-      rhs: value,
+      lhs: microDifference.oldValue,
+      rhs: microDifference.value,
     };
   });

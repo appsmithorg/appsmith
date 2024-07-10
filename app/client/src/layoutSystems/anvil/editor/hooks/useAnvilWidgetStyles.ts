@@ -4,6 +4,7 @@ import { useSelector } from "react-redux";
 import { useWidgetBorderStyles } from "layoutSystems/anvil/common/hooks/useWidgetBorderStyles";
 import type { AppState } from "@appsmith/reducers";
 import { getIsNewWidgetBeingDragged } from "sagas/selectors";
+import { AnvilDataAttributes } from "widgets/anvil/constants";
 
 export const useAnvilWidgetStyles = (
   widgetId: string,
@@ -38,8 +39,10 @@ export const useAnvilWidgetStyles = (
   // Effect hook to set a data attribute for testing purposes
   useEffect(() => {
     if (ref.current) {
-      ref.current.setAttribute("data-widgetname-cy", widgetName);
-      ref.current.setAttribute("data-selected", isSelected ? "true" : "false");
+      ref.current.setAttribute(
+        AnvilDataAttributes.IS_SELECTED_WIDGET,
+        isSelected ? "true" : "false",
+      );
     }
   }, [widgetName, isSelected]);
   const isNewWidgetDrag = useSelector(getIsNewWidgetBeingDragged);

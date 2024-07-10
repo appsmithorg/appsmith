@@ -1,5 +1,6 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Connection;
@@ -14,7 +15,6 @@ import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
@@ -42,7 +42,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -51,7 +50,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
@@ -76,7 +74,6 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -102,9 +99,6 @@ public class DatasourceServiceTest {
 
     @Autowired
     ApplicationPageService applicationPageService;
-
-    @Autowired
-    EncryptionService encryptionService;
 
     @Autowired
     LayoutActionService layoutActionService;
@@ -1095,7 +1089,7 @@ public class DatasourceServiceTest {
                     DBAuth authentication = (DBAuth)
                             datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(encryptionService.decryptString(authentication.getPassword()))
+                    assertThat(EncryptionHelper.decrypt(authentication.getPassword()))
                             .isEqualTo(password);
                 })
                 .verifyComplete();
@@ -1226,7 +1220,7 @@ public class DatasourceServiceTest {
                             datasourceStorageDTO.getDatasourceConfiguration().getAuthentication();
 
                     assertThat(authentication.getUsername()).isEqualTo(username);
-                    assertThat(password).isEqualTo(encryptionService.decryptString(authentication.getPassword()));
+                    assertThat(password).isEqualTo(EncryptionHelper.decrypt(authentication.getPassword()));
                 })
                 .verifyComplete();
     }
@@ -1287,7 +1281,7 @@ public class DatasourceServiceTest {
             datasourceConfiguration2.setUrl("http://test.com");
             datasource1.setDatasourceConfiguration(datasourceConfiguration2);
             datasource1.setName("New Name for update to test that encryption is now gone");
-            return datasourceService.save(datasource1);
+            return datasourceService.save(datasource1, false);
         });
 
         StepVerifier.create(datasourceMono)
@@ -1997,7 +1991,7 @@ public class DatasourceServiceTest {
                 datasourceStorageService.createDatasourceStorageFromDatasourceStorageDTO(datasourceStorageDTO);
         Mockito.doReturn(Mono.just(datasourceStorage))
                 .when(datasourceStorageService)
-                .create(Mockito.any());
+                .create(Mockito.any(), Mockito.anyBoolean());
         Datasource dbDatasource = datasourceService.create(datasource).block();
 
         assertThat(dbDatasource.getId()).isNotNull();

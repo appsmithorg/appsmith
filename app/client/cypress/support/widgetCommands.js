@@ -141,7 +141,7 @@ Cypress.Commands.add("createModal", (ModalName, property) => {
   cy.wait(2000);
   cy.get(modalWidgetPage.createModalButton).click({ force: true });
   cy.wait(3000);
-  cy.assertPageSave();
+  agHelper.AssertAutoSave();
   // changing the model name verify
   // cy.widgetText(
   //   ModalName,
@@ -162,7 +162,7 @@ Cypress.Commands.add("createModal", (ModalName, property) => {
   cy.testCodeMirror(ModalName);
   cy.moveToStyleTab();
   cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
-  cy.assertPageSave();
+  agHelper.AssertAutoSave();
   cy.get(".bp3-overlay-backdrop").last().click({ force: true });
 });
 
@@ -186,14 +186,14 @@ Cypress.Commands.add("CheckWidgetProperties", (checkboxCss) => {
   cy.get(checkboxCss).check({
     force: true,
   });
-  cy.assertPageSave();
+  agHelper.AssertAutoSave();
 });
 
 Cypress.Commands.add("UncheckWidgetProperties", (checkboxCss) => {
   cy.get(checkboxCss).uncheck({
     force: true,
   });
-  cy.assertPageSave();
+  agHelper.AssertAutoSave();
 });
 
 Cypress.Commands.add("EditWidgetPropertiesUsingJS", (checkboxCss, inputJS) => {
@@ -202,7 +202,7 @@ Cypress.Commands.add("EditWidgetPropertiesUsingJS", (checkboxCss, inputJS) => {
     .should("exist")
     .dblclick({ force: true })
     .type(inputJS);
-  cy.assertPageSave();
+  agHelper.AssertAutoSave();
 });
 
 Cypress.Commands.add(
@@ -228,7 +228,7 @@ Cypress.Commands.add("verifyUpdatedWidgetName", (text, txtToVerify) => {
     .click({ force: true })
     .type(text)
     .type("{enter}");
-  cy.assertPageSave();
+  agHelper.AssertAutoSave();
   if (!txtToVerify) cy.get(".editable-text-container").contains(text);
   else cy.get(".editable-text-container").contains(txtToVerify);
   cy.wait(2000); //for widget name to reflect!
@@ -840,7 +840,7 @@ Cypress.Commands.add("SetDateToToday", () => {
   cy.get(".react-datepicker .react-datepicker__day--today").click({
     force: true,
   });
-  cy.assertPageSave();
+  agHelper.AssertAutoSave();
 });
 
 Cypress.Commands.add("enterActionValue", (value, property) => {
@@ -916,7 +916,7 @@ Cypress.Commands.add("enterNavigatePageName", (value) => {
 
 Cypress.Commands.add("ClearDate", () => {
   cy.get(".t--property-control-defaultdate input").clear();
-  cy.assertPageSave();
+  agHelper.AssertAutoSave();
 });
 
 Cypress.Commands.add("ClearDateFooter", () => {
@@ -1016,13 +1016,6 @@ Cypress.Commands.add("getAlert", (eventName, value = "hello") => {
     0,
     true,
   );
-});
-
-Cypress.Commands.add("togglebar", (value) => {
-  cy.get(value).check({ force: true }).should("be.checked");
-});
-Cypress.Commands.add("togglebarDisable", (value) => {
-  cy.get(value).uncheck({ force: true }).should("not.checked");
 });
 
 Cypress.Commands.add("addQueryFromLightningMenu", (QueryName) => {
@@ -1180,7 +1173,7 @@ Cypress.Commands.add("ExportVerify", (togglecss, name) => {
   cy.get(".t--draggable-tablewidget button")
     .invoke("attr", "aria-label")
     .should("contain", name);
-  cy.togglebarDisable(togglecss);
+  agHelper.CheckUncheck(togglecss, false);
 });
 
 Cypress.Commands.add("getTableDataSelector", (rowNum, colNum) => {

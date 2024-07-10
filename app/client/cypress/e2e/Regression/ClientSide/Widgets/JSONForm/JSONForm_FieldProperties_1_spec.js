@@ -3,6 +3,8 @@ import EditorNavigation, {
 } from "../../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../../locators/commonlocators.json");
+const widgetsLocators = require("../../../../../locators/Widgets.json");
+
 import {
   agHelper,
   deployMode,
@@ -125,7 +127,7 @@ describe(
     it("6. disables field when disabled switched on and when autofill is disabled we should see the autofill attribute in the input field", () => {
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       cy.openFieldConfiguration("name");
-      cy.togglebar(`.t--property-control-disabled input`);
+      agHelper.CheckUncheck(widgetsLocators.selectWidgetDisabled);
       deployMode.DeployApp();
       cy.get(`${fieldPrefix}-name input`).each(($el) => {
         cy.wrap($el).should("have.attr", "disabled");
@@ -134,7 +136,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       cy.openFieldConfiguration("name");
-      cy.togglebarDisable(`.t--property-control-disabled input`);
+      agHelper.CheckUncheck(widgetsLocators.selectWidgetDisabled, false);
       validateAutocompleteAttributeInJSONForm();
     });
 
@@ -173,13 +175,13 @@ describe(
       cy.get(`${fieldPrefix}-check input`).should("be.checked");
 
       // hides field when visible switched off
-      cy.togglebarDisable(`.t--property-control-visible input`);
+      agHelper.CheckUncheck(widgetsLocators.visible, false);
       deployMode.DeployApp();
       cy.get(`${fieldPrefix}-check`).should("not.exist");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       cy.openFieldConfiguration("check");
-      cy.togglebar(`.t--property-control-visible input`);
+      agHelper.CheckUncheck(widgetsLocators.visible);
       deployMode.DeployApp();
       cy.get(`${fieldPrefix}-check`).should("exist");
       deployMode.NavigateBacktoEditor();
@@ -187,7 +189,7 @@ describe(
       // disables field when disabled switched on
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       cy.openFieldConfiguration("check");
-      cy.togglebar(`.t--property-control-disabled input`);
+      agHelper.CheckUncheck(widgetsLocators.selectWidgetDisabled);
       deployMode.DeployApp();
       cy.get(`${fieldPrefix}-check input`).each(($el) => {
         cy.wrap($el).should("have.attr", "disabled");

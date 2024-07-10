@@ -30,6 +30,7 @@ jobs:
     with:
       pr: ${{ github.event.client_payload.pull_request.number }}
       skip-tests: ${{ github.event.client_payload.slash_command.args.named.skip-tests }}
+      is-pg-build: ${{ github.event.client_payload.pull_request.base.ref == 'pg' }}
 
   client-build:
     name: client-build
@@ -175,6 +176,16 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
+      - name: Set base image tag
+        id: set_base_tag
+        run: |
+          if [[ ${{ github.event.client_payload.pull_request.base.ref }} == 'pg' ]]; then
+            base_tag=pg
+          else
+            base_tag=release
+          fi
+          echo "base_tag=$base_tag" >> $GITHUB_OUTPUT
+
       - name: Push to Docker Hub
         uses: docker/build-push-action@v4
         with:
@@ -186,7 +197,7 @@ jobs:
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-dp:${{ vars.EDITION }}-${{ github.event.client_payload.pull_request.number }}
           build-args: |
             APPSMITH_CLOUD_SERVICES_BASE_URL=https://release-cs.appsmith.com
-            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:release
+            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:${{ steps.set_base_tag.outputs.base_tag }}
 
     outputs:
       imageHash: ${{ vars.EDITION }}-${{ github.event.client_payload.pull_request.number }}
@@ -247,6 +258,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_URL: ${{ secrets.DB_URL }}
           DP_EFS_ID: ${{ secrets.APPSMITH_DP_EFS_ID }}
+          DP_POSTGRES_URL: ${{ secrets.DP_POSTGRES_URL }}
           REDIS_URL: ${{ secrets.APPSMITH_DP_REDIS_URL }}
         run: |
           echo "environment variables set to deploy the image" $IMAGE_HASH

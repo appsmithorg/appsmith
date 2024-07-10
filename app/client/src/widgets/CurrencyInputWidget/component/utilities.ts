@@ -49,12 +49,20 @@ export const limitDecimalValue = (decimals = 0, value = "") => {
       return value.split(decimalSeperator).shift() || "";
     case 1:
     case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 6:
       const decimalValueArray = value.split(decimalSeperator);
-      return (
-        decimalValueArray[0] +
-        decimalSeperator +
-        decimalValueArray[1].slice(0, decimals)
-      );
+      if (decimalValueArray.length > 1) {
+        return (
+          decimalValueArray[0] +
+          decimalSeperator +
+          decimalValueArray[1].slice(0, decimals)
+        );
+      } else {
+        return decimalValueArray[0];
+      }
     default:
       return value;
   }

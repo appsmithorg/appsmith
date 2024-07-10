@@ -39,7 +39,7 @@
         {
           "label": "Query",
           "configProperty": "actionConfiguration.formData.updateMany.query.data",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "{rating : {$gte : 9}}"
@@ -47,7 +47,7 @@
         {
           "label": "Update",
           "configProperty": "actionConfiguration.formData.updateMany.update.data",
-          "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+          "controlType": "QUERY_DYNAMIC_TEXT",
           "inputType": "JSON",
           "evaluationSubstitutionType": "TEMPLATE",
           "placeholderText": "{ $inc: { score: 1 } }"

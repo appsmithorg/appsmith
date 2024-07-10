@@ -22,6 +22,8 @@ const FeatureFlags = {
   rollout_side_by_side_enabled: true,
 };
 
+const pageId = "0123456789abcdef00000000";
+
 describe("IDE URL rendering of Queries", () => {
   localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   describe("Query Blank State", () => {
@@ -31,7 +33,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/queries",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries`,
           featureFlags: FeatureFlags,
         },
       );
@@ -53,7 +55,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/queries",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -76,7 +78,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/queries/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/add`,
           featureFlags: FeatureFlags,
         },
       );
@@ -86,7 +88,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("New datasource");
       getByText("REST API");
       // Check new tab presence
-      const newTab = getByTestId("t--ide-tab-new");
+      const newTab = getByTestId("t--ide-tab-new_query");
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -101,7 +103,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/queries/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -119,7 +121,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("New datasource");
       getByText("REST API");
       // Check new tab presence
-      const newTab = getByTestId("t--ide-tab-new");
+      const newTab = getByTestId("t--ide-tab-new_query");
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -146,7 +148,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/api/api_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/api/api_id`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -159,7 +161,7 @@ describe("IDE URL rendering of Queries", () => {
         getByTestId("t--entity-item-Api1").classList.contains("active"),
       ).toBe(true);
       // Tabs active state
-      expect(getByTestId("t--ide-tab-Api1").classList.contains("active")).toBe(
+      expect(getByTestId("t--ide-tab-api1").classList.contains("active")).toBe(
         true,
       );
       // Check if the form is rendered
@@ -190,7 +192,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/api/api_id2",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/api/api_id2`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -203,7 +205,7 @@ describe("IDE URL rendering of Queries", () => {
       // Check if api is rendered in side by side
       expect(getAllByText("Api2").length).toBe(2);
       // Tabs active state
-      expect(getByTestId("t--ide-tab-Api2").classList.contains("active")).toBe(
+      expect(getByTestId("t--ide-tab-api2").classList.contains("active")).toBe(
         true,
       );
       // Check if the form is rendered
@@ -231,7 +233,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/api/api_id/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/api/api_id/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -242,7 +244,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("New datasource");
       getByText("REST API");
       // Check new tab presence
-      const newTab = getByTestId("t--ide-tab-new");
+      const newTab = getByTestId("t--ide-tab-new_query");
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -267,7 +269,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/api/api_id/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/api/api_id/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -276,7 +278,7 @@ describe("IDE URL rendering of Queries", () => {
       // There will be 1 Api4 text ( The tab )
       expect(getAllByText("Api4").length).toEqual(1);
       // Tabs active state
-      expect(getByTestId("t--ide-tab-Api4").classList.contains("active")).toBe(
+      expect(getByTestId("t--ide-tab-api4").classList.contains("active")).toBe(
         false,
       );
       // Add button should not present
@@ -289,7 +291,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("New datasource");
       getByText("REST API");
       // Check new tab presence
-      const newTab = getByTestId("t--ide-tab-new");
+      const newTab = getByTestId("t--ide-tab-new_query");
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -319,7 +321,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/queries/query_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/query_id`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -334,7 +336,7 @@ describe("IDE URL rendering of Queries", () => {
       ).toBe(true);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-Query1").classList.contains("active"),
+        getByTestId("t--ide-tab-query1").classList.contains("active"),
       ).toBe(true);
 
       await userEvent.click(getByRole("tab", { name: "Query" }));
@@ -367,7 +369,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/queries/query_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/query_id`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -382,7 +384,7 @@ describe("IDE URL rendering of Queries", () => {
       expect(getAllByText("Query2").length).toBe(2);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-Query2").classList.contains("active"),
+        getByTestId("t--ide-tab-query2").classList.contains("active"),
       ).toBe(true);
 
       await userEvent.click(getByRole("tab", { name: "Query" }));
@@ -428,7 +430,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("New datasource");
       getByText("REST API");
       // Check new tab presence
-      const newTab = getByTestId("t--ide-tab-new");
+      const newTab = getByTestId("t--ide-tab-new_query");
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -456,7 +458,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/queries/query_id/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/queries/query_id/add`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -467,7 +469,7 @@ describe("IDE URL rendering of Queries", () => {
       expect(getAllByText("Query4").length).toEqual(1);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-Query4").classList.contains("active"),
+        getByTestId("t--ide-tab-query4").classList.contains("active"),
       ).toBe(false);
       // Add button should not present
       expect(queryByTestId("t--ide-tabs-add-button")).toBeNull();
@@ -479,7 +481,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("New datasource");
       getByText("REST API");
       // Check new tab presence
-      const newTab = getByTestId("t--ide-tab-new");
+      const newTab = getByTestId("t--ide-tab-new_query");
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -510,7 +512,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/saas/google-sheets-plugin/api/saas_api_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -525,7 +527,7 @@ describe("IDE URL rendering of Queries", () => {
       ).toBe(true);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-Sheets1").classList.contains("active"),
+        getByTestId("t--ide-tab-sheets1").classList.contains("active"),
       ).toBe(true);
 
       await userEvent.click(getByRole("tab", { name: "Query" }));
@@ -559,7 +561,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/saas/google-sheets-plugin/api/saas_api_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -574,7 +576,7 @@ describe("IDE URL rendering of Queries", () => {
       expect(getAllByText("Sheets2").length).toBe(2);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-Sheets2").classList.contains("active"),
+        getByTestId("t--ide-tab-sheets2").classList.contains("active"),
       ).toBe(true);
 
       await userEvent.click(getByRole("tab", { name: "Query" }));
@@ -609,7 +611,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/saas/google-sheets-plugin/api/saas_api_id/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id/add`,
           initialState: state,
           featureFlags: FeatureFlags,
           sagasToRun: sagasToRunForTests,
@@ -623,7 +625,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("New datasource");
       getByText("REST API");
       // Check new tab presence
-      const newTab = getByTestId("t--ide-tab-new");
+      const newTab = getByTestId("t--ide-tab-new_query");
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(
@@ -652,7 +654,7 @@ describe("IDE URL rendering of Queries", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/saas/google-sheets-plugin/api/saas_api_id/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/saas/google-sheets-plugin/api/saas_api_id/add`,
           sagasToRun: sagasToRunForTests,
           initialState: state,
           featureFlags: FeatureFlags,
@@ -663,7 +665,7 @@ describe("IDE URL rendering of Queries", () => {
       expect(getAllByText("Sheets4").length).toEqual(1);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-Sheets4").classList.contains("active"),
+        getByTestId("t--ide-tab-sheets4").classList.contains("active"),
       ).toBe(false);
       // Add button active state
       expect(queryByTestId("t--ide-tabs-add-button")).toBeNull();
@@ -675,7 +677,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("New datasource");
       getByText("REST API");
       // Check new tab presence
-      const newTab = getByTestId("t--ide-tab-new");
+      const newTab = getByTestId("t--ide-tab-new_query");
       expect(newTab).not.toBeNull();
       // Close button is rendered
       expect(

@@ -201,19 +201,6 @@ public class PageControllerTest {
             })
     @WithMockUser
     void invalidCustomSlug(String slug) {
-        client.post()
-                .uri("/api/v1/pages")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(Map.of("customSlug", slug)))
-                .exchange()
-                .expectStatus()
-                .isBadRequest()
-                .expectBody()
-                .jsonPath("$.errorDisplay")
-                .value(s -> assertThat((String) s).contains("Validation Failure"));
-
-        verifyNoInteractions(applicationPageService);
-
         client.put()
                 .uri("/api/v1/pages/abcdef")
                 .contentType(MediaType.APPLICATION_JSON)
