@@ -754,6 +754,7 @@ export class HomePage {
     }
     this.agHelper.ClickButton("Fork");
     this.assertHelper.AssertNetworkStatus("getWorkspace");
+    this.agHelper.WaitUntilEleDisappear(this._forkModal);
   }
 
   public DeleteApplication(appliName: string) {
