@@ -1,5 +1,6 @@
+# Base stage
 ARG BASE
-FROM ${BASE}
+FROM ${BASE} AS base 
 
 # Add backend server - Application Layer
 ARG JAR_FILE=./app/server/dist/server-*.jar
@@ -10,12 +11,12 @@ ENV APPSMITH_CLOUD_SERVICES_BASE_URL=${APPSMITH_CLOUD_SERVICES_BASE_URL}
 
 ARG APPSMITH_SEGMENT_CE_KEY
 ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
-#Create the plugins directory
+
+# Create the plugins directory
 RUN mkdir -p ./editor ./rts ./backend/plugins
 
 COPY deploy/docker/fs /
-
-#Add the jar to the container
+# Add the jar to the container
 COPY ${JAR_FILE} backend/server.jar
 COPY ${PLUGIN_JARS} backend/plugins/
 
@@ -25,9 +26,24 @@ COPY ./app/client/build editor/
 # Add RTS - Application Layer
 COPY ./app/client/packages/rts/dist rts/
 
-ENV PATH /opt/appsmith/utils/node_modules/.bin:/opt/java/bin:/opt/node/bin:$PATH
+# Copy package.json and optionally package-lock.json
+COPY app/client/package*.json ./editor/
 
+ENV PATH /appsmith/utils/node_modules/.bin:/java/bin:/opt/node/bin:$PATH
+
+# Install dependencies using npm install (locally to regenerate package-lock.json)
+# Check if package-lock.json exists and use it if present
+RUN if [ -f package-lock.json ]; then \
+      echo "Using package-lock.json"; \
+      yarn ci; \
+    else \
+      echo "Warning: package-lock.json not found, using package.json"; \
+      yarn install; \
+    fi
+
+# Additional setup and permissions
 RUN cd ./utils && npm install --only=prod && npm install --only=prod -g . && cd - \
+  && chmod +x /deploy/docker/fs/entrypoint.sh \
   && chmod +x *.sh /watchtower-hooks/*.sh \
   # Disable setuid/setgid bits for the files inside container.
   && find / \( -path /proc -prune \) -o \( \( -perm -2000 -o -perm -4000 \) -print -exec chmod -s '{}' + \) || true \
@@ -40,6 +56,6 @@ LABEL com.centurylinklabs.watchtower.lifecycle.pre-update=/watchtower-hooks/pre-
 
 EXPOSE 80
 EXPOSE 443
-ENTRYPOINT [ "/opt/appsmith/entrypoint.sh" ]
-HEALTHCHECK --interval=15s --timeout=15s --start-period=45s CMD "/opt/appsmith/healthcheck.sh"
+# ENTRYPOINT [ "/opt/appsmith/entrypoint.sh" ]
+HEALTHCHECK --interval=15s --timeout=15s --start-period=45s CMD "/opt/appsmith/healthcheck.seh"
 CMD ["/usr/bin/supervisord", "-n"]
