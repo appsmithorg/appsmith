@@ -14,6 +14,7 @@ const AddAndSearchbar = ({ hasAddPermission, onAddClick, onSearch }: Props) => {
       {hasAddPermission ? (
         <Button
           className="t--add-item !min-w-[24px]"
+          data-testid="t--add-item"
           isIconButton
           kind={"secondary"}
           onClick={onAddClick}
