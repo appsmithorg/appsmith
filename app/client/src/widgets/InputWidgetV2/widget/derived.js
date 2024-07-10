@@ -72,7 +72,7 @@ export default {
          *  https://stackoverflow.com/questions/15017052/understanding-email-validation-using-javascript
          * */
         const emailRegex = new RegExp(
-          /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,4})+$/,
+          /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,6})+$/,
         );
         if (!emailRegex.test(value)) {
           /* email should conform to generic email regex */
