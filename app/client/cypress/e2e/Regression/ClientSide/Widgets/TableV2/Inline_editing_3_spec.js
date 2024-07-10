@@ -82,7 +82,7 @@ describe(
       cy.readTableV2data(0, 0).then((val) => {
         value = val;
       });
-      table.toggleColumnEditableViaColSettingsPane("step", "v2", false, true);
+      table.toggleColumnEditableViaColSettingsPane("step");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "newValue");
       cy.discardTableCellValue(0, 0);
@@ -129,7 +129,7 @@ describe(
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(".t--property-control-text", `{{Table1.updatedRows}}`);
       cy.openPropertyPane("tablewidgetv2");
-      table.toggleColumnEditableViaColSettingsPane("step", "v2", false, true);
+      table.toggleColumnEditableViaColSettingsPane("step");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "newValue");
       cy.saveTableCellValue(0, 0);
@@ -148,6 +148,7 @@ describe(
     it("6. should check that onsubmit event is available for the columns that are editable", () => {
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
+      cy.wait(500);
       [
         {
           columnType: "URL",
@@ -250,7 +251,7 @@ describe(
 
     it("7. should check that onsubmit event is triggered when changes are saved", () => {
       cy.openPropertyPane("tablewidgetv2");
-      table.toggleColumnEditableViaColSettingsPane("step", "v2", false, false);
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", true, false);
       cy.getAlert("onSubmit", "Submitted!!");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "NewValue");
@@ -285,7 +286,7 @@ describe(
 
     it("9. should check that onSave is working", () => {
       cy.openPropertyPane("tablewidgetv2");
-      table.toggleColumnEditableViaColSettingsPane("step", "v2", false, true);
+      table.toggleColumnEditableViaColSettingsPane("step");
       cy.editColumn("EditActions1");
       //cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
       cy.get(".t--property-pane-section-collapse-discardbutton").click({
@@ -307,7 +308,7 @@ describe(
 
     it("10. should check that onSave events has access to edit values through triggeredRow", () => {
       cy.openPropertyPane("tablewidgetv2");
-      table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
+      table.toggleColumnEditableViaColSettingsPane("step");
       cy.editColumn("EditActions1");
       //cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
       cy.get(".t--property-pane-section-collapse-discardbutton").click({
