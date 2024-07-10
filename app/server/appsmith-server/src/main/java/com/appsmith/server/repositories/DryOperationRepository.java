@@ -51,7 +51,7 @@ public class DryOperationRepository {
     }
 
     private Flux<CustomJSLib> saveCustomJSLibToDb(List<CustomJSLib> customJSLibs) {
-        return customJSLibRepository.saveAll(customJSLibs);
+        return asFlux(() -> customJSLibRepository.saveAll(customJSLibs));
     }
 
     public Mono<Void> executeAllDbOps(MappedImportableResourcesDTO mappedImportableResourcesDTO) {
