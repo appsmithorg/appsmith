@@ -24,7 +24,9 @@ export class AnvilSnapshot {
 
     this.agHelper
       .GetElement(this.locators.canvas)
-      .matchImageSnapshot(`anvil${widgetName}CanvasDark`);
+      .matchImageSnapshot(`anvil${widgetName}CanvasDark`, {
+        comparisonMethod: "ssim",
+      });
 
     this.setTheme("light");
   };
