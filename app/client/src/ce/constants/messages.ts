@@ -2315,6 +2315,7 @@ export const EDITOR_PANE_TEXTS = {
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
   loading_building_blocks: () => "Loading building blocks",
+  empty_search_result: (type: string) => `No ${type} match your search`,
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
