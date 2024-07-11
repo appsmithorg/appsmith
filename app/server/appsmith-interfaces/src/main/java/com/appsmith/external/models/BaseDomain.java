@@ -80,6 +80,10 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Internal.class)
     protected Map<String, Policy> policyMap = new HashMap<>();
 
+    @JsonView({Views.Internal.class})
+    @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    protected Set<Policy> policies;
+
     @Override
     @JsonView(Views.Public.class)
     public boolean isNew() {
@@ -108,6 +112,9 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView({Views.Internal.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public Set<Policy> getPolicies() {
+        if (policies != null) {
+            return Set.copyOf(policies);
+        }
         return policyMap == null ? null : Set.copyOf(policyMap.values());
     }
 
@@ -115,7 +122,9 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView({Views.Internal.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public void setPolicies(Set<Policy> policies) {
-        policyMap = PolicyUtil.setPolicies(policies);
+        this.policyMap = PolicyUtil.setPolicies(policies);
+        // Explicitly set policies to null as it is deprecated and should not be used.
+        this.policies = null;
     }
 
     public void sanitiseToExportDBObject() {
