@@ -568,7 +568,7 @@ describe("parseJSObjectWithAST", () => {
 
   it("parse js object with params of all types", () => {
     const body = `export default{
-      myFun2: async (a,b = Array(1,2,3),c = "", d = [], e = this.myVar1, f = {}, g = function(){}, h = Object.assign({}), i = String(), j = storeValue(), k = "Hello", l = 10, m = null, n = "hello" + 500, o = true, p = () => "arrow function") => {
+      myFun2: async (a,b = Array(1,2,3),c = "", d = [], e = this.myVar1, f = {}, g = function(){}, h = Object.assign({}), i = String(), j = storeValue(), k = "Hello", l = 10, m = null, n = "hello" + 500, o = true, p = () => "arrow function", { o1 = 20, o2 }, [ a1, a2 = 30 ], ...rest) => {
         //use async-await or promises
       },
     }`;
@@ -577,9 +577,9 @@ describe("parseJSObjectWithAST", () => {
       {
         key: "myFun2",
         value:
-          'async (a, b = Array(1, 2, 3), c = "", d = [], e = this.myVar1, f = {}, g = function () {}, h = Object.assign({}), i = String(), j = storeValue(), k = "Hello", l = 10, m = null, n = "hello" + 500, o = true, p = () => "arrow function") => {}',
+          'async (a, b = Array(1, 2, 3), c = "", d = [], e = this.myVar1, f = {}, g = function () {}, h = Object.assign({}), i = String(), j = storeValue(), k = "Hello", l = 10, m = null, n = "hello" + 500, o = true, p = () => "arrow function", {o1 = 20, o2}, [a1, a2 = 30], ...rest) => {}',
         rawContent:
-          'myFun2: async (a,b = Array(1,2,3),c = "", d = [], e = this.myVar1, f = {}, g = function(){}, h = Object.assign({}), i = String(), j = storeValue(), k = "Hello", l = 10, m = null, n = "hello" + 500, o = true, p = () => "arrow function") => {\n' +
+          'myFun2: async (a,b = Array(1,2,3),c = "", d = [], e = this.myVar1, f = {}, g = function(){}, h = Object.assign({}), i = String(), j = storeValue(), k = "Hello", l = 10, m = null, n = "hello" + 500, o = true, p = () => "arrow function", { o1 = 20, o2 }, [ a1, a2 = 30 ], ...rest) => {\n' +
           "        //use async-await or promises\n" +
           "      }",
         type: "ArrowFunctionExpression",
@@ -610,6 +610,9 @@ describe("parseJSObjectWithAST", () => {
           { paramName: "n", defaultValue: '{{"hello" + 500}}' },
           { paramName: "o", defaultValue: "{{true}}" },
           { paramName: "p", defaultValue: '{{() => "arrow function"}}' },
+          { paramName: "", defaultValue: "{{{}}}" },
+          { paramName: "", defaultValue: "{{[]}}" },
+          { paramName: "rest", defaultValue: undefined },
         ],
         isMarkedAsync: true,
       },

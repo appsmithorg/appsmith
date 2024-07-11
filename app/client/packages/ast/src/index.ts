@@ -26,7 +26,12 @@ import { generate } from "astring";
  *
  */
 
-type Pattern = IdentifierNode | AssignmentPatternNode;
+type Pattern =
+  | IdentifierNode
+  | AssignmentPatternNode
+  | ArrayPatternNode
+  | ObjectPatternNode
+  | RestElementNode;
 type Expression = Node;
 export type ArgumentTypes =
   | LiteralNode
@@ -57,6 +62,31 @@ export interface BinaryExpressionNode extends Node {
 export interface IdentifierNode extends Node {
   type: NodeTypes.Identifier;
   name: string;
+}
+
+export interface ArrayPatternNode extends Node {
+  type: NodeTypes.ArrayPattern;
+  elements: Array<Pattern | null>;
+}
+
+export interface AssignmentProperty extends Node {
+  type: NodeTypes.Property;
+  key: Expression;
+  value: Pattern;
+  kind: "init";
+  method: false;
+  shorthand: boolean;
+  computed: boolean;
+}
+
+export interface RestElementNode extends Node {
+  type: NodeTypes.RestElement;
+  argument: Pattern;
+}
+
+export interface ObjectPatternNode extends Node {
+  type: NodeTypes.ObjectPattern;
+  properties: Array<AssignmentProperty | RestElementNode>;
 }
 
 //Using this to handle the Variable property refactor
@@ -255,6 +285,18 @@ export const isObjectExpression = (node: Node): node is ObjectExpression => {
 
 const isAssignmentPatternNode = (node: Node): node is AssignmentPatternNode => {
   return node.type === NodeTypes.AssignmentPattern;
+};
+
+export const isArrayPatternNode = (node: Node): node is ArrayPatternNode => {
+  return node.type === NodeTypes.ArrayPattern;
+};
+
+export const isObjectPatternNode = (node: Node): node is ObjectPatternNode => {
+  return node.type === NodeTypes.ObjectPattern;
+};
+
+export const isRestElementNode = (node: Node): node is RestElementNode => {
+  return node.type === NodeTypes.RestElement;
 };
 
 export const isLiteralNode = (node: Node): node is LiteralNode => {
@@ -549,6 +591,25 @@ export const getFunctionalParamsFromNode = (
             defaultValue,
           });
         }
+      }
+      // The below computations are very basic and can be evolved into nested
+      // parsing logic to find param and it's default value.
+    } else if (isObjectPatternNode(paramNode)) {
+      functionalParams.add({
+        paramName: "",
+        defaultValue: `{{{}}}`,
+      });
+    } else if (isArrayPatternNode(paramNode)) {
+      functionalParams.add({
+        paramName: "",
+        defaultValue: "{{[]}}",
+      });
+    } else if (isRestElementNode(paramNode)) {
+      if ("name" in paramNode.argument) {
+        functionalParams.add({
+          paramName: paramNode.argument.name,
+          defaultValue: undefined,
+        });
       }
     }
   });
