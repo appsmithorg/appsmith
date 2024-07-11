@@ -5,16 +5,16 @@ import {
   entityExplorer,
   locators,
   propPane,
-} from "../../../../support/Objects/ObjectsCore";
+} from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-} from "../../../../support/Pages/EditorNavigation";
+} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
-  "Bug 34823 : Changing modal name does not change its references inside modal's widgets",
+  "Changing modal name should change its references inside modal's widgets",
   { tags: ["@tag.Widget", "@tag.Modal"] },
   function () {
-    it("1. Modal widget should change all references inside it on rename", () => {
+    it("1. Close icon and button onClick property to ref Modal should be updated on Modal rename", () => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.MODAL, 300, 300);
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
