@@ -7,7 +7,7 @@ import { DraggableListCard } from "components/propertyControls/DraggableListCard
 import type { Indices } from "constants/Layers";
 import { Button } from "design-system";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import _, { toString } from "lodash";
+import _, { toString as lodashToString } from "lodash";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import type { Placement } from "popper.js";
 import React, { Component } from "react";
@@ -316,7 +316,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
      * if not, toggle isCellEditable value as well. We're doing this to smooth
      * the user experience.
      */
-    if (!isDynamicValue(toString(column.isCellEditable))) {
+    if (!isDynamicValue(lodashToString(column.isCellEditable))) {
       updates.push({
         propertyName: `${propertyName}.${column.id}.isCellEditable`,
         propertyValue: checked,
