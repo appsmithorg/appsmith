@@ -405,12 +405,11 @@ export function* handleDeleteRedundantZones(
   for (const parentId of parentIds) {
     const zone = updatedWidgets[parentId];
 
-    if (!isZoneWidget(zone) || !zone.parentId) return updatedWidgets;
+    if (!isZoneWidget(zone) || !zone.parentId) continue;
 
     const parentSection = updatedWidgets[zone.parentId];
 
-    if (!parentSection || !isRedundantZoneWidget(zone, parentSection))
-      return updatedWidgets;
+    if (!parentSection || !isRedundantZoneWidget(zone, parentSection)) continue;
 
     updatedWidgets = severTiesFromParents(updatedWidgets, [zone.widgetId]);
     delete updatedWidgets[zone.widgetId];
