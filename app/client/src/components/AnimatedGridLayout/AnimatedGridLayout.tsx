@@ -39,7 +39,7 @@ export function AnimatedGridLayout(props: GridLayoutProps) {
   const prevGridTemplateRows = usePrevious(gridTemplateRows);
   const animatedGridTemplateRows = useSpring({
     ref: templateRowsAnimationRef,
-    from: { girdTemplateColumns: prevGridTemplateRows },
+    from: { girdTemplateRows: prevGridTemplateRows },
     to: { gridTemplateRows },
   });
 
