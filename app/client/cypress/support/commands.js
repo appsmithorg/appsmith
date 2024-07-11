@@ -15,6 +15,7 @@ require("cypress-file-upload");
 //require('cy-verify-downloads').addCustomCommand();
 const path = require("path");
 import { v4 as uuidv4 } from "uuid";
+
 const dayjs = require("dayjs");
 const {
   addMatchImageSnapshotCommand,
@@ -450,15 +451,6 @@ Cypress.Commands.add("NavigateToJSEditor", () => {
   PageLeftPane.switchSegment(PagePaneSegment.JS);
   PageLeftPane.switchToAddNew();
   cy.get("span:contains('New JS object')").eq(0).click({ force: true });
-});
-
-Cypress.Commands.add("importCurl", () => {
-  cy.get(ApiEditor.curlImportBtn).click({ force: true });
-  cy.wait("@curlImport").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
 });
 
 Cypress.Commands.add("selectAction", (option) => {
