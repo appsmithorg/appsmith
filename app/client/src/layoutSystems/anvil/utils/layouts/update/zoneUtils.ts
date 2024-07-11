@@ -257,5 +257,6 @@ export const isRedundantZoneWidget = (
 ): boolean =>
   isZoneWidget(widget) &&
   isEmptyWidget(widget) &&
+  // Check that the zone is the only child of the parent section.
   widgetChildren(parentSection).length === 1 &&
   !hasWidgetJsPropertiesEnabled(widget);
