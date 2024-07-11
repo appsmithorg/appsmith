@@ -13,15 +13,18 @@ describe(
     });
 
     it("1. Canvas Mode", () => {
-      anvilSnapshot.verifyCanvasMode("SwitchGroupWidget");
+      anvilSnapshot.matchSanpshotForCanvasMode("SwitchoGroupWidget");
+      anvilSnapshot.setTheme("dark");
+      anvilSnapshot.matchSanpshotForCanvasMode("SwitchoGroupWidget", "dark");
+      anvilSnapshot.setTheme("light");
     });
 
     it("2. Preview Mode", () => {
-      anvilSnapshot.verifyPreviewMode("SwitchoGroupWidget");
+      anvilSnapshot.matchSnapshotForPreviewMode("SwitchoGroupWidget");
     });
 
     it("3. Deploy Mode", () => {
-      anvilSnapshot.verifyDeployMode("SwitchGroupWidget");
+      anvilSnapshot.matchSnapshotForDeployMode("SwitchGroupWidget");
     });
   },
 );

@@ -139,7 +139,10 @@ function WDSThemePropertyPane() {
             type="text"
             value={accentColor}
           />
-          <div className={styles["presets-list"]}>
+          <div
+            className={styles["presets-list"]}
+            data-testid="t--anvil-theme-settings-accent-color-list"
+          >
             {THEME_SETTING_COLOR_PRESETS[theme.colorMode].map((color) => (
               <button
                 data-selected={theme.accentColor === color ? "" : undefined}
@@ -183,6 +186,7 @@ function WDSThemePropertyPane() {
 
       <SettingSection
         className="px-4 py-3 border-t "
+        data-testid="t--anvil-theme-settings-typography"
         isDefaultOpen
         title="Typography"
       >
@@ -228,7 +232,10 @@ function WDSThemePropertyPane() {
         isDefaultOpen
         title="Dimensions"
       >
-        <section className="space-y-2">
+        <section
+          className="space-y-2"
+          data-testid="t--anvil-theme-settings-density"
+        >
           <SubText>Density</SubText>
           <SegmentedControl
             isFullWidth={false}
@@ -242,7 +249,10 @@ function WDSThemePropertyPane() {
             value={theme.density.toString()}
           />
         </section>
-        <section className="space-y-2">
+        <section
+          className="space-y-2"
+          data-testid="t--anvil-theme-settings-sizing"
+        >
           <SubText>Sizing</SubText>
           <SegmentedControl
             isFullWidth={false}
@@ -261,6 +271,7 @@ function WDSThemePropertyPane() {
       {/* BORDER RADIUS */}
       <SettingSection
         className="px-4 py-3 border-t "
+        data-testid="t--anvil-theme-settings-corners"
         isDefaultOpen
         title="Corners"
       >
@@ -282,6 +293,7 @@ function WDSThemePropertyPane() {
       {/* Icon Style */}
       <SettingSection
         className="px-4 py-3 border-t"
+        data-testid="t--anvil-theme-settings-icon-style"
         isDefaultOpen
         title="Icons"
       >
