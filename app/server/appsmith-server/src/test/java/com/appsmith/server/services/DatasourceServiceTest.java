@@ -947,7 +947,8 @@ public class DatasourceServiceTest {
                 })
                 .flatMap(datasource -> datasourceService.archiveById(datasource.getId()));
 
-        StepVerifier.create(datasourceMono).verifyErrorMessage(AppsmithError.DATASOURCE_HAS_ACTIONS.getMessage("1"));
+        StepVerifier.create(datasourceMono)
+                .verifyErrorMessage(AppsmithError.DATASOURCE_HAS_ACTIONS.getMessage("1", "query"));
     }
 
     @Test

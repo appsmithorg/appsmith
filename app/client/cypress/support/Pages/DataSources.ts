@@ -897,7 +897,7 @@ export class DataSources {
         this.agHelper.AssertContains(
           responseStatus === 200
             ? "datasource deleted successfully"
-            : "action(s) using it",
+            : "Cannot delete datasource",
         );
       });
   }
