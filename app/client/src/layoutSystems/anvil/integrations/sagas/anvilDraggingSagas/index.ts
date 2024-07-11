@@ -7,6 +7,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import type {
   AnvilHighlightInfo,
+  DraggedWidget,
   WidgetLayoutProps,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { getWidget, getWidgets } from "sagas/selectors";
@@ -40,7 +41,13 @@ import {
   getCreateWidgetPayload,
 } from "layoutSystems/anvil/utils/widgetAdditionUtils";
 import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
-import { moveWidgetsToZone } from "layoutSystems/anvil/utils/layouts/update/zoneUtils";
+import {
+  isRedundantZoneWidget,
+  isZoneWidget,
+  moveWidgetsToZone,
+} from "layoutSystems/anvil/utils/layouts/update/zoneUtils";
+import { severTiesFromParents } from "../../../utils/layouts/update/moveUtils";
+import { widgetChildren } from "../../../utils/layouts/widgetUtils";
 
 // Function to retrieve highlighting information for the last row in the main canvas layout
 export function* getMainCanvasLastRowHighlight() {
@@ -316,7 +323,7 @@ export function* moveWidgetsSaga(
     const isSection = draggedOn === "SECTION";
     const movedWidgetIds = movedWidgets.map((each) => each.widgetId);
 
-    const updatedWidgets: CanvasWidgetsReduxState = yield call<
+    let updatedWidgets: CanvasWidgetsReduxState = yield call<
       typeof handleWidgetMovement
     >(
       handleWidgetMovement,
@@ -325,6 +332,12 @@ export function* moveWidgetsSaga(
       highlight,
       isMainCanvas,
       isSection,
+    );
+
+    updatedWidgets = yield call<typeof handleDeleteRedundantZones>(
+      handleDeleteRedundantZones,
+      updatedWidgets,
+      movedWidgets,
     );
 
     yield call(updateAndSaveAnvilLayout, updatedWidgets);
@@ -375,6 +388,37 @@ export function* handleWidgetMovement(
       movedWidgetIds,
       highlight,
     );
+  }
+
+  return updatedWidgets;
+}
+
+export function* handleDeleteRedundantZones(
+  allWidgets: CanvasWidgetsReduxState,
+  movedWidgets: DraggedWidget[],
+) {
+  let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+  const parentIds = movedWidgets
+    .map((widget) => widget.parentId)
+    .filter(Boolean) as string[];
+
+  for (const parentId of parentIds) {
+    const zone = updatedWidgets[parentId];
+
+    if (!isZoneWidget(zone) || !zone.parentId) return updatedWidgets;
+
+    const parentSection = updatedWidgets[zone.parentId];
+
+    if (!parentSection || !isRedundantZoneWidget(zone, parentSection))
+      return updatedWidgets;
+
+    updatedWidgets = severTiesFromParents(updatedWidgets, [zone.widgetId]);
+    delete updatedWidgets[zone.widgetId];
+
+    if (widgetChildren(parentSection).length === 1) {
+      updatedWidgets = severTiesFromParents(updatedWidgets, [zone.parentId]);
+      delete updatedWidgets[zone.parentId];
+    }
   }
 
   return updatedWidgets;
