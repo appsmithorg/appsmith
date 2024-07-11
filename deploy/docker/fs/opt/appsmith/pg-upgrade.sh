@@ -23,46 +23,28 @@ if pgrep -x "postgres" > /dev/null; then
   exit 1
 fi
 
-postgres_path=/usr/lib/postgresql
+POSTGRES_PATH=/usr/lib/postgresql
+PG_DATA_DIR=/appsmith-stacks/data/postgres/main
 
-pg_data_dir=/appsmith-stacks/data/postgres/main
+declare -a TO_UNINSTALL
+TO_UNINSTALL=()
 
-old_version=""
-if [[ -f "$pg_data_dir/PG_VERSION" ]]; then
-	old_version="$(cat "$pg_data_dir/PG_VERSION")"
-fi
+## The Postgres version that created the current data directory.
+find-current-pg-version() {
+  if [[ -f "$PG_DATA_DIR/PG_VERSION" ]]; then
+    cat "$PG_DATA_DIR/PG_VERSION"
+  fi
+}
 
-if [[ -z "$old_version" ]]; then
-	tlog "No existing Postgres data found, not upgrading anything." >&2
-	exit
-fi
+## Perform the upgrade with the given from-version and to-version arguments.
+perform-upgrade() {
+  local old_version="$1"
+  local new_version="$2"
+  local new_data_dir="$PG_DATA_DIR-$new_version"
 
-if [[ -f "$pg_data_dir/postmaster.pid" ]]; then
-	tlog "Previous Postgres was not shutdown cleanly. Please start and stop Postgres $old_version properly with 'supervisorctl' only." >&2
-	exit 1
-fi
+  install-pg-if-needed "$old_version"
 
-top_available_version="$(postgres --version | grep -o '[[:digit:]]\+' | head -1)"
-
-declare -a to_uninstall
-to_uninstall=()
-
-# 13 to 14
-if [[ "$old_version" == 13 && "$top_available_version" > "$old_version" ]]; then
-	if [[ ! -e "$postgres_path/$old_version" ]]; then
-		apt-get update
-		apt-get install --yes "postgresql-$old_version"
-		to_uninstall+=("postgresql-$old_version")
-	fi
-
-  new_version="$((old_version + 1))"
-  new_data_dir="$pg_data_dir-$new_version"
-
-  # `pg_upgrade` writes log to current folder. So change to a temp folder first.
-  rm -rf "$TMP/pg_upgrade" "$new_data_dir"
-  mkdir -p "$TMP/pg_upgrade" "$new_data_dir"
-  chown -R postgres "$TMP/pg_upgrade" "$new_data_dir"
-  cd "$TMP/pg_upgrade"
+  prepare-pwd
 
 	# Required by the temporary Postgres server started by `pg_upgrade`.
 	chown postgres /etc/ssl/private/ssl-cert-snakeoil.key
@@ -71,24 +53,60 @@ if [[ "$old_version" == 13 && "$top_available_version" > "$old_version" ]]; then
 	su postgres --command "
 		set -o errexit
 		set -o xtrace
-		'$postgres_path/$new_version/bin/initdb' --pgdata='$new_data_dir'
-		'$postgres_path/$new_version/bin/pg_upgrade' \
-			--old-datadir='$pg_data_dir' \
+		'$POSTGRES_PATH/$new_version/bin/initdb' --pgdata='$new_data_dir'
+		'$POSTGRES_PATH/$new_version/bin/pg_upgrade' \
+			--old-datadir='$PG_DATA_DIR' \
 			--new-datadir='$new_data_dir' \
-			--old-bindir='$postgres_path/$old_version/bin' \
-			--new-bindir='$postgres_path/$new_version/bin'
+			--old-bindir='$POSTGRES_PATH/$old_version/bin' \
+			--new-bindir='$POSTGRES_PATH/$new_version/bin'
 	"
 
-	date -u '+%FT%T.%3NZ' > "$pg_data_dir/deprecated-on.txt"
-	mv -v "$pg_data_dir" "$pg_data_dir-$old_version"
-	mv -v "$new_data_dir" "$pg_data_dir"
+	date -u '+%FT%T.%3NZ' > "$PG_DATA_DIR/deprecated-on.txt"
+	mv -v "$PG_DATA_DIR" "$PG_DATA_DIR-$old_version"
+	mv -v "$new_data_dir" "$PG_DATA_DIR"
 
 	# Dangerous generated script that deletes the now updated data folder.
 	rm -fv "$TMP/pg_upgrade/delete_old_cluster.sh"
+}
+
+install-pg-if-needed() {
+  local version="$1"
+	if [[ ! -e "$POSTGRES_PATH/$version" ]]; then
+		apt-get update
+		apt-get install --yes "postgresql-$version"
+		TO_UNINSTALL+=("postgresql-$version")
+	fi
+}
+
+## `pg_upgrade` writes log to current folder. So change to a temp folder first.
+prepare-pwd() {
+  rm -rf "$TMP/pg_upgrade" "$new_data_dir"
+  mkdir -p "$TMP/pg_upgrade" "$new_data_dir"
+  chown -R postgres "$TMP/pg_upgrade" "$new_data_dir"
+  cd "$TMP/pg_upgrade"
+}
+
+CURRENT_VERSION="$(find-current-pg-version)"
+
+if [[ -z "$CURRENT_VERSION" ]]; then
+	tlog "No existing Postgres data found, not upgrading anything." >&2
+	exit
 fi
 
-if [[ -n "${#to_uninstall[@]}" ]]; then
-	apt-get purge "${to_uninstall[@]}"
+if [[ -f "$PG_DATA_DIR/postmaster.pid" ]]; then
+	tlog "Previous Postgres was not shutdown cleanly. Please start and stop Postgres $CURRENT_VERSION properly with 'supervisorctl' only." >&2
+	exit 1
+fi
+
+top_available_version="$(postgres --version | grep -o '[[:digit:]]\+' | head -1)"
+
+if [[ "$CURRENT_VERSION" == 13 && "$top_available_version" > "$CURRENT_VERSION" ]]; then
+  perform-upgrade "$CURRENT_VERSION" "$top_available_version"
+  CURRENT_VERSION="$(find-current-pg-version)"
+fi
+
+if [[ "${#TO_UNINSTALL[@]}" -gt 0 ]]; then
+	apt-get remove --yes "${TO_UNINSTALL[@]}"
 	apt-get clean
 fi
 

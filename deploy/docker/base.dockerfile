@@ -21,16 +21,16 @@ RUN set -o xtrace \
     supervisor curl nfs-common gnupg wget netcat openssh-client \
     gettext \
     ca-certificates \
-  # Install MongoDB v5, Redis, PostgreSQL v13
+  # Install MongoDB v5, Redis, Postgres
   && curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
   && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(grep CODENAME /etc/lsb-release | cut -d= -f2)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
-  && apt-get install --no-install-recommends --yes mongodb-org redis postgresql-14 \
+  && apt-get install --no-install-recommends --yes mongodb-org redis postgresql-15 \
   && apt-get clean
 
-ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
+ENV PATH="/usr/lib/postgresql/15/bin:${PATH}"
 
 # Install Java
 RUN set -o xtrace \
