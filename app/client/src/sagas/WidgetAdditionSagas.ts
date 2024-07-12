@@ -186,6 +186,26 @@ function* getChildWidgetProps(
   }
 
   widget.widgetId = newWidgetId;
+  // Remove props that don't belong in the DSL and can be accessed using
+  // the widget type's static methods and configurations
+  // Fixes #21825
+  delete widget.rows;
+  delete widget.columns;
+  delete widget.name;
+  delete widget.iconSVG;
+  delete widget.thumbnailSVG;
+  delete widget.hideCard;
+  delete widget.isDeprecated;
+  delete widget.needsMeta;
+  delete widget.searchTags;
+  delete widget.tags;
+  delete widget.displayName;
+  delete widget.onCanvasUI;
+  delete widget.eagerRender;
+  delete widget.needsHeightForContent;
+  delete widget.features;
+  delete widget.replacement;
+
   /**
    * un-evaluated childStylesheet used by widgets; so they are to be excluded
    * from the dynamicBindingPathList and they are not included as a part of
