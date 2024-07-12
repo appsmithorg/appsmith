@@ -334,11 +334,7 @@ export function* moveWidgetsSaga(
       isSection,
     );
 
-    updatedWidgets = yield call<typeof handleDeleteRedundantZones>(
-      handleDeleteRedundantZones,
-      updatedWidgets,
-      movedWidgets,
-    );
+    updatedWidgets = handleDeleteRedundantZones(updatedWidgets, movedWidgets);
 
     yield call(updateAndSaveAnvilLayout, updatedWidgets);
     log.debug("Anvil : moving widgets took", performance.now() - start, "ms");
@@ -393,7 +389,7 @@ export function* handleWidgetMovement(
   return updatedWidgets;
 }
 
-export function* handleDeleteRedundantZones(
+export function handleDeleteRedundantZones(
   allWidgets: CanvasWidgetsReduxState,
   movedWidgets: DraggedWidget[],
 ) {
