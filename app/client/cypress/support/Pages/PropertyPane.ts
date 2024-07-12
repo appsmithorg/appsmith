@@ -675,4 +675,13 @@ export class PropertyPane {
 
     this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }
+
+  public AssertPropertySwitchState(
+    propertyName: string,
+    state: "enabled" | "disabled",
+  ) {
+    this.agHelper
+      .GetElement(this._propertyToggle(propertyName))
+      .should(state === "enabled" ? "be.checked" : "not.be.checked");
+  }
 }
