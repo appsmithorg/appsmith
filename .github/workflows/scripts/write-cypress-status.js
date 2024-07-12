@@ -6,7 +6,9 @@ const PATTERN = new RegExp(HEADER + ".*?" + FOOTER, "ims");
 const VALID_ALERT_TYPES = ["note", "tip", "important", "warning", "caution"]
 
 const ALERT_PREFIXES = {
+  tip: "🟢 🟢 🟢 ",
   important: "🟣 🟣 🟣 ",
+  caution: "🔴 🔴 🔴 ",
 }
 
 module.exports = async function({core, context, github}, alertType, note) {
@@ -38,6 +40,7 @@ module.exports = async function({core, context, github}, alertType, note) {
     HEADER,
     `> [!${alertType.toUpperCase()}]`,
     ((ALERT_PREFIXES[alertType] ?? "") + note.trim()).replaceAll(/^/gm, "> "),
+    "> <hr>" + new Date().toUTCString().replace("GMT", "UTC"),
     FOOTER,
   ].join("\n");
 

@@ -40,6 +40,8 @@ describe(
   () => {
     before(() => {
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
+      // turn on filtering for the table - it is disabled by default in this PR(#34593)
+      agHelper.GetNClick(".t--property-control-allowfiltering input");
       propPane.EnterJSContext("Table data", tableData);
       cy.editColumn("completed");
       cy.changeColumnType("Switch");

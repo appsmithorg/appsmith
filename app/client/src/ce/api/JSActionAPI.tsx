@@ -52,6 +52,7 @@ export interface RefactorAction {
   oldName: string;
   collectionName: string;
   moduleId?: string;
+  workflowId?: string;
   contextType?: ActionParentEntityTypeInterface;
 }
 export interface RefactorActionRequest extends RefactorAction {

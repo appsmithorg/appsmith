@@ -9,6 +9,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
+import com.appsmith.server.repositories.DryOperationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -30,7 +31,8 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
             ImportableService<Datasource> datasourceImportableService,
             GsonBuilder gsonBuilder,
             ArtifactExchangeJsonAdapter artifactExchangeJsonAdapter,
-            JsonSchemaMigration jsonSchemaMigration) {
+            JsonSchemaMigration jsonSchemaMigration,
+            DryOperationRepository dryOperationRepository) {
         super(
                 applicationImportService,
                 sessionUserService,
@@ -42,6 +44,7 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
                 datasourceImportableService,
                 gsonBuilder,
                 artifactExchangeJsonAdapter,
-                jsonSchemaMigration);
+                jsonSchemaMigration,
+                dryOperationRepository);
     }
 }

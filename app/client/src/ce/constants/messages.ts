@@ -210,6 +210,8 @@ export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
   `Learn about Appsmith Partner Program`;
 export const NEW_APPLICATION = () => `New application`;
 export const APPLICATIONS = () => `Applications`;
+export const FIXED_APPLICATIONS = () => `Classic Applications`;
+export const ANVIL_APPLICATIONS = () => `New Applications`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -268,6 +270,10 @@ export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
 export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
   `There are no applications in this workspace.`;
+export const NEW_APPLICATION_CARD_LIST_ZERO_STATE = () =>
+  `There are no new applications in this workspace.`;
+export const CLASSIC_APPLICATION_CARD_LIST_ZERO_STATE = () =>
+  `There are no classic applications in this workspace.`;
 export const TRY_GUIDED_TOUR = () => `Try guided tour`;
 export const JOIN_OUR_DISCORD = () => `Join our discord`;
 export const WHATS_NEW = () => `What's new?`;
@@ -402,6 +408,10 @@ export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
 export const ERROR_WIDGET_CUT_NOT_ALLOWED = () =>
   `This selected widget cannot be cut.`;
+export const ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT = () =>
+  `Apps made with Anvil α are not compatible with widgets from the classic layout system`;
+export const ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT = () =>
+  `Apps using the classic layout system are not compatible with Anvil α widgets`;
 export const SELECT_ALL_WIDGETS_MSG = () =>
   `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
@@ -646,6 +656,8 @@ export const ERROR_IMPORTING_APPLICATION_TO_WORKSPACE = () =>
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
 export const IMPORT_APPLICATION_MODAL_LABEL = () =>
   "Where would you like to import your application from?";
+export const IMPORT_FROM_GIT_DISABLED_IN_ANVIL = () =>
+  "Importing from Git repositories is not yet supported in Anvil α";
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
 export const UPLOADING_JSON = () => "Uploading JSON file";
 export const UPLOADING_APPLICATION = () => "Uploading application";
@@ -2303,6 +2315,7 @@ export const EDITOR_PANE_TEXTS = {
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
   loading_building_blocks: () => "Loading building blocks",
+  empty_search_result: (type: string) => `No ${type} match your search`,
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
