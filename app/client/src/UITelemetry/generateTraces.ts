@@ -76,15 +76,15 @@ export function startNestedSpan(
   return generatorTrace.startSpan(spanName, spanOptions, parentContext);
 }
 
-export function endSpan(span: Span) {
-  span.end();
+export function endSpan(span?: Span) {
+  span?.end();
 }
 
 export function setAttributesToSpan(
-  span: Span,
-  spanAttributes: SpanAttributes,
+  span?: Span,
+  spanAttributes: SpanAttributes = {},
 ) {
-  span.setAttributes(spanAttributes);
+  span?.setAttributes(spanAttributes);
 }
 
 export function wrapFnWithParentTraceContext(parentSpan: Span, fn: () => any) {
