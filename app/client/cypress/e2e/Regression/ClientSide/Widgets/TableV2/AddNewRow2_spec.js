@@ -12,8 +12,7 @@ describe("Validation flow", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     cy.openPropertyPane("tablewidgetv2");
     _.propPane.TogglePropertyState("Allow adding a row", "On");
     cy.get(".t--add-new-row").click();
-    cy.makeColumnEditable("step");
-    cy.editColumn("step");
+    _.table.toggleColumnEditableViaColSettingsPane("step", "v2", true, false);
 
     _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
     cy.wait(500);
@@ -124,9 +123,7 @@ describe("Validation flow", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === 1}}");
     cy.get("[data-testid='t--property-pane-back-btn']").click();
     cy.wait(500);
-    cy.makeColumnEditable("task");
-    cy.editColumn("task");
-    cy.wait(500);
+    _.table.toggleColumnEditableViaColSettingsPane("task", "v2", true, false);
     _.propPane.UpdatePropertyFieldValue(
       "Valid",
       "{{editedValue === 'invalid'}}",
