@@ -342,6 +342,7 @@ jobs:
 
       - name: Place server artifacts-es
         env:
+          GH_TOKEN: ${{ github.token }}
           EDITION: ${{ vars.EDITION }}
           OTHER_TAG: release
         run: |
