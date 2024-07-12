@@ -186,12 +186,12 @@ function WDSThemePropertyPane() {
 
       <SettingSection
         className="px-4 py-3 border-t "
-        data-testid="t--anvil-theme-settings-typography"
         isDefaultOpen
         title="Typography"
       >
         <section className="space-y-2">
           <Select
+            data-testid="t--anvil-theme-settings-font-family"
             dropdownClassName="t--theme-font-dropdown"
             onSelect={(value: string) => {
               updateTheme({
@@ -232,12 +232,10 @@ function WDSThemePropertyPane() {
         isDefaultOpen
         title="Dimensions"
       >
-        <section
-          className="space-y-2"
-          data-testid="t--anvil-theme-settings-density"
-        >
+        <section className="space-y-2">
           <SubText>Density</SubText>
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-density"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
@@ -249,12 +247,10 @@ function WDSThemePropertyPane() {
             value={theme.density.toString()}
           />
         </section>
-        <section
-          className="space-y-2"
-          data-testid="t--anvil-theme-settings-sizing"
-        >
+        <section className="space-y-2">
           <SubText>Sizing</SubText>
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-sizing"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
@@ -271,12 +267,12 @@ function WDSThemePropertyPane() {
       {/* BORDER RADIUS */}
       <SettingSection
         className="px-4 py-3 border-t "
-        data-testid="t--anvil-theme-settings-corners"
         isDefaultOpen
         title="Corners"
       >
         <section className="space-y-2">
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-corners"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
@@ -293,13 +289,13 @@ function WDSThemePropertyPane() {
       {/* Icon Style */}
       <SettingSection
         className="px-4 py-3 border-t"
-        data-testid="t--anvil-theme-settings-icon-style"
         isDefaultOpen
         title="Icons"
       >
         <section className="space-y-2">
           <SubText>Icon Style</SubText>
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-icon-style"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({

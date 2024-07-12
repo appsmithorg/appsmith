@@ -14,11 +14,11 @@ export class AnvilSnapshot {
     appViewerPage: "[data-testid=t--app-viewer-page]",
     propertyPaneSidebar: "[data-testid=t--property-pane-sidebar]",
     accentColorInput: "[data-testid=t--color-picker-input]",
-    fontFamilySectionInput: "[data-testid=t--anvil-theme-settings-typography] input",
-    densityOptions: "[data-testid=t--anvil-theme-settings-density] .ads-v2-segmented-control__segments-container",
-    sizingOptions: "[data-testid=t--anvil-theme-settings-sizing] .ads-v2-segmented-control__segments-container",
-    cornersOptions: "[data-testid=t--anvil-theme-settings-corners] .ads-v2-segmented-control__segments-container",
-    iconStyleOptions: "[data-testid=t--anvil-theme-settings-icon-style] .ads-v2-segmented-control__segments-container",
+    fontFamilySectionInput: "[data-testid=t--anvil-theme-settings-typography]",
+    densityOptions: "[data-testid=t--anvil-theme-settings-density] > div",
+    sizingOptions: "[data-testid=t--anvil-theme-settings-sizing] > div",
+    cornersOptions: "[data-testid=t--anvil-theme-settings-corners] > div",
+    iconStyleOptions: "[data-testid=t--anvil-theme-settings-icon-style] > div",
   };
 
   /**
