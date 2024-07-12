@@ -161,9 +161,7 @@ describe("IDE Render: JS", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByRole("button", {
-        name: createMessage(EDITOR_PANE_TEXTS.js_add_button),
-      });
+      getByTestId("t--add-item");
     });
 
     it("Renders JS routes in Split Screen", async () => {
