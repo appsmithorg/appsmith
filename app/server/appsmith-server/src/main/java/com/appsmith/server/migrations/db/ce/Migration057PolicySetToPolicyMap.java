@@ -13,7 +13,6 @@ import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.aggregation.VariableOperators;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
@@ -81,33 +80,21 @@ public class Migration057PolicySetToPolicyMap {
         log.info("Migrating policies to policyMap in {}", collectionName);
 
         final ArrayOperators.ArrayToObject operator =
-                ArrayOperators.ArrayToObject.arrayValueOfToObject(VariableOperators.Map.itemsOf("policies")
+                ArrayOperators.ArrayToObject.arrayValueOfToObject(VariableOperators.Map.itemsOf(POLICIES)
                         .as("this")
                         .andApply(agg -> new Document("k", "$$this.permission").append("v", "$$this")));
 
         final Mono<UpdateResult> convertToMap = mongoTemplate.updateMulti(
-                new Query(where("policies")
-                        .exists(true)
-                        .and("policyMap")
-                        .exists(false)
-                        .and("deletedAt")
-                        .isNull()),
-                AggregationUpdate.update().set("policyMap").toValueOf(operator),
-                collectionName);
-
-        // Create a backup of the policies field so that we can rollback if needed
-        final Mono<UpdateResult> backupPoliciesField = mongoTemplate.updateMulti(
                 new Query(where(POLICIES)
                         .exists(true)
                         .and(BaseDomain.Fields.policyMap)
-                        .exists(true)
+                        .exists(false)
                         .and(BaseDomain.Fields.deletedAt)
                         .isNull()),
-                new Update().rename(POLICIES, "_policies"),
+                AggregationUpdate.update().set(BaseDomain.Fields.policyMap).toValueOf(operator),
                 collectionName);
 
         return convertToMap
-                .then(backupPoliciesField)
                 .elapsed()
                 .doOnSuccess(it -> log.info("{} finished in {}ms", collectionName, it.getT1()))
                 .then();
