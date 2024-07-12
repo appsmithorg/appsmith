@@ -8,7 +8,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
   
 describe(
-  "Select widget tests",
+  "Select widget tests validating OnDropdownClose events are rendering show alert only once",
   { tags: ["@tag.Widget", "@tag.Select"] },
   function () {
     before(() => {
