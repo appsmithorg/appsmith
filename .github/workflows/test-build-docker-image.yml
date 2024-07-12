@@ -341,6 +341,9 @@ jobs:
           fi
 
       - name: Place server artifacts-es
+        env:
+          EDITION: ${{ vars.EDITION }}
+          OTHER_TAG: release
         run: |
           scripts/prepare_server_artifacts.sh
 
