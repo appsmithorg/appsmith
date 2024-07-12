@@ -341,13 +341,7 @@ jobs:
           fi
 
       - name: Place server artifacts-es
-        env:
-          GH_TOKEN: ${{ github.token }}
-          EDITION: ${{ vars.EDITION }}
-          OTHER_TAG: release
         run: |
-          gh api 'repos/appsmithorg/appsmith/actions/workflows/test-build-docker-image.yml/runs?status=success&per_page=1&exclude_pull_requests=true&branch=release' || true
-          gh api 'repos/{owner}/{repo}/actions/workflows/test-build-docker-image.yml/runs?status=success&per_page=1&exclude_pull_requests=true&branch=release' || true
           scripts/prepare_server_artifacts.sh
 
       - name: Set up Depot CLI
