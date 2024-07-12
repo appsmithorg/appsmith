@@ -21,7 +21,7 @@ describe(
       );
       agHelper.GetNClick(anvilLocators.anvilWidgetNameSelector("Button1"));
       // when we select a widget, the URL is updated with widget ID, storing the URL to assert later
-      const widgetSelectURLBeforeCopy = cy.url();
+      cy.url().as("widgetSelectURLBeforeCopy");
       cy.get("body").type(`{${modifierKey}}c`);
 
       // paste into canvas
@@ -41,10 +41,9 @@ describe(
         2,
       );
 
-      const widgetSelectURLAfterCopy = cy.url();
       // after the pasting, the new Widget is selected and the URL is updated with the new widget ID
       // so the URL should be different from the URL before copy
-      expect(widgetSelectURLBeforeCopy).not.to.equal(widgetSelectURLAfterCopy);
+      cy.get("@widgetSelectURLBeforeCopy").should("not.eq", cy.url());
 
       // paste into section
       agHelper.GetNClick(
