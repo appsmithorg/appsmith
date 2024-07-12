@@ -16,7 +16,7 @@ const anvilWidgetBasedSelectors = {
   },
   anvilWidgetNameSelectorFromEntityExplorer: (widgetName: string) => {
     return `[data-testid=t--entity-item-${widgetName}]`;
-  }
+  },
 };
 
 const anvilModalWidgetSelectors = {
