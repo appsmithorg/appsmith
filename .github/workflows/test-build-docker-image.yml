@@ -43,31 +43,6 @@ jobs:
         run: |
           echo $'## Inputs\n```\n'"$INPUTS"$'\n```' > "$GITHUB_STEP_SUMMARY"
 
-      - name: Get artifact 1
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh api 'repos/appsmithorg/appsmith/actions/workflows/test-build-docker-image.yml/runs?status=success&per_page=1&exclude_pull_requests=true&branch=release' || true
-
-      - name: Get artifact 2
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api 'repos/appsmithorg/appsmith/actions/workflows/test-build-docker-image.yml/runs?status=success&per_page=1&exclude_pull_requests=true&branch=release' || true
-
-      - name: Get artifact 3
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-        run: |
-          gh api 'repos/appsmithorg/appsmith/actions/workflows/test-build-docker-image.yml/runs?status=success&per_page=1&exclude_pull_requests=true&branch=release' || true
-
-      - name: Get artifact 4
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api 'repos/appsmithorg/appsmith/actions/workflows/test-build-docker-image.yml/runs?status=success&per_page=1&exclude_pull_requests=true&branch=release' || true
-          exit 1
-
       - name: Set tags and matrix runner
         id: setup
         run: |
@@ -371,6 +346,8 @@ jobs:
           EDITION: ${{ vars.EDITION }}
           OTHER_TAG: release
         run: |
+          gh api 'repos/appsmithorg/appsmith/actions/workflows/test-build-docker-image.yml/runs?status=success&per_page=1&exclude_pull_requests=true&branch=release' || true
+          gh api 'repos/{owner}/{repo}/actions/workflows/test-build-docker-image.yml/runs?status=success&per_page=1&exclude_pull_requests=true&branch=release' || true
           scripts/prepare_server_artifacts.sh
 
       - name: Set up Depot CLI
