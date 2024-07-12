@@ -1,9 +1,15 @@
 import { anvilLocators } from "../../../../support/Pages/Anvil/Locators";
-import { agHelper, anvilLayout, entityExplorer } from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  anvilLayout,
+  entityExplorer,
+} from "../../../../support/Objects/ObjectsCore";
 import { ANVIL_EDITOR_TEST, modifierKey } from "../../../../support/Constants";
 
-describe(`${ANVIL_EDITOR_TEST}: Anvil tests for Paste functionality`,
-  { tags: ["@tag.Anvil"] }, () => {
+describe(
+  `${ANVIL_EDITOR_TEST}: Anvil tests for Paste functionality`,
+  { tags: ["@tag.Anvil"] },
+  () => {
     it("1. Checks if the non-model widget is pasted into the mai canvas, zone and section", () => {
       anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
         anvilLocators.WDSBUTTON,
@@ -41,7 +47,9 @@ describe(`${ANVIL_EDITOR_TEST}: Anvil tests for Paste functionality`,
       expect(widgetSelectURLBeforeCopy).not.to.equal(widgetSelectURLAfterCopy);
 
       // paste into section
-      agHelper.GetNClick(anvilLocators.anvilWidgetNameSelectorFromEntityExplorer("Section1"));
+      agHelper.GetNClick(
+        anvilLocators.anvilWidgetNameSelectorFromEntityExplorer("Section1"),
+      );
       cy.get("body").type(`{${modifierKey}}v`);
       // since we pasted in section, a new zone and a new copied button should be created
       agHelper.AssertElementLength(
@@ -139,6 +147,9 @@ describe(`${ANVIL_EDITOR_TEST}: Anvil tests for Paste functionality`,
       );
 
       // the new button should be the last element in the main canvas
-      cy.get(anvilLocators.anvilWidgetTypeSelector(anvilLocators.WDSBUTTON)).last().should("have.attr", "data-widget-name", "Button1Copy3");
+      cy.get(anvilLocators.anvilWidgetTypeSelector(anvilLocators.WDSBUTTON))
+        .last()
+        .should("have.attr", "data-widget-name", "Button1Copy3");
     });
-  });
+  },
+);
