@@ -14,6 +14,8 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import lombok.Getter;
 
+import java.util.Optional;
+
 @Getter
 public enum AclPermission {
     /**
@@ -137,13 +139,13 @@ public enum AclPermission {
         this.entity = entity;
     }
 
-    public static AclPermission getPermissionByValue(String value, Class<? extends BaseDomain> entity) {
+    public static Optional<AclPermission> getPermissionByValue(String value, Class<? extends BaseDomain> entity) {
         for (AclPermission permission : values()) {
             if (permission.getValue().equals(value) && permission.getEntity().equals(entity)) {
-                return permission;
+                return Optional.of(permission);
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     public static boolean isPermissionForEntity(AclPermission aclPermission, Class<?> clazz) {

@@ -13,14 +13,7 @@ import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedAcyclicGraph;
 import org.jgrapht.traverse.DepthFirstIterator;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.APPLICATION_CREATE_PAGES;
@@ -280,12 +273,12 @@ public class PolicyGeneratorCE {
      * @return
      */
     public Set<Policy> getChildPolicies(
-            Policy policy, AclPermission aclPermission, Class<? extends BaseDomain> destinationEntity) {
+        Policy policy, Optional<AclPermission> aclPermission, Class<? extends BaseDomain> destinationEntity) {
 
         // In case the calling function could not translate the string value to AclPermission, return an empty set to
         // handle
         // erroneous cases
-        if (aclPermission == null) {
+        if (aclPermission.isEmpty()) {
             return Collections.emptySet();
         }
 
@@ -319,7 +312,7 @@ public class PolicyGeneratorCE {
             Class<? extends BaseDomain> destinationEntity) {
         Set<Policy> policies = policySet.stream()
                 .map(policy -> {
-                    AclPermission aclPermission =
+                    Optional<AclPermission> aclPermission =
                             AclPermission.getPermissionByValue(policy.getPermission(), sourceEntity);
                     // Get all the child policies for the given policy and aclPermission
                     return getChildPolicies(policy, aclPermission, destinationEntity);
