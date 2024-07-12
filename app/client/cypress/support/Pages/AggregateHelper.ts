@@ -53,8 +53,9 @@ export class AggregateHelper {
   public get isMac() {
     return Cypress.platform === "darwin";
   }
-  private selectLine = `${this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
-    }`;
+  private selectLine = `${
+    this.isMac ? "{cmd}{shift}{leftArrow}" : "{shift}{home}"
+  }`;
   public get removeLine() {
     return "{backspace}";
   }
@@ -307,11 +308,11 @@ export class AggregateHelper {
       locator =
         selector.startsWith("//") || selector.startsWith("(//")
           ? cy.xpath(selector, {
-            timeout,
-          })
+              timeout,
+            })
           : cy.get(selector, {
-            timeout,
-          });
+              timeout,
+            });
     } else locator = cy.wrap(selector);
     return exists === "noVerify"
       ? locator // Return the locator without verification if exists is "noVerify"
@@ -391,16 +392,16 @@ export class AggregateHelper {
           if (
             $body.find(
               this.locator._toastContainer +
-              " span:contains(" +
-              toolTipOrToasttext +
-              ")",
+                " span:contains(" +
+                toolTipOrToasttext +
+                ")",
             ).length > 0
           ) {
             this.GetElement(
               this.locator._toastContainer +
-              ":has(:contains('" +
-              toolTipOrToasttext +
-              "'))",
+                ":has(:contains('" +
+                toolTipOrToasttext +
+                "'))",
             ).then(($toastContainer) => {
               $toastContainer.remove();
             });
@@ -415,12 +416,12 @@ export class AggregateHelper {
     indexOrOptions:
       | number
       | Partial<{
-        index: number;
-        force: boolean;
-        waitAfterClick: boolean;
-        sleepTime: number;
-        type?: "click" | "invoke";
-      }> = 0,
+          index: number;
+          force: boolean;
+          waitAfterClick: boolean;
+          sleepTime: number;
+          type?: "click" | "invoke";
+        }> = 0,
   ) {
     const button = this.locator._buttonByText(btnVisibleText);
     let index: number,
@@ -936,11 +937,11 @@ export class AggregateHelper {
     indexOrOptions:
       | number
       | Partial<{
-        index: number;
-        parseSpecialCharSeq: boolean;
-        shouldFocus: boolean;
-        delay: number;
-      }> = 0,
+          index: number;
+          parseSpecialCharSeq: boolean;
+          shouldFocus: boolean;
+          delay: number;
+        }> = 0,
   ) {
     let index: number;
     let shouldFocus = true;
@@ -1293,7 +1294,7 @@ export class AggregateHelper {
     // but until we’ve upgraded to v12, we can’t rely on that and have to fit everything into a single query.
     const codeMirrorSelector = isXPathSelector
       ? selector +
-      "//*[contains(concat(' ', normalize-space(@class), ' '), ' CodeMirror ')]"
+        "//*[contains(concat(' ', normalize-space(@class), ' '), ' CodeMirror ')]"
       : selector + " .CodeMirror";
     this.GetElement(codeMirrorSelector)
       .find("textarea")
