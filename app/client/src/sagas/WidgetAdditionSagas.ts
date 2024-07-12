@@ -189,22 +189,22 @@ function* getChildWidgetProps(
   // Remove props that don't belong in the DSL and can be accessed using
   // the widget type's static methods and configurations
   // Fixes #21825
-  delete widget.rows;
-  delete widget.columns;
-  delete widget.name;
-  delete widget.iconSVG;
-  delete widget.thumbnailSVG;
-  delete widget.hideCard;
-  delete widget.isDeprecated;
-  delete widget.needsMeta;
-  delete widget.searchTags;
-  delete widget.tags;
-  delete widget.displayName;
-  delete widget.onCanvasUI;
-  delete widget.eagerRender;
-  delete widget.needsHeightForContent;
-  delete widget.features;
-  delete widget.replacement;
+  widget.rows = undefined;
+  widget.columns = undefined;
+  widget.name = undefined;
+  widget.iconSVG = undefined;
+  widget.thumbnailSVG = undefined;
+  widget.hideCard = undefined;
+  widget.isDeprecated = undefined;
+  widget.needsMeta = undefined;
+  widget.searchTags = undefined;
+  widget.tags = undefined;
+  widget.displayName = undefined;
+  widget.onCanvasUI = undefined;
+  widget.eagerRender = undefined;
+  widget.needsHeightForContent = undefined;
+  widget.features = undefined;
+  widget.replacement = undefined;
 
   /**
    * un-evaluated childStylesheet used by widgets; so they are to be excluded
