@@ -186,7 +186,7 @@ describe(
 
     it("5. Update onDataPointClick and Verify", function () {
       // Create the Alert Modal and verify Modal name
-      propPane.SelectPropertiesDropDown("Map type", "Asia");
+      propPane.SelectPropertiesDropDown("Map type", "World");
       propPane.SelectPlatformFunction("onDataPointClick", "Show alert");
       agHelper.TypeText(
         propPane._actionSelectorFieldByLabel("Message"),
