@@ -35,4 +35,4 @@ unzip server-build.zip
 rm server-build.zip
 mv server-*.jar server.jar
 mv server.jar plugins "$target/mongo"
-echo "$artifact_data" | jq > "$target/mongo/source-artifact.json"
+echo "$artifact_data" | jq | tee "$target/mongo/source-artifact.json"
