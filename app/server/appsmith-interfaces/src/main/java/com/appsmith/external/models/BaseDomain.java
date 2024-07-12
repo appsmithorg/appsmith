@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Column;
@@ -73,8 +74,8 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Internal.class)
     protected Set<Policy> policies = new HashSet<>();
 
-    @Transient
-    @JsonView(Views.Public.class)
+    @Override
+    @JsonIgnore
     public boolean isNew() {
         return this.getId() == null;
     }

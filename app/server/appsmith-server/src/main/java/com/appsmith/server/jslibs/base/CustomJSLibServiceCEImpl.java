@@ -4,6 +4,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
+import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibService;
 import com.appsmith.server.repositories.CustomJSLibRepository;
 import com.appsmith.server.repositories.cakes.CustomJSLibRepositoryCake;
@@ -15,8 +16,10 @@ import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -76,11 +79,27 @@ public class CustomJSLibServiceCEImpl
     @Override
     public Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib, Boolean isForceInstall) {
+        return persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(jsLib, isForceInstall, null, false);
+    }
+
+    @Override
+    public Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
+            CustomJSLib jsLib,
+            Boolean isForceInstall,
+            Map<String, List<CustomJSLib>> customJSLibsDryOps,
+            boolean isDryOps) {
         return repository
                 .findUniqueCustomJsLib(jsLib)
                 // Read more why Mono.defer is used here.
                 // https://stackoverflow.com/questions/54373920/mono-switchifempty-is-always-called
-                .switchIfEmpty(Mono.defer(() -> repository.save(jsLib)))
+                .switchIfEmpty(Mono.defer(() -> {
+                    if (isDryOps) {
+                        jsLib.updateForBulkWriteOperation();
+                        addDryOpsForEntity(DBOpsType.SAVE.name(), customJSLibsDryOps, jsLib);
+                        return Mono.just(jsLib);
+                    }
+                    return repository.save(jsLib);
+                }))
                 .flatMap(foundJSLib -> {
                     /*
                        The first check is to make sure that we are able to detect any previously truncated data and overwrite it the next time we receive valid data.
@@ -89,6 +108,10 @@ public class CustomJSLibServiceCEImpl
                     */
                     if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
                         jsLib.setId(foundJSLib.getId());
+                        if (isDryOps) {
+                            addDryOpsForEntity(DBOpsType.SAVE.name(), customJSLibsDryOps, jsLib);
+                            return Mono.just(jsLib);
+                        }
                         return repository.save(jsLib);
                     }
 
@@ -143,5 +166,16 @@ public class CustomJSLibServiceCEImpl
         return contextBasedService
                 .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
                 .flatMapMany(repository::findCustomJsLibsInContext);
+    }
+
+    private void addDryOpsForEntity(
+            String queryType, Map<String, List<CustomJSLib>> dryRunOpsMap, CustomJSLib createdCustomJsLib) {
+        if (dryRunOpsMap.containsKey(queryType)) {
+            dryRunOpsMap.get(queryType).add(createdCustomJsLib);
+        } else {
+            List<CustomJSLib> customJsLibList = new ArrayList<>();
+            customJsLibList.add(createdCustomJsLib);
+            dryRunOpsMap.put(queryType, customJsLibList);
+        }
     }
 }

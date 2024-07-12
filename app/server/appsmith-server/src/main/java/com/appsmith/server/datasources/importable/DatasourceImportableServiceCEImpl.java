@@ -25,6 +25,7 @@ import com.appsmith.server.imports.importable.ImportableServiceCE;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableService;
 import com.appsmith.server.services.SequenceService;
 import com.appsmith.server.services.WorkspaceService;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -408,7 +409,10 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
     }
 
     private void addDryOpsForEntity(
-            DBOpsType queryType, Map<String, List<Datasource>> dryRunOpsMap, Datasource createdDatasource) {
-        dryRunOpsMap.computeIfAbsent(queryType.name(), k -> new ArrayList<>()).add(createdDatasource);
+            DBOpsType queryType, @NonNull Map<DBOpsType, List<Datasource>> dryRunOpsMap, Datasource createdDatasource) {
+        List<Datasource> datasourceList = dryRunOpsMap.get(queryType);
+        datasourceList = datasourceList == null ? new ArrayList<>() : datasourceList;
+        datasourceList.add(createdDatasource);
+        dryRunOpsMap.put(queryType, datasourceList);
     }
 }
