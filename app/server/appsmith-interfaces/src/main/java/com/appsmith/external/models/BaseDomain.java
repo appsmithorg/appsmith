@@ -83,7 +83,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
 
     @JsonView({Views.Internal.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
-    protected Set<Policy> policies;
+    protected Set<Policy> policies = new HashSet<>();
 
     @Override
     @JsonIgnore
