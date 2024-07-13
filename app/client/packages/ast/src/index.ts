@@ -591,6 +591,14 @@ export const getFunctionalParamsFromNode = (
             defaultValue,
           });
         }
+      } else if (
+        isObjectPatternNode(paramNode.left) ||
+        isArrayPatternNode(paramNode.left)
+      ) {
+        functionalParams.add({
+          paramName: "",
+          defaultValue: undefined,
+        });
       }
       // The below computations are very basic and can be evolved into nested
       // parsing logic to find param and it's default value.
