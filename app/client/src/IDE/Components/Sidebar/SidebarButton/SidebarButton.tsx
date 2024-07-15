@@ -70,10 +70,8 @@ function SidebarButton(props: SidebarButtonProps) {
   const { condition, icon, onClick, selected, title, tooltip, urlSuffix } =
     props;
   const handleOnClick = useCallback(() => {
-    if (!selected) {
-      onClick(urlSuffix);
-    }
-  }, [selected, onClick, urlSuffix]);
+    onClick(urlSuffix);
+  }, [onClick, urlSuffix]);
   return (
     <Container>
       <Tooltip

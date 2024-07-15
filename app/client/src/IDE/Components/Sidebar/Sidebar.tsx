@@ -28,37 +28,41 @@ interface IDESidebarProps {
   topButtons: IDESidebarButton[];
   bottomButtons: IDESidebarButton[];
   editorState: EditorState;
-  onClick: (suffix: string) => void;
+  onClick: (suffix: string, state: EditorState) => void;
 }
 
-function IDESidebar(props: IDESidebarProps) {
-  const { bottomButtons, editorState, onClick, topButtons } = props;
-
+function IDESidebar({
+  bottomButtons,
+  editorState,
+  onClick,
+  topButtons,
+  id,
+}: IDESidebarProps) {
   return (
-    <Container className="t--sidebar" id={props.id}>
+    <Container className="t--sidebar" id={id}>
       <div>
-        {topButtons.map((button) => (
+        {topButtons.map(({ state, icon, urlSuffix, title, tooltip }) => (
           <SidebarButton
-            icon={button.icon}
-            key={button.state}
-            onClick={onClick}
-            selected={editorState === button.state}
-            title={button.title}
-            tooltip={button.tooltip}
-            urlSuffix={button.urlSuffix}
+            icon={icon}
+            key={state}
+            onClick={() => onClick(urlSuffix, state)}
+            selected={editorState === state}
+            title={title}
+            tooltip={tooltip}
+            urlSuffix={urlSuffix}
           />
         ))}
       </div>
       <div>
-        {bottomButtons.map((button) => (
+        {bottomButtons.map(({ state, icon, urlSuffix, title, tooltip }) => (
           <SidebarButton
-            icon={button.icon}
-            key={button.state}
-            onClick={onClick}
-            selected={editorState === button.state}
-            title={button.title}
-            tooltip={button.tooltip}
-            urlSuffix={button.urlSuffix}
+            icon={icon}
+            key={state}
+            onClick={() => onClick(urlSuffix, state)}
+            selected={editorState === state}
+            title={title}
+            tooltip={tooltip}
+            urlSuffix={urlSuffix}
           />
         ))}
       </div>

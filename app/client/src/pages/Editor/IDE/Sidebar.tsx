@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -25,6 +25,7 @@ function Sidebar() {
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
   const datasources = useSelector(getDatasources);
   const datasourcesExist = datasources.length > 0;
+  const [activePane, setActivePane] = useState<EditorState | null>(null);
 
   // Updates the top button config based on datasource existence
   const topButtons = React.useMemo(() => {
@@ -47,18 +48,32 @@ function Sidebar() {
   }, [currentWorkspaceId, dispatch]);
 
   const onClick = useCallback(
-    (suffix) => {
-      history.push(
-        builderURL({
-          pageId,
-          suffix,
-        }),
-        {
-          invokedBy: NavigationMethod.AppSidebar,
-        },
-      );
+    (suffix: string, state: EditorState) => {
+      if (activePane === state) {
+        setActivePane(null);
+        history.push(
+          builderURL({
+            pageId,
+            suffix: "",
+          }),
+          {
+            invokedBy: NavigationMethod.AppSidebar,
+          },
+        );
+      } else {
+        setActivePane(state);
+        history.push(
+          builderURL({
+            pageId,
+            suffix,
+          }),
+          {
+            invokedBy: NavigationMethod.AppSidebar,
+          },
+        );
+      }
     },
-    [pageId],
+    [activePane, pageId],
   );
 
   return (
