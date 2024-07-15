@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Button, Input, toast, Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -19,7 +19,6 @@ import { ALL_LANGUAGE_CHARACTERS_REGEX } from "constants/Regex";
 import { createMessage } from "design-system-old/build/constants/messages";
 import { notEmptyValidator } from "design-system-old";
 import { getIsFormLoginEnabled } from "@appsmith/selectors/tenantSelectors";
-import { fetchGlobalGitConfigInit } from "actions/gitSyncActions";
 
 const nameValidator = (
   value: string,
@@ -70,11 +69,6 @@ function General() {
         }),
       );
   };
-
-  useEffect(() => {
-    // onMount Fetch Global config
-    dispatch(fetchGlobalGitConfigInit());
-  }, []);
 
   if (user?.email === ANONYMOUS_USERNAME) return null;
 
