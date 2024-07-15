@@ -731,25 +731,10 @@ export class LightModeTheme implements ColorModeTheme {
   }
 
   private get fgNeutral() {
-    // Desatured version of the seed for harmonious combination with backgrounds and accents.
-    const color = this.fgAccent.clone();
+    // Neutral foreground. Slightly less prominent than main fg
+    const color = this.fg.clone();
 
-    // Minimal contrast that we set for fgAccent (60) is too low for a gray color
-    if (this.bg.contrastAPCA(this.fgAccent) < 75) {
-      color.oklch.l -= 0.2;
-    }
-
-    if (this.seedIsAchromatic) {
-      color.oklch.c = 0;
-    }
-
-    if (this.seedIsCold && !this.seedIsAchromatic) {
-      color.oklch.c = 0.003;
-    }
-
-    if (!this.seedIsCold && !this.seedIsAchromatic) {
-      color.oklch.c = 0.001;
-    }
+    color.oklch.l += 0.1;
 
     return color;
   }

@@ -18,10 +18,13 @@ import { Request as NFRequest, Response as NFResponse } from "node-fetch";
   delete: jest.fn(),
 };
 
+const applicationId = "b0123456789abcdef0000000";
+const pageId = "a0123456789abcdef0000000";
+
 describe("serviceWorkerUtils", () => {
   describe("matchBuilderPath", () => {
     it("should match the standard builder path", () => {
-      const pathName = "/app/applicationSlug/pageSlug-123/edit";
+      const pathName = `/app/applicationSlug/pageSlug-${pageId}/edit`;
       const options = { end: false };
       const result = matchBuilderPath(pathName, options);
 
@@ -29,15 +32,14 @@ describe("serviceWorkerUtils", () => {
       if (result) {
         expect(result.params).toHaveProperty("applicationSlug");
         expect(result.params).toHaveProperty("pageSlug");
-        expect(result.params).toHaveProperty("pageId", "123");
+        expect(result.params).toHaveProperty("pageId", pageId);
       } else {
         fail("Expected result to be truthy");
       }
     });
 
     it("should match the standard builder path for alphanumeric pageId", () => {
-      const pathName =
-        "/app/applicationSlug/pageSlug-6616733a6e70274710f21a07/edit";
+      const pathName = `/app/applicationSlug/pageSlug-${pageId}/edit`;
       const options = { end: false };
       const result = matchBuilderPath(pathName, options);
 
@@ -45,38 +47,35 @@ describe("serviceWorkerUtils", () => {
       if (result) {
         expect(result.params).toHaveProperty("applicationSlug");
         expect(result.params).toHaveProperty("pageSlug");
-        expect(result.params).toHaveProperty(
-          "pageId",
-          "6616733a6e70274710f21a07",
-        );
+        expect(result.params).toHaveProperty("pageId", pageId);
       } else {
         fail("Expected result to be truthy");
       }
     });
 
     it("should match the custom builder path", () => {
-      const pathName = "/app/customSlug-custom-456/edit";
+      const pathName = `/app/customSlug-custom-${pageId}/edit`;
       const options = { end: false };
       const result = matchBuilderPath(pathName, options);
 
       expect(result).toBeTruthy();
       if (result) {
         expect(result.params).toHaveProperty("customSlug");
-        expect(result.params).toHaveProperty("pageId", "456");
+        expect(result.params).toHaveProperty("pageId", pageId);
       } else {
         fail("Expected result to be truthy");
       }
     });
 
     it("should match the deprecated builder path", () => {
-      const pathName = "/applications/appId123/pages/456/edit";
+      const pathName = `/applications/${applicationId}/pages/${pageId}/edit`;
       const options = { end: false };
       const result = matchBuilderPath(pathName, options);
 
       expect(result).toBeTruthy();
       if (result) {
-        expect(result.params).toHaveProperty("applicationId", "appId123");
-        expect(result.params).toHaveProperty("pageId", "456");
+        expect(result.params).toHaveProperty("applicationId", applicationId);
+        expect(result.params).toHaveProperty("pageId", pageId);
       } else {
         fail("Expected result to be truthy");
       }
@@ -99,15 +98,14 @@ describe("serviceWorkerUtils", () => {
     });
 
     it("should match when the path is edit widgets", () => {
-      const pathName =
-        "/app/applicationSlug/pageSlug-123/edit/widgets/t36hb2zukr";
+      const pathName = `/app/applicationSlug/pageSlug-${pageId}/edit/widgets/t36hb2zukr`;
       const options = { end: false };
       const result = matchBuilderPath(pathName, options);
 
       if (result) {
         expect(result.params).toHaveProperty("applicationSlug");
         expect(result.params).toHaveProperty("pageSlug");
-        expect(result.params).toHaveProperty("pageId", "123");
+        expect(result.params).toHaveProperty("pageId", pageId);
       } else {
         fail("Expected result to be truthy");
       }
@@ -116,40 +114,40 @@ describe("serviceWorkerUtils", () => {
 
   describe("matchViewerPath", () => {
     it("should match the standard viewer path", () => {
-      const pathName = "/app/applicationSlug/pageSlug-123";
+      const pathName = `/app/applicationSlug/pageSlug-${pageId}`;
       const result = matchViewerPath(pathName);
 
       expect(result).toBeTruthy();
       if (result) {
         expect(result.params).toHaveProperty("applicationSlug");
         expect(result.params).toHaveProperty("pageSlug");
-        expect(result.params).toHaveProperty("pageId", "123");
+        expect(result.params).toHaveProperty("pageId", pageId);
       } else {
         fail("Expected result to be truthy");
       }
     });
 
     it("should match the custom viewer path", () => {
-      const pathName = "/app/customSlug-custom-456";
+      const pathName = `/app/customSlug-custom-${pageId}`;
       const result = matchViewerPath(pathName);
 
       expect(result).toBeTruthy();
       if (result) {
         expect(result.params).toHaveProperty("customSlug");
-        expect(result.params).toHaveProperty("pageId", "456");
+        expect(result.params).toHaveProperty("pageId", pageId);
       } else {
         fail("Expected result to be truthy");
       }
     });
 
     it("should match the deprecated viewer path", () => {
-      const pathName = "/applications/appId123/pages/456";
+      const pathName = `/applications/${applicationId}/pages/${pageId}`;
       const result = matchViewerPath(pathName);
 
       expect(result).toBeTruthy();
       if (result) {
-        expect(result.params).toHaveProperty("applicationId", "appId123");
-        expect(result.params).toHaveProperty("pageId", "456");
+        expect(result.params).toHaveProperty("applicationId", applicationId);
+        expect(result.params).toHaveProperty("pageId", pageId);
       } else {
         fail("Expected result to be truthy");
       }
@@ -189,11 +187,11 @@ describe("serviceWorkerUtils", () => {
   describe("getApplicationParamsFromUrl", () => {
     it("should parse URL and return correct params for builder path", () => {
       const url = new URL(
-        "https://app.appsmith.com/app/my-app/page-123/edit?branch=main",
+        `https://app.appsmith.com/app/my-app/page-${pageId}/edit?branch=main`,
       );
       const expectedParams: TApplicationParams = {
         origin: "https://app.appsmith.com",
-        pageId: "123",
+        pageId,
         applicationId: undefined,
         branchName: "main",
         appMode: APP_MODE.EDIT,
@@ -204,11 +202,11 @@ describe("serviceWorkerUtils", () => {
 
     it("should parse URL and return correct params for viewer path", () => {
       const url = new URL(
-        "https://app.appsmith.com/app/my-app/page-123?branch=main",
+        `https://app.appsmith.com/app/my-app/page-${pageId}?branch=main`,
       );
       const expectedParams: TApplicationParams = {
         origin: "https://app.appsmith.com",
-        pageId: "123",
+        pageId,
         applicationId: undefined,
         branchName: "main",
         appMode: APP_MODE.PUBLISHED,
@@ -224,12 +222,12 @@ describe("serviceWorkerUtils", () => {
 
     it("should parse deprecated builder path and return correct params", () => {
       const url = new URL(
-        "https://app.appsmith.com/applications/app-123/pages/page-123/edit?branch=main",
+        `https://app.appsmith.com/applications/${applicationId}/pages/${pageId}/edit?branch=main`,
       );
       const expectedParams: TApplicationParams = {
         origin: "https://app.appsmith.com",
-        pageId: "page-123",
-        applicationId: "app-123",
+        pageId,
+        applicationId,
         branchName: "main",
         appMode: APP_MODE.EDIT,
       };
@@ -239,12 +237,12 @@ describe("serviceWorkerUtils", () => {
 
     it("should parse deprecated viewer path and return correct params", () => {
       const url = new URL(
-        "https://app.appsmith.com/applications/app-123/pages/page-123?branch=main",
+        `https://app.appsmith.com/applications/${applicationId}/pages/${pageId}?branch=main`,
       );
       const expectedParams: TApplicationParams = {
         origin: "https://app.appsmith.com",
-        pageId: "page-123",
-        applicationId: "app-123",
+        pageId,
+        applicationId,
         branchName: "main",
         appMode: APP_MODE.PUBLISHED,
       };
@@ -254,11 +252,11 @@ describe("serviceWorkerUtils", () => {
 
     it("should parse custom builder path and return correct params", () => {
       const url = new URL(
-        "https://app.appsmith.com/app/custom-app-123/edit?branch=main",
+        `https://app.appsmith.com/app/custom-app-${pageId}/edit?branch=main`,
       );
       const expectedParams: TApplicationParams = {
         origin: "https://app.appsmith.com",
-        pageId: "123",
+        pageId,
         applicationId: undefined,
         branchName: "main",
         appMode: APP_MODE.EDIT,
@@ -269,11 +267,11 @@ describe("serviceWorkerUtils", () => {
 
     it("should parse custom viewer path and return correct params", () => {
       const url = new URL(
-        "https://app.appsmith.com/app/custom-app-123?branch=main",
+        `https://app.appsmith.com/app/custom-app-${pageId}?branch=main`,
       );
       const expectedParams: TApplicationParams = {
         origin: "https://app.appsmith.com",
-        pageId: "123",
+        pageId,
         applicationId: undefined,
         branchName: "main",
         appMode: APP_MODE.PUBLISHED,
@@ -283,10 +281,12 @@ describe("serviceWorkerUtils", () => {
     });
 
     it("should parse URL and return params with empty branch name if branch query param is not present", () => {
-      const url = new URL("https://app.appsmith.com/app/my-app/page-123/edit");
+      const url = new URL(
+        `https://app.appsmith.com/app/my-app/page-${pageId}/edit`,
+      );
       const expectedParams: TApplicationParams = {
         origin: "https://app.appsmith.com",
-        pageId: "123",
+        pageId,
         applicationId: undefined,
         branchName: "",
         appMode: APP_MODE.EDIT,
@@ -314,8 +314,8 @@ describe("serviceWorkerUtils", () => {
     it("should create request for EDIT mode with applicationId", () => {
       const params: TApplicationParams = {
         origin: "https://app.appsmith.com",
-        pageId: "page123",
-        applicationId: "app123",
+        pageId,
+        applicationId,
         branchName: "main",
         appMode: APP_MODE.EDIT,
       };
@@ -323,7 +323,7 @@ describe("serviceWorkerUtils", () => {
       const request = getConsolidatedApiPrefetchRequest(params);
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
-        `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=page123&applicationId=app123`,
+        `https://app.appsmith.com/api/v1/consolidated-api/edit?defaultPageId=${pageId}&applicationId=${applicationId}`,
       );
       expect(request?.method).toBe("GET");
       expect(request?.headers.get("Branchname")).toBe("main");
@@ -332,8 +332,8 @@ describe("serviceWorkerUtils", () => {
     it("should create request for PUBLISHED mode with applicationId", () => {
       const params: TApplicationParams = {
         origin: "https://app.appsmith.com",
-        pageId: "page123",
-        applicationId: "app123",
+        pageId,
+        applicationId,
         branchName: "main",
         appMode: APP_MODE.PUBLISHED,
       };
@@ -341,7 +341,7 @@ describe("serviceWorkerUtils", () => {
       const request = getConsolidatedApiPrefetchRequest(params);
       expect(request).toBeInstanceOf(Request);
       expect(request?.url).toBe(
-        `https://app.appsmith.com/api/v1/consolidated-api/view?defaultPageId=page123&applicationId=app123`,
+        `https://app.appsmith.com/api/v1/consolidated-api/view?defaultPageId=${pageId}&applicationId=${applicationId}`,
       );
       expect(request?.method).toBe("GET");
       expect(request?.headers.get("Branchname")).toBe("main");
@@ -439,6 +439,17 @@ describe("serviceWorkerUtils", () => {
           method: "GET",
         });
         request.headers.append("branchname", "main");
+        const key = prefetchApiService.getRequestKey(request);
+        expect(key).toBe("GET:https://app.appsmith.com/:branchname:main");
+      });
+
+      it("should only append branchname header in request key", () => {
+        const request = new Request("https://app.appsmith.com", {
+          method: "GET",
+        });
+        request.headers.append("branchname", "main");
+        request.headers.append("another-header-key", "another-header-value");
+        request.headers.append("Content-Type", "application/json");
         const key = prefetchApiService.getRequestKey(request);
         expect(key).toBe("GET:https://app.appsmith.com/:branchname:main");
       });

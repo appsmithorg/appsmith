@@ -9,6 +9,11 @@ export class AnvilLayout {
     const widgetSelector = anvilLocators.anvilWidgetNameSelector(widgetName);
     cy.get(widgetSelector).should("not.exist");
   }
+
+  public verifyAnvilModalIsClosed(widgetName: string) {
+    this.verifyWidgetDoesNotExist(widgetName);
+  }
+
   public verifyParentChildRelationship(parentName: string, childName: string) {
     const parentWidgetSelector =
       anvilLocators.anvilWidgetNameSelector(parentName);

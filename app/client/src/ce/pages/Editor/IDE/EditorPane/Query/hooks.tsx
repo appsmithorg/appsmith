@@ -22,7 +22,6 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
-  CURL_IMPORT_PAGE_PATH,
 } from "@appsmith/constants/routes/appRoutes";
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import ApiEditor from "pages/Editor/APIEditor";
@@ -36,8 +35,8 @@ import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { Tag, type ListItemProps } from "design-system";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
-import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
+import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -141,19 +140,6 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
         ],
       },
       {
-        key: "CurlImportEditor",
-        component: CurlImportEditor,
-        exact: true,
-        path: [
-          BUILDER_PATH + CURL_IMPORT_PAGE_PATH,
-          BUILDER_CUSTOM_PATH + CURL_IMPORT_PAGE_PATH,
-          BUILDER_PATH_DEPRECATED + CURL_IMPORT_PAGE_PATH,
-          BUILDER_PATH + CURL_IMPORT_PAGE_PATH + ADD_PATH,
-          BUILDER_CUSTOM_PATH + CURL_IMPORT_PAGE_PATH + ADD_PATH,
-          BUILDER_PATH_DEPRECATED + CURL_IMPORT_PAGE_PATH + ADD_PATH,
-        ],
-      },
-      {
         key: "QueryEditor",
         component: QueryEditor,
         exact: true,
@@ -161,7 +147,7 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
       },
       {
         key: "QueryEmpty",
-        component: ListQuery,
+        component: QueriesBlankState,
         exact: true,
         path: [path],
       },

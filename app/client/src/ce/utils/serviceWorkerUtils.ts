@@ -2,13 +2,14 @@ import { Mutex } from "async-mutex";
 import { APP_MODE } from "entities/App";
 import type { Match, TokensToRegexpOptions } from "path-to-regexp";
 import { match } from "path-to-regexp";
-
-const BUILDER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
-const BUILDER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId/edit`;
-const VIEWER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId`;
-const VIEWER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId`;
-const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
-const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
+import {
+  BUILDER_PATH,
+  BUILDER_CUSTOM_PATH,
+  VIEWER_PATH,
+  VIEWER_CUSTOM_PATH,
+  BUILDER_PATH_DEPRECATED,
+  VIEWER_PATH_DEPRECATED,
+} from "@appsmith/constants/routes/appRoutes";
 
 interface TMatchResult {
   pageId?: string;
@@ -157,15 +158,23 @@ export class PrefetchApiService {
   cacheMaxAge = 2 * 60 * 1000; // 2 minutes in milliseconds
   // Mutex to lock the fetch and cache operation
   prefetchFetchMutexMap = new Map<string, Mutex>();
+  // Header keys used to create the unique request key
+  headerKeys = ["branchname"];
 
   constructor() {}
 
   // Function to get the request key
   getRequestKey = (request: Request) => {
-    const headersKey = Array.from(request.headers.entries())
-      .map(([key, value]) => `${key}:${value}`)
-      .join(",");
-    return `${request.method}:${request.url}:${headersKey}`;
+    let requestKey = `${request.method}:${request.url}`;
+
+    this.headerKeys.forEach((headerKey) => {
+      const headerValue = request.headers.get(headerKey);
+      if (headerValue) {
+        requestKey += `:${headerKey}:${headerValue}`;
+      }
+    });
+
+    return requestKey;
   };
 
   // Function to acquire the fetch mutex for a request

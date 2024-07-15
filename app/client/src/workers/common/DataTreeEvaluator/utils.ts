@@ -1,12 +1,19 @@
+import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
+  DataTreeDiffEvent,
   getEntityNameAndPropertyPath,
   isJSAction,
+  isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   EXECUTION_PARAM_REFERENCE_REGEX,
   THIS_DOT_PARAMS_KEY,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
+import type {
+  ConfigTree,
+  DataTree,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeTypes";
 import type DependencyMap from "entities/DependencyMap";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
@@ -99,14 +106,29 @@ export function getOnlyAffectedJSObjects(
   }
   const idsSet = new Set(ids);
   return Object.keys(jsDataTree).reduce(
-    (acc, key) => {
-      const { actionId } = jsDataTree[key];
+    (acc, jsObjectName) => {
+      const { actionId } = jsDataTree[jsObjectName];
       //only matching action id will be included in the reduced jsDataTree
       if (idsSet.has(actionId)) {
-        acc[key] = jsDataTree[key];
+        acc[jsObjectName] = jsDataTree[jsObjectName];
       }
       return acc;
     },
     {} as Record<string, JSActionEntity>,
   );
+}
+
+export function getIsNewWidgetAdded(
+  translatedDiffs: DataTreeDiff[],
+  unEvalTree: UnEvalTree,
+) {
+  return translatedDiffs.some((diffEvent) => {
+    if (diffEvent.event === DataTreeDiffEvent.NEW) {
+      const entity = unEvalTree[diffEvent.payload.propertyPath];
+      if (isWidget(entity)) {
+        return true;
+      }
+    }
+    return false;
+  });
 }
