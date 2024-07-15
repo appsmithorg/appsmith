@@ -3104,7 +3104,7 @@ __metadata:
     "@react-aria/visually-hidden": ^3.8.0
     "@react-types/actiongroup": ^3.4.6
     "@react-types/shared": ^3.23.1
-    "@tabler/icons-react": ^2.45.0
+    "@tabler/icons-react": ^3.10.0
     "@types/fs-extra": ^11.0.4
     clsx: ^2.0.0
     colorjs.io: ^0.4.3
@@ -10202,22 +10202,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tabler/icons-react@npm:^2.45.0":
-  version: 2.45.0
-  resolution: "@tabler/icons-react@npm:2.45.0"
+"@tabler/icons-react@npm:^3.10.0":
+  version: 3.10.0
+  resolution: "@tabler/icons-react@npm:3.10.0"
   dependencies:
-    "@tabler/icons": 2.45.0
-    prop-types: ^15.7.2
+    "@tabler/icons": 3.10.0
   peerDependencies:
-    react: ^16.5.1 || ^17.0.0 || ^18.0.0
-  checksum: 2cc887b98a98abc09f353363c3d19a8173d2b2a6b7723d92bf752413e131a073f6c05613277af353935c9173b339475d5349c669a4a983c035426eabc0e2a642
+    react: ">= 16"
+  checksum: 2bda44e263acf3ea932b28136dac4792520a50e23cdf2c307cab8fdf60f5c823f0e6921dc209a0b7645ad8a4b407a171e611be6257044558ab8863d9d2eb8a09
   languageName: node
   linkType: hard
 
-"@tabler/icons@npm:2.45.0":
-  version: 2.45.0
-  resolution: "@tabler/icons@npm:2.45.0"
-  checksum: 01359255e2a1e3314262dc28891d39c984eaaa9d6f148de1a2a7c5de824e5da02f43cd29a735cb2a3ebcda1f801cb394f06cf5b4ecf5dd22ca0131d1cebe6ed3
+"@tabler/icons@npm:3.10.0":
+  version: 3.10.0
+  resolution: "@tabler/icons@npm:3.10.0"
+  checksum: dbb2a8442acbcc11f4b19174bc625c66f8af36999ecb06cfdd85b90e1288b28b2092fbcc5d1346d827a3e43b9ff6300929c605555971e1490f7be93da506015e
   languageName: node
   linkType: hard
 
