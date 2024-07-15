@@ -53,3 +53,5 @@ EXPOSE 443
 ENTRYPOINT [ "/opt/appsmith/entrypoint.sh" ]
 HEALTHCHECK --interval=15s --timeout=15s --start-period=45s CMD "/opt/appsmith/healthcheck.sh"
 CMD ["/usr/bin/supervisord", "-n"]
+
+
