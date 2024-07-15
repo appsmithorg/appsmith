@@ -148,6 +148,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
             // This block should be used only for startup migrations to make sure we have the updated values in policies
             // only, before running the migration to switch from policies to policyMap.
             this.policies = policies;
+            this.policyMap = null;
             return;
         }
         // Explicitly set policies to null as it is deprecated and should not be used.
