@@ -67,7 +67,7 @@ describe(
       });
     });
 
-    it.only("6. Corners", () => {
+    it("6. Corners", () => {
       ["0px", "6px", "20px"].forEach((corner) => {
         anvilSnapshot.setCorners(corner);
 
