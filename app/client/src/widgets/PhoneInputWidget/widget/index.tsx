@@ -8,6 +8,7 @@ import { ValidationTypes } from "constants/WidgetValidation";
 import {
   createMessage,
   FIELD_REQUIRED_ERROR,
+  INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
 } from "@appsmith/constants/messages";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import {
@@ -233,6 +234,15 @@ class PhoneInputWidget extends BaseInputWidget<
               isBindProperty: true,
               isTriggerProperty: false,
               validation: { type: ValidationTypes.BOOLEAN },
+            },
+            {
+              helpText: "Sets maximum allowed text length",
+              propertyName: "maxChars",
+              label: "Max Length",
+              controlType: "INPUT_TEXT",
+              placeholderText: "255",
+              isBindProperty: true,
+              isTriggerProperty: false,
             },
           ],
         },
@@ -472,13 +482,26 @@ class PhoneInputWidget extends BaseInputWidget<
 
   getWidgetView() {
     const value = this.props.text ?? "";
-    const isInvalid =
+    let isInvalid =
       "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
     const countryCode = this.props.countryCode;
     const conditionalProps: Partial<PhoneInputComponentProps> = {};
     conditionalProps.errorMessage = this.props.errorMessage;
     if (this.props.isRequired && value.length === 0) {
       conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
+    }
+    if (this.props.maxChars) {
+      conditionalProps.maxLength = this.props.maxChars;
+      if (
+        this.props.defaultText &&
+        this.props.defaultText.toString().length > this.props.maxChars
+      ) {
+        isInvalid = true;
+        conditionalProps.errorMessage = createMessage(
+          INPUT_DEFAULT_TEXT_MAX_CHAR_ERROR,
+          this.props.maxChars,
+        );
+      }
     }
     const { componentHeight } = this.props;
 
@@ -517,6 +540,7 @@ class PhoneInputWidget extends BaseInputWidget<
         tooltip={this.props.tooltip}
         value={value}
         widgetId={this.props.widgetId}
+        maxLength={this.props.maxChars}
         {...conditionalProps}
       />
     );
@@ -528,6 +552,7 @@ export interface PhoneInputWidgetProps extends BaseInputWidgetProps {
   countryCode?: CountryCode;
   defaultText?: string;
   allowDialCodeChange: boolean;
+  maxLength?:number;
 }
 
 export default PhoneInputWidget;

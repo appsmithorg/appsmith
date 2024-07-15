@@ -175,6 +175,8 @@ export class PropertyPane {
   _dataIcon = (icon: string) => `[data-icon="${icon}"]`;
   _iconDropdown = "[data-test-id='virtuoso-scroller']";
   _dropdownControlError = "[data-testid='t---dropdown-control-error']";
+  _propertyContentDefaultValueField = ".t--property-control-defaultvalue";
+  _popOverContent=".bp3-popover-content";
 
   public OpenJsonFormFieldSettings(fieldName: string) {
     this.agHelper.GetNClick(this._jsonFieldEdit(fieldName));
