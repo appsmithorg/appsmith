@@ -14,7 +14,7 @@ export class AnvilSnapshot {
     appViewerPage: "[data-testid=t--app-viewer-page]",
     propertyPaneSidebar: "[data-testid=t--property-pane-sidebar]",
     accentColorInput: "[data-testid=t--color-picker-input]",
-    fontFamilySectionInput: "[data-testid=t--anvil-theme-settings-typography]",
+    fontFamilySectionInput: "[data-testid=t--anvil-theme-settings-font-family] input",
     densityOptions: "[data-testid=t--anvil-theme-settings-density] > div",
     sizingOptions: "[data-testid=t--anvil-theme-settings-sizing] > div",
     cornersOptions: "[data-testid=t--anvil-theme-settings-corners] > div",

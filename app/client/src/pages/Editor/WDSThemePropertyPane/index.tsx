@@ -186,6 +186,7 @@ function WDSThemePropertyPane() {
 
       <SettingSection
         className="px-4 py-3 border-t "
+        data-testid="t--anvil-theme-settings-typography"
         isDefaultOpen
         title="Typography"
       >

@@ -37,7 +37,7 @@ describe(
       anvilSnapshot.setAccentColor("#0080ff");
     });
 
-    it("2. Typography", () => {
+    it("3. Typography", () => {
       anvilSnapshot.setTypography("Inter");
 
       anvilSnapshot.matchSanpshotForCanvasMode("AppThemingTypography");
@@ -47,7 +47,7 @@ describe(
       anvilSnapshot.setTypography("System Default");
     });
 
-    it("3. Density", () => {
+    it("4. Density", () => {
       ["Tight", "Regular", "Loose"].forEach((density) => {
         anvilSnapshot.setDensity(density);
 
@@ -57,7 +57,7 @@ describe(
       });
     });
 
-    it("4. Sizing", () => {
+    it("5. Sizing", () => {
       ["Small", "Regular", "Big"].forEach((size) => {
         anvilSnapshot.setSizing(size);
 
@@ -67,7 +67,7 @@ describe(
       });
     });
 
-    it("5. Corners", () => {
+    it.only("6. Corners", () => {
       ["0px", "6px", "20px"].forEach((corner) => {
         anvilSnapshot.setCorners(corner);
 
@@ -77,7 +77,7 @@ describe(
       });
     });
 
-    it("6. Icon Style", () => {
+    it("7. Icon Style", () => {
       ["Filled", "Outlined"].forEach((iconStyle) => {
         anvilSnapshot.setIconStyle(iconStyle);
 
