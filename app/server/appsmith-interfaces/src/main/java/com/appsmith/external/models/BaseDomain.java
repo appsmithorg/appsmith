@@ -22,6 +22,7 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.domain.Persistable;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.util.CollectionUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -113,18 +114,44 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView({Views.Internal.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public Set<Policy> getPolicies() {
-        if (policyMap != null && !policyMap.isEmpty()) {
-            return Set.copyOf(policyMap.values());
+        if (!CollectionUtils.isEmpty(policies)) {
+            return policies;
         }
-        return policies;
+        return policyMap == null ? null : Set.copyOf(policyMap.values());
     }
 
     // TODO Abhijeet: Remove this method once we have migrated all the usages of policies to policyMap
     @JsonView({Views.Internal.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public void setPolicies(Set<Policy> policies) {
-        this.policyMap = PolicyUtil.setPolicies(policies);
+        setPolicies(policies, true);
+    }
+
+    /**
+     * This method is used to set the policyMap and also nullify the policies field if required. This acts as a
+     * backward compatible method till we replace direct assignment to policyMap field. By default, from the codebase
+     * we expect that the policies field should be nullified, but the same is not true when triggered it from startup
+     * migrations till {@link Migration057PolicySetToPolicyMap} is executed. This is because we update the policies via:
+     * 1. The setter method
+     * 2. Direct assignment to the field (check {@link Migration042AddPermissionsForGitOperations})
+     * The 2nd use-case is what makes it difficult to track and update policies in migrations. We thought of updating
+     * the policyMaps as well during these direct assignments but that would mean we are altering existing migrations
+     * which leaves the room for errors and is not a good practice.
+     *
+     * @param policies                  The set of policies to be set
+     * @param shouldNullifyPolicies     A boolean flag to decide if the policies field should be nullified
+     */
+    @JsonView({Views.Internal.class})
+    @Deprecated(forRemoval = true, since = "Use policyMap instead")
+    public void setPolicies(Set<Policy> policies, boolean shouldNullifyPolicies) {
+        if (!shouldNullifyPolicies) {
+            // This block should be used only for startup migrations to make sure we have the updated values in policies
+            // only, before running the migration to switch from policies to policyMap.
+            this.policies = policies;
+            return;
+        }
         // Explicitly set policies to null as it is deprecated and should not be used.
+        this.policyMap = PolicyUtil.setPolicies(policies);
         this.policies = null;
     }
 
