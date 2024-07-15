@@ -31,7 +31,7 @@ import static com.appsmith.server.migrations.db.ce.Migration041TagWorkspacesForG
 public class Migration042AddPermissionsForGitOperations {
 
     private final MongoTemplate mongoTemplate;
-    private static final String policiesFieldPath = "policies";
+    private static final String policiesFieldPath = BaseDomain.Fields.policies;
     private static final String idFieldPath = BaseDomain.Fields.id;
     private static final String workspaceIdFieldPath = Application.Fields.workspaceId;
     private static final String defaultPermissionGroupsFieldPath = Workspace.Fields.defaultPermissionGroups;

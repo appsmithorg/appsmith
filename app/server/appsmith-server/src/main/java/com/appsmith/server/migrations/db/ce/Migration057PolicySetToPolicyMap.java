@@ -13,6 +13,7 @@ import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.aggregation.VariableOperators;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
@@ -24,7 +25,6 @@ import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
  * Migration to convert the policies field to a policyMap field in all the collections. The key defines the permission
  * whereas the value is the actual policy object. This makes it easier to use this data in code, to query as a MongoDB
  * nested document, and as a Postgres jsonb column.
- * Migration also creates a backup of the policies field in case we need to rollback or for debugging purpose.
  */
 @Slf4j
 @RequiredArgsConstructor
@@ -94,7 +94,19 @@ public class Migration057PolicySetToPolicyMap {
                 AggregationUpdate.update().set(BaseDomain.Fields.policyMap).toValueOf(operator),
                 collectionName);
 
+        // Create a backup of the policies field so that we can rollback if needed
+        final Mono<UpdateResult> backupPoliciesField = mongoTemplate.updateMulti(
+                new Query(where(POLICIES)
+                        .exists(true)
+                        .and(BaseDomain.Fields.policyMap)
+                        .exists(true)
+                        .and(BaseDomain.Fields.deletedAt)
+                        .isNull()),
+                new Update().rename(POLICIES, "_policies"),
+                collectionName);
+
         return convertToMap
+                .then(backupPoliciesField)
                 .elapsed()
                 .doOnSuccess(it -> log.info("{} finished in {}ms", collectionName, it.getT1()))
                 .then();

@@ -15,9 +15,6 @@ import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.List;
 
-import static com.appsmith.server.constants.DeprecatedFieldName.POLICIES;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-
 @Slf4j
 @RequiredArgsConstructor
 @ChangeUnit(order = "030", id = "tag-users-with-no-user-management-roles")
@@ -33,8 +30,10 @@ public class Migration030TagUsersWithNoUserManagementRoles {
 
     @Execution
     public void tagUsersWithNoUserManagementRoles() {
-        Criteria criteriaDefaultDomainTypeExists = where("defaultDomainType").exists(true);
-        Criteria criteriaDefaultDomainTypeIsUser = where("defaultDomainType").is(User.class.getSimpleName());
+        Criteria criteriaDefaultDomainTypeExists =
+                Criteria.where("defaultDomainType").exists(true);
+        Criteria criteriaDefaultDomainTypeIsUser =
+                Criteria.where("defaultDomainType").is(User.class.getSimpleName());
 
         Criteria criteriaUserManagementRoles =
                 new Criteria().andOperator(criteriaDefaultDomainTypeExists, criteriaDefaultDomainTypeIsUser);
@@ -48,14 +47,16 @@ public class Migration030TagUsersWithNoUserManagementRoles {
                 .toList();
 
         Criteria criteriaUsersWithNoUserManagementRoles =
-                where(BaseDomain.Fields.id).nin(userIdsWithUserManagementRoles);
-        Criteria criteriaUsersPolicies = new Criteria()
-                .andOperator(where(POLICIES).exists(true), where(POLICIES).not().size(0));
-        Criteria criteriaUsersPolicyMapExists = where(User.Fields.policyMap).exists(true);
+                Criteria.where(BaseDomain.Fields.id).nin(userIdsWithUserManagementRoles);
+        Criteria criteriaUsersPoliciesExists =
+                Criteria.where(BaseDomain.Fields.policies).exists(true);
+        Criteria criteriaUsersPoliciesNotEmpty =
+                Criteria.where(BaseDomain.Fields.policies).not().size(0);
         Criteria criteriaUsersWithNoUserManagementRolesAndUserPoliciesExists = new Criteria()
                 .andOperator(
                         criteriaUsersWithNoUserManagementRoles,
-                        new Criteria().orOperator(criteriaUsersPolicies, criteriaUsersPolicyMapExists));
+                        criteriaUsersPoliciesExists,
+                        criteriaUsersPoliciesNotEmpty);
         Query queryUsersWithNoUserManagementRoles =
                 new Query(criteriaUsersWithNoUserManagementRolesAndUserPoliciesExists);
 

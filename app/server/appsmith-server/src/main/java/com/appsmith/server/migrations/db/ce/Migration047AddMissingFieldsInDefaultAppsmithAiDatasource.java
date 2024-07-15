@@ -103,7 +103,7 @@ public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
                 Set<PermissionGroup> workspacePermissionGroups =
                         getWorkspacePermissionGroups(workspaceId, allApplicationIds);
 
-                datasource.setPolicies(createPolicies(isPublic, workspacePermissionGroups));
+                datasource.setPolicies(createPolicies(isPublic, workspacePermissionGroups), false);
                 datasource.setInvalids(new HashSet<>());
                 datasource.setCreatedAt(now);
                 datasource.setUpdatedAt(now);
@@ -192,7 +192,7 @@ public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
         DatasourceStorage datasourceStorage = new DatasourceStorage();
         datasourceStorage.setDatasourceId(datasource.getId());
         datasourceStorage.setInvalids(new HashSet<>());
-        datasourceStorage.setPolicies(new HashSet<>());
+        datasourceStorage.setPolicies(new HashSet<>(), false);
         datasourceStorage.setIsConfigured(true);
         datasourceStorage.setGitSyncId(datasource.getGitSyncId());
         datasourceStorage.setEnvironmentId(envId);

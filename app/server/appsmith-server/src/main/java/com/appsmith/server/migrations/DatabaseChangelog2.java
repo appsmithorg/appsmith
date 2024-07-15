@@ -55,7 +55,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.helpers.StringUtils.dotted;
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_ENV;
@@ -63,7 +62,6 @@ import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
-import static com.appsmith.server.constants.DeprecatedFieldName.POLICIES;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
@@ -245,11 +243,8 @@ public class DatabaseChangelog2 {
                 Set.of(new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION)));
 
         Query adminUserQuery = new Query();
-        // OR-ing for backward compatibility where policies are stored in a set instead of map
-        Criteria policyCriteria = where(POLICIES).elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue()));
-        Criteria policyMapCriteria = where(dotted(BaseDomain.Fields.policyMap, MANAGE_INSTANCE_ENV.getValue()))
-                .exists(true);
-        adminUserQuery.addCriteria(new Criteria().orOperator(policyCriteria, policyMapCriteria));
+        adminUserQuery.addCriteria(
+                where(BaseDomain.Fields.policies).elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue())));
         List<User> adminUsers = mongoTemplate.find(adminUserQuery, User.class);
 
         instanceManagerPermissionGroup.setAssignedToUserIds(
@@ -269,7 +264,7 @@ public class DatabaseChangelog2 {
                 .permissionGroups(Set.of(savedPermissionGroup.getId()))
                 .build();
 
-        savedInstanceConfig.setPolicies(new HashSet<>(Set.of(editConfigPolicy, readConfigPolicy)));
+        savedInstanceConfig.setPolicies(new HashSet<>(Set.of(editConfigPolicy, readConfigPolicy)), false);
 
         mongoTemplate.save(savedInstanceConfig);
 
@@ -285,7 +280,7 @@ public class DatabaseChangelog2 {
                 .build();
 
         savedPermissionGroup.setPolicies(
-                new HashSet<>(Set.of(updatePermissionGroupPolicy, assignPermissionGroupPolicy)));
+                new HashSet<>(Set.of(updatePermissionGroupPolicy, assignPermissionGroupPolicy)), false);
 
         Set<Permission> permissions = new HashSet<>(savedPermissionGroup.getPermissions());
         permissions.addAll(Set.of(
@@ -392,7 +387,7 @@ public class DatabaseChangelog2 {
         for (Theme theme : themes) {
             theme.setSystemTheme(true);
             theme.setCreatedAt(Instant.now());
-            theme.setPolicies(new HashSet<>(Set.of(policyWithCurrentPermission)));
+            theme.setPolicies(new HashSet<>(Set.of(policyWithCurrentPermission)), false);
             Query query = new Query(Criteria.where(Theme.Fields.name)
                     .is(theme.getName())
                     .and(Theme.Fields.isSystemTheme)
@@ -403,7 +398,7 @@ public class DatabaseChangelog2 {
                 savedTheme = mongoTemplate.save(theme);
             } else { // theme already found, update
                 savedTheme.setDisplayName(theme.getDisplayName());
-                savedTheme.setPolicies(theme.getPolicies());
+                savedTheme.setPolicies(theme.getPolicies(), false);
                 savedTheme.setConfig(theme.getConfig());
                 savedTheme.setProperties(theme.getProperties());
                 savedTheme.setStylesheet(theme.getStylesheet());
@@ -540,7 +535,7 @@ public class DatabaseChangelog2 {
                     if (i == 0) {
                         // Don't create a new theme for the first application
                         // Just update the policies
-                        theme.setPolicies(themePolicies);
+                        theme.setPolicies(themePolicies, false);
                         mongoTemplate.save(theme);
                     } else {
 
@@ -553,7 +548,7 @@ public class DatabaseChangelog2 {
                         newTheme.setProperties(theme.getProperties());
                         newTheme.setCreatedAt(Instant.now());
                         newTheme.setUpdatedAt(Instant.now());
-                        newTheme.setPolicies(themePolicies);
+                        newTheme.setPolicies(themePolicies, false);
 
                         newTheme = mongoTemplate.save(newTheme);
 
