@@ -31,6 +31,7 @@ export interface JSCollectionDifference {
     newName: string;
     pageId: string;
     moduleId?: string;
+    workflowId?: string;
   }>;
   changedVariables: Variable[];
 }
@@ -104,6 +105,7 @@ export const getDifferenceInJSCollection = (
             newName: newActions[i].name,
             pageId: updateExisting.pageId,
             moduleId: updateExisting.moduleId,
+            workflowId: updateExisting.workflowId,
           });
           newActions.splice(i, 1);
           toBearchivedActions.splice(indexOfArchived, 1);

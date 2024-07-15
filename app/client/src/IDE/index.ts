@@ -40,9 +40,17 @@ export { default as IDEHeaderDropdown } from "./Components/HeaderDropdown";
  */
 export { default as IDEBottomView } from "./Components/BottomView";
 
+/**
+ * IDESidebar is used inside the IDE to have a navigation menu on the left side of the screen.
+ * It switches between different editor states
+ */
+export { default as IDESidebar } from "./Components/Sidebar";
+
 /* ====================================================
     **** Interfaces ****
     Common types that are used by the different components of the IDE
 =======================================================**/
 
 export { ViewHideBehaviour, ViewDisplayMode } from "./Interfaces/View";
+export { Condition } from "./enums";
+export type { IDESidebarButton } from "./Components/Sidebar";

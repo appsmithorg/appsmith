@@ -52,7 +52,7 @@ interface BindDataButtonProps {
   hasResponse: boolean;
 }
 
-const SUPPORTED_SUGGESTED_WIDGETS = ["TABLE_WIDGET_V2"];
+const SUPPORTED_SUGGESTED_WIDGETS = ["TABLE_WIDGET_V2", "WDS_TABLE_WIDGET"];
 
 const connectExistingWidgetLabel = createMessage(CONNECT_EXISTING_WIDGET_LABEL);
 const addNewWidgetLabel = createMessage(ADD_NEW_WIDGET);
@@ -95,6 +95,14 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
     existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/existing_table.svg`,
     icon: tableWidgetIconSvg,
   },
+  WDS_TABLE_WIDGET: {
+    label: "tabledata",
+    propertyName: "tableData",
+    widgetName: "Table",
+    image: `${ASSETS_CDN_URL}/widgetSuggestion/table.svg`,
+    existingImage: `${ASSETS_CDN_URL}/widgetSuggestion/existing_table.svg`,
+    icon: tableWidgetIconSvg,
+  },
   CHART_WIDGET: {
     label: "chart-series-data-control",
     propertyName: "chartData",
@@ -129,7 +137,9 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
   },
 };
 
-//TODO(Balaji): Abstraction leak.
+// This function and the above map can resolve the abstraction leaks, if the widgets themselves provide these configurations.
+// We can then access them via the widget configs and avoid mentioning individual widget types
+// Created an issue here: https://github.com/appsmithorg/appsmith/issues/34813
 function getWidgetProps(
   suggestedWidget: SuggestedWidget,
   widgetInfo: WidgetBindingInfo,
@@ -264,6 +274,9 @@ function BindDataButton(props: BindDataButtonProps) {
   const pages = useSelector(getPageList);
 
   const isAnvilLayout = useSelector(getIsAnvilLayout);
+  // The purpose of this filter is to make sure that if Anvil is enabled
+  // only those widgets which have an alternative in Anvil are listed
+  // for selection for adding a new suggested widget
   const filteredSuggestedWidgets =
     isAnvilLayout && suggestedWidgets
       ? suggestedWidgets.filter((each) =>
@@ -312,6 +325,10 @@ function BindDataButton(props: BindDataButtonProps) {
     AnalyticsUtil.logEvent("SUGGESTED_WIDGET_CLICK", {
       widget: suggestedWidget.type,
     });
+    // This action calls the Anvil Suggested widget saga
+    // which transforms a legacy widget into an Anvil widget
+    // For example: a request to add TABLE_WIDGET_V2, is transformed
+    // to add WDS_TABLE_WIDGET
     dispatch(addSuggestedWidget(payload));
   };
 

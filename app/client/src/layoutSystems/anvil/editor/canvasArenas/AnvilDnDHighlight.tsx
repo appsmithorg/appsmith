@@ -39,19 +39,22 @@ export const AnvilDnDHighlight = ({
       };
     }
     // Calculate padding based on highlight orientation
-    const horizontalPadding = highlightShown.isVertical
-      ? 0
-      : PADDING_FOR_HORIZONTAL_HIGHLIGHT;
     const verticalPadding = highlightShown.isVertical
       ? PADDING_FOR_HORIZONTAL_HIGHLIGHT
       : 0;
 
+    // Reduce highlight width for empty canvas by compensator values.
+    const width =
+      highlightShown.canvasId === "0"
+        ? highlightShown.width + compensatorValues.left * 2
+        : highlightShown.width;
+
     // Calculate dimension styles based on highlight info
     return {
       height: highlightShown.height - verticalPadding * 2,
-      left: highlightShown.posX + horizontalPadding - compensatorValues.left,
+      left: highlightShown.posX - compensatorValues.left,
       top: highlightShown.posY + verticalPadding - compensatorValues.top,
-      width: highlightShown.width - horizontalPadding * 2,
+      width: width,
     };
   }, [highlightShown]);
 

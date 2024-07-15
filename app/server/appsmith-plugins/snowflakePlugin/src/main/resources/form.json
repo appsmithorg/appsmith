@@ -50,18 +50,18 @@
       "children": [
         {
           "label": "Authentication type",
-          "configProperty": "datasourceConfiguration.authentication.authType",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
           "controlType": "DROP_DOWN",
           "isRequired": true,
-          "initialValue": "USERNAME_PASSWORD",
+          "initialValue": "dbAuth",
           "options": [
             {
-              "label": "USERNAME_PASSWORD",
-              "value": "USERNAME_PASSWORD"
+              "label": "Basic",
+              "value": "dbAuth"
             },
             {
-              "label": "KEY_PAIR",
-              "value": "KEY_PAIR"
+              "label": "Key pair",
+              "value": "snowflakeKeyPairAuth"
             }
           ],
           "hidden": {
@@ -94,9 +94,9 @@
                 "value": true
               },
               {
-                "path": "datasourceConfiguration.authentication.authType",
-                "comparison": "NOT_EQUALS",
-                "value": "USERNAME_PASSWORD"
+                "path": "datasourceConfiguration.authentication.authenticationType",
+                "comparison": "DEFINED_AND_NOT_EQUALS",
+                "value": "dbAuth"
               }
             ]
           }
@@ -116,18 +116,20 @@
                 "value": false
               },
               {
-                "path": "datasourceConfiguration.authentication.authType",
+                "path": "datasourceConfiguration.authentication.authenticationType",
                 "comparison": "NOT_EQUALS",
-                "value": "KEY_PAIR"
+                "value": "snowflakeKeyPairAuth"
               }
             ]
           }
         },
         {
-          "label": "Private key passphrase",
+          "label": "Passphrase",
           "configProperty": "datasourceConfiguration.authentication.passphrase",
+          "dataType": "PASSWORD",
           "controlType": "INPUT_TEXT",
-          "placeholderText": "private key passphrase",
+          "placeholderText": "Private key passphrase",
+          "encrypted": true,
           "hidden": {
             "conditionType": "OR",
             "conditions": [
@@ -137,9 +139,9 @@
                 "value": false
               },
               {
-                "path": "datasourceConfiguration.authentication.authType",
+                "path": "datasourceConfiguration.authentication.authenticationType",
                 "comparison": "NOT_EQUALS",
-                "value": "KEY_PAIR"
+                "value": "snowflakeKeyPairAuth"
               }
             ]
           }
