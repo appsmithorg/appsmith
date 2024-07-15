@@ -113,6 +113,7 @@ import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSele
 import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { transformTriggerEvalErrors } from "@appsmith/sagas/helpers";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -351,10 +352,16 @@ export function* evaluateAndExecuteDynamicTrigger(
     },
   );
   const { errors = [] } = response as any;
-  yield call(dynamicTriggerErrorHandler, errors);
+
+  const transformedErrors: EvaluationError[] = yield call(
+    transformTriggerEvalErrors,
+    errors,
+  );
+
+  yield call(dynamicTriggerErrorHandler, transformedErrors);
   yield fork(logDynamicTriggerExecution, {
     dynamicTrigger,
-    errors,
+    errors: transformedErrors,
     triggerMeta,
   });
   return response;
