@@ -65,6 +65,7 @@ export class GitSync {
     "[data-testid='t--git-protected-branches-select']";
   public _branchProtectionUpdateBtn =
     "[data-testid='t--git-protected-branches-update-btn']";
+  public _autocommitStatusbar = "[data-testid='t--autocommit-statusbar']";
   public _disconnectGitBtn = "[data-testid='t--git-disconnect-btn']";
   public _mergeLoader = "[data-testid='t--git-merge-loader']";
 
