@@ -106,7 +106,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   );
 
   const optionsTree = [
-    menuItems.includes(ActionEntityContextMenuItemsEnum.RE_NAME) &&
+    menuItems.includes(ActionEntityContextMenuItemsEnum.RENAME) &&
       canManageAction && {
         value: "rename",
         onSelect: editActionName,

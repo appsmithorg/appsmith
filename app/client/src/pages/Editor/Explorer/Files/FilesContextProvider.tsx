@@ -2,7 +2,7 @@ import React, { createContext, useMemo } from "react";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export enum ActionEntityContextMenuItemsEnum {
-  RE_NAME = "Rename",
+  RENAME = "Rename",
   SHOW_BINDING = "Show Bindings",
   CONVERT_QUERY_MODULE_INSTANCE = "Create Module",
   COPY = "Copy",
@@ -11,7 +11,7 @@ export enum ActionEntityContextMenuItemsEnum {
 }
 
 export const defaultMenuItems = [
-  ActionEntityContextMenuItemsEnum.RE_NAME,
+  ActionEntityContextMenuItemsEnum.RENAME,
   ActionEntityContextMenuItemsEnum.DELETE,
   ActionEntityContextMenuItemsEnum.SHOW_BINDING,
   ActionEntityContextMenuItemsEnum.COPY,
