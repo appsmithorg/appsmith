@@ -53,4 +53,17 @@ describe("removeValue", { tags: ["@tag.notcovered"] }, () => {
     cy.wait(5000);
     cy.xpath("//div[@id='testing']");
   });
+
+  it.only("new Remove", function () {
+    cy.wait(5000);
+    _.AggregateHelper.Sleep();
+
+    agHelper.Sleep(500);
+
+    _.agHelper.Sleep();
+
+    this.Sleep()
+    
+    this.Sleep(3000)
+  });
 });
