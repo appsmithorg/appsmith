@@ -7,6 +7,7 @@ import { Resource } from "@opentelemetry/resources";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { W3CTraceContextPropagator } from "@opentelemetry/core";
+import { getWebAutoInstrumentations } from "@opentelemetry/auto-instrumentations-web";
 
 const { newRelic } = getAppsmithConfigs();
 const { applicationId, otlpEndpoint, otlpLicenseKey, otlpServiceName } =
@@ -66,5 +67,5 @@ provider.register({
 });
 
 registerInstrumentations({
-  instrumentations: [],
+  instrumentations: [getWebAutoInstrumentations()],
 });
