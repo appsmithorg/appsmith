@@ -1,0 +1,49 @@
+import {
+  agHelper,
+  deployMode,
+  entityExplorer,
+  jsEditor,
+  propPane,
+} from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../support/Pages/EditorNavigation";
+
+describe("removeValue", { tags: ["@tag.notcovered"] }, () => {
+  const dataDiv =  "div[id='testing']";
+
+  before(() => {
+    console.log("before");
+  });
+  beforeEach(() => {
+    console.log("before each");
+  });
+
+  after(() => {
+    console.log("after");
+  });
+  afterEach(() => {
+    console.log("after each");
+  });
+
+  it("Remove", function () {
+    cy.LoginUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
+    cy.pause();
+    cy.wait(5000);
+    cy.xpath("//div[@id='testing']");
+    cy.get("div[id='testing']");
+    cy.get(".btn.submit");
+    cy.get(".div.span");
+    cy.get("button[type=submit]");
+    expect(true).to.be.equal(false);
+    cy.get("input[type=input]").type("testing str");
+    cy.get("input[type=input]").type(dataDiv);
+  });
+
+  it.only("Remove", function () {
+    cy.wait(5000);
+    cy.xpath("//div[@id='testing']");
+  });
+});
