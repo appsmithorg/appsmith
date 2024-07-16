@@ -10,7 +10,7 @@ describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for Paste functionality`,
   { tags: ["@tag.Anvil"] },
   () => {
-    it("1. Checks if the non-model widget is pasted into the mai canvas, zone and section", () => {
+    it("1. Checks if the non-modal widget is pasted into the mai canvas, zone and section", () => {
       anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
         anvilLocators.WDSBUTTON,
         10,
@@ -149,6 +149,34 @@ describe(
       cy.get(anvilLocators.anvilWidgetTypeSelector(anvilLocators.WDSBUTTON))
         .last()
         .should("have.attr", "data-widget-name", "Button1Copy3");
+    });
+
+    it("4. Checks if the widget can be pasted in Modal Widget", () => {
+      // copy the button widget
+      agHelper.GetNClick(anvilLocators.anvilWidgetNameSelector("Button1"));
+      cy.get("body").type(`{${modifierKey}}c`);
+
+      // drop a modal widget
+      anvilLayout.dnd.DragDropNewAnvilWidgetNVerify(
+        anvilLocators.WDSMODAL,
+        10,
+        10,
+        {
+          skipWidgetSearch: true,
+          dropTargetDetails: {
+            dropModal: true,
+          },
+        },
+      );
+
+      // paste the button widget
+      cy.get("body").type(`{${modifierKey}}v`);
+
+      // since the modal is open, the button should be pasted inside the modal
+      agHelper.AssertElementLength(
+        `${anvilLocators.anvilWidgetTypeSelector(anvilLocators.WDSMODAL)} ${anvilLocators.anvilWidgetTypeSelector(anvilLocators.WDSBUTTON)}`,
+        1,
+      );
     });
   },
 );
