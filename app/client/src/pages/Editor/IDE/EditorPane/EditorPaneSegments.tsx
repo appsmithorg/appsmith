@@ -4,7 +4,7 @@ import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
 import QueriesSegment from "./Query";
 import WidgetsSegment from "./UI";
-import JSSegment from "./JS";
+import { JSEditorPane } from "./JS";
 import SegmentedHeader from "./components/SegmentedHeader";
 import EditorTabs from "../EditorTabs";
 import {
@@ -47,7 +47,7 @@ const EditorPaneSegments = () => {
             path={querySegmentRoutes.map((route) => `${path}${route}`)}
           />
           <SentryRoute
-            component={JSSegment}
+            component={JSEditorPane}
             path={jsSegmentRoutes.map((route) => `${path}${route}`)}
           />
           <SentryRoute
