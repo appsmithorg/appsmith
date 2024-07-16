@@ -315,7 +315,7 @@
     "compression-webpack-plugin": "^10.0.0",
     "cra-bundle-analyzer": "^0.1.0",
     "cy-verify-downloads": "^0.0.5",
-    "cypress": "13.5.1",
+    "cypress": "13.13.0",
     "cypress-file-upload": "^4.1.1",
     "cypress-image-snapshot": "^4.0.1",
     "cypress-mochawesome-reporter": "^3.5.1",
