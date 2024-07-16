@@ -7,123 +7,124 @@ interface TestCase {
   expected: FocusEntityInfo;
 }
 
-const pageId = "0123456789abcdef00000000";
+const applicationId = "a0123456789abcdef0000000";
+const pageId = "b0123456789abcdef0000000";
 
 describe("identifyEntityFromPath", () => {
   const oldUrlCases: TestCase[] = [
     {
-      path: `/applications/myAppId/pages/${pageId}/edit`,
+      path: `/applications/${applicationId}/pages/${pageId}/edit`,
       expected: {
         entity: FocusEntity.CANVAS,
         id: "",
         appState: EditorState.EDITOR,
         params: {
-          applicationId: "myAppId",
-          pageId: pageId,
+          applicationId,
+          pageId,
         },
       },
     },
     {
-      path: `/applications/myAppId/pages/${pageId}/edit/widgets/ryvc8i7oja`,
+      path: `/applications/${applicationId}/pages/${pageId}/edit/widgets/ryvc8i7oja`,
       expected: {
         entity: FocusEntity.PROPERTY_PANE,
         id: "ryvc8i7oja",
         appState: EditorState.EDITOR,
         params: {
-          applicationId: "myAppId",
-          pageId: pageId,
+          applicationId,
+          pageId,
           widgetIds: "ryvc8i7oja",
         },
       },
     },
     {
-      path: `/applications/myAppId/pages/${pageId}/edit/queries`,
+      path: `/applications/${applicationId}/pages/${pageId}/edit/queries`,
       expected: {
         entity: FocusEntity.QUERY_LIST,
         id: "",
         appState: EditorState.EDITOR,
         params: {
-          applicationId: "myAppId",
+          applicationId,
           entity: "queries",
-          pageId: pageId,
+          pageId,
         },
       },
     },
     {
-      path: `/applications/myAppId/pages/${pageId}/edit/api/myApiId`,
+      path: `/applications/${applicationId}/pages/${pageId}/edit/api/myApiId`,
       expected: {
         entity: FocusEntity.QUERY,
         id: "myApiId",
         appState: EditorState.EDITOR,
         params: {
           apiId: "myApiId",
-          applicationId: "myAppId",
-          pageId: pageId,
+          applicationId,
+          pageId,
         },
       },
     },
     {
-      path: `/applications/myAppId/pages/${pageId}/edit/queries/myQueryId`,
+      path: `/applications/${applicationId}/pages/${pageId}/edit/queries/myQueryId`,
       expected: {
         entity: FocusEntity.QUERY,
         id: "myQueryId",
         appState: EditorState.EDITOR,
         params: {
           queryId: "myQueryId",
-          applicationId: "myAppId",
-          pageId: pageId,
+          applicationId,
+          pageId,
         },
       },
     },
     {
-      path: `/applications/myAppId/pages/${pageId}/edit/jsObjects`,
+      path: `/applications/${applicationId}/pages/${pageId}/edit/jsObjects`,
       expected: {
         entity: FocusEntity.JS_OBJECT_LIST,
         id: "",
         appState: EditorState.EDITOR,
         params: {
-          applicationId: "myAppId",
+          applicationId,
           entity: "jsObjects",
-          pageId: pageId,
+          pageId,
         },
       },
     },
     {
-      path: `/applications/myAppId/pages/${pageId}/edit/jsObjects/myJSId`,
+      path: `/applications/${applicationId}/pages/${pageId}/edit/jsObjects/myJSId`,
       expected: {
         entity: FocusEntity.JS_OBJECT,
         id: "myJSId",
         appState: EditorState.EDITOR,
         params: {
-          applicationId: "myAppId",
+          applicationId,
           collectionId: "myJSId",
-          pageId: pageId,
+          pageId,
         },
       },
     },
     {
-      path: `/applications/myAppId/pages/${pageId}/edit/datasource`,
+      path: `/applications/${applicationId}/pages/${pageId}/edit/datasource`,
       expected: {
         entity: FocusEntity.DATASOURCE_LIST,
         id: "",
         appState: EditorState.DATA,
         params: {
-          applicationId: "myAppId",
+          applicationId,
           entity: "datasource",
-          pageId: pageId,
+          pageId,
         },
       },
     },
     {
-      path: `/applications/myAppId/pages/${pageId}/edit/datasource/myDatasourceId`,
+      path: `/applications/${applicationId}/pages/${pageId}/edit/datasource/myDatasourceId`,
       expected: {
         entity: FocusEntity.DATASOURCE,
         id: "myDatasourceId",
         appState: EditorState.DATA,
         params: {
-          applicationId: "myAppId",
+          applicationId,
           datasourceId: "myDatasourceId",
-          pageId: pageId,
+          pageId,
         },
       },
     },
@@ -137,20 +138,20 @@ describe("identifyEntityFromPath", () => {
         appState: EditorState.EDITOR,
         params: {
           applicationSlug: "eval",
-          pageId: pageId,
+          pageId,
           pageSlug: "page1-",
         },
       },
     },
     {
-      path: `/app/myAppId/page1-${pageId}/edit/widgets/ryvc8i7oja`,
+      path: `/app/app-slug/page1-${pageId}/edit/widgets/ryvc8i7oja`,
       expected: {
         entity: FocusEntity.PROPERTY_PANE,
         id: "ryvc8i7oja",
         appState: EditorState.EDITOR,
         params: {
-          applicationSlug: "myAppId",
-          pageId: pageId,
+          applicationSlug: "app-slug",
+          pageId,
           pageSlug: "page1-",
           widgetIds: "ryvc8i7oja",
         },
@@ -165,7 +166,7 @@ describe("identifyEntityFromPath", () => {
         params: {
           applicationSlug: "eval",
           entity: "queries",
-          pageId: pageId,
+          pageId,
           pageSlug: "page1-",
         },
       },
@@ -179,7 +180,7 @@ describe("identifyEntityFromPath", () => {
         params: {
           apiId: "myApiId",
           applicationSlug: "eval",
-          pageId: pageId,
+          pageId,
           pageSlug: "page1-",
         },
       },
@@ -192,7 +193,7 @@ describe("identifyEntityFromPath", () => {
         appState: EditorState.EDITOR,
         params: {
           applicationSlug: "eval",
-          pageId: pageId,
+          pageId,
           pageSlug: "page1-",
           queryId: "myQueryId",
         },
@@ -207,7 +208,7 @@ describe("identifyEntityFromPath", () => {
         params: {
           applicationSlug: "eval",
           entity: "jsObjects",
-          pageId: pageId,
+          pageId,
           pageSlug: "page1-",
         },
       },
@@ -221,7 +222,7 @@ describe("identifyEntityFromPath", () => {
         params: {
           applicationSlug: "eval",
           collectionId: "myJSId",
-          pageId: pageId,
+          pageId,
           pageSlug: "page1-",
         },
       },
@@ -235,7 +236,7 @@ describe("identifyEntityFromPath", () => {
         params: {
           applicationSlug: "eval",
           entity: "datasource",
-          pageId: pageId,
+          pageId,
           pageSlug: "page1-",
         },
       },
@@ -249,7 +250,7 @@ describe("identifyEntityFromPath", () => {
         params: {
           applicationSlug: "eval",
           datasourceId: "myDatasourceId",
-          pageId: pageId,
+          pageId,
           pageSlug: "page1-",
         },
       },
@@ -263,7 +264,7 @@ describe("identifyEntityFromPath", () => {
         id: "",
         appState: EditorState.EDITOR,
         params: {
-          pageId: pageId,
+          pageId,
           customSlug: "myCustomSlug-",
         },
       },
@@ -275,7 +276,7 @@ describe("identifyEntityFromPath", () => {
         id: "ryvc8i7oja",
         appState: EditorState.EDITOR,
         params: {
-          pageId: pageId,
+          pageId,
           customSlug: "myCustomSlug-",
           widgetIds: "ryvc8i7oja",
         },
@@ -288,7 +289,7 @@ describe("identifyEntityFromPath", () => {
         id: "",
         appState: EditorState.EDITOR,
         params: {
-          pageId: pageId,
+          pageId,
           customSlug: "myCustomSlug-",
           entity: "queries",
         },
@@ -301,7 +302,7 @@ describe("identifyEntityFromPath", () => {
         id: "myApiId",
         appState: EditorState.EDITOR,
         params: {
-          pageId: pageId,
+          pageId,
           customSlug: "myCustomSlug-",
           apiId: "myApiId",
         },
@@ -314,7 +315,7 @@ describe("identifyEntityFromPath", () => {
         id: "myQueryId",
         appState: EditorState.EDITOR,
         params: {
-          pageId: pageId,
+          pageId,
           customSlug: "myCustomSlug-",
           queryId: "myQueryId",
         },
@@ -327,7 +328,7 @@ describe("identifyEntityFromPath", () => {
         id: "",
         appState: EditorState.EDITOR,
         params: {
-          pageId: pageId,
+          pageId,
           entity: "jsObjects",
           customSlug: "myCustomSlug-",
         },
@@ -341,7 +342,7 @@ describe("identifyEntityFromPath", () => {
         appState: EditorState.EDITOR,
         params: {
           collectionId: "myJSId",
-          pageId: pageId,
+          pageId,
           customSlug: "myCustomSlug-",
         },
       },
@@ -354,7 +355,7 @@ describe("identifyEntityFromPath", () => {
         appState: EditorState.DATA,
         params: {
           entity: "datasource",
-          pageId: pageId,
+          pageId,
           customSlug: "myCustomSlug-",
         },
       },
@@ -366,7 +367,7 @@ describe("identifyEntityFromPath", () => {
         id: "myDatasourceId",
         appState: EditorState.DATA,
         params: {
-          pageId: pageId,
+          pageId,
           customSlug: "myCustomSlug-",
           datasourceId: "myDatasourceId",
         },
@@ -376,10 +377,7 @@ describe("identifyEntityFromPath", () => {
 
   const cases = oldUrlCases.concat(pageSlugCases.concat(customSlugCases));
 
-  it("works", () => {
-    for (const testCase of cases) {
-      const actual = identifyEntityFromPath(testCase.path);
-      expect(actual).toStrictEqual(testCase.expected);
-    }
+  it.each(cases)("$# $path", ({ expected, path }) => {
+    expect(identifyEntityFromPath(path)).toStrictEqual(expected);
   });
 });
