@@ -26,6 +26,9 @@ import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARA
 public class AuthenticationFailureRetryHandlerCEImpl implements AuthenticationFailureRetryHandlerCE {
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
+    protected final String LOGIN_ERROR_URL = "/user/login?error=true";
+    protected final String LOGIN_ERROR_MESSAGE_URL = LOGIN_ERROR_URL + "&message=";
+    protected final String SIGNUP_ERROR_URL = "/user/signup?error=";
 
     @Override
     public Mono<Void> retryAndRedirectOnAuthenticationFailure(
@@ -88,13 +91,14 @@ public class AuthenticationFailureRetryHandlerCEImpl implements AuthenticationFa
                         .equals(((OAuth2AuthenticationException) exception)
                                 .getError()
                                 .getErrorCode())) {
-            url = "/user/signup?error=" + URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
+            url = SIGNUP_ERROR_URL + URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
         } else {
             if (exception instanceof InternalAuthenticationServiceException) {
-                url = originHeader + "/user/login?error=true&message="
+                url = originHeader
+                        + LOGIN_ERROR_MESSAGE_URL
                         + URLEncoder.encode(exception.getMessage(), StandardCharsets.UTF_8);
             } else {
-                url = originHeader + "/user/login?error=true";
+                url = originHeader + LOGIN_ERROR_URL;
             }
         }
         if (redirectUrl != null && !redirectUrl.trim().isEmpty()) {
