@@ -27,6 +27,23 @@ describe("removeValue", { tags: ["@tag.notcovered"] }, () => {
   afterEach(() => {
     console.log("after each");
   });
+  it.only("new Remove", function () {
+    cy.LoginUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
+    cy.wait(5000);
+    _.AggregateHelper.Sleep();
+     //comment
+    cy.signUp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
+     //comment
+    agHelper.Sleep(500);
+     //comment
+    cy.Logout(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
+    _.agHelper.Sleep();
+     //comment
+
+    this.Sleep()
+
+    this.Sleep(3000)
+  });
 
   it("Remove", function () {
     cy.LoginUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
@@ -51,32 +68,26 @@ describe("removeValue", { tags: ["@tag.notcovered"] }, () => {
 
   it.only("Remove", function () {
     cy.wait(5000);
-    cy.xpath("//div[@id='testing']");
+    cy.xpath("//div[@id='testing']"); //comment
   });
 
-  it.only("new Remove", function () {
-    cy.LoginUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
-    cy.wait(5000);
-    _.AggregateHelper.Sleep();
-    cy.signUp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
+ 
+
+  it("new test cases", function () {
     agHelper.Sleep(500);
-    cy.Logout(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
-    _.agHelper.Sleep();
-
-    this.Sleep()
-
-    this.Sleep(3000)
-  });
-
-  it.only("new test cases", function () {
-    agHelper.Sleep(500);
+    //comment
     cy.LoginUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
+     //comment
     cy.wait(5000);
+     //comment
     this.Sleep(3000)
+     //comment
     _.AggregateHelper.Sleep();
+     //comment
     cy.signUp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
-    
+     //comment
     cy.Logout(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
+     //comment
     _.agHelper.Sleep();
     this.Sleep()
    
