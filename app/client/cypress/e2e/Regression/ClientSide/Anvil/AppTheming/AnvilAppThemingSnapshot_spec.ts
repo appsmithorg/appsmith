@@ -4,7 +4,6 @@ import {
   anvilSnapshot,
 } from "../../../../../support/Objects/ObjectsCore";
 
-
 describe(
   `${ANVIL_EDITOR_TEST}: Anvil tests for App Theming`,
   { tags: ["@tag.Anvil"] },
@@ -52,7 +51,9 @@ describe(
         anvilSnapshot.setDensity(density);
 
         anvilSnapshot.matchSanpshotForCanvasMode(`AppThemingDensity${density}`);
-        anvilSnapshot.matchSnapshotForPreviewMode(`AppThemingDensity${density}`);
+        anvilSnapshot.matchSnapshotForPreviewMode(
+          `AppThemingDensity${density}`,
+        );
         anvilSnapshot.matchSnapshotForDeployMode(`AppThemingDensity${density}`);
       });
     });
