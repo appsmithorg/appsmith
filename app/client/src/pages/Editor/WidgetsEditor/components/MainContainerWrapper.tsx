@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 
 import {
@@ -29,6 +29,7 @@ import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
 import { useMainContainerResizer } from "layoutSystems/common/mainContainerResizer/useMainContainerResizer";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 
 interface MainCanvasWrapperProps {
   isPreviewMode: boolean;
@@ -128,17 +129,20 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
   const showAnonymousDataPopup = useSelector(getIsAnonymousDataPopupVisible);
-  const isLayoutingInitialized = useDynamicAppLayout();
-  const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
+  const isCanvasInitialized = useSelector(getIsCanvasInitialized);
+  const isPageInitializing = isFetchingPage || !isCanvasInitialized;
   const { canShowResizer, enableMainContainerResizer } =
     useMainContainerResizer();
   const isAnvilLayout = useSelector(getIsAnvilLayout);
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  useDynamicAppLayout(wrapperRef);
 
   useEffect(() => {
     return () => {
       dispatch(forceOpenWidgetPanel(false));
     };
-  }, []);
+  }, [dispatch]);
 
   const fontFamily = `${selectedTheme.properties.fontFamily.appFont}, sans-serif`;
   const isAutoCanvasResizing = useSelector(
@@ -203,6 +207,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         }
         isPreviewingNavigation={isPreviewingNavigation}
         navigationHeight={navigationHeight}
+        ref={wrapperRef}
         style={{
           height: isPreviewMode ? `calc(100% - ${navigationHeight})` : "auto",
           fontFamily: fontFamily,
