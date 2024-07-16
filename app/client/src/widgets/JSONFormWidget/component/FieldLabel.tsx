@@ -89,7 +89,6 @@ const StyledLabelText = styled.p<StyledLabelTextProps>`
   font-weight: ${({ fontWeight }) => fontWeight};
   font-style: ${({ fontStyle }) => fontStyle};
   text-decoration: ${({ textDecoration }) => textDecoration};
-  width: max-content;
 `;
 
 const ToolTipIcon = styled(IconWrapper)`
