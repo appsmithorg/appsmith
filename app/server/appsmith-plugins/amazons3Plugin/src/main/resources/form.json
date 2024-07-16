@@ -44,6 +44,14 @@
               "value": "minio"
             },
             {
+              "label": "Google Cloud Storage",
+              "value": "google-cloud-storage"
+            },
+            {
+              "label": "Supabase",
+              "value": "supabase"
+            },
+            {
               "label": "Other",
               "value": "other"
             }
@@ -103,8 +111,26 @@
                 "path": "datasourceConfiguration.properties[1].value",
                 "comparison": "NOT_EQUALS",
                 "value": "minio"
+              },
+              {
+                "path": "datasourceConfiguration.properties[1].value",
+                "comparison": "NOT_EQUALS",
+                "value": "supabase"
               }
             ]
+          }
+        },
+        {
+          "label": "Default Bucket",
+          "configProperty": "datasourceConfiguration.properties[3].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "Enter default bucket name",
+          "isRequired": true,
+          "hidden": {
+            "path": "datasourceConfiguration.properties[1].value",
+            "comparison": "NOT_EQUALS",
+            "value": "google-cloud-storage"
           }
         }
       ]

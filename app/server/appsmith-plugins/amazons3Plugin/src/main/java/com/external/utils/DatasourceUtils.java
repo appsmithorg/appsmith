@@ -13,13 +13,20 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Property;
 import com.external.plugins.exceptions.S3ErrorMessages;
 import org.apache.commons.lang.StringUtils;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.amazonaws.regions.Regions.DEFAULT_REGION;
 import static com.appsmith.external.helpers.PluginUtils.getValueSafelyFromPropertyList;
+import static com.external.plugins.constants.S3PluginConstants.AUTO;
 import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_INDEX;
 import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX;
 import static com.external.plugins.constants.S3PluginConstants.S3_SERVICE_PROVIDER_PROPERTY_INDEX;
@@ -67,6 +74,8 @@ public class DatasourceUtils {
         DIGITAL_OCEAN_SPACES("digital-ocean-spaces"),
         DREAM_OBJECTS("dream-objects"),
         MINIO("minio"),
+        GOOGLE_CLOUD_STORAGE("google-cloud-storage"),
+        SUPABASE("supabase"),
         OTHER("other");
 
         private String name;
@@ -95,7 +104,7 @@ public class DatasourceUtils {
      * @param datasourceConfiguration
      * @return AmazonS3ClientBuilder object
      * @throws AppsmithPluginException when (1) there is an error with parsing credentials (2) required
-     * datasourceConfiguration properties are missing (3) endpoint URL is found incorrect.
+     *                                 datasourceConfiguration properties are missing (3) endpoint URL is found incorrect.
      */
     public static AmazonS3ClientBuilder getS3ClientBuilder(DatasourceConfiguration datasourceConfiguration)
             throws AppsmithPluginException {
@@ -169,6 +178,9 @@ public class DatasourceUtils {
                     completeness. */
 
                     break;
+                case GOOGLE_CLOUD_STORAGE:
+                    region = AUTO;
+                    break;
                 case UPCLOUD:
                     region = getRegionFromEndpointPattern(
                             endpoint, UPCLOUD_URL_ENDPOINT_PATTERN, UPCLOUD_REGION_GROUP_INDEX);
@@ -226,6 +238,57 @@ public class DatasourceUtils {
         return s3ClientBuilder;
     }
 
+    public static S3ClientBuilder getSupabaseClientBuilder(DatasourceConfiguration datasourceConfiguration)
+            throws AppsmithPluginException {
+
+        DBAuth authentication = (DBAuth) datasourceConfiguration.getAuthentication();
+        String accessKey = authentication.getUsername();
+        String secretKey = authentication.getPassword();
+        String endpoint = datasourceConfiguration
+                .getEndpoints()
+                .get(CUSTOM_ENDPOINT_INDEX)
+                .getHost();
+
+        List<Property> properties = datasourceConfiguration.getProperties();
+        String region = "";
+        region = getUserProvidedRegion(properties);
+        if (StringUtils.isBlank(region)) {
+            region = Regions.US_EAST_1.getName();
+        }
+
+        if (StringUtils.isEmpty(accessKey) || StringUtils.isEmpty(secretKey)) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    S3ErrorMessages.AWS_CREDENTIALS_PARSING_ERROR_MSG);
+        }
+
+        AwsBasicCredentials awsCreds;
+        try {
+            awsCreds = AwsBasicCredentials.create(accessKey, secretKey);
+        } catch (IllegalArgumentException e) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    S3ErrorMessages.AWS_CREDENTIALS_PARSING_ERROR_MSG,
+                    e.getMessage());
+        }
+
+        S3ClientBuilder s3ClientBuilder;
+
+        try {
+            s3ClientBuilder = S3Client.builder()
+                    .region(Region.of(region)) // Adjust region as needed
+                    .credentialsProvider(StaticCredentialsProvider.create(awsCreds))
+                    .endpointOverride(URI.create(endpoint));
+        } catch (Exception e) {
+            throw new AppsmithPluginException(
+                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                    S3ErrorMessages.S3_SERVICE_PROVIDER_IDENTIFICATION_ERROR_MSG,
+                    e.getMessage());
+        }
+
+        return s3ClientBuilder;
+    }
+
     private static String getUserProvidedRegion(List<Property> properties) {
         return getValueSafelyFromPropertyList(properties, CUSTOM_ENDPOINT_REGION_PROPERTY_INDEX, String.class);
     }
@@ -233,8 +296,8 @@ public class DatasourceUtils {
     /**
      * This method checks if the S3 endpoint URL has correct format and extracts region information from it.
      *
-     * @param endpoint : endpoint URL
-     * @param regex : expected endpoint URL pattern
+     * @param endpoint         : endpoint URL
+     * @param regex            : expected endpoint URL pattern
      * @param regionGroupIndex : pattern group index for region string
      * @return S3 object storage region.
      * @throws AppsmithPluginException when then endpoint URL does not match the expected regex pattern.

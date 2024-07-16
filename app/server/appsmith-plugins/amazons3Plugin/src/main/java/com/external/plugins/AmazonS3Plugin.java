@@ -53,6 +53,10 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.ListObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsResponse;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -60,17 +64,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.ActionConstants.ACTION_CONFIGURATION_BODY;
@@ -103,13 +97,17 @@ import static com.external.plugins.constants.S3PluginConstants.ACCESS_DENIED_ERR
 import static com.external.plugins.constants.S3PluginConstants.AWS_S3_SERVICE_PROVIDER;
 import static com.external.plugins.constants.S3PluginConstants.BASE64_DELIMITER;
 import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_INDEX;
+import static com.external.plugins.constants.S3PluginConstants.DEFAULT_BUCKET_PROPERTY_INDEX;
 import static com.external.plugins.constants.S3PluginConstants.DEFAULT_FILE_NAME;
 import static com.external.plugins.constants.S3PluginConstants.DEFAULT_URL_EXPIRY_IN_MINUTES;
+import static com.external.plugins.constants.S3PluginConstants.GOOGLE_CLOUD_SERVICE_PROVIDER;
 import static com.external.plugins.constants.S3PluginConstants.NO;
 import static com.external.plugins.constants.S3PluginConstants.S3_DRIVER;
 import static com.external.plugins.constants.S3PluginConstants.S3_SERVICE_PROVIDER_PROPERTY_INDEX;
+import static com.external.plugins.constants.S3PluginConstants.SUPABASE_S3_SERVICE_PROVIDER;
 import static com.external.plugins.constants.S3PluginConstants.YES;
 import static com.external.utils.DatasourceUtils.getS3ClientBuilder;
+import static com.external.utils.DatasourceUtils.getSupabaseClientBuilder;
 import static com.external.utils.TemplateUtils.getTemplates;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
@@ -161,56 +159,72 @@ public class AmazonS3Plugin extends BasePlugin {
         /*
          * - Exception thrown by this method is expected to be handled by the caller.
          */
-        ArrayList<String> listAllFilesInBucket(AmazonS3 connection, String bucketName, String prefix)
+        ArrayList<String> listAllFilesInBucket(Object connection, String bucketName, String prefix)
                 throws AppsmithPluginException {
-            if (connection == null) {
+
+            if (!(connection instanceof AmazonS3) && !(connection instanceof S3Client)) {
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, S3ErrorMessages.CONNECTIVITY_ERROR_MSG);
             }
 
             if (bucketName == null) {
-                /*
-                 * - bucketName is NOT expected to be null at this program point. A null check has been added in the
-                 *  execute function already.
-                 */
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, S3ErrorMessages.EMPTY_BUCKET_ERROR_MSG);
             }
 
             if (prefix == null) {
-                /*
-                 * - prefix is NOT expected to be null at this program point. A null check has been added in the
-                 *  execute function already.
-                 */
                 throw new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, S3ErrorMessages.EMPTY_PREFIX_ERROR_MSG);
             }
 
-            ObjectListing result = connection.listObjects(bucketName, prefix);
-            ArrayList<String> fileList = new ArrayList<>(getFilenamesFromObjectListing(result));
+            ArrayList<String> fileList;
 
-            while (result.isTruncated()) {
-                result = connection.listNextBatchOfObjects(result);
-                fileList.addAll(getFilenamesFromObjectListing(result));
+            if (connection instanceof AmazonS3) {
+                AmazonS3 s3Client = (AmazonS3) connection;
+                ObjectListing result = s3Client.listObjects(bucketName, prefix);
+                fileList = new ArrayList<>(getFilenamesFromObjectListing(result));
+
+                while (result.isTruncated()) {
+                    result = s3Client.listNextBatchOfObjects(result);
+                    fileList.addAll(getFilenamesFromObjectListing(result));
+                }
+            } else {
+                S3Client s3Client = (S3Client) connection;
+                ListObjectsRequest request = ListObjectsRequest.builder()
+                        .bucket(bucketName)
+                        .prefix(prefix)
+                        .build();
+                ListObjectsResponse response = s3Client.listObjects(request);
+
+                //                if (response == null) {
+                //                    throw new AppsmithPluginException(
+                //                            S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
+                //                            S3ErrorMessages.FILE_CONTENT_FETCHING_ERROR_MSG);
+                //                }
+
+                fileList = new ArrayList<>();
+                response.contents().forEach(object -> fileList.add(object.key()));
             }
 
             return fileList;
         }
 
         ArrayList<String> getSignedUrls(
-                AmazonS3 connection, String bucketName, ArrayList<String> listOfFiles, Date expiryDateTime) {
+                Object connection, String bucketName, ArrayList<String> listOfFiles, Date expiryDateTime) {
             ArrayList<String> urlList = new ArrayList<>();
 
-            for (String filePath : listOfFiles) {
-                GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
-                                bucketName, filePath)
-                        .withMethod(HttpMethod.GET)
-                        .withExpiration(expiryDateTime);
+            if (connection instanceof AmazonS3) {
+                AmazonS3 amazonS3 = (AmazonS3) connection;
+                for (String filePath : listOfFiles) {
+                    GeneratePresignedUrlRequest generatePresignedUrlRequest = new GeneratePresignedUrlRequest(
+                                    bucketName, filePath)
+                            .withMethod(HttpMethod.GET)
+                            .withExpiration(expiryDateTime);
 
-                URL url = connection.generatePresignedUrl(generatePresignedUrlRequest);
-                urlList.add(url.toString());
+                    URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
+                    urlList.add(url.toString());
+                }
             }
-
             return urlList;
         }
 
@@ -416,6 +430,9 @@ public class AmazonS3Plugin extends BasePlugin {
 
             final Map<String, Object> formData = actionConfiguration.getFormData();
             List<Map.Entry<String, String>> parameters = new ArrayList<>();
+            List<Property> properties = datasourceConfiguration.getProperties();
+            String s3Provider =
+                    (String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue();
 
             Boolean smartJsonSubstitution = TRUE;
 
@@ -454,17 +471,26 @@ public class AmazonS3Plugin extends BasePlugin {
 
             prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
 
-            return this.executeCommon(connection, datasourceConfiguration, actionConfiguration);
+            if (SUPABASE_S3_SERVICE_PROVIDER.equals(s3Provider)) {
+                S3Client s3Client =
+                        getSupabaseClientBuilder(datasourceConfiguration).build();
+                return this.executeCommon(null, s3Client, datasourceConfiguration, actionConfiguration);
+            }
+            return this.executeCommon(connection, null, datasourceConfiguration, actionConfiguration);
         }
 
         private Mono<ActionExecutionResult> executeCommon(
                 AmazonS3 connection,
+                S3Client s3Client,
                 DatasourceConfiguration datasourceConfiguration,
                 ActionConfiguration actionConfiguration) {
 
             final String[] query = new String[1];
             Map<String, Object> requestProperties = new HashMap<>();
             List<RequestParamDTO> requestParams = new ArrayList<>();
+            List<Property> properties = datasourceConfiguration.getProperties();
+            String s3Provider =
+                    (String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue();
 
             return Mono.fromCallable(() -> {
 
@@ -473,7 +499,7 @@ public class AmazonS3Plugin extends BasePlugin {
                          *   Hence, unable to do stale connection check explicitly.
                          * - If connection object is null, then assume stale connection.
                          */
-                        if (connection == null) {
+                        if (connection == null && s3Client == null) {
                             return Mono.error(new StaleConnectionException(CONNECTION_NULL_ERROR_MSG));
                         }
 
@@ -540,7 +566,14 @@ public class AmazonS3Plugin extends BasePlugin {
                                 String prefix = getDataValueSafelyFromFormData(formData, LIST_PREFIX, STRING_TYPE, "");
                                 requestParams.add(new RequestParamDTO(LIST_PREFIX, prefix, null, null, null));
 
-                                ArrayList<String> listOfFiles = listAllFilesInBucket(connection, bucketName, prefix);
+                                ArrayList<String> listOfFiles;
+
+                                if (connection == null) {
+                                    System.out.println("Supabase list files operation");
+                                    listOfFiles = listAllFilesInBucket(s3Client, bucketName, prefix);
+                                } else {
+                                    listOfFiles = listAllFilesInBucket(connection, bucketName, prefix);
+                                }
 
                                 Boolean isSignedUrl = YES.equals(
                                         getDataValueSafelyFromFormData(formData, LIST_SIGNED_URL, STRING_TYPE));
@@ -586,6 +619,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                         ((ArrayList<Object>) actionResult).add(fileInfo);
                                     }
                                 } else {
+                                    System.out.println("Supabase files : " + listOfFiles);
                                     requestParams.add(new RequestParamDTO(LIST_SIGNED_URL, "", null, null, null));
                                     actionResult = new ArrayList<>();
                                     for (int i = 0; i < listOfFiles.size(); i++) {
@@ -593,6 +627,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                         fileInfo.put("fileName", listOfFiles.get(i));
                                         ((ArrayList<Object>) actionResult).add(fileInfo);
                                     }
+                                    System.out.println("Action result from List files : " + actionResult);
                                 }
 
                                 String isUnsignedUrl =
@@ -769,7 +804,7 @@ public class AmazonS3Plugin extends BasePlugin {
                                 requestParams.add(
                                         new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
-                                deleteMultipleObjects(connection, bucketName, path);
+                                deleteMultipleObjects(s3Provider, connection, bucketName, path);
                                 actionResult = Map.of("status", "All files deleted successfully");
                                 break;
                                 /**
@@ -828,7 +863,7 @@ public class AmazonS3Plugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private void deleteMultipleObjects(AmazonS3 connection, String bucketName, String path)
+        private void deleteMultipleObjects(String s3Provider, AmazonS3 connection, String bucketName, String path)
                 throws AppsmithPluginException {
             List<String> listOfFiles;
             try {
@@ -842,7 +877,13 @@ public class AmazonS3Plugin extends BasePlugin {
 
             DeleteObjectsRequest deleteObjectsRequest = getDeleteObjectsRequest(bucketName, listOfFiles);
             try {
-                connection.deleteObjects(deleteObjectsRequest);
+                if (GOOGLE_CLOUD_SERVICE_PROVIDER.equals(s3Provider)) {
+                    for (String filePath : listOfFiles) {
+                        connection.deleteObject(bucketName, filePath);
+                    }
+                } else {
+                    connection.deleteObjects(deleteObjectsRequest);
+                }
             } catch (SdkClientException e) {
                 throw new AppsmithPluginException(
                         S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
@@ -869,7 +910,6 @@ public class AmazonS3Plugin extends BasePlugin {
                         S3ErrorMessages.S3_DRIVER_LOADING_ERROR_MSG,
                         e.getMessage()));
             }
-
             return Mono.fromCallable(
                             () -> getS3ClientBuilder(datasourceConfiguration).build())
                     .flatMap(client -> Mono.just(client))
@@ -948,36 +988,129 @@ public class AmazonS3Plugin extends BasePlugin {
                 invalids.add(S3ErrorMessages.DS_MANDATORY_PARAMETER_ENDPOINT_URL_MISSING_ERROR_MSG);
             }
 
+            if (datasourceConfiguration != null) {
+                String serviceProvider = (String)
+                        properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue();
+                if (GOOGLE_CLOUD_SERVICE_PROVIDER.equals(serviceProvider)) {
+                    String defaultBucket = (String)
+                            properties.get(DEFAULT_BUCKET_PROPERTY_INDEX).getValue();
+                    if (StringUtils.isNullOrEmpty(defaultBucket)) {
+                        invalids.add(S3ErrorMessages.DS_MANDATORY_PARAMETER_DEFAULT_BUCKET_MISSING_ERROR_MSG);
+                    }
+                }
+            }
+
             return invalids;
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(AmazonS3 connection) {
-            return Mono.fromCallable(() -> {
-                        /*
-                         * - Please note that as of 28 Jan 2021, the way AmazonS3 client works, creating a connection
-                         *   object with wrong credentials does not throw any exception.
-                         * - Hence, adding a listBuckets() method call to test the connection.
-                         */
-                        connection.listBuckets();
-                        return new DatasourceTestResult();
-                    })
-                    .onErrorResume(error -> {
-                        if (error instanceof AmazonS3Exception
-                                && ACCESS_DENIED_ERROR_CODE.equals(((AmazonS3Exception) error).getErrorCode())) {
-                            /**
-                             * Sometimes a valid account credential may not have permission to run listBuckets action
-                             * . In this case `AccessDenied` error is returned.
-                             * That fact that the credentials caused `AccessDenied` error instead of invalid access key
-                             * id or signature mismatch error means that the credentials are valid, we are able to
-                             * establish a connection as well, but the account does not have permission to run
-                             * listBuckets.
-                             */
-                            return Mono.just(new DatasourceTestResult());
-                        }
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            if (datasourceConfiguration == null) {
+                return Mono.just(new DatasourceTestResult(
+                        S3ErrorMessages.DS_AT_LEAST_ONE_MANDATORY_PARAMETER_MISSING_ERROR_MSG));
+            }
 
-                        return Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error)));
-                    });
+            List<Property> properties = datasourceConfiguration.getProperties();
+            String s3Provider =
+                    (String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue();
+
+            // Handle Google Cloud Storage in a separate method if necessary
+            if (GOOGLE_CLOUD_SERVICE_PROVIDER.equals(s3Provider)) {
+                return testGoogleCloudStorage(datasourceConfiguration);
+            }
+            System.out.println("S3 provider : " + s3Provider);
+            if (SUPABASE_S3_SERVICE_PROVIDER.equals(s3Provider)) {
+                System.out.println("<----------Supabase----------->");
+                return testSupabaseStorage(datasourceConfiguration);
+            }
+
+            // For Amazon S3 or other providers, perform a standard test by listing buckets in Amazon S3
+            return datasourceCreate(datasourceConfiguration)
+                    .flatMap(connection -> Mono.fromCallable(() -> {
+                                /*
+                                 * - Please note that as of 28 Jan 2021, the way AmazonS3 client works, creating a connection
+                                 *   object with wrong credentials does not throw any exception.
+                                 * - Hence, adding a listBuckets() method call to test the connection.
+                                 */
+                                connection.listBuckets();
+                                return new DatasourceTestResult();
+                            })
+                            .onErrorResume(error -> {
+                                if (error instanceof AmazonS3Exception
+                                        && ACCESS_DENIED_ERROR_CODE.equals(
+                                                ((AmazonS3Exception) error).getErrorCode())) {
+                                    /**
+                                     * Sometimes a valid account credential may not have permission to run listBuckets action
+                                     * . In this case `AccessDenied` error is returned.
+                                     * That fact that the credentials caused `AccessDenied` error instead of invalid access key
+                                     * id or signature mismatch error means that the credentials are valid, we are able to
+                                     * establish a connection as well, but the account does not have permission to run
+                                     * listBuckets.
+                                     */
+                                    return Mono.just(new DatasourceTestResult());
+                                }
+
+                                return Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error)));
+                            })
+                            .doFinally(signalType -> connection.shutdown()))
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
+                    .subscribeOn(scheduler);
+        }
+
+        private Mono<DatasourceTestResult> testGoogleCloudStorage(DatasourceConfiguration datasourceConfiguration) {
+            List<Property> properties = datasourceConfiguration.getProperties();
+            String defaultBucket =
+                    (String) properties.get(DEFAULT_BUCKET_PROPERTY_INDEX).getValue();
+            if (StringUtils.isNullOrEmpty(defaultBucket)) {
+                return Mono.just(new DatasourceTestResult(
+                        S3ErrorMessages.DS_MANDATORY_PARAMETER_DEFAULT_BUCKET_MISSING_ERROR_MSG));
+            }
+
+            return datasourceCreate(datasourceConfiguration)
+                    .flatMap(connection -> Mono.fromCallable(() -> {
+                                connection.listObjects(defaultBucket);
+                                return new DatasourceTestResult();
+                            })
+                            .onErrorResume(error -> {
+                                if (error instanceof AmazonS3Exception
+                                        && ((AmazonS3Exception) error).getStatusCode() == 404) {
+                                    return Mono.just(
+                                            new DatasourceTestResult(S3ErrorMessages.NON_EXITED_BUCKET_ERROR_MSG));
+                                } else {
+                                    return Mono.just(
+                                            new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error)));
+                                }
+                            })
+                            .doFinally(signalType -> connection.shutdown()))
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
+                    .subscribeOn(scheduler);
+        }
+
+        public Mono<DatasourceTestResult> testSupabaseStorage(DatasourceConfiguration datasourceConfiguration) {
+            return Mono.fromCallable(() -> {
+                        S3Client s3Client = null;
+                        try {
+                            s3Client = getSupabaseClientBuilder(datasourceConfiguration)
+                                    .build();
+                            s3Client.listBuckets();
+                            System.out.println(s3Client.listBuckets());
+                            System.out.println("List Files in Bucket : "
+                                    + listAllFilesInBucket(s3Client, "appsmith", "wallpapers/"));
+                            return new DatasourceTestResult();
+                        } catch (S3Exception error) {
+                            if (error.statusCode() == 404) {
+                                return new DatasourceTestResult(S3ErrorMessages.NON_EXITED_BUCKET_ERROR_MSG);
+                            } else {
+                                return new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error));
+                            }
+                        } catch (Exception error) {
+                            return new DatasourceTestResult(error.getMessage());
+                        } finally {
+                            s3Client.close();
+                        }
+                    })
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
+                    .subscribeOn(scheduler);
         }
 
         /**
@@ -992,18 +1125,16 @@ public class AmazonS3Plugin extends BasePlugin {
                         List<DatasourceStructure.Table> tableList;
                         try {
                             tableList = connection.listBuckets().stream()
-                                    /* Get name of each bucket */
-                                    .map(Bucket::getName)
-                                    /* Get command templates and use it to create Table object */
-                                    .map(bucketName -> new DatasourceStructure.Table(
-                                            DatasourceStructure.TableType.BUCKET,
-                                            "",
-                                            bucketName,
-                                            new ArrayList<>(),
-                                            new ArrayList<>(),
-                                            getTemplates(bucketName, DEFAULT_FILE_NAME)))
-                                    /* Collect all Table objects in a list */
-                                    .collect(Collectors.toList());
+                                    /* Get name of each bucket */ .map(Bucket::getName)
+                                    /* Get command templates and use it to create Table object */ .map(
+                                            bucketName -> new DatasourceStructure.Table(
+                                                    DatasourceStructure.TableType.BUCKET,
+                                                    "",
+                                                    bucketName,
+                                                    new ArrayList<>(),
+                                                    new ArrayList<>(),
+                                                    getTemplates(bucketName, DEFAULT_FILE_NAME)))
+                                    /* Collect all Table objects in a list */ .collect(Collectors.toList());
                         } catch (SdkClientException e) {
                             throw new AppsmithPluginException(
                                     AppsmithPluginError.PLUGIN_GET_STRUCTURE_ERROR,
