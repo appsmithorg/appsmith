@@ -465,7 +465,7 @@ export function handleDeleteRedundantZones(
   for (const parentId of parentIds) {
     const zone = updatedWidgets[parentId];
 
-    if (!isZoneWidget(zone) || !zone.parentId) continue;
+    if (!zone || !isZoneWidget(zone) || !zone.parentId) continue;
 
     const parentSection = updatedWidgets[zone.parentId];
 
