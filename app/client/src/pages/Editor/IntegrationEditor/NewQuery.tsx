@@ -23,10 +23,6 @@ interface QueryHomeScreenProps {
   location: {
     search: string;
   };
-  history: {
-    replace: (data: string) => void;
-    push: (data: string) => void;
-  };
   showMostPopularPlugins?: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
   isAirgappedInstance?: boolean;
@@ -37,7 +33,6 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
     const {
       editorId,
       editorType,
-      history,
       isAirgappedInstance,
       isCreating,
       location,
@@ -52,7 +47,6 @@ class QueryHomeScreen extends React.Component<QueryHomeScreenProps> {
         <DataSourceHome
           editorId={editorId}
           editorType={editorType}
-          history={history}
           isAirgappedInstance={isAirgappedInstance}
           isCreating={isCreating}
           location={location}

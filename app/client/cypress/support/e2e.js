@@ -19,7 +19,7 @@ import "cypress-real-events/support";
 import "cypress-wait-until";
 import "cypress-network-idle";
 import "cypress-xpath";
-import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
+import * as MESSAGES from "../../src/ce/constants/messages.ts";
 import "./ApiCommands";
 // Import commands.js using ES2015 syntax:
 import "./commands";

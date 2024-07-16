@@ -235,6 +235,12 @@ export function getHighlightsForWidgets(
      * then derive initial highlights for the alignment.
      */
     if (!widgets.length) {
+      const isFillWidgetDragged = draggedWidgets.some(
+        (widget) => widget.responsiveBehavior === ResponsiveBehavior.Fill,
+      );
+
+      if (isFillWidgetDragged) return;
+
       /**
        * If it is an empty Center alignment,
        * which is no longer in the center position due to the size of its siblings,

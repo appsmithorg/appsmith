@@ -19,7 +19,6 @@ import {
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
 import type { EvalTreeResponseData } from "workers/Evaluation/types";
 import isEmpty from "lodash/isEmpty";
-import type { UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
 import { evalErrorHandler } from "./EvalErrorHandler";
@@ -27,7 +26,6 @@ import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
 
 export interface UpdateDataTreeMessageData {
   workerResponse: EvalTreeResponseData;
-  unevalTree: UnEvalTree;
 }
 
 export function* handleEvalWorkerRequestSaga(listenerChannel: Channel<any>) {
@@ -141,12 +139,12 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       break;
     }
     case MAIN_THREAD_ACTION.UPDATE_DATATREE: {
-      const { unevalTree, workerResponse } = data as UpdateDataTreeMessageData;
+      const { workerResponse } = data as UpdateDataTreeMessageData;
       const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
         yield select(getUnevaluatedDataTree);
       yield call(updateDataTreeHandler, {
         evalTreeResponse: workerResponse as EvalTreeResponseData,
-        unevalTree,
+        unevalTree: unEvalAndConfigTree.unEvalTree || {},
         requiresLogging: false,
         configTree: unEvalAndConfigTree.configTree,
       });

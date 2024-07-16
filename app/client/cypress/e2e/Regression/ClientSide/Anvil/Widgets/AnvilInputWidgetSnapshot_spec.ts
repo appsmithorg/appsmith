@@ -5,7 +5,7 @@ import {
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe(
-  `${ANVIL_EDITOR_TEST}: Anvil tests for Button Widget`,
+  `${ANVIL_EDITOR_TEST}: Anvil tests for Input Widget`,
   { tags: ["@tag.Anvil"] },
   () => {
     before(() => {

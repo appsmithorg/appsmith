@@ -25,6 +25,7 @@ export const List = () => {
     <ListContainer
       bg="var(--ads-v2-color-bg)"
       className="absolute top-[78px]"
+      data-testid="t--editorpane-list-view"
       h="calc(100% - 78px)"
       w="100%"
       zIndex="10"

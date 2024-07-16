@@ -123,7 +123,8 @@ export const EVAL_AND_LINT_REDUX_ACTIONS = union(
 export function getRequiresLinting(action: ReduxAction<unknown>) {
   const appMode: ReturnType<typeof getAppMode> = getAppMode(store.getState());
 
+  // for any case apart from published mode of an app, we should trigger linting
   const requiresLinting =
-    appMode === APP_MODE.EDIT && shouldTriggerLinting(action);
+    appMode !== APP_MODE.PUBLISHED && shouldTriggerLinting(action);
   return requiresLinting;
 }

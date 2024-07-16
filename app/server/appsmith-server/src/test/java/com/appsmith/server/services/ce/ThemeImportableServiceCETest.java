@@ -26,11 +26,9 @@ import com.appsmith.server.solutions.UserAndAccessManagementService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -38,11 +36,11 @@ import java.util.List;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 public class ThemeImportableServiceCETest {
 
     @Autowired
@@ -194,8 +192,9 @@ public class ThemeImportableServiceCETest {
     @WithUserDetails("api_user")
     @Test
     public void importThemesToApplication_ApplicationThemeNotFound_DefaultThemeImported() {
-        Theme defaultTheme =
-                themeRepository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).block();
+        Theme defaultTheme = themeRepository
+                .getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES)
+                .block();
 
         // create the theme information present in the application JSON
         Theme themeInJson = new Theme();
