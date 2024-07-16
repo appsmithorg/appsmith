@@ -58,7 +58,7 @@ describe(
           widgetsPage.inputWidget,
           widgetsPage.widgetNameSpan,
         );
-        cy.assertPageSave();
+        agHelper.AssertAutoSave();
       },
     );
 
@@ -85,7 +85,7 @@ describe(
           widgetsPage.inputWidget,
           widgetsPage.widgetNameSpan,
         );
-        cy.assertPageSave();
+        agHelper.AssertAutoSave();
       },
     );
 

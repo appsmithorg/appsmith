@@ -20,8 +20,13 @@ import {
   takeLatest,
 } from "redux-saga/effects";
 import type { TakeableChannel } from "@redux-saga/core";
-import type { MergeBranchPayload, MergeStatusPayload } from "api/GitSyncAPI";
-import GitSyncAPI from "api/GitSyncAPI";
+import type {
+  GitAutocommitProgressResponse,
+  GitTriggerAutocommitResponse,
+  MergeBranchPayload,
+  MergeStatusPayload,
+} from "api/GitSyncAPI";
+import GitSyncAPI, { AutocommitResponseEnum } from "api/GitSyncAPI";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -37,9 +42,15 @@ import type {
 } from "actions/gitSyncActions";
 import {
   fetchGitProtectedBranchesInit,
-  updateGitProtectedBranchesInit,
   clearCommitSuccessfulState,
   setShowBranchPopupAction,
+  stopAutocommitProgressPollingAction,
+  startAutocommitProgressPollingAction,
+  setAutocommitProgressAction,
+  autoCommitProgressErrorAction,
+  resetAutocommitProgressAction,
+  triggerAutocommitErrorAction,
+  triggerAutocommitSuccessAction,
 } from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
@@ -103,6 +114,7 @@ import { addBranchParam, GIT_BRANCH_QUERY_KEY } from "constants/routes";
 import {
   getCurrentGitBranch,
   getDisconnectingGitApplication,
+  getGitMetadataSelector,
 } from "selectors/gitSyncSelectors";
 import { initEditor } from "actions/initActions";
 import { fetchPage } from "actions/pageActions";
@@ -113,7 +125,10 @@ import { log } from "loglevel";
 import GIT_ERROR_CODES from "constants/GitErrorCodes";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { APP_MODE } from "entities/App";
-import type { GitDiscardResponse } from "reducers/uiReducers/gitSyncReducer";
+import type {
+  GitDiscardResponse,
+  GitMetadata,
+} from "reducers/uiReducers/gitSyncReducer";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import {
   getActions,
@@ -123,6 +138,8 @@ import type { Action } from "entities/Action";
 import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { toast } from "design-system";
 import { gitExtendedSagas } from "@appsmith/sagas/GitExtendedSagas";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export function* handleRepoLimitReachedError(response?: ApiResponse) {
   const { responseMeta } = response || {};
@@ -227,13 +244,6 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
     if (isValidResponse) {
       // @ts-expect-error: response is of type unknown
       yield put(connectToGitSuccess(response?.data));
-      const defaultBranch = response?.data?.gitApplicationMetadata?.branchName;
-
-      yield put(
-        updateGitProtectedBranchesInit({
-          protectedBranches: defaultBranch ? [defaultBranch] : [],
-        }),
-      );
 
       yield put(fetchPage(currentPageId));
       if (action.onSuccessCallback) {
@@ -1159,75 +1169,107 @@ function* getGitMetadataSaga() {
   }
 }
 
+function isAutocommitHappening(
+  response:
+    | GitTriggerAutocommitResponse
+    | GitAutocommitProgressResponse
+    | undefined,
+): boolean {
+  return (
+    !!response &&
+    !!(
+      response.autoCommitResponse === AutocommitResponseEnum.PUBLISHED ||
+      response.autoCommitResponse === AutocommitResponseEnum.IN_PROGRESS ||
+      response.autoCommitResponse === AutocommitResponseEnum.LOCKED
+    )
+  );
+}
+
 function* pollAutocommitProgressSaga(): any {
   const applicationId: string = yield select(getCurrentApplicationId);
+  const branchName: string = yield select(getCurrentGitBranch);
+
+  let triggerResponse: ApiResponse<GitTriggerAutocommitResponse> | undefined;
   try {
-    const response: ApiResponse<any> = yield call(
-      GitSyncAPI.getAutocommitProgress,
+    const res = yield call(
+      GitSyncAPI.triggerAutocommit,
       applicationId,
+      branchName,
     );
     const isValidResponse: boolean = yield validateResponse(
-      response,
+      res,
       false,
-      getLogToSentryFromResponse(response),
+      getLogToSentryFromResponse(res),
     );
-    if (isValidResponse && response?.data?.isRunning) {
-      yield put({
-        type: ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING,
-      });
+    if (isValidResponse) {
+      triggerResponse = res;
+      yield put(triggerAutocommitSuccessAction());
+    } else {
+      yield put(
+        triggerAutocommitErrorAction({
+          error: res?.responseMeta?.error?.message,
+          show: true,
+        }),
+      );
+    }
+  } catch (err) {
+    yield put(triggerAutocommitErrorAction({ error: err, show: false }));
+  }
+
+  try {
+    if (isAutocommitHappening(triggerResponse?.data)) {
+      yield put(startAutocommitProgressPollingAction());
       while (true) {
-        const response: ApiResponse<any> = yield call(
-          GitSyncAPI.getAutocommitProgress,
-          applicationId,
-        );
+        const progressResponse: ApiResponse<GitAutocommitProgressResponse> =
+          yield call(GitSyncAPI.getAutocommitProgress, applicationId);
         const isValidResponse: boolean = yield validateResponse(
-          response,
+          progressResponse,
           false,
-          getLogToSentryFromResponse(response),
+          getLogToSentryFromResponse(progressResponse),
         );
         if (isValidResponse) {
-          yield put({
-            type: ReduxActionTypes.GIT_SET_AUTOCOMMIT_PROGRESS,
-            payload: response.data,
-          });
-          if (!response?.data?.isRunning) {
-            yield put({
-              type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
-            });
+          yield put(setAutocommitProgressAction(progressResponse.data));
+          if (!isAutocommitHappening(progressResponse?.data)) {
+            yield put(stopAutocommitProgressPollingAction());
           }
         } else {
-          yield put({
-            type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
-          });
-          yield put({
-            type: ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR,
-            payload: {
-              error: response?.responseMeta?.error?.message,
+          yield put(stopAutocommitProgressPollingAction());
+          yield put(
+            autoCommitProgressErrorAction({
+              error: progressResponse?.responseMeta?.error?.message,
               show: true,
-            },
-          });
+            }),
+          );
         }
         yield delay(1000);
       }
     } else {
-      yield put({
-        type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
-      });
+      yield put(stopAutocommitProgressPollingAction());
     }
   } catch (error) {
-    yield put({
-      type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
-    });
-    yield put({
-      type: ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR,
-      payload: { error },
-    });
+    yield put(stopAutocommitProgressPollingAction());
+    yield put(autoCommitProgressErrorAction({ error, show: false }));
   } finally {
     if (yield cancelled()) {
-      yield put({
-        type: ReduxActionTypes.GIT_RESET_AUTOCOMMIT_PROGRESS,
-      });
+      yield put(resetAutocommitProgressAction());
     }
+  }
+}
+
+function* triggerAutocommitSaga() {
+  const isAutocommitFeatureEnabled: boolean = yield select(
+    selectFeatureFlagCheck,
+    FEATURE_FLAG.release_git_autocommit_feature_enabled,
+  );
+  const gitMetadata: GitMetadata = yield select(getGitMetadataSelector);
+  const isAutocommitEnabled: boolean = !!gitMetadata?.autoCommitConfig?.enabled;
+  if (isAutocommitFeatureEnabled && isAutocommitEnabled) {
+    /* @ts-expect-error: not sure how to do typings of this */
+    const pollTask = yield fork(pollAutocommitProgressSaga);
+    yield take(ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING);
+    yield cancel(pollTask);
+  } else {
+    yield put(triggerAutocommitSuccessAction());
   }
 }
 
@@ -1252,6 +1294,9 @@ const gitRequestBlockingActions: Record<
   [ReduxActionTypes.GIT_DISCARD_CHANGES]: discardChanges,
   [ReduxActionTypes.GIT_UPDATE_PROTECTED_BRANCHES_INIT]:
     updateGitProtectedBranchesSaga,
+  [ReduxActionTypes.GIT_AUTOCOMMIT_TRIGGER_INIT]: triggerAutocommitSaga,
+  [ReduxActionTypes.FETCH_GIT_STATUS_INIT]: fetchGitStatusSaga,
+  [ReduxActionTypes.GIT_GET_METADATA_INIT]: getGitMetadataSaga,
 };
 
 const gitRequestNonBlockingActions: Record<
@@ -1261,13 +1306,11 @@ const gitRequestNonBlockingActions: Record<
   ...gitExtendedSagas,
   [ReduxActionTypes.FETCH_GLOBAL_GIT_CONFIG_INIT]: fetchGlobalGitConfig,
   [ReduxActionTypes.FETCH_LOCAL_GIT_CONFIG_INIT]: fetchLocalGitConfig,
-  [ReduxActionTypes.FETCH_GIT_STATUS_INIT]: fetchGitStatusSaga,
   [ReduxActionTypes.SHOW_CONNECT_GIT_MODAL]: showConnectGitModal,
   [ReduxActionTypes.FETCH_SSH_KEY_PAIR_INIT]: getSSHKeyPairSaga,
   [ReduxActionTypes.GIT_FETCH_PROTECTED_BRANCHES_INIT]:
     fetchGitProtectedBranchesSaga,
   [ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT]: toggleAutocommitSaga,
-  [ReduxActionTypes.GIT_GET_METADATA_INIT]: getGitMetadataSaga,
 };
 
 /**
@@ -1298,18 +1341,7 @@ function* watchGitNonBlockingRequests() {
   }
 }
 
-function* watchGitAutocommitPolling() {
-  while (true) {
-    yield take(ReduxActionTypes.GIT_AUTOCOMMIT_INITIATE_PROGRESS_POLLING);
-    /* @ts-expect-error: not sure how to do typings of this */
-    const pollTask = yield fork(pollAutocommitProgressSaga);
-    yield take(ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING);
-    yield cancel(pollTask);
-  }
-}
-
 export default function* gitSyncSagas() {
   yield fork(watchGitNonBlockingRequests);
   yield fork(watchGitBlockingRequests);
-  yield fork(watchGitAutocommitPolling);
 }

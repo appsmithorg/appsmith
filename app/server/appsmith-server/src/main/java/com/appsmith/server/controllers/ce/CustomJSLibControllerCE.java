@@ -61,9 +61,8 @@ public class CustomJSLibControllerCE {
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestHeader(name = FieldName.IS_FORCE_REMOVE, defaultValue = "false") Boolean isForceRemove) {
         log.debug(
-                "Going to remove JS lib: {}_{} from {}: {}, on branch:{}",
-                customJSLib.getName(),
-                customJSLib.getVersion(),
+                "Going to remove JS lib: {} from {}: {}, on branch:{}",
+                customJSLib.getUidString(),
                 contextType.name().toLowerCase(),
                 applicationId,
                 branchName);

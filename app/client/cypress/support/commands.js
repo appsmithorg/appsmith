@@ -15,6 +15,7 @@ require("cypress-file-upload");
 //require('cy-verify-downloads').addCustomCommand();
 const path = require("path");
 import { v4 as uuidv4 } from "uuid";
+
 const dayjs = require("dayjs");
 const {
   addMatchImageSnapshotCommand,
@@ -48,6 +49,7 @@ const apiPage = ObjectsRegistry.ApiPage;
 const deployMode = ObjectsRegistry.DeployMode;
 const assertHelper = ObjectsRegistry.AssertHelper;
 const homePageTS = ObjectsRegistry.HomePage;
+const table = ObjectsRegistry.Table;
 
 let pageidcopy = " ";
 const chainStart = Symbol();
@@ -120,14 +122,14 @@ Cypress.Commands.add("testSelfSignedCertificateSettingsInREST", (isOAuth2) => {
   cy.get(datasource.useCertInAuth).should("not.exist");
   cy.get(datasource.certificateDetails).should("not.exist");
   // cy.TargetDropdownAndSelectOption(datasource.useSelfSignedCert, "Yes");
-  cy.togglebar(datasource.useSelfSignedCert);
+  agHelper.CheckUncheck(datasource.useSelfSignedCert);
   cy.get(datasource.useSelfSignedCert).should("be.checked");
   if (isOAuth2) {
     cy.get(datasource.useCertInAuth).should("exist");
   } else {
     cy.get(datasource.useCertInAuth).should("not.exist");
   }
-  cy.togglebarDisable(datasource.useSelfSignedCert);
+  agHelper.CheckUncheck(datasource.useSelfSignedCert, false);
 });
 
 Cypress.Commands.add("addBasicProfileDetails", (username, password) => {
@@ -182,6 +184,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
 });
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
+  homePageTS.LogOutviaAPI();
   let baseURL = Cypress.config().baseUrl;
   baseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
 
@@ -369,7 +372,8 @@ Cypress.Commands.add("addDsl", (dsl) => {
     if (RapidMode.config.enabled && RapidMode.config.usesDSL) {
       pageid = RapidMode.config.pageID;
     } else {
-      pageid = url.split("/")[5]?.split("-").pop();
+      pageid = agHelper.extractPageIdFromUrl(url);
+      expect(pageid).to.not.be.null;
     }
 
     //Fetch the layout id
@@ -443,23 +447,9 @@ Cypress.Commands.add("DeleteWorkspaceByApi", () => {
   }
 });
 
-Cypress.Commands.add("togglebar", (value) => {
-  cy.get(value).check({ force: true }).should("be.checked");
-});
-
 Cypress.Commands.add("NavigateToJSEditor", () => {
   PageLeftPane.switchSegment(PagePaneSegment.JS);
   PageLeftPane.switchToAddNew();
-  cy.get("span:contains('New JS object')").eq(0).click({ force: true });
-});
-
-Cypress.Commands.add("importCurl", () => {
-  cy.get(ApiEditor.curlImportBtn).click({ force: true });
-  cy.wait("@curlImport").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
 });
 
 Cypress.Commands.add("selectAction", (option) => {
@@ -484,7 +474,7 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("mousemove", x, y, option)
     .trigger("mousemove", x, y, option)
     .trigger("mouseup", x, y, option);
-  cy.assertPageSave();
+  agHelper.AssertAutoSave();
 });
 
 Cypress.Commands.add(
@@ -576,13 +566,6 @@ Cypress.Commands.add(
   },
 );
 
-Cypress.Commands.add("isSelectRow", (index) => {
-  cy.get('.tbody .td[data-rowindex="' + index + '"][data-colindex="' + 0 + '"]')
-    .first()
-    .click({ force: true });
-  cy.wait(500); //for selection to show!
-});
-
 Cypress.Commands.add("getDate", (date, dateFormate) => {
   const eDate = dayjs().add(date, "days").format(dateFormate);
   return eDate;
@@ -621,13 +604,6 @@ Cypress.Commands.add("setTinyMceContent", (tinyMceId, content) => {
     const editor = win.tinymce.EditorManager.get(tinyMceId);
     editor.setContent(content);
   });
-});
-
-Cypress.Commands.add("startRoutesForDatasource", () => {
-  //cy.server();
-  cy.intercept("POST", "/api/v1/datasources").as("saveDatasource");
-  cy.intercept("POST", "/api/v1/datasources/test").as("testDatasource");
-  cy.intercept("PUT", "/api/v1/datasources/*").as("updateDatasource");
 });
 
 Cypress.Commands.add("startServerAndRoutes", () => {
@@ -884,7 +860,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlData", (runTestCss) => {
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-      cy.isSelectRow(0);
+      table.SelectTableRow(0);
       cy.readTabledata("0", "5").then((tabData) => {
         const tableData = tabData;
         expect(valueToTest).contains(tableData);
@@ -910,7 +886,7 @@ Cypress.Commands.add("ValidatePaginateResponseUrlDataV2", (runTestCss) => {
       cy.get(ApiEditor.ApiRunBtn).should("not.be.disabled");
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.wait(2000);
-      cy.isSelectRow(0);
+      table.SelectTableRow(0, 0, true, "v2");
       cy.readTableV2data("0", "5").then((tabData) => {
         const tableData = tabData;
         cy.log(valueToTest);
@@ -930,16 +906,6 @@ Cypress.Commands.add("CheckForPageSaveError", () => {
       cy.reload();
     }
   });
-});
-
-Cypress.Commands.add("assertPageSave", (validateSavedState = true) => {
-  if (validateSavedState) {
-    cy.CheckForPageSaveError();
-    cy.get(commonlocators.saveStatusContainer).should("not.exist", {
-      timeout: 30000,
-    });
-  }
-  //assertHelper.AssertNetworkStatus("@sucessSave", 200);
 });
 
 Cypress.Commands.add(

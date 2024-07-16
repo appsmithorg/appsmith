@@ -7,14 +7,11 @@ import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 public interface AppsmithRepository<T extends BaseDomain> {
 
     Mono<T> findById(String id, AclPermission permission);
-
-    Mono<T> findById(String id, Optional<AclPermission> permission);
 
     Mono<T> updateById(String id, T resource, AclPermission permission);
 
@@ -26,7 +23,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     Mono<T> setUserPermissionsInObject(T obj);
 
-    Mono<T> updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission);
+    Mono<T> updateAndReturn(String id, BridgeUpdate updateObj, AclPermission permission);
 
     /**
      * This method uses the mongodb bulk operation to save a list of new actions. When calling this method, please note

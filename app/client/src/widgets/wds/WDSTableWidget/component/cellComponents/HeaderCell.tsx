@@ -43,10 +43,11 @@ interface HeaderProps {
     e: React.DragEvent<HTMLDivElement>,
     destinationIndex: number,
   ) => void;
+  excludeFromTabOrder?: boolean;
 }
 
 const HeaderCellComponent = (props: HeaderProps) => {
-  const { column, editMode, isSortable } = props;
+  const { column, isSortable } = props;
 
   const headerProps = { ...column.getHeaderProps() };
   headerProps["style"] = {
@@ -68,7 +69,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
     props.sortTableColumn(columnIndex, sortOrder);
   };
 
-  const disableSort = editMode === false && isSortable === false;
+  const disableSort = isSortable === false;
 
   const isColumnEditable =
     column.columnProperties.isCellEditable &&
@@ -133,7 +134,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
     <th
       {...headerProps}
       aria-hidden={props.isHidden ? "true" : undefined}
-      className={`th header-reorder ${props.stickyRightModifier}`}
+      className={`th header-reorder justify-end ${props.stickyRightModifier}`}
       data-header={props.columnName}
     >
       <div
@@ -143,7 +144,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
           (props.column.sticky === StickyType.NONE && !props.isHidden) ||
           undefined
         }
-        onClick={!disableSort && props ? handleSortColumn : undefined}
+        onClick={!disableSort ? handleSortColumn : undefined}
         onDrag={props.onDrag}
         onDragEnd={props.onDragEnd}
         onDragEnter={onDragEnter}
@@ -153,10 +154,11 @@ const HeaderCellComponent = (props: HeaderProps) => {
         onDrop={onDrop}
         style={
           {
-            "--padding-inline-end":
-              props.isAscOrder !== undefined
+            "--padding-inline-end": isSortable
+              ? props.isAscOrder !== undefined
                 ? "calc((var(--outer-spacing-2) * 2) + (2 *var(--sizing-7)))"
-                : "calc((var(--outer-spacing-2) * 2) + var(--sizing-7))",
+                : "calc((var(--outer-spacing-2) * 2) + var(--sizing-7))"
+              : "calc(var(--outer-spacing-2) * 2)",
             justifyContent: column.columnProperties.horizontalAlignment,
           } as React.CSSProperties
         }
@@ -172,29 +174,34 @@ const HeaderCellComponent = (props: HeaderProps) => {
           </Text>
         </Flex>
       </div>
-      <Flex alignItems="center" gap="spacing-1">
-        {props.isAscOrder !== undefined && (
-          <Icon
-            name={props.isAscOrder ? "arrow-up" : "arrow-down"}
-            size="small"
-          />
-        )}
-        <MenuTrigger>
-          <IconButton
-            color="neutral"
-            icon="chevron-down"
-            size="small"
-            variant="ghost"
-          />
-          <Menu
-            items={[
-              { id: "sort-asc", label: "Sort column ascending" },
-              { id: "sort-desc", label: "Sort column descending" },
-            ]}
-            onAction={onActionOnMenu}
-          />
-        </MenuTrigger>
-      </Flex>
+      {isSortable && (
+        <Flex alignItems="center" gap="spacing-1">
+          {props.isAscOrder !== undefined && (
+            <span style={{ pointerEvents: "none" }}>
+              <Icon
+                name={props.isAscOrder ? "arrow-up" : "arrow-down"}
+                size="small"
+              />
+            </span>
+          )}
+          <MenuTrigger>
+            <IconButton
+              color="neutral"
+              excludeFromTabOrder={props.excludeFromTabOrder}
+              icon="chevron-down"
+              size="small"
+              variant="ghost"
+            />
+            <Menu
+              items={[
+                { id: "sort-asc", label: "Sort column ascending" },
+                { id: "sort-desc", label: "Sort column descending" },
+              ]}
+              onAction={onActionOnMenu}
+            />
+          </MenuTrigger>
+        </Flex>
+      )}
       <div
         {...column.getResizerProps()}
         data-resizor=""

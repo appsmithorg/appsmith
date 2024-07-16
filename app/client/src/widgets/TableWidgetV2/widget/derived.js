@@ -187,7 +187,9 @@ export default {
         tableSizes.COLUMN_HEADER_HEIGHT) /
       tableSizes.ROW_HEIGHT;
 
-    return pageSize % 1 > 0.3 ? Math.ceil(pageSize) : Math.floor(pageSize);
+    return pageSize % 1 > 0.3 && props.tableData.length > pageSize
+      ? Math.ceil(pageSize)
+      : Math.floor(pageSize);
   },
   //
   getProcessedTableData: (props, moment, _) => {

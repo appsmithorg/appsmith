@@ -27,7 +27,7 @@ describe(
         200,
       );
       // Validation of data displayed in all widgets based on row selected
-      cy.isSelectRow(1);
+      _.table.SelectTableRow(1, 0, true, "v2");
       cy.readTableV2dataPublish("1", "0").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("2736212");

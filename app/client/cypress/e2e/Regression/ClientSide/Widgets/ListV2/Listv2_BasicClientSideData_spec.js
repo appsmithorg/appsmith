@@ -139,14 +139,17 @@ describe(
       );
 
       cy.openPropertyPane("listwidgetv2");
-      cy.togglebar(commonlocators.serverSidePaginationCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.serverSidePaginationCheckbox);
 
       // Page number resets
       cy.waitUntil(() =>
         cy.get(commonlocators.listPaginateActivePage).should("have.text", "1"),
       );
 
-      cy.togglebarDisable(commonlocators.serverSidePaginationCheckbox);
+      _.agHelper.CheckUncheck(
+        commonlocators.serverSidePaginationCheckbox,
+        false,
+      );
     });
   },
 );

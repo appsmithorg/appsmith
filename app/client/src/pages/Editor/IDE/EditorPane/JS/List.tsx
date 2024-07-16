@@ -1,6 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
-import { Button, Flex, Text } from "design-system";
+import { Flex, Text } from "design-system";
 import styled from "styled-components";
 
 import { selectJSSegmentEditorList } from "@appsmith/selectors/appIDESelectors";
@@ -13,12 +13,14 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { JSListItem } from "@appsmith/pages/Editor/IDE/EditorPane/JS/ListItem";
 import { BlankState } from "./BlankState";
+import { AddAndSearchbar } from "../components/AddAndSearchbar";
+import { fuzzySearchInFiles } from "../utils";
+import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {
@@ -32,14 +34,17 @@ const JSContainer = styled(Flex)`
 `;
 
 const ListJSObjects = () => {
+  const [searchTerm, setSearchTerm] = useState("");
   const pageId = useSelector(getCurrentPageId);
-  const jsList = useSelector(selectJSSegmentEditorList);
+  const files = useSelector(selectJSSegmentEditorList);
   const activeActionId = useActiveAction();
   const applicationId = useSelector(getCurrentApplicationId);
 
   const pagePermissions = useSelector(getPagePermissions);
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const localFiles = fuzzySearchInFiles(searchTerm, files);
 
   const canCreateActions = getHasCreateActionPermission(
     isFeatureEnabled,
@@ -51,24 +56,19 @@ const ListJSObjects = () => {
   return (
     <JSContainer
       className="ide-editor-left-pane__content-js"
+      flex="1"
       flexDirection="column"
       gap="spaces-3"
       overflow="hidden"
       py="spaces-3"
     >
-      {jsList && jsList.length > 0 && canCreateActions && (
-        <Flex flexDirection="column" px="spaces-3">
-          <Button
-            className="t--add-item"
-            kind={"secondary"}
-            onClick={openAddJS}
-            size={"sm"}
-            startIcon={"add-line"}
-          >
-            {createMessage(EDITOR_PANE_TEXTS.js_add_button)}
-          </Button>
-        </Flex>
-      )}
+      {files && files.length > 0 ? (
+        <AddAndSearchbar
+          hasAddPermission={canCreateActions}
+          onAddClick={openAddJS}
+          onSearch={setSearchTerm}
+        />
+      ) : null}
       <FilesContextProvider
         canCreateActions={canCreateActions}
         editorId={applicationId}
@@ -77,13 +77,12 @@ const ListJSObjects = () => {
       >
         <Flex
           data-testid="t--ide-list"
-          flex="1"
           flexDirection="column"
           gap="spaces-4"
           overflowY="auto"
           px="spaces-3"
         >
-          {jsList.map(({ group, items }) => {
+          {localFiles.map(({ group, items }) => {
             return (
               <Flex flexDirection={"column"} key={group}>
                 {group !== "NA" ? (
@@ -112,10 +111,19 @@ const ListJSObjects = () => {
               </Flex>
             );
           })}
+          {localFiles.length === 0 && searchTerm !== "" ? (
+            <Text
+              className="font-normal text-center"
+              color="var(--ads-v2-color-fg-muted)"
+              kind="body-s"
+            >
+              {createMessage(EDITOR_PANE_TEXTS.empty_search_result, "JS")}
+            </Text>
+          ) : null}
         </Flex>
       </FilesContextProvider>
 
-      {(!jsList || jsList.length === 0) && <BlankState />}
+      {(!files || files.length === 0) && <BlankState />}
     </JSContainer>
   );
 };

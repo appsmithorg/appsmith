@@ -395,6 +395,7 @@ export default {
       enableSearch: true,
       dropdownHeight: "156px",
       controlType: "DROP_DOWN",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       searchPlaceholderText: "Search by code or name",
       options: CurrencyDropdownOptions,
       virtual: true,
@@ -402,11 +403,16 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TEXT,
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
         params: {
-          default: "USD",
-          required: true,
-          allowedValues: CurrencyDropdownOptions.map((option) => option.value),
+          type: ValidationTypes.TEXT,
+          params: {
+            default: "USD",
+            required: true,
+            allowedValues: CurrencyDropdownOptions.map(
+              (option) => option.value,
+            ),
+          },
         },
       },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
@@ -459,11 +465,17 @@ export default {
       helpText: "formats the currency with a thousand separator",
       label: "Thousand separator",
       controlType: "SWITCH",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       dependencies: ["primaryColumns", "columnType"],
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
-      validation: { type: ValidationTypes.BOOLEAN },
+      validation: {
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+        params: {
+          type: ValidationTypes.BOOLEAN,
+        },
+      },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
@@ -475,6 +487,7 @@ export default {
       helpText: "Displays the currency in standard or compact notation",
       label: "Notation",
       controlType: "DROP_DOWN",
+      customJSControl: "TABLE_COMPUTE_VALUE",
       options: [
         {
           label: "Standard",
@@ -490,8 +503,14 @@ export default {
       isBindProperty: true,
       isTriggerProperty: false,
       validation: {
-        type: ValidationTypes.TEXT,
-        params: { default: "standard", allowedValues: ["standard", "compact"] },
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+        params: {
+          type: ValidationTypes.TEXT,
+          params: {
+            default: "standard",
+            allowedValues: ["standard", "compact"],
+          },
+        },
       },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);

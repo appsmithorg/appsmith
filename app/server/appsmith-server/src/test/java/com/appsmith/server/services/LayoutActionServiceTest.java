@@ -49,7 +49,6 @@ import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -58,7 +57,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -82,7 +80,6 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -162,7 +159,7 @@ public class LayoutActionServiceTest {
 
     @BeforeEach
     public void setup() {
-        newPageService.deleteAll();
+        newPageService.deleteAll().block();
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutActionServiceTest");
@@ -1023,13 +1020,13 @@ public class LayoutActionServiceTest {
 
         for (int i = 0; i < testPages.size(); i++) {
             PageDTO page = testPages.get(i);
-            Layout layout = page.getLayouts().get(0);
-            layout.setDsl(createTestDslWithTestWidget("Layout" + (i + 1)));
+            final UpdateMultiplePageLayoutDTO.LayoutDTO layout =
+                    new UpdateMultiplePageLayoutDTO.LayoutDTO(createTestDslWithTestWidget("Layout" + (i + 1)));
 
             UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayoutDTO =
                     new UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO();
             pageLayoutDTO.setPageId(page.getId());
-            pageLayoutDTO.setLayoutId(layout.getId());
+            pageLayoutDTO.setLayoutId(page.getLayouts().get(0).getId());
             pageLayoutDTO.setLayout(layout);
             multiplePageLayoutDTO.getPageLayouts().add(pageLayoutDTO);
         }

@@ -1,4 +1,5 @@
 import { ValidationTypes } from "constants/WidgetValidation";
+import type { ModalWidgetProps } from "../../widget/types";
 
 export const propertyPaneContentConfig = [
   {
@@ -49,7 +50,7 @@ export const propertyPaneContentConfig = [
         label: "Title",
         helpText: "Title of the modal",
         controlType: "INPUT_TEXT",
-        hidden: (props: any) => !props.showHeader,
+        hidden: (props: ModalWidgetProps) => !props.showHeader,
         dependencies: ["showHeader"],
         isBindProperty: false,
         isTriggerProperty: false,
@@ -73,7 +74,7 @@ export const propertyPaneContentConfig = [
         label: "Submit",
         helpText: "Show or hide the submit button",
         controlType: "SWITCH",
-        hidden: (props: any) => !props.showFooter,
+        hidden: (props: ModalWidgetProps) => !props.showFooter,
         dependencies: ["showFooter"],
         isBindProperty: false,
         isTriggerProperty: false,
@@ -83,18 +84,20 @@ export const propertyPaneContentConfig = [
         label: "Submit Button Text",
         helpText: "Label for the Submit Button",
         controlType: "INPUT_TEXT",
-        hidden: (props: any) => !props.showSubmitButton || !props.showFooter,
+        hidden: (props: ModalWidgetProps) =>
+          !props.showSubmitButton || !props.showFooter,
         dependencies: ["showSubmitButton", "showFooter"],
         isBindProperty: false,
         isTriggerProperty: false,
         placeholderText: "Submit",
       },
+
       {
         propertyName: "cancelButtonText",
         label: "Cancel Button Text",
         helpText: "Label for the Cancel Button",
         controlType: "INPUT_TEXT",
-        hidden: (props: any) => !props.showFooter,
+        hidden: (props: ModalWidgetProps) => !props.showFooter,
         dependencies: ["showCancelButton", "showFooter"],
         isBindProperty: false,
         isTriggerProperty: false,
@@ -115,8 +118,23 @@ export const propertyPaneContentConfig = [
         isTriggerProperty: true,
       },
       {
+        propertyName: "closeOnSubmit",
+        label: "Close on submit",
+        helpText:
+          "Set the modal to automatically close on submit button click. Note: If an action is configured for the onSubmit action, it would be ideal to toggle this off and configure a 'Close Modal' action in the onSuccess and/or onFailure callback of the onSubmit action",
+        controlType: "SWITCH",
+        hidden: (props: ModalWidgetProps) =>
+          !props.showFooter || !props.showSubmitButton,
+        dependencies: ["showFooter", "showSubmitButton"],
+        isBindProperty: false,
+        isTriggerProperty: false,
+      },
+      {
         helpText: "Trigger an action when the submit button is pressed",
         propertyName: "onSubmit",
+        hidden: (props: ModalWidgetProps) =>
+          !props.showFooter || !props.showSubmitButton,
+        dependencies: ["showSubmitButton", "showFooter"],
         label: "onSubmit",
         controlType: "ACTION_SELECTOR",
         isJSConvertible: true,

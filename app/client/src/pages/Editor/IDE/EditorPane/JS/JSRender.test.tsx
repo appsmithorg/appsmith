@@ -16,6 +16,8 @@ import { JSObjectFactory } from "test/factories/Actions/JSObject";
 const FeatureFlags = {
   rollout_side_by_side_enabled: true,
 };
+
+const pageId = "0123456789abcdef00000000";
 describe("IDE Render: JS", () => {
   localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   describe("JS Blank State", () => {
@@ -25,7 +27,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects`,
           featureFlags: FeatureFlags,
         },
       );
@@ -49,7 +51,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -74,7 +76,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/add`,
           featureFlags: FeatureFlags,
         },
       );
@@ -98,7 +100,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -135,7 +137,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -149,7 +151,7 @@ describe("IDE Render: JS", () => {
       ).toBe(true);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-JSObject1").classList.contains("active"),
+        getByTestId("t--ide-tab-jsobject1").classList.contains("active"),
       ).toBe(true);
       // Check if the form is rendered
       expect(container.querySelector(".js-editor-tab")).not.toBeNull();
@@ -159,9 +161,7 @@ describe("IDE Render: JS", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByRole("button", {
-        name: createMessage(EDITOR_PANE_TEXTS.js_add_button),
-      });
+      getByTestId("t--add-item");
     });
 
     it("Renders JS routes in Split Screen", async () => {
@@ -185,7 +185,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id2",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id2`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -199,7 +199,7 @@ describe("IDE Render: JS", () => {
       expect(getAllByText("JSObject2").length).toBe(2);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-JSObject2").classList.contains("active"),
+        getByTestId("t--ide-tab-jsobject2").classList.contains("active"),
       ).toBe(true);
 
       // Check if the form is rendered
@@ -233,7 +233,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id3/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id3/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -243,7 +243,7 @@ describe("IDE Render: JS", () => {
       expect(getAllByText("JSObject3").length).toEqual(2);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-JSObject3").classList.contains("active"),
+        getByTestId("t--ide-tab-jsobject3").classList.contains("active"),
       ).toBe(false);
       // Check js object is not rendered. Instead new tab should render
       expect(container.querySelector(".js-editor-tab")).toBeNull();
@@ -271,7 +271,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id4/add",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id4/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -281,7 +281,7 @@ describe("IDE Render: JS", () => {
       expect(getAllByText("JSObject4").length).toEqual(1);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-JSObject4").classList.contains("active"),
+        getByTestId("t--ide-tab-jsobject4").classList.contains("active"),
       ).toBe(false);
 
       // Check if the form is not rendered
@@ -319,7 +319,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id",
+          url: `/app/applicationSlug/pageSlug-${pageId}/edit/jsObjects/js_id`,
           initialState: state,
           featureFlags: FeatureFlags,
         },

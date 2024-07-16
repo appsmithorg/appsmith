@@ -17,9 +17,9 @@ import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.util.StringUtils;
 
+import java.time.Instant;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -68,18 +68,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     @JsonView(Views.Public.class)
     private String examplesWorkspaceId;
 
-    // There is a many-to-many relationship with groups. If this value is modified, please also modify the list of
-    // users in that particular group document as well.
-    @JsonView(Views.Public.class)
-    private Set<String> groupIds = new HashSet<>();
-
-    // These permissions are in addition to the privileges provided by the groupIds. We can assign individual
-    // permissions
-    // to users instead of creating a group for them. To be used only for one-off permissions.
-    // During evaluation a union of the group permissions and user-specific permissions will take effect.
-    @JsonView(Views.Public.class)
-    private Set<String> permissions = new HashSet<>();
-
     // This field is used when a user is invited to appsmith. This inviteToken is used to confirm the identity in verify
     // token flow.
     @JsonView(Views.Internal.class)
@@ -96,6 +84,9 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     // e.g. AnonymousUser is created by the system migration during the first time startup.
     @JsonView(Views.Internal.class)
     Boolean isSystemGenerated;
+
+    @JsonView(Views.Internal.class)
+    Instant lastActiveAt;
 
     // TODO: Populate these attributes for a user. Generally required for OAuth2 logins
     @Override

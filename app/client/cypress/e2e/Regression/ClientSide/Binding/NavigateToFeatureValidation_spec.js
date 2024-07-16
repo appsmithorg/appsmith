@@ -10,6 +10,7 @@ import {
   entityExplorer,
   agHelper,
   deployMode,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -43,7 +44,7 @@ describe(
       cy.readTabledataPublish("1", "0").then((tabDataP) => {
         const tabValueP = tabDataP;
         cy.log(tabValueP);
-        cy.isSelectRow(1);
+        table.SelectTableRow(1);
         cy.get("input").should("be.visible");
         cy.get(publish.inputWidget + " " + "input")
           .first()

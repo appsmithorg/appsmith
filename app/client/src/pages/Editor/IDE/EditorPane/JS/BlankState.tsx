@@ -21,6 +21,7 @@ const BlankState: React.FC = () => {
   return (
     <EmptyState
       buttonClassName="t--add-item"
+      buttonTestId="t--add-item"
       buttonText={createMessage(EDITOR_PANE_TEXTS.js_add_button)}
       description={createMessage(EDITOR_PANE_TEXTS.js_blank_state_description)}
       icon={"js-square-v3"}

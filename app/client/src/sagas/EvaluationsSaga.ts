@@ -70,7 +70,7 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import { validate } from "workers/Evaluation/validations";
 import { REPLAY_DELAY } from "entities/Replay/replayUtils";
-import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
+import type { EvaluationVersion } from "constants/EvalConstants";
 
 import type { LogObject } from "entities/AppsmithConsole";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
@@ -646,6 +646,7 @@ function* evalAndLintingHandler(
 }
 
 function* evaluationChangeListenerSaga(): any {
+  const firstEvalActionChannel = yield actionChannel(FIRST_EVAL_REDUX_ACTIONS);
   // Explicitly shutdown old worker if present
   yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
   const [evalWorkerListenerChannel] = yield all([
@@ -669,8 +670,9 @@ function* evaluationChangeListenerSaga(): any {
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
   const initAction: EvaluationReduxAction<unknown> = yield take(
-    FIRST_EVAL_REDUX_ACTIONS,
+    firstEvalActionChannel,
   );
+  firstEvalActionChannel.close();
 
   // Wait for widget config build to complete before starting evaluation only if the current editor is not a workflow
   const isCurrentEditorWorkflowType = yield select(

@@ -9,7 +9,7 @@ import {
   getUpdatedRoute,
   isURLDeprecated,
   matchPath_BuilderCustomSlug,
-  matchPath_ViewerSlug,
+  matchPath_ViewerCustomSlug,
 } from "utils/helpers";
 import {
   fetchApplicationMockResponse,
@@ -77,10 +77,12 @@ describe("URL slug names", () => {
   });
 
   it("verifies that the baseURLBuilder uses applicationVersion", () => {
+    const applicationId = "a0123456789abcdef0000000";
+    const pageId = "b0123456789abcdef0000000";
     const params = {
-      applicationId: "appId",
+      applicationId,
       applicationSlug: "appSlug",
-      pageId: "pageId",
+      pageId,
       pageSlug: "pageSlug",
       customSlug: "customSlug",
     };
@@ -112,10 +114,10 @@ describe("URL slug names", () => {
       payload: { applicationVersion: ApplicationVersion.SLUG_URL },
     });
     const url4 = builderURL({ pageId: params.pageId });
-    expect(url1).toBe("/applications/appId/pages/pageId/edit");
-    expect(url2).toBe("/app/appSlug/pageSlug-pageId/edit");
-    expect(url3).toBe("/applications/appId/pages/pageId/edit");
-    expect(url4).toBe("/app/appSlug/pageSlug-pageId/edit");
+    expect(url1).toBe(`/applications/${applicationId}/pages/${pageId}/edit`);
+    expect(url2).toBe(`/app/appSlug/pageSlug-${pageId}/edit`);
+    expect(url3).toBe(`/applications/${applicationId}/pages/${pageId}/edit`);
+    expect(url4).toBe(`/app/appSlug/pageSlug-${pageId}/edit`);
   });
 
   it("tests the manual upgrade option", () => {
@@ -187,7 +189,7 @@ describe("URL slug names", () => {
     // verify path match overlap
     const matchBuilderCustomPath =
       matchPath_BuilderCustomSlug(customSlug_pathname);
-    const matchViewerSlugPath = matchPath_ViewerSlug(customSlug_pathname);
+    const matchViewerSlugPath = matchPath_ViewerCustomSlug(customSlug_pathname);
     expect(matchViewerSlugPath).not.toBeNull();
     expect(matchBuilderCustomPath).not.toBeNull();
 

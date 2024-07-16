@@ -68,7 +68,7 @@ describe("IDE add pane interactions", { tags: ["@tag.IDE"] }, () => {
     // check add pane
     PageLeftPane.assertInAddView();
     // close add tab
-    FileTabs.closeTab("new");
+    FileTabs.closeTab("new_query");
     // open add pane to add item
     PageLeftPane.switchToAddNew();
     // add item

@@ -132,7 +132,7 @@ describe(
 
       // make name field required
       cy.openFieldConfiguration("name");
-      cy.togglebar(`${propertyControlPrefix}-required input`);
+      agHelper.CheckUncheck(`${propertyControlPrefix}-required input`);
 
       deployMode.DeployApp();
 
@@ -156,7 +156,7 @@ describe(
 
       // make name field required
       cy.openFieldConfiguration("name");
-      cy.togglebar(`${propertyControlPrefix}-required input`);
+      agHelper.CheckUncheck(`${propertyControlPrefix}-required input`);
 
       deployMode.DeployApp();
 
@@ -188,10 +188,12 @@ describe(
       cy.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
-      cy.togglebar(`${propertyControlPrefix}-hiddenfieldsindata input`);
+      agHelper.CheckUncheck(
+        `${propertyControlPrefix}-hiddenfieldsindata input`,
+      );
 
       cy.openFieldConfiguration("age");
-      cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
+      agHelper.CheckUncheck(`${propertyControlPrefix}-visible input`, false);
 
       cy.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
@@ -214,10 +216,13 @@ describe(
       cy.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
-      cy.togglebarDisable(`${propertyControlPrefix}-hiddenfieldsindata input`);
+      agHelper.CheckUncheck(
+        `${propertyControlPrefix}-hiddenfieldsindata input`,
+        false,
+      );
 
       cy.openFieldConfiguration("age");
-      cy.togglebarDisable(`${propertyControlPrefix}-visible input`);
+      agHelper.CheckUncheck(`${propertyControlPrefix}-visible input`, false);
 
       cy.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");

@@ -104,26 +104,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     @Override
+    public Mono<Map<String, Plugin>> findAllPluginsInWorkspace(String workspaceId) {
+        return getAllPlugins(workspaceId).collectMap(Plugin::getId);
+    }
+
+    @Override
     public Flux<Plugin> getInWorkspace(@NonNull String workspaceId) {
-        // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
-        Mono<Workspace> workspaceMono = workspaceService.getById(workspaceId);
-
-        return workspaceMono
-                .flatMapMany(workspace -> {
-                    if (workspace.getPlugins() == null) {
-                        log.debug(
-                                "Null installed plugins found for workspace: {}. Return empty plugins",
-                                workspace.getName());
-                        return Flux.empty();
-                    }
-
-                    Set<String> pluginIds = workspace.getPlugins().stream()
-                            .map(WorkspacePlugin::getPluginId)
-                            .filter(Objects::nonNull)
-                            .collect(Collectors.toUnmodifiableSet());
-
-                    return repository.findAllById(pluginIds);
-                })
+        return getAllPlugins(workspaceId)
                 .flatMap(plugin ->
                         getTemplates(plugin).doOnSuccess(plugin::setTemplates).thenReturn(plugin));
     }
@@ -631,6 +618,25 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                 }
             }
             return loadPluginResourceGivenPluginAsMap(plugin, resourcePath);
+        });
+    }
+
+    private Flux<Plugin> getAllPlugins(String workspaceId) {
+        // TODO : Think about the various scenarios where this plugin api is called and then decide on permissions.
+        Mono<Workspace> workspaceMono = workspaceService.getById(workspaceId);
+
+        return workspaceMono.flatMapMany(workspace -> {
+            if (workspace.getPlugins() == null) {
+                log.debug("Null installed plugins found for workspace: {}. Return empty plugins", workspace.getName());
+                return Flux.empty();
+            }
+
+            Set<String> pluginIds = workspace.getPlugins().stream()
+                    .map(WorkspacePlugin::getPluginId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toUnmodifiableSet());
+
+            return repository.findAllById(pluginIds);
         });
     }
 
