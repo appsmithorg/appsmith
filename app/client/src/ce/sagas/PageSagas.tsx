@@ -994,9 +994,20 @@ export function* updateWidgetNameSaga(
       // Send a update saying that we've successfully updated the name
       yield put(updateWidgetNameSuccess());
     } else {
-      // check if name is not conflicting with any
+      const numPattern = /^\d/i;
+      //check if the name starts with a number
+      if (numPattern.test(action.payload.newName)) {
+        yield put({
+          type: ReduxActionErrorTypes.UPDATE_WIDGET_NAME_ERROR,
+          payload: {
+            error: {
+              message: `Entity name: ${action.payload.newName} cannot start with a number.`,
+            },
+          },
+        });
+      } // check if name is not conflicting with any
       // existing entity/api/queries/reserved words
-      if (isNameValid(action.payload.newName, getUsedNames)) {
+      else if (isNameValid(action.payload.newName, getUsedNames)) {
         const request: UpdateWidgetNameRequest = {
           newName: action.payload.newName,
           oldName: widgetName,
