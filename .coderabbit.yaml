@@ -32,6 +32,6 @@ reviews:
         - Use multiple assertions for expect statements.
         - Avoid using strings for assertions.
         - Do not use duplicate filenames even with different paths.
-        - Avoid using agHelper.Sleep, this.Sleep()
+        - Avoid using agHelper.Sleep, this.Sleep in any file in code.
 chat:
   auto_reply: true
