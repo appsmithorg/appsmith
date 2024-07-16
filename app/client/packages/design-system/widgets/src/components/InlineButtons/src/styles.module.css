@@ -6,10 +6,7 @@
   gap: var(--inner-spacing-2);
 
   & :is([data-button]) {
-    /*
-      We use !important here to be sure that button width and the logic of useInlineButtons hook will not be changed from the outside
-    */
-    min-inline-size: fit-content !important;
+    flex-shrink: 0;
   }
 
   &[data-orientation="vertical"] {

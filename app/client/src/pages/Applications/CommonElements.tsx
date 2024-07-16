@@ -80,6 +80,10 @@ export const PaddingWrapper = styled.div<{ isMobile?: boolean }>`
 
 const StyledResourceHeadingText = styled(Text)`
   font-weight: var(--ads-font-weight-bold-xl);
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
 `;
 
 export const Space = styled.div`

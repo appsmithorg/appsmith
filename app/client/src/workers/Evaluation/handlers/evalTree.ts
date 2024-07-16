@@ -34,6 +34,7 @@ import {
   profileFn,
   newWebWorkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
+import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
 
@@ -44,8 +45,11 @@ export let canvasWidgetsMeta: Record<string, any>;
 export let metaWidgetsCache: MetaWidgetsReduxState;
 export let canvasWidgets: CanvasWidgetsReduxState;
 
-export function evalTree(request: EvalWorkerSyncRequest) {
+export function evalTree(
+  request: EvalWorkerSyncRequest<EvalTreeRequestData>,
+): EvalTreeResponseData {
   const { data, webworkerTelemetry } = request;
+
   webworkerTelemetry["transferDataToWorkerThread"].endTime = Date.now();
 
   let evalOrder: string[] = [];
@@ -75,7 +79,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     widgets,
     widgetsMeta,
     widgetTypeConfigMap,
-  } = data as EvalTreeRequestData;
+  } = data;
 
   const unevalTree = __unevalTree__.unEvalTree;
   configTree = __unevalTree__.configTree as ConfigTree;
@@ -85,6 +89,9 @@ export function evalTree(request: EvalWorkerSyncRequest) {
   let isNewTree = false;
 
   try {
+    (webworkerTelemetry.__spanAttributes as SpanAttributes)["firstEvaluation"] =
+      !dataTreeEvaluator;
+
     if (!dataTreeEvaluator) {
       isCreateFirstTree = true;
       replayMap = replayMap || {};
@@ -100,7 +107,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
         { description: "during initialisation" },
         webworkerTelemetry,
         () =>
-          dataTreeEvaluator?.setupFirstTree(
+          (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree(
             unevalTree,
             configTree,
             webworkerTelemetry,
@@ -114,7 +121,8 @@ export function evalTree(request: EvalWorkerSyncRequest) {
         "evalAndValidateFirstTree",
         { description: "during initialisation" },
         webworkerTelemetry,
-        () => dataTreeEvaluator?.evalAndValidateFirstTree(),
+        () =>
+          (dataTreeEvaluator as DataTreeEvaluator).evalAndValidateFirstTree(),
       );
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
@@ -146,7 +154,11 @@ export function evalTree(request: EvalWorkerSyncRequest) {
         "setupFirstTree",
         { description: "non-initialisation" },
         webworkerTelemetry,
-        () => dataTreeEvaluator?.setupFirstTree(unevalTree, configTree),
+        () =>
+          (dataTreeEvaluator as DataTreeEvaluator).setupFirstTree(
+            unevalTree,
+            configTree,
+          ),
       );
       isCreateFirstTree = true;
       evalOrder = setupFirstTreeResponse.evalOrder;
@@ -156,7 +168,8 @@ export function evalTree(request: EvalWorkerSyncRequest) {
         "evalAndValidateFirstTree",
         { description: "non-initialisation" },
         webworkerTelemetry,
-        () => dataTreeEvaluator?.evalAndValidateFirstTree(),
+        () =>
+          (dataTreeEvaluator as DataTreeEvaluator).evalAndValidateFirstTree(),
       );
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
@@ -179,7 +192,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
         undefined,
         webworkerTelemetry,
         () =>
-          dataTreeEvaluator?.setupUpdateTree(
+          (dataTreeEvaluator as DataTreeEvaluator).setupUpdateTree(
             unevalTree,
             configTree,
             webworkerTelemetry,
@@ -198,7 +211,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
         undefined,
         webworkerTelemetry,
         () =>
-          dataTreeEvaluator?.evalAndValidateSubTree(
+          (dataTreeEvaluator as DataTreeEvaluator).evalAndValidateSubTree(
             evalOrder,
             configTree,
             unEvalUpdates,
@@ -287,7 +300,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     },
   );
 
-  const evalTreeResponse: EvalTreeResponseData = {
+  const evalTreeResponse = {
     updates,
     dependencies,
     errors,

@@ -7,12 +7,20 @@ import { matchPath } from "react-router";
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { match } = require("path-to-regexp");
 
+// Regex to extract the id from the URL path which supports both the formats:
+// 1. With Mongo ObjectIds
+// 2. With UUID
+const MONGO_OBJECT_ID_REGEX = "[0-9a-f]{24}";
+const UUID_REGEX =
+  "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
+export const ID_EXTRACTION_REGEX = `(${MONGO_OBJECT_ID_REGEX}|${UUID_REGEX})`;
+
 export const BUILDER_BASE_PATH_DEPRECATED = "/applications";
 export const BUILDER_VIEWER_PATH_PREFIX = "/app/";
-export const BUILDER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId/edit`;
-export const BUILDER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):pageId/edit`;
-export const VIEWER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId`;
-export const VIEWER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):pageId`;
+export const BUILDER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId${ID_EXTRACTION_REGEX}/edit`;
+export const BUILDER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):pageId${ID_EXTRACTION_REGEX}/edit`;
+export const VIEWER_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:applicationSlug/:pageSlug(.*\-):pageId${ID_EXTRACTION_REGEX}`;
+export const VIEWER_CUSTOM_PATH = `${BUILDER_VIEWER_PATH_PREFIX}:customSlug(.*\-):pageId${ID_EXTRACTION_REGEX}`;
 export const getViewerPath = (
   applicationSlug: string,
   pageSlug: string,
@@ -20,8 +28,8 @@ export const getViewerPath = (
 ) => `${BUILDER_VIEWER_PATH_PREFIX}${applicationSlug}/${pageSlug}-${pageId}`;
 export const getViewerCustomPath = (customSlug: string, pageId: string) =>
   `${BUILDER_VIEWER_PATH_PREFIX}${customSlug}-${pageId}`;
-export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
-export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
+export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId${ID_EXTRACTION_REGEX}/pages/:pageId${ID_EXTRACTION_REGEX}/edit`;
+export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId${ID_EXTRACTION_REGEX}/pages/:pageId${ID_EXTRACTION_REGEX}`;
 export const VIEWER_PATH_DEPRECATED_REGEX =
   /\/applications\/[^/]+\/pages\/[^/]+/;
 
@@ -54,7 +62,6 @@ export const QUERIES_EDITOR_ID_ADD_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId/
 export const JS_COLLECTION_EDITOR_PATH = `/jsObjects`;
 export const JS_COLLECTION_ID_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId`;
 export const JS_COLLECTION_ID_ADD_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId/add`;
-export const CURL_IMPORT_PAGE_PATH = `/api/curl/curl-import`;
 export const DATA_SOURCES_EDITOR_LIST_PATH = `/datasource`;
 export const DATA_SOURCES_EDITOR_ID_PATH = `/datasource/:datasourceId`;
 export const APP_LIBRARIES_EDITOR_PATH = `/libraries`;
@@ -70,8 +77,8 @@ export const ADMIN_SETTINGS_CATEGORY_DEFAULT_PATH = "/settings/general";
 export const ADMIN_SETTINGS_CATEGORY_ACL_PATH = "/settings/groups";
 export const ADMIN_SETTINGS_CATEGORY_AUDIT_LOGS_PATH = "/settings/audit-logs";
 export const ADMIN_SETTINGS_CATEGORY_PATH = "/settings/:category/:selected?";
-export const BUILDER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
-export const VIEWER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId`;
+export const BUILDER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId${ID_EXTRACTION_REGEX}/edit`;
+export const VIEWER_PATCH_PATH = `/:applicationSlug/:pageSlug(.*\-):pageId${ID_EXTRACTION_REGEX}`;
 
 export const matchApiBasePath = match(API_EDITOR_BASE_PATH);
 export const matchApiPath = match(API_EDITOR_ID_PATH);

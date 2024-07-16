@@ -161,7 +161,7 @@ public class GitUtils {
     public static boolean isApplicationConnectedToGit(Application application) {
         GitArtifactMetadata metadata = application.getGitApplicationMetadata();
         return metadata != null
-                && !StringUtils.isEmptyOrNull(metadata.getDefaultApplicationId())
+                && !StringUtils.isEmptyOrNull(metadata.getDefaultArtifactId())
                 && !StringUtils.isEmptyOrNull(metadata.getRemoteUrl());
     }
 
@@ -170,6 +170,18 @@ public class GitUtils {
         String versionKey = "version";
         if (layoutDsl.containsKey(versionKey)) {
             int currentDslVersion = layoutDsl.getAsNumber(versionKey).intValue();
+            if (currentDslVersion >= latestDslVersion) {
+                isMigrationRequired = false;
+            }
+        }
+        return isMigrationRequired;
+    }
+
+    public static boolean isMigrationRequired(org.json.JSONObject layoutDsl, Integer latestDslVersion) {
+        boolean isMigrationRequired = true;
+        String versionKey = "version";
+        if (layoutDsl.has(versionKey)) {
+            int currentDslVersion = layoutDsl.getInt(versionKey);
             if (currentDslVersion >= latestDslVersion) {
                 isMigrationRequired = false;
             }

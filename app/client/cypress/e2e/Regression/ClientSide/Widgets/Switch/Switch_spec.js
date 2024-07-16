@@ -31,7 +31,7 @@ describe(
       /**
        * @param{toggleButton Css} Assert to be checked
        */
-      cy.togglebar(widgetsPage.defaultcheck);
+      _.agHelper.CheckUncheck(widgetsPage.defaultcheck);
       /**
        * @param{Show Alert} Css for InputChange
        */
@@ -48,28 +48,28 @@ describe(
 
       //Switch Functionality To Check Disabled Widget
       cy.openPropertyPane("switchwidget");
-      cy.togglebar(commonlocators.Disablejs + " " + "input");
+      _.agHelper.CheckUncheck(commonlocators.Disablejs + " " + "input");
       _.deployMode.DeployApp();
       cy.get(publish.switchwidget + " " + "input").should("be.disabled");
       _.deployMode.NavigateBacktoEditor();
 
       //Switch Functionality To Check Enabled Widget
       cy.openPropertyPane("switchwidget");
-      cy.togglebarDisable(commonlocators.Disablejs + " " + "input");
+      _.agHelper.CheckUncheck(commonlocators.Disablejs + " " + "input", false);
       _.deployMode.DeployApp();
       cy.get(publish.switchwidget + " " + "input").should("be.enabled");
       _.deployMode.NavigateBacktoEditor();
 
       //Switch Functionality To Unchecked Visible Widget
       cy.openPropertyPane("switchwidget");
-      cy.togglebarDisable(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
       cy.get(publish.switchwidget + " " + "input").should("not.exist");
       _.deployMode.NavigateBacktoEditor();
 
       // Switch Functionality To Check Visible Widget
       cy.openPropertyPane("switchwidget");
-      cy.togglebar(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
       cy.get(publish.switchwidget + " " + "input").should("be.checked");
       _.deployMode.NavigateBacktoEditor();

@@ -10,6 +10,15 @@ export enum Elevations {
 }
 
 /**
+ * The data attribute that will be used to identify the anvil widget name in the DOM.
+ */
+export const AnvilDataAttributes = {
+  MODAL_SIZE: "data-size",
+  WIDGET_NAME: "data-widget-name",
+  IS_SELECTED_WIDGET: "data-selected",
+};
+
+/**
  * The default values that will be applied to all widgets.
  * This is the default for the API that allows widgets to define their selection and focus colors.
  */

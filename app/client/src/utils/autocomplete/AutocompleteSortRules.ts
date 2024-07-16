@@ -130,7 +130,9 @@ class NoDeepNestedSuggestionsRule implements AutocompleteRule {
   static threshold = -Infinity;
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
-    if (completion.text.split(".").length > 2)
+    const text = completion.displayText || "";
+
+    if (text.split(".").length > 2)
       score = NoDeepNestedSuggestionsRule.threshold;
     return score;
   }
@@ -145,11 +147,11 @@ class NoSelfReferenceRule implements AutocompleteRule {
   static threshold = -Infinity;
   computeScore(completion: Completion<TernCompletionResult>): number {
     let score = 0;
-    const entityName = AutocompleteSorter.currentFieldInfo.entityName;
+    const { entityName, propertyPath } = AutocompleteSorter.currentFieldInfo;
     if (!entityName) return score;
     if (
       completion.text === entityName ||
-      completion.text.startsWith(`${entityName}.`)
+      completion.text === [entityName, propertyPath].join(".")
     )
       score = NoSelfReferenceRule.threshold;
     return score;

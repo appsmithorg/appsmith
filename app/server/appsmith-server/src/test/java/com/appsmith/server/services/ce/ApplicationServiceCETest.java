@@ -87,7 +87,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -108,7 +107,6 @@ import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -149,6 +147,7 @@ import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.ArtifactType.APPLICATION;
+import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
@@ -156,7 +155,6 @@ import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.constants.ce.FieldNameCE.WORKSPACE;
 import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
-import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -164,7 +162,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext

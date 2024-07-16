@@ -91,7 +91,7 @@ describe(
     after("Verify Deletion of the datasource", () => {
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409);
       agHelper.ValidateToastMessage(
-        "Cannot delete datasource since it has 1 action(s) using it.",
+        "Cannot delete datasource since it has 1 query using it.",
       ); //table is 1 action
     });
 

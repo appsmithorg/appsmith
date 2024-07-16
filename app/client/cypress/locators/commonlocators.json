@@ -148,7 +148,7 @@
   "allowCurrencyChange": ".t--property-control-allowcurrencychange input[type='checkbox']",
   "inputCurrencyChangeType": ".t--input-currency-change",
   "inputCountryCodeChangeType": ".t--input-country-code-change",
-  "viewerPage": ".t--app-viewer-page",
+  "viewerPage": "[data-testid='t--app-viewer-page']",
   "dropDownOptSelected": "//span[@type='p1']",
   "generalChevran": ".t--property-pane-section-collapse-general .t--chevron-icon",
   "generalSection": ".t--property-pane-section-general",
@@ -234,5 +234,12 @@
   "heightProperty": ".rc-select-single input",
   "heightPropertyOption": ".rc-select-item-option-content span",
   "filePickerMaxNoOfFiles": ".t--property-control-maxno\\.offiles .CodeMirror-code",
-  "jsonformFieldEducationFieldSwitch": ".t--jsonformfield-education.switchfield"
+  "jsonformFieldEducationFieldSwitch": ".t--jsonformfield-education.switchfield",
+  "allowclearingValueInput": ".t--property-control-allowclearingvalue input[type='checkbox']",
+  "allowcountrycodechangeInput": ".t--property-control-allowcountrycodechange input[type='checkbox']",
+  "allowsearchingInput": ".t--property-control-allowsearching input",
+  "allowsearchingInputTypeCheckbox": ".t--property-control-allowsearching input[type='checkbox']",
+  "clientSideSearch": ".t--property-control-clientsidesearch input[type='checkbox']",
+  "enableClientSideSearch": ".t--property-control-enableclientsidesearch input[type='checkbox']",
+  "fixedFooterInput": ".t--property-control-fixedfooter input"
 }

@@ -6,7 +6,6 @@ import type { CSSProperties, ReactNode } from "react";
 import type { PositionValues } from "layoutSystems/anvil/utils/types";
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import type { RenderMode } from "constants/WidgetConstants";
 import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import { useSelector } from "react-redux";
 import {
@@ -24,7 +23,6 @@ export interface FlexLayoutProps extends FlexProps {
   layoutType: LayoutComponentTypes;
   parentDropTarget: string;
   position?: PositionValues;
-  renderMode: RenderMode;
 }
 
 export const FlexLayout = React.memo((props: FlexLayoutProps) => {

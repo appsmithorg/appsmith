@@ -53,6 +53,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
     private final ExportableService<Plugin> pluginExportableService;
     private final ExportableService<CustomJSLib> customJSLibExportableService;
     protected final Gson gson;
+    private final JsonSchemaVersions jsonSchemaVersions;
 
     public ExportServiceCEImpl(
             SessionUserService sessionUserService,
@@ -62,7 +63,8 @@ public class ExportServiceCEImpl implements ExportServiceCE {
             Gson gson,
             ExportableService<Datasource> datasourceExportableService,
             ExportableService<Plugin> pluginExportableService,
-            ExportableService<CustomJSLib> customJSLibExportableService) {
+            ExportableService<CustomJSLib> customJSLibExportableService,
+            JsonSchemaVersions jsonSchemaVersions) {
         this.sessionUserService = sessionUserService;
         this.analyticsService = analyticsService;
         this.workspaceService = workspaceService;
@@ -71,6 +73,7 @@ public class ExportServiceCEImpl implements ExportServiceCE {
         this.datasourceExportableService = datasourceExportableService;
         this.pluginExportableService = pluginExportableService;
         this.customJSLibExportableService = customJSLibExportableService;
+        this.jsonSchemaVersions = jsonSchemaVersions;
     }
 
     @Override
@@ -122,8 +125,8 @@ public class ExportServiceCEImpl implements ExportServiceCE {
 
         ArtifactExchangeJson artifactExchangeJson = artifactBasedExportService.createNewArtifactExchangeJson();
         // Set json schema version which will be used to check the compatibility while importing the JSON
-        artifactExchangeJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
-        artifactExchangeJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+        artifactExchangeJson.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
+        artifactExchangeJson.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
 
         // Find the transaction artifact with appropriate permission
         Mono<? extends Artifact> exportableArtifactMono = artifactBasedExportService
