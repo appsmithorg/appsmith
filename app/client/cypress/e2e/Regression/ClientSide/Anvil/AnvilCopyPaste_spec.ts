@@ -123,7 +123,7 @@ describe(
       cy.get("body").type(`{${modifierKey}}c`);
 
       // deselect widgets by clicking on the canvas
-      cy.get(`${anvilLocators.mainCanvasSelector} > div`).click();
+      cy.get(`${anvilLocators.mainCanvasSelector}`).click();
 
       // paste the button widget
       cy.get("body").type(`{${modifierKey}}v`);
