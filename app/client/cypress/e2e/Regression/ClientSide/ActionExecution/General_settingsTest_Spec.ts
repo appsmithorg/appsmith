@@ -67,4 +67,20 @@ describe("removeValue", { tags: ["@tag.notcovered"] }, () => {
 
     this.Sleep(3000)
   });
+
+  it.only("new test cases", function () {
+    agHelper.Sleep(500);
+    cy.LoginUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
+    cy.wait(5000);
+    this.Sleep(3000)
+    _.AggregateHelper.Sleep();
+    cy.signUp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
+    
+    cy.Logout(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
+    _.agHelper.Sleep();
+    this.Sleep()
+   
+  });
+  
+  
 });
