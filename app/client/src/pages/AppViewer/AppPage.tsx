@@ -46,11 +46,10 @@ export function AppPage(props: AppPageProps) {
         ]) => {
           dispatch(updateCanvasLayoutAction(width - sidebarWidth));
         },
-        50,
+        100,
       );
 
       const resizeObserver = new ResizeObserver(debouncedResize);
-
       resizeObserver.observe(wrapperElement);
 
       return () => {
