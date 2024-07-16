@@ -40,6 +40,13 @@ describe("removeValue", { tags: ["@tag.notcovered"] }, () => {
     expect(true).to.be.equal(false);
     cy.get("input[type=input]").type("testing str");
     cy.get("input[type=input]").type(dataDiv);
+    this.agHelper.Sleep();
+    this.agHelper.Sleep(2000);
+    _.AggregateHelper.Sleep();
+    agHelper.Sleep(500);
+    _.agHelper.Sleep();
+    this.Sleep()
+    this.Sleep(3000)
   });
 
   it.only("Remove", function () {
