@@ -14,7 +14,8 @@ export class AnvilSnapshot {
     appViewerPage: "[data-testid=t--app-viewer-page]",
     propertyPaneSidebar: "[data-testid=t--property-pane-sidebar]",
     accentColorInput: "[data-testid=t--color-picker-input]",
-    fontFamilySectionInput: "[data-testid=t--anvil-theme-settings-font-family] input",
+    fontFamilySectionInput:
+      "[data-testid=t--anvil-theme-settings-font-family] input",
     densityOptions: "[data-testid=t--anvil-theme-settings-density] > div",
     sizingOptions: "[data-testid=t--anvil-theme-settings-sizing] > div",
     cornersOptions: "[data-testid=t--anvil-theme-settings-corners] > div",
@@ -28,19 +29,33 @@ export class AnvilSnapshot {
    * - ("ButtonWidget", "canvas", "light") -> AnvilButtonWidgetCanvas
    * - ("ButtonWidget", "preview", "dark") -> AnvilButtonWidgetPreviewDark
    */
-  public matchSnapshot(locator: string, name: string, mode: "canvas" | "preview" | "deploy" = "canvas", theme: "light" | "dark" = "light", size?: Cypress.ViewportPreset) {
-    const snapshotName = camelCase(`anvil_${name}$_${mode}${theme == "dark" ? "_dark" : ""}${size ? `_${size}` : ""}`);
+  public matchSnapshot(
+    locator: string,
+    name: string,
+    mode: "canvas" | "preview" | "deploy" = "canvas",
+    theme: "light" | "dark" = "light",
+    size?: Cypress.ViewportPreset,
+  ) {
+    const snapshotName = camelCase(
+      `anvil_${name}$_${mode}${theme == "dark" ? "_dark" : ""}${size ? `_${size}` : ""}`,
+    );
 
     this.agHelper.GetElement(locator).matchImageSnapshot(snapshotName, {
       comparisonMethod: "ssim",
     });
   }
 
-  public matchSanpshotForCanvasMode = (name: string, theme: Parameters<typeof this.matchSnapshot>[3] = "light") => {
+  public matchSanpshotForCanvasMode = (
+    name: string,
+    theme: Parameters<typeof this.matchSnapshot>[3] = "light",
+  ) => {
     this.matchSnapshot(this.locators.canvas, name, "canvas", theme);
-  }
+  };
 
-  public matchSnapshotForPreviewMode = (name: string, theme: Parameters<typeof this.matchSnapshot>[3] = "light") => {
+  public matchSnapshotForPreviewMode = (
+    name: string,
+    theme: Parameters<typeof this.matchSnapshot>[3] = "light",
+  ) => {
     this.enterPreviewMode();
 
     this.matchSnapshot(this.locators.canvas, name, "preview", theme);
@@ -48,7 +63,10 @@ export class AnvilSnapshot {
     this.exitPreviewMode();
   };
 
-  public matchSnapshotForDeployMode = (name: string, theme: Parameters<typeof this.matchSnapshot>[3] = "light") => {
+  public matchSnapshotForDeployMode = (
+    name: string,
+    theme: Parameters<typeof this.matchSnapshot>[3] = "light",
+  ) => {
     this.deployMode.DeployApp(this.locators.appViewerPage);
 
     this.matchSnapshot(this.locators.appViewerPage, name, "deploy", theme);
@@ -56,22 +74,44 @@ export class AnvilSnapshot {
     (["macbook-13", "iphone-6", "ipad-2"] as const).forEach((device) => {
       cy.viewport(device);
 
-      this.matchSnapshot(this.locators.appViewerPage, name, "deploy", theme, device);
+      this.matchSnapshot(
+        this.locators.appViewerPage,
+        name,
+        "deploy",
+        theme,
+        device,
+      );
     });
 
     cy.viewport(1400, 1200);
 
     this.agHelper.BrowserNavigation(-1);
-  }
+  };
 
   public enterPreviewMode = () => {
     this.agHelper.GetNClick(this.locators.enterPreviewMode);
-    this.agHelper.GetNClick(this.locators.canvas, 0, false, 500, false, false, "topLeft");
+    this.agHelper.GetNClick(
+      this.locators.canvas,
+      0,
+      false,
+      500,
+      false,
+      false,
+      "topLeft",
+    );
   };
 
   private exitPreviewMode = () => {
     this.agHelper.GetNClick(this.locators.exitPreviewMode);
-    this.agHelper.GetNClick(this.locators.canvas, 0, false, 500, false, false, "topLeft");
+    this.agHelper.GetNClick(
+      this.locators.canvas,
+      0,
+      false,
+      500,
+      false,
+      false,
+      "topLeft",
+    );
   };
 
   public setTheme = (theme: "light" | "dark") => {
@@ -84,46 +124,54 @@ export class AnvilSnapshot {
 
   public setAccentColor = (color: string) => {
     this.updateThemeOption(() => {
-      cy.get(this.locators.accentColorInput).clear().type(color)
+      cy.get(this.locators.accentColorInput).clear().type(color);
     });
-  }
+  };
 
   public setTypography = (name: string) => {
     this.updateThemeOption(() => {
-      cy.get(this.locators.fontFamilySectionInput).click({ force: true })
+      cy.get(this.locators.fontFamilySectionInput).click({ force: true });
 
       cy.get(".rc-virtual-list .rc-select-item-option")
         .find(".leading-normal")
         .contains(name)
-        .click({ force: true })
+        .click({ force: true });
 
       cy.contains("Typography").click({ force: true });
     });
-  }
+  };
 
   public setDensity = (density: string) => {
     this.updateThemeOption(() => {
-      cy.get(this.locators.densityOptions).contains(density).click({ force: true });
+      cy.get(this.locators.densityOptions)
+        .contains(density)
+        .click({ force: true });
     });
-  }
+  };
 
   public setSizing = (sizing: string) => {
     this.updateThemeOption(() => {
-      cy.get(this.locators.sizingOptions).contains(sizing).click({ force: true });
+      cy.get(this.locators.sizingOptions)
+        .contains(sizing)
+        .click({ force: true });
     });
-  }
+  };
 
   public setCorners = (corner: string) => {
     this.updateThemeOption(() => {
-      cy.get(`${this.locators.cornersOptions} [data-value="${corner}"]`).click({ force: true });
+      cy.get(`${this.locators.cornersOptions} [data-value="${corner}"]`).click({
+        force: true,
+      });
     });
-  }
+  };
 
   public setIconStyle = (iconStyle: string) => {
     this.updateThemeOption(() => {
-      cy.get(this.locators.iconStyleOptions).contains(iconStyle).click({ force: true });
+      cy.get(this.locators.iconStyleOptions)
+        .contains(iconStyle)
+        .click({ force: true });
     });
-  }
+  };
 
   public updateThemeOption = (callback: () => void) => {
     this.appSettings.OpenAppSettings();
@@ -132,7 +180,7 @@ export class AnvilSnapshot {
     callback();
 
     this.appSettings.ClosePane();
-  }
+  };
 
   public triggerInputInvalidState = () => {
     this.enterPreviewMode();
