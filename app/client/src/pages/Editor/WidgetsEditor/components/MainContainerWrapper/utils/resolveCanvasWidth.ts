@@ -14,7 +14,7 @@ export const resolveCanvasWidth = ({
 
   switch (true) {
     case maxWidth < 0:
-    case containerWidth > minWidth && containerWidth < maxWidth:
+    case containerWidth >= minWidth && containerWidth <= maxWidth:
       return containerWidth;
     case containerWidth < minWidth:
       return minWidth;
