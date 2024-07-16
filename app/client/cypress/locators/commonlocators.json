@@ -234,6 +234,5 @@
   "heightProperty": ".rc-select-single input",
   "heightPropertyOption": ".rc-select-item-option-content span",
   "filePickerMaxNoOfFiles": ".t--property-control-maxno\\.offiles .CodeMirror-code",
-  "jsonformFieldCustomFieldSwitch": ".t--jsonformfield-customField1.switchfield",
-  "jsonFieldPrefix": ".t--jsonformfield-name" 
+  "jsonformFieldEducationFieldSwitch": ".t--jsonformfield-education.switchfield"
 }
