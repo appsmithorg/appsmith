@@ -55,15 +55,16 @@ describe("removeValue", { tags: ["@tag.notcovered"] }, () => {
   });
 
   it.only("new Remove", function () {
+    cy.LoginUser(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
     cy.wait(5000);
     _.AggregateHelper.Sleep();
-
+    cy.signUp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
     agHelper.Sleep(500);
-
+    cy.Logout(Cypress.env("USERNAME"), Cypress.env("PASSWORD"), false);
     _.agHelper.Sleep();
 
     this.Sleep()
-    
+
     this.Sleep(3000)
   });
 });
