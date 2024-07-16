@@ -30,9 +30,10 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     }
 
     @Override
-    public List<Theme> getSystemThemes() {
+    public List<Theme> getSystemThemes(AclPermission permission, User currentUser) {
         return queryBuilder()
                 .criteria(Bridge.isTrue(Theme.Fields.isSystemTheme))
+                .permission(permission, currentUser)
                 .all();
     }
 

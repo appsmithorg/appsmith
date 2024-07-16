@@ -101,7 +101,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeReposi
 
     @Override
     public Flux<Theme> getSystemThemes() {
-        return repository.getSystemThemes();
+        return repository.getSystemThemes(READ_THEMES);
     }
 
     @Override
