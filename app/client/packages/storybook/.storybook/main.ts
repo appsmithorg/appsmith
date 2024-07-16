@@ -2,18 +2,18 @@ import type { StorybookConfig } from "@storybook/react-vite";
 import * as glob from "glob";
 import * as path from "path";
 
-const dsDir = path.resolve(__dirname, "../../design-system");
+const dsDir = path.resolve(__dirname, "../../design-system/ads/src/List");
 
 function getStories() {
   if (process.env.CHROMATIC) {
     return ["../../design-system/**/*.chromatic.stories.@(ts|tsx)"];
   }
 
-  const tsStories = glob
+  return glob
     .sync(`${dsDir}/**/*.stories.@(ts|tsx)`, { nosort: true })
     .filter((storyPath) => !storyPath.includes("chromatic"));
 
-  return ["../../design-system/**/*.mdx", "../../icons/**/*.mdx", ...tsStories];
+  // return ["../../design-system/**/*.mdx", "../../icons/**/*.mdx", ...tsStories];
 }
 
 const config: StorybookConfig = {
