@@ -1,5 +1,5 @@
 import Fuse from "fuse.js";
-import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
+import get from "lodash/get";
 
 export const createAddClassName = (name: string) => {
   return "t--datasoucre-create-option-" + name.toLowerCase().replace(/ /g, "_");
@@ -8,22 +8,24 @@ export const createAddClassName = (name: string) => {
 const FUSE_OPTIONS = {
   shouldSort: true,
   threshold: 0.1,
-  keys: ["title"],
 };
 
-export const fuzzySearchInFiles = (
+export const fuzzySearchInObjectItems = <T extends any[]>(
   searchStr: string,
-  files: EditorSegmentList,
-) => {
+  files: T,
+  keysToSearch = ["title"],
+  itemsKey = "items",
+): T => {
   if (searchStr && searchStr !== "") {
     const newFiles = files
-      .map((group) => {
-        const fuse = new Fuse(group.items, FUSE_OPTIONS);
+      .map((group: any) => {
+        const items = get(group, itemsKey);
+        const fuse = new Fuse(items, { ...FUSE_OPTIONS, keys: keysToSearch });
         const resultItems = fuse.search(searchStr);
         return { ...group, items: resultItems };
       })
       .filter((group) => group.items.length > 0);
-    return newFiles;
+    return newFiles as T;
   }
 
   return files;

@@ -4,7 +4,7 @@ import AddJS from "pages/Editor/IDE/EditorPane/JS/Add";
 
 const JSAddState = () => {
   return (
-    <Flex height="100%" justifyContent="center">
+    <Flex height="calc(100% - 32px)" justifyContent="center">
       <AddJS
         containerProps={{
           px: "spaces-4",

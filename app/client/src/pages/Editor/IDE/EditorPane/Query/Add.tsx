@@ -1,5 +1,5 @@
-import React from "react";
-import { Flex } from "design-system";
+import React, { useState } from "react";
+import { Flex, SearchInput } from "design-system";
 
 import { EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import SegmentAddHeader from "../components/SegmentAddHeader";
@@ -10,11 +10,26 @@ import {
   useQueryAdd,
 } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 import type { AddProps } from "../types/AddProps";
+import { fuzzySearchInObjectItems } from "../utils";
+import type { GroupedListProps } from "../components/types";
+import { EmptySearchResult } from "../components/EmptySearchResult";
 
 const AddQuery = ({ containerProps, innerContainerProps }: AddProps) => {
+  const [searchTerm, setSearchTerm] = useState("");
   const { getListItems } = useAddQueryListItems();
   const groupedActionOperations = useGroupedAddQueryOperations();
   const { closeAddQuery } = useQueryAdd();
+
+  const groups = groupedActionOperations.map((group) => ({
+    groupTitle: group.title,
+    className: group.className,
+    items: getListItems(group.operations),
+  }));
+
+  const localGroups = fuzzySearchInObjectItems<GroupedListProps[]>(
+    searchTerm,
+    groups,
+  );
 
   return (
     <Flex
@@ -35,17 +50,11 @@ const AddQuery = ({ containerProps, innerContainerProps }: AddProps) => {
           onCloseClick={closeAddQuery}
           titleMessage={EDITOR_PANE_TEXTS.query_create_tab_title}
         />
-        <GroupedList
-          flexProps={{
-            pr: "spaces-2",
-            px: "spaces-3",
-          }}
-          groups={groupedActionOperations.map((group) => ({
-            groupTitle: group.title,
-            className: group.className,
-            items: getListItems(group.operations),
-          }))}
-        />
+        <SearchInput autofocus onChange={setSearchTerm} value={searchTerm} />
+        {localGroups.length > 0 ? <GroupedList groups={localGroups} /> : null}
+        {localGroups.length === 0 && searchTerm !== "" ? (
+          <EmptySearchResult type="datasources" />
+        ) : null}
       </Flex>
     </Flex>
   );

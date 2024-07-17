@@ -11,6 +11,7 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
+import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
 import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
@@ -19,8 +20,8 @@ import { QueryListItem } from "@appsmith/pages/Editor/IDE/EditorPane/Query/ListI
 import { getShowWorkflowFeature } from "@appsmith/selectors/workflowSelectors";
 import { BlankState } from "./BlankState";
 import { AddAndSearchbar } from "../components/AddAndSearchbar";
-import { fuzzySearchInFiles } from "../utils";
-import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
+import { fuzzySearchInObjectItems } from "../utils";
+import { EmptySearchResult } from "../components/EmptySearchResult";
 
 const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,7 +31,10 @@ const ListQuery = () => {
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const localFiles = fuzzySearchInFiles(searchTerm, files);
+  const localFiles = fuzzySearchInObjectItems<EditorSegmentList>(
+    searchTerm,
+    files,
+  );
 
   const canCreateActions = getHasCreateActionPermission(
     isFeatureEnabled,
@@ -96,13 +100,7 @@ const ListQuery = () => {
           );
         })}
         {localFiles.length === 0 && searchTerm !== "" ? (
-          <Text
-            className="font-normal text-center"
-            color="var(--ads-v2-color-fg-muted)"
-            kind="body-s"
-          >
-            {createMessage(EDITOR_PANE_TEXTS.empty_search_result, "queries")}
-          </Text>
+          <EmptySearchResult type="queries" />
         ) : null}
       </Flex>
 
