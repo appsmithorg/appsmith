@@ -470,7 +470,6 @@ export class AutocompleteSorter {
       ...jsObjectCompletionsList,
       ...appsmithCompletionsList,
       ...widgetCompletionsList,
-      ...miscList,
     ];
   }
 }
