@@ -176,11 +176,13 @@ public class ActionCE_DTO implements Identifiable, Executable {
     /**
      * An unmodifiable set of policies.
      */
+    @JsonView(Views.Internal.class)
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public Set<Policy> getPolicies() {
         return policyMap == null ? null : Set.copyOf(policyMap.values());
     }
 
+    @JsonView(Views.Internal.class)
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public void setPolicies(Set<Policy> policies) {
         policyMap = PolicyUtil.setPolicies(policies);

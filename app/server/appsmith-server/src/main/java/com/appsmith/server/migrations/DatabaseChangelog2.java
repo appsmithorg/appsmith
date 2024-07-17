@@ -394,7 +394,7 @@ public class DatabaseChangelog2 {
             Set<Policy> themePolicies = new HashSet<>(Set.of(policyWithCurrentPermission));
             Theme savedTheme = mongoTemplate.findOne(query, Theme.class);
             if (savedTheme == null) { // this theme does not exist, create it
-                theme.setPolicies(themePolicies, true);
+                theme.setPolicies(themePolicies);
                 savedTheme = mongoTemplate.save(theme);
             } else { // theme already found, update
                 savedTheme.setDisplayName(theme.getDisplayName());
