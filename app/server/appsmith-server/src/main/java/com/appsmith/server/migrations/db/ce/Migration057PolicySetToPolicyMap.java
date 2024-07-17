@@ -18,6 +18,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Set;
 
+import static com.appsmith.external.helpers.StringUtils.dotted;
 import static com.appsmith.server.constants.DeprecatedFieldName.POLICIES;
 import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
 
@@ -76,7 +77,7 @@ public class Migration057PolicySetToPolicyMap {
                 .block();
     }
 
-    public static Mono<Void> executeForCollection(ReactiveMongoTemplate mongoTemplate, String collectionName) {
+    private static Mono<Void> executeForCollection(ReactiveMongoTemplate mongoTemplate, String collectionName) {
         log.info("Migrating policies to policyMap in {}", collectionName);
 
         final ArrayOperators.ArrayToObject operator =
@@ -85,10 +86,9 @@ public class Migration057PolicySetToPolicyMap {
                         .andApply(agg -> new Document("k", "$$this.permission").append("v", "$$this")));
 
         final Mono<UpdateResult> convertToMap = mongoTemplate.updateMulti(
-                new Query(where(POLICIES)
+                // Migrate the policies field to the policyMap field only if the policies field exists and is not empty
+                new Query(where(dotted(POLICIES, "0"))
                         .exists(true)
-                        .and(BaseDomain.Fields.policyMap)
-                        .exists(false)
                         .and(BaseDomain.Fields.deletedAt)
                         .isNull()),
                 AggregationUpdate.update().set(BaseDomain.Fields.policyMap).toValueOf(operator),
@@ -106,7 +106,10 @@ public class Migration057PolicySetToPolicyMap {
                 collectionName);
 
         return convertToMap
-                .then(backupPoliciesField)
+                .flatMap(result -> {
+                    log.info("Migrated {} documents in {}", result.getModifiedCount(), collectionName);
+                    return backupPoliciesField;
+                })
                 .elapsed()
                 .doOnSuccess(it -> log.info("{} finished in {}ms", collectionName, it.getT1()))
                 .then();
