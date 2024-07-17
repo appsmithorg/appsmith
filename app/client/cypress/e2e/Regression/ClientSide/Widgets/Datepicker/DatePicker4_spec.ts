@@ -14,7 +14,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.DATEPICKER);
     });
 
-    function navigateAndSelectRandomDate(direction) {
+    const navigateAndSelectRandomDate = (direction: string) => {
       const buttonClass =
         direction === "prev"
           ? ".DayPicker-NavButton--prev"
@@ -28,7 +28,7 @@ describe(
           const randomIndex = Math.floor(Math.random() * $days.length);
           cy.wrap($days[randomIndex]).click();
         });
-    }
+    };
 
     it("1.should close datepicker on single click when month is changed", function () {
       agHelper.GetNClick(datePickerlocators.input);
