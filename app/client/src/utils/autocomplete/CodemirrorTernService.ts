@@ -21,6 +21,10 @@ import {
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { debounce, findIndex, isString } from "lodash";
 import { renderTernTooltipContent } from "./ternDocTooltip";
+import {
+  checkIfCursorInsideBinding,
+  checkIfCursorInsideJSObject,
+} from "components/editorComponents/CodeEditor/codeEditorUtils";
 
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
@@ -543,6 +547,8 @@ class CodeMirrorTernService {
 
     const inputQuery = this.getQueryForAutocomplete(cm);
     const parentPath = this.getParentPath(inputQuery.trim());
+    const isCursorInsideBindingOrJSObject =
+      checkIfCursorInsideBinding(cm) || checkIfCursorInsideJSObject(cm);
 
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
@@ -573,7 +579,9 @@ class CodeMirrorTernService {
         }
       }
       const codeMirrorCompletion: Completion<TernCompletionResult> = {
-        text: completionText,
+        text: isCursorInsideBindingOrJSObject
+          ? completionText
+          : `{{${completionText}}}`,
         displayText: completion.name,
         className: className,
         data: completion,
@@ -732,13 +740,22 @@ class CodeMirrorTernService {
         libraryNamespace: selected.origin?.split("/")[1],
       });
 
-      const hasParenthesis = selected.text.endsWith("()");
-      if (selected.type === AutocompleteDataType.FUNCTION && hasParenthesis) {
-        cm.setCursor({
-          line: cm.getCursor().line,
-          ch: cm.getCursor().ch - 1,
-        });
+      let cursorPosition = cm.getCursor().ch;
+
+      const hasBindingBraces = selected.text.endsWith("}}");
+      if (hasBindingBraces) {
+        cursorPosition -= 2;
       }
+
+      const hasParenthesis = selected.text.replace("}}", "").endsWith("()");
+      if (selected.type === AutocompleteDataType.FUNCTION && hasParenthesis) {
+        cursorPosition -= 1;
+      }
+
+      cm.setCursor({
+        line: cm.getCursor().line,
+        ch: cursorPosition,
+      });
     });
 
     return hints;
