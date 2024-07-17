@@ -2,8 +2,12 @@ import React from "react";
 import { Flex } from "design-system";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
-import { jsSegmentRoutes } from "@appsmith/pages/Editor/IDE/EditorPane/constants";
+import {
+  jsSegmentRoutes,
+  querySegmentRoutes,
+} from "@appsmith/pages/Editor/IDE/EditorPane/constants";
 import { JSEditorPane } from "./JS";
+import { QueryEditor } from "./Query";
 import EditorTabs from "../EditorTabs";
 
 const EditorPaneExplorer = () => {
@@ -20,6 +24,10 @@ const EditorPaneExplorer = () => {
         <SentryRoute
           component={JSEditorPane}
           path={jsSegmentRoutes.map((route) => `${path}${route}`)}
+        />
+        <SentryRoute
+          component={QueryEditor}
+          path={querySegmentRoutes.map((route) => `${path}${route}`)}
         />
       </Switch>
     </Flex>
