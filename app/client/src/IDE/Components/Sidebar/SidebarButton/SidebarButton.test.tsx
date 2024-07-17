@@ -37,7 +37,7 @@ describe("SidebarButton", () => {
     expect(checkOnClick.onClick).toHaveBeenCalledWith(checkOnClick.urlSuffix);
   });
 
-  it("should not call onClick when button is already selected", async () => {
+  it("should also call onClick when button is already selected to toggle", async () => {
     const withSelected = {
       ...sidebarButtonProps,
       selected: true,
@@ -46,6 +46,6 @@ describe("SidebarButton", () => {
     const { getByRole } = render(<SidebarButton {...withSelected} />);
 
     await userEvent.click(getByRole("button"));
-    expect(withSelected.onClick).not.toHaveBeenCalled();
+    expect(withSelected.onClick).toHaveBeenCalled();
   });
 });
