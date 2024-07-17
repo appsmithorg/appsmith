@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import type { GroupedListProps } from "./types";
 import { DEFAULT_GROUP_LIST_SIZE } from "./constants";
 import { Flex, List, Text } from "design-system";
@@ -25,31 +25,36 @@ const StyledList = styled(List)`
 `;
 
 const Group: React.FC<GroupProps> = ({ group }) => {
-  const [visibleItems, setVisibleItems] = useState<number>(
+  const [visibleItemsCount, setVisibleItemsCount] = useState<number>(
     DEFAULT_GROUP_LIST_SIZE,
   );
-  const { className, groupTitle } = group;
-  const items = group.items.slice(0, visibleItems);
-  const hasMoreItems = group.items.length > visibleItems;
+  const { className, groupTitle, items: groupItems } = group;
 
-  const handleLoadMore = () => {
-    setVisibleItems(group.items.length);
-  };
+  const items = useMemo(() => {
+    const items = groupItems.slice(0, visibleItemsCount);
+    const hasMoreItems = groupItems.length > visibleItemsCount;
 
-  if (hasMoreItems) {
-    items.push({
-      title: "Load more...",
-      description: "",
-      descriptionType: "inline",
-      onClick: handleLoadMore,
-      className: "ds-load-more",
-    });
-  }
+    const handleLoadMore = () => {
+      setVisibleItemsCount(groupItems.length);
+    };
 
-  // TODO: try to avoid this
-  if (hasMoreItems && groupTitle === "Datasources") {
-    items.push(group.items[group.items.length - 1]);
-  }
+    if (hasMoreItems) {
+      items.push({
+        title: "Load more...",
+        description: "",
+        descriptionType: "inline",
+        onClick: handleLoadMore,
+        className: "ds-load-more",
+      });
+    }
+
+    // TODO: try to avoid this
+    if (hasMoreItems && groupTitle === "Datasources") {
+      items.push(groupItems[groupItems.length - 1]);
+    }
+
+    return items;
+  }, [groupItems, visibleItemsCount, groupTitle]);
 
   return (
     <Flex
