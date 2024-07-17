@@ -408,6 +408,9 @@ class PhoneInputWidget extends BaseInputWidget<
       "value",
       parseIncompletePhoneNumber(formattedValue),
     );
+    // This regular expression validates that the input:
+    // - Does not start with a whitespace character
+    // - Contains only digits, spaces, parentheses, plus, and minus symbols
     if (/^(?!\s)[\d\s()+-]*$/.test(value)) {
       this.props.updateWidgetMetaProperty("text", formattedValue, {
         triggerPropertyName: "onTextChanged",
