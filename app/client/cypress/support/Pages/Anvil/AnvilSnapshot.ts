@@ -9,13 +9,16 @@ export class AnvilSnapshot {
     exitPreviewMode: ObjectsRegistry.CommonLocators._exitPreviewMode,
     canvas: "[data-testid=t--canvas-artboard]",
     colorMode: "[data-testid=t--anvil-theme-settings-color-mode]",
-    appViewerPage: "[data-testid=t--app-viewer-page-body]",
+    appViewerPage: "[data-testid=t--app-viewer-page]",
+    propertyPaneSidebar: "[data-testid=t--property-pane-sidebar]",
   };
 
   public verifyCanvasMode = async (widgetName: string) => {
     this.agHelper
       .GetElement(this.locators.canvas)
-      .matchImageSnapshot(`anvil${widgetName}Canvas`);
+      .matchImageSnapshot(`anvil${widgetName}Canvas`, {
+        comparisonMethod: "ssim",
+      });
 
     this.setTheme("dark");
 
@@ -33,7 +36,9 @@ export class AnvilSnapshot {
 
     this.agHelper
       .GetElement(this.locators.canvas)
-      .matchImageSnapshot(`anvil${widgetName}Preview`);
+      .matchImageSnapshot(`anvil${widgetName}Preview`, {
+        comparisonMethod: "ssim",
+      });
 
     this.exitPreviewMode();
   };
@@ -58,7 +63,7 @@ export class AnvilSnapshot {
       this.agHelper
         .GetElement(this.locators.appViewerPage)
         .matchImageSnapshot(`anvil${widgetName}Deploy${device}`, {
-          capture: "fullPage",
+          comparisonMethod: "ssim",
         });
     });
   };
@@ -80,5 +85,29 @@ export class AnvilSnapshot {
     );
 
     this.appSettings.ClosePane();
+  };
+
+  public triggerInputInvalidState = () => {
+    this.enterPreviewMode();
+    cy.get("input[aria-required=true]").first().type("123");
+    cy.get("input[aria-required=true]").first().clear();
+    this.exitPreviewMode();
+    this.agHelper.GetNClick(this.locators.propertyPaneSidebar);
+  };
+
+  public triggerCheckboxGroupInvalidState = () => {
+    this.enterPreviewMode();
+    cy.get(
+      "[data-widget-name*='CheckboxGroup'] div:has([aria-label='(required)']) div:has(input[type=checkbox]) label",
+    )
+      .first()
+      .click();
+    cy.get(
+      "[data-widget-name*='CheckboxGroup'] div:has([aria-label='(required)']) div:has(input[type=checkbox]) label",
+    )
+      .first()
+      .click();
+    this.exitPreviewMode();
+    this.agHelper.GetNClick(this.locators.propertyPaneSidebar);
   };
 }

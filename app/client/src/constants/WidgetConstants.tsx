@@ -256,11 +256,9 @@ export const initialEntityCountForExplorerTag: Partial<
 
 export const SUGGESTED_WIDGETS_ORDER: Record<WidgetType, number> = {
   TABLE_WIDGET_V2: 1,
-  JSON_FORM_WIDGET: 2,
-  INPUT_WIDGET_V2: 3,
-  TEXT_WIDGET: 4,
-  SELECT_WIDGET: 5,
-  LIST_WIDGET_V2: 6,
+  INPUT_WIDGET_V2: 2,
+  TEXT_WIDGET: 3,
+  SELECT_WIDGET: 4,
 };
 
 // Constant key to show walkthrough for a widget -> stores widget id
@@ -278,4 +276,5 @@ export type EitherMouseLocationORGridPosition =
 
 export type PasteWidgetReduxAction = {
   groupWidgets: boolean;
+  existingWidgets?: unknown;
 } & EitherMouseLocationORGridPosition;

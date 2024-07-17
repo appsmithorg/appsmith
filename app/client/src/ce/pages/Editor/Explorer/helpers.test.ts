@@ -3,7 +3,8 @@ import {
   getJSCollectionIdFromURL,
 } from "@appsmith/pages/Editor/Explorer/helpers";
 
-const pageId = "0123456789abcdef00000000";
+const applicationId = "a0123456789abcdef0000000";
+const pageId = "b0123456789abcdef0000000";
 
 describe("getActionIdFromUrl", () => {
   it("getsApiId", () => {
@@ -41,7 +42,7 @@ describe("getJSCollectionIdFromURL", () => {
     window.history.pushState(
       {},
       "Query",
-      `/applications/appId/pages/${pageId}/edit/jsObjects/collectionId`,
+      `/applications/${applicationId}/pages/${pageId}/edit/jsObjects/collectionId`,
     );
     const response = getJSCollectionIdFromURL();
     expect(response).toBe("collectionId");
@@ -51,7 +52,7 @@ describe("getJSCollectionIdFromURL", () => {
     window.history.pushState(
       {},
       "Query",
-      `/applications/appId/pages/${pageId}/edit/jsObjects`,
+      `/applications/${applicationId}/pages/${pageId}/edit/jsObjects`,
     );
     const response = getJSCollectionIdFromURL();
     expect(response).toBe(undefined);

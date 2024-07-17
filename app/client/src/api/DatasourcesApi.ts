@@ -67,6 +67,67 @@ class DatasourcesApi extends API {
     return API.post(DatasourcesApi.url, datasourceConfig);
   }
 
+  // Need for when we add strict type checking back on server
+  static cleanAuthenticationObject(authentication: any): any {
+    if (!authentication) {
+      return undefined;
+    }
+
+    const clean: any = {
+      authenticationType: authentication.authenticationType ?? "dbAuth",
+    };
+
+    switch (clean.authenticationType) {
+      case "dbAuth":
+        clean.authType = authentication.authType;
+        clean.username = authentication.username;
+        clean.password = authentication.password;
+        clean.databaseName = authentication.databaseName;
+        break;
+      case "oAuth2":
+        clean.grantType = authentication.grantType;
+        clean.isTokenHeader = authentication.isTokenHeader;
+        clean.isAuthorizationHeader = authentication.isAuthorizationHeader;
+        clean.clientId = authentication.clientId;
+        clean.clientSecret = authentication.clientSecret;
+        clean.authorizationUrl = authentication.authorizationUrl;
+        clean.expiresIn = authentication.expiresIn;
+        clean.accessTokenUrl = authentication.accessTokenUrl;
+        clean.scopeString = authentication.scopeString;
+        clean.scope = authentication.scope;
+        clean.sendScopeWithRefreshToken =
+          authentication.sendScopeWithRefreshToken;
+        clean.refreshTokenClientCredentialsLocation =
+          authentication.refreshTokenClientCredentialsLocation;
+        clean.headerPrefix = authentication.headerPrefix;
+        clean.customTokenParameters = authentication.customTokenParameters;
+        clean.audience = authentication.audience;
+        clean.resource = authentication.resource;
+        clean.useSelfSignedCert = authentication.useSelfSignedCert;
+        clean.authenticationStatus = authentication.authenticationStatus;
+        break;
+      case "basic":
+        clean.username = authentication.username;
+        clean.password = authentication.password;
+        break;
+      case "apiKey":
+        clean.addTo = authentication.addTo;
+        clean.label = authentication.label;
+        clean.headerPrefix = authentication.headerPrefix;
+        clean.value = authentication.value;
+        break;
+      case "bearerToken":
+        clean.bearerToken = authentication.bearerToken;
+        break;
+      case "snowflakeKeyPairAuth":
+        clean.username = authentication.username;
+        clean.privateKey = authentication.privateKey;
+        clean.passphrase = authentication.passphrase;
+    }
+
+    return clean;
+  }
+
   // Api to test current environment datasource
   static async testDatasource(
     datasourceConfig: Partial<DatasourceStorage>,
@@ -118,6 +179,7 @@ class DatasourcesApi extends API {
           ssl: {
             ...datasourceStorage.datasourceConfiguration.connection.ssl,
             authTypeControl: undefined,
+            certificateType: undefined,
           },
         },
       },

@@ -190,7 +190,6 @@ describe("evaluateAndGenerateResponse", () => {
 
     expect(parsedUpdates).toEqual([]);
     expect(webworkerResponse).toEqual({
-      unevalTree: {},
       workerResponse: {
         dependencies: {},
         errors: [],
@@ -223,28 +222,6 @@ describe("evaluateAndGenerateResponse", () => {
     const parsedUpdates = getParsedUpdatesFromWebWorkerResp(webworkerResponse);
 
     expect(parsedUpdates).toEqual([]);
-  });
-  test("should send the new unevalTree in the web worker response", () => {
-    const updatedLabelUnevalTree = produce(unEvalTree, (draft: any) => {
-      if (draft.Text1?.text) {
-        draft.Text1.text = UPDATED_LABEL;
-      }
-    });
-    expect(evaluator.getOldUnevalTree()).toEqual(unEvalTree);
-    const updateTreeResponse = evaluator.setupUpdateTree(
-      updatedLabelUnevalTree,
-      configTree,
-    );
-    // the new unevalTree gets set in setupUpdateTree
-    expect(evaluator.getOldUnevalTree()).toEqual(updatedLabelUnevalTree);
-
-    const { unevalTree } = evalTreeWithChanges.evaluateAndGenerateResponse(
-      evaluator,
-      updateTreeResponse,
-      [],
-      [],
-    );
-    expect(unevalTree).toEqual(updatedLabelUnevalTree);
   });
 
   describe("updates", () => {
