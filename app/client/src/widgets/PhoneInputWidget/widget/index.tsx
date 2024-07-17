@@ -243,6 +243,7 @@ class PhoneInputWidget extends BaseInputWidget<
               placeholderText: "255",
               isBindProperty: true,
               isTriggerProperty: false,
+              validation: { type: ValidationTypes.TEXT },
             },
           ],
         },
