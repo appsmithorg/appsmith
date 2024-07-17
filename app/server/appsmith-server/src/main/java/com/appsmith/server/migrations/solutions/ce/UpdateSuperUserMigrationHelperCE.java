@@ -70,7 +70,7 @@ public class UpdateSuperUserMigrationHelperCE {
         Set<Policy> userPolicies = this.generateUserPolicy(
                 user, savedPermissionGroup, instanceAdminRole, tenant, policySolution, policyGenerator);
 
-        user.setPolicies(userPolicies, false);
+        user.setPolicies(userPolicies);
 
         return mongoTemplate.save(user);
     }

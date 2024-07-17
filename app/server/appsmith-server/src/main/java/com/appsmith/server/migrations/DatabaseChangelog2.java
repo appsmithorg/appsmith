@@ -387,18 +387,18 @@ public class DatabaseChangelog2 {
         for (Theme theme : themes) {
             theme.setSystemTheme(true);
             theme.setCreatedAt(Instant.now());
-            theme.setPolicies(new HashSet<>(Set.of(policyWithCurrentPermission)), false);
             Query query = new Query(Criteria.where(Theme.Fields.name)
                     .is(theme.getName())
                     .and(Theme.Fields.isSystemTheme)
                     .is(true));
-
+            Set<Policy> themePolicies = new HashSet<>(Set.of(policyWithCurrentPermission));
             Theme savedTheme = mongoTemplate.findOne(query, Theme.class);
             if (savedTheme == null) { // this theme does not exist, create it
+                theme.setPolicies(themePolicies, true);
                 savedTheme = mongoTemplate.save(theme);
             } else { // theme already found, update
                 savedTheme.setDisplayName(theme.getDisplayName());
-                savedTheme.setPolicies(theme.getPolicies(), false);
+                savedTheme.setPolicies(themePolicies);
                 savedTheme.setConfig(theme.getConfig());
                 savedTheme.setProperties(theme.getProperties());
                 savedTheme.setStylesheet(theme.getStylesheet());
