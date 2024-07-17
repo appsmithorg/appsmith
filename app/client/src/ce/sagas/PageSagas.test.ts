@@ -1,4 +1,3 @@
-const updateCanvasWithDSLMock = jest.fn();
 const updateWidgetNameSuccessMock = jest.fn();
 import { ReduxActionTypes } from "ce/constants/ReduxActionConstants";
 import { updateWidgetNameSaga } from "./PageSagas";
@@ -28,7 +27,7 @@ jest.mock("./PageSagas", () => {
   return {
     __esModule: true,
     ...originalModule,
-    updateCanvasWithDSL: updateCanvasWithDSLMock,
+    updateCanvasWithDSL: jest.fn(),
   };
 });
 jest.mock("sagas/ErrorSagas", () => {
@@ -101,5 +100,6 @@ describe("PageSagas", () => {
     gen.next();
     gen.next();
     expect(gen.next().done).toBeTruthy();
+    expect(updateWidgetNameSuccessMock).toBeCalled();
   });
 });
