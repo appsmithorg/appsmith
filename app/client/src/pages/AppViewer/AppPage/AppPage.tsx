@@ -3,7 +3,6 @@ import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { useDispatch, useSelector } from "react-redux";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import { PageView, PageViewWrapper } from "./AppPage.styled";
 import { APP_MODE } from "entities/App";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -11,6 +10,9 @@ import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarPr
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { debounce } from "lodash";
 import { updateCanvasLayoutAction } from "actions/editorActions";
+
+import { PageView, PageViewWrapper } from "./AppPage.styled";
+import { RESIZE_DEBOUNCE_THRESHOLD } from "./constants";
 
 interface AppPageProps {
   appName?: string;
@@ -34,7 +36,6 @@ export function AppPage(props: AppPageProps) {
   }, [isAnvilLayout, canvasWidth]);
 
   const pageViewWrapperRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const wrapperElement = pageViewWrapperRef.current;
     if (wrapperElement) {
@@ -46,7 +47,7 @@ export function AppPage(props: AppPageProps) {
         ]) => {
           dispatch(updateCanvasLayoutAction(width - sidebarWidth));
         },
-        100,
+        RESIZE_DEBOUNCE_THRESHOLD,
       );
 
       const resizeObserver = new ResizeObserver(debouncedResize);
