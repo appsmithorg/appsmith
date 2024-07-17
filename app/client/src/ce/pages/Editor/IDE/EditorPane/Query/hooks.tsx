@@ -184,11 +184,14 @@ export const useAddQueryListItems = () => {
 
   const getListItems = (data: ActionOperation[]) => {
     return data.map((fileOperation) => {
-      const title =
+      let title =
         fileOperation.entityExplorerTitle ||
-        fileOperation.title ||
         fileOperation.dsName ||
-        "";
+        fileOperation.title;
+      title =
+        fileOperation.focusEntityType === FocusEntity.QUERY_MODULE_INSTANCE
+          ? fileOperation.title
+          : title;
       const className = createAddClassName(title);
       const icon =
         fileOperation.icon ||
