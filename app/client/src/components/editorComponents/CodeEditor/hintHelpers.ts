@@ -7,6 +7,7 @@ import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig
 import {
   checkIfCursorInsideBinding,
   isCursorOnEmptyToken,
+  shouldShowSlashCommandMenu,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import { isEmpty, isString } from "lodash";
 import type { getAllDatasourceTableKeys } from "@appsmith/selectors/entitiesSelector";
@@ -55,6 +56,10 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
       } else {
         shouldShow = checkIfCursorInsideBinding(editor);
       }
+
+      const { propertyPath, widgetType } = entityInformation;
+      shouldShow =
+        shouldShow || shouldShowSlashCommandMenu(widgetType, propertyPath);
 
       if (shouldShow) {
         CodemirrorTernService.complete(editor);
