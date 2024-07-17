@@ -159,6 +159,7 @@ function UIEntitySidebar({
             if (
               isAnvil ||
               hasWidgets ||
+              isSearching ||
               [
                 WIDGET_TAGS.SUGGESTED_WIDGETS as string,
                 WIDGET_TAGS.BUILDING_BLOCKS as string,
