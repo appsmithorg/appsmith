@@ -80,8 +80,8 @@ describe("DropDownControl", () => {
       </Provider>,
     );
 
-    const dropdownSelect = await waitFor(() =>
-      screen.getByTestId("t--dropdown-actionConfiguration.testPath"),
+    const dropdownSelect = await waitFor(async () =>
+      screen.findByTestId("t--dropdown-actionConfiguration.testPath"),
     );
 
     expect(dropdownSelect).toBeInTheDocument();
