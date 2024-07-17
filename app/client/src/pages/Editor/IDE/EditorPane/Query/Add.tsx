@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Flex, SearchInput } from "design-system";
 
-import { EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
 import SegmentAddHeader from "../components/SegmentAddHeader";
 import GroupedList from "../components/GroupedList";
 import {
@@ -53,7 +53,9 @@ const AddQuery = ({ containerProps, innerContainerProps }: AddProps) => {
         <SearchInput autofocus onChange={setSearchTerm} value={searchTerm} />
         {localGroups.length > 0 ? <GroupedList groups={localGroups} /> : null}
         {localGroups.length === 0 && searchTerm !== "" ? (
-          <EmptySearchResult type="datasources" />
+          <EmptySearchResult
+            type={createMessage(EDITOR_PANE_TEXTS.search_objects.datasources)}
+          />
         ) : null}
       </Flex>
     </Flex>

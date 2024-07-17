@@ -22,6 +22,7 @@ import { BlankState } from "./BlankState";
 import { AddAndSearchbar } from "../components/AddAndSearchbar";
 import { fuzzySearchInObjectItems } from "../utils";
 import { EmptySearchResult } from "../components/EmptySearchResult";
+import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
 
 const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -100,7 +101,9 @@ const ListQuery = () => {
           );
         })}
         {localFiles.length === 0 && searchTerm !== "" ? (
-          <EmptySearchResult type="queries" />
+          <EmptySearchResult
+            type={createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject)}
+          />
         ) : null}
       </Flex>
 

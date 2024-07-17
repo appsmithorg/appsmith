@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import SegmentAddHeader from "../components/SegmentAddHeader";
-import { EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
 import type { ListItemProps } from "design-system";
 import { Flex, SearchInput } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
@@ -49,11 +49,13 @@ const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
     } as ListItemProps;
   };
 
-  const groups = groupedJsOperations.map((op) => ({
-    groupTitle: op.title,
-    className: op.className,
-    items: op.operations.map(getListItems),
-  }));
+  const groups = groupedJsOperations.map(
+    ({ className, operations, title }) => ({
+      groupTitle: title,
+      className: className,
+      items: operations.map(getListItems),
+    }),
+  );
 
   const localGroups = fuzzySearchInObjectItems<GroupedListProps[]>(
     searchTerm,
@@ -82,7 +84,9 @@ const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
         <SearchInput onChange={setSearchTerm} value={searchTerm} />
         {localGroups.length > 0 ? <GroupedList groups={localGroups} /> : null}
         {localGroups.length === 0 && searchTerm !== "" ? (
-          <EmptySearchResult type="JS" />
+          <EmptySearchResult
+            type={createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject)}
+          />
         ) : null}
       </Flex>
     </Flex>

@@ -2318,6 +2318,11 @@ export const EDITOR_PANE_TEXTS = {
   queries_create_modules: () => "Query modules (Beta)",
   loading_building_blocks: () => "Loading building blocks",
   empty_search_result: (type: string) => `No ${type} match your search`,
+  search_objects: {
+    jsObject: () => "JS object",
+    queries: () => "queries",
+    datasources: () => "datasources",
+  },
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
