@@ -247,18 +247,18 @@ function renderDropdown(
 
   return (
     <Select
+      allowClear={props.isMultiSelect && !isEmpty(selectedValue)}
       data-testid={`t--dropdown-${props?.configProperty}`}
       defaultValue={props.initialValue}
       isDisabled={props.disabled}
       isLoading={props.isLoading}
       isMultiSelect={props?.isMultiSelect}
+      onClear={clearAllOptions}
       onDeselect={onRemoveOptions}
       onSelect={(value) => onSelectOptions(value)}
       placeholder={props?.placeholderText}
       showSearch={props.isSearchable}
       value={props.isMultiSelect ? selectedOptions : selectedOptions[0]}
-      allowClear={props.isMultiSelect && !isEmpty(selectedValue)}
-      onClear={clearAllOptions}
     >
       {options.map((option) => {
         return (
