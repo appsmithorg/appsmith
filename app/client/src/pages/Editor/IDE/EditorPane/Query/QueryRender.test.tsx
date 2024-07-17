@@ -171,7 +171,7 @@ describe("IDE URL rendering of Queries", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByRole("button", { name: "New query / API" });
+      getByTestId("t--add-item");
     });
 
     it("Renders Api routes in Split Screen", async () => {
@@ -346,7 +346,7 @@ describe("IDE URL rendering of Queries", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByRole("button", { name: "New query / API" });
+      getByTestId("t--add-item");
     });
     it("Renders Postgres routes in Split screen", async () => {
       const page = PageFactory.build();
@@ -537,7 +537,7 @@ describe("IDE URL rendering of Queries", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByRole("button", { name: "New query / API" });
+      getByTestId("t--add-item");
     });
     it("Renders Google Sheets routes in Split screen", async () => {
       const page = PageFactory.build();

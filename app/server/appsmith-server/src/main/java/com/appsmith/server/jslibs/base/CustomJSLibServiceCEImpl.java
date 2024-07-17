@@ -83,7 +83,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     public Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib,
             Boolean isForceInstall,
-            Map<String, List<CustomJSLib>> customJSLibsDryOps,
+            Map<DBOpsType, List<CustomJSLib>> customJSLibsDryOps,
             boolean isDryOps) {
         return repository
                 .findUniqueCustomJsLib(jsLib)
@@ -92,7 +92,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                 .switchIfEmpty(Mono.defer(() -> {
                     if (isDryOps) {
                         jsLib.updateForBulkWriteOperation();
-                        addDryOpsForEntity(DBOpsType.SAVE.name(), customJSLibsDryOps, jsLib);
+                        addDryOpsForEntity(DBOpsType.SAVE, customJSLibsDryOps, jsLib);
                         return Mono.just(jsLib);
                     }
                     return repository.save(jsLib);
@@ -106,7 +106,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     if ((jsLib.getDefs().length() > foundJSLib.getDefs().length()) || isForceInstall) {
                         jsLib.setId(foundJSLib.getId());
                         if (isDryOps) {
-                            addDryOpsForEntity(DBOpsType.SAVE.name(), customJSLibsDryOps, jsLib);
+                            addDryOpsForEntity(DBOpsType.SAVE, customJSLibsDryOps, jsLib);
                             return Mono.just(jsLib);
                         }
                         return repository.save(jsLib);
@@ -166,7 +166,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     }
 
     private void addDryOpsForEntity(
-            String queryType, Map<String, List<CustomJSLib>> dryRunOpsMap, CustomJSLib createdCustomJsLib) {
+            DBOpsType queryType, Map<DBOpsType, List<CustomJSLib>> dryRunOpsMap, CustomJSLib createdCustomJsLib) {
         if (dryRunOpsMap.containsKey(queryType)) {
             dryRunOpsMap.get(queryType).add(createdCustomJsLib);
         } else {

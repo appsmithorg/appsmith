@@ -31,7 +31,10 @@ import type {
   Stylesheet,
 } from "entities/AppTheming";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
   AnvilConfig,
@@ -461,6 +464,7 @@ class JSONFormWidget extends BaseWidget<
         sourceData: generateTypeDef(widget.sourceData),
         fieldState: generateTypeDef(widget.fieldState),
         isValid: "bool",
+        isVisible: DefaultAutocompleteDefinitions.isVisible,
       };
 
       return definitions;
