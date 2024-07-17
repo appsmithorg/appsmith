@@ -28,7 +28,6 @@ import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
 import { useMainContainerResizer } from "layoutSystems/common/mainContainerResizer/useMainContainerResizer";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
-import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
 import { useCanvasWidthAutoResize } from "./hooks";
 
 interface MainCanvasWrapperProps {
@@ -129,14 +128,13 @@ export function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
   const showAnonymousDataPopup = useSelector(getIsAnonymousDataPopupVisible);
-  const isCanvasInitialized = useSelector(getIsCanvasInitialized);
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const isCanvasInitialized = useCanvasWidthAutoResize(wrapperRef);
   const isPageInitializing = isFetchingPage || !isCanvasInitialized;
   const { canShowResizer, enableMainContainerResizer } =
     useMainContainerResizer();
   const isAnvilLayout = useSelector(getIsAnvilLayout);
-
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  useCanvasWidthAutoResize(wrapperRef);
 
   useEffect(() => {
     return () => {
