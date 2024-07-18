@@ -55,9 +55,9 @@ async function getNewActionName(
       body: JSON.stringify({
         params: {
           // Please remember to escape or remove quotes from the query
-          input: `${props.body}  Please provide a name for this query in pascalcase. Limit the name to 30 characters.`,
+          input: `${props.body} Please provide a name for this query in pascalcase in less than 20 characters. Suffix it with Query`,
           instructions:
-            "Please provide a name for this query in pascalcase. Limit the name to 30 characters.",
+            "Please provide a name for this query in pascalcase in less than 20 characters.",
         },
         usecase: "TEXT_GENERATE",
       }),
