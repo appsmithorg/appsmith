@@ -1,5 +1,13 @@
-import React from "react";
-import { toast } from "design-system";
+import {
+  TooltipContent,
+  TooltipRoot,
+  TooltipTrigger,
+} from "@design-system/headless";
+import { BUTTON_VARIANTS, COLORS, objectKeys } from "@design-system/widgets";
+import { capitalize } from "lodash";
+import React, { type ChangeEvent } from "react";
+import { Option, SegmentedControl, Select, toast } from "design-system";
+import styles from "../../WDSParagraphWidget/widget/styles.module.css";
 
 import * as config from "../config";
 import BaseWidget from "widgets/BaseWidget";
@@ -12,6 +20,8 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
 class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
+  ref: HTMLDivElement | null = null;
+
   constructor(props: ButtonWidgetProps) {
     super(props);
 
@@ -133,6 +143,19 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     }
   };
 
+  onTextChange = (event: ChangeEvent<HTMLDivElement>) => {
+    this.ref?.dispatchEvent(
+      new CustomEvent("WIDGET_EDIT_TEXT", {
+        bubbles: true,
+        cancelable: true,
+        detail: {
+          widgetId: this.props.widgetId,
+          text: event.target.textContent,
+        },
+      }),
+    );
+  };
+
   getWidgetView() {
     const isDisabled = (() => {
       const { disabledWhenInvalid, isFormValid } = this.props;
@@ -151,24 +174,61 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     })();
 
     return (
-      <ButtonComponent
-        color={this.props.buttonColor}
-        excludeFromTabOrder={this.props.disableWidgetInteraction}
-        handleRecaptchaV2Loading={this.handleRecaptchaV2Loading}
-        icon={this.props.iconName}
-        iconPosition={this.props.iconAlign}
-        isDisabled={isDisabled}
-        isLoading={this.props.isLoading || this.state.isLoading}
-        key={this.props.widgetId}
-        onPress={onPress}
-        onRecaptchaSubmitError={this.onRecaptchaSubmitError}
-        onRecaptchaSubmitSuccess={this.onRecaptchaSubmitSuccess}
-        recaptchaKey={this.props.googleRecaptchaKey}
-        recaptchaType={this.props.recaptchaType}
-        text={this.props.text}
-        tooltip={this.props.tooltip}
-        variant={this.props.buttonVariant}
-      />
+      <TooltipRoot open={this.props.isWidgetSelected} placement="bottom">
+        <TooltipTrigger>
+          <div
+            className={styles.editableText}
+            contentEditable={this.props.isWidgetSelected}
+            onBlur={this.onTextChange}
+            ref={(ref) => (this.ref = ref)}
+          >
+            <ButtonComponent
+              color={this.props.buttonColor}
+              excludeFromTabOrder={this.props.disableWidgetInteraction}
+              handleRecaptchaV2Loading={this.handleRecaptchaV2Loading}
+              icon={this.props.iconName}
+              iconPosition={this.props.iconAlign}
+              isDisabled={isDisabled}
+              isLoading={this.props.isLoading || this.state.isLoading}
+              key={this.props.widgetId}
+              onPress={onPress}
+              onRecaptchaSubmitError={this.onRecaptchaSubmitError}
+              onRecaptchaSubmitSuccess={this.onRecaptchaSubmitSuccess}
+              recaptchaKey={this.props.googleRecaptchaKey}
+              recaptchaType={this.props.recaptchaType}
+              text={this.props.text}
+              tooltip={this.props.tooltip}
+              variant={this.props.buttonVariant}
+            />
+          </div>
+        </TooltipTrigger>
+        <TooltipContent className={styles.floatingPanel} hasArrow={false}>
+          <SegmentedControl
+            className={styles.fontAlignSegmentedControl}
+            defaultValue="filled"
+            isFullWidth
+            onChange={() => {}}
+            options={objectKeys(BUTTON_VARIANTS).map((variant) => ({
+              label: BUTTON_VARIANTS[variant],
+              value: variant,
+            }))}
+          />
+          <Select
+            className={styles.fontSelect}
+            defaultValue="accent"
+            onSelect={(value, option) => {
+              // eslint-disable-next-line no-console
+              console.log(value, option);
+            }}
+          >
+            {Object.values(COLORS).map((color) => (
+              <Option key={color} value={color}>
+                {capitalize(color)}
+              </Option>
+            ))}
+          </Select>
+        </TooltipContent>
+      </TooltipRoot>
     );
   }
 }

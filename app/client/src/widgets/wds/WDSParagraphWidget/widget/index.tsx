@@ -86,11 +86,7 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
   getWidgetView() {
     return (
-      <TooltipRoot
-        offset={20}
-        open={this.props.isWidgetSelected}
-        placement="top"
-      >
+      <TooltipRoot open={this.props.isWidgetSelected} placement="bottom">
         <TooltipTrigger>
           <div
             className={styles.editableText}
@@ -115,11 +111,11 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         <TooltipContent className={styles.floatingPanel} hasArrow={false}>
           <Select
             className={styles.fontSelect}
+            defaultValue="body"
             onSelect={(value, option) => {
               // eslint-disable-next-line no-console
               console.log(value, option);
             }}
-            placeholder="Font Size"
           >
             <Option value="body">Body</Option>
             <Option value="subtitle">Subtitle</Option>
