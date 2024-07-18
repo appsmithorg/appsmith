@@ -174,7 +174,11 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     })();
 
     return (
-      <TooltipRoot open={this.props.isWidgetSelected} placement="bottom">
+      <TooltipRoot
+        offset={0}
+        open={this.props.isWidgetSelected}
+        placement="bottom"
+      >
         <TooltipTrigger>
           <div
             className={this.props.isWidgetSelected ? styles.editableText : ""}
@@ -203,34 +207,36 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           </div>
         </TooltipTrigger>
         <TooltipContent
-          className={styles.floatingPanel}
+          className={styles.floatingPanelWrapper}
           hasArrow={false}
           root={document.body}
         >
-          <SegmentedControl
-            className={styles.fontAlignSegmentedControl}
-            defaultValue="filled"
-            isFullWidth
-            onChange={() => {}}
-            options={objectKeys(BUTTON_VARIANTS).map((variant) => ({
-              label: BUTTON_VARIANTS[variant],
-              value: variant,
-            }))}
-          />
-          <Select
-            className={styles.fontSelect}
-            defaultValue="accent"
-            onSelect={(value, option) => {
-              // eslint-disable-next-line no-console
-              console.log(value, option);
-            }}
-          >
-            {Object.values(COLORS).map((color) => (
-              <Option key={color} value={color}>
-                {capitalize(color)}
-              </Option>
-            ))}
-          </Select>
+          <div className={styles.floatingPanel}>
+            <SegmentedControl
+              className={styles.fontAlignSegmentedControl}
+              defaultValue="filled"
+              isFullWidth
+              onChange={() => {}}
+              options={objectKeys(BUTTON_VARIANTS).map((variant) => ({
+                label: BUTTON_VARIANTS[variant],
+                value: variant,
+              }))}
+            />
+            <Select
+              className={styles.fontSelect}
+              defaultValue="accent"
+              onSelect={(value, option) => {
+                // eslint-disable-next-line no-console
+                console.log(value, option);
+              }}
+            >
+              {Object.values(COLORS).map((color) => (
+                <Option key={color} value={color}>
+                  {capitalize(color)}
+                </Option>
+              ))}
+            </Select>
+          </div>
         </TooltipContent>
       </TooltipRoot>
     );

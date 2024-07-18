@@ -138,7 +138,11 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
   getWidgetView() {
     return (
-      <TooltipRoot open={this.props.isWidgetSelected} placement="bottom">
+      <TooltipRoot
+        offset={0}
+        open={this.props.isWidgetSelected}
+        placement="bottom"
+      >
         <TooltipTrigger>
           <div
             className={styles.editableText}
@@ -161,55 +165,57 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           </div>
         </TooltipTrigger>
         <TooltipContent
-          className={styles.floatingPanel}
+          className={styles.floatingPanelWrapper}
           hasArrow={false}
           root={document.body}
         >
-          <Select
-            className={styles.fontSelect}
-            onSelect={this.handleFontSizeChange}
-            placeholder="Font Size"
-            value={this.props.fontSize}
-          >
-            <Option value="body">Body</Option>
-            <Option value="subtitle">Subtitle</Option>
-            <Option value="title">Title</Option>
-            <Option value="heading">Heading</Option>
-          </Select>
-          <SegmentedControl
-            className={styles.fontAlignSegmentedControl}
-            isFullWidth
-            onChange={this.handleTextAlignChange}
-            options={[
-              {
-                endIcon: "left-align",
-                value: "left",
-              },
-              {
-                endIcon: "center-align",
-                value: "center",
-              },
-              {
-                endIcon: "right-align",
-                value: "right",
-              },
-            ]}
-            value={this.props.textAlign}
-          />
-          <ToggleButton
-            className={styles.fontStyleButton}
-            icon="text-bold"
-            isSelected={this.props.fontStyle.includes("bold")}
-            onClick={this.handleToggleBoldFontStyle}
-            size="lg"
-          />
-          <ToggleButton
-            className={styles.fontStyleButton}
-            icon="text-italic"
-            isSelected={this.props.fontStyle.includes("italic")}
-            onClick={this.handleToggleItalicFontStyle}
-            size="lg"
-          />
+          <div className={styles.floatingPanel}>
+            <Select
+              className={styles.fontSelect}
+              onSelect={this.handleFontSizeChange}
+              placeholder="Font Size"
+              value={this.props.fontSize}
+            >
+              <Option value="body">Body</Option>
+              <Option value="subtitle">Subtitle</Option>
+              <Option value="title">Title</Option>
+              <Option value="heading">Heading</Option>
+            </Select>
+            <SegmentedControl
+              className={styles.fontAlignSegmentedControl}
+              isFullWidth
+              onChange={this.handleTextAlignChange}
+              options={[
+                {
+                  endIcon: "left-align",
+                  value: "left",
+                },
+                {
+                  endIcon: "center-align",
+                  value: "center",
+                },
+                {
+                  endIcon: "right-align",
+                  value: "right",
+                },
+              ]}
+              value={this.props.textAlign}
+            />
+            <ToggleButton
+              className={styles.fontStyleButton}
+              icon="text-bold"
+              isSelected={this.props.fontStyle.includes("bold")}
+              onClick={this.handleToggleBoldFontStyle}
+              size="lg"
+            />
+            <ToggleButton
+              className={styles.fontStyleButton}
+              icon="text-italic"
+              isSelected={this.props.fontStyle.includes("italic")}
+              onClick={this.handleToggleItalicFontStyle}
+              size="lg"
+            />
+          </div>
         </TooltipContent>
       </TooltipRoot>
     );

@@ -5,11 +5,15 @@
   }
 }
 
+.floatingPanelWrapper {
+  padding-top: 10px;
+  z-index: 999999;
+}
+
 .floatingPanel {
   display: flex;
   align-items: center;
   gap: 4px;
-  z-index: 999999;
   background: #fff;
   padding: 8px;
   border-radius: 8px;
