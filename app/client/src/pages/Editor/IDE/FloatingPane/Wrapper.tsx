@@ -1,6 +1,10 @@
 import React from "react";
 
-const Wrapper = () => {
-  return <div />;
+interface Props {
+  children: React.ReactNode;
+}
+
+const Wrapper = (props: Props) => {
+  return <div>{props.children}</div>;
 };
 export default Wrapper;
