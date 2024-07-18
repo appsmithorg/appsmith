@@ -2,10 +2,11 @@ import type {
   TYPOGRAPHY_VARIANTS,
   TYPOGRAPHY_FONT_WEIGHTS,
 } from "@design-system/theming";
-import type { ReactNode } from "react";
+import type { ReactNode, Ref } from "react";
 import type { COLORS } from "../../../shared";
 
 export interface TextProps {
+  textRef?: Ref<HTMLSpanElement>;
   /** size variant of the text
    * @default body
    */
