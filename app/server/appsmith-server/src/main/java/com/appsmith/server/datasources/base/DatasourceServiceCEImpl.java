@@ -8,6 +8,7 @@ import com.appsmith.external.models.*;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.SaasIntegrationConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
@@ -794,8 +795,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     public Mono<List<SaasIntegration>> getAllSaasIntegrations() {
         // Write code here to fetch datasource list from supabase
         final HttpClient httpClient = HttpClient.create();
-        String url = "";
-        String apiKeyValue = "";
+        SaasIntegrationConfig saasConfig = new SaasIntegrationConfig();
+        String url = saasConfig.getAppsmithSaasUrl();
+        String apiKeyValue = saasConfig.getAppsmithSaasUrl();
         WebClient.Builder builder = WebClientUtils.builder(httpClient).baseUrl(url);
 
         return builder.build()
