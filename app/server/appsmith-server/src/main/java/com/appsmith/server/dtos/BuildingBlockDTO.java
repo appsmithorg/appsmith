@@ -12,4 +12,6 @@ public class BuildingBlockDTO {
     String applicationId;
 
     String templateId;
+
+    String bbId;
 }

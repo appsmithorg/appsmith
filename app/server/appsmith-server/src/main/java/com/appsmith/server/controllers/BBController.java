@@ -45,4 +45,13 @@ public class BBController {
                 .fetchAllBuildingBlocks()
                 .map(bbResponseDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), bbResponseDTOS, null));
     }
+
+    @JsonView(Views.Public.class)
+    @GetMapping(value = "/lite")
+    @ResponseStatus(HttpStatus.OK)
+    public Mono<ResponseDTO<List<BBResponseDTO>>> getAllBuildingBlocksLite() {
+        return bbService
+                .fetchAllBuildingBlocksLite()
+                .map(bbResponseDTOS -> new ResponseDTO<>(HttpStatus.OK.value(), bbResponseDTOS, null));
+    }
 }
