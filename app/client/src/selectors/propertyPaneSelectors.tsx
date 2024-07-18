@@ -23,6 +23,7 @@ import { getLastSelectedWidget, getSelectedWidgets } from "./ui";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 import { getRenderMode } from "./editorSelectors";
 import { RenderModes } from "constants/WidgetConstants";
+import { getFloatingPaneSelectedWidget } from "../pages/Editor/IDE/FloatingPane/selectors";
 
 export type WidgetProperties = WidgetProps & {
   [EVALUATION_PATH]?: DataTreeEntity;
@@ -53,10 +54,15 @@ export const getIsCurrentWidgetRecentlyAdded = createSelector(
 export const getCurrentWidgetProperties = createSelector(
   getCanvasWidgets,
   getSelectedWidgets,
+  getFloatingPaneSelectedWidget,
   (
     widgets: CanvasWidgetsReduxState,
     selectedWidgetIds: string[],
+    floatingPaneSelectedWidget,
   ): WidgetProps | undefined => {
+    if (floatingPaneSelectedWidget.widgetId !== "0") {
+      return floatingPaneSelectedWidget;
+    }
     return get(widgets, `${selectedWidgetIds[0]}`);
   },
 );
