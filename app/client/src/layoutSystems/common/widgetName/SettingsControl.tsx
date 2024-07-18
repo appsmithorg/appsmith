@@ -33,6 +33,7 @@ const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
   align-items: center;
   gap: 8px;
   outline: none;
+
   & {
     pre {
       margin: 0 5px 0 0;
@@ -41,6 +42,7 @@ const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
       line-height: ${(props) => props.theme.fontSizes[3] - 1}px;
     }
   }
+
   border: ${WidgetNameBoundary}px solid ${Colors.GREY_1};
   ${(props) => {
     if (props.inverted) {
@@ -128,7 +130,6 @@ export function SettingsControl(props: SettingsControlProps) {
     e.stopPropagation();
     dispatch(
       updateFloatingPane({
-        isVisible: true,
         selectedWidgetId: props.widgetId,
       }),
     );

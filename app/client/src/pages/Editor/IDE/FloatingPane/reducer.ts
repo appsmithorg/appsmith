@@ -3,12 +3,11 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export interface FloatingPaneState {
-  isVisible: boolean;
-  selectedWidgetId?: string;
+  selectedWidgetId: string;
 }
 
 const initialState: FloatingPaneState = {
-  isVisible: false,
+  selectedWidgetId: "0",
 };
 
 const reducer = createReducer(initialState, {
