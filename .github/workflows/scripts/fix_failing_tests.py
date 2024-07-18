@@ -15,7 +15,7 @@ def get_suggestions(failing_test):
     return response.choices[0].text.strip()
 
 def find_failing_tests():
-    with open('jest_results.json') as f:
+    with open('/home/runner/work/appsmith/appsmith/.github/workflows/jest_results.json') as f:
         jest_results = json.load(f)
 
     # Extract failing test cases
