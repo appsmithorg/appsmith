@@ -5,3 +5,6 @@ export const isDraggingBuildingBlockToCanvas = (state: AppState) =>
 
 export const getBuildingBlockDragStartTimestamp = (state: AppState) =>
   state.ui.buildingBlocks.buildingBlockDragStartTimestamp;
+
+export const getCreateBuildingBlockActionStates = (state: AppState) =>
+  state.ui.buildingBlocks.createBuildingBlock;

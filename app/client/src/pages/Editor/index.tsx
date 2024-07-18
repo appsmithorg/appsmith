@@ -48,6 +48,7 @@ import DisableCDModal from "@appsmith/components/gitComponents/DisableCDModal";
 import { PartialExportModal } from "components/editorComponents/PartialImportExport/PartialExportModal";
 import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
 import { AppCURLImportModal } from "@appsmith/pages/Editor/CurlImport";
+import CreateBuildingBlockModal from "components/editorComponents/CreateBuildingBlockModal";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -182,6 +183,7 @@ class Editor extends Component<Props> {
             <ImportedApplicationSuccessModal />
             <ReconnectDatasourceModal />
             <SignpostingOverlay />
+            <CreateBuildingBlockModal />
             <PartialExportModal />
             <PartialImportModal />
             <AppCURLImportModal />
