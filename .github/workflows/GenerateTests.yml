@@ -9,6 +9,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: "Start of workflow"
-
         run: |
             echo "Starting the workflow"
+        
+      - name: "Checkout code"
+        uses: actions/checkout@v2
+
+      - name: Get changed files in the client folder
+        id: changed-files-specific
+        uses: tj-actions/changed-files@v41
+        with:
+          files: "app/client/**"
+    
+      - name: Run step if any file(s) in the client folder change
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+        run: |
+          echo "List all the files that have changed: $ALL_CHANGED_FILES"
