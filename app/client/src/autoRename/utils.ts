@@ -2,9 +2,7 @@ import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { select } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
-import type { WidgetConfigProps } from "WidgetProvider/constants";
 import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetProps } from "widgets/BaseWidget";
 
 export function* getNewEntityName(
   entityType: string,
@@ -14,7 +12,9 @@ export function* getNewEntityName(
   const existingEntityNames = Object.keys(dataTreeEntities);
 
   if (entityType === ENTITY_TYPE.WIDGET) {
-    const widgetConfig = WidgetFactory.getConfig(props.type as string);
+    const widgetConfig = WidgetFactory.getWidgetDefaultPropertiesMap(
+      props.type as string,
+    );
     const suggestedEntityName: string = getNewWidgetName(props, widgetConfig);
     const uniqueWidgetName = resolveEntityNameConflict(
       existingEntityNames,
@@ -35,12 +35,7 @@ export function* getNewEntityName(
 
 function getNewWidgetName(
   props: Record<string, unknown>,
-  widgetConfig:
-    | (Partial<WidgetProps> &
-        WidgetConfigProps & {
-          type: string;
-        })
-    | undefined,
+  widgetConfig: Record<string, string>,
 ): string {
   console.log("##### WidgetProps and Configs:", props, widgetConfig);
   return "";
