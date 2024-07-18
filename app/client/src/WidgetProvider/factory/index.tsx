@@ -433,6 +433,16 @@ class WidgetFactory {
 
   @memoize
   @freeze
+  static getWidgetFloatPropertyPaneConfig(
+    type: WidgetType,
+  ): readonly PropertyPaneConfig[] {
+    const widget = WidgetFactory.widgetsMap.get(type);
+    if (!widget) return [];
+    return widget.getPropertyPaneContentConfig();
+  }
+
+  @memoize
+  @freeze
   static getWidgetPropertyPaneSearchConfig(
     type: WidgetType,
     widgetProperties: WidgetProps,

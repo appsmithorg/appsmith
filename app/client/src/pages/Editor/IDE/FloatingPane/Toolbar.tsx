@@ -1,13 +1,11 @@
 import React from "react";
-import { Flex, Text } from "design-system";
-import { getFloatingPaneSelectedWidget } from "./selectors";
-import { useSelector } from "react-redux";
+import { Flex } from "design-system";
+import PropertySelector from "./PropertySelector";
 
 const Toolbar = () => {
-  const widget = useSelector(getFloatingPaneSelectedWidget);
   return (
     <Flex flexDirection="column">
-      <Text>{widget.widgetName}</Text>
+      <PropertySelector />
     </Flex>
   );
 };
