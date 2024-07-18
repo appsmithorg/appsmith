@@ -142,6 +142,7 @@ export function SettingsControl(props: SettingsControlProps) {
     e.stopPropagation();
     dispatch(
       updateFloatingPane({
+        isVisible: true,
         selectedWidgetId: props.widgetId,
         referenceElement: miniPaneReferenceElementRef.current,
       }),
