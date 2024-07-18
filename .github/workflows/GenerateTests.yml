@@ -61,6 +61,14 @@ jobs:
           done < generated_test_files.txt
         continue-on-error: true  # Continue even if tests fail to capture results
 
+      - name: Debug: Check jest_results.json existence
+        run: |
+          if [ -f jest_results.json ]; then
+            echo "jest_results.json file exists."
+          else
+            echo "jest_results.json file does NOT exist."
+          fi
+
        # Step 2: Get Failed Tests
       - name: Capture failed test cases
         id: failed_tests
@@ -81,9 +89,6 @@ jobs:
 
       - name: Add OpenAI API Key
         run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
-
-      - name: Setup upterm session
-        uses: lhotari/action-upterm@v1
 
       - name: Fix failing tests
         run: |
