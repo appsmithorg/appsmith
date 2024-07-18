@@ -1,6 +1,7 @@
 package com.appsmith.server.datasources.base;
 
 import com.appsmith.server.acl.PolicyGenerator;
+import com.appsmith.server.configurations.SaasIntegrationConfig;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
@@ -41,7 +42,8 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
             EnvironmentPermission environmentPermission,
             RateLimitService rateLimitService,
             FeatureFlagService featureFlagService,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            SaasIntegrationConfig saasIntegrationConfig) {
 
         super(
                 repository,
@@ -60,6 +62,7 @@ public class DatasourceServiceImpl extends DatasourceServiceCEImpl implements Da
                 environmentPermission,
                 rateLimitService,
                 featureFlagService,
-                observationRegistry);
+                observationRegistry,
+                saasIntegrationConfig);
     }
 }

@@ -1,13 +1,23 @@
 package com.appsmith.server.configurations;
 
-import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
-@Getter
+@Slf4j
+@Configuration
 public class SaasIntegrationConfig {
     @Value("${appsmith.saas.url}")
-    public String appsmithSaasUrl;
+    private String appsmithSaasUrl;
 
     @Value("${appsmith.saas.key}")
-    public String appsmithSaasKey;
+    private String appsmithSaasKey;
+
+    public String getAppsmithSaasUrl() {
+        return appsmithSaasUrl;
+    }
+
+    public String getAppsmithSaasKey() {
+        return appsmithSaasKey;
+    }
 }

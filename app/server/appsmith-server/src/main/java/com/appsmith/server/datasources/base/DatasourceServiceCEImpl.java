@@ -88,6 +88,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     private final RateLimitService rateLimitService;
     private final FeatureFlagService featureFlagService;
     private final ObservationRegistry observationRegistry;
+    private final SaasIntegrationConfig saasConfig;
 
     // Defines blocking duration for test as well as connection created for query execution
     // This will block the creation of datasource connection for 5 minutes, in case of more than 3 failed connection
@@ -114,7 +115,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
             EnvironmentPermission environmentPermission,
             RateLimitService rateLimitService,
             FeatureFlagService featureFlagService,
-            ObservationRegistry observationRegistry) {
+            ObservationRegistry observationRegistry,
+            SaasIntegrationConfig saasConfig) {
 
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
@@ -133,6 +135,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         this.rateLimitService = rateLimitService;
         this.featureFlagService = featureFlagService;
         this.observationRegistry = observationRegistry;
+        this.saasConfig = saasConfig;
     }
 
     @Override
@@ -795,9 +798,8 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     public Mono<List<SaasIntegration>> getAllSaasIntegrations() {
         // Write code here to fetch datasource list from supabase
         final HttpClient httpClient = HttpClient.create();
-        SaasIntegrationConfig saasConfig = new SaasIntegrationConfig();
         String url = saasConfig.getAppsmithSaasUrl();
-        String apiKeyValue = saasConfig.getAppsmithSaasUrl();
+        String apiKeyValue = saasConfig.getAppsmithSaasKey();
         WebClient.Builder builder = WebClientUtils.builder(httpClient).baseUrl(url);
 
         return builder.build()
