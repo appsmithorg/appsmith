@@ -40,18 +40,6 @@ const SwitchComponentContainer = styled.div<{
   ${({ minHeight }) => `
     ${minHeight ? `min-height: ${minHeight}px;` : undefined}`};
 
-    ${({ labelPosition }) => {
-      switch (labelPosition) {
-        case LabelPosition.Left:
-          return `margin-left: auto;`;
-        case LabelPosition.Right:
-          return `margin-right: auto;`;
-        default:
-          return "";
-      }
-    }};
-
-
   ${BlueprintControlTransform}
 `;
 

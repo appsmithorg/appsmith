@@ -23,7 +23,7 @@ type FieldProps<TValue> = React.PropsWithChildren<
 >;
 
 interface StyledWrapperProps {
-  direction: "row" | "column" | "row-reverse"
+  direction: "row" | "column";
 }
 
 const StyledWrapper = styled.div<StyledWrapperProps>`
@@ -66,13 +66,7 @@ function Field<TValue>({
     }
   }, [defaultValue, setValue]);
 
-  const direction: "row" | "column" | "row-reverse" = fieldClassName.includes(
-    "switchfield",
-  )
-    ? inlineLabel
-      ? "row"
-      : "row-reverse"
-    : "column";
+  const direction = inlineLabel ? "row" : "column";
 
   return (
     <StyledWrapper
