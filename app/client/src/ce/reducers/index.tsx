@@ -73,6 +73,7 @@ import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsR
 import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
 import type { IDEState } from "reducers/uiReducers/ideReducer";
+import type { FloatingPaneState } from "pages/Editor/IDE/FloatingPane/reducer";
 
 /* Reducers which are integrated into the core system when registering a pluggable module
     or done so by a module that is designed to be eventually pluggable */
@@ -146,6 +147,7 @@ export interface AppState {
     oneClickBinding: OneClickBindingState;
     activeField: ActiveField;
     ide: IDEState;
+    floatingPane: FloatingPaneState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;

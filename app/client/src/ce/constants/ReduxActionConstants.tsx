@@ -946,6 +946,7 @@ const ActionTypes = {
 };
 
 export const ReduxActionTypes = {
+  UPDATE_FLOATING_PANE: "UPDATE_FLOATING_PANE",
   ...ActionTypes,
   ...ActionSelectorReduxActionTypes,
 };
@@ -1174,9 +1175,11 @@ export interface ReduxAction<T> {
   type: ReduxActionType | ReduxActionErrorType;
   payload: T;
 }
+
 export interface BufferedReduxAction<T> extends ReduxAction<T> {
   affectedJSObjects: AffectedJSObjects;
 }
+
 export type ReduxActionWithoutPayload = Pick<ReduxAction<undefined>, "type">;
 
 export interface ReduxActionWithMeta<T, M> extends ReduxAction<T> {
