@@ -296,16 +296,16 @@ export function* getInitResponses({
 }
 
 export function* getCustomPluginsAPIdata(): any {
-  let response: InitCustomPluginApi | undefined;
+  let response: CustomPlugin[] | undefined;
   try {
     yield put(fetchCustomPlugins());
-    const initConsolidatedApiResponse: ApiResponse<InitCustomPluginApi> =
+    const initConsolidatedApiResponse: InitCustomPluginApi =
       yield CustomPluginApi.getDatasources();
 
     response = initConsolidatedApiResponse.data;
   } catch (e: any) {}
 
-  yield put(fetchCustomPluginsSuccess(response?.data || []));
+  yield put(fetchCustomPluginsSuccess(response || []));
 }
 
 export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
