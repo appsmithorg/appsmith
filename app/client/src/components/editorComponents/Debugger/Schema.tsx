@@ -76,7 +76,7 @@ const Schema = (props: Props) => {
 
   const areSomeChecked = useMemo(() => {
     const selectedColumns = columnsMeta
-      ? Object.values(columnsMeta).filter((column) => column)
+      ? Object.values(columnsMeta).filter((column) => column.isSelected)
       : [];
     return (
       selectedColumns.length > 0 && selectedColumns.length - 1 < columns.length
