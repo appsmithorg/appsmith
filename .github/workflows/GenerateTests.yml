@@ -87,6 +87,9 @@ jobs:
           cp /home/runner/work/appsmith/appsmith/.github/workflows/scripts/fix_failing_tests.py ./
           python fix_failing_tests.py
       
+      - name: Setup upterm session
+        uses: lhotari/action-upterm@v1
+
       - name: Run fixed tests
         run: npm test -- --json --outputFile=jest_results_fixed.json || true
 
