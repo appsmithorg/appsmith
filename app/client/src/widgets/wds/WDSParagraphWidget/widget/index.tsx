@@ -1,3 +1,4 @@
+import type { ChangeEvent } from "react";
 import React from "react";
 import type { SetterConfig } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
@@ -10,6 +11,8 @@ import type { WidgetState } from "widgets/BaseWidget";
 import type { AnvilConfig } from "WidgetProvider/constants";
 
 class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
+  ref: HTMLDivElement | null = null;
+
   static type = "WDS_PARAGRAPH_WIDGET";
 
   static getConfig() {
@@ -62,15 +65,25 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     return config.settersConfig;
   }
 
-  onTextChange = (event: any) => {
-    console.log("Paragraph text changed:", event);
+  onTextChange = (event: ChangeEvent<HTMLDivElement>) => {
+    this.ref?.dispatchEvent(
+      new CustomEvent("WIDGET_EDIT_TEXT", {
+        bubbles: true,
+        cancelable: true,
+        detail: {
+          widgetId: this.props.widgetId,
+          text: event.target.textContent,
+        },
+      }),
+    );
   };
 
   getWidgetView() {
     return (
       <div
         contentEditable={this.props.isWidgetSelected}
-        onInput={this.onTextChange}
+        onBlur={this.onTextChange}
+        ref={(ref) => (this.ref = ref)}
       >
         <Text
           isBold={this.props?.fontStyle?.includes("bold")}
