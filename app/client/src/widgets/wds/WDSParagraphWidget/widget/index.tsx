@@ -16,6 +16,22 @@ import type { AnvilConfig } from "WidgetProvider/constants";
 import styles from "./styles.module.css";
 import { Select, Option, ToggleButton, SegmentedControl } from "design-system";
 
+class ChangeWidgetPropertyEvent extends CustomEvent<{
+  widgetId: string;
+  properties: Record<string, any>;
+}> {
+  constructor(widgetId: string, properties: Record<string, any>) {
+    super("CHANGE_WIDGET_PROPERTY", {
+      bubbles: true,
+      cancelable: true,
+      detail: {
+        widgetId: widgetId,
+        properties,
+      },
+    });
+  }
+}
+
 class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   ref: HTMLDivElement | null = null;
 
@@ -71,17 +87,62 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     return config.settersConfig;
   }
 
-  onTextChange = (event: ChangeEvent<HTMLDivElement>) => {
+  resolveFontStyle = (isBold: boolean, isItalic: boolean) => {
+    if (isBold && isItalic) {
+      return "italic,bold";
+    }
+
+    if (isBold) {
+      return "bold";
+    }
+
+    if (isItalic) {
+      return "italic";
+    }
+
+    return "";
+  };
+
+  dispatchPropertiesChange = (properties: Record<string, any>) => {
     this.ref?.dispatchEvent(
-      new CustomEvent("WIDGET_EDIT_TEXT", {
-        bubbles: true,
-        cancelable: true,
-        detail: {
-          widgetId: this.props.widgetId,
-          text: event.target.textContent,
-        },
-      }),
+      new ChangeWidgetPropertyEvent(this.props.widgetId, properties),
     );
+  };
+
+  handleTextChange = (event: ChangeEvent<HTMLDivElement>) => {
+    this.dispatchPropertiesChange({
+      text: event.target.textContent,
+    });
+  };
+
+  handleToggleBoldFontStyle = () => {
+    this.dispatchPropertiesChange({
+      fontStyle: this.resolveFontStyle(
+        !this.props.fontStyle.includes("bold"),
+        this.props.fontStyle.includes("italic"),
+      ),
+    });
+  };
+
+  handleToggleItalicFontStyle = () => {
+    this.dispatchPropertiesChange({
+      fontStyle: this.resolveFontStyle(
+        this.props.fontStyle.includes("bold"),
+        !this.props.fontStyle.includes("italic"),
+      ),
+    });
+  };
+
+  handleTextAlignChange = (align: string) => {
+    this.dispatchPropertiesChange({
+      textAlign: align,
+    });
+  };
+
+  handleFontSizeChange = (align: string) => {
+    this.dispatchPropertiesChange({
+      fontSize: align,
+    });
   };
 
   getWidgetView() {
@@ -91,7 +152,7 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           <div
             className={styles.editableText}
             contentEditable={this.props.isWidgetSelected}
-            onBlur={this.onTextChange}
+            onBlur={this.handleTextChange}
             ref={(ref) => (this.ref = ref)}
           >
             <Text
@@ -110,12 +171,10 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         </TooltipTrigger>
         <TooltipContent className={styles.floatingPanel} hasArrow={false}>
           <Select
+            value={this.props.fontSize}
             className={styles.fontSelect}
-            defaultValue="body"
-            onSelect={(value, option) => {
-              // eslint-disable-next-line no-console
-              console.log(value, option);
-            }}
+            onSelect={this.handleFontSizeChange}
+            placeholder="Font Size"
           >
             <Option value="body">Body</Option>
             <Option value="subtitle">Subtitle</Option>
@@ -124,9 +183,9 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           </Select>
           <SegmentedControl
             className={styles.fontAlignSegmentedControl}
-            defaultValue="left"
+            value={this.props.textAlign}
             isFullWidth
-            onChange={() => {}}
+            onChange={this.handleTextAlignChange}
             options={[
               {
                 endIcon: "left-align",
@@ -145,13 +204,15 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           <ToggleButton
             className={styles.fontStyleButton}
             icon="text-bold"
-            onClick={() => {}}
+            isSelected={this.props.fontStyle.includes("bold")}
+            onClick={this.handleToggleBoldFontStyle}
             size="lg"
           />
           <ToggleButton
             className={styles.fontStyleButton}
             icon="text-italic"
-            onClick={() => {}}
+            isSelected={this.props.fontStyle.includes("italic")}
+            onClick={this.handleToggleItalicFontStyle}
             size="lg"
           />
         </TooltipContent>
