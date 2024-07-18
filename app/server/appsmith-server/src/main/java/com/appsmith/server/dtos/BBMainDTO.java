@@ -10,6 +10,8 @@ import lombok.experimental.FieldNameConstants;
 import net.minidev.json.JSONObject;
 import org.springframework.data.annotation.Transient;
 
+import java.util.List;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -28,4 +30,8 @@ public class BBMainDTO {
 
     @JsonView({Views.Public.class})
     JSONObject dsl;
+
+    @Transient
+    @JsonView(Views.Public.class)
+    List<String> actionIds;
 }

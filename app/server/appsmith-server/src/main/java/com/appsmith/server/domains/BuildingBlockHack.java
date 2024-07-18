@@ -11,6 +11,8 @@ import lombok.experimental.FieldNameConstants;
 import net.minidev.json.JSONObject;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.List;
+
 @Getter
 @Setter
 @ToString
@@ -26,4 +28,7 @@ public class BuildingBlockHack extends BranchAwareDomain {
 
     @JsonView(Views.Public.class)
     String icon;
+
+    @JsonView(Views.Public.class)
+    List<String> actionIds;
 }
