@@ -203,6 +203,7 @@ export default [
         isTriggerProperty: true,
         hidden: (props: TableWidgetProps) => !props.serverSidePaginationEnabled,
         dependencies: ["serverSidePaginationEnabled"],
+        isPartOfFloatingPane: true,
       },
       {
         helpText: "when a table page size is changed",
@@ -214,6 +215,7 @@ export default [
         isTriggerProperty: true,
         hidden: (props: TableWidgetProps) => !props.serverSidePaginationEnabled,
         dependencies: ["serverSidePaginationEnabled"],
+        isPartOfFloatingPane: true,
       },
     ],
     expandedByDefault: false,
@@ -262,6 +264,7 @@ export default [
         isTriggerProperty: true,
         hidden: (props: TableWidgetProps) => !props.enableServerSideFiltering,
         dependencies: ["enableServerSideFiltering"],
+        isPartOfFloatingPane: true,
       },
       {
         propertyName: "defaultSearchText",
@@ -285,6 +288,7 @@ export default [
         isTriggerProperty: true,
         hidden: (props: TableWidgetProps) => !props.isVisibleSearch,
         dependencies: ["isVisibleSearch"],
+        isPartOfFloatingPane: true,
       },
       {
         propertyName: "isVisibleFilters",
@@ -363,6 +367,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+        isPartOfFloatingPane: true,
       },
     ],
     expandedByDefault: false,
@@ -395,6 +400,7 @@ export default [
         isTriggerProperty: true,
         hidden: (props: TableWidgetProps) => !props.isSortable,
         dependencies: ["isSortable"],
+        isPartOfFloatingPane: true,
       },
     ],
     expandedByDefault: false,
@@ -426,6 +432,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+        isPartOfFloatingPane: true,
         additionalAutoComplete: (props: TableWidgetProps) => {
           const newRow: Record<string, unknown> = {};
 
@@ -454,6 +461,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+        isPartOfFloatingPane: true,
       },
       {
         propertyName: "defaultNewRow",
