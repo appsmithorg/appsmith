@@ -4,10 +4,28 @@
 
 .floatingPanel {
   display: flex;
-  gap: 10px;
+  align-items: center;
+  gap: 4px;
   background: var(--color-bg-elevation-3);
   padding: var(--inner-spacing-3);
   border-radius: var(--border-radius-elevation-3);
   box-shadow: var(--box-shadow-3);
   border: var(--border-width-1) solid var(--color-bd-elevation-3);
+}
+
+.fontSelect:global(.ads-v2-select[data-size="md"]) {
+  display: flex;
+  align-items: center;
+  --select-height: 32px;
+  --select-padding-y: 5px;
+}
+
+.fontAlignSegmentedControl {
+  margin: 0 8px;
+}
+
+.fontStyleButton {
+  --toggle-height: 30px;
+  --toggle-width: 30px;
+  --ads-v2-spaces-2: 6px;
 }
