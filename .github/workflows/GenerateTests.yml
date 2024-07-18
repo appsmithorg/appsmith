@@ -11,4 +11,4 @@ jobs:
       - name: "Start of workflow"
 
         run: |
-            echo "Starting the workflow
+            echo "Starting the workflow"
