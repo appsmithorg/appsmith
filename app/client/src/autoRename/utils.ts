@@ -38,12 +38,12 @@ function getNewWidgetName(
   widgetConfig: Record<string, string>,
 ): string {
   console.log("##### WidgetProps and Configs:", props, widgetConfig);
-  return "";
+  return "testwidget";
 }
 
 function getNewActionName(props: Record<string, unknown>): string {
   console.log("##### Action:", props);
-  return "";
+  return "testaction";
 }
 
 // TODO(abhinav): Optimise this by breaking the recursion and using iteration
