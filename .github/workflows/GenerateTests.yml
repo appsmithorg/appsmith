@@ -1,0 +1,15 @@
+name: Test, build and push Docker Image
+
+on:
+  # This line enables manual triggering of this workflow.
+  workflow_dispatch:
+
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Start of workflow"
+
+        run: |
+            echo "Starting the workflow
