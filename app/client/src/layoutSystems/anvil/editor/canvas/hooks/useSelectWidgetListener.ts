@@ -21,16 +21,14 @@ export function useSelectWidgetListener() {
   );
 
   // TODO: Add TS types for event
-  const handleWidgetEditText = useCallback(
+  const handleChangeWidgetProperty = useCallback(
     (event) => {
       dispatch(
         batchUpdateMultipleWidgetProperties([
           {
             widgetId: event.detail.widgetId,
             updates: {
-              modify: {
-                text: event.detail?.text,
-              },
+              modify: event.detail?.properties,
             },
           },
         ]),
@@ -46,17 +44,22 @@ export function useSelectWidgetListener() {
       handleClick,
       true,
     );
-
     document.body.addEventListener(
-      "WIDGET_EDIT_TEXT",
-      handleWidgetEditText,
+      "CHANGE_WIDGET_PROPERTY",
+      handleChangeWidgetProperty,
       true,
     );
+
     return () => {
       document.body.removeEventListener(
         SELECT_ANVIL_WIDGET_CUSTOM_EVENT,
         handleClick,
       );
+      document.body.removeEventListener(
+        "CHANGE_WIDGET_PROPERTY",
+        handleChangeWidgetProperty,
+        true,
+      );
     };
-  }, [handleClick, handleWidgetEditText]);
+  }, [handleClick, handleChangeWidgetProperty]);
 }
