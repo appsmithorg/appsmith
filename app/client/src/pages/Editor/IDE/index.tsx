@@ -15,6 +15,7 @@ import classNames from "classnames";
 import { tailwindLayers } from "constants/Layers";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import ProtectedCallout from "./ProtectedCallout";
+import { Wrapper as FloatingPane } from "./FloatingPane";
 
 /**
  * OldName: MainContainer
@@ -50,6 +51,7 @@ function IDE() {
         >
           <RightPane />
         </div>
+        <FloatingPane />
       </EditorWrapperContainer>
       <BottomBar viewMode={isPreviewMode} />
     </>
