@@ -16,22 +16,6 @@ import type { AnvilConfig } from "WidgetProvider/constants";
 import styles from "./styles.module.css";
 import { Select, Option, ToggleButton, SegmentedControl } from "design-system";
 
-class ChangeWidgetPropertyEvent extends CustomEvent<{
-  widgetId: string;
-  properties: Record<string, any>;
-}> {
-  constructor(widgetId: string, properties: Record<string, any>) {
-    super("CHANGE_WIDGET_PROPERTY", {
-      bubbles: true,
-      cancelable: true,
-      detail: {
-        widgetId: widgetId,
-        properties,
-      },
-    });
-  }
-}
-
 class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   ref: HTMLDivElement | null = null;
 
@@ -105,7 +89,14 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
   dispatchPropertiesChange = (properties: Record<string, any>) => {
     this.ref?.dispatchEvent(
-      new ChangeWidgetPropertyEvent(this.props.widgetId, properties),
+      new CustomEvent("CHANGE_WIDGET_PROPERTY", {
+        bubbles: true,
+        cancelable: true,
+        detail: {
+          widgetId: this.props.widgetId,
+          properties,
+        },
+      }),
     );
   };
 
@@ -171,10 +162,10 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         </TooltipTrigger>
         <TooltipContent className={styles.floatingPanel} hasArrow={false}>
           <Select
-            value={this.props.fontSize}
             className={styles.fontSelect}
             onSelect={this.handleFontSizeChange}
             placeholder="Font Size"
+            value={this.props.fontSize}
           >
             <Option value="body">Body</Option>
             <Option value="subtitle">Subtitle</Option>
@@ -183,7 +174,6 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           </Select>
           <SegmentedControl
             className={styles.fontAlignSegmentedControl}
-            value={this.props.textAlign}
             isFullWidth
             onChange={this.handleTextAlignChange}
             options={[
@@ -200,6 +190,7 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
                 value: "right",
               },
             ]}
+            value={this.props.textAlign}
           />
           <ToggleButton
             className={styles.fontStyleButton}
