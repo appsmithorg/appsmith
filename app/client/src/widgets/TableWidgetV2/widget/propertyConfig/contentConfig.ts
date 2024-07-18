@@ -31,7 +31,7 @@ export default [
           "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
         propertyName: "tableData",
         label: "Table data",
-        controlType: "ONE_CLICK_BINDING_CONTROL",
+        controlType: "CODE_EDITOR",
         controlConfig: {
           searchableColumn: true,
         },
@@ -39,7 +39,7 @@ export default [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
-        isJSConvertible: true,
+        isJSConvertible: false,
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {
@@ -57,6 +57,7 @@ export default [
           isToggleDisabled: boolean,
           triggerFlag?: boolean,
         ) => triggerFlag && isDynamic && !isToggleDisabled,
+        isPartOfFloatingPane: true,
       },
       {
         propertyName: "primaryColumns",
@@ -202,6 +203,7 @@ export default [
         isTriggerProperty: true,
         hidden: (props: TableWidgetProps) => !props.serverSidePaginationEnabled,
         dependencies: ["serverSidePaginationEnabled"],
+        isPartOfFloatingPane: true,
       },
       {
         helpText: "when a table page size is changed",
@@ -213,6 +215,7 @@ export default [
         isTriggerProperty: true,
         hidden: (props: TableWidgetProps) => !props.serverSidePaginationEnabled,
         dependencies: ["serverSidePaginationEnabled"],
+        isPartOfFloatingPane: true,
       },
     ],
     expandedByDefault: false,
@@ -284,6 +287,7 @@ export default [
         isTriggerProperty: true,
         hidden: (props: TableWidgetProps) => !props.isVisibleSearch,
         dependencies: ["isVisibleSearch"],
+        isPartOfFloatingPane: true,
       },
       {
         propertyName: "isVisibleFilters",
@@ -362,6 +366,7 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
+        isPartOfFloatingPane: true,
       },
     ],
     expandedByDefault: false,
@@ -394,6 +399,7 @@ export default [
         isTriggerProperty: true,
         hidden: (props: TableWidgetProps) => !props.isSortable,
         dependencies: ["isSortable"],
+        isPartOfFloatingPane: true,
       },
     ],
     expandedByDefault: false,

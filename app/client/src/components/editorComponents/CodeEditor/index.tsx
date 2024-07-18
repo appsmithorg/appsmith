@@ -161,11 +161,6 @@ import {
 } from "actions/activeFieldActions";
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { getEachEntityInformation } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import { setIdeEditorViewMode } from "actions/ideActions";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import { updateFloatingPane } from "pages/Editor/IDE/FloatingPane/actions";
-import type { FloatingPaneState } from "pages/Editor/IDE/FloatingPane/reducer";
-import { getLastSelectedWidget } from "selectors/ui";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -1048,11 +1043,6 @@ class CodeEditor extends Component<Props, State> {
                 isMock: !!navigationData?.isMock,
                 from: NavigationMethod.CommandClick,
               });
-              this.props.setSideBySide();
-              this.props.updateFloatingPaneState({
-                isVisible: true,
-                selectedWidgetId: this.props.selectedWidget,
-              });
             }
 
             history.push(navigationData.url, {
@@ -1796,7 +1786,6 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
   installedLibraries: selectInstalledLibraries(state),
   focusedProperty: getFocusablePropertyPaneField(state),
-  selectedWidget: getLastSelectedWidget(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -1807,10 +1796,6 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(setEditorFieldFocusAction(payload)),
   setActiveField: (path: string) => dispatch(setActiveEditorField(path)),
   resetActiveField: () => dispatch(resetActiveEditorField()),
-  setSideBySide: () =>
-    dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen)),
-  updateFloatingPaneState: (payload: FloatingPaneState) =>
-    dispatch(updateFloatingPane(payload)),
 });
 
 export default Sentry.withProfiler(

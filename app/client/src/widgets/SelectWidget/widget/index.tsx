@@ -61,6 +61,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {
     super(props);
   }
+
   static type = "SELECT_WIDGET";
 
   static getConfig() {
@@ -263,7 +264,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               "Takes in an array of objects to display options. Bind data from an API using {{}}",
             propertyName: "sourceData",
             label: "Source Data",
-            controlType: "ONE_CLICK_BINDING_CONTROL",
+            controlType: "CODE_EDITOR",
             controlConfig: {
               aliases: [
                 {
@@ -286,7 +287,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                 2,
               ),
             },
-            isJSConvertible: true,
+            isPartOfFloatingPane: true,
+            isJSConvertible: false,
             placeholderText: '[{ "label": "label1", "value": "value1" }]',
             isBindProperty: true,
             isTriggerProperty: false,
@@ -336,6 +338,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               },
             },
             additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
+            isPartOfFloatingPane: true,
           },
           {
             helpText: "Choose or set a field from source data as the value",
@@ -368,6 +371,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               },
             },
             additionalAutoComplete: getLabelValueAdditionalAutocompleteData,
+            isPartOfFloatingPane: true,
           },
           {
             helpText: "Selects the option with value by default",
@@ -612,6 +616,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
+            isPartOfFloatingPane: true,
           },
           {
             helpText: "when the dropdown opens",

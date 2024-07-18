@@ -5,7 +5,7 @@ import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
 const getFloatingPaneState = (state: AppState) => state.ui.floatingPane;
 
 export const isFloatingPaneVisible = (state: AppState) =>
-  state.ui.floatingPane.isVisible;
+  state.ui.floatingPane.selectedWidgetId !== "0";
 
 export const getFloatingPaneSelectedWidget = createSelector(
   getFloatingPaneState,

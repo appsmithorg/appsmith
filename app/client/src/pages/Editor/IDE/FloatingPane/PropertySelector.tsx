@@ -1,4 +1,4 @@
-import React, { useCallback, useContext, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { getFloatingPaneSelectedWidget } from "./selectors";
 import WidgetFactory from "WidgetProvider/factory";
@@ -21,8 +21,8 @@ import { ControlContext } from "./ControlContext";
 
 const PropertySelector = () => {
   const [showMenu, setShowMenu] = useState(false);
-  const { selectedControl, setSelectedControl } = useContext(ControlContext);
   const widget = useSelector(getFloatingPaneSelectedWidget);
+  const { selectedControl, setSelectedControl } = useContext(ControlContext);
   const config: readonly PropertyPaneConfig[] =
     WidgetFactory.getWidgetFloatPropertyPaneConfig(widget.type);
 
@@ -35,10 +35,21 @@ const PropertySelector = () => {
     [setSelectedControl],
   );
 
+  useEffect(() => {
+    const firstControl = config[0]?.children?.[0];
+    if (firstControl) {
+      handleMenuSelection(firstControl);
+    }
+  }, [widget.widgetId, config, handleMenuSelection]);
+
   return (
     <Menu onOpenChange={setShowMenu} open={showMenu}>
       <MenuTrigger>
-        <Button endIcon="dropdown" onClick={() => setShowMenu(true)}>
+        <Button
+          endIcon="dropdown"
+          kind="tertiary"
+          onClick={() => setShowMenu(true)}
+        >
           {selectedControl?.label}
         </Button>
       </MenuTrigger>
