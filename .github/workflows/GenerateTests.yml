@@ -1,11 +1,9 @@
-name: Generate Jest Tests
+name: Generate Jest Tests - New
 on:
-  # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
 defaults:
   run:
-    #working-directory: app/client
     shell: bash
 
 jobs:
@@ -14,8 +12,8 @@ jobs:
     steps:
       - name: "Start of workflow"
         run: |
-            echo "Starting the workflow"
-        
+          echo "Starting the workflow"
+      
       - name: "Checkout code"
         uses: actions/checkout@v2
         with:
@@ -27,41 +25,83 @@ jobs:
         with:
           files: "app/client/**"
           base_sha: "release"
-    
-      - name: Run step if any file(s) in the client folder change
-        if: steps.changed-files-specific.outputs.any_changed == 'true'
-        env:
-          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
-        run: |
-          for file in ${ALL_CHANGED_FILES}; do
-            echo "$file was changed"
-          done
-   
+      
       - name: Install jest-gen-test
         run: yarn add jest-test-gen
-    
+      
       - name: Generate Tests
+        id: generate-tests
         if: steps.changed-files-specific.outputs.any_changed == 'true'
         env:
           ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+          GENERATED_TEST_FILES: ""
         run: |
           for file in ${ALL_CHANGED_FILES}; do
-            testfile=`echo $file|sed 's/.ts/.generated.test.ts/g'`
-            yarn run jest-test-gen $file
+            testfile=$(echo "$file" | sed 's/.ts/.generated.test.ts/g')
+            yarn run jest-test-gen "$file"
+            GENERATED_TEST_FILES="$GENERATED_TEST_FILES $testfile"
+          done
+          echo "::set-output name=generated_test_files::$GENERATED_TEST_FILES"
+
+      - name: Run Generated Jest Tests
+        id: run-jest-tests
+        if: steps.generate-tests.outputs.generated_test_files != ''
+        run: |
+          failed_tests=""
+          for testfile in ${{ steps.generate-tests.outputs.generated_test_files }}; do
+            if ! yarn jest "$testfile"; then
+              failed_tests="$failed_tests $testfile"
+            fi
+          done
+          echo "::set-output name=failed_tests::$failed_tests"
+
+      - name: Fix Failed Tests using Codex
+        if: steps.run-jest-tests.outputs.failed_tests != ''
+        run: |
+          fixed_tests=""
+          for testfile in ${{ steps.run-jest-tests.outputs.failed_tests }}; do
+            # Using Codex to fix testfile content
+            fixed_test=$(openai codex completions.create \
+              --model "text-davinci-003" \
+              --max-tokens 150 \
+              --prompt "Fix Jest test in $testfile:" \
+              --stop "EOF")
+            
+            # Check if Codex response is valid JSON
+            if echo "$fixed_test" | jq empty > /dev/null 2>&1; then
+              echo "Codex response is not valid JSON:"
+              echo "$fixed_test"
+              exit 1
+            fi
+            
+            fixed_code=$(echo "$fixed_test" | jq -r '.choices[0].text')
+
+            # Check if fixed_code is not empty
+            if [ -z "$fixed_code" ]; then
+              echo "Codex did not provide any fixed code for $testfile"
+              exit 1
+            fi
+
+            # Replace the file content with fixed_code
+            echo "$fixed_code" > "$testfile"
+            fixed_tests="$fixed_tests $testfile"
+          done
+          echo "::set-output name=fixed_tests::$fixed_tests"
+
+      - name: Run Fixed Jest Tests
+        if: steps.fix-failed-tests.outputs.fixed_tests != ''
+        run: |
+          for testfile in ${{ steps.fix-failed-tests.outputs.fixed_tests }}; do
+            yarn jest "$testfile"
           done
 
-        # git ignore yarn.lock
-
-
-    
-    # Commit newly generated test files
       - name: Commit generated test files
         if: steps.changed-files-specific.outputs.any_changed == 'true'
         run: |
-           git config --global user.email "yatin@appsmith.com"
-           git config --global user.name "github-actions[bot]"
-           git add .
-           git reset -- package.json
-           git reset -- yarn.lock
-           git commit -m "chore: generate tests for changed files"
-           git push
+          git config --global user.email "yatin@appsmith.com"
+          git config --global user.name "github-actions[bot]"
+          git add .
+          git reset -- package.json
+          git reset -- yarn.lock
+          git commit -m "chore: generate and fix tests for changed files"
+          git push
