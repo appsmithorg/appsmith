@@ -7,7 +7,6 @@ import { useAnvilWidgetStyles } from "./hooks/useAnvilWidgetStyles";
 import { useAnvilWidgetClick } from "./hooks/useAnvilWidgetClick";
 import { useAnvilWidgetDrag } from "./hooks/useAnvilWidgetDrag";
 import { useAnvilWidgetHover } from "./hooks/useAnvilWidgetHover";
-import styles from "./styles.module.css";
 
 export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
   // Create a ref for the AnvilFlexComponent
@@ -22,8 +21,7 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
         props.widgetType,
       )} t--widget-${props.widgetName.toLowerCase()} drop-target-${
         props.layoutId
-      } row-index-${props.rowIndex} 
-      ${styles.disableAnvilWidgetInteraction}`,
+      } row-index-${props.rowIndex}`,
     [
       props.parentId,
       props.widgetId,
