@@ -1,11 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
 import Toolbar from "./Toolbar";
+import type { PropertyPaneControlConfig } from "constants/PropertyControlConstants";
+import { ControlContext } from "./ControlContext";
 
 const Content = () => {
+  const [selectedControl, setSelectedControl] = useState<
+    PropertyPaneControlConfig | undefined
+  >();
+
   return (
-    <div>
+    <ControlContext.Provider value={{ selectedControl, setSelectedControl }}>
       <Toolbar />
-    </div>
+    </ControlContext.Provider>
   );
 };
 
