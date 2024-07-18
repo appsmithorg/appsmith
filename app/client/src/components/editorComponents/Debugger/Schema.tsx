@@ -1,18 +1,38 @@
-import { Flex } from "design-system";
-import React, { useEffect, useState } from "react";
+import { Checkbox, Flex, Text } from "design-system";
+import React, { useEffect, useMemo, useState } from "react";
 import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 import { DatasourceStructureContainer as DatasourceStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
 } from "@appsmith/selectors/entitiesSelector";
-import DatasourceField from "pages/Editor/DatasourceInfo/DatasourceField";
+
 import { find } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import RenderInterimDataState from "pages/Editor/DatasourceInfo/RenderInterimDataState";
 import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
+import { getColumnsById } from "selectors/querySchemaSelectors";
+import styled from "styled-components";
+import {
+  initQuerySchema,
+  updateQuerySchemaColumn,
+} from "actions/querySchemaActions";
+import type { Columns } from "reducers/uiReducers/querySchemaReducer";
+
+const Row = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  border-bottom: 1px solid #cdd5df;
+`;
+
+const Brackets = styled(Text)`
+  letter-spacing: -3px;
+  cursor: pointer;
+`;
 
 interface Props {
   datasourceId: string;
@@ -21,9 +41,14 @@ interface Props {
 }
 
 const Schema = (props: Props) => {
+  const { datasourceId } = props;
+  const dispatch = useDispatch();
   const datasourceStructure = useSelector((state) =>
-    getDatasourceStructureById(state, props.datasourceId),
+    getDatasourceStructureById(state, datasourceId),
   );
+
+  const columnsMeta = useSelector(getColumnsById(datasourceId));
+
   const { responseTabHeight } = useSelector(getQueryPaneDebuggerState);
   const [selectedTable, setSelectedTable] = useState<string>();
 
@@ -38,20 +63,80 @@ const Schema = (props: Props) => {
     columnsAndKeys.push(...selectedTableItems.columns);
   }
 
-  const columns =
-    find(datasourceStructure?.tables, ["name", selectedTable])?.columns || [];
+  const columns = useMemo(() => {
+    return (
+      find(datasourceStructure?.tables, ["name", selectedTable])?.columns || []
+    );
+  }, [datasourceStructure, selectedTable]);
+
+  const areSomeChecked = useMemo(() => {
+    const selectedColumns = columnsMeta
+      ? Object.values(columnsMeta).filter((column) => column.isSelected)
+      : [];
+    return (
+      selectedColumns.length > 0 && selectedColumns.length - 1 < columns.length
+    );
+  }, [columnsMeta, columns]);
+
+  const areAllChecked = useMemo(() => {
+    const selectedColumns = columnsMeta
+      ? Object.values(columnsMeta).filter((column) => column.isSelected)
+      : [];
+    return selectedColumns.length - 1 === columns.length;
+  }, [columnsMeta, columns]);
 
   const isLoading = useSelector((state: AppState) =>
-    getIsFetchingDatasourceStructure(state, props.datasourceId),
+    getIsFetchingDatasourceStructure(state, datasourceId),
   );
+
+  // eslint-disable-next-line no-console
+  const handleBindingClick = console.log;
+
+  const handleColumnSelection =
+    (columnName: string) => (isSelected: boolean) => {
+      dispatch(
+        updateQuerySchemaColumn({
+          id: datasourceId,
+          columnName,
+          column: { isSelected, binding: "" },
+        }),
+      );
+    };
+
+  const handleWholeColumnSelection = (isSelected: boolean) => {
+    for (const [columnName] of Object.entries(columnsMeta)) {
+      handleColumnSelection(columnName)(isSelected);
+    }
+  };
+
+  useEffect(() => {
+    if (!columnsMeta && columns.length) {
+      const initialColumnsMeta: Columns = {};
+      for (const { name } of columns) {
+        initialColumnsMeta[name] = {
+          isSelected: false,
+          binding: "",
+        };
+      }
+
+      dispatch(
+        initQuerySchema({
+          id: datasourceId,
+          columns: initialColumnsMeta,
+        }),
+      );
+    }
+  }, [columns, dispatch, datasourceId, columnsMeta]);
+
   useEffect(() => {
     setSelectedTable(undefined);
-  }, [props.datasourceId]);
+  }, [datasourceId]);
+
   useEffect(() => {
     if (!selectedTable && datasourceStructure?.tables?.length && !isLoading) {
       setSelectedTable(datasourceStructure.tables[0].name);
     }
-  }, [selectedTable, props.datasourceId, isLoading]);
+  }, [selectedTable, datasourceId, isLoading, datasourceStructure.tables]);
 
   if (!datasourceStructure) {
     return (
@@ -90,10 +175,12 @@ const Schema = (props: Props) => {
           {...props}
         />
       </Flex>
+
       <Flex
         borderLeft="1px solid var(--ads-v2-color-border)"
         flex="1"
         flexDirection="column"
+        gap="spaces-2"
         height={`${responseTabHeight - 45}px`}
         justifyContent={
           isLoading || columns.length === 0 ? "center" : "flex-start"
@@ -102,19 +189,51 @@ const Schema = (props: Props) => {
         padding="spaces-3"
       >
         {isLoading ? <RenderInterimDataState state="LOADING" /> : null}
+
         {!isLoading && columns.length === 0 ? (
           <RenderInterimDataState state="NOCOLUMNS" />
         ) : null}
-        {!isLoading &&
-          columnsAndKeys.map((field, index) => {
-            return (
-              <DatasourceField
-                field={field}
-                key={`${field.name}${index}`}
-                step={0}
-              />
-            );
-          })}
+
+        {!isLoading && (
+          <>
+            <Row style={{ border: "none" }}>
+              <Checkbox
+                isIndeterminate={areSomeChecked}
+                isSelected={areAllChecked}
+                onChange={handleWholeColumnSelection}
+              >
+                <Text kind="heading-s">Columns</Text>
+              </Checkbox>
+              <Text kind="heading-s">Values</Text>
+            </Row>
+            {columnsAndKeys.map((field) => {
+              return (
+                <Row key={field.name}>
+                  <Checkbox
+                    isSelected={columnsMeta[field.name]?.isSelected}
+                    onChange={handleColumnSelection(field.name)}
+                  >
+                    {field.name}
+                  </Checkbox>
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "row",
+                      gap: 8,
+                      width: "auto",
+                    }}
+                  >
+                    <Brackets
+                      kind="code"
+                      onClick={handleBindingClick}
+                    >{`{{ }}`}</Brackets>
+                    {field.type}
+                  </div>
+                </Row>
+              );
+            })}
+          </>
+        )}
       </Flex>
     </Flex>
   );

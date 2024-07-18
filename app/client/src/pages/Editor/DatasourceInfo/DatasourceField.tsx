@@ -1,11 +1,8 @@
 import React, { useRef } from "react";
-import {
-  DATASOURCE_FIELD_ICONS_MAP,
-  datasourceColumnIcon,
-} from "../Explorer/ExplorerIcons";
+
 import styled from "styled-components";
 import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
-import { Tooltip } from "design-system";
+import { Tooltip, Checkbox } from "design-system";
 import { isEllipsisActive } from "utils/helpers";
 
 const Wrapper = styled.div<{ step: number }>`
@@ -52,25 +49,23 @@ interface DatabaseFieldProps {
 }
 
 export function DatabaseColumns(props: DatabaseFieldProps) {
-  const field = props.field;
-  const fieldName = field.name;
-  const fieldType = field.type;
-  const icon = DATASOURCE_FIELD_ICONS_MAP[fieldType] || datasourceColumnIcon;
+  const { field, step } = props;
+  const { name, type } = field;
   const nameRef = useRef<HTMLDivElement | null>(null);
 
   return (
-    <Wrapper className="t--datasource-column" step={props.step}>
-      {icon}
+    <Wrapper className="t--datasource-column" step={step}>
       <Content>
+        <Checkbox />
         <Tooltip
-          content={fieldName}
+          content={name}
           isDisabled={!!isEllipsisActive(nameRef.current)}
           mouseEnterDelay={2}
           showArrow={false}
         >
-          <FieldName ref={nameRef}>{fieldName}</FieldName>
+          <FieldName ref={nameRef}>{name}</FieldName>
         </Tooltip>
-        <FieldValue>{fieldType}</FieldValue>
+        <FieldValue>{type}</FieldValue>
       </Content>
     </Wrapper>
   );
