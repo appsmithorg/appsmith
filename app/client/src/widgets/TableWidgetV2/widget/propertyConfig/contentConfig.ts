@@ -264,7 +264,6 @@ export default [
         isTriggerProperty: true,
         hidden: (props: TableWidgetProps) => !props.enableServerSideFiltering,
         dependencies: ["enableServerSideFiltering"],
-        isPartOfFloatingPane: true,
       },
       {
         propertyName: "defaultSearchText",
@@ -432,7 +431,6 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
-        isPartOfFloatingPane: true,
         additionalAutoComplete: (props: TableWidgetProps) => {
           const newRow: Record<string, unknown> = {};
 
@@ -461,7 +459,6 @@ export default [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: true,
-        isPartOfFloatingPane: true,
       },
       {
         propertyName: "defaultNewRow",
