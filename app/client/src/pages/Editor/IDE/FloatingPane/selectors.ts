@@ -15,3 +15,18 @@ export const getFloatingPaneSelectedWidget = createSelector(
     return widgets[state.selectedWidgetId];
   },
 );
+
+export const getFloatingPaneRefElement = (state: AppState) =>
+  state.ui.floatingPane.referenceElement;
+
+export const getFloatingPaneSelectedWidgetId = (state: AppState) =>
+  state.ui.floatingPane.selectedWidgetId;
+
+export const isPropertyPaneActiveForWidget = (
+  state: AppState,
+  widgetId: string,
+) =>
+  createSelector(
+    [isFloatingPaneVisible, getFloatingPaneSelectedWidgetId],
+    (isVisible, selectedWidgetId) => isVisible && selectedWidgetId === widgetId,
+  )(state);

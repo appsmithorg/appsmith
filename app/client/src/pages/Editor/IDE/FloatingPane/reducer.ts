@@ -5,6 +5,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 export interface FloatingPaneState {
   isVisible: boolean;
   selectedWidgetId?: string;
+  referenceElement?: HTMLElement | null;
 }
 
 const initialState: FloatingPaneState = {

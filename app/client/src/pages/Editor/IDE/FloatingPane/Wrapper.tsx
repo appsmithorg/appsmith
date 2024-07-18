@@ -1,6 +1,14 @@
-import React from "react";
-import { useFloating, shift, flip, offset } from "@floating-ui/react";
+import React, { useEffect } from "react";
+import {
+  useFloating,
+  shift,
+  flip,
+  offset,
+  autoUpdate,
+} from "@floating-ui/react";
 import styled from "styled-components";
+import { useSelector } from "react-redux";
+import { getFloatingPaneRefElement } from "./selectors";
 
 interface Props {
   children: React.ReactNode;
@@ -26,7 +34,16 @@ const Wrapper = (props: Props) => {
         mainAxis: 10,
       }),
     ],
+    whileElementsMounted: autoUpdate,
   });
+
+  const refElement = useSelector(getFloatingPaneRefElement);
+
+  useEffect(() => {
+    if (refElement) {
+      refs.setReference(refElement);
+    }
+  }, [refElement]);
 
   return (
     <StyledFloatingContainer ref={refs.setFloating} style={floatingStyles}>

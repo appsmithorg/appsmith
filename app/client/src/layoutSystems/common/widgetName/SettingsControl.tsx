@@ -1,6 +1,6 @@
 import { Colors } from "constants/Colors";
 import type { CSSProperties } from "react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
@@ -12,6 +12,8 @@ import {
 } from "@appsmith/entities/IDE/constants";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import { updateFloatingPane } from "pages/Editor/IDE/FloatingPane/actions";
+import type { AppState } from "@appsmith/reducers";
+import { isPropertyPaneActiveForWidget } from "pages/Editor/IDE/FloatingPane/selectors";
 
 // I honestly can't think of a better name for this enum
 export enum Activities {
@@ -76,6 +78,7 @@ const getStyles = (
   activity: Activities,
   errorCount: number,
   isSnipingMode: boolean,
+  isMiniPaneVisible: boolean,
 ): CSSProperties | undefined => {
   if (isSnipingMode) {
     return {
@@ -86,6 +89,11 @@ const getStyles = (
     return {
       background: "var(--ads-v2-color-fg-error)",
       color: "var(--ads-v2-color-bg-error)",
+    };
+  } else if (isMiniPaneVisible) {
+    return {
+      background: Colors.WATUSI,
+      color: Colors.WHITE,
     };
   }
 
@@ -115,6 +123,10 @@ export function SettingsControl(props: SettingsControlProps) {
   const ideViewMode = useSelector(getIDEViewMode);
   const { segment } = useCurrentEditorState();
   const [showMiniPaneIcon, setShowMiniPaneIcon] = useState(false);
+  const miniPaneReferenceElementRef = useRef(null);
+  const isMiniPaneVisible = useSelector((state: AppState) =>
+    isPropertyPaneActiveForWidget(state, props.widgetId),
+  );
 
   useEffect(() => {
     setShowMiniPaneIcon(
@@ -130,6 +142,7 @@ export function SettingsControl(props: SettingsControlProps) {
       updateFloatingPane({
         isVisible: true,
         selectedWidgetId: props.widgetId,
+        referenceElement: miniPaneReferenceElementRef.current,
       }),
     );
   };
@@ -140,7 +153,13 @@ export function SettingsControl(props: SettingsControlProps) {
       data-testid="t--widget-propertypane-toggle"
       inverted={props.inverted}
       onClick={props.toggleSettings}
-      style={getStyles(props.activity, props.errorCount, isSnipingMode)}
+      ref={miniPaneReferenceElementRef}
+      style={getStyles(
+        props.activity,
+        props.errorCount,
+        isSnipingMode,
+        isMiniPaneVisible,
+      )}
       widgetWidth={props.widgetWidth}
     >
       <Tooltip
