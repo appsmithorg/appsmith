@@ -177,7 +177,7 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
       <TooltipRoot open={this.props.isWidgetSelected} placement="bottom">
         <TooltipTrigger>
           <div
-            className={styles.editableText}
+            className={this.props.isWidgetSelected ? styles.editableText : ""}
             contentEditable={this.props.isWidgetSelected}
             onBlur={this.onTextChange}
             ref={(ref) => (this.ref = ref)}
@@ -202,7 +202,11 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             />
           </div>
         </TooltipTrigger>
-        <TooltipContent className={styles.floatingPanel} hasArrow={false}>
+        <TooltipContent
+          className={styles.floatingPanel}
+          hasArrow={false}
+          root={document.body}
+        >
           <SegmentedControl
             className={styles.fontAlignSegmentedControl}
             defaultValue="filled"

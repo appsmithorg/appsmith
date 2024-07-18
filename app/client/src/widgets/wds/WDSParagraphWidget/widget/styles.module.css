@@ -1,16 +1,20 @@
 .editableText {
   width: 100%;
+  & > * {
+    pointer-events: none;
+  }
 }
 
 .floatingPanel {
   display: flex;
   align-items: center;
   gap: 4px;
-  background: var(--color-bg-elevation-3);
-  padding: var(--inner-spacing-3);
-  border-radius: var(--border-radius-elevation-3);
-  box-shadow: var(--box-shadow-3);
-  border: var(--border-width-1) solid var(--color-bd-elevation-3);
+  z-index: 999999;
+  background: #fff;
+  padding: 8px;
+  border-radius: 8px;
+  box-shadow: rgba(54, 62, 72, 0.15) 0px 2.1px 9.4px 0px;
+  border: 1px solid rgb(92.637% 92.821% 93.073%);
 }
 
 .fontSelect:global(.ads-v2-select[data-size="md"]) {
