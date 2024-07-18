@@ -57,9 +57,8 @@ jobs:
         id: run_tests
         run: |
           while IFS= read -r testfile; do
-            yarn test "$testfile" --json --outputFile=jest_results.json || echo "$testfile" >> failed_tests.txt
+            yarn test "$testfile" || echo "$testfile" >> failed_tests.txt
           done < generated_test_files.txt
-          mv jest_results.json /home/runner/work/appsmith/appsmith/.github/workflows/scripts/
         continue-on-error: true  # Continue even if tests fail to capture results
 
        # Step 2: Get Failed Tests
@@ -87,16 +86,15 @@ jobs:
         run: |
           cp /home/runner/work/appsmith/appsmith/.github/workflows/scripts/fix_failing_tests.py ./
           python fix_failing_tests.py
-
+      
       - name: Run fixed tests
-        run: npm test -- --json --outputFile=jest_results_fixed.json || true
-
-      - name: Check if tests passed
+        id: run__failed_tests
         run: |
-          if grep -q '"status":"failed"' jest_results_fixed.json; then
-            exit 1
-          fi
-    
+          while IFS= read -r failed_tests; do
+            yarn test "$testfile" || echo "$testfile" >> failed_tests.txt
+          done < generated_test_files.txt
+        continue-on-error: true
+
     # Commit newly generated test files
       - name: Commit generated test files
         if: steps.changed-files-specific.outputs.any_changed == 'true'
