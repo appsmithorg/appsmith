@@ -4,7 +4,7 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 
 import * as config from "./../config";
 import BaseWidget from "widgets/BaseWidget";
-import { Flex, Text } from "@design-system/widgets";
+import { Text } from "@design-system/widgets";
 import type { TextWidgetProps } from "./types";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { AnvilConfig } from "WidgetProvider/constants";
@@ -62,9 +62,16 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     return config.settersConfig;
   }
 
+  onTextChange = (event: any) => {
+    console.log("Paragraph text changed:", event);
+  };
+
   getWidgetView() {
     return (
-      <Flex direction="column" width="100%">
+      <div
+        contentEditable={this.props.isWidgetSelected}
+        onInput={this.onTextChange}
+      >
         <Text
           isBold={this.props?.fontStyle?.includes("bold")}
           isItalic={this.props?.fontStyle?.includes("italic")}
@@ -75,7 +82,7 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         >
           {this.props.text}
         </Text>
-      </Flex>
+      </div>
     );
   }
 }
