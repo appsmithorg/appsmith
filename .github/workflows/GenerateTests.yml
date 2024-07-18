@@ -62,10 +62,19 @@ jobs:
         continue-on-error: true  # Continue even if tests fail to capture results
 
       - name: Debug: Check jest_results.json existence
+        id: check_results_existence
         run: |
           if [ -f jest_results.json ]; then
             echo "jest_results.json file exists."
+            echo "::set-output name=results_exist::true"
           else
+            echo "jest_results.json file does NOT exist."
+            echo "::set-output name=results_exist::false"
+        continue-on-error: true
+
+      - name: Check if jest_results.json exists
+        run: |
+          if steps.check_results_existence.outputs.results_exist == 'false'; then
             echo "jest_results.json file does NOT exist."
             exit 1
           fi
@@ -80,7 +89,6 @@ jobs:
           else
             echo "::set-output name=failed_tests::[]"
           fi
-  
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
