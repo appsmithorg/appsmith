@@ -35,6 +35,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { openPartialExportModal } from "actions/widgetActions";
 import { openPartialImportModal } from "@appsmith/actions/applicationActions";
+import { openCreateBuildingBlockModal } from "actions/buildingBlockActions";
 
 const CustomLabel = styled.div`
   display: flex;
@@ -127,6 +128,10 @@ export function PageContextMenu(props: {
     if (props.onItemSelected) props.onItemSelected();
     dispatch(openPartialImportModal(true));
   };
+  const handleCreateBuildingBlockClick = () => {
+    if (props.onItemSelected) props.onItemSelected();
+    dispatch(openCreateBuildingBlockModal(true));
+  };
 
   const pagePermissions =
     useSelector(getPageById(props.pageId))?.userPermissions || [];
@@ -188,6 +193,11 @@ export function PageContextMenu(props: {
         value: "setdefault",
         label: createMessage(CONTEXT_SET_AS_HOME_PAGE),
       },
+    {
+      value: "create-building-block",
+      onSelect: handleCreateBuildingBlockClick,
+      label: "Create Building Block",
+    },
     showPartialImportExportInMenu && {
       value: "partial-export",
       onSelect: handlePartialExportClick,

@@ -7,6 +7,11 @@ import { createReducer } from "utils/ReducerUtils";
 
 const initialState: BuildingBlocksReduxState = {
   isDraggingBuildingBlocksToCanvas: false,
+  createBuildingBlock: {
+    isCreateBuildingBlockModalOpen: false,
+    isLoadingCreateBuildingBlock: false,
+    isDoneLoadingCreateBuildingBlock: false,
+  },
 };
 
 const buildingBlockReducer = createReducer(initialState, {
@@ -51,11 +56,26 @@ const buildingBlockReducer = createReducer(initialState, {
       buildingBlockDragStartTimestamp: null,
     };
   },
+  [ReduxActionTypes.CREATE_BUILDING_BLOCK_MODAL_OPEN]: (
+    state: BuildingBlocksReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    createBuildingBlock: {
+      ...state.createBuildingBlock,
+      isCreateBuildingBlockModalOpen: action.payload,
+    },
+  }),
 });
 
 export interface BuildingBlocksReduxState {
   isDraggingBuildingBlocksToCanvas: boolean;
   buildingBlockDragStartTimestamp?: number;
+  createBuildingBlock: {
+    isCreateBuildingBlockModalOpen: boolean;
+    isLoadingCreateBuildingBlock: boolean;
+    isDoneLoadingCreateBuildingBlock: boolean;
+  };
 }
 
 export default buildingBlockReducer;
