@@ -39,6 +39,7 @@ import { useEditorType } from "@appsmith/hooks";
 import { useParentEntityInfo } from "@appsmith/hooks/datasourceEditorHooks";
 import AIDataSources from "./AIDataSources";
 import Debugger from "../DataSourceEditor/Debugger";
+import CustomPlugins from "./CustomPlugins";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -201,7 +202,9 @@ function CreateNewSaasIntegration({
           pageId={pageId}
           showSaasAPIs
           showUnsupportedPluginDialog={showUnsupportedPluginDialog}
-        />
+        >
+          <CustomPlugins />
+        </NewApiScreen>
       </div>
     </>
   ) : null;

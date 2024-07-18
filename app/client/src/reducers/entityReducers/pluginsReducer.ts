@@ -4,7 +4,7 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { DefaultPlugin, Plugin } from "api/PluginApi";
+import type { CustomPlugin, DefaultPlugin, Plugin } from "api/PluginApi";
 import type {
   PluginFormPayloadWithId,
   PluginFormsPayload,
@@ -28,6 +28,8 @@ export interface PluginDataState {
   datasourceFormButtonConfigs: FormDatasourceButtonConfigs;
   fetchingSinglePluginForm: Record<string, boolean>;
   fetchingDefaultPlugins: boolean;
+  fetchingCustomPlugins: boolean;
+  customPlugins: CustomPlugin[];
 }
 
 const initialState: PluginDataState = {
@@ -41,6 +43,8 @@ const initialState: PluginDataState = {
   dependencies: {},
   fetchingSinglePluginForm: {},
   fetchingDefaultPlugins: false,
+  fetchingCustomPlugins: false,
+  customPlugins: [],
 };
 
 const pluginsReducer = createReducer(initialState, {
@@ -138,6 +142,22 @@ const pluginsReducer = createReducer(initialState, {
       ...state,
       fetchingDefaultPlugins: false,
       defaultPluginList: action.payload,
+    };
+  },
+  [ReduxActionTypes.FETCH_CUSTOM_PLUGINS]: (state: PluginDataState) => {
+    return {
+      ...state,
+      fetchingCustomPlugins: true,
+    };
+  },
+  [ReduxActionTypes.FETCH_CUSTOM_PLUGINS_SUCCESS]: (
+    state: PluginDataState,
+    action: ReduxAction<CustomPlugin[]>,
+  ) => {
+    return {
+      ...state,
+      fetchingCustomPlugins: false,
+      customPlugins: action.payload,
     };
   },
 });

@@ -82,7 +82,7 @@ import type { JSCollection } from "entities/JSCollection";
 import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
 import type { AppTheme } from "entities/AppTheming";
 import type { Datasource } from "entities/Datasource";
-import type { Plugin, PluginFormPayload } from "api/PluginApi";
+import type { CustomPlugin, Plugin, PluginFormPayload } from "api/PluginApi";
 import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
 import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
 import {
@@ -90,6 +90,11 @@ import {
   startNestedSpan,
   startRootSpan,
 } from "UITelemetry/generateTraces";
+import CustomPluginApi from "api/CustomPluginApi";
+import {
+  fetchCustomPlugins,
+  fetchCustomPluginsSuccess,
+} from "actions/pluginActions";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -135,6 +140,8 @@ export interface EditConsolidatedApi {
   unpublishedActionCollections: ApiResponse<JSCollection[]>;
 }
 export type InitConsolidatedApi = DeployConsolidatedApi | EditConsolidatedApi;
+
+export type InitCustomPluginApi = ApiResponse<CustomPlugin[]>;
 export function* failFastApiCalls(
   triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
   successActions: string[],
@@ -288,6 +295,19 @@ export function* getInitResponses({
   return rest;
 }
 
+export function* getCustomPluginsAPIdata(): any {
+  let response: InitCustomPluginApi | undefined;
+  try {
+    yield put(fetchCustomPlugins());
+    const initConsolidatedApiResponse: ApiResponse<InitCustomPluginApi> =
+      yield CustomPluginApi.getDatasources();
+
+    response = initConsolidatedApiResponse.data;
+  } catch (e: any) {}
+
+  yield put(fetchCustomPluginsSuccess(response?.data || []));
+}
+
 export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
   const rootSpan = startRootSpan("startAppEngine", {
     mode: action.payload.mode,
@@ -312,6 +332,8 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     const allResponses: InitConsolidatedApi = yield call(getInitResponses, {
       ...action.payload,
     });
+
+    yield call(getCustomPluginsAPIdata);
 
     endSpan(getInitResponsesSpan);
 

@@ -30,6 +30,7 @@ import type {
   JSCollectionDataState,
 } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type {
+  CustomPlugin,
   DefaultPlugin,
   GenerateCRUDEnabledPluginMap,
   Plugin,
@@ -1561,3 +1562,6 @@ export const getDatasourceUsageCountForApp = createSelector(
     return actionDsMap;
   },
 );
+
+export const getCustomPlugins = (state: AppState): CustomPlugin[] =>
+  state.entities.plugins.customPlugins;

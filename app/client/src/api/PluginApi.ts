@@ -52,6 +52,18 @@ export interface DefaultPlugin {
   allowUserDatasources?: boolean;
 }
 
+export interface CustomPlugin {
+  name: string;
+  url: string;
+  image_base64?: string;
+  auth_type?: string;
+  authentication?: any;
+  headers?: any;
+  query_parameters?: any;
+  appsmith_docs?: any;
+  saas_docs?: any;
+}
+
 class PluginsApi extends Api {
   static url = "v1/plugins";
   static defaultDynamicTriggerURL(datasourceId: string): string {

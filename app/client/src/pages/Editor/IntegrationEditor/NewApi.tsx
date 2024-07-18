@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import React, { useCallback, useEffect, useState } from "react";
 import { connect, useSelector } from "react-redux";
 import styled from "styled-components";
@@ -135,6 +136,7 @@ interface ApiHomeScreenProps {
     apiType: string,
   ) => void;
   isOnboardingScreen?: boolean;
+  children?: ReactNode;
 }
 
 type Props = ApiHomeScreenProps;
@@ -314,6 +316,7 @@ function NewApiScreen(props: Props) {
             </CardContentWrapper>
           </ApiCard>
         ))}
+        {props.children}
       </ApiCardsContainer>
     </StyledContainer>
   );
