@@ -15,7 +15,10 @@ const reducer = createReducer(initialState, {
   [ReduxActionTypes.UPDATE_FLOATING_PANE]: (
     state: FloatingPaneState,
     action: ReduxAction<FloatingPaneState>,
-  ) => action.payload,
+  ) => ({
+    ...state,
+    ...action.payload,
+  }),
 });
 
 export default reducer;

@@ -21,7 +21,6 @@ import "codemirror/addon/lint/lint";
 import "codemirror/addon/lint/lint.css";
 import "codemirror/addon/comment/comment";
 import "codemirror/mode/sql/sql.js";
-import "codemirror/addon/hint/show-hint";
 import "codemirror/addon/hint/show-hint.css";
 import "codemirror/addon/hint/sql-hint";
 import "codemirror/mode/css/css";
@@ -129,8 +128,8 @@ import history, { NavigationMethod } from "utils/history";
 import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
 import type { PeekOverlayStateProps } from "./PeekOverlayPopup/PeekOverlayPopup";
 import {
-  PeekOverlayPopUp,
   PEEK_OVERLAY_DELAY,
+  PeekOverlayPopUp,
 } from "./PeekOverlayPopup/PeekOverlayPopup";
 import ConfigTreeActions from "utils/configTree";
 import {
@@ -162,6 +161,11 @@ import {
 } from "actions/activeFieldActions";
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { getEachEntityInformation } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { setIdeEditorViewMode } from "actions/ideActions";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { updateFloatingPane } from "pages/Editor/IDE/FloatingPane/actions";
+import type { FloatingPaneState } from "pages/Editor/IDE/FloatingPane/reducer";
+import { getLastSelectedWidget } from "selectors/ui";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -198,6 +202,7 @@ export interface EditorStyleProps {
   popperZIndex?: Indices;
   blockCompletions?: FieldEntityInformation["blockCompletions"];
 }
+
 /**
  *  line => Line to which the gutter is added
  *
@@ -1043,6 +1048,11 @@ class CodeEditor extends Component<Props, State> {
                 isMock: !!navigationData?.isMock,
                 from: NavigationMethod.CommandClick,
               });
+              this.props.setSideBySide();
+              this.props.updateFloatingPaneState({
+                isVisible: true,
+                selectedWidgetId: this.props.selectedWidget,
+              });
             }
 
             history.push(navigationData.url, {
@@ -1786,6 +1796,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
   installedLibraries: selectInstalledLibraries(state),
   focusedProperty: getFocusablePropertyPaneField(state),
+  selectedWidget: getLastSelectedWidget(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
@@ -1796,6 +1807,10 @@ const mapDispatchToProps = (dispatch: any) => ({
     dispatch(setEditorFieldFocusAction(payload)),
   setActiveField: (path: string) => dispatch(setActiveEditorField(path)),
   resetActiveField: () => dispatch(resetActiveEditorField()),
+  setSideBySide: () =>
+    dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen)),
+  updateFloatingPaneState: (payload: FloatingPaneState) =>
+    dispatch(updateFloatingPane(payload)),
 });
 
 export default Sentry.withProfiler(
