@@ -14,7 +14,7 @@ import type { TextWidgetProps } from "./types";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { AnvilConfig } from "WidgetProvider/constants";
 import styles from "./styles.module.css";
-import { Select, Option, ToggleButtonGroup } from "design-system";
+import { Select, Option, ToggleButton, SegmentedControl } from "design-system";
 
 class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   ref: HTMLDivElement | null = null;
@@ -114,49 +114,49 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         </TooltipTrigger>
         <TooltipContent className={styles.floatingPanel} hasArrow={false}>
           <Select
+            className={styles.fontSelect}
             onSelect={(value, option) => {
               // eslint-disable-next-line no-console
               console.log(value, option);
             }}
             placeholder="Font Size"
-            size="sm"
           >
             <Option value="body">Body</Option>
             <Option value="subtitle">Subtitle</Option>
             <Option value="title">Title</Option>
             <Option value="heading">Heading</Option>
           </Select>
-          <ToggleButtonGroup
-            onClick={() => {}}
+          <SegmentedControl
+            className={styles.fontAlignSegmentedControl}
+            defaultValue="left"
+            isFullWidth
+            onChange={() => {}}
             options={[
               {
-                icon: "left-align",
-                value: "START",
+                endIcon: "left-align",
+                value: "left",
               },
               {
-                icon: "center-align",
-                value: "CENTER",
+                endIcon: "center-align",
+                value: "center",
               },
               {
-                icon: "right-align",
-                value: "END",
+                endIcon: "right-align",
+                value: "right",
               },
             ]}
-            values={[]}
           />
-          <ToggleButtonGroup
+          <ToggleButton
+            className={styles.fontStyleButton}
+            icon="text-bold"
             onClick={() => {}}
-            options={[
-              {
-                icon: "text-bold",
-                value: "BOLD",
-              },
-              {
-                icon: "text-italic",
-                value: "ITALIC",
-              },
-            ]}
-            values={[]}
+            size="lg"
+          />
+          <ToggleButton
+            className={styles.fontStyleButton}
+            icon="text-italic"
+            onClick={() => {}}
+            size="lg"
           />
         </TooltipContent>
       </TooltipRoot>
