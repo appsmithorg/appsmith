@@ -9,25 +9,29 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import { toast } from "design-system";
-import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
-import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, put, select } from "redux-saga/effects";
-import {
-  getCurrentApplicationId,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
-import { validateResponse } from "../ErrorSagas";
-import { createWidgetCopy } from "../WidgetOperationUtils";
-import { getWidgets } from "../selectors";
 import {
   createMessage,
   ERROR_IN_EXPORTING_APP,
 } from "@appsmith/constants/messages";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { toast } from "design-system";
+import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { LayoutSystemTypes } from "layoutSystems/types";
+import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
+import { all, call, put, select } from "redux-saga/effects";
+import {
+  getBoundaryWidgetsFromCopiedWidgets,
+  getRelatedEntitiesForWidgets,
+} from "sagas/BuildingBlockSagas/QuickerBuildingBlocks.utils";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { validateResponse } from "../ErrorSagas";
+import { createWidgetCopy } from "../WidgetOperationUtils";
+import { getWidgets } from "../selectors";
 
 export interface PartialExportParams {
   jsObjects: string[];
@@ -122,4 +126,38 @@ export function* partialExportWidgetSaga(widgetIds: string[]) {
     flexLayers,
   };
   return widgetsDSL;
+}
+
+export function* partialExportWidgetSagaForBB(widgetIds: string[]) {
+  const canvasWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  } = yield select(getWidgets);
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+
+  const selectedWidgets = widgetIds.map((each) => canvasWidgets[each]);
+  if (!selectedWidgets || !selectedWidgets.length) return;
+
+  const gridSize = getBoundaryWidgetsFromCopiedWidgets(selectedWidgets);
+  const deps: unknown = yield getRelatedEntitiesForWidgets(selectedWidgets);
+
+  const widgetListsToStore: {
+    widgetId: string;
+    parentId: string;
+    list: FlattenedWidgetProps[];
+  }[] = yield all(
+    selectedWidgets.map((widget) => call(createWidgetCopy, widget)),
+  );
+
+  const canvasId = selectedWidgets?.[0]?.parentId || "";
+
+  const flexLayers: FlexLayer[] = getFlexLayersForSelectedWidgets(
+    widgetIds,
+    canvasId ? canvasWidgets[canvasId] : undefined,
+  );
+  const widgetsDSL = {
+    layoutSystemType, // We pass the layout system type, so that we can check if the widgets are compatible when importing
+    widgets: widgetListsToStore,
+    flexLayers,
+  };
+  return [widgetsDSL, gridSize, deps];
 }

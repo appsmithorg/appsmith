@@ -28,8 +28,14 @@ export function extractTokensFromBindings(widgetsDSL: FlattenedWidgetProps) {
   return tokenSet;
 }
 
-export function* getRelatedEntities(widgetsDSL: FlattenedWidgetProps) {
-  const tokens = extractTokensFromBindings(widgetsDSL);
+export function* getRelatedEntitiesForWidgets(
+  widgetsDSL: FlattenedWidgetProps[],
+) {
+  const tokens = new Set();
+  widgetsDSL.forEach((widget) => {
+    const token = extractTokensFromBindings(widget);
+    token.forEach((t) => tokens.add(t));
+  });
   const jsObjectIds = new Set<string>();
   const queryIds = new Set<string>();
   const dbNames = new Set<string>();
@@ -54,7 +60,7 @@ export function* getRelatedEntities(widgetsDSL: FlattenedWidgetProps) {
   });
   return {
     jsObjectIds: Array.from(jsObjectIds),
-    queryIds: Array.from(queryIds),
+    actionIds: Array.from(queryIds),
     dbNames: Array.from(dbNames),
   };
 }
@@ -73,7 +79,7 @@ export const getBoundaryWidgetsFromCopiedWidgets = function (
     bottom = Math.max(bottom, widget.bottomRow);
   });
   return {
-    totalWidth: right - left,
-    totalHeight: bottom - top,
+    width: right - left,
+    height: bottom - top,
   };
 };
