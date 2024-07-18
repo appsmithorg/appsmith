@@ -3,6 +3,10 @@ on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
 
+defaults:
+  run:
+    #working-directory: app/client
+    shell: bash
 
 jobs:
   setup:
@@ -14,6 +18,8 @@ jobs:
         
       - name: "Checkout code"
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Get changed files in the client folder
         id: changed-files-specific
@@ -30,3 +36,32 @@ jobs:
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file was changed"
           done
+   
+      - name: Install jest-gen-test
+        run: yarn add jest-test-gen
+    
+      - name: Generate Tests
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        env:
+          ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
+        run: |
+          for file in ${ALL_CHANGED_FILES}; do
+            testfile=`echo $file|sed 's/.ts/.generated.test.ts/g'`
+            yarn run jest-test-gen $file
+          done
+
+        # git ignore yarn.lock
+
+
+    
+    # Commit newly generated test files
+      - name: Commit generated test files
+        if: steps.changed-files-specific.outputs.any_changed == 'true'
+        run: |
+           git config --global user.email "yatin@appsmith.com"
+           git config --global user.name "github-actions[bot]"
+           git add .
+           git reset -- package.json
+           git reset -- yarn.lock
+           git commit -m "chore: generate tests for changed files"
+           git push
