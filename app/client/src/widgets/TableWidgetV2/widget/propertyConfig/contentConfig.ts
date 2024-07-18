@@ -31,7 +31,7 @@ export default [
           "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
         propertyName: "tableData",
         label: "Table data",
-        controlType: "ONE_CLICK_BINDING_CONTROL",
+        controlType: "INPUT_TEXT",
         controlConfig: {
           searchableColumn: true,
         },
