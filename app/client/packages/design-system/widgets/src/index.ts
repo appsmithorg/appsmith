@@ -23,6 +23,7 @@ export * from "./components/Link";
 export * from "./components/Popover";
 export * from "./components/Label";
 export * from "./components/ErrorMessage";
+export * from "./components/EditableText";
 
 export * from "./utils";
 export * from "./styles";

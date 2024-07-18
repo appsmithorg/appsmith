@@ -2,10 +2,9 @@ import type { ChangeEvent } from "react";
 import React from "react";
 import type { SetterConfig } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-
 import * as config from "./../config";
 import BaseWidget from "widgets/BaseWidget";
-import { Text } from "@design-system/widgets";
+import { Text, EditableText } from "@design-system/widgets";
 import type { TextWidgetProps } from "./types";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { AnvilConfig } from "WidgetProvider/constants";
@@ -80,7 +79,7 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
   getWidgetView() {
     return (
-      <div
+      <EditableText
         contentEditable={this.props.isWidgetSelected}
         onBlur={this.onTextChange}
         ref={(ref) => (this.ref = ref)}
@@ -96,7 +95,7 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
         >
           {this.props.text}
         </Text>
-      </div>
+      </EditableText>
     );
   }
 }

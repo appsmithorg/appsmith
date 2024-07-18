@@ -1,0 +1,13 @@
+@import "../../../shared/colors/colors.module.css";
+
+.editableText {
+  width: 100%;
+}
+
+.floatingPanel {
+  background: var(--color-bg-elevation-3);
+  padding: var(--inner-spacing-3);
+  border-radius: var(--border-radius-elevation-3);
+  box-shadow: var(--box-shadow-3);
+  border: var(--border-width-1) solid var(--color-bd-elevation-3);
+}
