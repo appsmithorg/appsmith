@@ -2,14 +2,9 @@ package com.appsmith.server.datasources.base;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.enums.FeatureFlagEnum;
-import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.external.models.DatasourceStorageDTO;
-import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.MustacheBindingToken;
-import com.appsmith.external.models.PluginType;
-import com.appsmith.external.models.Policy;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
+import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.models.*;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -36,31 +31,30 @@ import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.util.WebClientUtils;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
+import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
+import reactor.netty.http.client.HttpClient;
 import reactor.util.function.Tuple2;
 import reactor.util.function.Tuples;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
+import static com.appsmith.external.constants.Authentication.*;
 import static com.appsmith.external.constants.spans.DatasourceSpan.FETCH_ALL_DATASOURCES_WITH_STORAGES;
 import static com.appsmith.external.constants.spans.DatasourceSpan.FETCH_ALL_PLUGINS_IN_WORKSPACE;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -794,6 +788,28 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                         return bindingTokens;
                     });
         });
+    }
+
+    @Override
+    public Mono<List<SaasIntegration>> getAllSaasIntegrations() {
+        // Write code here to fetch datasource list from supabase
+        final HttpClient httpClient = HttpClient.create();
+        String url = "";
+        String apiKeyValue = "";
+        WebClient.Builder builder = WebClientUtils.builder(httpClient).baseUrl(url);
+
+        return builder.build()
+                .method(HttpMethod.GET)
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("apiKey", apiKeyValue)
+                .exchange()
+                .doOnError(e -> Mono.error(new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, e)))
+                .flatMap(response -> {
+                    return response.bodyToMono(List.class);
+                })
+                .flatMap(response1 -> {
+                    return Mono.just((List<SaasIntegration>) response1);
+                });
     }
 
     @Override
