@@ -1,4 +1,4 @@
-name: Generate Jest Tests
+name: Generate Jest Tests - Improved
 on:
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
@@ -48,11 +48,51 @@ jobs:
           for file in ${ALL_CHANGED_FILES}; do
             testfile=`echo $file|sed 's/.ts/.generated.test.ts/g'`
             yarn run jest-test-gen $file
+            echo $testfile >> generated_test_files.txt
           done
-
         # git ignore yarn.lock
 
+        # Step 1: Run Unit Tests on Generated Files
+      - name: Run unit tests on generated files
+        id: run_tests
+        run: |
+          while IFS= read -r testfile; do
+            yarn test "$testfile" || echo "$testfile" >> failed_tests.txt
+          done < generated_test_files.txt
+        continue-on-error: true  # Continue even if tests fail to capture results
 
+       # Step 2: Get Failed Tests
+      - name: Capture failed test cases
+        id: failed_tests
+        run: |
+          if [ -f failed_tests.txt ]; then
+            failed_tests=$(cat failed_tests.txt | jq -R -s -c 'split("\n")[:-1]')
+            echo "::set-output name=failed_tests::$failed_tests"
+          else
+            echo "::set-output name=failed_tests::[]"
+          fi
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install OpenAI package
+        run: pip install openai
+
+      - name: Add OpenAI API Key
+        run: echo "OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}" >> $GITHUB_ENV
+
+      - name: Fix failing tests
+        run: python fix_failing_tests.py
+      
+      - name: Run fixed tests
+        run: npm test -- --json --outputFile=jest_results_fixed.json || true
+
+     - name: Check if tests passed
+      run: |
+        if grep -q '"status":"failed"' jest_results_fixed.json; then
+          exit 1
+        fi
     
     # Commit newly generated test files
       - name: Commit generated test files
@@ -63,5 +103,5 @@ jobs:
            git add .
            git reset -- package.json
            git reset -- yarn.lock
-           git commit -m "chore: generate tests for changed files"
+           git commit -m "chore:generate tests for changed files"
            git push

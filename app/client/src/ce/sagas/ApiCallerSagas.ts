@@ -28,6 +28,7 @@ export function* updateActionAPICall(action: Action) {
  * @param action Action
  * @returns Action
  */
+
 export function* updateJSCollectionAPICall(jsCollection: JSCollection) {
   try {
     const response: ApiResponse<JSCollection> =
