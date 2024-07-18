@@ -623,11 +623,13 @@ public class DatabaseChangelog2 {
         HashSet<Permission> permissions = new HashSet<>(instanceAdminPG.getPermissions());
         permissions.addAll(tenantPermissions);
         instanceAdminPG.setPermissions(permissions);
+        instanceAdminPG.setPolicies(instanceAdminPG.getPolicies(), false);
         mongoTemplate.save(instanceAdminPG);
 
         Map<String, Policy> tenantPolicy =
                 policySolution.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultTenant.getId());
         Tenant updatedTenant = policySolution.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
+        updatedTenant.setPolicies(updatedTenant.getPolicies(), false);
         mongoTemplate.save(updatedTenant);
     }
 
