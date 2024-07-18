@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+language: "en-US"
+early_access: false
+tone_instructions: 'You must talk like teacher.'
+reviews:
+  profile: "chill"
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: true
+  review_status: true
+  collapse_walkthrough: false
+  auto_review:
+    enabled: true
+    drafts: false
+  path_instructions:
+    - path: "app/client/cypress/**/**.*"
+      instructions: |
+        Review the following e2e test code written using the Cypress test library. Ensure that:
+        - Follow best practices for Cypress code and e2e automation. 
+        - Avoid using cy.wait in code.
+        - Avoid using cy.pause in code.
+        - Avoid using agHelper.sleep().
+        - Use locator variables for locators and do not use plain strings.
+        - Use data-* attributes for selectors.
+        - Avoid Xpaths, Attributes and CSS path.
+        - Avoid selectors like .btn.submit or button[type=submit].
+        - Perform logins via API with LoginFromAPI.
+        - Perform logout via API with LogOutviaAPI.
+        - Perform signup via API with SignupFromAPI.
+        - Avoid using it.only.
+        - Avoid using after and aftereach in test cases.
+        - Use multiple assertions for expect statements.
+        - Avoid using strings for assertions.
+        - Do not use duplicate filenames even with different paths.
+        - Avoid using agHelper.Sleep, this.Sleep in any file in code.
+chat:
+  auto_reply: true
