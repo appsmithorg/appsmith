@@ -1,10 +1,6 @@
 package com.appsmith.server.datasources.base;
 
-import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.external.models.DatasourceStorageDTO;
-import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.MustacheBindingToken;
+import com.appsmith.external.models.*;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.dtos.DBOpsType;
 import org.springframework.util.MultiValueMap;
@@ -103,4 +99,6 @@ public interface DatasourceServiceCE {
     Mono<Boolean> consumeTokenIfAvailable(DatasourceStorage datasourceStorage);
 
     Mono<Boolean> blockEndpointForConnectionRequest(DatasourceStorage datasourceStorage);
+
+    Mono<List<SaasIntegration>> getAllSaasIntegrations();
 }

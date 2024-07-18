@@ -1,13 +1,7 @@
 package com.appsmith.server.controllers.ce;
 
-import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DatasourceStorageDTO;
-import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.external.models.*;
 import com.appsmith.external.models.DatasourceStructure.Template;
-import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.TriggerRequestDTO;
-import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
@@ -206,5 +200,14 @@ public class DatasourceControllerCE {
         return datasourceStructureSolution
                 .getSchemaPreviewData(datasourceId, environmentId, template)
                 .map(actionExecutionResult -> new ResponseDTO<>(HttpStatus.OK.value(), actionExecutionResult, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @GetMapping("/saas-integrations")
+    public Mono<ResponseDTO<List<SaasIntegration>>> getAllSaasIntegrationsFromSupabase() {
+        log.debug("Going to get all saas integrations from Supabase {}");
+        return datasourceService
+                .getAllSaasIntegrations()
+                .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }
 }
