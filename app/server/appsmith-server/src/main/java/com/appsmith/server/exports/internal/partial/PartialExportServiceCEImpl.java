@@ -40,6 +40,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -94,6 +95,9 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
         return applicationMono
                 .flatMap(application -> {
                     applicationJson.setExportedApplication(application);
+                    if (TRUE.equals(application.getExportWithConfiguration())) {
+                        exportingMetaDTO.setExportWithConfiguration(true);
+                    }
                     return pluginExportableService
                             .getExportableEntities(
                                     exportingMetaDTO, mappedResourcesDTO, applicationMono, applicationJson)
