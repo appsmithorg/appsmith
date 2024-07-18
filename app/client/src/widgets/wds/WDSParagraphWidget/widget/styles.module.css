@@ -1,10 +1,10 @@
-@import "../../../shared/colors/colors.module.css";
-
 .editableText {
   width: 100%;
 }
 
 .floatingPanel {
+  display: flex;
+  gap: 10px;
   background: var(--color-bg-elevation-3);
   padding: var(--inner-spacing-3);
   border-radius: var(--border-radius-elevation-3);

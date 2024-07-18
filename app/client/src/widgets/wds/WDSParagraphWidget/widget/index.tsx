@@ -1,13 +1,20 @@
+import {
+  TooltipContent,
+  TooltipRoot,
+  TooltipTrigger,
+} from "@design-system/headless";
 import type { ChangeEvent } from "react";
 import React from "react";
 import type { SetterConfig } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import * as config from "./../config";
 import BaseWidget from "widgets/BaseWidget";
-import { Text, EditableText } from "@design-system/widgets";
+import { Text } from "@design-system/widgets";
 import type { TextWidgetProps } from "./types";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { AnvilConfig } from "WidgetProvider/constants";
+import styles from "./styles.module.css";
+import { Select, Option, ToggleButtonGroup } from "design-system";
 
 class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   ref: HTMLDivElement | null = null;
@@ -79,22 +86,80 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
   getWidgetView() {
     return (
-      <EditableText
-        contentEditable={this.props.isWidgetSelected}
-        onBlur={this.onTextChange}
-        ref={(ref) => (this.ref = ref)}
+      <TooltipRoot
+        offset={20}
+        open={this.props.isWidgetSelected}
+        placement="top"
       >
-        <Text
-          isBold={this.props?.fontStyle?.includes("bold")}
-          isItalic={this.props?.fontStyle?.includes("italic")}
-          lineClamp={this.props.lineClamp ? this.props.lineClamp : undefined}
-          size={this.props.fontSize}
-          textAlign={this.props.textAlign}
-          title={this.props.lineClamp ? this.props.text : undefined}
-        >
-          {this.props.text}
-        </Text>
-      </EditableText>
+        <TooltipTrigger>
+          <div
+            className={styles.editableText}
+            contentEditable={this.props.isWidgetSelected}
+            onBlur={this.onTextChange}
+            ref={(ref) => (this.ref = ref)}
+          >
+            <Text
+              isBold={this.props?.fontStyle?.includes("bold")}
+              isItalic={this.props?.fontStyle?.includes("italic")}
+              lineClamp={
+                this.props.lineClamp ? this.props.lineClamp : undefined
+              }
+              size={this.props.fontSize}
+              textAlign={this.props.textAlign}
+              title={this.props.lineClamp ? this.props.text : undefined}
+            >
+              {this.props.text}
+            </Text>
+          </div>
+        </TooltipTrigger>
+        <TooltipContent className={styles.floatingPanel} hasArrow={false}>
+          <Select
+            onSelect={(value, option) => {
+              // eslint-disable-next-line no-console
+              console.log(value, option);
+            }}
+            placeholder="Font Size"
+            size="sm"
+          >
+            <Option value="body">Body</Option>
+            <Option value="subtitle">Subtitle</Option>
+            <Option value="title">Title</Option>
+            <Option value="heading">Heading</Option>
+          </Select>
+          <ToggleButtonGroup
+            onClick={() => {}}
+            options={[
+              {
+                icon: "left-align",
+                value: "START",
+              },
+              {
+                icon: "center-align",
+                value: "CENTER",
+              },
+              {
+                icon: "right-align",
+                value: "END",
+              },
+            ]}
+            values={[]}
+          />
+          <ToggleButtonGroup
+            onClick={() => {}}
+            options={[
+              {
+                icon: "text-bold",
+                value: "BOLD",
+              },
+              {
+                icon: "text-italic",
+                value: "ITALIC",
+              },
+            ]}
+            values={[]}
+          />
+        </TooltipContent>
+      </TooltipRoot>
     );
   }
 }
