@@ -837,6 +837,14 @@ function* batchUpdateMultipleWidgetsPropertiesSaga(
       });
     }
   }
+
+  // dispatch success action
+  yield put({
+    type: ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY_SUCCESS,
+    payload: {
+      updatesArray,
+    },
+  });
 }
 
 function* removeWidgetProperties(widget: WidgetProps, paths: string[]) {

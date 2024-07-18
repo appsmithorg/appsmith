@@ -39,7 +39,7 @@ function getNewWidgetName(
   widgetConfig: Record<string, string>,
 ): string {
   console.log("##### WidgetProps and Configs:", props, widgetConfig);
-  return "";
+  return "testwidget";
 }
 
 async function getNewActionName(
