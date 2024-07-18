@@ -1,6 +1,7 @@
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { select } from "redux-saga/effects";
+import log from "loglevel";
+import { call, select } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory from "WidgetProvider/factory";
 
@@ -24,10 +25,10 @@ export function* getNewEntityName(
   }
 
   if (entityType === ENTITY_TYPE.ACTION) {
-    const suggestedActionName: string = getNewActionName(props);
+    const suggestedEntityName: string = yield call(getNewActionName, props);
     const uniqueActionName = resolveEntityNameConflict(
       existingEntityNames,
-      suggestedActionName,
+      suggestedEntityName,
     );
     return uniqueActionName;
   }
@@ -41,9 +42,43 @@ function getNewWidgetName(
   return "";
 }
 
-function getNewActionName(props: Record<string, unknown>): string {
-  console.log("##### Action:", props);
-  return "";
+async function getNewActionName(
+  props: Record<string, unknown>,
+): Promise<string> {
+  const headers = new Headers();
+  headers.append("Content-Type", "application/json");
+  const request = new Request(
+    "https://release-ai.appsmith.com/api/v1/assistant/query",
+    {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        params: {
+          // Please remember to escape or remove quotes from the query
+          input: `${props.body}  Please provide a name for this query in pascalcase. Limit the name to 30 characters.`,
+          instructions:
+            "Please provide a name for this query in pascalcase. Limit the name to 30 characters.",
+        },
+        usecase: "TEXT_GENERATE",
+      }),
+    },
+  );
+
+  const result = fetch(request)
+    .then(async (response) => {
+      if (response.status === 200) {
+        return response.json();
+      } else {
+        throw new Error("Something went wrong on API server!");
+      }
+    })
+    .then((response) => {
+      return response.response.replace(/[^a-zA-Z ]/g, "");
+    })
+    .catch((error) => {
+      log.debug("##### AI Response Error:", error);
+    });
+  return result;
 }
 
 // TODO(abhinav): Optimise this by breaking the recursion and using iteration

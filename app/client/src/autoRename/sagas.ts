@@ -1,20 +1,20 @@
-import { all, select, takeLatest } from "redux-saga/effects";
+import { all, put, select, takeLatest } from "redux-saga/effects";
 
 import { getWidgets } from "sagas/selectors";
 import { objectKeys } from "@design-system/widgets";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type {
-  EvaluationReduxAction,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
-import { ACTION_NAME_MAP, WIDGET_NAME_MAP } from "./constants";
-import type { SetActionPropertyPayload } from "actions/pluginActionActions";
+import { WIDGET_NAME_MAP } from "./constants";
+import { getAction } from "@appsmith/selectors/entitiesSelector";
+import type { Action } from "entities/Action";
+import { getNewEntityName } from "./utils";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 
-type AutoRenameActionSaga = EvaluationReduxAction<SetActionPropertyPayload>;
+type AutoRenameActionSaga = ReduxAction<Record<string, unknown>>;
 type AutoRenameWidgetSaga = ReduxAction<{
   updatesArray: UpdateWidgetPropertyPayload[];
 }>;
@@ -40,9 +40,29 @@ function* autoRenameWidgetSaga(action: AutoRenameWidgetSaga) {
 }
 
 function* autoRenameActionSaga(action: AutoRenameActionSaga) {
-  if (ACTION_NAME_MAP.includes(action.payload.propertyName)) {
-    // call getNewEntityname here
+  let actionConfiguration = action.payload.actionConfiguration;
+  if (!actionConfiguration) {
+    const actionObject: Action = yield select(
+      getAction,
+      action.payload.id as string,
+    );
+    actionConfiguration = actionObject.actionConfiguration;
   }
+
+  // if (!shouldUpdateEntityName(ENTITY_TYPE, actionConfiguration)) return;
+
+  const newActionName: string = yield getNewEntityName(
+    ENTITY_TYPE.ACTION,
+    actionConfiguration as Record<string, unknown>,
+  );
+
+  yield put({
+    type: ReduxActionTypes.SAVE_ACTION_NAME_INIT,
+    payload: {
+      id: action.payload.id,
+      name: newActionName,
+    },
+  });
 }
 
 export default function* autoRenameSagas() {
@@ -51,6 +71,12 @@ export default function* autoRenameSagas() {
       [ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY],
       autoRenameWidgetSaga,
     ),
-    takeLatest([ReduxActionTypes.SET_ACTION_PROPERTY], autoRenameActionSaga),
+    takeLatest(
+      [
+        ReduxActionTypes.RUN_ACTION_REQUEST,
+        ReduxActionTypes.CREATE_ACTION_SUCCESS,
+      ],
+      autoRenameActionSaga,
+    ),
   ]);
 }
