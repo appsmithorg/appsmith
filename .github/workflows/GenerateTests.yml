@@ -59,6 +59,7 @@ jobs:
           while IFS= read -r testfile; do
             yarn test "$testfile" --json --outputFile=jest_results.json || echo "$testfile" >> failed_tests.txt
           done < generated_test_files.txt
+          mv jest_results.json /home/runner/work/appsmith/appsmith/.github/workflows/scripts/
         continue-on-error: true  # Continue even if tests fail to capture results
 
        # Step 2: Get Failed Tests
