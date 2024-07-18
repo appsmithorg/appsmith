@@ -9,5 +9,5 @@ import java.util.List;
 public interface BBService {
     Mono<BBResponseDTO> createCustomBuildingBlock(BBMainDTO bbMainDTO);
 
-    Mono<List<BBResponseDTO>> fetchAllBuildingBlocks(String workspaceId);
+    Mono<List<BBResponseDTO>> fetchAllBuildingBlocks();
 }
