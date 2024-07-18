@@ -84,8 +84,8 @@ jobs:
 
       - name: Fix failing tests
         run: |
-        cp /home/runner/work/appsmith/appsmith/.github/workflows/scripts/fix_failing_tests.py ./
-        python fix_failing_tests.py
+          cp /home/runner/work/appsmith/appsmith/.github/workflows/scripts/fix_failing_tests.py ./
+          python fix_failing_tests.py
       
       - name: Run fixed tests
         run: npm test -- --json --outputFile=jest_results_fixed.json || true
