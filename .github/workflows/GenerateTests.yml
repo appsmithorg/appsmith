@@ -20,6 +20,7 @@ jobs:
         uses: tj-actions/changed-files@v41
         with:
           files: "app/client/**"
+          base_sha: "release"
     
       - name: Run step if any file(s) in the client folder change
         if: steps.changed-files-specific.outputs.any_changed == 'true'
@@ -29,7 +30,3 @@ jobs:
           for file in ${ALL_CHANGED_FILES}; do
             echo "$file was changed"
           done
-
-          
-
-
