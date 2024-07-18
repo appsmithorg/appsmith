@@ -22,9 +22,8 @@ import {
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import {
-  APP_SIDEBAR_WIDTH,
-  DEFAULT_EXPLORER_PANE_WIDTH,
-  SPLIT_SCREEN_RATIO,
+  DEFAULT_EDITOR_PANE_WIDTH,
+  DEFAULT_SPLIT_SCREEN_WIDTH,
 } from "constants/AppConstants";
 import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
 import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
@@ -36,7 +35,6 @@ import { FocusElement } from "navigation/FocusElements";
 import { closeJSActionTab } from "actions/jsActionActions";
 import { closeQueryActionTab } from "actions/pluginActionActions";
 import { getCurrentEntityInfo } from "../utils";
-import useWindowDimensions from "../../../utils/hooks/useWindowDimensions";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -76,8 +74,7 @@ export const useCurrentEditorState = () => {
 };
 
 export const useEditorPaneWidth = (): string => {
-  const [windowWidth] = useWindowDimensions();
-  const [width, setWidth] = useState(windowWidth - APP_SIDEBAR_WIDTH + "px");
+  const [width, setWidth] = useState(DEFAULT_EDITOR_PANE_WIDTH + "px");
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
   const { segment } = useCurrentEditorState();
@@ -89,17 +86,11 @@ export const useEditorPaneWidth = (): string => {
       segment !== EditorEntityTab.UI
     ) {
       // 1px is propertypane border width
-      setWidth(windowWidth * SPLIT_SCREEN_RATIO + "px");
+      setWidth(DEFAULT_SPLIT_SCREEN_WIDTH);
     } else {
-      setWidth(DEFAULT_EXPLORER_PANE_WIDTH + "px");
+      setWidth(DEFAULT_EDITOR_PANE_WIDTH + "px");
     }
-  }, [
-    isSideBySideEnabled,
-    editorMode,
-    segment,
-    propertyPaneWidth,
-    windowWidth,
-  ]);
+  }, [isSideBySideEnabled, editorMode, segment, propertyPaneWidth]);
 
   return width;
 };

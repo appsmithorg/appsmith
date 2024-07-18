@@ -10,7 +10,7 @@ import { JSEditorPane } from "./JS";
 import { QueryEditor } from "./Query";
 import EditorTabs from "../EditorTabs";
 
-const Editor = () => {
+const EditorPaneExplorer = () => {
   const { path } = useRouteMatch();
   return (
     <Flex
@@ -34,4 +34,4 @@ const Editor = () => {
   );
 };
 
-export default Editor;
+export default EditorPaneExplorer;
