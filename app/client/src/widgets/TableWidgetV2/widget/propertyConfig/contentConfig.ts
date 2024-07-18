@@ -31,7 +31,7 @@ export default [
           "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
         propertyName: "tableData",
         label: "Table data",
-        controlType: "INPUT_TEXT",
+        controlType: "CODE_EDITOR",
         controlConfig: {
           searchableColumn: true,
         },
@@ -39,7 +39,7 @@ export default [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
-        isJSConvertible: true,
+        isJSConvertible: false,
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {

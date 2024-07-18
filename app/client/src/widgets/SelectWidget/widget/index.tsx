@@ -264,7 +264,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               "Takes in an array of objects to display options. Bind data from an API using {{}}",
             propertyName: "sourceData",
             label: "Source Data",
-            controlType: "ONE_CLICK_BINDING_CONTROL",
+            controlType: "CODE_EDITOR",
             controlConfig: {
               aliases: [
                 {
@@ -288,7 +288,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
               ),
             },
             isPartOfFloatingPane: true,
-            isJSConvertible: true,
+            isJSConvertible: false,
             placeholderText: '[{ "label": "label1", "value": "value1" }]',
             isBindProperty: true,
             isTriggerProperty: false,
