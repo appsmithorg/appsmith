@@ -4,6 +4,7 @@ import log from "loglevel";
 import { call, select } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory from "WidgetProvider/factory";
+import { WIDGET_NAME_MAP } from "./constants";
 
 export function* getNewEntityName(
   entityType: string,
@@ -13,9 +14,7 @@ export function* getNewEntityName(
   const existingEntityNames = Object.keys(dataTreeEntities);
 
   if (entityType === ENTITY_TYPE.WIDGET) {
-    const widgetConfig = WidgetFactory.getWidgetDefaultPropertiesMap(
-      props.type as string,
-    );
+    const widgetConfig = WidgetFactory.getConfig(props.type as string);
     const suggestedEntityName: string = getNewWidgetName(props, widgetConfig);
     const uniqueWidgetName = resolveEntityNameConflict(
       existingEntityNames,
@@ -36,10 +35,12 @@ export function* getNewEntityName(
 
 function getNewWidgetName(
   props: Record<string, unknown>,
-  widgetConfig: Record<string, string>,
+  widgetConfig: any,
 ): string {
-  console.log("##### WidgetProps and Configs:", props, widgetConfig);
-  return "testwidget";
+  const renameMap = WIDGET_NAME_MAP[props.type as keyof typeof WIDGET_NAME_MAP];
+  const suffix = widgetConfig.widgetName;
+  const prefix = props[renameMap[0]];
+  return `${prefix}${suffix}`;
 }
 
 async function getNewActionName(

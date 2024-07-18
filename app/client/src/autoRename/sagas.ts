@@ -1,4 +1,4 @@
-import { all, put, select, takeLatest } from "redux-saga/effects";
+import { all, put, select, takeLatest, delay } from "redux-saga/effects";
 
 import { getWidgets } from "sagas/selectors";
 import { objectKeys } from "@design-system/widgets";
@@ -44,7 +44,7 @@ function* autoRenameWidgetSaga(reduxAction: AutoRenameWidgetSaga) {
     const widgetId = reduxAction.payload.updatesArray[0].widgetId;
     const widget = canvasWidgets[widgetId] as WidgetProps;
     const newName: string = yield getNewEntityName("WIDGET", widget);
-
+    yield delay(2000);
     // dispatch update widget name action
     yield put(updateWidgetName(widgetId, newName));
   }
