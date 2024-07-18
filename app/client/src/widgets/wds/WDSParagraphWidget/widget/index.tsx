@@ -160,7 +160,11 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             </Text>
           </div>
         </TooltipTrigger>
-        <TooltipContent className={styles.floatingPanel} hasArrow={false}>
+        <TooltipContent
+          className={styles.floatingPanel}
+          hasArrow={false}
+          root={document.body}
+        >
           <Select
             className={styles.fontSelect}
             onSelect={this.handleFontSizeChange}
