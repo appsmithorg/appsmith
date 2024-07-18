@@ -57,7 +57,7 @@ jobs:
         id: run_tests
         run: |
           while IFS= read -r testfile; do
-            yarn test "$testfile" || echo "$testfile" >> failed_tests.txt
+            yarn test "$testfile" --json --outputFile=jest_results.json || echo "$testfile" >> failed_tests.txt
           done < generated_test_files.txt
         continue-on-error: true  # Continue even if tests fail to capture results
 
