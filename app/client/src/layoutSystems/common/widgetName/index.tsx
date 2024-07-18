@@ -227,6 +227,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
           inverted={props.topRow <= 2}
           name={props.widgetName}
           toggleSettings={togglePropertyEditor}
+          widgetId={props.widgetId}
           widgetWidth={props.widgetWidth}
         />
       </ControlGroup>

@@ -1,10 +1,17 @@
 import { Colors } from "constants/Colors";
 import type { CSSProperties } from "react";
-import React from "react";
-import { useSelector } from "react-redux";
+import React, { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { Icon, Text, Tooltip } from "design-system";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import {
+  EditorEntityTab,
+  EditorViewMode,
+} from "@appsmith/entities/IDE/constants";
+import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
+import { updateFloatingPane } from "pages/Editor/IDE/FloatingPane/actions";
 
 // I honestly can't think of a better name for this enum
 export enum Activities {
@@ -24,6 +31,7 @@ const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 8px;
   outline: none;
   & {
     pre {
@@ -61,6 +69,7 @@ interface SettingsControlProps {
   errorCount: number;
   inverted: boolean;
   widgetWidth: number;
+  widgetId: string;
 }
 
 const getStyles = (
@@ -100,40 +109,68 @@ const getStyles = (
 };
 
 export function SettingsControl(props: SettingsControlProps) {
+  const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
   const errorIcon = <Icon name="warning" size="sm" />;
+  const ideViewMode = useSelector(getIDEViewMode);
+  const { segment } = useCurrentEditorState();
+  const [showMiniPaneIcon, setShowMiniPaneIcon] = useState(false);
+
+  useEffect(() => {
+    setShowMiniPaneIcon(
+      ideViewMode === EditorViewMode.SplitScreen &&
+        segment !== EditorEntityTab.UI,
+    );
+  }, [ideViewMode, segment]);
+
+  const handlerShowMiniPropertyPane = (e: React.MouseEvent<HTMLElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    dispatch(
+      updateFloatingPane({
+        isVisible: true,
+        selectedWidgetId: props.widgetId,
+      }),
+    );
+  };
 
   return (
-    <Tooltip
-      content={
-        <Text color="var(--ads-v2-color-white)">
-          {isSnipingMode ? `Bind to widget ${props.name}` : `Edit widget`}
-        </Text>
-      }
-      mouseEnterDelay={0}
-      placement="topRight"
+    <SettingsWrapper
+      className="t--widget-propertypane-toggle"
+      data-testid="t--widget-propertypane-toggle"
+      inverted={props.inverted}
+      onClick={props.toggleSettings}
+      style={getStyles(props.activity, props.errorCount, isSnipingMode)}
+      widgetWidth={props.widgetWidth}
     >
-      <SettingsWrapper
-        className="t--widget-propertypane-toggle"
-        data-testid="t--widget-propertypane-toggle"
-        inverted={props.inverted}
-        onClick={props.toggleSettings}
-        style={getStyles(props.activity, props.errorCount, isSnipingMode)}
-        widgetWidth={props.widgetWidth}
+      <Tooltip
+        content={
+          <Text color="var(--ads-v2-color-white)">
+            {isSnipingMode ? `Bind to widget ${props.name}` : `Edit widget`}
+          </Text>
+        }
+        mouseEnterDelay={0}
+        placement="topRight"
       >
-        {!!props.errorCount && !isSnipingMode && errorIcon}
-        {isSnipingMode && (
-          <Icon
-            color="var(--ads-v2-color-white)"
-            name="arrow-right-line"
-            size="md"
-          />
-        )}
-        <WidgetName className="t--widget-name">
-          {isSnipingMode ? `Bind to ${props.name}` : props.name}
-        </WidgetName>
-      </SettingsWrapper>
-    </Tooltip>
+        <div>
+          {!!props.errorCount && !isSnipingMode && errorIcon}
+          {isSnipingMode && (
+            <Icon
+              color="var(--ads-v2-color-white)"
+              name="arrow-right-line"
+              size="md"
+            />
+          )}
+          <WidgetName className="t--widget-name">
+            {isSnipingMode ? `Bind to ${props.name}` : props.name}
+          </WidgetName>
+        </div>
+      </Tooltip>
+      {showMiniPaneIcon && <div className="w-[2px] h-full bg-white" />}
+      {showMiniPaneIcon && (
+        <Icon name="widgets-v3" onClick={handlerShowMiniPropertyPane} />
+      )}
+    </SettingsWrapper>
   );
 }
 

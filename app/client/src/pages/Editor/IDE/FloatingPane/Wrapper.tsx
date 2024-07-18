@@ -14,6 +14,7 @@ const StyledFloatingContainer = styled.div`
   background-color: var(--ads-v2-color-bg);
   min-width: 12rem;
   min-height: 12rem;
+  box-shadow: var(--ads-v2-shadow-popovers);
 `;
 
 const Wrapper = (props: Props) => {
