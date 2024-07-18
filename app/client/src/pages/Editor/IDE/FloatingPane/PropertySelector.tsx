@@ -38,7 +38,11 @@ const PropertySelector = () => {
   return (
     <Menu onOpenChange={setShowMenu} open={showMenu}>
       <MenuTrigger>
-        <Button endIcon="dropdown" onClick={() => setShowMenu(true)}>
+        <Button
+          endIcon="dropdown"
+          kind="tertiary"
+          onClick={() => setShowMenu(true)}
+        >
           {selectedControl?.label}
         </Button>
       </MenuTrigger>

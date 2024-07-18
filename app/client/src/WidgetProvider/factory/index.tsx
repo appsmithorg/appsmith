@@ -1,5 +1,6 @@
 import type {
   PropertyPaneConfig,
+  PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -447,9 +448,15 @@ class WidgetFactory {
           group as PropertyPaneSectionConfig;
 
         const floatConfigs = sectionConfig.children
-          ? sectionConfig.children.filter(
-              (propConfig) => propConfig.isPartOfFloatingPane,
-            )
+          ? sectionConfig.children.filter((propConfig) => {
+              if ((propConfig as PropertyPaneControlConfig).controlType) {
+                const controlConfig: PropertyPaneControlConfig =
+                  propConfig as PropertyPaneControlConfig;
+                return controlConfig.isPartOfFloatingPane;
+              } else {
+                return false;
+              }
+            })
           : [];
 
         if (floatConfigs.length) {
