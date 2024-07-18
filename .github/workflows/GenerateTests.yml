@@ -67,6 +67,7 @@ jobs:
             echo "jest_results.json file exists."
           else
             echo "jest_results.json file does NOT exist."
+            exit 1
           fi
 
        # Step 2: Get Failed Tests
@@ -79,6 +80,7 @@ jobs:
           else
             echo "::set-output name=failed_tests::[]"
           fi
+  
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
