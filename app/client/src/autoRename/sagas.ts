@@ -47,7 +47,6 @@ function* autoRenameWidgetSaga(reduxAction: AutoRenameWidgetSaga) {
   if (shouldRename) {
     const widgetId = reduxAction.payload.updatesArray[0].widgetId;
     const widget = canvasWidgets[widgetId] as WidgetProps;
-
     const newName: string = yield getNewEntityName("WIDGET", widget);
 
     // dispatch update widget name action
@@ -73,7 +72,7 @@ function* autoRenameActionSaga(reduxAction: AutoRenameActionSaga) {
 export default function* autoRenameSagas() {
   yield all([
     takeLatest(
-      [ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY],
+      [ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY_SUCCESS],
       autoRenameWidgetSaga,
     ),
     takeLatest([ReduxActionTypes.SET_ACTION_PROPERTY], autoRenameActionSaga),
