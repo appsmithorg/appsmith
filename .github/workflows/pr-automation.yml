@@ -1,12 +1,6 @@
 name: PR Automation test suite
 
-on:
-  pull_request:
-    branches:
-      - release
-      - pg
-    types:
-      - labeled
+
 
 jobs:
   parse-tags:
