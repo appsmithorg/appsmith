@@ -438,7 +438,27 @@ class WidgetFactory {
   ): readonly PropertyPaneConfig[] {
     const widget = WidgetFactory.widgetsMap.get(type);
     if (!widget) return [];
-    return widget.getPropertyPaneContentConfig();
+    const config = widget.getPropertyPaneContentConfig();
+    const filteredConfig: PropertyPaneConfig[] = [];
+
+    for (const group of config) {
+      if ((group as PropertyPaneSectionConfig).sectionName) {
+        const sectionConfig: PropertyPaneSectionConfig =
+          group as PropertyPaneSectionConfig;
+
+        const floatConfigs = sectionConfig.children
+          ? sectionConfig.children.filter(
+              (propConfig) => propConfig.isPartOfFloatingPane,
+            )
+          : [];
+
+        if (floatConfigs.length) {
+          filteredConfig.push({ ...sectionConfig, children: floatConfigs });
+        }
+      }
+    }
+
+    return filteredConfig;
   }
 
   @memoize

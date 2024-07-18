@@ -57,6 +57,7 @@ export default [
           isToggleDisabled: boolean,
           triggerFlag?: boolean,
         ) => triggerFlag && isDynamic && !isToggleDisabled,
+        isPartOfFloatingPane: true,
       },
       {
         propertyName: "primaryColumns",
