@@ -139,6 +139,17 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
     };
   }
 
+  public static generateInsertBody(
+    tableName: string,
+    columns: Array<{ name: string; value: string }>,
+  ) {
+    return `INSERT INTO ${tableName} (${columns.map(
+      (column) => `"${column.name}"`,
+    )}) VALUES (${columns
+      .map((column) => (column.value ? `'{{${column.value}}}'` : `''`))
+      .toString()})`;
+  }
+
   private static buildInsert(
     widgetConfig: WidgetQueryGenerationConfig,
     formConfig: WidgetQueryGenerationFormConfig,
@@ -149,20 +160,15 @@ export default abstract class PostgreSQL extends BaseQueryGenerator {
       return;
     }
 
-    const columns = without(
-      formConfig.columns.map((d) => d.name),
-      formConfig.primaryColumn,
-    );
+    const columns = formConfig.columns
+      .filter((d) => d.name !== formConfig.primaryColumn)
+      .map((d) => ({ name: d.name, value: create.value }));
 
     return {
       type: QUERY_TYPE.CREATE,
       name: `Insert_${removeSpecialChars(formConfig.tableName)}`,
       payload: {
-        body: `INSERT INTO ${formConfig.tableName} (${columns.map(
-          (a) => `"${a}"`,
-        )}) VALUES (${columns
-          .map((d) => `'{{${create.value}.${d}}}'`)
-          .toString()})`,
+        body: this.generateInsertBody(formConfig.tableName, columns),
       },
       dynamicBindingPathList: [
         {
