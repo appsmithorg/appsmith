@@ -1,9 +1,5 @@
 name: Quality checks
 
-on:
-  pull_request:
-    branches: [release, master, pg]
-
 jobs:
   path-filter:
     runs-on: ubuntu-latest
