@@ -507,6 +507,16 @@ export const getCellProperties = (
         rowIndex,
         columnProperties,
       ),
+      selectLabel: getPropertyValue(
+        columnProperties.selectLabel,
+        rowIndex,
+        true,
+      ),
+      selectValue: getPropertyValue(
+        columnProperties.selectValue,
+        rowIndex,
+        true,
+      ),
       timePrecision: getPropertyValue(
         columnProperties.timePrecision,
         rowIndex,
@@ -1098,6 +1108,20 @@ export const getDragHandlers = (
   };
 };
 
+const formatOptions = (
+  options: [],
+  labelKey: string = "name",
+  valueKey: string = "code",
+) => {
+  if (!options || !Array.isArray(options) || !labelKey) return options;
+  return options.map((option) => {
+    return {
+      label: option[labelKey],
+      value: option[valueKey],
+    };
+  });
+};
+
 export const getSelectOptions = (
   isNewRow: boolean,
   rowIndex: number,
@@ -1108,13 +1132,32 @@ export const getSelectOptions = (
       columnProperties.allowSameOptionsInNewRow &&
       columnProperties?.selectOptions
     ) {
-      // Use select options from the first row
-      return getArrayPropertyValue(columnProperties.selectOptions, 0);
+      const firstRowOptions = getArrayPropertyValue(
+        columnProperties.selectOptions,
+        0,
+      );
+      return formatOptions(
+        firstRowOptions,
+        columnProperties.selectLabel as string,
+        columnProperties.selectValue as string,
+      );
     } else {
-      return columnProperties.newRowSelectOptions;
+      return formatOptions(
+        columnProperties.newRowSelectOptions as any,
+        columnProperties.selectLabel as string,
+        columnProperties.selectValue as string,
+      );
     }
   } else {
-    return getArrayPropertyValue(columnProperties.selectOptions, rowIndex);
+    const rowOptions = getArrayPropertyValue(
+      columnProperties.selectOptions,
+      rowIndex,
+    );
+    return formatOptions(
+      rowOptions,
+      columnProperties.selectLabel as string,
+      columnProperties.selectValue as string,
+    );
   }
 };
 

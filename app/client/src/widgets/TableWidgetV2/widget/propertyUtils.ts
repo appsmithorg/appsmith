@@ -1,23 +1,22 @@
 import { Alignment } from "@blueprintjs/core";
-import type { ColumnProperties } from "../component/Constants";
-import { StickyType } from "../component/Constants";
-import { CellAlignmentTypes } from "../component/Constants";
-import type { TableWidgetProps } from "../constants";
-import { ColumnTypes, InlineEditingSaveOptions } from "../constants";
-import _, { findIndex, get, isBoolean } from "lodash";
 import { Colors } from "constants/Colors";
+import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationResponse } from "constants/WidgetValidation";
+import _, { findIndex, get, isBoolean } from "lodash";
 import {
   combineDynamicBindings,
   getDynamicBindings,
 } from "utils/DynamicBindingUtils";
+import type { PropertyUpdates } from "WidgetProvider/constants";
+import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
+import type { ColumnProperties } from "../component/Constants";
+import { CellAlignmentTypes, StickyType } from "../component/Constants";
+import type { TableWidgetProps } from "../constants";
+import { ColumnTypes, InlineEditingSaveOptions } from "../constants";
 import {
   createEditActionColumn,
   generateNewColumnOrderFromStickyValue,
 } from "./utilities";
-import type { PropertyUpdates } from "WidgetProvider/constants";
-import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
-import type { ValidationResponse } from "constants/WidgetValidation";
 
 export function totalRecordsCountValidation(
   value: unknown,
@@ -1374,3 +1373,31 @@ export function colorForEachRowValidation(
 
   return generateResponseAndReturn(false, DEFAULT_MESSAGE);
 }
+
+// export function getSelectColumnLabelValueKeyOptions(widget: WidgetProps) {
+// console.log("🚀 ~ getSelectColumnLabelValueKeyOptions ~ widget:", widget);
+// const selectOptions = get(widget);
+// console.log("🚀 ~ getSelectColumnLabelValueKeyOptions ~ sourceData:", widget);
+// const widgetDetails = getWidget
+// let parsedValue: Record<string, unknown> | undefined = sourceData;
+// if (isString(sourceData)) {
+//   try {
+//     parsedValue = JSON.parse(sourceData);
+//   } catch (e) {}
+// }
+// if (isArray(parsedValue)) {
+//   return uniq(
+//     parsedValue.reduce((keys, obj) => {
+//       if (isPlainObject(obj)) {
+//         Object.keys(obj).forEach((d) => keys.push(d));
+//       }
+//       return keys;
+//     }, []),
+//   ).map((d: unknown) => ({
+//     label: d,
+//     value: d,
+//   }));
+// } else {
+//   return [];
+// }
+// }

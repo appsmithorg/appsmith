@@ -20,23 +20,117 @@ export default {
       label: "Options",
       controlType: "TABLE_COMPUTE_VALUE",
       isJSConvertible: false,
+      // options: (props: TableWidgetProps) => {
+      //   console.log("🚀 ~ props:", props);
+      // },
+      defaultValue: `
+      {{
+      ${JSON.stringify(
+        [
+          { name: "Blue", code: "BLUE" },
+          { name: "Green", code: "GREEN" },
+          { name: "Red", code: "RED" },
+        ],
+        null,
+        2,
+      )}
+      }}
+      `,
       isBindProperty: true,
-      validation: {
-        type: ValidationTypes.FUNCTION,
-        params: {
-          expected: {
-            type: 'Array<{ "label": string | number, "value": string | number}>',
-            example: '[{"label": "abc", "value": "abc"}]',
-          },
-          fnString: selectColumnOptionsValidation.toString(),
-        },
-      },
+      // validation: {
+      //   type: ValidationTypes.FUNCTION,
+      //   params: {
+      //     expected: {
+      //       type: 'Array<{ "label": string | number, "value": string | number}>',
+      //       example: '[{"label": "abc", "value": "abc"}]',
+      //     },
+      //     fnString: selectColumnOptionsValidation.toString(),
+      //   },
+      // },
+      // validation: {
+      //   type: ValidationTypes.ARRAY,
+      //   params: {
+      //     children: {
+      //       type: ValidationTypes.OBJECT,
+      //       params: {
+      //         required: true,
+      //       },
+      //     },
+      //   },
+      // },
       isTriggerProperty: false,
       dependencies: ["primaryColumns"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
+        // console.log("🚀 ~ props:", props);
         return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT]);
       },
     },
+    {
+      propertyName: "selectLabel",
+      defaultValue: "name",
+      helpText: "Allows to display an option's label or value in the cell",
+      label: "Label key",
+      controlType: "DROP_DOWN",
+      isBindProperty: true,
+      isJSConvertible: true,
+      isTriggerProperty: false,
+      options: [
+        {
+          label: "name",
+          value: "name",
+        },
+        {
+          label: "code",
+          value: "code",
+        },
+      ],
+      // options: (props: TableWidgetProps) => {
+      //   // console.log("🚀 ~ props:", props);
+      // },
+      // validation: {
+      //   type: ValidationTypes.FUNCTION,
+      //   params: {
+      //     fn: labelKeyValidation,
+      //     expected: {
+      //       type: "String or Array<string>",
+      //       example: `color | ["blue", "green"]`,
+      //       autocompleteDataType: AutocompleteDataType.STRING,
+      //     },
+      //   },
+      // },
+    },
+    {
+      propertyName: "selectValue",
+      defaultValue: "code",
+      helpText: "Allows to display an option's label or value in the cell",
+      label: "Value key",
+      controlType: "DROP_DOWN",
+      isBindProperty: true,
+      isJSConvertible: true,
+      isTriggerProperty: false,
+      options: [
+        {
+          label: "name",
+          value: "name",
+        },
+        {
+          label: "code",
+          value: "code",
+        },
+      ],
+      // validation: {
+      //   type: ValidationTypes.FUNCTION,
+      //   params: {
+      //     fn: labelKeyValidation,
+      //     expected: {
+      //       type: "String or Array<string>",
+      //       example: `color | ["blue", "green"]`,
+      //       autocompleteDataType: AutocompleteDataType.STRING,
+      //     },
+      //   },
+      // },
+    },
+
     {
       propertyName: "allowSameOptionsInNewRow",
       defaultValue: true,

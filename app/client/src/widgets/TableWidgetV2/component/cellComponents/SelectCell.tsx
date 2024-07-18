@@ -146,10 +146,11 @@ export const SelectCell = (props: SelectProps) => {
     verticalAlignment,
     width,
   } = props;
+
   const onSelect = useCallback(
     (option: DropdownOption) => {
       onItemSelect(
-        option.value || "",
+        option.label || "",
         rowIndex,
         alias,
         onOptionSelectActionString,
