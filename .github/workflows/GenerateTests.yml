@@ -89,10 +89,10 @@ jobs:
         run: npm test -- --json --outputFile=jest_results_fixed.json || true
 
      - name: Check if tests passed
-      run: |
-        if grep -q '"status":"failed"' jest_results_fixed.json; then
-          exit 1
-        fi
+        run: |
+          if grep -q '"status":"failed"' jest_results_fixed.json; then
+            exit 1
+          fi
     
     # Commit newly generated test files
       - name: Commit generated test files
