@@ -1,11 +1,6 @@
 name: Close Labeler
 
-on:
-  pull_request:
-    types:
-      - closed
-    branches:
-      - release
+
 
 jobs:
   apply:
