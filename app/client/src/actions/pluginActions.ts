@@ -87,3 +87,10 @@ export const fetchCustomPluginsSuccess = (payload: CustomPlugin[]) => ({
   type: ReduxActionTypes.FETCH_CUSTOM_PLUGINS_SUCCESS,
   payload,
 });
+
+export const importCustomPlugin = (data: { file: File }) => {
+  return {
+    type: ReduxActionTypes.IMPORT_CUSTOM_PLUGIN,
+    payload: data,
+  };
+};

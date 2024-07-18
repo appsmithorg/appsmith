@@ -171,6 +171,7 @@ function CreateNewDatasource({
 function CreateNewSaasIntegration({
   active,
   isCreating,
+  isOnboardingScreen,
   pageId,
   showUnsupportedPluginDialog,
 }: any) {
@@ -203,7 +204,7 @@ function CreateNewSaasIntegration({
           showSaasAPIs
           showUnsupportedPluginDialog={showUnsupportedPluginDialog}
         >
-          <CustomPlugins />
+          {!isOnboardingScreen && <CustomPlugins />}
         </NewApiScreen>
       </div>
     </>
@@ -325,6 +326,7 @@ class CreateNewDatasourceTab extends React.Component<
           <CreateNewSaasIntegration
             active={false}
             isCreating={isCreating}
+            isOnboardingScreen={!!isOnboardingScreen}
             location={location}
             pageId={pageId}
             showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}

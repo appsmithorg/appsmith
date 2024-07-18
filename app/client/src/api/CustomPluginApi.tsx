@@ -5,20 +5,12 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { InitCustomPluginApi } from "sagas/InitSagas";
 
 class CustomPluginApi extends Api {
-  static url = "https://fzejayitdypdfoymelov.supabase.co/rest/v1";
-  static datasourceAPI = `${CustomPluginApi.url}/saas_datasources`;
-  static apiListFromDatasourceAPI = `${CustomPluginApi.url}/saas_apis`;
-  static customHeaders = {
-    "Content-type": "application/json",
-    apikey: "apikey",
-  };
+  static datasourceAPI = `v1/datasources/saas-integrations`;
 
   static async getDatasources(): Promise<
     AxiosPromise<ApiResponse<InitCustomPluginApi>>
   > {
-    return Api.get(CustomPluginApi.datasourceAPI, undefined, {
-      headers: CustomPluginApi.customHeaders,
-    });
+    return Api.get(CustomPluginApi.datasourceAPI);
   }
 }
 

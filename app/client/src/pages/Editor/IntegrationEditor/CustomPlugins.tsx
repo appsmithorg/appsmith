@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getCustomPlugins } from "@appsmith/selectors/entitiesSelector";
 import type { CustomPlugin } from "api/PluginApi";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "design-system";
@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { ApiCard, CardContentWrapper } from "./NewApi";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import styled from "styled-components";
-import { importPartialApplication } from "@appsmith/actions/applicationActions";
+import { importCustomPlugin } from "actions/pluginActions";
 
 const BodyContainer = styled.div`
   flex: 3;
@@ -30,7 +30,7 @@ function CustomPluginAPIModal({
 }) {
   const dispatch = useDispatch();
 
-  const messageHandler = (event: any) => {
+  const messageHandler = useCallback((event: any) => {
     if (event) {
       const messageReceived = event.data;
       try {
@@ -47,15 +47,15 @@ function CustomPluginAPIModal({
         });
 
         dispatch(
-          importPartialApplication({
-            applicationFile: file,
+          importCustomPlugin({
+            file,
           }),
         );
         handleClose();
       } catch {}
       //Add code to manipulate the received message
     }
-  };
+  }, []);
 
   useEffect(() => {
     //add the event listener to read the incoming message
@@ -65,7 +65,7 @@ function CustomPluginAPIModal({
     return () => {
       window.removeEventListener("message", messageHandler);
     };
-  }, [selectedCustomPlugin]);
+  }, [selectedCustomPlugin, messageHandler]);
 
   return (
     <Modal open={!!selectedCustomPlugin?.name}>

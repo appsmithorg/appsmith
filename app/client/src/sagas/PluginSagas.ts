@@ -44,6 +44,10 @@ import type {
 } from "utils/DynamicBindingUtils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
+import { getCurrentPageId } from "selectors/editorSelectors";
+import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
+import history from "utils/history";
+import { partialImportSaga } from "./PartialImportExportSagas";
 
 function* fetchPluginsSaga(
   action: ReduxAction<
@@ -281,6 +285,29 @@ function* getDefaultPluginsSaga() {
   }
 }
 
+function* importCustomPluginSaga(action: ReduxAction<{ file: File }>) {
+  const pageId: string = yield select(getCurrentPageId);
+  const datasources: Datasource[] = yield select(getDatasources);
+  const oldDatasourceIds = datasources.map((d) => d.id);
+  yield call(partialImportSaga, {
+    type: ReduxActionTypes.PARTIAL_IMPORT_INIT,
+    payload: { applicationFile: action.payload.file },
+  });
+  const newDatasources: Datasource[] = yield select(getDatasources);
+  const newDatasourceIds = newDatasources.map((d) => d.id);
+  const newDatasoureId = newDatasourceIds.find(
+    (id) => !oldDatasourceIds.includes(id),
+  );
+
+  if (newDatasoureId)
+    history.push(
+      datasourcesEditorIdURL({
+        pageId,
+        datasourceId: newDatasoureId,
+      }),
+    );
+}
+
 function* root() {
   yield all([
     takeEvery(ReduxActionTypes.FETCH_PLUGINS_REQUEST, fetchPluginsSaga),
@@ -296,6 +323,7 @@ function* root() {
       ReduxActionTypes.GET_DEFAULT_PLUGINS_REQUEST,
       getDefaultPluginsSaga,
     ),
+    takeEvery(ReduxActionTypes.IMPORT_CUSTOM_PLUGIN, importCustomPluginSaga),
   ]);
 }
 
