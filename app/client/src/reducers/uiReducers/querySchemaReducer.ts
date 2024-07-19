@@ -4,7 +4,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 export interface ColumnMeta {
   isSelected: boolean;
-  binding: string;
+  binding: string | boolean | Date | number | null;
 }
 
 export type Columns = Record<string, ColumnMeta>;
@@ -28,8 +28,10 @@ const reducer = createImmerReducer(initialState, {
     draftState: QuerySchema,
     action: ReduxAction<{ id: string; columnName: string; column: ColumnMeta }>,
   ) => {
-    draftState.meta[action.payload.id][action.payload.columnName] =
-      action.payload.column;
+    draftState.meta[action.payload.id][action.payload.columnName] = {
+      ...draftState.meta[action.payload.id][action.payload.columnName],
+      ...action.payload.column,
+    };
   },
 });
 
