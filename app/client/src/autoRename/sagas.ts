@@ -1,54 +1,17 @@
 import { all, put, select, takeLatest, delay } from "redux-saga/effects";
 
-import { getWidgets } from "sagas/selectors";
-import { objectKeys } from "@design-system/widgets";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 
-import { WIDGET_NAME_MAP } from "./constants";
 import { getAction } from "@appsmith/selectors/entitiesSelector";
 import type { Action, PluginType } from "entities/Action";
-import { getNewEntityName } from "./utils";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { updateWidgetName } from "actions/propertyPaneActions";
 
+import { getNewEntityName } from "./utils";
+
 type AutoRenameActionSaga = ReduxAction<Record<string, unknown>>;
-type AutoRenameWidgetSaga = ReduxAction<{
-  updatesArray: UpdateWidgetPropertyPayload[];
-}>;
-
-function* autoRenameWidgetSaga(reduxAction: AutoRenameWidgetSaga) {
-  let shouldRename = false;
-  const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-
-  reduxAction.payload.updatesArray.forEach((update) => {
-    const { widgetId } = update;
-    const widget = canvasWidgets[widgetId] as WidgetProps;
-    const propsToConsider = WIDGET_NAME_MAP[widget.type];
-
-    if (!update.updates.modify) return;
-
-    const modifiedProps = objectKeys(update.updates.modify);
-
-    modifiedProps.forEach((prop) => {
-      if (propsToConsider.includes(prop)) {
-        shouldRename = true;
-      }
-    });
-  });
-
-  if (shouldRename) {
-    const widgetId = reduxAction.payload.updatesArray[0].widgetId;
-    const widget = canvasWidgets[widgetId] as WidgetProps;
-    const newName: string = yield getNewEntityName("WIDGET", widget);
-    yield delay(2000);
-    // dispatch update widget name action
-    yield put(updateWidgetName(widgetId, newName));
-  }
-}
 
 function* autoRenameActionSaga(action: AutoRenameActionSaga) {
   let actionConfiguration = action.payload.actionConfiguration;
@@ -81,12 +44,27 @@ function* autoRenameActionSaga(action: AutoRenameActionSaga) {
   });
 }
 
+function* autoRenameWidgetSaga(reduxAction: ReduxAction<any>) {
+  let shouldRename = false;
+
+  const updatedWidgetId = reduxAction.payload.updatedWidgetIds[0];
+  const widget = reduxAction.payload.widgets[updatedWidgetId] as WidgetProps;
+  const prevWidgetName = widget.widgetName;
+  const generatedName: string = yield getNewEntityName("WIDGET", widget);
+
+  if (prevWidgetName !== generatedName) {
+    shouldRename = true;
+  }
+
+  if (shouldRename) {
+    yield delay(1000);
+    // dispatch update widget name action
+    yield put(updateWidgetName(updatedWidgetId, generatedName));
+  }
+}
+
 export default function* autoRenameSagas() {
   yield all([
-    takeLatest(
-      [ReduxActionTypes.BATCH_UPDATE_MULTIPLE_WIDGETS_PROPERTY_SUCCESS],
-      autoRenameWidgetSaga,
-    ),
     takeLatest(
       [
         ReduxActionTypes.RUN_ACTION_REQUEST,
@@ -94,5 +72,6 @@ export default function* autoRenameSagas() {
       ],
       autoRenameActionSaga,
     ),
+    takeLatest(ReduxActionTypes.UPDATE_LAYOUT, autoRenameWidgetSaga),
   ]);
 }

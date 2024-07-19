@@ -6,6 +6,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory from "WidgetProvider/factory";
 import { WIDGET_NAME_MAP } from "./constants";
 import { PluginType } from "entities/Action";
+import { camelCase } from "lodash";
 
 export function* getNewEntityName(
   entityType: string,
@@ -34,14 +35,15 @@ export function* getNewEntityName(
   }
 }
 
-function getNewWidgetName(
+export function getNewWidgetName(
   props: Record<string, unknown>,
   widgetConfig: any,
 ): string {
   const renameMap = WIDGET_NAME_MAP[props.type as keyof typeof WIDGET_NAME_MAP];
   const suffix = widgetConfig.widgetName;
   const prefix = props[renameMap[0]];
-  return `${prefix}${suffix}`;
+
+  return camelCase(`${prefix}${suffix}`);
 }
 
 async function getNewActionName(
