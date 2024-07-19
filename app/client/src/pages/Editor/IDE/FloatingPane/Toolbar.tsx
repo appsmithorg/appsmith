@@ -28,12 +28,15 @@ const Toolbar = () => {
       <PropertySelector />
       <Flex gap="spaces-2">
         <Button
+          className="rotate-180"
+          isIconButton
           kind="tertiary"
           onClick={selectWidget}
           size="sm"
-          startIcon="maximize-v3"
+          startIcon="layout-left-2-line"
         />
         <Button
+          isIconButton
           kind="tertiary"
           onClick={handleClose}
           size="sm"

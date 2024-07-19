@@ -21,7 +21,7 @@ const StyledFloatingContainer = styled(animated.div)`
   border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
   background-color: var(--ads-v2-color-bg);
-  min-width: 17rem;
+  width: 280px;
   min-height: 12rem;
   box-shadow: var(--ads-v2-shadow-popovers);
   transform-origin: top left;

@@ -61,6 +61,43 @@ const SettingsWrapper = styled.div<{ widgetWidth: number; inverted: boolean }>`
   }}
 `;
 
+const StyledBinndingWrapper = styled.div<{
+  isMiniPaneVisible: boolean;
+  inverted: boolean;
+}>`
+  position: relative;
+  justify-content: center;
+  align-items: center;
+  background: ${({ isMiniPaneVisible }) =>
+    isMiniPaneVisible ? Colors.JAFFA_DARK : ""};
+  & svg > g {
+    fill: #fff;
+  }
+
+  ${({ inverted, isMiniPaneVisible }) =>
+    isMiniPaneVisible
+      ? `
+      &:before {
+        position: absolute;
+        content: "";
+        left: -8px;
+        height: 100%;
+        width: 8px;
+        background-color: ${Colors.JAFFA_DARK};
+      }
+      &:after {
+        position: absolute;
+        content: "";
+        right: -5px;
+        height: 100%;
+        width: 5px;
+        background-color: ${Colors.JAFFA_DARK};
+        ${inverted ? `border-bottom-right-radius:` : `border-top-right-radius:`} ${BORDER_RADIUS}px;
+      }
+    `
+      : ""};
+`;
+
 const WidgetName = styled.span`
   width: inherit;
   overflow-x: hidden;
@@ -198,12 +235,17 @@ export function SettingsControl(props: SettingsControlProps) {
       </Tooltip>
       {showMiniPaneIcon && <div className="w-[2px] h-full bg-white" />}
       {showMiniPaneIcon && (
-        <div
+        <StyledBinndingWrapper
+          className="flex gap-1"
           id={`float-pane-trigger-${props.widgetId}`}
+          inverted={props.inverted}
+          isMiniPaneVisible={isMiniPaneVisible}
+          onClick={handlerShowMiniPropertyPane}
           ref={miniPaneReferenceElementRef}
         >
-          <Icon name="widgets-v3" onClick={handlerShowMiniPropertyPane} />
-        </div>
+          <span>Bind data</span>
+          <Icon color="#fff" name="binding-new" size="md" />
+        </StyledBinndingWrapper>
       )}
     </SettingsWrapper>
   );
