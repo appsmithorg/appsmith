@@ -8,3 +8,6 @@ export const getBuildingBlockDragStartTimestamp = (state: AppState) =>
 
 export const getCreateBuildingBlockActionStates = (state: AppState) =>
   state.ui.buildingBlocks.createBuildingBlock;
+
+export const customBuildingBlocks = (state: AppState) =>
+  state.ui.buildingBlocks.customBuildingBlocks;

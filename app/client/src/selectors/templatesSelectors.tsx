@@ -6,6 +6,7 @@ import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import type { FilterKeys, Template } from "api/TemplatesApi";
 import {
   BUILDING_BLOCK_EXPLORER_TYPE,
+  CUSTOM_BUILDING_BLOCK_EXPLORER_TYPE,
   DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS,
   DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS,
   WIDGET_TAGS,
@@ -15,6 +16,7 @@ import type { Filter } from "pages/Templates/TemplateFilters";
 import { TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE } from "pages/Templates/constants";
 import { createSelector } from "reselect";
 import type { WidgetCardProps } from "widgets/BaseWidget";
+import { customBuildingBlocks } from "./buildingBlocksSelectors";
 
 const fuzzySearchOptions = {
   keys: ["title", "id", "datasources", "widgets"],
@@ -90,6 +92,30 @@ export const getBuildingBlockExplorerCards = createSelector(
             ? buildingBlock.screenshotUrls[1]
             : buildingBlock.screenshotUrls[0],
         tags: [WIDGET_TAGS.BUILDING_BLOCKS],
+      }),
+    );
+
+    return adjustedBuildingBlocks;
+  },
+);
+
+export const getCustomBuildingBlockExplorerCards = createSelector(
+  customBuildingBlocks,
+  (buildingBlocks) => {
+    const adjustedBuildingBlocks: WidgetCardProps[] = buildingBlocks.map(
+      (buildingBlock) => ({
+        rows:
+          // buildingBlock.width ||
+          DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS,
+        columns:
+          // buildingBlock.height ||
+          DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS,
+        type: CUSTOM_BUILDING_BLOCK_EXPLORER_TYPE,
+        displayName: buildingBlock.name,
+        icon: "https://images.ctfassets.net/lpvian6u6i39/4S9uBuruavbeWqFiblPKb7/4c1c7b786f186cf3db6436755bf402da/table-lookup-building-block-thumbnail.svg",
+        thumbnail:
+          "https://images.ctfassets.net/lpvian6u6i39/4S9uBuruavbeWqFiblPKb7/4c1c7b786f186cf3db6436755bf402da/table-lookup-building-block-thumbnail.svg",
+        tags: [WIDGET_TAGS.CUSTOM_BUILDING_BLOCKS],
       }),
     );
 

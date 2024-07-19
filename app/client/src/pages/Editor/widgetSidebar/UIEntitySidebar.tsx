@@ -4,6 +4,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { widgetsExistCurrentPage } from "@appsmith/selectors/entitiesSelector";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import type {
@@ -13,15 +14,14 @@ import type {
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { Flex, SearchInput, Text } from "design-system";
 import Fuse from "fuse.js";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import { debounce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
+import { useSelector } from "react-redux";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { groupWidgetCardsByTags } from "../utils";
 import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
-import { useSelector } from "react-redux";
-import { widgetsExistCurrentPage } from "@appsmith/selectors/entitiesSelector";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 function UIEntitySidebar({
   focusSearchInput,
@@ -47,7 +47,6 @@ function UIEntitySidebar({
       isDragDropBuildingBlocksEnabled,
     [isSearching, areSearchResultsEmpty, isDragDropBuildingBlocksEnabled],
   );
-
   const searchWildcards = useMemo(
     () =>
       cards

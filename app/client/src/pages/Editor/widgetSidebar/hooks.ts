@@ -1,16 +1,18 @@
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getAllTemplates } from "actions/templateActions";
+import { getCustomBB } from "actions/widgetActions";
 import type { WidgetTags } from "constants/WidgetConstants";
 import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetCards } from "selectors/editorSelectors";
+import { isFixedLayoutSelector } from "selectors/layoutSystemSelectors";
 import {
   getBuildingBlockExplorerCards,
+  getCustomBuildingBlockExplorerCards,
   templatesCountSelector,
 } from "selectors/templatesSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { groupWidgetCardsByTags } from "../utils";
-import { isFixedLayoutSelector } from "selectors/layoutSystemSelectors";
 
 /**
  * Custom hook for managing UI explorer items including widgets and building blocks.
@@ -34,6 +36,17 @@ export const useUIExplorerItems = () => {
   });
   const widgetCards = useSelector(getWidgetCards);
   const buildingBlockCards = useSelector(getBuildingBlockExplorerCards);
+  const customBBs = useSelector(getCustomBuildingBlockExplorerCards);
+
+  useEffect(() => {
+    dispatch(getCustomBB());
+  }, []);
+
+  useEffect(() => {
+    if (customBBs.length) {
+      setEntityLoading((prev) => ({ ...prev, "Building Blocks": false }));
+    }
+  }, [customBBs]);
 
   // handle loading async entities
   useEffect(() => {
@@ -54,12 +67,14 @@ export const useUIExplorerItems = () => {
       ...(isFixedLayout && releaseDragDropBuildingBlocks
         ? buildingBlockCards
         : []),
+      ...customBBs,
     ],
     [
       widgetCards,
       buildingBlockCards,
       releaseDragDropBuildingBlocks,
       isFixedLayout,
+      customBBs,
     ],
   );
 

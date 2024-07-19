@@ -42,6 +42,21 @@ export interface PartialExportParams {
   queries: string[];
 }
 
+export function* getCustomBBsSaga() {
+  try {
+    const response: { data: { bb: any }[] } = yield call(
+      ApplicationApi.getCustomBB,
+    );
+    const isValid: boolean = yield validateResponse(response);
+    if (isValid) {
+      yield put({
+        type: ReduxActionTypes.FETCH_CUSTOM_BBS_SUCCESS,
+        payload: response.data.map((data: any) => data.bb),
+      });
+    }
+  } catch (e) {}
+}
+
 export function* createCustomBBSaga(
   action: ReduxAction<{
     buildingBlockName: string;

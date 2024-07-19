@@ -229,6 +229,7 @@ export const MAX_MODAL_WIDTH_FROM_MAIN_WIDTH = 0.95;
 export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1024; // 5MB
 
 export const WIDGET_TAGS = {
+  CUSTOM_BUILDING_BLOCKS: "Internal Building Blocks",
   BUILDING_BLOCKS: "Building Blocks",
   SUGGESTED_WIDGETS: "Suggested",
   INPUTS: "Inputs",
@@ -269,6 +270,7 @@ export const DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS = 62;
 export const BUILDING_BLOCK_MIN_HORIZONTAL_LIMIT = 2000;
 export const BUILDING_BLOCK_MIN_VERTICAL_LIMIT = 800;
 export const BUILDING_BLOCK_EXPLORER_TYPE = "BUILDING_BLOCK";
+export const CUSTOM_BUILDING_BLOCK_EXPLORER_TYPE = "CUSTOM_BUILDING_BLOCK";
 
 export type EitherMouseLocationORGridPosition =
   | { mouseLocation: { x: number; y: number }; gridPosition?: never }

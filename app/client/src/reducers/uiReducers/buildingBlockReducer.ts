@@ -12,6 +12,7 @@ const initialState: BuildingBlocksReduxState = {
     isLoadingCreateBuildingBlock: false,
     isDoneLoadingCreateBuildingBlock: false,
   },
+  customBuildingBlocks: [],
 };
 
 const buildingBlockReducer = createReducer(initialState, {
@@ -66,6 +67,13 @@ const buildingBlockReducer = createReducer(initialState, {
       isCreateBuildingBlockModalOpen: action.payload,
     },
   }),
+  [ReduxActionTypes.FETCH_CUSTOM_BBS_SUCCESS]: (
+    state: BuildingBlocksReduxState,
+    action: ReduxAction<any>,
+  ) => ({
+    ...state,
+    customBuildingBlocks: action.payload,
+  }),
 });
 
 export interface BuildingBlocksReduxState {
@@ -76,6 +84,7 @@ export interface BuildingBlocksReduxState {
     isLoadingCreateBuildingBlock: boolean;
     isDoneLoadingCreateBuildingBlock: boolean;
   };
+  customBuildingBlocks: any[];
 }
 
 export default buildingBlockReducer;

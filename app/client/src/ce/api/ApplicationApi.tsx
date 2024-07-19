@@ -478,6 +478,9 @@ export class ApplicationApi extends Api {
   static async createCustomBB(requestBody: exportApplicationRequest) {
     return Api.post(`v1/bb`, requestBody, null);
   }
+  static async getCustomBB() {
+    return Api.get(`v1/bb/lite`);
+  }
 
   static async importPartialApplication(
     request: ImportPartialApplicationRequest,

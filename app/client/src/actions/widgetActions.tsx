@@ -180,3 +180,9 @@ export const createCustomBB = (params: {
     payload: params,
   };
 };
+
+export const getCustomBB = () => {
+  return {
+    type: ReduxActionTypes.GET_CUSTOM_BB_INIT,
+  };
+};
