@@ -16,6 +16,9 @@ export const getFloatingPaneSelectedWidget = createSelector(
   },
 );
 
+export const getFloatingPaneInitProperty = (state: AppState) =>
+  state.ui.floatingPane.propertyName;
+
 export const getFloatingPaneRefElement = (state: AppState) =>
   state.ui.floatingPane.referenceElement;
 

@@ -6,6 +6,7 @@ export interface FloatingPaneState {
   isVisible: boolean;
   selectedWidgetId?: string;
   referenceElement?: HTMLElement | null;
+  propertyName?: string;
 }
 
 const initialState: FloatingPaneState = {

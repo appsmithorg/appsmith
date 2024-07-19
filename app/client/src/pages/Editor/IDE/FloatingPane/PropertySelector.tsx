@@ -1,6 +1,9 @@
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { getFloatingPaneSelectedWidget } from "./selectors";
+import {
+  getFloatingPaneInitProperty,
+  getFloatingPaneSelectedWidget,
+} from "./selectors";
 import WidgetFactory from "WidgetProvider/factory";
 import type {
   PropertyPaneConfig,
@@ -19,9 +22,26 @@ import {
 } from "design-system";
 import { ControlContext } from "./ControlContext";
 
+function findConfigByLabel(
+  config: readonly PropertyPaneConfig[],
+  name: string,
+): PropertyPaneControlConfig | undefined {
+  for (const section of config) {
+    if (section.children) {
+      for (const control of section.children) {
+        if ("label" in control && control.label === name) {
+          return control;
+        }
+      }
+    }
+  }
+  return undefined; // Return null if no config with the given label is found
+}
+
 const PropertySelector = () => {
   const [showMenu, setShowMenu] = useState(false);
   const widget = useSelector(getFloatingPaneSelectedWidget);
+  const initPropertyName = useSelector(getFloatingPaneInitProperty);
   const { selectedControl, setSelectedControl } = useContext(ControlContext);
   const config: readonly PropertyPaneConfig[] =
     WidgetFactory.getWidgetFloatPropertyPaneConfig(widget.type);
@@ -37,10 +57,17 @@ const PropertySelector = () => {
 
   useEffect(() => {
     const firstControl = config[0]?.children?.[0];
-    if (firstControl) {
+    let initControl: PropertyPaneControlConfig | undefined;
+    if (initPropertyName) {
+      initControl = findConfigByLabel(config, initPropertyName);
+    }
+
+    if (initControl) {
+      handleMenuSelection(initControl);
+    } else if (firstControl) {
       handleMenuSelection(firstControl);
     }
-  }, [widget.widgetId, config, handleMenuSelection]);
+  }, [widget.widgetId, initPropertyName, config, handleMenuSelection]);
 
   return (
     <Menu onOpenChange={setShowMenu} open={showMenu}>

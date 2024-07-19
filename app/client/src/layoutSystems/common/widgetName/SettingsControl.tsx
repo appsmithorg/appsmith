@@ -198,7 +198,10 @@ export function SettingsControl(props: SettingsControlProps) {
       </Tooltip>
       {showMiniPaneIcon && <div className="w-[2px] h-full bg-white" />}
       {showMiniPaneIcon && (
-        <div ref={miniPaneReferenceElementRef}>
+        <div
+          id={`float-pane-trigger-${props.widgetId}`}
+          ref={miniPaneReferenceElementRef}
+        >
           <Icon name="widgets-v3" onClick={handlerShowMiniPropertyPane} />
         </div>
       )}
