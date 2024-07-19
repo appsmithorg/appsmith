@@ -117,6 +117,7 @@ import {
 import { getCanvasSizeAfterWidgetMove } from "./CanvasSagas/DraggingCanvasSagas";
 import { validateProperty } from "./EvaluationsSaga";
 import {
+  createCustomBBSaga,
   partialExportSaga,
   partialImportSaga,
 } from "./PartialImportExportSagas";
@@ -1958,5 +1959,6 @@ export default function* widgetOperationSagas() {
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),
     takeEvery(ReduxActionTypes.PARTIAL_IMPORT_INIT, partialImportSaga),
     takeEvery(ReduxActionTypes.PARTIAL_EXPORT_INIT, partialExportSaga),
+    takeEvery(ReduxActionTypes.CREATE_CUSTOM_BB_INIT, createCustomBBSaga),
   ]);
 }

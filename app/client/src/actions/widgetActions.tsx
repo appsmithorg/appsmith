@@ -169,3 +169,14 @@ export const setWidgetSelectionBlock = (payload: boolean) => {
     payload,
   };
 };
+
+export const createCustomBB = (params: {
+  buildingBlockName: string;
+  buildingBlockIconURL: string;
+  widgets: string[];
+}) => {
+  return {
+    type: ReduxActionTypes.CREATE_CUSTOM_BB_INIT,
+    payload: params,
+  };
+};

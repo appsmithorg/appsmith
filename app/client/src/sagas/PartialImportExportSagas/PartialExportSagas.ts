@@ -32,6 +32,7 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { validateResponse } from "../ErrorSagas";
 import { createWidgetCopy } from "../WidgetOperationUtils";
 import { getWidgets } from "../selectors";
+import { openCreateBuildingBlockModal } from "actions/buildingBlockActions";
 
 export interface PartialExportParams {
   jsObjects: string[];
@@ -39,6 +40,42 @@ export interface PartialExportParams {
   customJSLibs: string[];
   widgets: string[];
   queries: string[];
+}
+
+export function* createCustomBBSaga(
+  action: ReduxAction<{
+    buildingBlockName: string;
+    buildingBlockIconURL: string;
+    widgets: string[];
+  }>,
+) {
+  try {
+    const canvasWidgets: unknown = yield partialExportWidgetSaga(
+      action.payload.widgets,
+    );
+    const body: any = {
+      widget: canvasWidgets,
+      name: action.payload.buildingBlockName,
+      icons: action.payload.buildingBlockIconURL,
+    };
+
+    const response: unknown = yield call(ApplicationApi.createCustomBB, body);
+    const isValid: boolean = yield validateResponse(response);
+    if (isValid) {
+      toast.show("Building Block created successfully", { kind: "success" });
+      yield put(openCreateBuildingBlockModal(false));
+    }
+  } catch (e) {
+    toast.show(createMessage(ERROR_IN_EXPORTING_APP), {
+      kind: "error",
+    });
+    yield put({
+      type: ReduxActionErrorTypes.PARTIAL_EXPORT_ERROR,
+      payload: {
+        error: "Error exporting application",
+      },
+    });
+  }
 }
 
 export function* partialExportSaga(action: ReduxAction<PartialExportParams>) {

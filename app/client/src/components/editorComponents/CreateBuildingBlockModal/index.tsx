@@ -21,6 +21,8 @@ import {
 } from "../PartialImportExport/PartialExportModal/StyledSheet";
 import WidgetsExport from "../PartialImportExport/PartialExportModal/WidgetsExport";
 import { BuildingBlockInfoForm } from "./BuildingBlockInfoForm";
+import { createCustomBB } from "actions/widgetActions";
+import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 
 interface CreateBuildingBlockParams {
   widgets: string[];
@@ -90,7 +92,34 @@ const CreateBuildingBlockModal = () => {
     }
   };
 
-  const onCreateBuildingBlockClick = () => {};
+  const selectOnlyParentIds = (
+    widget: CanvasStructure,
+    ids: string[],
+    finalWidgetIDs: string[] = [],
+  ) => {
+    if (widget.widgetId && ids.includes(widget.widgetId)) {
+      finalWidgetIDs.push(widget.widgetId);
+      return finalWidgetIDs;
+    }
+    if (widget.children) {
+      widget.children.forEach((child) => {
+        selectOnlyParentIds(child, ids, finalWidgetIDs);
+      });
+    }
+    return finalWidgetIDs;
+  };
+
+  const onCreateBuildingBlockClick = () => {
+    dispatch(
+      createCustomBB({
+        widgets: selectOnlyParentIds(canvasWidgets!, selectedParams.widgets),
+        buildingBlockName,
+        buildingBlockIconURL,
+      }),
+    );
+    setSelectedParams(selectedParamsInitValue);
+  };
+
   return (
     <Modal
       onOpenChange={handleModalClose}
