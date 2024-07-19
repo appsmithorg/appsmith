@@ -233,6 +233,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
           name={props.widgetName}
           toggleSettings={togglePropertyEditor}
           widgetId={props.widgetId}
+          widgetType={props.type}
           widgetWidth={props.widgetWidth}
         />
       </ControlGroup>

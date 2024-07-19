@@ -14,6 +14,8 @@ import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import { updateFloatingPane } from "pages/Editor/IDE/FloatingPane/actions";
 import type { AppState } from "@appsmith/reducers";
 import { isPropertyPaneActiveForWidget } from "pages/Editor/IDE/FloatingPane/selectors";
+import type { WidgetType } from "constants/WidgetConstants";
+import WidgetFactory from "WidgetProvider/factory";
 
 // I honestly can't think of a better name for this enum
 export enum Activities {
@@ -74,6 +76,7 @@ interface SettingsControlProps {
   inverted: boolean;
   widgetWidth: number;
   widgetId: string;
+  widgetType: WidgetType;
 }
 
 const getStyles = (
@@ -118,6 +121,8 @@ const getStyles = (
   }
 };
 
+const WidgetTypes = WidgetFactory.widgetTypes;
+
 export function SettingsControl(props: SettingsControlProps) {
   const dispatch = useDispatch();
   const isSnipingMode = useSelector(snipingModeSelector);
@@ -131,11 +136,16 @@ export function SettingsControl(props: SettingsControlProps) {
   );
 
   useEffect(() => {
-    setShowMiniPaneIcon(
-      ideViewMode === EditorViewMode.SplitScreen &&
-        segment !== EditorEntityTab.UI,
-    );
-  }, [ideViewMode, segment]);
+    if (
+      props.widgetType === WidgetTypes.TABLE_WIDGET_V2 ||
+      props.widgetType === WidgetTypes.SELECT_WIDGET
+    ) {
+      setShowMiniPaneIcon(
+        ideViewMode === EditorViewMode.SplitScreen &&
+          segment !== EditorEntityTab.UI,
+      );
+    }
+  }, [ideViewMode, props.widgetType, segment]);
 
   const handlerShowMiniPropertyPane = (e: React.MouseEvent<HTMLElement>) => {
     e.preventDefault();
