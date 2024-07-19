@@ -14,7 +14,7 @@ export const CodemirrorHintStyles = createGlobalStyle<{
   .CodeMirror-hints {
     && {
       position: absolute;
-      z-index: 20;
+      z-index: 1000;
       overflow: hidden;
       list-style: none;
       padding: 0px;

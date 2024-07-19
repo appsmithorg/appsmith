@@ -74,6 +74,14 @@ span.bp3-popover-target > * {
   border-radius: var(--ads-v2-border-radius) !important;
 }
 
+.bp3-popover2,
+.bp3-popover,
+.bp3-transition-container,
+.bp3-popover2-transition-container,
+.bp3-portal {
+  z-index: 1000 !important;
+}
+
 .action-selector-popup {
   background-color: var(--ads-v2-color-bg);
   border-radius: var(--ads-v2-border-radius) !important;

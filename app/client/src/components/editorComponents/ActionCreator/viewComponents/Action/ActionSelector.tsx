@@ -39,7 +39,7 @@ export default function ActionSelector(props: {
       break;
   }
 
-  const portalClassName = isOmnibarOpen ? "!z-1" : "!z-6";
+  const portalClassName = isOmnibarOpen ? "!z-1" : "";
 
   return (
     <Popover2
