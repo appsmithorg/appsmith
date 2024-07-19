@@ -87,7 +87,7 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     return "";
   };
 
-  dispatchPropertiesChange = (properties: Record<string, any>) => {
+  dispatchPropertiesChangeEvent = (properties: Record<string, any>) => {
     this.ref?.dispatchEvent(
       new CustomEvent("CHANGE_WIDGET_PROPERTY", {
         bubbles: true,
@@ -101,13 +101,13 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   };
 
   handleTextChange = (event: ChangeEvent<HTMLDivElement>) => {
-    this.dispatchPropertiesChange({
+    this.dispatchPropertiesChangeEvent({
       text: event.target.textContent,
     });
   };
 
   handleToggleBoldFontStyle = () => {
-    this.dispatchPropertiesChange({
+    this.dispatchPropertiesChangeEvent({
       fontStyle: this.resolveFontStyle(
         !this.props.fontStyle.includes("bold"),
         this.props.fontStyle.includes("italic"),
@@ -116,7 +116,7 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   };
 
   handleToggleItalicFontStyle = () => {
-    this.dispatchPropertiesChange({
+    this.dispatchPropertiesChangeEvent({
       fontStyle: this.resolveFontStyle(
         this.props.fontStyle.includes("bold"),
         !this.props.fontStyle.includes("italic"),
@@ -125,13 +125,13 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   };
 
   handleTextAlignChange = (align: string) => {
-    this.dispatchPropertiesChange({
+    this.dispatchPropertiesChangeEvent({
       textAlign: align,
     });
   };
 
   handleFontSizeChange = (align: string) => {
-    this.dispatchPropertiesChange({
+    this.dispatchPropertiesChangeEvent({
       fontSize: align,
     });
   };
