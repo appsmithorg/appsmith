@@ -25,10 +25,11 @@ import { getColumnsById } from "selectors/querySchemaSelectors";
 import {
   initQuerySchema,
   updateQuerySchemaColumn,
+  updateQuerySchemaColumnsBinding,
 } from "actions/queryScehmaActions";
 import {
   addSuggestedWidget,
-  updateWIdgetProperty,
+  updateWidgetProperty,
 } from "actions/widgetActions";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { getWidgets } from "sagas/selectors";
@@ -71,7 +72,7 @@ function getBindingFromColumnsMeta(columnsMeta: Columns): string {
   const sourceData: Record<string, unknown> = {};
   for (const [columnName, columnMeta] of Object.entries(columnsMeta || {})) {
     if (columnMeta.isSelected) {
-      sourceData[columnName] = columnMeta.binding;
+      sourceData[columnName] = "fake value";
     }
   }
   const bindingQuery = JSON.stringify(sourceData);
@@ -86,7 +87,10 @@ const Schema = (props: Props) => {
   ) as DatasourceStructure | undefined;
 
   const columnsMeta = useSelector(getColumnsById(currentActionId));
-  const [widgetId, setWidgetId] = useState<string>("");
+  const [widgetInfo, setWidgetInfo] = useState<{ id: string; name: string }>({
+    id: "",
+    name: "",
+  });
 
   const { responseTabHeight } = useSelector(getQueryPaneDebuggerState);
   const [selectedTable, setSelectedTable] = useState<string | undefined>();
@@ -130,7 +134,12 @@ const Schema = (props: Props) => {
         updateQuerySchemaColumn({
           id: currentActionId,
           columnName,
-          column: { isSelected, binding: "" },
+          column: {
+            isSelected,
+            binding: widgetInfo.name
+              ? `${widgetInfo.name}.sourceData.${columnName}`
+              : "",
+          },
         }),
       );
     };
@@ -184,14 +193,14 @@ const Schema = (props: Props) => {
     );
     if (columnsMeta) {
       dispatch(
-        updateWIdgetProperty({
-          widgetId,
+        updateWidgetProperty({
+          widgetId: widgetInfo.id,
           propertyPath: "sourceData",
           propertyValue: getBindingFromColumnsMeta(columnsMeta),
         }),
       );
     }
-  }, [columnsMeta, selectedTable, dispatch, widgetId]);
+  }, [columnsMeta, selectedTable, dispatch, widgetInfo.id]);
 
   useEffect(() => {
     setSelectedTable(undefined);
@@ -232,10 +241,16 @@ const Schema = (props: Props) => {
 
     payload.skipWidgetSelection = true;
     payload.newWidgetId = generateReactKey();
-    setWidgetId(payload.newWidgetId);
+    setWidgetInfo({ id: payload.newWidgetId, name: widgetName });
 
     dispatch(addSuggestedWidget(payload));
-  }, [columnsMeta, dispatch]);
+    dispatch(
+      updateQuerySchemaColumnsBinding({
+        widgetName,
+        actionId: currentActionId,
+      }),
+    );
+  }, [columnsMeta, dispatch, currentActionId]);
 
   if (!datasourceStructure) {
     return (

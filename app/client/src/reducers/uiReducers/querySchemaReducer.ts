@@ -31,6 +31,17 @@ const reducer = createImmerReducer(initialState, {
     draftState.meta[action.payload.id][action.payload.columnName] =
       action.payload.column;
   },
+  [ReduxActionTypes.UPDATE_QUERY_SCHEMA_COLUMNS_BINDING]: (
+    draftState: QuerySchema,
+    action: ReduxAction<{ widgetName: string; actionId: string }>,
+  ) => {
+    if (!draftState.meta.actionId) return;
+
+    Object.keys(draftState.meta.actionId).forEach((columnName) => {
+      draftState.meta[action.payload.actionId][columnName].binding =
+        `${action.payload.widgetName}.sourceData.${columnName}`;
+    });
+  },
 });
 
 export default reducer;
