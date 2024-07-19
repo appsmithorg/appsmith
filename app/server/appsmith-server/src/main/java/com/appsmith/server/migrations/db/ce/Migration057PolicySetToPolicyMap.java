@@ -13,7 +13,6 @@ import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.aggregation.VariableOperators;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
@@ -94,24 +93,13 @@ public class Migration057PolicySetToPolicyMap {
                 AggregationUpdate.update().set(BaseDomain.Fields.policyMap).toValueOf(operator),
                 collectionName);
 
-        // Create a backup of the policies field so that we can rollback if needed
-        final Mono<UpdateResult> backupPoliciesField = mongoTemplate.updateMulti(
-                new Query(where(POLICIES)
-                        .exists(true)
-                        .and(BaseDomain.Fields.policyMap)
-                        .exists(true)
-                        .and(BaseDomain.Fields.deletedAt)
-                        .isNull()),
-                new Update().rename(POLICIES, "_policies"),
-                collectionName);
-
         return convertToMap
-                .flatMap(result -> {
-                    log.info("Migrated {} documents in {}", result.getModifiedCount(), collectionName);
-                    return backupPoliciesField;
-                })
                 .elapsed()
-                .doOnSuccess(it -> log.info("{} finished in {}ms", collectionName, it.getT1()))
+                .doOnSuccess(it -> log.info(
+                        "Migrated {} documents in {} in {}ms",
+                        it.getT2().getModifiedCount(),
+                        collectionName,
+                        it.getT1()))
                 .then();
     }
 }
