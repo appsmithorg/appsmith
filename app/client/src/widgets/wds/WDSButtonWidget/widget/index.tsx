@@ -202,6 +202,13 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             className={this.props.isWidgetSelected ? styles.editableText : ""}
             contentEditable={this.props.isWidgetSelected}
             onBlur={this.handleTextChange}
+            onFocus={(e) => {
+              const range = document.createRange();
+              range.selectNodeContents(e.target);
+              const sel = window.getSelection();
+              sel?.removeAllRanges();
+              sel?.addRange(range);
+            }}
             ref={(ref) => (this.ref = ref)}
           >
             <ButtonComponent
