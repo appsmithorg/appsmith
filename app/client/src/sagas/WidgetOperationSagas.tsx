@@ -1795,9 +1795,14 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
       localStorage.setItem(WIDGET_ID_SHOW_WALKTHROUGH, newWidget.newWidgetId);
     }
 
-    yield put(
-      selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),
-    );
+    if (action.payload.skipWidgetSelection) {
+    } else {
+      yield put(
+        selectWidgetInitAction(SelectionRequestType.One, [
+          newWidget.newWidgetId,
+        ]),
+      );
+    }
   } catch (error) {
     log.error(error);
   }
