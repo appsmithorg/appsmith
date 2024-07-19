@@ -16,7 +16,7 @@ plugins.push(
     swSrc: "./src/serviceWorker.ts",
     mode: "development",
     swDest: "./pageService.js",
-    maximumFileSizeToCacheInBytes: 11 * 1024 * 1024,
+    maximumFileSizeToCacheInBytes: 20 * 1024 * 1024,
     exclude: [
       // Don’t cache source maps and PWA manifests.
       // (These are the default values of the `exclude` option: https://developer.chrome.com/docs/workbox/reference/workbox-build/#type-WebpackPartial,
