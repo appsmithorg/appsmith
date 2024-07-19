@@ -112,6 +112,7 @@ import {
   apiEditorIdURL,
   builderURL,
   integrationEditorURL,
+  queryAddURL,
   queryEditorIdURL,
   saasEditorApiIdURL,
 } from "@appsmith/RouteBuilder";
@@ -145,7 +146,7 @@ import {
   setIdeEditorViewMode,
   setShowQueryCreateNewModal,
 } from "actions/ideActions";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 
 export const DEFAULT_PREFIX = {
@@ -1143,14 +1144,18 @@ function* updateEntitySavingStatus() {
 function* handleCreateNewQueryFromActionCreator(
   action: ReduxAction<(name: string) => void>,
 ) {
-  // Show the Query create modal from where the user selects the type of query to be created
-  yield put(setShowQueryCreateNewModal(true));
-
   // Side by Side ramp. Switch to SplitScreen mode to allow user to edit query
   // created while having context of the canvas
   const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
+  const viewMode: EditorViewMode = yield select(getIDEViewMode);
   if (isSideBySideEnabled) {
-    yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+    if (viewMode === EditorViewMode.FullScreen) {
+      // Show the Query create modal from where the user selects the type of query to be created
+      yield put(setShowQueryCreateNewModal(true));
+      yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+    } else {
+      history.push(queryAddURL({}));
+    }
   }
 
   // Wait for a query to be created
