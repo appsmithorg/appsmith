@@ -14,12 +14,36 @@ import {
   getWidgetIdsWithDuplicateLabelWhenUpdated,
   onDeleteGetDuplicateIds,
 } from "components/utils/getWidgetIdsWithDuplicateLabel";
+import { debounce } from "lodash";
 
 interface State {
   focusedIndex: number | null;
   duplicateMenuIds: string[];
 }
-
+const debouncedFunction = debounce(
+  (
+    duplicateMenuIds: string[],
+    MenuButtonNames: string[],
+    updatedLabel: string,
+    itemId: string,
+    index: number,
+    updateMenuProperty: (widgetId: string, isDuplicate?: boolean) => void,
+    menuItemsArray:MenuItem[],
+    updateState: (duplicateIds: string[]) => void,
+  ) => {
+    const menuIds = getWidgetIdsWithDuplicateLabelWhenUpdated(
+      duplicateMenuIds,
+      MenuButtonNames,
+      updatedLabel,
+      itemId,
+      index,
+      updateMenuProperty,
+      menuItemsArray,
+    );
+    updateState(menuIds);
+  },
+  500,
+);
 export interface MenuItem {
   id: string;
   label: string;
@@ -29,13 +53,21 @@ export interface MenuItem {
   isDuplicateLabel: boolean;
 }
 
+export const checkIfHasDuplicateProperty = (type: string) => {
+  return type === "BUTTON_GROUP_WIDGET" || type === "MENU_BUTTON_WIDGET";
+};
+
 class MenuItemsControl extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {
     super(props);
 
     this.state = {
       focusedIndex: null,
-      duplicateMenuIds: getduplicateLabelWidgetIds(this.props.propertyValue),
+      duplicateMenuIds: checkIfHasDuplicateProperty(
+        this.props.widgetProperties.type,
+      )
+        ? getduplicateLabelWidgetIds(this.props.propertyValue)
+        : [],
     };
   }
 
@@ -160,13 +192,19 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
         isDuplicate,
       );
     };
-    const duplicateIds = onDeleteGetDuplicateIds(
-      updatedArray,
-      this.state.duplicateMenuIds,
-      labels,
-      updateMenuProperty,
-    );
-    this.setState({ duplicateMenuIds: duplicateIds });
+    const duplicateIds = checkIfHasDuplicateProperty(
+      this.props.widgetProperties.type,
+    )
+      ? onDeleteGetDuplicateIds(
+          updatedArray,
+          this.state.duplicateMenuIds,
+          labels,
+          updateMenuProperty,
+        )
+      : [];
+    this.setState((prevState) => {
+      return { ...prevState, duplicateMenuIds: duplicateIds };
+    });
     this.updateProperty(this.props.propertyName, updatedObj);
   };
 
@@ -180,18 +218,23 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
         isDuplicate,
       );
     };
-    const duplicateMenuIds = getWidgetIdsWithDuplicateLabelWhenUpdated(
-      this.state.duplicateMenuIds,
-      MenuButtonNames,
-      updatedLabel,
-      itemId,
-      index,
-      updateMenuProperty,
-      menuItemsArray,
-    );
-    this.setState({
-      duplicateMenuIds: duplicateMenuIds,
-    });
+    const updateState = (duplicateMenuIds: string[]) => {
+      this.setState({
+        duplicateMenuIds: duplicateMenuIds,
+      });
+    };
+    if (checkIfHasDuplicateProperty(this.props.widgetProperties.type)) {
+      debouncedFunction(
+        this.state.duplicateMenuIds,
+        MenuButtonNames,
+        updatedLabel,
+        itemId,
+        index,
+        updateMenuProperty,
+        menuItemsArray,
+        updateState,
+      );
+    }
     this.updateProperty(
       `${this.props.propertyName}.${itemId}.label`,
       updatedLabel,
@@ -202,6 +245,9 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
     let menuItems = this.props.propertyValue || [];
     const menuItemsArray = this.getMenuItems();
     const newMenuItemId = generateReactKey({ prefix: "menuItem" });
+    const shouldIncludeDuplicate = checkIfHasDuplicateProperty(
+      this.props.widgetProperties.type,
+    );
     const menuNames = map(menuItemsArray, "label");
     menuItems = {
       ...menuItems,
@@ -212,12 +258,22 @@ class MenuItemsControl extends BaseControl<ControlProps, State> {
         widgetId: generateReactKey(),
         isDisabled: false,
         isVisible: true,
-        isDuplicateLabel: false,
       },
     };
-    if(includes(menuNames, "Menu Item")){ this.setState({
-          duplicateMenuIds: [...this.state.duplicateMenuIds, newMenuItemId],
-        })}
+    if (shouldIncludeDuplicate) {
+      menuItems[newMenuItemId].isDuplicateLabel = includes(
+        menuNames,
+        "Menu Item",
+      );
+      if (includes(menuNames, "Menu Item")) {
+        this.setState((prevState) => {
+          return {
+            ...prevState,
+            duplicateMenuIds: [...this.state.duplicateMenuIds, newMenuItemId],
+          };
+        });
+      }
+    }
     this.updateProperty(this.props.propertyName, menuItems);
   };
 

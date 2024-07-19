@@ -87,7 +87,6 @@ export const onDeleteGetDuplicateIds = (
   return DuplicateId;
 };
 
-
 //This function is used to update the isDuplicateLabel property of the button and menu items when it is edited from input text control.
 export const onUpdatedlabel = (
   widgetId: string,
@@ -175,6 +174,53 @@ export const onUpdatedlabel = (
       });
       if (count === 1) {
         updateProperty(`${menuStructureString}.${id}.isDuplicateLabel`, false);
+      }
+    });
+  }
+};
+
+export const onUpdatedMenulabel = (
+  widgetId: string,
+  state: any,
+  menuItems: any,
+  propertyName: string,
+  updatedLabel: string,
+  updateProperty: (
+    propertyName: string,
+    value: any,
+    isDynamicTrigger?: boolean,
+  ) => void,
+) => {
+  const widget = state.entities.canvasWidgets[widgetId];
+  const menuId = Object.keys(menuItems)[0];
+  if (Object.keys(menuItems[menuId]).includes("label")) {
+    const menuStructure = propertyName.split(".");
+    menuStructure.pop();
+    const menuStructureString = menuStructure.join(".");
+    const menuIds = Object.keys(widget.menuItems);
+    const menuNames = menuIds.map((id) => widget.menuItems[id].label);
+    //Check if the updated label is already present in the button labels
+    if (menuNames.includes(updatedLabel)) {
+      updateProperty(`${menuStructureString}.isDuplicateLabel`, true);
+    } else if (widget.menuItems[menuId].isDuplicateLabel) {
+      //Check if the isDuplicateLabel property is true for the button and the updated label is not present in the button labels
+      updateProperty(`${menuStructure[0]}.${menuId}.isDuplicateLabel`, false);
+    }
+    const index = menuIds.indexOf(menuId);
+    menuNames[index] = updatedLabel;
+    const duplicateIds = menuIds.filter(
+      (id) => widget.menuItems[id].isDuplicateLabel,
+    );
+    //remove the isDuplicateLabel property if the label is not duplicate due to the edit
+    duplicateIds.forEach((id: string) => {
+      let count = 0;
+      menuNames.forEach((label) => {
+        if (label === widget.menuItems[id].label) {
+          count++;
+        }
+      });
+      if (count == 1) {
+        updateProperty(`${menuStructure[0]}.${id}.isDuplicateLabel`, false);
       }
     });
   }

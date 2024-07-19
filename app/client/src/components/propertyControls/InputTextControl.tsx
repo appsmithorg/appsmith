@@ -18,7 +18,11 @@ import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTyp
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
 import store from "store";
-import { onUpdatedlabel } from "components/utils/getWidgetIdsWithDuplicateLabel";
+import {
+  onUpdatedlabel,
+  onUpdatedMenulabel,
+} from "components/utils/getWidgetIdsWithDuplicateLabel";
+import { debounce } from "lodash";
 
 export function InputText(props: {
   label: string;
@@ -85,6 +89,9 @@ export function InputText(props: {
   );
 }
 
+const debouncedOnUpdateLabel = debounce(onUpdatedlabel, 500);
+const debounceOnMenuLabelUpdate = debounce(onUpdatedMenulabel, 500);
+
 class InputTextControl extends BaseControl<InputControlProps> {
   static contextType = CollapseContext;
   context!: React.ContextType<typeof CollapseContext>;
@@ -147,7 +154,7 @@ class InputTextControl extends BaseControl<InputControlProps> {
     };
     if (this.props.widgetProperties.type === "BUTTON_GROUP_WIDGET") {
       const state = store.getState();
-      onUpdatedlabel(
+      debouncedOnUpdateLabel(
         this.props.widgetProperties.widgetId,
         state,
         this.props.widgetProperties.groupButtons,
@@ -155,7 +162,21 @@ class InputTextControl extends BaseControl<InputControlProps> {
         value as string,
         updateIsDuplicateLabel,
       );
+    } else if (
+      this.props.widgetProperties.type === "MENU_BUTTON_WIDGET" &&
+      this.props.widgetProperties.menuItems !== undefined
+    ) {
+      const state = store.getState();
+      debounceOnMenuLabelUpdate(
+        this.props.widgetProperties.widgetId,
+        state,
+        this.props.widgetProperties.menuItems,
+        this.props.propertyName,
+        value as string,
+        updateIsDuplicateLabel,
+      );
     }
+    
     this.updateProperty(this.props.propertyName, value, true);
   };
 

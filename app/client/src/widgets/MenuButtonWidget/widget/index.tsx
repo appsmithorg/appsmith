@@ -51,6 +51,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
           isVisible: true,
           isDisabled: false,
           index: 0,
+          isDuplicateLabel: false,
         },
         menuItem2: {
           label: "Second Menu Item",
@@ -59,6 +60,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
           isVisible: true,
           isDisabled: false,
           index: 1,
+          isDuplicateLabel: false,
         },
         menuItem3: {
           label: "Third Menu Item",
@@ -67,6 +69,7 @@ class MenuButtonWidget extends BaseWidget<MenuButtonWidgetProps, WidgetState> {
           isVisible: true,
           isDisabled: false,
           index: 2,
+          isDuplicateLabel: false,
         },
       },
       rows: 4,
