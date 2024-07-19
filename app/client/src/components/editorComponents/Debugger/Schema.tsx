@@ -1,5 +1,7 @@
 import { Checkbox, Flex, Text } from "design-system";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { faker } from "@faker-js/faker";
+import { Checkbox, Flex, Text, Button } from "design-system";
 import type {
   DatasourceColumns,
   DatasourceKeys,
@@ -105,19 +107,15 @@ const Schema = (props: Props) => {
     );
   }, [datasourceStructure, selectedTable]);
 
-  const areSomeChecked = useMemo(() => {
-    const selectedColumns = columnsMeta
-      ? Object.values(columnsMeta).filter((column) => column.isSelected)
-      : [];
-    return (
-      selectedColumns.length > 0 && selectedColumns.length - 1 < columns.length
-    );
-  }, [columnsMeta, columns]);
+  const areSomeChecked = columnsMeta
+    ? Object.values(columnsMeta).some(({ isSelected }) => isSelected)
+    : false;
 
   const areAllChecked = useMemo(() => {
     const selectedColumns = columnsMeta
-      ? Object.values(columnsMeta).filter((column) => column.isSelected)
+      ? Object.values(columnsMeta).filter(({ isSelected }) => isSelected)
       : [];
+
     return selectedColumns.length - 1 === columns.length;
   }, [columnsMeta, columns]);
 
@@ -203,6 +201,44 @@ const Schema = (props: Props) => {
       setSelectedTable(datasourceStructure.tables[0].name);
     }
   }, [selectedTable, datasourceId, isLoading, datasourceStructure?.tables]);
+  const addWidget = useCallback(() => {
+    const canvasWidgets = getWidgets(store.getState());
+    if (Object.values(canvasWidgets).length) return;
+    const dataTree = getDataTree(store.getState());
+
+    // create bindingQuery as a stringified object using columnsMeta selected columns key as object key and value according to the columntype value
+    const sourceData: Record<string, unknown> = {};
+    for (const [columnName, columnMeta] of Object.entries(columnsMeta || {})) {
+      if (columnMeta.isSelected) {
+        sourceData[columnName] = faker.animal.cat();
+      }
+    }
+    const bindingQuery = JSON.stringify(sourceData);
+
+    const suggestedWidget: SuggestedWidget = {
+      type: "JSON_FORM_WIDGET",
+      bindingQuery,
+    };
+
+    const widgetName = getNextWidgetName(
+      canvasWidgets,
+      suggestedWidget.type,
+      dataTree,
+    );
+    const widgetInfo = {
+      label: "sourceData",
+      propertyName: "sourceData",
+      widgetName,
+    };
+
+    const payload = getWidgetProps(suggestedWidget, widgetInfo, "", widgetName);
+    // @ts-expect-error skipWidgetSelection needs to be added to the payload
+    payload.skipWidgetSelection = true;
+
+    dispatch(addSuggestedWidget(payload));
+  }, [columnsMeta, dispatch]);
+
+  // const columnHasBinding = true;
 
   const addWidget = useCallback(() => {
     const canvasWidgets = getWidgets(store.getState());
@@ -290,6 +326,7 @@ const Schema = (props: Props) => {
         }
         overflowY="scroll"
         padding="spaces-3"
+        style={{ paddingBottom: 0 }}
       >
         {isLoading ? <RenderInterimDataState state="LOADING" /> : null}
 
@@ -298,10 +335,20 @@ const Schema = (props: Props) => {
         ) : null}
 
         {!isLoading && (
-          <>
+          <Flex
+            flex="1"
+            flexDirection="column"
+            gap="spaces-2"
+            height={`${responseTabHeight - 45}px`}
+            justifyContent={
+              isLoading || columns.length === 0 ? "center" : "flex-start"
+            }
+            overflowY="scroll"
+            // padding="spaces-3"
+          >
             <Row style={{ border: "none" }}>
               <Checkbox
-                isIndeterminate={areSomeChecked}
+                isIndeterminate={areSomeChecked && !areAllChecked}
                 isSelected={areAllChecked}
                 onChange={handleWholeColumnSelection}
               >
@@ -326,11 +373,8 @@ const Schema = (props: Props) => {
                       width: "auto",
                     }}
                   >
-                    {columnHasBinding && (
-                      <Brackets
-                        kind="code"
-                        onClick={handleBindingClick}
-                      >{`{{ }}`}</Brackets>
+                    {Boolean(columnsMeta?.[field.name]?.binding) && (
+                      <Brackets kind="code">{`{{ }}`}</Brackets>
                     )}
 
                     {field.type}
@@ -338,7 +382,35 @@ const Schema = (props: Props) => {
                 </Row>
               );
             })}
-          </>
+          </Flex>
+        )}
+        {areSomeChecked && (
+          <div
+            style={{
+              display: "sticky",
+              bottom: 0,
+              width: "100%",
+              borderTop: "1px solid var(--ads-v2-color-border)",
+              padding: "4px 0 0 0",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Button
+                kind="secondary"
+                onClick={addWidget}
+                size="sm"
+                startIcon="upgrade"
+              >
+                Generate UI
+              </Button>
+            </div>
+          </div>
         )}
       </Flex>
     </Flex>
