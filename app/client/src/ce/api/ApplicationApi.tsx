@@ -268,6 +268,9 @@ export interface ImportBuildingBlockToApplicationRequest {
   templateId: string;
 }
 
+export type ImportCustomBuildingBlockToApplicationRequest =
+  ImportBuildingBlockToApplicationRequest & { bbid: string };
+
 interface ImportBuildingBlockOnPageActions extends BaseAction {
   timeoutInMilliseconds: number;
   pluginType: string;
@@ -278,6 +281,9 @@ export interface ImportBuildingBlockToApplicationResponse {
   onPageLoadActions: ImportBuildingBlockOnPageActions[];
   newActionList: Action[];
   datasourceList: Datasource[];
+}
+export interface ImportCustomBuildingBlockToApplicationResponse {
+  widgetDsl: string;
 }
 
 export class ApplicationApi extends Api {
@@ -508,6 +514,13 @@ export class ApplicationApi extends Api {
     AxiosPromise<ApiResponse<ImportBuildingBlockToApplicationResponse>>
   > {
     return Api.post(`${ApplicationApi.baseURL}/import/partial/block`, request);
+  }
+  static async importCustomBuildingBlockToApplication(
+    request: ImportCustomBuildingBlockToApplicationRequest,
+  ): Promise<
+    AxiosPromise<ApiResponse<ImportBuildingBlockToApplicationResponse>>
+  > {
+    return Api.post("/v1/bb/fork", request);
   }
 }
 

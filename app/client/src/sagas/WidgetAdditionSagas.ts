@@ -16,6 +16,7 @@ import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
 import {
   BUILDING_BLOCK_EXPLORER_TYPE,
+  CUSTOM_BUILDING_BLOCK_EXPLORER_TYPE,
   RenderModes,
 } from "constants/WidgetConstants";
 import { toast } from "design-system";
@@ -54,6 +55,7 @@ import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { getWidget, getWidgets } from "./selectors";
 import { addBuildingBlockToCanvasSaga } from "./BuildingBlockSagas/BuildingBlockAdditionSagas";
 import { getCurrentlyOpenAnvilDetachedWidgets } from "layoutSystems/anvil/integrations/modalSelectors";
+import { addCustomBuildingBlockToCanvasSaga } from "./BuildingBlockSagas/CustomBuildingBlockAdditionSaga";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -529,6 +531,8 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
 
     if (type === BUILDING_BLOCK_EXPLORER_TYPE) {
       yield call(addBuildingBlockToCanvasSaga, addEntityAction);
+    } else if (type === CUSTOM_BUILDING_BLOCK_EXPLORER_TYPE) {
+      yield call(addCustomBuildingBlockToCanvasSaga, addEntityAction);
     } else {
       yield call(addChildSaga, addEntityAction);
     }
