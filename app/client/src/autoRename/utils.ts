@@ -6,7 +6,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory from "WidgetProvider/factory";
 import { WIDGET_NAME_MAP } from "./constants";
 import { PluginType } from "entities/Action";
-import { camelCase } from "lodash";
+import { camelCase, capitalize } from "lodash";
 
 export function* getNewEntityName(
   entityType: string,
@@ -43,7 +43,7 @@ export function getNewWidgetName(
   const suffix = widgetConfig.widgetName;
   const prefix = props[renameMap[0]];
 
-  return camelCase(`${prefix}${suffix}`);
+  return capitalize(camelCase(`${prefix}${suffix}`));
 }
 
 async function getNewActionName(
