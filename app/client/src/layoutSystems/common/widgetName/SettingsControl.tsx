@@ -243,8 +243,8 @@ export function SettingsControl(props: SettingsControlProps) {
           onClick={handlerShowMiniPropertyPane}
           ref={miniPaneReferenceElementRef}
         >
-          <span>Bind data</span>
           <Icon color="#fff" name="binding-new" size="md" />
+          <span>Bind data</span>
         </StyledBinndingWrapper>
       )}
     </SettingsWrapper>

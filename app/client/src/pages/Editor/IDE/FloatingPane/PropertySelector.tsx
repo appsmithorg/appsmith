@@ -81,8 +81,8 @@ const PropertySelector = () => {
           {selectedControl?.label}
         </Button>
       </MenuTrigger>
-      <MenuContent>
-        {config.map((group: PropertyPaneConfig) => {
+      <MenuContent className="!min-w-[200px]">
+        {config.map((group: PropertyPaneConfig, index: number) => {
           if ((group as PropertyPaneSectionConfig).sectionName) {
             const sectionConfig: PropertyPaneSectionConfig =
               group as PropertyPaneSectionConfig;
@@ -105,7 +105,9 @@ const PropertySelector = () => {
                       );
                     }
                   })}
-                <MenuSeparator />
+                {index <= config.length - 2 ? (
+                  <MenuSeparator className="mb-2" />
+                ) : null}
               </MenuGroup>
             );
           } else {

@@ -23,6 +23,7 @@ const Toolbar = () => {
       alignItems="center"
       direction="column"
       justifyContent="space-between"
+      paddingBottom="spaces-3"
       width={"256px"}
     >
       <PropertySelector />
