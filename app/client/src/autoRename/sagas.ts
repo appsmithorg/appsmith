@@ -10,7 +10,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 
 import { WIDGET_NAME_MAP } from "./constants";
 import { getAction } from "@appsmith/selectors/entitiesSelector";
-import type { Action } from "entities/Action";
+import type { Action, PluginType } from "entities/Action";
 import { getNewEntityName } from "./utils";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { updateWidgetName } from "actions/propertyPaneActions";
@@ -52,20 +52,25 @@ function* autoRenameWidgetSaga(reduxAction: AutoRenameWidgetSaga) {
 
 function* autoRenameActionSaga(action: AutoRenameActionSaga) {
   let actionConfiguration = action.payload.actionConfiguration;
-  if (!actionConfiguration) {
+  let pluginType = action.payload.pluginType as PluginType | undefined;
+  let name = action.payload.name;
+  if (!actionConfiguration || !pluginType || !name) {
     const actionObject: Action = yield select(
       getAction,
       action.payload.id as string,
     );
     actionConfiguration = actionObject.actionConfiguration;
+    pluginType = actionObject.pluginType;
+    name = actionObject.name;
   }
 
   // if (!shouldUpdateEntityName(ENTITY_TYPE, actionConfiguration)) return;
 
-  const newActionName: string = yield getNewEntityName(
-    ENTITY_TYPE.ACTION,
-    actionConfiguration as Record<string, unknown>,
-  );
+  const newActionName: string = yield getNewEntityName(ENTITY_TYPE.ACTION, {
+    ...(actionConfiguration as Record<string, unknown>),
+    pluginType,
+    name,
+  });
 
   yield put({
     type: ReduxActionTypes.SAVE_ACTION_NAME_INIT,

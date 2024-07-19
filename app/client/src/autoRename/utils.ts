@@ -5,6 +5,7 @@ import { call, select } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import WidgetFactory from "WidgetProvider/factory";
 import { WIDGET_NAME_MAP } from "./constants";
+import { PluginType } from "entities/Action";
 
 export function* getNewEntityName(
   entityType: string,
@@ -44,6 +45,86 @@ function getNewWidgetName(
 }
 
 async function getNewActionName(
+  props: Record<string, unknown>,
+): Promise<string> {
+  let newActionName: string = props.name as string;
+  if (props.pluginType === PluginType.DB) {
+    newActionName = await getDBActionName(props);
+  }
+
+  if (props.pluginType === PluginType.API) {
+    newActionName = await getAPIActionName(props);
+  }
+
+  return newActionName;
+}
+
+async function getAPIActionName(
+  props: Record<string, unknown>,
+): Promise<string> {
+  const promisedAPIActionName: Promise<string> = new Promise(function (
+    resolve,
+  ) {
+    const method = props.httpMethod as string;
+    const path = props.path as string;
+    const queries = props.queryParameters as Array<{
+      key: string;
+      value: string;
+    }>;
+
+    const fullString =
+      `${METHOD_MAP[method]}${sanitizePath(path)}${suffixedQueryParameters(queries)}`.slice(
+        0,
+        30,
+      );
+
+    resolve(`${fullString}API`);
+  });
+
+  return promisedAPIActionName;
+}
+
+const METHOD_MAP: Record<string, string> = {
+  POST: "Update",
+  GET: "Fetch",
+  PUT: "Add",
+  DELETE: "Delete",
+  PATCH: "Patch",
+};
+
+function sanitizePath(path: string) {
+  const tokenized = path
+    .split("/")
+    .filter(Boolean)
+    .filter((token: string) => Number.isNaN(parseInt(token, 10)));
+
+  const capitalized = tokenized.map((token: string) => {
+    const _token = token.toLowerCase();
+    return _token[0].toUpperCase() + _token.substring(1);
+  });
+  // Eg: /user/1/addresses becomes UserAddresses
+  if (capitalized.length === 0) return "";
+  return `${capitalized.join("")}`;
+}
+
+function suffixedQueryParameters(
+  queryParams: Array<{ key: string; value: string }>,
+) {
+  const queries = queryParams
+    .map((entry) => (entry.key.length > 0 ? entry.key : undefined))
+    .filter(Boolean) as string[];
+
+  const capitalized = queries.map((param: string) => {
+    const _param = param.toLowerCase();
+    return _param[0].toUpperCase() + _param.substring(1);
+  });
+
+  if (capitalized.length === 0) return "";
+
+  return `By${capitalized.join("And")}`;
+}
+
+async function getDBActionName(
   props: Record<string, unknown>,
 ): Promise<string> {
   const headers = new Headers();
