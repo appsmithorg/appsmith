@@ -22,3 +22,13 @@ export const updateQuerySchemaColumn = (payload: {
     payload,
   };
 };
+
+export const updateQuerySchemaColumnsBinding = (payload: {
+  widgetName: string;
+  actionId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.UPDATE_QUERY_SCHEMA_COLUMNS_BINDING,
+    payload,
+  };
+};

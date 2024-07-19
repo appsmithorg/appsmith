@@ -133,7 +133,7 @@ export const cutWidget = () => {
   };
 };
 
-export const updateWIdgetProperty = (
+export const updateWidgetProperty = (
   payload: UpdateWidgetPropertyRequestPayload,
 ) => {
   return {

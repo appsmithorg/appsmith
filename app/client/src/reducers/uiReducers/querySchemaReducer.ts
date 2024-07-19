@@ -5,6 +5,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 export interface ColumnMeta {
   isSelected: boolean;
   binding: string | boolean | Date | number | null;
+  type: string;
 }
 
 export type Columns = Record<string, ColumnMeta>;
@@ -32,6 +33,16 @@ const reducer = createImmerReducer(initialState, {
       ...draftState.meta[action.payload.id][action.payload.columnName],
       ...action.payload.column,
     };
+  },
+  [ReduxActionTypes.UPDATE_QUERY_SCHEMA_COLUMNS_BINDING]: (
+    draftState: QuerySchema,
+    action: ReduxAction<{ widgetName: string; actionId: string }>,
+  ) => {
+    const { actionId } = action.payload;
+    Object.keys(draftState.meta[actionId]).forEach((columnName) => {
+      draftState.meta[actionId][columnName].binding =
+        `${action.payload.widgetName}.sourceData.${columnName}`;
+    });
   },
 });
 

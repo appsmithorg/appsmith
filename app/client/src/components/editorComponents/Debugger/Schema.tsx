@@ -25,10 +25,11 @@ import { getColumnsById } from "selectors/querySchemaSelectors";
 import {
   initQuerySchema,
   updateQuerySchemaColumn,
+  updateQuerySchemaColumnsBinding,
 } from "actions/queryScehmaActions";
 import {
   addSuggestedWidget,
-  updateWIdgetProperty,
+  updateWidgetProperty,
 } from "actions/widgetActions";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { getWidgets } from "sagas/selectors";
@@ -38,8 +39,6 @@ import { getWidgetProps } from "pages/Editor/QueryEditor/BindDataButton";
 import type { SuggestedWidget } from "api/ActionAPI";
 import { generateReactKey } from "utils/generators";
 import type { Columns } from "reducers/uiReducers/querySchemaReducer";
-
-faker.seed(123);
 
 const Row = styled.div`
   display: flex;
@@ -61,6 +60,7 @@ interface Props {
 }
 
 const getRandomValueByType = (type: string) => {
+  console.log("$$$-type", type);
   switch (type) {
     case "gender":
       return faker.name.gender(true);
@@ -99,13 +99,15 @@ const getRandomValueByType = (type: string) => {
   }
 };
 
-function getBindingFromColumnsMeta(columnsMeta: Columns): string {
-  // create bindingQuery as a stringified object using columnsMeta selected columns key as object key and value according to the columntype value
+function getBindingFromColumnsMetaForWidget(columnsMeta: Columns): string {
   const sourceData: Record<string, unknown> = {};
   for (const [columnName, columnMeta] of Object.entries(columnsMeta || {})) {
-    if (columnMeta.isSelected) sourceData[columnName] = columnMeta.binding;
+    if (columnMeta.isSelected)
+      sourceData[columnName] = getRandomValueByType(columnMeta.type);
   }
   const bindingQuery = JSON.stringify(sourceData);
+  console.log("$$$", sourceData);
+
   return bindingQuery;
 }
 
@@ -117,7 +119,10 @@ const Schema = (props: Props) => {
   ) as DatasourceStructure | undefined;
 
   const columnsMeta = useSelector(getColumnsById(currentActionId));
-  const [widgetId, setWidgetId] = useState<string>("");
+  const [widgetInfo, setWidgetInfo] = useState<{ id: string; name: string }>({
+    id: "",
+    name: "",
+  });
 
   const { responseTabHeight } = useSelector(getQueryPaneDebuggerState);
   const [selectedTable, setSelectedTable] = useState<string | undefined>();
@@ -156,23 +161,29 @@ const Schema = (props: Props) => {
   );
 
   const handleColumnSelection =
-    (columnName: string) => (isSelected: boolean) => {
+    (columnName: string, type: string) => (isSelected: boolean) => {
       dispatch(
         updateQuerySchemaColumn({
           id: currentActionId,
           columnName,
           column: {
             isSelected,
+            binding: widgetInfo.name
+              ? `${widgetInfo.name}.sourceData.${columnName}`
+              : "",
+            type,
           },
         }),
       );
     };
 
   const handleWholeColumnSelection = (isSelected: boolean) => {
-    for (const [columnName] of Object.entries(columnsMeta || {})) {
-      handleColumnSelection(columnName)(isSelected);
+    for (const [columnName, value] of Object.entries(columnsMeta || {})) {
+      handleColumnSelection(columnName, value.type)(isSelected);
     }
   };
+
+  console.log("$$$-columnsMeta", columnsMeta);
 
   useEffect(() => {
     if (!columnsMeta && columns.length) {
@@ -191,13 +202,14 @@ const Schema = (props: Props) => {
           "latitude",
           "longitude",
           "image",
-        ].includes(name)
-          ? name
+        ].includes(name.toLowerCase())
+          ? name.toLowerCase()
           : dataType;
 
         initialColumnsMeta[name] = {
           isSelected: false,
-          binding: getRandomValueByType(type),
+          binding: "",
+          type,
         };
       }
 
@@ -237,14 +249,14 @@ const Schema = (props: Props) => {
     );
     if (columnsMeta) {
       dispatch(
-        updateWIdgetProperty({
-          widgetId,
+        updateWidgetProperty({
+          widgetId: widgetInfo.id,
           propertyPath: "sourceData",
-          propertyValue: getBindingFromColumnsMeta(columnsMeta),
+          propertyValue: getBindingFromColumnsMetaForWidget(columnsMeta),
         }),
       );
     }
-  }, [columnsMeta, selectedTable, dispatch, widgetId]);
+  }, [columnsMeta, selectedTable, dispatch, widgetInfo.id]);
 
   useEffect(() => {
     setSelectedTable(undefined);
@@ -262,7 +274,9 @@ const Schema = (props: Props) => {
 
     const suggestedWidget: SuggestedWidget = {
       type: "JSON_FORM_WIDGET",
-      bindingQuery: columnsMeta ? getBindingFromColumnsMeta(columnsMeta) : "",
+      bindingQuery: columnsMeta
+        ? getBindingFromColumnsMetaForWidget(columnsMeta)
+        : "",
     };
 
     const widgetName = getNextWidgetName(
@@ -285,10 +299,16 @@ const Schema = (props: Props) => {
 
     payload.skipWidgetSelection = true;
     payload.newWidgetId = generateReactKey();
-    setWidgetId(payload.newWidgetId);
+    setWidgetInfo({ id: payload.newWidgetId, name: widgetName });
 
     dispatch(addSuggestedWidget(payload));
-  }, [columnsMeta, dispatch]);
+    dispatch(
+      updateQuerySchemaColumnsBinding({
+        widgetName,
+        actionId: currentActionId,
+      }),
+    );
+  }, [columnsMeta, dispatch, currentActionId]);
 
   if (!datasourceStructure) {
     return (
@@ -374,7 +394,7 @@ const Schema = (props: Props) => {
                 <Row key={field.name}>
                   <Checkbox
                     isSelected={columnsMeta?.[field.name]?.isSelected}
-                    onChange={handleColumnSelection(field.name)}
+                    onChange={handleColumnSelection(field.name, field.type)}
                   >
                     {field.name}
                   </Checkbox>
