@@ -1727,9 +1727,11 @@ function* addSuggestedWidget(action: ReduxAction<Partial<WidgetProps>>) {
 
   const widgetName = getNextWidgetName(widgets, widgetConfig.type, evalTree);
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+
+  const widgetId = action.payload.newWidgetId || generateReactKey();
   try {
     let newWidget = {
-      newWidgetId: generateReactKey(),
+      newWidgetId: widgetId,
       widgetId: "0",
       parentId: "0",
       renderMode: RenderModes.CANVAS,

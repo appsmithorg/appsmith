@@ -26,13 +26,19 @@ import {
   initQuerySchema,
   updateQuerySchemaColumn,
 } from "actions/queryScehmaActions";
-import { addSuggestedWidget } from "actions/widgetActions";
+import {
+  addSuggestedWidget,
+  updateWIdgetProperty,
+} from "actions/widgetActions";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
 import { getWidgets } from "sagas/selectors";
 import store from "store";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgetProps } from "pages/Editor/QueryEditor/BindDataButton";
 import type { SuggestedWidget } from "api/ActionAPI";
+import { generateReactKey } from "utils/generators";
+
+faker.seed(123);
 
 export interface ColumnMeta {
   isSelected: boolean;
@@ -60,6 +66,18 @@ interface Props {
   currentActionId: string;
 }
 
+function getBindingFromColumnsMeta(columnsMeta: Columns): string {
+  // create bindingQuery as a stringified object using columnsMeta selected columns key as object key and value according to the columntype value
+  const sourceData: Record<string, unknown> = {};
+  for (const [columnName, columnMeta] of Object.entries(columnsMeta || {})) {
+    if (columnMeta.isSelected) {
+      sourceData[columnName] = columnMeta.binding;
+    }
+  }
+  const bindingQuery = JSON.stringify(sourceData);
+  return bindingQuery;
+}
+
 const Schema = (props: Props) => {
   const { currentActionId, datasourceId } = props;
   const dispatch = useDispatch();
@@ -68,6 +86,7 @@ const Schema = (props: Props) => {
   ) as DatasourceStructure | undefined;
 
   const columnsMeta = useSelector(getColumnsById(currentActionId));
+  const [widgetId, setWidgetId] = useState<string>("");
 
   const { responseTabHeight } = useSelector(getQueryPaneDebuggerState);
   const [selectedTable, setSelectedTable] = useState<string | undefined>();
@@ -163,7 +182,16 @@ const Schema = (props: Props) => {
         ),
       ),
     );
-  }, [columnsMeta, selectedTable, dispatch]);
+    if (columnsMeta) {
+      dispatch(
+        updateWIdgetProperty({
+          widgetId,
+          propertyPath: "sourceData",
+          propertyValue: getBindingFromColumnsMeta(columnsMeta),
+        }),
+      );
+    }
+  }, [columnsMeta, selectedTable, dispatch, widgetId]);
 
   useEffect(() => {
     setSelectedTable(undefined);
@@ -174,23 +202,14 @@ const Schema = (props: Props) => {
       setSelectedTable(datasourceStructure.tables[0].name);
     }
   }, [selectedTable, datasourceId, isLoading, datasourceStructure?.tables]);
+
   const addWidget = useCallback(() => {
     const canvasWidgets = getWidgets(store.getState());
-    if (Object.values(canvasWidgets).length) return;
     const dataTree = getDataTree(store.getState());
-
-    // create bindingQuery as a stringified object using columnsMeta selected columns key as object key and value according to the columntype value
-    const sourceData: Record<string, unknown> = {};
-    for (const [columnName, columnMeta] of Object.entries(columnsMeta || {})) {
-      if (columnMeta.isSelected) {
-        sourceData[columnName] = faker.animal.cat();
-      }
-    }
-    const bindingQuery = JSON.stringify(sourceData);
 
     const suggestedWidget: SuggestedWidget = {
       type: "JSON_FORM_WIDGET",
-      bindingQuery,
+      bindingQuery: columnsMeta ? getBindingFromColumnsMeta(columnsMeta) : "",
     };
 
     const widgetName = getNextWidgetName(
@@ -204,14 +223,19 @@ const Schema = (props: Props) => {
       widgetName,
     };
 
-    const payload = getWidgetProps(suggestedWidget, widgetInfo, "", widgetName);
-    // @ts-expect-error skipWidgetSelection needs to be added to the payload
+    const payload: any = getWidgetProps(
+      suggestedWidget,
+      widgetInfo,
+      "",
+      widgetName,
+    );
+
     payload.skipWidgetSelection = true;
+    payload.newWidgetId = generateReactKey();
+    setWidgetId(payload.newWidgetId);
 
     dispatch(addSuggestedWidget(payload));
   }, [columnsMeta, dispatch]);
-
-  // const columnHasBinding = true;
 
   if (!datasourceStructure) {
     return (

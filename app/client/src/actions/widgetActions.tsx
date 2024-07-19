@@ -9,6 +9,7 @@ import { batchAction } from "actions/batchActions";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { PartialExportParams } from "sagas/PartialImportExportSagas";
 import type { PasteWidgetReduxAction } from "constants/WidgetConstants";
+import type { UpdateWidgetPropertyRequestPayload } from "./controlActions";
 
 export const widgetInitialisationSuccess = () => {
   return {
@@ -129,6 +130,15 @@ export const deleteSelectedWidget = (
 export const cutWidget = () => {
   return {
     type: ReduxActionTypes.CUT_SELECTED_WIDGET,
+  };
+};
+
+export const updateWIdgetProperty = (
+  payload: UpdateWidgetPropertyRequestPayload,
+) => {
+  return {
+    type: WidgetReduxActionTypes.WIDGET_UPDATE_PROPERTY,
+    payload,
   };
 };
 
