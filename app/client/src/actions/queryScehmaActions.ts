@@ -15,7 +15,7 @@ export const initQuerySchema = (payload: { id: string; columns: Columns }) => {
 export const updateQuerySchemaColumn = (payload: {
   id: string;
   columnName: string;
-  column: ColumnMeta;
+  column: Partial<ColumnMeta>;
 }) => {
   return {
     type: ReduxActionTypes.UPDATE_QUERY_SCHEMA_COLUMN,
