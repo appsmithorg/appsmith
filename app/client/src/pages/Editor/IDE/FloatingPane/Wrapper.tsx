@@ -17,7 +17,7 @@ interface Props {
 
 const StyledFloatingContainer = styled(animated.div)`
   z-index: 1000;
-  padding: 8px;
+  padding: var(--ads-v2-spaces-4);
   border: 1px solid var(--ads-v2-color-border);
   border-radius: var(--ads-v2-border-radius);
   background-color: var(--ads-v2-color-bg);
