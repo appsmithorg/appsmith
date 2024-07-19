@@ -165,7 +165,6 @@ export function SettingsControl(props: SettingsControlProps) {
       data-testid="t--widget-propertypane-toggle"
       inverted={props.inverted}
       onClick={props.toggleSettings}
-      ref={miniPaneReferenceElementRef}
       style={getStyles(
         props.activity,
         props.errorCount,
@@ -183,7 +182,7 @@ export function SettingsControl(props: SettingsControlProps) {
         mouseEnterDelay={0}
         placement="topRight"
       >
-        <div>
+        <div className="flex">
           {!!props.errorCount && !isSnipingMode && errorIcon}
           {isSnipingMode && (
             <Icon
@@ -199,7 +198,9 @@ export function SettingsControl(props: SettingsControlProps) {
       </Tooltip>
       {showMiniPaneIcon && <div className="w-[2px] h-full bg-white" />}
       {showMiniPaneIcon && (
-        <Icon name="widgets-v3" onClick={handlerShowMiniPropertyPane} />
+        <div ref={miniPaneReferenceElementRef}>
+          <Icon name="widgets-v3" onClick={handlerShowMiniPropertyPane} />
+        </div>
       )}
     </SettingsWrapper>
   );
