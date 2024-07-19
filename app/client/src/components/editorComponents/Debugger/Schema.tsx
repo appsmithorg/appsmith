@@ -1,6 +1,10 @@
 import { Checkbox, Flex, Text } from "design-system";
 import React, { useEffect, useMemo, useState } from "react";
-import type { DatasourceColumns, DatasourceKeys } from "entities/Datasource";
+import type {
+  DatasourceColumns,
+  DatasourceKeys,
+  DatasourceStructure,
+} from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 import { DatasourceStructureContainer as DatasourceStructureList } from "pages/Editor/DatasourceInfo/DatasourceStructureContainer";
 import { useDispatch, useSelector } from "react-redux";
@@ -8,25 +12,26 @@ import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
 } from "@appsmith/selectors/entitiesSelector";
-
-import { find } from "lodash";
+import { find, set } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import RenderInterimDataState from "pages/Editor/DatasourceInfo/RenderInterimDataState";
 import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
-import { getColumnsById } from "selectors/querySchemaSelectors";
 import styled from "styled-components";
-import {
-  initQuerySchema,
-  updateQuerySchemaColumn,
-} from "actions/querySchemaActions";
-import type { Columns } from "reducers/uiReducers/querySchemaReducer";
+import { change } from "redux-form";
+import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import PostgreSQL from "WidgetQueryGenerators/PostgreSQL";
+
+export interface ColumnMeta {
+  isSelected: boolean;
+  value: string;
+}
+
+export type Columns = Record<string, ColumnMeta>;
 
 const Row = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  border-bottom: 1px solid var(--ads-v2-color-border);
-  border-bottom: 1px solid #cdd5df;
 `;
 
 const Brackets = styled(Text)`
@@ -45,14 +50,14 @@ const Schema = (props: Props) => {
   const dispatch = useDispatch();
   const datasourceStructure = useSelector((state) =>
     getDatasourceStructureById(state, datasourceId),
-  );
+  ) as DatasourceStructure | undefined;
 
-  const columnsMeta = useSelector(getColumnsById(datasourceId));
+  const [columnsMeta, setColumnsMeta] = useState<Columns>({});
 
   const { responseTabHeight } = useSelector(getQueryPaneDebuggerState);
-  const [selectedTable, setSelectedTable] = useState<string>();
+  const [selectedTable, setSelectedTable] = useState<string | undefined>();
 
-  const selectedTableItems = find(datasourceStructure?.tables, [
+  const selectedTableItems = find(datasourceStructure?.tables || [], [
     "name",
     selectedTable,
   ]);
@@ -94,13 +99,31 @@ const Schema = (props: Props) => {
 
   const handleColumnSelection =
     (columnName: string) => (isSelected: boolean) => {
-      dispatch(
-        updateQuerySchemaColumn({
-          id: datasourceId,
-          columnName,
-          column: { isSelected, binding: "" },
-        }),
-      );
+      const newColumnsMeta = { ...columnsMeta };
+      set(newColumnsMeta, `${columnName}.isSelected`, isSelected);
+      setColumnsMeta(newColumnsMeta);
+      const columnsToGenerateQuery: Array<{ name: string; value: string }> = [];
+      Object.entries(newColumnsMeta).forEach(([columnName, column]) => {
+        if (column.isSelected) {
+          columnsToGenerateQuery.push({
+            name: columnName,
+            value: column.value,
+          });
+        }
+      });
+
+      if (selectedTable && columnsToGenerateQuery.length) {
+        dispatch(
+          change(
+            QUERY_EDITOR_FORM_NAME,
+            "actionConfiguration.body",
+            PostgreSQL.generateInsertBody(
+              selectedTable,
+              columnsToGenerateQuery,
+            ),
+          ),
+        );
+      }
     };
 
   const handleWholeColumnSelection = (isSelected: boolean) => {
@@ -110,23 +133,17 @@ const Schema = (props: Props) => {
   };
 
   useEffect(() => {
-    if (!columnsMeta && columns.length) {
-      const initialColumnsMeta: Columns = {};
-      for (const { name } of columns) {
-        initialColumnsMeta[name] = {
+    if (columns.length) {
+      const newColumnsMeta: Columns = {};
+      columns.forEach((column) => {
+        newColumnsMeta[column.name] = {
           isSelected: false,
-          binding: "",
+          value: "",
         };
-      }
-
-      dispatch(
-        initQuerySchema({
-          id: datasourceId,
-          columns: initialColumnsMeta,
-        }),
-      );
+      });
+      setColumnsMeta(newColumnsMeta);
     }
-  }, [columns, dispatch, datasourceId, columnsMeta]);
+  }, [columns, dispatch, datasourceId]);
 
   useEffect(() => {
     setSelectedTable(undefined);
@@ -136,7 +153,7 @@ const Schema = (props: Props) => {
     if (!selectedTable && datasourceStructure?.tables?.length && !isLoading) {
       setSelectedTable(datasourceStructure.tables[0].name);
     }
-  }, [selectedTable, datasourceId, isLoading, datasourceStructure.tables]);
+  }, [selectedTable, datasourceId, isLoading, datasourceStructure?.tables]);
 
   if (!datasourceStructure) {
     return (

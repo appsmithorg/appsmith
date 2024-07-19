@@ -81,7 +81,6 @@ import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { SelectedWorkspaceReduxState } from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
 import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
 import type { BuildingBlocksReduxState } from "reducers/uiReducers/buildingBlockReducer";
-import type { QuerySchema } from "reducers/uiReducers/querySchemaReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -147,7 +146,6 @@ export interface AppState {
     oneClickBinding: OneClickBindingState;
     activeField: ActiveField;
     ide: IDEState;
-    querySchema: QuerySchema;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
