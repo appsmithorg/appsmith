@@ -12,7 +12,7 @@ import {
   getDatasourceStructureById,
   getIsFetchingDatasourceStructure,
 } from "@appsmith/selectors/entitiesSelector";
-import { find, set } from "lodash";
+import { find } from "lodash";
 import type { AppState } from "@appsmith/reducers";
 import RenderInterimDataState from "pages/Editor/DatasourceInfo/RenderInterimDataState";
 import { getQueryPaneDebuggerState } from "selectors/queryPaneSelectors";
@@ -20,10 +20,15 @@ import styled from "styled-components";
 import { change } from "redux-form";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
 import PostgreSQL from "WidgetQueryGenerators/PostgreSQL";
+import { getColumnsById } from "selectors/querySchemaSelectors";
+import {
+  initQuerySchema,
+  updateQuerySchemaColumn,
+} from "actions/queryScehmaActions";
 
 export interface ColumnMeta {
   isSelected: boolean;
-  value: string;
+  binding: string;
 }
 
 export type Columns = Record<string, ColumnMeta>;
@@ -32,6 +37,8 @@ const Row = styled.div`
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  border-bottom: 1px solid var(--ads-v2-color-border);
+  border-bottom: 1px solid #cdd5df;
 `;
 
 const Brackets = styled(Text)`
@@ -46,13 +53,13 @@ interface Props {
 }
 
 const Schema = (props: Props) => {
-  const { datasourceId } = props;
+  const { currentActionId, datasourceId } = props;
   const dispatch = useDispatch();
   const datasourceStructure = useSelector((state) =>
     getDatasourceStructureById(state, datasourceId),
   ) as DatasourceStructure | undefined;
 
-  const [columnsMeta, setColumnsMeta] = useState<Columns>({});
+  const columnsMeta = useSelector(getColumnsById(currentActionId));
 
   const { responseTabHeight } = useSelector(getQueryPaneDebuggerState);
   const [selectedTable, setSelectedTable] = useState<string | undefined>();
@@ -99,51 +106,63 @@ const Schema = (props: Props) => {
 
   const handleColumnSelection =
     (columnName: string) => (isSelected: boolean) => {
-      const newColumnsMeta = { ...columnsMeta };
-      set(newColumnsMeta, `${columnName}.isSelected`, isSelected);
-      setColumnsMeta(newColumnsMeta);
-      const columnsToGenerateQuery: Array<{ name: string; value: string }> = [];
-      Object.entries(newColumnsMeta).forEach(([columnName, column]) => {
-        if (column.isSelected) {
-          columnsToGenerateQuery.push({
-            name: columnName,
-            value: column.value,
-          });
-        }
-      });
-
-      if (selectedTable && columnsToGenerateQuery.length) {
-        dispatch(
-          change(
-            QUERY_EDITOR_FORM_NAME,
-            "actionConfiguration.body",
-            PostgreSQL.generateInsertBody(
-              selectedTable,
-              columnsToGenerateQuery,
-            ),
-          ),
-        );
-      }
+      dispatch(
+        updateQuerySchemaColumn({
+          id: currentActionId,
+          columnName,
+          column: { isSelected, binding: "" },
+        }),
+      );
     };
 
   const handleWholeColumnSelection = (isSelected: boolean) => {
-    for (const [columnName] of Object.entries(columnsMeta)) {
+    for (const [columnName] of Object.entries(columnsMeta || {})) {
       handleColumnSelection(columnName)(isSelected);
     }
   };
 
   useEffect(() => {
-    if (columns.length) {
-      const newColumnsMeta: Columns = {};
-      columns.forEach((column) => {
-        newColumnsMeta[column.name] = {
+    if (!columnsMeta && columns.length) {
+      const initialColumnsMeta: Columns = {};
+      for (const { name } of columns) {
+        initialColumnsMeta[name] = {
           isSelected: false,
-          value: "",
+          binding: "",
         };
-      });
-      setColumnsMeta(newColumnsMeta);
+      }
+
+      dispatch(
+        initQuerySchema({
+          id: currentActionId,
+          columns: initialColumnsMeta,
+        }),
+      );
     }
-  }, [columns, dispatch, datasourceId]);
+  }, [columns, dispatch, currentActionId, columnsMeta]);
+
+  useEffect(() => {
+    const columnsToGenerateQuery: Array<{ name: string; value: string }> = [];
+
+    for (const [columnName, columnMeta] of Object.entries(columnsMeta || {})) {
+      if (columnMeta.isSelected) {
+        columnsToGenerateQuery.push({
+          name: columnName,
+          value: columnMeta.binding,
+        });
+      }
+    }
+
+    dispatch(
+      change(
+        QUERY_EDITOR_FORM_NAME,
+        "actionConfiguration.body",
+        PostgreSQL.generateInsertBody(
+          selectedTable || "",
+          columnsToGenerateQuery,
+        ),
+      ),
+    );
+  }, [columnsMeta, selectedTable, dispatch]);
 
   useEffect(() => {
     setSelectedTable(undefined);
@@ -166,6 +185,8 @@ const Schema = (props: Props) => {
       </Flex>
     );
   }
+
+  const columnHasBinding = false;
 
   return (
     <Flex
@@ -227,7 +248,7 @@ const Schema = (props: Props) => {
               return (
                 <Row key={field.name}>
                   <Checkbox
-                    isSelected={columnsMeta[field.name]?.isSelected}
+                    isSelected={columnsMeta?.[field.name]?.isSelected}
                     onChange={handleColumnSelection(field.name)}
                   >
                     {field.name}
@@ -240,10 +261,13 @@ const Schema = (props: Props) => {
                       width: "auto",
                     }}
                   >
-                    <Brackets
-                      kind="code"
-                      onClick={handleBindingClick}
-                    >{`{{ }}`}</Brackets>
+                    {columnHasBinding && (
+                      <Brackets
+                        kind="code"
+                        onClick={handleBindingClick}
+                      >{`{{ }}`}</Brackets>
+                    )}
+
                     {field.type}
                   </div>
                 </Row>

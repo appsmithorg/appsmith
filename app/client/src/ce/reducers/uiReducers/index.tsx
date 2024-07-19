@@ -50,6 +50,7 @@ import activeFieldReducer from "reducers/uiReducers/activeFieldEditorReducer";
 import selectedWorkspaceReducer from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
 import ideReducer from "../../../reducers/uiReducers/ideReducer";
 import consolidatedPageLoadReducer from "reducers/uiReducers/consolidatedPageLoadReducer";
+import querySchemaReducer from "reducers/uiReducers/querySchemaReducer";
 
 export const uiReducerObject = {
   analytics: analyticsReducer,
@@ -104,4 +105,5 @@ export const uiReducerObject = {
   activeField: activeFieldReducer,
   ide: ideReducer,
   consolidatedPageLoad: consolidatedPageLoadReducer,
+  querySchema: querySchemaReducer,
 };
