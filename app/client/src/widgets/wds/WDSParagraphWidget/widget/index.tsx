@@ -107,21 +107,21 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   };
 
   handleToggleBoldFontStyle = () => {
-    this.dispatchPropertiesChangeEvent({
-      fontStyle: this.resolveFontStyle(
-        !this.props.fontStyle.includes("bold"),
-        this.props.fontStyle.includes("italic"),
-      ),
-    });
+    const fontStyle = this.resolveFontStyle(
+      !this.props.fontStyle.includes("bold"),
+      this.props.fontStyle.includes("italic"),
+    );
+
+    this.dispatchPropertiesChangeEvent({ fontStyle });
   };
 
   handleToggleItalicFontStyle = () => {
-    this.dispatchPropertiesChangeEvent({
-      fontStyle: this.resolveFontStyle(
-        this.props.fontStyle.includes("bold"),
-        !this.props.fontStyle.includes("italic"),
-      ),
-    });
+    const fontStyle = this.resolveFontStyle(
+      this.props.fontStyle.includes("bold"),
+      !this.props.fontStyle.includes("italic"),
+    );
+
+    this.dispatchPropertiesChangeEvent({ fontStyle });
   };
 
   handleTextAlignChange = (align: string) => {
@@ -204,14 +204,14 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             <ToggleButton
               className={styles.fontStyleButton}
               icon="text-bold"
-              isSelected={this.props.fontStyle.includes("bold")}
+              isSelected={this.props.fontStyle?.includes("bold")}
               onClick={this.handleToggleBoldFontStyle}
               size="lg"
             />
             <ToggleButton
               className={styles.fontStyleButton}
               icon="text-italic"
-              isSelected={this.props.fontStyle.includes("italic")}
+              isSelected={this.props.fontStyle?.includes("italic")}
               onClick={this.handleToggleItalicFontStyle}
               size="lg"
             />
