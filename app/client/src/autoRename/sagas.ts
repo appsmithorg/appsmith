@@ -9,7 +9,8 @@ import type { Action, PluginType } from "entities/Action";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { updateWidgetName } from "actions/propertyPaneActions";
 
-import { getNewEntityName } from "./utils";
+import { getNewEntityName, getNewWidgetName } from "./utils";
+import WidgetFactory from "WidgetProvider/factory";
 
 type AutoRenameActionSaga = ReduxAction<Record<string, unknown>>;
 
@@ -52,7 +53,8 @@ function* autoRenameWidgetSaga(reduxAction: ReduxAction<any>) {
   const updatedWidgetId = reduxAction.payload.updatedWidgetIds[0];
   const widget = reduxAction.payload.widgets[updatedWidgetId] as WidgetProps;
   const prevWidgetName = widget.widgetName;
-  const generatedName: string = yield getNewEntityName("WIDGET", widget);
+  const widgetConfig = WidgetFactory.getConfig(widget.type as string);
+  const generatedName: string = getNewWidgetName(widget, widgetConfig);
 
   if (prevWidgetName !== generatedName) {
     shouldRename = true;
