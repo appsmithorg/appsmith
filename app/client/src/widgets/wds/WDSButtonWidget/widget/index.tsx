@@ -143,17 +143,35 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
     }
   };
 
-  onTextChange = (event: ChangeEvent<HTMLDivElement>) => {
+  dispatchPropertiesChangeEvent = (properties: Record<string, any>) => {
     this.ref?.dispatchEvent(
-      new CustomEvent("WIDGET_EDIT_TEXT", {
+      new CustomEvent("CHANGE_WIDGET_PROPERTY", {
         bubbles: true,
         cancelable: true,
         detail: {
           widgetId: this.props.widgetId,
-          text: event.target.textContent,
+          properties,
         },
       }),
     );
+  };
+
+  handleTextChange = (event: ChangeEvent<HTMLDivElement>) => {
+    this.dispatchPropertiesChangeEvent({
+      text: event.target.textContent,
+    });
+  };
+
+  handleVariantChange = (variant: string) => {
+    this.dispatchPropertiesChangeEvent({
+      buttonVariant: variant,
+    });
+  };
+
+  handleColorChange = (color: string) => {
+    this.dispatchPropertiesChangeEvent({
+      buttonColor: color,
+    });
   };
 
   getWidgetView() {
@@ -183,7 +201,7 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           <div
             className={this.props.isWidgetSelected ? styles.editableText : ""}
             contentEditable={this.props.isWidgetSelected}
-            onBlur={this.onTextChange}
+            onBlur={this.handleTextChange}
             ref={(ref) => (this.ref = ref)}
           >
             <ButtonComponent
@@ -214,21 +232,18 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
           <div className={styles.floatingPanel}>
             <SegmentedControl
               className={styles.fontAlignSegmentedControl}
-              defaultValue="filled"
               isFullWidth
-              onChange={() => {}}
+              onChange={this.handleVariantChange}
               options={objectKeys(BUTTON_VARIANTS).map((variant) => ({
                 label: BUTTON_VARIANTS[variant],
                 value: variant,
               }))}
+              value={this.props.buttonVariant}
             />
             <Select
               className={styles.fontSelect}
-              defaultValue="accent"
-              onSelect={(value, option) => {
-                // eslint-disable-next-line no-console
-                console.log(value, option);
-              }}
+              onSelect={this.handleColorChange}
+              value={this.props.buttonColor}
             >
               {Object.values(COLORS).map((color) => (
                 <Option key={color} value={color}>
