@@ -229,8 +229,6 @@ const Schema = (props: Props) => {
     );
   }
 
-  const columnHasBinding = false;
-
   return (
     <Flex
       flexDirection="row"
