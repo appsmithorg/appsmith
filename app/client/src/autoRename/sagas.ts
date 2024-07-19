@@ -47,6 +47,8 @@ function* autoRenameActionSaga(action: AutoRenameActionSaga) {
 function* autoRenameWidgetSaga(reduxAction: ReduxAction<any>) {
   let shouldRename = false;
 
+  if (!reduxAction.payload.updatedWidgetIds?.length) return;
+
   const updatedWidgetId = reduxAction.payload.updatedWidgetIds[0];
   const widget = reduxAction.payload.widgets[updatedWidgetId] as WidgetProps;
   const prevWidgetName = widget.widgetName;
