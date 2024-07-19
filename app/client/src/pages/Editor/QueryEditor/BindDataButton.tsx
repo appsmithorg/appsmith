@@ -140,7 +140,7 @@ export const WIDGET_DATA_FIELD_MAP: Record<string, WidgetBindingInfo> = {
 // This function and the above map can resolve the abstraction leaks, if the widgets themselves provide these configurations.
 // We can then access them via the widget configs and avoid mentioning individual widget types
 // Created an issue here: https://github.com/appsmithorg/appsmith/issues/34813
-function getWidgetProps(
+export function getWidgetProps(
   suggestedWidget: SuggestedWidget,
   widgetInfo: WidgetBindingInfo,
   actionName: string,
@@ -210,6 +210,15 @@ function getWidgetProps(
         type: suggestedWidget.type,
         props: {
           [fieldName]: `{{JSON.stringify(${actionName}.${suggestedWidget.bindingQuery}, null, 2)}}`,
+          dynamicBindingPathList: [{ key: widgetInfo.propertyName }],
+        },
+      };
+
+    case "JSON_FORM_WIDGET":
+      return {
+        type: suggestedWidget.type,
+        props: {
+          [fieldName]: `{{${suggestedWidget.bindingQuery}}}`,
           dynamicBindingPathList: [{ key: widgetInfo.propertyName }],
         },
       };
