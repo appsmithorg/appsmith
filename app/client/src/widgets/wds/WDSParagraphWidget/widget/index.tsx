@@ -107,19 +107,23 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   };
 
   handleToggleBoldFontStyle = () => {
-    const fontStyle = this.resolveFontStyle(
-      !this.props.fontStyle.includes("bold"),
-      this.props.fontStyle.includes("italic"),
-    );
+    const fontStyle = this.props.fontStyle
+      ? this.resolveFontStyle(
+          !this.props.fontStyle.includes("bold"),
+          this.props.fontStyle.includes("italic"),
+        )
+      : "bold";
 
     this.dispatchPropertiesChangeEvent({ fontStyle });
   };
 
   handleToggleItalicFontStyle = () => {
-    const fontStyle = this.resolveFontStyle(
-      this.props.fontStyle.includes("bold"),
-      !this.props.fontStyle.includes("italic"),
-    );
+    const fontStyle = this.props.fontStyle
+      ? this.resolveFontStyle(
+          this.props.fontStyle.includes("bold"),
+          !this.props.fontStyle.includes("italic"),
+        )
+      : "italic";
 
     this.dispatchPropertiesChangeEvent({ fontStyle });
   };
