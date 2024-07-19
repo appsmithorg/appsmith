@@ -1,5 +1,5 @@
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Checkbox, Flex, Text, Button } from "design-system";
-import React, { useEffect, useMemo, useState } from "react";
 import type {
   DatasourceColumns,
   DatasourceKeys,
@@ -25,6 +25,13 @@ import {
   initQuerySchema,
   updateQuerySchemaColumn,
 } from "actions/queryScehmaActions";
+import { addSuggestedWidget } from "actions/widgetActions";
+import { getNextWidgetName } from "sagas/WidgetOperationUtils";
+import { getWidgets } from "sagas/selectors";
+import store from "store";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import { getWidgetProps } from "pages/Editor/QueryEditor/BindDataButton";
+import type { SuggestedWidget } from "api/ActionAPI";
 
 export interface ColumnMeta {
   isSelected: boolean;
@@ -97,9 +104,6 @@ const Schema = (props: Props) => {
     getIsFetchingDatasourceStructure(state, datasourceId),
   );
 
-  // eslint-disable-next-line no-console
-  const handleBindingClick = console.log;
-
   const handleColumnSelection =
     (columnName: string) => (isSelected: boolean) => {
       dispatch(
@@ -170,6 +174,45 @@ const Schema = (props: Props) => {
     }
   }, [selectedTable, datasourceId, isLoading, datasourceStructure?.tables]);
 
+  const addWidget = useCallback(() => {
+    const canvasWidgets = getWidgets(store.getState());
+    const dataTree = getDataTree(store.getState());
+
+    // create bindingQuery as a stringified object using columnsMeta selected columns key as object key and value according to the columntype value
+    const sourceData: Record<string, unknown> = {};
+    for (const [columnName, columnMeta] of Object.entries(columnsMeta || {})) {
+      if (columnMeta.isSelected) {
+        sourceData[columnName] = columnMeta.binding;
+      }
+    }
+    const bindingQuery = JSON.stringify(sourceData);
+
+    const suggestedWidget: SuggestedWidget = {
+      type: "JSON_FORM_WIDGET",
+      bindingQuery,
+    };
+
+    const widgetName = getNextWidgetName(
+      canvasWidgets,
+      suggestedWidget.type,
+      dataTree,
+    );
+    const widgetInfo = {
+      label: "sourceData",
+      propertyName: "sourceData",
+      widgetName,
+    };
+
+    const payload = getWidgetProps(suggestedWidget, widgetInfo, "", widgetName);
+    // @ts-expect-error skipWidgetSelection needs to be added to the payload
+    payload.skipWidgetSelection = true;
+
+    dispatch(addSuggestedWidget(payload));
+  }, [columnsMeta, dispatch]);
+
+  const handleBindingClick = addWidget;
+  const columnHasBinding = true;
+
   if (!datasourceStructure) {
     return (
       <Flex alignItems="center" flex="1" height="100%" justifyContent="center">
@@ -181,8 +224,6 @@ const Schema = (props: Props) => {
       </Flex>
     );
   }
-
-  const columnHasBinding = false;
 
   return (
     <Flex
