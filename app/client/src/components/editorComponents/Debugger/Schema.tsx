@@ -1,4 +1,3 @@
-import { Checkbox, Flex, Text } from "design-system";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { faker } from "@faker-js/faker";
 import { Checkbox, Flex, Text, Button } from "design-system";
@@ -38,6 +37,8 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgetProps } from "pages/Editor/QueryEditor/BindDataButton";
 import type { SuggestedWidget } from "api/ActionAPI";
 import { generateReactKey } from "utils/generators";
+
+faker.seed(123);
 
 export interface ColumnMeta {
   isSelected: boolean;
@@ -190,7 +191,7 @@ const Schema = (props: Props) => {
         }),
       );
     }
-  }, [columnsMeta, selectedTable, dispatch]);
+  }, [columnsMeta, selectedTable, dispatch, widgetId]);
 
   useEffect(() => {
     setSelectedTable(undefined);
@@ -201,44 +202,6 @@ const Schema = (props: Props) => {
       setSelectedTable(datasourceStructure.tables[0].name);
     }
   }, [selectedTable, datasourceId, isLoading, datasourceStructure?.tables]);
-  const addWidget = useCallback(() => {
-    const canvasWidgets = getWidgets(store.getState());
-    if (Object.values(canvasWidgets).length) return;
-    const dataTree = getDataTree(store.getState());
-
-    // create bindingQuery as a stringified object using columnsMeta selected columns key as object key and value according to the columntype value
-    const sourceData: Record<string, unknown> = {};
-    for (const [columnName, columnMeta] of Object.entries(columnsMeta || {})) {
-      if (columnMeta.isSelected) {
-        sourceData[columnName] = faker.animal.cat();
-      }
-    }
-    const bindingQuery = JSON.stringify(sourceData);
-
-    const suggestedWidget: SuggestedWidget = {
-      type: "JSON_FORM_WIDGET",
-      bindingQuery,
-    };
-
-    const widgetName = getNextWidgetName(
-      canvasWidgets,
-      suggestedWidget.type,
-      dataTree,
-    );
-    const widgetInfo = {
-      label: "sourceData",
-      propertyName: "sourceData",
-      widgetName,
-    };
-
-    const payload = getWidgetProps(suggestedWidget, widgetInfo, "", widgetName);
-    // @ts-expect-error skipWidgetSelection needs to be added to the payload
-    payload.skipWidgetSelection = true;
-
-    dispatch(addSuggestedWidget(payload));
-  }, [columnsMeta, dispatch]);
-
-  // const columnHasBinding = true;
 
   const addWidget = useCallback(() => {
     const canvasWidgets = getWidgets(store.getState());
@@ -273,9 +236,6 @@ const Schema = (props: Props) => {
 
     dispatch(addSuggestedWidget(payload));
   }, [columnsMeta, dispatch]);
-
-  const handleBindingClick = addWidget;
-  const columnHasBinding = true;
 
   if (!datasourceStructure) {
     return (
