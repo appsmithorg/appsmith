@@ -38,15 +38,7 @@ import { getDataTree } from "selectors/dataTreeSelectors";
 import { getWidgetProps } from "pages/Editor/QueryEditor/BindDataButton";
 import type { SuggestedWidget } from "api/ActionAPI";
 import { generateReactKey } from "utils/generators";
-
-faker.seed(123);
-
-export interface ColumnMeta {
-  isSelected: boolean;
-  binding: string;
-}
-
-export type Columns = Record<string, ColumnMeta>;
+import type { Columns } from "reducers/uiReducers/querySchemaReducer";
 
 const Row = styled.div`
   display: flex;
@@ -67,15 +59,55 @@ interface Props {
   currentActionId: string;
 }
 
-function getBindingFromColumnsMeta(columnsMeta: Columns): string {
-  // create bindingQuery as a stringified object using columnsMeta selected columns key as object key and value according to the columntype value
+const getRandomValueByType = (type: string) => {
+  console.log("$$$-type", type);
+  switch (type) {
+    case "gender":
+      return faker.name.gender(true);
+    case "phone":
+      return faker.phone.number();
+    case "email":
+      return faker.internet.email();
+    case "country":
+      return faker.address.country();
+    case "name":
+      return faker.name.firstName();
+    case "latitude":
+      return faker.address.latitude();
+    case "longitude":
+      return faker.address.longitude();
+    case "primary key":
+    case "primary_key":
+      return faker.datatype.uuid();
+    case "image":
+      return faker.animal.type();
+    case "text":
+      return faker.lorem.word();
+    case "int4":
+    case "int8":
+    case "int16":
+    case "int32":
+      return faker.random.numeric();
+    case "boolean":
+      return Math.random() >= 0.5;
+    case "date":
+    case "timestamp":
+    case "timestamptz":
+      return faker.date.past();
+    default:
+      return faker.lorem.word();
+  }
+};
+
+function getBindingFromColumnsMetaForWidget(columnsMeta: Columns): string {
   const sourceData: Record<string, unknown> = {};
   for (const [columnName, columnMeta] of Object.entries(columnsMeta || {})) {
-    if (columnMeta.isSelected) {
-      sourceData[columnName] = "fake value";
-    }
+    if (columnMeta.isSelected)
+      sourceData[columnName] = getRandomValueByType(columnMeta.type);
   }
   const bindingQuery = JSON.stringify(sourceData);
+  console.log("$$$", sourceData);
+
   return bindingQuery;
 }
 
@@ -129,7 +161,7 @@ const Schema = (props: Props) => {
   );
 
   const handleColumnSelection =
-    (columnName: string) => (isSelected: boolean) => {
+    (columnName: string, type: string) => (isSelected: boolean) => {
       dispatch(
         updateQuerySchemaColumn({
           id: currentActionId,
@@ -139,24 +171,45 @@ const Schema = (props: Props) => {
             binding: widgetInfo.name
               ? `${widgetInfo.name}.sourceData.${columnName}`
               : "",
+            type,
           },
         }),
       );
     };
 
   const handleWholeColumnSelection = (isSelected: boolean) => {
-    for (const [columnName] of Object.entries(columnsMeta || {})) {
-      handleColumnSelection(columnName)(isSelected);
+    for (const [columnName, value] of Object.entries(columnsMeta || {})) {
+      handleColumnSelection(columnName, value.type)(isSelected);
     }
   };
+
+  console.log("$$$-columnsMeta", columnsMeta);
 
   useEffect(() => {
     if (!columnsMeta && columns.length) {
       const initialColumnsMeta: Columns = {};
       for (const { name } of columns) {
+        const { type: dataType } = find(columns, ["name", name]) ?? {
+          type: "text",
+        };
+
+        const type = [
+          "gender",
+          "phone",
+          "email",
+          "country",
+          "name",
+          "latitude",
+          "longitude",
+          "image",
+        ].includes(name.toLowerCase())
+          ? name.toLowerCase()
+          : dataType;
+
         initialColumnsMeta[name] = {
           isSelected: false,
           binding: "",
+          type,
         };
       }
 
@@ -170,13 +223,16 @@ const Schema = (props: Props) => {
   }, [columns, dispatch, currentActionId, columnsMeta]);
 
   useEffect(() => {
-    const columnsToGenerateQuery: Array<{ name: string; value: string }> = [];
+    const columnsToGenerateQuery: Array<{
+      name: string;
+      value: string;
+    }> = [];
 
     for (const [columnName, columnMeta] of Object.entries(columnsMeta || {})) {
       if (columnMeta.isSelected) {
         columnsToGenerateQuery.push({
           name: columnName,
-          value: columnMeta.binding,
+          value: String(columnMeta.binding),
         });
       }
     }
@@ -196,7 +252,7 @@ const Schema = (props: Props) => {
         updateWidgetProperty({
           widgetId: widgetInfo.id,
           propertyPath: "sourceData",
-          propertyValue: getBindingFromColumnsMeta(columnsMeta),
+          propertyValue: getBindingFromColumnsMetaForWidget(columnsMeta),
         }),
       );
     }
@@ -218,7 +274,9 @@ const Schema = (props: Props) => {
 
     const suggestedWidget: SuggestedWidget = {
       type: "JSON_FORM_WIDGET",
-      bindingQuery: columnsMeta ? getBindingFromColumnsMeta(columnsMeta) : "",
+      bindingQuery: columnsMeta
+        ? getBindingFromColumnsMetaForWidget(columnsMeta)
+        : "",
     };
 
     const widgetName = getNextWidgetName(
@@ -336,7 +394,7 @@ const Schema = (props: Props) => {
                 <Row key={field.name}>
                   <Checkbox
                     isSelected={columnsMeta?.[field.name]?.isSelected}
-                    onChange={handleColumnSelection(field.name)}
+                    onChange={handleColumnSelection(field.name, field.type)}
                   >
                     {field.name}
                   </Checkbox>
