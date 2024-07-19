@@ -45,8 +45,8 @@ const CreateBuildingBlockModal = () => {
 
   const disableCreateBuildingBlockCTA = useMemo(() => {
     return (
-      !selectedParams.widgets.length &&
-      !buildingBlockName.length &&
+      !selectedParams.widgets.length ||
+      !buildingBlockName.length ||
       !buildingBlockIconURL.length
     );
   }, [selectedParams, buildingBlockIconURL, buildingBlockName]);
