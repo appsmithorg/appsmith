@@ -3,7 +3,7 @@ import {
   TooltipRoot,
   TooltipTrigger,
 } from "@design-system/headless";
-import type { ChangeEvent } from "react";
+import type { ChangeEvent, KeyboardEvent } from "react";
 import React from "react";
 import type { SetterConfig } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
@@ -102,7 +102,11 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
 
   handleTextChange = (event: ChangeEvent<HTMLDivElement>) => {
     this.dispatchPropertiesChangeEvent({
-      text: event.target.textContent,
+      text:
+        event.target.textContent === ""
+          ? // If all text deleted, then set non-breakable space so that div retains the correct width and height
+            String.fromCharCode(160)
+          : event.target.textContent,
     });
   };
 
@@ -152,12 +156,14 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
             className={styles.editableText}
             contentEditable={this.props.isWidgetSelected}
             onBlur={this.handleTextChange}
-            onFocus={(e) => {
-              const range = document.createRange();
-              range.selectNodeContents(e.target);
-              const sel = window.getSelection();
-              sel?.removeAllRanges();
-              sel?.addRange(range);
+            onKeyDown={(e: KeyboardEvent) => {
+              // Stop processing text deletion if there is no more text, otherwise the necessary DOM nodes will be deleted
+              if (
+                e.key === "Backspace" &&
+                (e.target as HTMLElement).textContent === ""
+              ) {
+                e.preventDefault();
+              }
             }}
             ref={(ref) => (this.ref = ref)}
           >

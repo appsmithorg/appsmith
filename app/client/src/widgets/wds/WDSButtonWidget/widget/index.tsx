@@ -5,7 +5,7 @@ import {
 } from "@design-system/headless";
 import { BUTTON_VARIANTS, COLORS, objectKeys } from "@design-system/widgets";
 import { capitalize } from "lodash";
-import React, { type ChangeEvent } from "react";
+import React, { type ChangeEvent, type KeyboardEvent } from "react";
 import { Option, SegmentedControl, Select, toast } from "design-system";
 import styles from "../../WDSParagraphWidget/widget/styles.module.css";
 
@@ -158,7 +158,11 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
 
   handleTextChange = (event: ChangeEvent<HTMLDivElement>) => {
     this.dispatchPropertiesChangeEvent({
-      text: event.target.textContent,
+      text:
+        event.target.textContent === ""
+          ? // If all text deleted, then set non-breakable space so that div retains the correct width and height
+            String.fromCharCode(160)
+          : event.target.textContent,
     });
   };
 
@@ -202,12 +206,14 @@ class WDSButtonWidget extends BaseWidget<ButtonWidgetProps, ButtonWidgetState> {
             className={this.props.isWidgetSelected ? styles.editableText : ""}
             contentEditable={this.props.isWidgetSelected}
             onBlur={this.handleTextChange}
-            onFocus={(e) => {
-              const range = document.createRange();
-              range.selectNodeContents(e.target);
-              const sel = window.getSelection();
-              sel?.removeAllRanges();
-              sel?.addRange(range);
+            onKeyDown={(e: KeyboardEvent) => {
+              // Stop processing text deletion if there is no more text, otherwise the necessary DOM nodes will be deleted
+              if (
+                e.key === "Backspace" &&
+                (e.target as HTMLElement).textContent === ""
+              ) {
+                e.preventDefault();
+              }
             }}
             ref={(ref) => (this.ref = ref)}
           >
