@@ -9,12 +9,13 @@ import {
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { getFloatingPaneRefElement } from "./selectors";
+import { animated, useSpring } from "react-spring";
 
 interface Props {
   children: React.ReactNode;
 }
 
-const StyledFloatingContainer = styled.div`
+const StyledFloatingContainer = styled(animated.div)`
   z-index: 1000;
   padding: 8px;
   border: 1px solid var(--ads-v2-color-border);
@@ -23,6 +24,7 @@ const StyledFloatingContainer = styled.div`
   min-width: 12rem;
   min-height: 12rem;
   box-shadow: var(--ads-v2-shadow-popovers);
+  transform-origin: top left;
 `;
 
 const Wrapper = (props: Props) => {
@@ -35,6 +37,7 @@ const Wrapper = (props: Props) => {
       }),
     ],
     whileElementsMounted: autoUpdate,
+    transform: false,
   });
 
   const refElement = useSelector(getFloatingPaneRefElement);
@@ -45,8 +48,17 @@ const Wrapper = (props: Props) => {
     }
   }, [refElement]);
 
+  const animationStyles = useSpring({
+    from: { opacity: 0, transform: "scaleY(0)" },
+    to: { opacity: 1, transform: "scaleY(1)" },
+    config: { tension: 250, friction: 20 },
+  });
+
   return (
-    <StyledFloatingContainer ref={refs.setFloating} style={floatingStyles}>
+    <StyledFloatingContainer
+      ref={refs.setFloating}
+      style={{ ...floatingStyles, ...animationStyles }}
+    >
       {props.children}
     </StyledFloatingContainer>
   );
