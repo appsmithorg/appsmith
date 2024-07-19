@@ -1,4 +1,4 @@
-import { Checkbox, Flex, Text } from "design-system";
+import { Checkbox, Flex, Text, Button } from "design-system";
 import React, { useEffect, useMemo, useState } from "react";
 import type {
   DatasourceColumns,
@@ -81,19 +81,15 @@ const Schema = (props: Props) => {
     );
   }, [datasourceStructure, selectedTable]);
 
-  const areSomeChecked = useMemo(() => {
-    const selectedColumns = columnsMeta
-      ? Object.values(columnsMeta).filter((column) => column.isSelected)
-      : [];
-    return (
-      selectedColumns.length > 0 && selectedColumns.length - 1 < columns.length
-    );
-  }, [columnsMeta, columns]);
+  const areSomeChecked = columnsMeta
+    ? Object.values(columnsMeta).some(({ isSelected }) => isSelected)
+    : false;
 
   const areAllChecked = useMemo(() => {
     const selectedColumns = columnsMeta
-      ? Object.values(columnsMeta).filter((column) => column.isSelected)
+      ? Object.values(columnsMeta).filter(({ isSelected }) => isSelected)
       : [];
+
     return selectedColumns.length - 1 === columns.length;
   }, [columnsMeta, columns]);
 
@@ -225,6 +221,7 @@ const Schema = (props: Props) => {
         }
         overflowY="scroll"
         padding="spaces-3"
+        style={{ paddingBottom: 0 }}
       >
         {isLoading ? <RenderInterimDataState state="LOADING" /> : null}
 
@@ -233,10 +230,20 @@ const Schema = (props: Props) => {
         ) : null}
 
         {!isLoading && (
-          <>
+          <Flex
+            flex="1"
+            flexDirection="column"
+            gap="spaces-2"
+            height={`${responseTabHeight - 45}px`}
+            justifyContent={
+              isLoading || columns.length === 0 ? "center" : "flex-start"
+            }
+            overflowY="scroll"
+            // padding="spaces-3"
+          >
             <Row style={{ border: "none" }}>
               <Checkbox
-                isIndeterminate={areSomeChecked}
+                isIndeterminate={areSomeChecked && !areAllChecked}
                 isSelected={areAllChecked}
                 onChange={handleWholeColumnSelection}
               >
@@ -273,7 +280,35 @@ const Schema = (props: Props) => {
                 </Row>
               );
             })}
-          </>
+          </Flex>
+        )}
+        {areSomeChecked && (
+          <div
+            style={{
+              display: "sticky",
+              bottom: 0,
+              width: "100%",
+              borderTop: "1px solid var(--ads-v2-color-border)",
+              padding: "4px 0 0 0",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "flex-end",
+              }}
+            >
+              <Button
+                kind="secondary"
+                onClick={() => {}}
+                size="sm"
+                startIcon="upgrade"
+              >
+                Generate UI
+              </Button>
+            </div>
+          </div>
         )}
       </Flex>
     </Flex>
