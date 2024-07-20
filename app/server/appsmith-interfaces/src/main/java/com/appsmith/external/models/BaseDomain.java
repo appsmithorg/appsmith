@@ -114,10 +114,10 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView({Views.Internal.class})
     @Deprecated(forRemoval = true, since = "Use policyMap instead")
     public Set<Policy> getPolicies() {
-        if (!CollectionUtils.isEmpty(policyMap)) {
-            return Set.copyOf(policyMap.values());
+        if (!CollectionUtils.isEmpty(policies)) {
+            return policies;
         }
-        return policies;
+        return policyMap == null ? null : Set.copyOf(policyMap.values());
     }
 
     // TODO Abhijeet: Remove this method once we have migrated all the usages of policies to policyMap
