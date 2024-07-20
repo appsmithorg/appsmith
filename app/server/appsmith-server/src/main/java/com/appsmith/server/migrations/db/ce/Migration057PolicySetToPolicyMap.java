@@ -15,6 +15,7 @@ import org.springframework.data.mongodb.core.aggregation.VariableOperators;
 import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Mono;
 
+import java.util.HashMap;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.StringUtils.dotted;
@@ -73,6 +74,18 @@ public class Migration057PolicySetToPolicyMap {
                         Mono.whenDelayError(EE_COLLECTION_NAMES.stream()
                                 .map(c -> executeForCollection(mongoTemplate, c))
                                 .toList()))
+                .onErrorResume(error -> {
+                    String errorPrefix = "Error while migrating policies to policyMap";
+                    // As we are using Mono.whenDelayError, we expect multiple errors to be suppressed in a single error
+                    if (error.getSuppressed().length > 0) {
+                        for (Throwable suppressed : error.getSuppressed()) {
+                            log.error(errorPrefix, suppressed);
+                        }
+                    } else {
+                        log.error(errorPrefix, error);
+                    }
+                    return Mono.error(error);
+                })
                 .block();
     }
 
@@ -89,7 +102,10 @@ public class Migration057PolicySetToPolicyMap {
                 new Query(where(dotted(POLICIES, "0"))
                         .exists(true)
                         .and(BaseDomain.Fields.deletedAt)
-                        .isNull()),
+                        .isNull()
+                        .orOperator(
+                                where(BaseDomain.Fields.policyMap).exists(false),
+                                where(BaseDomain.Fields.policyMap).is(new HashMap<>()))),
                 AggregationUpdate.update().set(BaseDomain.Fields.policyMap).toValueOf(operator),
                 collectionName);
 
