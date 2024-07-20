@@ -1,4 +1,3 @@
-/// <reference types="Cypress" />
 import {
   agHelper,
   entityExplorer,

@@ -1,4 +1,3 @@
-/// <reference types="Cypress" />
 import viewWidgetsPage from "../../../../../locators/ViewWidgets.json";
 import {
   agHelper,

@@ -1,4 +1,3 @@
-/// <reference types="Cypress" />
 
 const queryLocators = require("../../../../locators/QueryEditor.json");
 const generatePage = require("../../../../locators/GeneratePage.json");

@@ -1,4 +1,3 @@
-/// <reference types="Cypress" />
 import homePage from "../../../../locators/HomePage";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 const application = require("../../../../locators/Applications.json");

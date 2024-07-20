@@ -12,7 +12,6 @@
 // You can read more here:
 // https://on.cypress.io/configuration
 // ***********************************************************
-/// <reference types="Cypress" />
 /// <reference types='cypress-tags' />
 import "cypress-real-events";
 import "cypress-real-events/support";

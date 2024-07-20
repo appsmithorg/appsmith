@@ -1,4 +1,3 @@
-/// <reference types="Cypress" />
 
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";

@@ -34,6 +34,6 @@
     "noFallthroughCasesInSwitch": true,
     "importsNotUsedAsValues": "error"
   },
-  "include": ["./src/**/*", "./packages"],
+  "include": ["./src/**/*", "./packages", "./node_modules/cypress/", "cypress/**/*.js"],
   "exclude": ["./packages/rts", "**/node_modules", "**/.*/"]
 }
