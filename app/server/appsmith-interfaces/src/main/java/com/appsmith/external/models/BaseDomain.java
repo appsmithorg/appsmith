@@ -4,7 +4,6 @@ import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
-import com.appsmith.util.PolicyUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -152,8 +151,19 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
             return;
         }
         // Explicitly set policies to null as it is deprecated and should not be used.
-        this.policyMap = PolicyUtil.setPolicies(policies);
+        this.policyMap = policySetToMap(policies);
         this.policies = null;
+    }
+
+    public static Map<String, Policy> policySetToMap(Set<Policy> policies) {
+        if (policies == null) {
+            return null;
+        }
+        Map<String, Policy> policyMap = new HashMap<>();
+        for (Policy policy : policies) {
+            policyMap.put(policy.getPermission(), policy);
+        }
+        return policyMap;
     }
 
     public void sanitiseToExportDBObject() {

@@ -88,6 +88,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
+import static com.appsmith.server.helpers.ce.PolicyUtil.policyMapToSet;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -1427,7 +1428,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .map(idPoliciesOnly -> {
                     NewPage newPage = new NewPage();
                     newPage.setId(idPoliciesOnly.getId());
-                    newPage.setPolicyMap(idPoliciesOnly.getPolicyMap());
+                    Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                    newPage.setPolicies(policies);
                     return newPage;
                 })
                 .flatMap(newPageRepository::setUserPermissionsInObject));
@@ -1436,7 +1438,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .map(idPoliciesOnly -> {
                     NewAction newAction = new NewAction();
                     newAction.setId(idPoliciesOnly.getId());
-                    newAction.setPolicyMap(idPoliciesOnly.getPolicyMap());
+                    Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                    newAction.setPolicies(policies);
                     return newAction;
                 })
                 .flatMap(newActionRepository::setUserPermissionsInObject));
@@ -1445,7 +1448,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .map(idPoliciesOnly -> {
                     ActionCollection actionCollection = new ActionCollection();
                     actionCollection.setId(idPoliciesOnly.getId());
-                    actionCollection.setPolicyMap(idPoliciesOnly.getPolicyMap());
+                    Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                    actionCollection.setPolicies(policies);
                     return actionCollection;
                 })
                 .flatMap(actionCollectionRepository::setUserPermissionsInObject));
@@ -1495,7 +1499,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         .flatMap(idPolicy -> {
                             Datasource datasource = new Datasource();
                             datasource.setId(idPolicy.getId());
-                            datasource.setPolicyMap(idPolicy.getPolicyMap());
+                            Set<Policy> policies = policyMapToSet(idPolicy.getPolicyMap());
+                            datasource.setPolicies(policies);
                             return datasourceRepository.setUserPermissionsInObject(datasource);
                         }));
 

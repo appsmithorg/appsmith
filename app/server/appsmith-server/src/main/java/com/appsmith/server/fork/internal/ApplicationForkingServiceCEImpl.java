@@ -8,6 +8,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -65,6 +66,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static com.appsmith.server.helpers.ce.PolicyUtil.policyMapToSet;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -604,7 +607,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     .map(idPoliciesOnly -> {
                         NewPage newPage = new NewPage();
                         newPage.setId(idPoliciesOnly.getId());
-                        newPage.setPolicyMap(idPoliciesOnly.getPolicyMap());
+                        Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                        newPage.setPolicies(policies);
                         return newPage;
                     })
                     .flatMap(newPageRepository::setUserPermissionsInObject));
@@ -614,7 +618,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     .map(idPoliciesOnly -> {
                         NewAction newAction = new NewAction();
                         newAction.setId(idPoliciesOnly.getId());
-                        newAction.setPolicyMap(idPoliciesOnly.getPolicyMap());
+                        Set<Policy> policies = policyMapToSet(idPoliciesOnly.getPolicyMap());
+                        newAction.setPolicies(policies);
                         return newAction;
                     })
                     .flatMap(newActionRepository::setUserPermissionsInObject));

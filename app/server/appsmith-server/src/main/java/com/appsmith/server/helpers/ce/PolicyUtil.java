@@ -1,11 +1,11 @@
-package com.appsmith.util;
+package com.appsmith.server.helpers.ce;
 
 import com.appsmith.external.models.Policy;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -35,14 +35,10 @@ public class PolicyUtil {
                 .orElse(FALSE);
     }
 
-    public static Map<String, Policy> setPolicies(Set<Policy> policies) {
-        if (policies == null) {
+    public static Set<Policy> policyMapToSet(Map<String, Policy> policyMap) {
+        if (policyMap == null) {
             return null;
         }
-        Map<String, Policy> policyMap = new HashMap<>();
-        for (Policy policy : policies) {
-            policyMap.put(policy.getPermission(), policy);
-        }
-        return policyMap;
+        return policyMap.values().stream().collect(Collectors.toUnmodifiableSet());
     }
 }
