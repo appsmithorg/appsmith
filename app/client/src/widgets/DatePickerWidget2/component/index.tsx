@@ -158,6 +158,7 @@ class DatePickerComponent extends React.Component<
     super(props);
     this.state = {
       selectedDate: props.selectedDate,
+      isPopoverOpen: false,
     };
   }
 
@@ -186,7 +187,7 @@ class DatePickerComponent extends React.Component<
         isOpen: props.isPopoverOpen,
       };
     }
-    return {};
+    return { isOpen: this.state.isPopoverOpen };
   };
 
   render() {
@@ -373,11 +374,15 @@ class DatePickerComponent extends React.Component<
               inputProps={{
                 inputRef: this.props.inputRef,
                 onFocus: () => this.props.onFocus?.(),
-                onBlur: () => this.props.onBlur?.(),
+                onBlur: () => {
+                  this.setState({ isPopoverOpen: false });
+                  this.props.onBlur?.();
+                },
+                onClick: () => this.setState({ isPopoverOpen: true }),
               }}
               maxDate={maxDate}
               minDate={minDate}
-              onChange={this.onDateSelected}
+              onChange={this.handleDateChange}
               parseDate={this.parseDate}
               placeholder={"Select Date"}
               popoverProps={{
@@ -444,6 +449,7 @@ class DatePickerComponent extends React.Component<
     if (!isValid && this.props?.onDateOutOfRange) {
       this.props.onDateOutOfRange();
     }
+
     return isValid;
   };
 
@@ -463,22 +469,19 @@ class DatePickerComponent extends React.Component<
     }
   };
 
-  /**
-   * checks if selelectedDate is null or not,
-   * sets state and calls props onDateSelected
-   * if its null, don't call onDateSelected
-   * update internal state while changing month/year to update calender
-   *
-   * @param selectedDate
-   */
-  onDateSelected = (selectedDate: Date | null, isUserChange: boolean) => {
-    if (isUserChange) {
-      const { onDateSelected } = this.props;
-      const date = selectedDate ? selectedDate.toISOString() : "";
-      this.setState({
-        selectedDate: date,
-      });
-      onDateSelected(date);
+  handleDateChange = (selectedDate: Date | null) => {
+    if (selectedDate === null) {
+      this.setState({ selectedDate: "" });
+    } else {
+      const formattedDate = moment(selectedDate).format(ISO_DATE_FORMAT);
+      if (this.isValidDate(selectedDate)) {
+        this.setState({ selectedDate: formattedDate }, () => {
+          this.props.onDateSelected(formattedDate);
+          this.setState({ isPopoverOpen: false });
+        });
+      } else {
+        this.setState({ selectedDate: "" });
+      }
     }
   };
 }
@@ -522,6 +525,7 @@ interface DatePickerComponentProps extends ComponentProps {
 
 interface DatePickerComponentState {
   selectedDate?: string;
+  isPopoverOpen: boolean;
 }
 
 export default DatePickerComponent;
