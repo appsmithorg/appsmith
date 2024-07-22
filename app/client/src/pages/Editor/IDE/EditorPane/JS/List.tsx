@@ -65,6 +65,7 @@ const ListJSObjects = () => {
       flexDirection="column"
       gap="spaces-3"
       overflow="hidden"
+      px="spaces-3"
       py="spaces-3"
     >
       {files && files.length > 0 ? (
@@ -85,13 +86,12 @@ const ListJSObjects = () => {
           flexDirection="column"
           gap="spaces-4"
           overflowY="auto"
-          px="spaces-3"
         >
           {localFiles.map(({ group, items }) => {
             return (
               <Flex flexDirection={"column"} key={group}>
                 {group !== "NA" ? (
-                  <Flex px="spaces-3" py="spaces-1">
+                  <Flex py="spaces-1">
                     <Text
                       className="overflow-hidden overflow-ellipsis whitespace-nowrap"
                       kind="body-s"

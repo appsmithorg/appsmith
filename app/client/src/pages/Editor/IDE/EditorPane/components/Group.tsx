@@ -66,7 +66,7 @@ const Group: React.FC<GroupProps> = ({ group }) => {
     >
       {groupTitle ? (
         <Text
-          className="pr-[var(--ads-v2-spaces-3)] py-[var(--ads-v2-spaces-1)]"
+          className="px-0 py-[var(--ads-v2-spaces-1)]"
           color="var(--ads-v2-color-fg-muted)"
           kind="body-s"
         >
