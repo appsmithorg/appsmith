@@ -86,11 +86,6 @@ describe(
       );
     };
 
-    before(() => {
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
-      PageLeftPane.switchToAddNew();
-    });
-
     it("1. All widget tags should be visible but only Suggested tag is open.", () => {
       agHelper.AssertElementLength(
         entityExplorer._widgetTagsList,
