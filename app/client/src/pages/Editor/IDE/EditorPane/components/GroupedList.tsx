@@ -32,7 +32,7 @@ const GroupedList = (props: Props) => {
         <Flex flexDirection="column" key={group.groupTitle}>
           {group.groupTitle ? (
             <Text
-              className="px-[var(--ads-v2-spaces-3)] py-[var(--ads-v2-spaces-1)]"
+              className="px-0 py-[var(--ads-v2-spaces-1)]"
               color="var(--ads-v2-color-fg-muted)"
               kind="body-s"
             >

@@ -189,12 +189,6 @@ public class SnowflakePlugin extends BasePlugin {
             properties.setProperty("maximunPoolSize", String.valueOf(MAXIMUM_POOL_SIZE));
             properties.setProperty(
                     SNOWFLAKE_DB_LOGIN_TIMEOUT_PROPERTY_KEY, String.valueOf(SNOWFLAKE_DB_LOGIN_TIMEOUT_VALUE_SEC));
-            /**
-             * Setting the value for setInitializationFailTimeout to -1 to
-             * bypass any connection attempt and validation during startup
-             * @see https://www.javadoc.io/doc/com.zaxxer/HikariCP/latest/com/zaxxer/hikari/HikariConfig.html
-             */
-            properties.setProperty("initializationFailTimeout", String.valueOf(-1));
             properties.setProperty("connectionTimeoutMillis", String.valueOf(CONNECTION_TIMEOUT_MILLISECONDS));
             return properties;
         }
@@ -532,9 +526,6 @@ public class SnowflakePlugin extends BasePlugin {
             config.setMinimumIdle(Integer.parseInt(properties.get("minimumIdle").toString()));
             config.setMaximumPoolSize(
                     Integer.parseInt(properties.get("maximunPoolSize").toString()));
-
-            config.setInitializationFailTimeout(
-                    Long.parseLong(properties.get("initializationFailTimeout").toString()));
             config.setConnectionTimeout(
                     Long.parseLong(properties.get("connectionTimeoutMillis").toString()));
             return config;
