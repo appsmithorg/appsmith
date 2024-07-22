@@ -37,6 +37,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -65,7 +66,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     private final ChannelTopic topic;
     private final ObjectMapper objectMapper;
 
-    private final Map<String, Mono<Map<?, ?>>> formCache = new HashMap<>();
+    private final Map<String, Mono<Map>> formCache = new HashMap<>();
     private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
     private final Map<String, Mono<Map>> labelCache = new HashMap<>();
 
@@ -84,6 +85,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     public static final String KEY_CONTROL_TYPE = "controlType";
     public static final String KEY_COMMENT = "_comment";
     public static final String KEY_FILES = "files";
+    private final Scheduler scheduler;
 
     @Autowired
     public PluginServiceCEImpl(
@@ -94,13 +96,15 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             PluginManager pluginManager,
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            Scheduler scheduler) {
         super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;
         this.objectMapper = objectMapper;
+        this.scheduler = scheduler;
     }
 
     @Override
@@ -286,34 +290,34 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     @Override
-    public Mono<Map<?, ?>> getFormConfig(String pluginId) {
+    public Mono<Map> getFormConfig(String pluginId) {
         if (!formCache.containsKey(pluginId)) {
-            final Mono<Map<?, ?>> formMono = loadPluginResource(pluginId, "form.json")
+            final Mono<Map> formMono = loadPluginResource(pluginId, "form.json")
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
                             formCache.remove(pluginId))
                     .onErrorMap(Exceptions::unwrap)
                     .cache();
-            final Mono<Map<?, ?>> editorMono = loadPluginResource(pluginId, "editor.json")
+            final Mono<Map> editorMono = loadPluginResource(pluginId, "editor.json")
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
                             formCache.remove(pluginId))
                     .onErrorReturn(new HashMap<>())
                     .cache();
-            final Mono<Map<?, ?>> settingMono = loadPluginResource(pluginId, "setting.json")
+            final Mono<Map> settingMono = loadPluginResource(pluginId, "setting.json")
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
                             formCache.remove(pluginId))
                     .onErrorReturn(new HashMap<>())
                     .cache();
-            final Mono<Map<?, ?>> dependencyMono = loadPluginResource(pluginId, "dependency.json")
+            final Mono<Map> dependencyMono = loadPluginResource(pluginId, "dependency.json")
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
                             formCache.remove(pluginId))
                     .onErrorReturn(new HashMap<>())
                     .cache();
 
-            Mono<Map<?, ?>> resourceMono = Mono.zip(formMono, editorMono, settingMono, dependencyMono)
+            Mono<Map> resourceMono = Mono.zip(formMono, editorMono, settingMono, dependencyMono)
                     .map(tuple -> {
                         Map<?, ?> formMap = tuple.getT1();
                         Map editorMap = tuple.getT2();
@@ -339,7 +343,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             return labelCache.get(pluginId);
         }
 
-        Mono<Map<?, ?>> formConfig = getFormConfig(pluginId);
+        Mono<Map> formConfig = getFormConfig(pluginId);
 
         if (formConfig == null) {
             return Mono.just(new HashMap());
@@ -401,6 +405,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                 AppsmithError.PLUGIN_LOAD_TEMPLATES_FAIL,
                                 Exceptions.unwrap(throwable).getMessage());
                     })
+                    .subscribeOn(scheduler)
                     .cache();
 
             templateCache.put(pluginId, mono);
@@ -557,26 +562,31 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
         return repository.findByType(PluginType.REMOTE);
     }
 
-    private Map<?, ?> loadPluginResourceGivenPluginAsMap(Plugin plugin, String resourcePath) {
-        try (InputStream resourceAsStream = pluginManager
-                .getPlugin(plugin.getPackageName())
-                .getPluginClassLoader()
-                .getResourceAsStream(resourcePath)) {
+    private Mono<Map> loadPluginResourceGivenPluginAsMap(Plugin plugin, String resourcePath) {
+        return Mono.defer(() -> {
+                    try (InputStream resourceAsStream = pluginManager
+                            .getPlugin(plugin.getPackageName())
+                            .getPluginClassLoader()
+                            .getResourceAsStream(resourcePath)) {
 
-            if (resourceAsStream == null) {
-                throw new AppsmithException(
-                        AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL,
-                        plugin.getPackageName(),
-                        "form resource " + resourcePath + " not found");
-            }
-
-            return objectMapper.readValue(resourceAsStream, Map.class);
-        } catch (IOException e) {
-            log.error(
-                    "[{}] : Error loading resource JSON for resourcePath {}", plugin.getPackageName(), resourcePath, e);
-            throw new AppsmithException(
-                    AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), e.getMessage());
-        }
+                        if (resourceAsStream == null) {
+                            return Mono.error(new AppsmithException(
+                                    AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL,
+                                    plugin.getPackageName(),
+                                    "form resource " + resourcePath + " not found"));
+                        }
+                        return Mono.just(objectMapper.readValue(resourceAsStream, Map.class));
+                    } catch (IOException e) {
+                        log.error(
+                                "[{}] : Error loading resource JSON for resourcePath {}",
+                                plugin.getPackageName(),
+                                resourcePath,
+                                e);
+                        return Mono.error(new AppsmithException(
+                                AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), e.getMessage()));
+                    }
+                })
+                .subscribeOn(scheduler);
     }
 
     private JsonNode loadPluginResourceGivenPluginAsJsonNode(Plugin plugin, String resourcePath) {
@@ -599,22 +609,22 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     }
 
     @Override
-    public Mono<Map<?, ?>> loadPluginResource(String pluginId, String resourcePath) {
-        return findById(pluginId).map(plugin -> {
+    public Mono<Map> loadPluginResource(String pluginId, String resourcePath) {
+        return findById(pluginId).flatMap(plugin -> {
             if ("editor.json".equals(resourcePath)) {
                 // UI config will be available if this plugin is sourced from the cloud
                 if (plugin.getActionUiConfig() != null) {
-                    return plugin.getActionUiConfig();
+                    return Mono.just(plugin.getActionUiConfig());
                 }
                 // For UQI, use another format of loading the config
                 if (UQI_DB_EDITOR_FORM.equals(plugin.getUiComponent())) {
-                    return loadEditorPluginResourceUqi(plugin);
+                    return Mono.just(loadEditorPluginResourceUqi(plugin));
                 }
             }
             if ("form.json".equals(resourcePath)) {
                 // UI config will be available if this plugin is sourced from the cloud
                 if (plugin.getDatasourceUiConfig() != null) {
-                    return plugin.getDatasourceUiConfig();
+                    return Mono.just(plugin.getDatasourceUiConfig());
                 }
             }
             return loadPluginResourceGivenPluginAsMap(plugin, resourcePath);

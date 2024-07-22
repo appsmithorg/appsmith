@@ -56,7 +56,9 @@ public class ServerApplication {
     }
 
     public static void main(String[] args) {
-        BlockHound.install();
+        BlockHound.install(b -> {
+            b.allowBlockingCallsInside(java.util.UUID.class.getName(), "randomUUID");
+        });
         new SpringApplicationBuilder(ServerApplication.class)
                 .bannerMode(Banner.Mode.OFF)
                 .run(args);

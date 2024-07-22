@@ -72,7 +72,8 @@ public class PluginServiceCEImplTest {
                 pluginManager,
                 reactiveTemplate,
                 topic,
-                objectMapper);
+                objectMapper,
+                scheduler);
     }
 
     @Test

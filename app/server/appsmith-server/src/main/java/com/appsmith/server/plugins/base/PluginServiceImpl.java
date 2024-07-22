@@ -10,6 +10,7 @@ import org.pf4j.PluginManager;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
+import reactor.core.scheduler.Scheduler;
 
 @Slf4j
 @Service
@@ -23,7 +24,8 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
             PluginManager pluginManager,
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
-            ObjectMapper objectMapper) {
+            ObjectMapper objectMapper,
+            Scheduler scheduler) {
 
         super(
                 validator,
@@ -33,6 +35,7 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                 pluginManager,
                 reactiveTemplate,
                 topic,
-                objectMapper);
+                objectMapper,
+                scheduler);
     }
 }
