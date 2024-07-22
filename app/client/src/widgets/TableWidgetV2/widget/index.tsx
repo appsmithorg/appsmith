@@ -38,6 +38,7 @@ import {
   AddNewRowActions,
   CompactModeTypes,
   DEFAULT_FILTER,
+  SelectColumnDisplayAsKeys,
   SORT_ORDER,
   SortOrderTypes,
   StickyType,
@@ -2130,6 +2131,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             placeholderText={cellProperties.placeholderText}
             resetFilterTextOnClose={cellProperties.resetFilterTextOnClose}
             rowIndex={rowIndex}
+            selectDisplayAs={
+              cellProperties.selectDisplayAs ?? SelectColumnDisplayAsKeys.VALUE
+            }
             serverSideFiltering={cellProperties.serverSideFiltering}
             tableWidth={this.props.componentWidth}
             textColor={cellProperties.textColor}

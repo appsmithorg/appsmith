@@ -7,6 +7,7 @@ import {
   hideByColumnType,
   selectColumnOptionsValidation,
 } from "../../propertyUtils";
+import { SelectColumnDisplayAsKeys } from "widgets/TableWidgetV2/component/Constants";
 
 export default {
   sectionName: "Select properties",
@@ -18,6 +19,18 @@ export default {
       propertyName: "selectOptions",
       helpText: "Options to be shown on the select dropdown",
       label: "Options",
+      defaultValue: `
+      {{
+          ${JSON.stringify(
+            [
+              { label: "Red", value: "RED" },
+              { label: "Blue", value: "BLUE" },
+            ],
+            null,
+            2,
+          )}
+      }}
+      `,
       controlType: "TABLE_COMPUTE_VALUE",
       isJSConvertible: false,
       isBindProperty: true,
@@ -35,6 +48,33 @@ export default {
       dependencies: ["primaryColumns"],
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.SELECT]);
+      },
+    },
+    {
+      propertyName: "selectDisplayAs",
+      defaultValue: "value",
+      helpText:
+        "Choose whether to display the label or value in the table cell",
+      label: "Display as",
+      controlType: "DROP_DOWN",
+      isBindProperty: true,
+      isJSConvertible: true,
+      isTriggerProperty: false,
+      options: [
+        {
+          label: "Label",
+          value: SelectColumnDisplayAsKeys.LABEL,
+        },
+        {
+          label: "Value",
+          value: SelectColumnDisplayAsKeys.VALUE,
+        },
+      ],
+      validation: {
+        type: ValidationTypes.TEXT,
+        params: {
+          allowedValues: ["label", "value"],
+        },
       },
     },
     {

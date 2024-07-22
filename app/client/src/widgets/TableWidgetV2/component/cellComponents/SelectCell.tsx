@@ -3,7 +3,11 @@ import SelectComponent from "widgets/SelectWidget/component";
 import styled from "styled-components";
 import type { DropdownOption } from "widgets/SelectWidget/constants";
 import type { BaseCellComponentProps } from "../Constants";
-import { EDITABLE_CELL_PADDING_OFFSET, TABLE_SIZES } from "../Constants";
+import {
+  EDITABLE_CELL_PADDING_OFFSET,
+  SelectColumnDisplayAsKeys,
+  TABLE_SIZES,
+} from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { BasicCell } from "./BasicCell";
@@ -13,6 +17,7 @@ const StyledSelectComponent = styled(SelectComponent)<{
   accentColor: string;
   height: number;
   isNewRow: boolean;
+  selectDisplayAs: string;
 }>`
   &&& {
     width: ${(props) =>
@@ -61,6 +66,7 @@ type SelectProps = BaseCellComponentProps & {
   columnType: string;
   borderRadius: string;
   options?: DropdownOption[];
+  selectDisplayAs: SelectColumnDisplayAsKeys;
   onFilterChange: (
     text: string,
     rowIndex: number,
@@ -137,6 +143,7 @@ export const SelectCell = (props: SelectProps) => {
     placeholderText,
     resetFilterTextOnClose,
     rowIndex,
+    selectDisplayAs = SelectColumnDisplayAsKeys.VALUE,
     serverSideFiltering = false,
     tableWidth,
     textColor,
@@ -146,18 +153,29 @@ export const SelectCell = (props: SelectProps) => {
     verticalAlignment,
     width,
   } = props;
+
   const onSelect = useCallback(
     (option: DropdownOption) => {
+      // Compute cell value using selectDisplayAs
+      const onSelectValue =
+        selectDisplayAs === SelectColumnDisplayAsKeys.LABEL
+          ? option.label
+          : option.value;
       onItemSelect(
-        option.value || "",
+        onSelectValue || "",
         rowIndex,
         alias,
         onOptionSelectActionString,
       );
     },
-    [onItemSelect, rowIndex, alias, onOptionSelectActionString],
+    [
+      onItemSelect,
+      rowIndex,
+      alias,
+      onOptionSelectActionString,
+      selectDisplayAs,
+    ],
   );
-
   const onFilter = useCallback(
     (text: string) => {
       onFilterChange(
@@ -225,6 +243,7 @@ export const SelectCell = (props: SelectProps) => {
           options={options}
           placeholder={placeholderText}
           resetFilterTextOnClose={resetFilterTextOnClose}
+          selectDisplayAs={selectDisplayAs}
           selectedIndex={selectedIndex}
           serverSideFiltering={serverSideFiltering}
           value={value}
