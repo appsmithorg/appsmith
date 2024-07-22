@@ -31,7 +31,7 @@ export interface LabelStyles {
 
 export type FieldLabelProps = PropsWithChildren<
   LabelStyles & {
-    direction?: "row" | "column" | "row-reverse";
+    direction?: "row" | "column";
     isRequiredField?: boolean;
     label: string;
     tooltip?: string;
@@ -45,6 +45,7 @@ interface StyledLabelTextWrapperProps {
 
 interface StyledLabelProps {
   direction?: FieldLabelProps["direction"];
+  alignField?:AlignWidget
 }
 
 const LABEL_TEXT_WRAPPER_MARGIN_BOTTOM = 4;
@@ -62,6 +63,9 @@ const StyledLabel = styled.label<StyledLabelProps>`
   align-items: flex-start;
   display: flex;
   flex-direction: ${({ direction }) => direction};
+  column-gap: ${({ direction, alignField }) =>
+    `${direction === "row" && alignField === "RIGHT" ? '0px' : '24px'}
+`}
 `;
 
 const StyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
@@ -89,7 +93,6 @@ const StyledLabelText = styled.p<StyledLabelTextProps>`
   font-weight: ${({ fontWeight }) => fontWeight};
   font-style: ${({ fontStyle }) => fontStyle};
   text-decoration: ${({ textDecoration }) => textDecoration};
-  width: max-content;
 `;
 
 const ToolTipIcon = styled(IconWrapper)`
@@ -143,7 +146,7 @@ function FieldLabel({
   const align = direction === "row" ? alignField : "RIGHT";
 
   return (
-    <StyledLabel direction={direction}>
+    <StyledLabel direction={direction} alignField={alignField}>
       {align === "LEFT" && children}
       <StyledLabelTextWrapper direction={direction}>
         <StyledLabelText isRequiredField={isRequiredField} {...labelStyleProps}>

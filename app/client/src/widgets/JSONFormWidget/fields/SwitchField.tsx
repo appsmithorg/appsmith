@@ -11,7 +11,7 @@ import type {
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
-import { ActionUpdateDependency, FieldType } from "../constants";
+import { ActionUpdateDependency } from "../constants";
 import SwitchComponent from "widgets/SwitchWidget/component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
@@ -23,7 +23,6 @@ type SwitchComponentOwnProps = FieldComponentBaseProps &
     alignWidget: AlignWidget;
     accentColor?: string;
     onChange?: string;
-    labelPosition: LabelPosition;
   };
 
 type SwitchFieldProps = BaseFieldComponentProps<SwitchComponentOwnProps>;
@@ -37,7 +36,6 @@ const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
-  labelPosition: LabelPosition.Left,
 };
 
 const isValid = (value: boolean, schemaItem: SwitchFieldProps["schemaItem"]) =>
@@ -101,7 +99,7 @@ function SwitchField({
         isLoading={false}
         isSwitchedOn={value ?? false}
         label=""
-        labelPosition={schemaItem.labelPosition}
+        labelPosition={LabelPosition.Left}
         onChange={onSwitchChange}
         widgetId=""
       />
@@ -110,7 +108,6 @@ function SwitchField({
       schemaItem.alignWidget,
       schemaItem.accentColor,
       schemaItem.isDisabled,
-      schemaItem.labelPosition,
       onSwitchChange,
       value,
     ],
@@ -120,11 +117,8 @@ function SwitchField({
     <Field
       accessor={schemaItem.accessor}
       defaultValue={passedDefaultValue ?? schemaItem.defaultValue}
-      fieldClassName={`${fieldClassName} switchfield`}
-      inlineLabel={
-        schemaItem.fieldType === FieldType.SWITCH &&
-        schemaItem.labelPosition === LabelPosition.Left
-      }
+      fieldClassName={fieldClassName}
+      inlineLabel
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
       labelStyle={schemaItem.labelStyle}
@@ -132,6 +126,7 @@ function SwitchField({
       labelTextSize={schemaItem.labelTextSize}
       name={name}
       tooltip={schemaItem.tooltip}
+      alignField={schemaItem.alignWidget}
     >
       {fieldComponent}
     </Field>

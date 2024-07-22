@@ -30,6 +30,7 @@ const SwitchComponentContainer = styled.div<{
   accentColor: string;
   minHeight?: number;
   width?: string;
+  labelPosition?:LabelPosition
 }>`
   display: flex;
   flex-direction: row;
@@ -38,8 +39,6 @@ const SwitchComponentContainer = styled.div<{
 
   ${({ minHeight }) => `
     ${minHeight ? `min-height: ${minHeight}px;` : undefined}`};
-
-  width: 100%;
 
   ${BlueprintControlTransform}
 `;
@@ -127,7 +126,7 @@ function SwitchComponent({
     labelPosition === LabelPosition.Right ? "left" : "right";
 
   return (
-    <SwitchComponentContainer accentColor={accentColor} minHeight={minHeight}>
+    <SwitchComponentContainer accentColor={accentColor} minHeight={minHeight} labelPosition={labelPosition}>
       <StyledSwitch
         $accentColor={accentColor}
         alignIndicator={switchAlignClass}

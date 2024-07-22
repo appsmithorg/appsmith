@@ -234,7 +234,6 @@
   "heightProperty": ".rc-select-single input",
   "heightPropertyOption": ".rc-select-item-option-content span",
   "filePickerMaxNoOfFiles": ".t--property-control-maxno\\.offiles .CodeMirror-code",
-  "jsonformFieldEducationFieldSwitch": ".t--jsonformfield-education.switchfield",
   "allowclearingValueInput": ".t--property-control-allowclearingvalue input[type='checkbox']",
   "allowcountrycodechangeInput": ".t--property-control-allowcountrycodechange input[type='checkbox']",
   "allowsearchingInput": ".t--property-control-allowsearching input",
