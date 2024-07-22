@@ -14,15 +14,18 @@ describe(
 
     it("1. Canvas Mode", () => {
       anvilSnapshot.triggerCheckboxGroupInvalidState();
-      anvilSnapshot.verifyCanvasMode("CheckboxGroupWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("CheckboxGroupWidget");
+      anvilSnapshot.setTheme("dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("CheckboxGroupWidget", "dark");
+      anvilSnapshot.setTheme("light");
     });
 
     it("2. Preview Mode", () => {
-      anvilSnapshot.verifyPreviewMode("CheckboxGroupWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("CheckboxGroupWidget");
     });
 
     it("3. Deploy Mode", () => {
-      anvilSnapshot.verifyDeployMode("CheckboxGroupWidget");
+      anvilSnapshot.matchSnapshotForDeployMode("CheckboxGroupWidget");
     });
   },
 );
