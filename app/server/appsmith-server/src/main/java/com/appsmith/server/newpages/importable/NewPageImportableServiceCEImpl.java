@@ -387,6 +387,10 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             for (String id : mappedImportableResourcesDTO.getInvalidPageIds()) {
                 mappedImportableResourcesDTO.getApplication().getPages().removeIf(page -> page.getId()
                         .equals(id));
+                mappedImportableResourcesDTO
+                        .getApplication()
+                        .getPublishedPages()
+                        .removeIf(page -> page.getId().equals(id));
             }
 
             return application;

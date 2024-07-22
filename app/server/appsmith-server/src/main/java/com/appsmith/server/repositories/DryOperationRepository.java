@@ -119,6 +119,9 @@ public class DryOperationRepository {
     }
 
     private Mono<Application> updateApplication(Application application) {
+        if (application == null || application.getId() == null) {
+            return Mono.just(application);
+        }
         String id = application.getId();
         application.setId(null);
         return applicationRepository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS);
