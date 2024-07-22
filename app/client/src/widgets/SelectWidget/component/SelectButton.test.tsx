@@ -58,4 +58,20 @@ describe("SelectButton", () => {
     fireEvent.click(getByTestId("selectbutton.btn.main"));
     expect(defaultProps.togglePopoverVisibility).toBeCalled();
   });
+
+  it("should not render cancel button when select widget required is true", () => {
+    const { queryByTestId } = renderComponent({
+      ...defaultProps,
+      isRequired: true,
+    });
+    expect(queryByTestId("selectbutton.btn.cancel")).toBeNull();
+  });
+
+  it("should render cancel button when select widget required is false", () => {
+    const { queryByTestId } = renderComponent({
+      ...defaultProps,
+      isRequired: false,
+    });
+    expect(queryByTestId("selectbutton.btn.cancel")).not.toBeNull();
+  });
 });
