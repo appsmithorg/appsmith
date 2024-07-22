@@ -326,6 +326,7 @@ function WDSThemePropertyPane() {
                 appMaxWidth: value as ThemeSetting["appMaxWidth"],
               });
             }}
+            value={theme.appMaxWidth}
           />
         </section>
       </SettingSection>

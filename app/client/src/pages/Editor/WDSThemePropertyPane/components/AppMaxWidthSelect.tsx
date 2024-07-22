@@ -1,10 +1,9 @@
 import { APP_MAX_WIDTH } from "@design-system/theming";
 import { Option, Select } from "design-system";
 import React from "react";
-import { useSelector } from "react-redux";
-import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
 
 interface AppMaxWidthSelectProps {
+  value: APP_MAX_WIDTH;
   onSelect: (value: string) => void;
 }
 
@@ -23,14 +22,15 @@ const resolveOptionLabelText = (option: APP_MAX_WIDTH) => {
   }
 };
 
-export const AppMaxWidthSelect = ({ onSelect }: AppMaxWidthSelectProps) => {
-  const theme = useSelector(getAppThemeSettings);
-
+export const AppMaxWidthSelect = ({
+  onSelect,
+  value,
+}: AppMaxWidthSelectProps) => {
   return (
     <Select
       dropdownClassName="t--theme-layout-dropdown"
       onSelect={onSelect}
-      value={theme.appMaxWidth}
+      value={value}
     >
       {Object.values(APP_MAX_WIDTH).map((option, index) => (
         <Option key={index} value={option}>
