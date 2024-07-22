@@ -116,7 +116,7 @@ function Pages() {
   return (
     <RelativeContainer className="border-b pb-1">
       <StyledEntity
-        addButtonHelptext={createMessage(ADD_PAGE_TOOLTIP)}
+        addButtonHelpText={createMessage(ADD_PAGE_TOOLTIP)}
         alwaysShowRightIcon
         className="pb-0 group pages"
         collapseRef={pageResizeRef}
