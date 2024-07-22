@@ -4,6 +4,7 @@ import MainContainerWrapper from "./MainContainerWrapper";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import { useSelector } from "react-redux";
 import {
+  getAppMaxWidth,
   getCanvasWidth,
   getCurrentPageId,
   previewModeSelector,
@@ -28,6 +29,7 @@ export const LayoutSystemBasedPageViewer = ({
   const isProtectedMode = useSelector(protectedModeSelector);
   const appSettingsPaneContext = useSelector(getAppSettingsPaneContext);
   const canvasWidth = useSelector(getCanvasWidth);
+  const appMaxWidth = useSelector(getAppMaxWidth);
   const shouldShowSnapShotBanner = useShowSnapShotBanner(
     isPreviewMode || isProtectedMode,
   );
@@ -36,6 +38,7 @@ export const LayoutSystemBasedPageViewer = ({
     <>
       {shouldShowSnapShotBanner && <SnapShotBannerCTA />}
       <MainContainerWrapper
+        canvasMaxWidth={appMaxWidth}
         canvasWidth={canvasWidth}
         currentPageId={currentPageId}
         isAppSettingsPaneWithNavigationTabOpen={

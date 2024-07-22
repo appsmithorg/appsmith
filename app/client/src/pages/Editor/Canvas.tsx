@@ -9,6 +9,7 @@ import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
+  APP_MAX_WIDTH,
   ThemeProvider as WDSThemeProvider,
   useTheme,
 } from "@design-system/theming";
@@ -24,6 +25,7 @@ import { focusWidget } from "actions/widgetActions";
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
   canvasWidth: number;
+  maxWidth?: APP_MAX_WIDTH;
   enableMainCanvasResizer?: boolean;
 }
 
@@ -32,18 +34,37 @@ const StyledWDSThemeProvider = styled(WDSThemeProvider)`
   display: flex;
 `;
 
+const appMaxWidthToCSSValue = (maxWidth: APP_MAX_WIDTH): string => {
+  switch (maxWidth) {
+    case APP_MAX_WIDTH.Unlimited:
+      return "auto";
+    case APP_MAX_WIDTH.Large:
+      return "1080px";
+    case APP_MAX_WIDTH.Medium:
+      return "800px";
+    default:
+      const exhaustiveCheck: never = maxWidth;
+
+      throw new Error(`Unhandled maxWidth: ${exhaustiveCheck}`);
+  }
+};
+
 const Wrapper = styled.section<{
   background: string;
   width: number;
+  maxWidth?: APP_MAX_WIDTH;
   $enableMainCanvasResizer: boolean;
 }>`
   flex: 1;
   background: ${({ background }) => background};
   width: ${({ $enableMainCanvasResizer, width }) =>
     $enableMainCanvasResizer ? `100%` : `${width}px`};
+  max-width: ${({ maxWidth }) =>
+    maxWidth ? `${appMaxWidthToCSSValue(maxWidth)}` : "auto"};
+  margin: ${({ maxWidth }) => (maxWidth ? "0 auto" : "inherit")};
 `;
 const Canvas = (props: CanvasProps) => {
-  const { canvasWidth } = props;
+  const { canvasWidth, maxWidth } = props;
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
@@ -99,6 +120,7 @@ const Canvas = (props: CanvasProps) => {
           )}`}
           data-testid={"t--canvas-artboard"}
           id={CANVAS_ART_BOARD}
+          maxWidth={maxWidth}
           onMouseLeave={unfocusAllWidgets}
           ref={isAnvilLayout ? undefined : focusRef}
           width={canvasWidth}

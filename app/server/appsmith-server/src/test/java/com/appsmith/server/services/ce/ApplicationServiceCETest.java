@@ -2640,6 +2640,7 @@ public class ApplicationServiceCETest {
         themeSettings.setSizing(1);
         themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
         themeSettings.setIconStyle(Application.ThemeSetting.IconStyle.OUTLINED);
+        themeSettings.setAppMaxWidth(Application.ThemeSetting.AppMaxWidth.LARGE);
         testApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
 
         Mono<Application> applicationMono = applicationPageService
