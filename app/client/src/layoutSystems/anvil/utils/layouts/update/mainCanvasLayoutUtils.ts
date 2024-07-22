@@ -13,10 +13,7 @@ import { call } from "redux-saga/effects";
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
 import { anvilWidgets } from "widgets/anvil/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import {
-  addNewWidgetToDsl,
-  getCreateWidgetPayload,
-} from "../../widgetAdditionUtils";
+import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilDraggingSagas";
 
 /**
  * This function adds a detached widget to the main canvas.
@@ -30,14 +27,13 @@ export function* addDetachedWidgetToMainCanvas(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidget: { widgetId: string; type: string },
 ) {
-  const updatedWidgets: CanvasWidgetsReduxState = yield call(
-    addNewWidgetToDsl,
+  const updatedWidgets: CanvasWidgetsReduxState = yield addNewAnvilWidgetToDSL(
     allWidgets,
-    getCreateWidgetPayload(
-      draggedWidget.widgetId,
-      draggedWidget.type,
-      MAIN_CONTAINER_WIDGET_ID,
-    ),
+    {
+      widgetId: draggedWidget.widgetId,
+      type: draggedWidget.type,
+      parentId: MAIN_CONTAINER_WIDGET_ID,
+    },
   );
   return updatedWidgets;
 }

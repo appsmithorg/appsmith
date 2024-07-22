@@ -55,6 +55,9 @@ class WidgetFactory {
     Partial<WidgetProps> & WidgetConfigProps & { type: string }
   > = new Map();
 
+  static widgetDefaultPropertiesMap: Map<string, Record<string, unknown>> =
+    new Map();
+
   static widgetsMap: Map<WidgetType, typeof BaseWidget> = new Map();
 
   static widgetBuilderMap: Map<WidgetType, any> = new Map();
@@ -132,6 +135,14 @@ class WidgetFactory {
       onCanvasUI,
     };
 
+    // When adding widgets in Anvil, we don't need all of the extra properties
+    // and that should ideally be the case for Fixed mode widgets as well
+    // So, creating this map to use in WidgetAdditionSagas for both Fixed
+    // and Anvil.
+    WidgetFactory.widgetDefaultPropertiesMap.set(
+      widget.type,
+      Object.freeze(defaultConfig),
+    );
     WidgetFactory.widgetConfigMap.set(widget.type, Object.freeze(_config));
   }
 

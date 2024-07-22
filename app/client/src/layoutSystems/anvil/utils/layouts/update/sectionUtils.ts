@@ -13,11 +13,8 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { call } from "redux-saga/effects";
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import {
-  addNewWidgetToDsl,
-  getCreateWidgetPayload,
-} from "../../widgetAdditionUtils";
 import { anvilWidgets } from "widgets/anvil/constants";
+import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilDraggingSagas";
 
 export function* createSectionAndAddWidget(
   allWidgets: CanvasWidgetsReduxState,
@@ -29,10 +26,14 @@ export function* createSectionAndAddWidget(
    * Step 1: Create Section widget.
    */
   const widgetId: string = generateReactKey();
-  const updatedWidgets: CanvasWidgetsReduxState = yield call(
-    addNewWidgetToDsl,
+  const newWidgetContext = {
+    widgetId,
+    type: anvilWidgets.SECTION_WIDGET,
+    parentId,
+  };
+  const updatedWidgets: CanvasWidgetsReduxState = yield addNewAnvilWidgetToDSL(
     allWidgets,
-    getCreateWidgetPayload(widgetId, anvilWidgets.SECTION_WIDGET, parentId),
+    newWidgetContext,
   );
 
   /**
@@ -93,15 +94,11 @@ function* addZoneToSection(
      * => New widget.
      * => Create it and add to section.
      */
-    canvasWidgets = yield call(
-      addNewWidgetToDsl,
-      canvasWidgets,
-      getCreateWidgetPayload(
-        zoneWidgetId,
-        anvilWidgets.ZONE_WIDGET,
-        sectionWidgetId,
-      ),
-    );
+    canvasWidgets = yield addNewAnvilWidgetToDSL(canvasWidgets, {
+      widgetId: zoneWidgetId,
+      type: anvilWidgets.ZONE_WIDGET,
+      parentId: sectionWidgetId,
+    });
   } else {
     /**
      * Add zone widgetIds to canvas.children.

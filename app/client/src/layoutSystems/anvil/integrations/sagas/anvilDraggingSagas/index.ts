@@ -1,9 +1,13 @@
 import {
   type ReduxAction,
   ReduxActionErrorTypes,
+  WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
-import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
+import type {
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import type {
   AnvilHighlightInfo,
@@ -35,12 +39,16 @@ import {
   moveWidgetsToSection,
 } from "layoutSystems/anvil/utils/layouts/update/sectionUtils";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
-import {
-  addNewWidgetToDsl,
-  getCreateWidgetPayload,
-} from "layoutSystems/anvil/utils/widgetAdditionUtils";
 import { updateAndSaveAnvilLayout } from "../../../utils/anvilChecksUtils";
 import { moveWidgetsToZone } from "layoutSystems/anvil/utils/layouts/update/zoneUtils";
+import AppsmithConsole from "utils/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import WidgetFactory from "WidgetProvider/factory";
+import { getDataTree } from "selectors/dataTreeSelectors";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { getNextEntityName } from "utils/AppsmithUtils";
+import type { WidgetBlueprint } from "WidgetProvider/constants";
+import { executeWidgetBlueprintOperations } from "sagas/WidgetBlueprintSagas";
 
 // Function to retrieve highlighting information for the last row in the main canvas layout
 export function* getMainCanvasLastRowHighlight() {
@@ -248,6 +256,181 @@ export function* addWidgetsSaga(
   }
 }
 
+/**
+ * retrieves the values from session storage for the widget properties
+ * for hydration of the widget when we create widget on drop
+ */
+export function getWidgetSessionValues(
+  type: string,
+  parent: FlattenedWidgetProps,
+) {
+  // For WDS_INLINE_BUTTONS_WIDGET, we want to hydation only to work when we add more items to the inline button group.
+  // So we don't want to hydrate the values when we drop the widget on the canvas.
+  if (["WDS_INLINE_BUTTONS_WIDGET"].includes(type)) return;
+
+  let widgetType = type;
+  const configMap = WidgetFactory.widgetConfigMap.get(type);
+
+  const widgetSessionValues: any = {};
+
+  // in case we are dropping WDS_ICON_BUTTON_WIDGET, we want to reuse the values of BUTTON_WIDGET
+  if (type === "WDS_ICON_BUTTON_WIDGET") {
+    widgetType = "WDS_BUTTON_WIDGET";
+  }
+
+  for (const key in configMap) {
+    if (configMap[key] != undefined) {
+      let sessionStorageKey = `${widgetType}.${key}`;
+
+      if (type === "ZONE_WIDGET") {
+        sessionStorageKey = `${widgetType}.${parent.widgetId}.${key}`;
+      }
+
+      let valueFromSession: any = sessionStorage.getItem(sessionStorageKey);
+
+      // parse "true" as true and "false" as false
+      if (valueFromSession === "true") {
+        valueFromSession = true;
+      } else if (valueFromSession === "false") {
+        valueFromSession = false;
+      }
+
+      if (valueFromSession !== undefined && valueFromSession !== null) {
+        widgetSessionValues[key] = valueFromSession;
+      }
+    }
+  }
+
+  return widgetSessionValues;
+}
+
+function* generateChildWidgets(
+  params: {
+    parentId: string;
+    type: string;
+    widgetId: string;
+  },
+  widgets: { [widgetId: string]: FlattenedWidgetProps },
+) {
+  const { parentId, type, widgetId } = params;
+  // Get default properties of the widget configured by the widget
+  // Exclude blueprint property
+
+  const widgetDefaultProperties = WidgetFactory.widgetDefaultPropertiesMap.get(
+    type,
+  ) as Record<string, unknown>;
+
+  // Hydrate widget with properties based previously configured values of similar widgets
+  const widgetSessionValues = getWidgetSessionValues(type, widgets[parentId]);
+
+  /* WIERD MODAL WIDGET HANDLING. */
+  // TODO: handle this using widget blueprint instead of this abstraction leak
+  // const detachedWidgets: string[] = yield select(
+  //   getCurrentlyOpenAnvilDetachedWidgets,
+  // );
+
+  // Abstraction leak!!!
+  // const isModalOpen = detachedWidgets && detachedWidgets.length > 0;
+  // in case we are creating zone inside zone, we want to use the parent's column space, we want
+  // to make sure the elevateBackground is set to false
+  // if (type === "ZONE_WIDGET" && isModalOpen) {
+  //   props = { ...props, elevatedBackground: false };
+  // }
+
+  /* EO WIERD MODAL WIDGET HANDLING */
+
+  /* HANDLE GENERATION OF NEW NAME FOR WIDGET */
+  const evalTree: DataTree = yield select(getDataTree);
+  const entityNames = Object.keys(evalTree);
+
+  const widgetName = getNextEntityName(
+    widgetDefaultProperties.widgetName as string,
+    [...entityNames],
+  );
+  /* EO HANDLE GENERATION OF NEW NAME FOR WIDGET */
+
+  // Combine all properties into one object to return
+  const widget = {
+    ...widgetDefaultProperties,
+    parentId,
+    widgetId,
+    type,
+    widgetName,
+    version: widgetDefaultProperties.version,
+    ...widgetSessionValues,
+  };
+
+  widget.blueprint = undefined;
+  // Add the widget to the canvasWidgets
+  // We need this in here as widgets will be used to get the current widget
+  widgets[widget.widgetId] = widget;
+
+  const blueprint = {
+    ...(widgetDefaultProperties.blueprint as WidgetBlueprint | undefined),
+  };
+  // Some widgets need to run a few operations like modifying props or adding an action
+  // these operations can be performed on the parent of the widget we're adding
+  // therefore, we pass all widgets to executeWidgetBlueprintOperations
+  // blueprint.operations contain the set of operations to perform to update the canvasWidgets
+  if (blueprint && blueprint.operations && blueprint.operations.length > 0) {
+    // Finalize the canvasWidgets with everything that needs to be updated
+    widgets = yield call(
+      executeWidgetBlueprintOperations,
+      blueprint.operations,
+      widgets,
+      widget.widgetId,
+    );
+  }
+
+  return { widgetId: widget.widgetId, updatedWidgets: widgets };
+}
+
+export function* addNewAnvilWidgetToDSL(
+  updatedStateWidgets: CanvasWidgetsReduxState,
+  payload: {
+    parentId: string;
+    type: string;
+    widgetId: string;
+  },
+) {
+  const { parentId, type } = payload;
+
+  const widgets = Object.assign({}, updatedStateWidgets);
+  // Get the current parent widget whose child will be the new widget.
+  const stateParent: FlattenedWidgetProps = updatedStateWidgets[parentId];
+
+  // Generate the full WidgetProps of the widget to be added.
+  const { updatedWidgets, widgetId } = yield generateChildWidgets(
+    payload,
+    widgets,
+  );
+
+  // Update widgets to put back in the canvasWidgetsReducer
+  const parent = {
+    ...stateParent,
+    children: [...(stateParent.children || []), widgetId],
+  };
+
+  widgets[parent.widgetId] = parent;
+  AppsmithConsole.info({
+    text: "Widget was created",
+    source: {
+      type: ENTITY_TYPE.WIDGET,
+      id: widgetId,
+      name: updatedWidgets[widgetId].widgetName,
+    },
+  });
+  yield put({
+    type: WidgetReduxActionTypes.WIDGET_CHILD_ADDED,
+    payload: {
+      widgetId: widgetId,
+      type: type,
+    },
+  });
+
+  return widgets;
+}
+
 function* addWidgetToGenericLayout(
   allWidgets: CanvasWidgetsReduxState,
   draggedWidgets: WidgetLayoutProps[],
@@ -265,17 +448,18 @@ function* addWidgetToGenericLayout(
     ? canvasWidget.layout
     : generateDefaultLayoutPreset();
 
+  const newWidgetContext = {
+    widgetId: newWidget.newWidgetId,
+    type: newWidget.type,
+    parentId: canvasWidget.widgetId,
+  };
+
   /**
    * Create widget and add to parent.
    */
-  updatedWidgets = yield call(
-    addNewWidgetToDsl,
+  updatedWidgets = yield addNewAnvilWidgetToDSL(
     updatedWidgets,
-    getCreateWidgetPayload(
-      newWidget.newWidgetId,
-      newWidget.type,
-      canvasWidget.widgetId,
-    ),
+    newWidgetContext,
   );
   /**
    * Also add it to parent's layout.
@@ -288,9 +472,6 @@ function* addWidgetToGenericLayout(
     },
     [newWidget.newWidgetId]: {
       ...updatedWidgets[newWidget.newWidgetId],
-      // This is a temp fix, widget dimensions will be self computed by widgets
-      height: newWidget.height,
-      width: newWidget.width,
     },
   };
 }
