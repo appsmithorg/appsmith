@@ -1,4 +1,4 @@
-name: PR Automation test suite
+name: PR Automation test suite with N count
 
 on:
   pull_request:
