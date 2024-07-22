@@ -16,6 +16,7 @@ describe(
       adminSettings.NavigateToAdminSettings();
       agHelper.ClearNType(adminSettings._instanceName, "Testing Instance name");
       agHelper.ClickButton("Save");
+      enterTableCellValue();
       agHelper.ValidateToastMessage("Successfully saved");
       if (CURRENT_REPO === REPO.CE) cy.title().should("eq", "Appsmith");
       //verifying that Instance name is not changed in CE
