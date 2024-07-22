@@ -19,6 +19,11 @@ import {
 } from "./moveUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilDraggingSagas";
+import {
+  hasWidgetJsPropertiesEnabled,
+  isEmptyWidget,
+  widgetChildren,
+} from "../widgetUtils";
 
 export function* createZoneAndAddWidgets(
   allWidgets: CanvasWidgetsReduxState,
@@ -242,3 +247,16 @@ export function* moveWidgetsToZone(
     return updatedWidgets;
   }
 }
+
+export const isZoneWidget = (widget: FlattenedWidgetProps): boolean =>
+  widget.type === anvilWidgets.ZONE_WIDGET;
+
+export const isRedundantZoneWidget = (
+  widget: FlattenedWidgetProps,
+  parentSection: FlattenedWidgetProps,
+): boolean =>
+  isZoneWidget(widget) &&
+  isEmptyWidget(widget) &&
+  // Check that the zone is the only child of the parent section.
+  widgetChildren(parentSection).length === 1 &&
+  !hasWidgetJsPropertiesEnabled(widget);
