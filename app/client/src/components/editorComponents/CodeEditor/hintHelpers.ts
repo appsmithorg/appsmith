@@ -138,7 +138,11 @@ export class SqlHintHelper {
   addCustomAttributesToCompletions(completions: Hints): Hints {
     completions.list = completions.list.map((completion) => {
       if (isString(completion)) return completion;
-      completion.render = (LiElement, _data, { className, text }) => {
+      completion.render = (
+        LiElement,
+        _data,
+        { className, displayText, text },
+      ) => {
         const { hintType, iconBgType, iconText } = getHintDetailsFromClassName(
           text,
           className,
@@ -147,7 +151,7 @@ export class SqlHintHelper {
         LiElement.setAttribute("icontext", iconText);
         LiElement.classList.add("cm-sql-hint");
         LiElement.classList.add(`cm-sql-hint-${iconBgType}`);
-        LiElement.innerHTML = text;
+        LiElement.innerHTML = displayText || text;
       };
       return completion;
     });
@@ -166,6 +170,10 @@ export class SqlHintHelper {
     const noHints = { showHints: false, completions: null } as const;
     if (isCursorOnEmptyToken(editor) || !this.isSqlMode(editor)) return noHints;
     let completions: Hints = this.getCompletions(editor);
+    completions.list.unshift({
+      text: "{{}}",
+      displayText: "Bind entity {{}}",
+    });
     if (isEmpty(completions.list)) return noHints;
     completions = filterCompletions(completions);
     return {
