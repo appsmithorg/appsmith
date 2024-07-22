@@ -33,5 +33,6 @@ reviews:
         - Avoid using strings for assertions.
         - Do not use duplicate filenames even with different paths.
         - Avoid using agHelper.Sleep, this.Sleep in any file in code.
+        - Do not use any function from this file app/client/cypress/support/ApiCommands.js instead of this use same or nearly same method from this file app/client/cypress/support/Pages/ApiPage.ts
 chat:
   auto_reply: true
