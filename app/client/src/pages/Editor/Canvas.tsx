@@ -42,10 +42,10 @@ const appMaxWidthToCSSValue = (maxWidth: APP_MAX_WIDTH): string => {
       return "1080px";
     case APP_MAX_WIDTH.Medium:
       return "800px";
-    default:
+    default: {
       const exhaustiveCheck: never = maxWidth;
-
       throw new Error(`Unhandled maxWidth: ${exhaustiveCheck}`);
+    }
   }
 };
 
