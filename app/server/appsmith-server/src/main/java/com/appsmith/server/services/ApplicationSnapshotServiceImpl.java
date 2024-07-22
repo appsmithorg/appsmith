@@ -10,6 +10,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import reactor.core.scheduler.Scheduler;
 
 @Slf4j
 @Service
@@ -23,7 +24,8 @@ public class ApplicationSnapshotServiceImpl extends ApplicationSnapshotServiceCE
             ExportService exportService,
             ApplicationPermission applicationPermission,
             Gson gson,
-            ResponseUtils responseUtils) {
+            ResponseUtils responseUtils,
+            Scheduler scheduler) {
         super(
                 applicationSnapshotRepository,
                 applicationService,
@@ -31,6 +33,7 @@ public class ApplicationSnapshotServiceImpl extends ApplicationSnapshotServiceCE
                 exportService,
                 applicationPermission,
                 gson,
-                responseUtils);
+                responseUtils,
+                scheduler);
     }
 }

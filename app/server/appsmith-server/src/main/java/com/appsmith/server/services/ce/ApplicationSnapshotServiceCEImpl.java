@@ -19,6 +19,7 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -35,6 +36,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     private final ApplicationPermission applicationPermission;
     private final Gson gson;
     private final ResponseUtils responseUtils;
+    private final Scheduler scheduler;
 
     private static final int MAX_SNAPSHOT_SIZE = 15 * 1024 * 1024; // 15 MB
 
@@ -74,7 +76,8 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                 .findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplicationId ->
                         applicationSnapshotRepository.findByApplicationIdAndChunkOrder(branchedApplicationId, 1))
-                .defaultIfEmpty(new ApplicationSnapshotResponseDTO(null));
+                .defaultIfEmpty(new ApplicationSnapshotResponseDTO(null))
+                .subscribeOn(scheduler);
     }
 
     @Override
