@@ -16,7 +16,7 @@ else
       git add .
       popd > /dev/null
     else
-      echo "Spotless apply failed for server files"
+      echo "Spotless apply failed, please run mvn spotless:apply"
       popd > /dev/null
       exit 1
     fi
