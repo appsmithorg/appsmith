@@ -86,7 +86,7 @@ const EditorTabs = () => {
   return (
     <>
       <Container>
-        {ideViewMode === EditorViewMode.SplitScreen && (
+        {ideViewMode === EditorViewMode.SplitScreen && files.length > 0 ? (
           <ToggleButton
             data-testid="t--list-toggle"
             icon="hamburger"
@@ -94,7 +94,7 @@ const EditorTabs = () => {
             onClick={handleHamburgerClick}
             size="md"
           />
-        )}
+        ) : null}
         <ScrollArea
           className="h-[32px] top-[0.5px]"
           data-testid="t--editor-tabs"
