@@ -139,7 +139,10 @@ function WDSThemePropertyPane() {
             type="text"
             value={accentColor}
           />
-          <div className={styles["presets-list"]}>
+          <div
+            className={styles["presets-list"]}
+            data-testid="t--anvil-theme-settings-accent-color-list"
+          >
             {THEME_SETTING_COLOR_PRESETS[theme.colorMode].map((color) => (
               <button
                 data-selected={theme.accentColor === color ? "" : undefined}
@@ -183,11 +186,13 @@ function WDSThemePropertyPane() {
 
       <SettingSection
         className="px-4 py-3 border-t "
+        data-testid="t--anvil-theme-settings-typography"
         isDefaultOpen
         title="Typography"
       >
         <section className="space-y-2">
           <Select
+            data-testid="t--anvil-theme-settings-font-family"
             dropdownClassName="t--theme-font-dropdown"
             onSelect={(value: string) => {
               updateTheme({
@@ -231,6 +236,7 @@ function WDSThemePropertyPane() {
         <section className="space-y-2">
           <SubText>Density</SubText>
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-density"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
@@ -245,6 +251,7 @@ function WDSThemePropertyPane() {
         <section className="space-y-2">
           <SubText>Sizing</SubText>
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-sizing"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
@@ -266,6 +273,7 @@ function WDSThemePropertyPane() {
       >
         <section className="space-y-2">
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-corners"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
@@ -288,6 +296,7 @@ function WDSThemePropertyPane() {
         <section className="space-y-2">
           <SubText>Icon Style</SubText>
           <SegmentedControl
+            data-testid="t--anvil-theme-settings-icon-style"
             isFullWidth={false}
             onChange={(value: string) => {
               updateTheme({
