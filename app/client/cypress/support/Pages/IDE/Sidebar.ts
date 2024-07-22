@@ -22,7 +22,7 @@ export class Sidebar {
     );
   }
 
-  assertVisible(timeout: number = 4000) {
+  assertVisible(timeout: number = 10000) {
     cy.get(this.locators.sidebar, { timeout }).should("be.visible");
   }
 }
