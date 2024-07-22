@@ -105,5 +105,5 @@ export default {
   noEntityFound:".no-search-results",
   initialWorkspace:"[data-testid^='Untitled workspace']",
   initialApplication:"[data-testid^='Untitled application']",
-  _entitySearchBar:"[data-testid='t--application-search-input']";
+  _entitySearchBar:"[data-testid='t--application-search-input']"
 };
