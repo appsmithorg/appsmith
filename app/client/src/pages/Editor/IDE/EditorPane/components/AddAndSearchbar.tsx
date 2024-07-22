@@ -9,7 +9,7 @@ interface Props {
 
 const AddAndSearchbar = ({ hasAddPermission, onAddClick, onSearch }: Props) => {
   return (
-    <Flex alignItems="center" flexDirection="row" gap="spaces-3" px="spaces-3">
+    <Flex alignItems="center" flexDirection="row" gap="spaces-3">
       <SearchInput onChange={onSearch} size="sm" />
       {hasAddPermission ? (
         <Button
