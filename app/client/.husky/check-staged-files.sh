@@ -9,19 +9,22 @@ if [ "$is_merge_commit" ]; then
   echo "Skipping server and client checks for merge commit"
 else
   if [ "$is_server_change" -ge 1 ]; then
-    echo "Running Spotless check ..."
+    echo "- Applying Spotless to server files..."
     pushd app/server > /dev/null
-    if (mvn spotless:check 1> /dev/null && popd > /dev/null) then
-      popd
+    if mvn spotless:apply; then
+      echo "✔ Spotless applied successfully to server files"
+      git add .
+      popd > /dev/null
     else
-      echo "Spotless check failed, please run mvn spotless:apply"
+      echo "Spotless apply failed for server files"
+      popd > /dev/null
       exit 1
     fi
   else
-      echo "Skipping server side check..."
+    echo "Skipping server side check..."
   fi
 
-  if [ "$is_client_change" -ge 1  ]; then
+  if [ "$is_client_change" -ge 1 ]; then
     echo "Running client check ..."
     npx lint-staged --cwd app/client
   else
