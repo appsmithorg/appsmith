@@ -371,22 +371,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                          * */
                         mappedImportableResourcesDTO.getInvalidPageIds().addAll(invalidPageIds);
 
-                        Mono.just(applicationPages);
-                        return Flux.fromIterable(invalidPageIds)
-                                .flatMap(pageId -> {
-                                    return applicationPageService.deleteUnpublishedPage(pageId, null, null, null, null);
-                                })
-                                .flatMap(page -> newPageService
-                                        .archiveByIdWithoutPermission(page.getId())
-                                        .onErrorResume(e -> {
-                                            log.debug(
-                                                    "Unable to archive page {} with error {}",
-                                                    page.getId(),
-                                                    e.getMessage());
-                                            return Mono.empty();
-                                        }))
-                                .then()
-                                .thenReturn(applicationPages);
+                        return Mono.just(applicationPages);
                     });
         }
         return applicationMono.zipWith(applicationPagesMono).map(objects -> {
@@ -397,7 +382,12 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
 
             mappedImportableResourcesDTO.getApplication().setId(application.getId());
             mappedImportableResourcesDTO.getApplication().setPages(applicationPages.get(EDIT));
-            mappedImportableResourcesDTO.getApplication().setPages(applicationPages.get(VIEW));
+            mappedImportableResourcesDTO.getApplication().setPublishedPages(applicationPages.get(VIEW));
+
+            for (String id : mappedImportableResourcesDTO.getInvalidPageIds()) {
+                mappedImportableResourcesDTO.getApplication().getPages().removeIf(page -> page.getId()
+                        .equals(id));
+            }
 
             return application;
         });
