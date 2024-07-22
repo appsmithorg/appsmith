@@ -13,9 +13,9 @@ describe(
     });
 
     it("1. Canvas Mode", () => {
-      anvilSnapshot.matchSanpshotForCanvasMode("CheckboxWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("CheckboxWidget");
       anvilSnapshot.setTheme("dark");
-      anvilSnapshot.matchSanpshotForCanvasMode("CheckboxWidget", "dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("CheckboxWidget", "dark");
       anvilSnapshot.setTheme("light");
     });
 

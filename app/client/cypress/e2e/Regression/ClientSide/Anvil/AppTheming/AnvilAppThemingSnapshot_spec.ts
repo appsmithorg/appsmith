@@ -13,13 +13,13 @@ describe(
     });
 
     it("1. Theme - Light and Dark Mode", () => {
-      anvilSnapshot.matchSanpshotForCanvasMode("AppTheming");
+      anvilSnapshot.matchSnapshotForCanvasMode("AppTheming");
       anvilSnapshot.matchSnapshotForPreviewMode("AppTheming");
       anvilSnapshot.matchSnapshotForDeployMode("AppTheming");
 
       anvilSnapshot.setTheme("dark");
 
-      anvilSnapshot.matchSanpshotForCanvasMode("AppTheming", "dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("AppTheming", "dark");
       anvilSnapshot.matchSnapshotForPreviewMode("AppTheming", "dark");
       anvilSnapshot.matchSnapshotForDeployMode("AppTheming", "dark");
 
@@ -29,7 +29,7 @@ describe(
     it("2. Theme - Accent Color", () => {
       anvilSnapshot.setAccentColor("#d54137");
 
-      anvilSnapshot.matchSanpshotForCanvasMode("AppThemingCustomAccent");
+      anvilSnapshot.matchSnapshotForCanvasMode("AppThemingCustomAccent");
       anvilSnapshot.matchSnapshotForPreviewMode("AppThemingCustomAccent");
       anvilSnapshot.matchSnapshotForDeployMode("AppThemingCustomAccent");
 
@@ -39,7 +39,7 @@ describe(
     it("3. Typography", () => {
       anvilSnapshot.setTypography("Inter");
 
-      anvilSnapshot.matchSanpshotForCanvasMode("AppThemingTypography");
+      anvilSnapshot.matchSnapshotForCanvasMode("AppThemingTypography");
       anvilSnapshot.matchSnapshotForPreviewMode("AppThemingTypography");
       anvilSnapshot.matchSnapshotForDeployMode("AppThemingTypography");
 
@@ -50,7 +50,7 @@ describe(
       ["Tight", "Regular", "Loose"].forEach((density) => {
         anvilSnapshot.setDensity(density);
 
-        anvilSnapshot.matchSanpshotForCanvasMode(`AppThemingDensity${density}`);
+        anvilSnapshot.matchSnapshotForCanvasMode(`AppThemingDensity${density}`);
         anvilSnapshot.matchSnapshotForPreviewMode(
           `AppThemingDensity${density}`,
         );
@@ -62,7 +62,7 @@ describe(
       ["Small", "Regular", "Big"].forEach((size) => {
         anvilSnapshot.setSizing(size);
 
-        anvilSnapshot.matchSanpshotForCanvasMode(`AppThemingSizing${size}`);
+        anvilSnapshot.matchSnapshotForCanvasMode(`AppThemingSizing${size}`);
         anvilSnapshot.matchSnapshotForPreviewMode(`AppThemingSizing${size}`);
         anvilSnapshot.matchSnapshotForDeployMode(`AppThemingSizing${size}`);
       });
@@ -72,7 +72,7 @@ describe(
       ["0px", "6px", "20px"].forEach((corner) => {
         anvilSnapshot.setCorners(corner);
 
-        anvilSnapshot.matchSanpshotForCanvasMode(`AppThemingCorner${corner}`);
+        anvilSnapshot.matchSnapshotForCanvasMode(`AppThemingCorner${corner}`);
         anvilSnapshot.matchSnapshotForPreviewMode(`AppThemingCorner${corner}`);
         anvilSnapshot.matchSnapshotForDeployMode(`AppThemingCorner${corner}`);
       });
@@ -82,7 +82,7 @@ describe(
       ["Filled", "Outlined"].forEach((iconStyle) => {
         anvilSnapshot.setIconStyle(iconStyle);
 
-        anvilSnapshot.matchSanpshotForCanvasMode(`AppThemingIcon${iconStyle}`);
+        anvilSnapshot.matchSnapshotForCanvasMode(`AppThemingIcon${iconStyle}`);
         anvilSnapshot.matchSnapshotForPreviewMode(`AppThemingIcon${iconStyle}`);
         anvilSnapshot.matchSnapshotForDeployMode(`AppThemingIcon${iconStyle}`);
       });

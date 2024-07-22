@@ -14,14 +14,14 @@ describe(
 
     it("1. Canvas Mode", () => {
       anvilSnapshot.triggerCheckboxGroupInvalidState();
-      anvilSnapshot.matchSanpshotForCanvasMode("CheckboxGroupWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("CheckboxGroupWidget");
       anvilSnapshot.setTheme("dark");
-      anvilSnapshot.matchSanpshotForCanvasMode("CheckboxGroupWidget", "dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("CheckboxGroupWidget", "dark");
       anvilSnapshot.setTheme("light");
     });
 
     it("2. Preview Mode", () => {
-      anvilSnapshot.matchSanpshotForCanvasMode("CheckboxGroupWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("CheckboxGroupWidget");
     });
 
     it("3. Deploy Mode", () => {

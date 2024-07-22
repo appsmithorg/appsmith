@@ -45,7 +45,7 @@ export class AnvilSnapshot {
     });
   }
 
-  public matchSanpshotForCanvasMode = (
+  public matchSnapshotForCanvasMode = (
     name: string,
     theme: Parameters<typeof this.matchSnapshot>[3] = "light",
   ) => {

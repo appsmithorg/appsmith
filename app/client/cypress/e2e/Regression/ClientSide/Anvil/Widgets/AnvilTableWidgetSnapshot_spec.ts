@@ -13,9 +13,9 @@ describe(
     });
 
     it("1. Canvas Mode", () => {
-      anvilSnapshot.matchSanpshotForCanvasMode("TableWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("TableWidget");
       anvilSnapshot.setTheme("dark");
-      anvilSnapshot.matchSanpshotForCanvasMode("TableWidget", "dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("TableWidget", "dark");
       anvilSnapshot.setTheme("light");
     });
 

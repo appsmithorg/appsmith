@@ -13,9 +13,9 @@ describe(
     });
 
     it("1. Canvas Mode", () => {
-      anvilSnapshot.matchSanpshotForCanvasMode("ToolbarButtonWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("ToolbarButtonWidget");
       anvilSnapshot.setTheme("dark");
-      anvilSnapshot.matchSanpshotForCanvasMode("ToolbarButtonWidget", "dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("ToolbarButtonWidget", "dark");
       anvilSnapshot.setTheme("light");
     });
 

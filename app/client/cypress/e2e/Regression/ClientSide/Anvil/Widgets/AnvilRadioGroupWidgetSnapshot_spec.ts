@@ -13,9 +13,9 @@ describe(
     });
 
     it("1. Canvas Mode", () => {
-      anvilSnapshot.matchSanpshotForCanvasMode("RadioGroupWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("RadioGroupWidget");
       anvilSnapshot.setTheme("dark");
-      anvilSnapshot.matchSanpshotForCanvasMode("RadioGroupWidget", "dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("RadioGroupWidget", "dark");
       anvilSnapshot.setTheme("light");
     });
 

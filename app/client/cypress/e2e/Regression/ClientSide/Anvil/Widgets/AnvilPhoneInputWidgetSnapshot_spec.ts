@@ -14,9 +14,9 @@ describe(
 
     it("1. Canvas Mode", () => {
       anvilSnapshot.triggerInputInvalidState();
-      anvilSnapshot.matchSanpshotForCanvasMode("PhoneInputWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("PhoneInputWidget");
       anvilSnapshot.setTheme("dark");
-      anvilSnapshot.matchSanpshotForCanvasMode("PhoneInputWidget", "dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("PhoneInputWidget", "dark");
       anvilSnapshot.setTheme("light");
     });
 

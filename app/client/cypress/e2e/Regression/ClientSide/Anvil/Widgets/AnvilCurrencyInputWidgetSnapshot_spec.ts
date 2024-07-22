@@ -14,9 +14,9 @@ describe(
 
     it("1. Canvas Mode", () => {
       anvilSnapshot.triggerInputInvalidState();
-      anvilSnapshot.matchSanpshotForCanvasMode("CurrencyInputWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("CurrencyInputWidget");
       anvilSnapshot.setTheme("dark");
-      anvilSnapshot.matchSanpshotForCanvasMode("CurrencyInputWidget", "dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("CurrencyInputWidget", "dark");
       anvilSnapshot.setTheme("light");
     });
 
