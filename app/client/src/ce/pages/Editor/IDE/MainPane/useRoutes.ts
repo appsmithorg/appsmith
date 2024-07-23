@@ -9,7 +9,6 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
-  CURL_IMPORT_PAGE_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
   DATA_SOURCES_EDITOR_LIST_PATH,
   GENERATE_TEMPLATE_FORM_PATH,
@@ -28,7 +27,6 @@ import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist"
 import ApiEditor from "pages/Editor/APIEditor";
 import QueryEditor from "pages/Editor/QueryEditor";
 import JSEditor from "pages/Editor/JSEditor";
-import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
 import ListView from "pages/Editor/SaaSEditor/ListView";
 import {
   SAAS_EDITOR_API_ID_ADD_PATH,
@@ -91,8 +89,6 @@ function useRoutes(path: string): RouteReturnType[] {
           `${path}${JS_COLLECTION_EDITOR_PATH}${ADD_PATH}`,
           `${path}${JS_COLLECTION_ID_PATH}`,
           `${path}${JS_COLLECTION_ID_PATH}${LIST_PATH}`,
-          `${path}${CURL_IMPORT_PAGE_PATH}`,
-          `${path}${CURL_IMPORT_PAGE_PATH}${ADD_PATH}`,
           `${path}${SAAS_EDITOR_PATH}`,
           `${path}${SAAS_EDITOR_API_ID_PATH}`,
           `${path}${SAAS_EDITOR_API_ID_ADD_PATH}`,
@@ -179,7 +175,6 @@ function useRoutes(path: string): RouteReturnType[] {
         `${path}${QUERIES_EDITOR_BASE_PATH}${ADD_PATH}`,
         `${path}${QUERIES_EDITOR_ID_ADD_PATH}`,
         `${path}${API_EDITOR_ID_ADD_PATH}`,
-        `${path}${CURL_IMPORT_PAGE_PATH}${ADD_PATH}`,
         `${path}${SAAS_EDITOR_API_ID_ADD_PATH}`,
       ],
     },
@@ -221,12 +216,6 @@ function useRoutes(path: string): RouteReturnType[] {
       component: JSEditor,
       exact: true,
       path: [`${path}${JS_COLLECTION_ID_PATH}`],
-    },
-    {
-      key: "CurlImportEditor",
-      component: CurlImportEditor,
-      exact: true,
-      path: [`${path}${CURL_IMPORT_PAGE_PATH}`],
     },
     {
       key: "SAASList",

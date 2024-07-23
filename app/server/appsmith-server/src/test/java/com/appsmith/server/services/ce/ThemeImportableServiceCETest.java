@@ -36,6 +36,8 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.UUID;
 
+import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -201,8 +203,9 @@ public class ThemeImportableServiceCETest {
     @WithUserDetails("api_user")
     @Test
     public void importThemesToApplication_ApplicationThemeNotFound_DefaultThemeImported() {
-        Theme defaultTheme =
-                themeRepository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).block();
+        Theme defaultTheme = themeRepository
+                .getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES)
+                .block();
 
         // create the theme information present in the application JSON
         Theme themeInJson = new Theme();

@@ -57,7 +57,7 @@ public class MappedImportableResourcesCE_DTO {
 
     Map<DBOpsType, List<DatasourceStorage>> datasourceStorageDryRunQueries = new HashMap<>();
 
-    Map<String, List<CustomJSLib>> customJSLibsDryOps = new HashMap<>();
+    Map<DBOpsType, List<CustomJSLib>> customJSLibsDryOps = new HashMap<>();
 
     {
         for (DBOpsType dbOpsType : DBOpsType.values()) {

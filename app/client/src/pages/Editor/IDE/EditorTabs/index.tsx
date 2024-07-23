@@ -86,14 +86,15 @@ const EditorTabs = () => {
   return (
     <>
       <Container>
-        {ideViewMode === EditorViewMode.SplitScreen && (
+        {ideViewMode === EditorViewMode.SplitScreen && files.length > 0 ? (
           <ToggleButton
+            data-testid="t--list-toggle"
             icon="hamburger"
             isSelected={showListView}
             onClick={handleHamburgerClick}
             size="md"
           />
-        )}
+        ) : null}
         <ScrollArea
           className="h-[32px] top-[0.5px]"
           data-testid="t--editor-tabs"
@@ -105,7 +106,12 @@ const EditorTabs = () => {
           }}
           size={"sm"}
         >
-          <Flex className="items-center" gap="spaces-2" height="100%">
+          <Flex
+            className="items-center"
+            data-testid="t--tabs-container"
+            gap="spaces-2"
+            height="100%"
+          >
             <FileTabs
               currentEntity={currentEntity}
               isListActive={showListView}
