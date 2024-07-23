@@ -7,17 +7,27 @@ import { Resource } from "@opentelemetry/resources";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { W3CTraceContextPropagator } from "@opentelemetry/core";
+import {
+  MeterProvider,
+  PeriodicExportingMetricReader,
+} from "@opentelemetry/sdk-metrics";
+import {
+  AggregationTemporalityPreference,
+  OTLPMetricExporter,
+} from "@opentelemetry/exporter-metrics-otlp-http";
+import { metrics } from "@opentelemetry/api";
 
 const { newRelic } = getAppsmithConfigs();
 const { applicationId, otlpEndpoint, otlpLicenseKey, otlpServiceName } =
   newRelic;
 
+const resource = new Resource({
+  [SemanticResourceAttributes.SERVICE_NAME]: otlpServiceName,
+  [SemanticResourceAttributes.SERVICE_INSTANCE_ID]: applicationId,
+  [SemanticResourceAttributes.SERVICE_VERSION]: "1.0.0",
+});
 const provider = new WebTracerProvider({
-  resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: otlpServiceName,
-    [SemanticResourceAttributes.SERVICE_INSTANCE_ID]: applicationId,
-    [SemanticResourceAttributes.SERVICE_VERSION]: "1.0.0",
-  }),
+  resource,
 });
 
 const newRelicExporter = new OTLPTraceExporter({
@@ -41,6 +51,34 @@ const processor = new BatchSpanProcessor(
     exportTimeoutMillis: 30000,
   },
 );
+
+const metricExporter = new OTLPMetricExporter({
+  // compression: "gzip",
+  temporalityPreference: AggregationTemporalityPreference.DELTA,
+  url: `${otlpEndpoint}/v1/metrics`,
+  headers: {
+    "api-key": otlpLicenseKey,
+  },
+  // ... other options
+});
+// metricExporter.selectAggregationTemporality("HISTOGRAM");
+// Create a meter provider and register the exporter
+export const meterProvider = new MeterProvider({
+  resource: new Resource({
+    [SemanticResourceAttributes.SERVICE_NAME]: otlpServiceName,
+    [SemanticResourceAttributes.SERVICE_INSTANCE_ID]: applicationId,
+    [SemanticResourceAttributes.SERVICE_VERSION]: "1.0.0",
+  }),
+  readers: [
+    new PeriodicExportingMetricReader({
+      exporter: metricExporter,
+      exportIntervalMillis: 10000,
+    }),
+  ],
+});
+// Register the MeterProvider globally
+metrics.setGlobalMeterProvider(meterProvider);
+// https://metric-api.newrelic.com/metric/v1
 
 const W3C_OTLP_TRACE_HEADER = "traceparent";
 const CUSTOM_OTLP_TRACE_HEADER = "traceparent-otlp";
