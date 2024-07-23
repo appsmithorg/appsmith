@@ -20,19 +20,12 @@ import SegmentedHeader from "./components/SegmentedHeader";
 import { useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 
 const EditorPaneExplorer = () => {
   const { path } = useRouteMatch();
   const ideViewMode = useSelector(getIDEViewMode);
   return (
-    <Flex
-      className="relative"
-      flexDirection="column"
-      height="100%"
-      overflow="hidden"
-      width={DEFAULT_EXPLORER_PANE_WIDTH}
-    >
+    <Flex className="relative" flexDirection="column" overflow="hidden">
       <SegmentedHeader />
       {/** Entity Properties component is needed to render
        the Bindings popover in the context menu. Will be removed eventually **/}
