@@ -15,14 +15,14 @@ export interface ButtonComponentProps extends ButtonProps {
 }
 
 function ButtonComponent(props: ButtonComponentProps & UseRecaptchaProps) {
-  const { icon, text, tooltip, ...rest } = props;
+  const { text, tooltip, ...rest } = props;
 
   const { onClick, recpatcha } = useRecaptcha(props);
 
   return (
     <Container>
       <Tooltip tooltip={tooltip}>
-        <Button icon={icon} {...rest} onPress={onClick}>
+        <Button {...rest} onPress={onClick}>
           {text}
         </Button>
       </Tooltip>
