@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import history from "utils/history";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -33,7 +33,7 @@ import ListQuery from "pages/Editor/IDE/EditorPane/Query/List";
 import type { AppState } from "@appsmith/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { Tag, type ListItemProps } from "design-system";
+import type { ListItemProps } from "design-system";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
 import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
@@ -182,12 +182,16 @@ export const useAddQueryListItems = () => {
     [pageId, dispatch],
   );
 
-  const getListItems = (data: any[]) => {
+  const getListItems = (data: ActionOperation[]) => {
     return data.map((fileOperation) => {
-      const title =
+      let title =
         fileOperation.entityExplorerTitle ||
         fileOperation.dsName ||
         fileOperation.title;
+      title =
+        fileOperation.focusEntityType === FocusEntity.QUERY_MODULE_INSTANCE
+          ? fileOperation.title
+          : title;
       const className = createAddClassName(title);
       const icon =
         fileOperation.icon ||
@@ -197,11 +201,10 @@ export const useAddQueryListItems = () => {
         startIcon: icon,
         wrapperClassName: className,
         title,
-        description: !!fileOperation.isBeta ? (
-          <Tag isClosable={false}>Beta</Tag>
-        ) : (
-          ""
-        ),
+        description:
+          fileOperation.focusEntityType === FocusEntity.QUERY_MODULE_INSTANCE
+            ? fileOperation.dsName
+            : "",
         descriptionType: "inline",
         onClick: onCreateItemClick.bind(null, fileOperation),
       } as ListItemProps;
