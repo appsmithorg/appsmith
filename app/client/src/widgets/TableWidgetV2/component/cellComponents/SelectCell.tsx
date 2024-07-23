@@ -156,14 +156,8 @@ export const SelectCell = (props: SelectProps) => {
 
   const onSelect = useCallback(
     (option: DropdownOption) => {
-      // Compute cell value using selectDisplayAs
-      const onSelectValue = props.isNewRow
-        ? option.value
-        : selectDisplayAs === SelectColumnDisplayAsKeys.LABEL
-          ? option.label
-          : option.value;
       onItemSelect(
-        onSelectValue || "",
+        option.value || "",
         rowIndex,
         alias,
         onOptionSelectActionString,
@@ -208,6 +202,28 @@ export const SelectCell = (props: SelectProps) => {
     .map((d: DropdownOption) => d.value)
     .indexOf(value);
 
+  // Compute cell display value using selectDisplayAs
+  const getCellDisplayValue = useCallback(() => {
+    // Default cell value is the provided value
+    let cellValue: string | number | undefined | null = value;
+
+    // If selectDisplayAs is LABEL, find the corresponding option label
+    if (selectDisplayAs === SelectColumnDisplayAsKeys.LABEL) {
+      const selectedOption = options.find(
+        (option) => option[SelectColumnDisplayAsKeys.VALUE] === value,
+      );
+
+      // Set cell value to the label of the selected option or an empty string if not found
+      cellValue = selectedOption
+        ? selectedOption[SelectColumnDisplayAsKeys.LABEL]
+        : "";
+    }
+
+    return cellValue || "";
+  }, [selectDisplayAs, value, options]);
+
+  const cellContent = getCellDisplayValue();
+
   if (isEditable && isCellEditable && isCellEditMode) {
     return (
       <StyledCellWrapper
@@ -247,7 +263,7 @@ export const SelectCell = (props: SelectProps) => {
           selectDisplayAs={selectDisplayAs}
           selectedIndex={selectedIndex}
           serverSideFiltering={serverSideFiltering}
-          value={value}
+          value={cellContent}
           widgetId={""}
           width={width}
         />
@@ -277,7 +293,7 @@ export const SelectCell = (props: SelectProps) => {
         tableWidth={tableWidth}
         textColor={textColor}
         textSize={textSize}
-        value={value}
+        value={cellContent}
         verticalAlignment={verticalAlignment}
       />
     );
