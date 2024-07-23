@@ -173,6 +173,11 @@ export class SqlHintHelper {
     completions.list.unshift({
       text: "{{}}",
       displayText: "Bind entity {{}}",
+      hint: (cm) => {
+        cm.replaceRange("{{}}", cm.getCursor());
+        cm.setCursor({ line: cm.getCursor().line, ch: cm.getCursor().ch - 2 });
+        bindingHintHelper(cm, {}).showHint(cm, {});
+      },
     });
     if (isEmpty(completions.list)) return noHints;
     completions = filterCompletions(completions);
