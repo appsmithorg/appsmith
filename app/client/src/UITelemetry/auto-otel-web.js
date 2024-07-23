@@ -15,13 +15,15 @@ const { applicationId, otlpEndpoint, otlpLicenseKey, otlpServiceName } =
 
 const provider = new WebTracerProvider({
   resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: otlpServiceName,
+    [SemanticResourceAttributes.SERVICE_NAME]: "FH2HHY0VYG - 3",
     [SemanticResourceAttributes.SERVICE_INSTANCE_ID]: applicationId,
     [SemanticResourceAttributes.SERVICE_VERSION]: "1.0.0",
   }),
 });
 
 const newRelicExporter = new OTLPTraceExporter({
+  compression: "gzip",
+
   url: `${otlpEndpoint}/v1/traces`,
   headers: {
     "api-key": otlpLicenseKey,
@@ -73,12 +75,13 @@ const addCustomAttributesToSpan = (span) => {
 };
 
 registerInstrumentations({
+  // tracerProvider: provider,
   instrumentations: [
     getWebAutoInstrumentations({
       "@opentelemetry/instrumentation-xml-http-request": {
         enabled: true,
         ignoreUrls: [/bam.nr-data.net/],
-        addCustomAttributesToSpan,
+        applyCustomAttributesOnSpan: addCustomAttributesToSpan,
       },
       "@opentelemetry/instrumentation-user-interaction": {
         enabled: false,
