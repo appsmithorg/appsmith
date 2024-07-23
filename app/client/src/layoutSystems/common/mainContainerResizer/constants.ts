@@ -1,0 +1,1 @@
+export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;

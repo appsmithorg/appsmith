@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { setAutoCanvasResizing } from "actions/autoLayoutActions";
 import styled from "styled-components";
-import { AUTOLAYOUT_RESIZER_WIDTH_BUFFER } from "utils/hooks/useDynamicAppLayout";
 import { importSvg } from "design-system-old";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import { AUTOLAYOUT_RESIZER_WIDTH_BUFFER } from "./constants";
 
 const CanvasResizerIcon = importSvg(
   async () => import("assets/icons/ads/app-icons/canvas-resizer.svg"),
