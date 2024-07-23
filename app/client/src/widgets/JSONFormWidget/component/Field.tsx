@@ -39,7 +39,6 @@ function Field<TValue>({
   alignField,
   children,
   defaultValue,
-  fieldClassName,
   hideLabel = false,
   inlineLabel = false,
   isRequiredField,
@@ -49,6 +48,7 @@ function Field<TValue>({
   labelTextSize,
   name,
   tooltip,
+  labelPosition
 }: FieldProps<TValue>) {
   const refDefaultValue = useRef<TValue>();
   const { setValue } = useFormContext();
@@ -66,11 +66,12 @@ function Field<TValue>({
     }
   }, [defaultValue, setValue]);
 
+
   const direction = inlineLabel ? "row" : "column";
 
   return (
     <StyledWrapper
-      className={`t--jsonformfield-${fieldClassName}`}
+      className={`t--jsonformfield`}
       direction={direction}
     >
       {hideLabel ? (
@@ -85,6 +86,7 @@ function Field<TValue>({
           labelTextColor={labelTextColor}
           labelTextSize={labelTextSize}
           tooltip={tooltip}
+          labelPosition={labelPosition}
         >
           {children}
         </FieldLabel>

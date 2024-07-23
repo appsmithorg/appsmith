@@ -9,6 +9,7 @@ import { FontStyleTypes } from "constants/WidgetConstants";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
 import type { AlignWidget } from "WidgetProvider/constants";
 import { importSvg } from "design-system-old";
+import { LabelPosition } from "components/constants";
 
 const HelpIcon = importSvg(async () => import("assets/icons/control/help.svg"));
 
@@ -36,16 +37,18 @@ export type FieldLabelProps = PropsWithChildren<
     label: string;
     tooltip?: string;
     alignField?: AlignField;
+    labelPosition?:LabelPosition;
   }
 >;
 
 interface StyledLabelTextWrapperProps {
   direction: FieldLabelProps["direction"];
+  labelPosition?:LabelPosition;
+  alignField?:AlignWidget;
 }
 
 interface StyledLabelProps {
   direction?: FieldLabelProps["direction"];
-  alignField?:AlignWidget
 }
 
 const LABEL_TEXT_WRAPPER_MARGIN_BOTTOM = 4;
@@ -63,10 +66,8 @@ const StyledLabel = styled.label<StyledLabelProps>`
   align-items: flex-start;
   display: flex;
   flex-direction: ${({ direction }) => direction};
-  column-gap: ${({ direction, alignField }) =>
-    `${direction === "row" && alignField === "RIGHT" ? '0px' : '24px'}
-`}
 `;
+
 
 const StyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
   align-items: center;
@@ -77,6 +78,24 @@ const StyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
   & .${TOOLTIP_CLASSNAME} {
     line-height: 0;
   }
+`;
+
+
+const InlineStyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
+  align-items: center;
+  display: flex;
+  margin-bottom: ${({ direction }) =>
+    direction === "row" ? 0 : LABEL_TEXT_WRAPPER_MARGIN_BOTTOM}px;
+
+  & .${TOOLTIP_CLASSNAME} {
+    line-height: 0;
+  }
+  ${({ labelPosition, alignField }) =>
+    labelPosition === LabelPosition.Left &&  alignField === "LEFT"
+      && "width: 100%;" }
+  ${({ labelPosition, alignField }) =>
+    alignField === "RIGHT" &&  (labelPosition === LabelPosition.Right || labelPosition === LabelPosition.Left)
+      &&  "margin-left: auto;"}
 `;
 
 const StyledRequiredMarker = styled.div`
@@ -124,6 +143,7 @@ function FieldLabel({
   labelTextColor = "",
   labelTextSize,
   tooltip,
+  labelPosition = LabelPosition.Left
 }: FieldLabelProps) {
   const labelStyleProps = useMemo(() => {
     // labelStyles contains styles as comma separated values eg. "BOLD,UNDERLINE"
@@ -143,11 +163,11 @@ function FieldLabel({
    * If field and label are to be displayed horizontally then we consider the alignField
    * prop else we always want to have label then field in case of vertical alignment (direction === "column")
    */
-  const align = direction === "row" ? alignField : "RIGHT";
 
+  if (direction !== "row")
+    {
   return (
-    <StyledLabel direction={direction} alignField={alignField}>
-      {align === "LEFT" && children}
+       <StyledLabel direction={direction}>
       <StyledLabelTextWrapper direction={direction}>
         <StyledLabelText isRequiredField={isRequiredField} {...labelStyleProps}>
           {label}
@@ -166,9 +186,36 @@ function FieldLabel({
           </StyledTooltip>
         )}
       </StyledLabelTextWrapper>
-      {align === "RIGHT" && children}
+      {children}
     </StyledLabel>
   );
-}
+  }
+  else {
+    return (
+    <StyledLabel direction={direction}>
+        {labelPosition === LabelPosition.Right && children}
+      <InlineStyledLabelTextWrapper direction={direction} alignField={alignField} labelPosition={labelPosition}>
+        <StyledLabelText isRequiredField={isRequiredField} {...labelStyleProps}>
+          {label}
+        </StyledLabelText>
+        {isRequiredField && <StyledRequiredMarker>*</StyledRequiredMarker>}
+        {tooltip && (
+          <StyledTooltip
+            className={TOOLTIP_CLASSNAME}
+            content={tooltip}
+            hoverOpenDelay={200}
+            position="top"
+          >
+            <ToolTipIcon color={Colors.SILVER_CHALICE} height={14} width={14}>
+              <HelpIcon className="t--input-widget-tooltip" />
+            </ToolTipIcon>
+          </StyledTooltip>
+        )}
+      </InlineStyledLabelTextWrapper>
+      {labelPosition === LabelPosition.Left && children}
+    </StyledLabel>
+    );
+  }
+  }
 
 export default FieldLabel;
