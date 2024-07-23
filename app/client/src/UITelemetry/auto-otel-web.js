@@ -66,6 +66,34 @@ provider.register({
   propagator: new CustomW3CTraceContextPropagator(),
 });
 
+const addCustomAttributesToSpan = (span) => {
+  const sessionId = window.localStorage.getItem("OTLP_SESSION_ID");
+
+  span.setAttribute("otlpsessionId", sessionId);
+};
+
 registerInstrumentations({
-  instrumentations: [getWebAutoInstrumentations()],
+  instrumentations: [
+    getWebAutoInstrumentations({
+      "@opentelemetry/instrumentation-xml-http-request": {
+        enabled: true,
+        ignoreUrls: [/bam.nr-data.net/],
+        addCustomAttributesToSpan,
+      },
+      "@opentelemetry/instrumentation-user-interaction": {
+        enabled: false,
+      },
+      "@opentelemetry/instrumentation-document-load": {
+        enabled: true,
+        applyCustomAttributesOnSpan: {
+          documentFetch: addCustomAttributesToSpan,
+          documentLoad: addCustomAttributesToSpan,
+          resourceFetch: addCustomAttributesToSpan,
+        },
+      },
+      "@opentelemetry/instrumentation-fetch": {
+        enabled: false,
+      },
+    }),
+  ],
 });
