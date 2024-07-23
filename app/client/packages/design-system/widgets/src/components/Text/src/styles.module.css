@@ -4,7 +4,6 @@
   /* using auto instead of 100% so that text does not push everything to the edge when the parent is flex layout ( this happens in case of switch ) */
   width: auto;
   color: inherit;
-  word-break: break-all;
 
   @each $color in colors {
     &[data-color="$(color)"] {

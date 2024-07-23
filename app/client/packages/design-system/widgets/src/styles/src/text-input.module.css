@@ -169,6 +169,10 @@
   *-----------------------------------------------------------------------------
   */
   & [data-field-input] input[data-size="small"] {
+    block-size: calc(
+      var(--body-line-height) + var(--body-margin-start) +
+        var(--body-margin-end)
+    );
     padding-block: var(--inner-spacing-2);
   }
 }
