@@ -21,8 +21,8 @@ export const WidgetProfiler = ({
           unit: "ms",
         });
         const [, phase, actualDuaration, baseDuration] = args;
-        console.log("*** see render", args);
-        widgetRenderMeter.record(actualDuaration);
+        console.log(`*** see render ${type}`, args);
+        widgetRenderMeter.record(actualDuaration, { type });
       }}
     >
       {children}

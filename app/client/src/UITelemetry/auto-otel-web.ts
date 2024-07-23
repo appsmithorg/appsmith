@@ -4,7 +4,11 @@ import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import { ZoneContextManager } from "@opentelemetry/context-zone";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-proto";
 import { Resource } from "@opentelemetry/resources";
-import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
+import {
+  SEMRESATTRS_SERVICE_NAME,
+  SEMRESATTRS_SERVICE_INSTANCE_ID,
+  SEMRESATTRS_SERVICE_VERSION,
+} from "@opentelemetry/semantic-conventions";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { W3CTraceContextPropagator } from "@opentelemetry/core";
 import {
@@ -16,15 +20,16 @@ import {
   OTLPMetricExporter,
 } from "@opentelemetry/exporter-metrics-otlp-http";
 import { metrics } from "@opentelemetry/api";
+import type { Context, TextMapSetter } from "@opentelemetry/api";
 
 const { newRelic } = getAppsmithConfigs();
 const { applicationId, otlpEndpoint, otlpLicenseKey, otlpServiceName } =
   newRelic;
 
 const resource = new Resource({
-  [SemanticResourceAttributes.SERVICE_NAME]: otlpServiceName,
-  [SemanticResourceAttributes.SERVICE_INSTANCE_ID]: applicationId,
-  [SemanticResourceAttributes.SERVICE_VERSION]: "1.0.0",
+  [SEMRESATTRS_SERVICE_NAME]: "Appsmith Client Metrics - FH2HHY0VYG - 3",
+  [SEMRESATTRS_SERVICE_INSTANCE_ID]: applicationId,
+  [SEMRESATTRS_SERVICE_VERSION]: "1.0.0",
 });
 const provider = new WebTracerProvider({
   resource,
@@ -55,6 +60,7 @@ const processor = new BatchSpanProcessor(
 const metricExporter = new OTLPMetricExporter({
   // compression: "gzip",
   temporalityPreference: AggregationTemporalityPreference.DELTA,
+
   url: `${otlpEndpoint}/v1/metrics`,
   headers: {
     "api-key": otlpLicenseKey,
@@ -65,9 +71,9 @@ const metricExporter = new OTLPMetricExporter({
 // Create a meter provider and register the exporter
 export const meterProvider = new MeterProvider({
   resource: new Resource({
-    [SemanticResourceAttributes.SERVICE_NAME]: otlpServiceName,
-    [SemanticResourceAttributes.SERVICE_INSTANCE_ID]: applicationId,
-    [SemanticResourceAttributes.SERVICE_VERSION]: "1.0.0",
+    [SEMRESATTRS_SERVICE_NAME]: "Appsmith Client Metrics - FH2HHY0VYG - 3",
+    [SEMRESATTRS_SERVICE_INSTANCE_ID]: applicationId,
+    [SEMRESATTRS_SERVICE_VERSION]: "1.0.0",
   }),
   readers: [
     new PeriodicExportingMetricReader({
@@ -85,7 +91,11 @@ const CUSTOM_OTLP_TRACE_HEADER = "traceparent-otlp";
 //We are overriding the default header "traceparent" used for trace context because the browser
 // agent shares the same header's distributed tracing
 class CustomW3CTraceContextPropagator extends W3CTraceContextPropagator {
-  inject(context, carrier, setter) {
+  inject(
+    context: Context,
+    carrier: Record<string, unknown>,
+    setter: TextMapSetter,
+  ) {
     // Call the original inject method to get the default traceparent header
     super.inject(context, carrier, setter);
 
@@ -103,6 +113,6 @@ provider.register({
   propagator: new CustomW3CTraceContextPropagator(),
 });
 
-registerInstrumentations({
-  instrumentations: [],
-});
+// registerInstrumentations({
+//   instrumentations: [],
+// });
