@@ -17,7 +17,7 @@ module.exports = {
   moduleFileExtensions: ["ts", "tsx", "js", "jsx", "json", "node", "css"],
   moduleDirectories: ["node_modules", "src", "test"],
   transformIgnorePatterns: [
-    "<rootDir>/node_modules/(?!codemirror|konva|design-system|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never|axios)",
+    "<rootDir>/node_modules/(?!codemirror|konva|design-system|design-system-old|react-dnd|dnd-core|@babel|(@blueprintjs)|@github|lodash-es|@draft-js-plugins|react-documents|linkedom|assert-never|axios|usehooks-ts)",
   ],
   moduleNameMapper: {
     "\\.(css|less)$": "<rootDir>/test/__mocks__/styleMock.js",
@@ -89,7 +89,7 @@ module.exports = {
         browserAgentlicenseKey: parseConfig(
           "__APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY__",
         ),
-        browserAgentEndpoint:  parseConfig(
+        browserAgentEndpoint: parseConfig(
           "__APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT__",
         ),
         otlpLicenseKey: parseConfig("__APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY__"),
