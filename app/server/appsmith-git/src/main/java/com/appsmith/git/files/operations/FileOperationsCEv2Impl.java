@@ -67,10 +67,9 @@ public class FileOperationsCEv2Impl extends FileOperationsCEImpl implements File
         this.objectMapper = SerializationUtils.getBasicObjectMapper(prettyPrinter);
 
         // this is done in order to stop importing float values as int while deserializing
-        this.objectMapper.disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
-        this.objectReader = objectMapper.readerWithView(Git.class);
-        this.objectWriter = objectMapper.writerWithView(Git.class);
+        this.objectReader = objectMapper.readerWithView(Git.class).without(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
 
+        this.objectWriter = objectMapper.writerWithView(Git.class);
         this.observationHelper = observationHelper;
     }
 
