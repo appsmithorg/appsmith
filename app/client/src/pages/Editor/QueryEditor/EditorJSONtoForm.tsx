@@ -256,6 +256,7 @@ export function EditorJSONtoForm(props: Props) {
         title: createMessage(DEBUGGER_RESPONSE),
         panelComponent: (
           <QueryResponseTab
+            actionName={actionName}
             actionSource={actionSource}
             currentActionConfig={currentActionConfig}
             isRunning={isRunning}
