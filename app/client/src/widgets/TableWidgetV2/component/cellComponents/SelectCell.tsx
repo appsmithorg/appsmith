@@ -157,8 +157,9 @@ export const SelectCell = (props: SelectProps) => {
   const onSelect = useCallback(
     (option: DropdownOption) => {
       // Compute cell value using selectDisplayAs
-      const onSelectValue =
-        selectDisplayAs === SelectColumnDisplayAsKeys.LABEL
+      const onSelectValue = props.isNewRow
+        ? option.value
+        : selectDisplayAs === SelectColumnDisplayAsKeys.LABEL
           ? option.label
           : option.value;
       onItemSelect(
