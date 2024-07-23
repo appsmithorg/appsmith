@@ -42,6 +42,7 @@ export const Sizes: Story = {
 export const CustomIcon: Story = {
   render: () => (
     <Icon
+      // @ts-expect-error we don't want to cast a type here
       icon={(props) => {
         return (
           <svg fill="currentColor" viewBox="0 0 24 24" {...props}>

@@ -63,10 +63,6 @@ const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
         />
 
         <GroupedList
-          flexProps={{
-            pr: "spaces-2",
-            px: "spaces-3",
-          }}
           groups={groupedJsOperations.map((op) => ({
             groupTitle: op.title,
             className: op.className,
