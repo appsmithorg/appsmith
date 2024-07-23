@@ -14,15 +14,18 @@ describe(
 
     it("1. Canvas Mode", () => {
       anvilSnapshot.triggerInputInvalidState();
-      anvilSnapshot.verifyCanvasMode("InputWidget");
+      anvilSnapshot.matchSnapshotForCanvasMode("InputWidget");
+      anvilSnapshot.setTheme("dark");
+      anvilSnapshot.matchSnapshotForCanvasMode("InputWidget", "dark");
+      anvilSnapshot.setTheme("light");
     });
 
     it("2. Preview Mode", () => {
-      anvilSnapshot.verifyPreviewMode("InputWidget");
+      anvilSnapshot.matchSnapshotForPreviewMode("InputWidget");
     });
 
     it("3. Deploy Mode", () => {
-      anvilSnapshot.verifyDeployMode("InputWidget");
+      anvilSnapshot.matchSnapshotForDeployMode("InputWidget");
     });
   },
 );

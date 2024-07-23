@@ -179,8 +179,8 @@ jobs:
       - name: Login to DockerHub
         uses: docker/login-action@v1
         with:
-          username: ${{ secrets.DOCKER_HUB_CLOUD_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_CLOUD_ACCESS_TOKEN }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Set base image tag
         id: set_base_tag
@@ -192,18 +192,10 @@ jobs:
           fi
           echo "base_tag=$base_tag" >> $GITHUB_OUTPUT
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-        with:
-          version: "lab:latest"
-          driver: cloud
-          endpoint: "appsmith/appsmith-builder"
-
       - name: Push to Docker Hub
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v4
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
           pull: true
           push: true
           cache-from: ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:release

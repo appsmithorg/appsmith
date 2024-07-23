@@ -66,6 +66,11 @@ export const excludeList: WidgetType[] = [
   "BUTTON_WIDGET_V2",
   "JSON_FORM_WIDGET",
   "CUSTOM_WIDGET",
+  "ZONE_WIDGET",
+  "SECTION_WIDGET",
+  "WDS_MODAL_WIDGET",
+  "WDS_BUTTON_WIDGET",
+  "WDS_TABLE_WIDGET",
 ];
 
 function PropertyPaneView(

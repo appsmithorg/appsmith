@@ -105,7 +105,7 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       ee.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "FirstAPI",
-        action: "Edit name",
+        action: "Rename",
       });
       cy.EditApiNameFromExplorer("SecondAPI");
       cy.xpath(apiwidget.popover)
