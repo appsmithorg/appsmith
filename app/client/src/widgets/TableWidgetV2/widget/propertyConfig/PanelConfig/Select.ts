@@ -20,17 +20,14 @@ export default {
       helpText: "Options to be shown on the select dropdown",
       label: "Options",
       defaultValue: `
-      {{
-          ${JSON.stringify(
-            [
-              { label: "Red", value: "RED" },
-              { label: "Blue", value: "BLUE" },
-            ],
-            null,
-            2,
-          )}
-      }}
-      `,
+      {{${JSON.stringify(
+        [
+          { label: "Red", value: "RED" },
+          { label: "Blue", value: "BLUE" },
+        ],
+        null,
+        2,
+      )}}}`,
       controlType: "TABLE_COMPUTE_VALUE",
       isJSConvertible: false,
       isBindProperty: true,
