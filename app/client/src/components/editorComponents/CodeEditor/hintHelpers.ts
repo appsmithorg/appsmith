@@ -58,6 +58,7 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
       }
 
       const { propertyPath, widgetType } = entityInformation;
+      // Added comment to check if we should show the autocomplete menu
       shouldShow =
         shouldShow || shouldShowSlashCommandMenu(widgetType, propertyPath);
 
