@@ -14,6 +14,7 @@ import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -64,6 +65,9 @@ public class FileOperationsCEv2Impl extends FileOperationsCEImpl implements File
         super(gitServiceConfig, gitExecutor, gsonBuilder, observationHelper);
 
         this.objectMapper = SerializationUtils.getBasicObjectMapper(prettyPrinter);
+
+        // this is done in order to stop importing float values as int while deserializing
+        this.objectMapper.disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
         this.objectReader = objectMapper.readerWithView(Git.class);
         this.objectWriter = objectMapper.writerWithView(Git.class);
 
