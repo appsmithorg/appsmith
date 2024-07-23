@@ -631,15 +631,12 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             return Mono.fromCallable(() -> loadPluginResourceGivenPluginAsMap(plugin, resourcePath))
                     .subscribeOn(commonConfig.elasticScheduler())
                     .publishOn(commonConfig.parallelScheduler())
-                    .doOnSubscribe(
-                            __ -> System.out.println("Subscribed to loadPluginResourceGivenPluginAsMap on thread: "
-                                    + Thread.currentThread().getName()))
-                    .doOnNext(
-                            __ -> System.out.println("Received next from loadPluginResourceGivenPluginAsMap on thread: "
-                                    + Thread.currentThread().getName()))
-                    .doOnError(__ ->
-                            System.out.println("Received Error from loadPluginResourceGivenPluginAsMap on thread: "
-                                    + Thread.currentThread().getName()));
+                    .doOnSubscribe(__ -> System.out.println("Subscribed to pluginResourcesMono on thread: "
+                            + Thread.currentThread().getName()))
+                    .doOnNext(__ -> System.out.println("Received next from pluginResourcesMono on thread: "
+                            + Thread.currentThread().getName()))
+                    .doOnError(__ -> System.out.println("Received Error from pluginResourcesMono on thread: "
+                            + Thread.currentThread().getName()));
         });
     }
 
