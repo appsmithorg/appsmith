@@ -65,12 +65,12 @@ public class DryOperationRepository {
         return themeRepository.saveAll(theme);
     }
 
-    private Mono<Theme> archiveTheme(Theme theme) {
-        return themeRepository.archive(theme);
+    private Mono<Boolean> archiveTheme(List<String> themeIds) {
+        return themeRepository.archiveAllById(themeIds);
     }
 
-    private Mono<List<Theme>> updateTheme(List<Theme> theme) {
-        return themeRepository.bulkUpdate(theme).thenReturn(theme);
+    private Mono<List<Theme>> updateTheme(List<Theme> themes) {
+        return themeRepository.bulkUpdate(themes).thenReturn(themes);
     }
 
     private Mono<Application> updateApplication(Application application) {
@@ -117,9 +117,8 @@ public class DryOperationRepository {
                     if (key.equals(DBOpsType.SAVE.name())) {
                         return saveThemeToDb(themeList).collectList();
                     } else if (key.equals(DBOpsType.DELETE.name())) {
-                        return Flux.fromIterable(themeList)
-                                .flatMap(this::archiveTheme)
-                                .collectList();
+                        return archiveTheme(themeList.stream().map(Theme::getId).toList())
+                                .then(Mono.just(themeList));
                     } else {
                         return updateTheme(themeList);
                     }

@@ -36,7 +36,6 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.UUID;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static org.assertj.core.api.Assertions.assertThat;
