@@ -25,6 +25,7 @@ import {
   checkIfCursorInsideBinding,
   checkIfCursorInsideJSObject,
 } from "components/editorComponents/CodeEditor/codeEditorUtils";
+import history from "utils/history";
 
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
@@ -1328,6 +1329,21 @@ export const createCompletionHeader = (name: string): Completion<any> => ({
   origin: "",
   type: AutocompleteDataType.UNKNOWN,
   isHeader: true,
+});
+
+export const createNoQueriesCTACompletion = (
+  name: string,
+  pathToRedirectTo: string,
+): Completion<any> => ({
+  text: name,
+  displayText: name,
+  className: "CodeMirror-Tern-completion",
+  data: { doc: "" },
+  origin: "",
+  type: AutocompleteDataType.UNKNOWN,
+  hint: () => {
+    history.push(pathToRedirectTo);
+  },
 });
 
 export default new CodeMirrorTernService({

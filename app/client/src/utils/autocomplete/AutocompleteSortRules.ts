@@ -9,9 +9,13 @@ import type {
   DataTreeDefEntityInformation,
   TernCompletionResult,
 } from "./CodemirrorTernService";
-import { createCompletionHeader } from "./CodemirrorTernService";
+import {
+  createCompletionHeader,
+  createNoQueriesCTACompletion,
+} from "./CodemirrorTernService";
 import { AutocompleteDataType } from "./AutocompleteDataType";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { queryAddURL } from "@appsmith/RouteBuilder";
 
 interface AutocompleteRule {
   computeScore(
@@ -465,6 +469,18 @@ export class AutocompleteSorter {
       },
     );
 
+    // No actions present, add a CTA for create query
+    if (actionCompletionsList.length === 0) {
+      actionCompletionsList.push(createCompletionHeader("Queries"));
+      actionCompletionsList.push(
+        createNoQueriesCTACompletion(
+          "No queries to bind. Create a new query",
+          queryAddURL({
+            pageId: AutocompleteSorter.currentFieldInfo?.currentPageId,
+          }),
+        ),
+      );
+    }
     return [
       ...actionCompletionsList,
       ...jsObjectCompletionsList,
