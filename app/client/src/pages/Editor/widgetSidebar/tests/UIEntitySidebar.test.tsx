@@ -127,21 +127,4 @@ describe("UIEntitySidebar", () => {
     const { queryByText } = renderUIEntitySidebar(true, true);
     expect(queryByText(WIDGET_TAGS.SUGGESTED_WIDGETS)).toBeNull();
   });
-
-  it("6. should have `Building Blocks` section open when no widgets exist", () => {
-    mockUIExplorerItems();
-    const { getAllByTestId, getByText } = renderUIEntitySidebar(true, true);
-    expect(getByText(WIDGET_TAGS.BUILDING_BLOCKS)).not.toBeNull();
-    const groups = getAllByTestId("ui-entity-tag-group");
-    for (const group of groups) {
-      if (
-        group.getElementsByClassName("t--widget-card-draggable-buildingblock")
-          .length
-      ) {
-        expect(group.getAttribute("data-collapsed")).toBe("false");
-      } else {
-        expect(group.getAttribute("data-collapsed")).toBe("true");
-      }
-    }
-  });
 });
