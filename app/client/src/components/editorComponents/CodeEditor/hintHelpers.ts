@@ -40,6 +40,7 @@ export const bindingHintHelper: HintHelper = (editor: CodeMirror.Editor) => {
         CodemirrorTernService.setEntityInformation(editor, {
           ...entityInformation,
           blockCompletions: additionalData.blockCompletions,
+          currentPageId: additionalData.currentPageId,
         });
       } else {
         CodemirrorTernService.setEntityInformation(editor, entityInformation);

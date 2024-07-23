@@ -161,6 +161,7 @@ import {
 } from "actions/activeFieldActions";
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { getEachEntityInformation } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { getCurrentPageId } from "selectors/editorSelectors";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
@@ -688,6 +689,7 @@ class CodeEditor extends Component<Props, State> {
           focusEditor: this.focusEditor,
           executeCommand: this.props.executeCommand,
           isJsEditor: this.props.mode === EditorModes.JAVASCRIPT,
+          currentPageId: this.props.pageId,
         });
         if (hinterOpen) break;
       }
@@ -1387,6 +1389,7 @@ class CodeEditor extends Component<Props, State> {
         focusEditor: this.focusEditor,
         executeCommand: this.props.executeCommand,
         isJsEditor: this.props.mode === EditorModes.JAVASCRIPT,
+        currentPageId: this.props.pageId,
       });
       if (hinterOpen) break;
     }
@@ -1805,6 +1808,7 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   datasourceTableKeys: getAllDatasourceTableKeys(state, props.dataTreePath),
   installedLibraries: selectInstalledLibraries(state),
   focusedProperty: getFocusablePropertyPaneField(state),
+  pageId: getCurrentPageId(state),
 });
 
 const mapDispatchToProps = (dispatch: any) => ({
