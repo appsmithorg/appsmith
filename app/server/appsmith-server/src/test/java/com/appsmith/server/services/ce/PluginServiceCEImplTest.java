@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.plugins.base.PluginServiceCE;
 import com.appsmith.server.plugins.base.PluginServiceCEImpl;
@@ -19,7 +20,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import reactor.core.scheduler.Scheduler;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -34,7 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class PluginServiceCEImplTest {
 
     @MockBean
-    Scheduler scheduler;
+    CommonConfig commonConfig;
 
     @MockBean
     Validator validator;
@@ -73,7 +73,7 @@ public class PluginServiceCEImplTest {
                 reactiveTemplate,
                 topic,
                 objectMapper,
-                scheduler);
+                commonConfig);
     }
 
     @Test

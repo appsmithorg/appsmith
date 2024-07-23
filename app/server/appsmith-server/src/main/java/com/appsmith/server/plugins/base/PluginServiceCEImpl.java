@@ -2,6 +2,7 @@ package com.appsmith.server.plugins.base;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
@@ -37,7 +38,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -85,7 +85,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     public static final String KEY_CONTROL_TYPE = "controlType";
     public static final String KEY_COMMENT = "_comment";
     public static final String KEY_FILES = "files";
-    private final Scheduler scheduler;
+    private final CommonConfig commonConfig;
 
     @Autowired
     public PluginServiceCEImpl(
@@ -97,14 +97,14 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
             ObjectMapper objectMapper,
-            Scheduler scheduler) {
+            CommonConfig commonConfig) {
         super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;
         this.objectMapper = objectMapper;
-        this.scheduler = scheduler;
+        this.commonConfig = commonConfig;
     }
 
     @Override
@@ -405,9 +405,15 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                 AppsmithError.PLUGIN_LOAD_TEMPLATES_FAIL,
                                 Exceptions.unwrap(throwable).getMessage());
                     })
-                    .subscribeOn(scheduler)
+                    .subscribeOn(commonConfig.elasticScheduler())
+                    .publishOn(commonConfig.parallelScheduler())
+                    .doOnSubscribe(__ -> System.out.println("Subscribed to getTemplates on thread: "
+                            + Thread.currentThread().getName()))
+                    .doOnNext(__ -> System.out.println("Received next from getTemplates on thread: "
+                            + Thread.currentThread().getName()))
+                    .doOnError(__ -> System.out.println("Received Error from getTemplates on thread: "
+                            + Thread.currentThread().getName()))
                     .cache();
-
             templateCache.put(pluginId, mono);
         }
 
@@ -586,7 +592,14 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                 AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL, plugin.getPackageName(), e.getMessage()));
                     }
                 })
-                .subscribeOn(scheduler);
+                .subscribeOn(commonConfig.elasticScheduler())
+                .publishOn(commonConfig.parallelScheduler())
+                .doOnSubscribe(__ -> System.out.println("Subscribed to loadPluginResourceGivenPluginAsMap on thread: "
+                        + Thread.currentThread().getName()))
+                .doOnNext(__ -> System.out.println("Received next from loadPluginResourceGivenPluginAsMap on thread: "
+                        + Thread.currentThread().getName()))
+                .doOnError(__ -> System.out.println("Received Error from loadPluginResourceGivenPluginAsMap on thread: "
+                        + Thread.currentThread().getName()));
     }
 
     private JsonNode loadPluginResourceGivenPluginAsJsonNode(Plugin plugin, String resourcePath) {

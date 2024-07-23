@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
@@ -19,7 +20,6 @@ import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -36,8 +36,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     private final ApplicationPermission applicationPermission;
     private final Gson gson;
     private final ResponseUtils responseUtils;
-    private final Scheduler scheduler;
-
+    private final CommonConfig commonConfig;
     private static final int MAX_SNAPSHOT_SIZE = 15 * 1024 * 1024; // 15 MB
 
     @Override
@@ -77,7 +76,14 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                 .flatMap(branchedApplicationId ->
                         applicationSnapshotRepository.findByApplicationIdAndChunkOrder(branchedApplicationId, 1))
                 .defaultIfEmpty(new ApplicationSnapshotResponseDTO(null))
-                .subscribeOn(scheduler);
+                .subscribeOn(commonConfig.elasticScheduler())
+                .publishOn(commonConfig.parallelScheduler())
+                .doOnSubscribe(__ -> System.out.println("Subscribed to getWithoutDataByApplicationId on thread: "
+                        + Thread.currentThread().getName()))
+                .doOnNext(__ -> System.out.println("Received next from getWithoutDataByApplicationId on thread: "
+                        + Thread.currentThread().getName()))
+                .doOnError(__ -> System.out.println("Received Error from getWithoutDataByApplicationId on thread: "
+                        + Thread.currentThread().getName()));
     }
 
     @Override

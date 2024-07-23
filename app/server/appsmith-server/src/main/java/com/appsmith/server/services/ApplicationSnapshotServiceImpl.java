@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
@@ -10,7 +11,6 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import reactor.core.scheduler.Scheduler;
 
 @Slf4j
 @Service
@@ -25,7 +25,7 @@ public class ApplicationSnapshotServiceImpl extends ApplicationSnapshotServiceCE
             ApplicationPermission applicationPermission,
             Gson gson,
             ResponseUtils responseUtils,
-            Scheduler scheduler) {
+            CommonConfig commonConfig) {
         super(
                 applicationSnapshotRepository,
                 applicationService,
@@ -34,6 +34,6 @@ public class ApplicationSnapshotServiceImpl extends ApplicationSnapshotServiceCE
                 applicationPermission,
                 gson,
                 responseUtils,
-                scheduler);
+                commonConfig);
     }
 }

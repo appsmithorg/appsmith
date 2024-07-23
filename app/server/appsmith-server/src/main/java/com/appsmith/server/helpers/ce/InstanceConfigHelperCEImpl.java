@@ -125,7 +125,7 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
                             analyticsProperties,
                             false);
                 })
-                .subscribeOn(commonConfig.scheduler())
+                .subscribeOn(commonConfig.elasticScheduler())
                 .subscribe();
     }
 

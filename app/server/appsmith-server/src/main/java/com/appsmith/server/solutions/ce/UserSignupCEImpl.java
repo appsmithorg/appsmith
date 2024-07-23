@@ -350,7 +350,7 @@ public class UserSignupCEImpl implements UserSignupCE {
                     // because
                     // of any other secondary function mono throwing an exception
                     sendInstallationSetupAnalytics(userFromRequest, user, userData)
-                            .subscribeOn(commonConfig.scheduler())
+                            .subscribeOn(commonConfig.elasticScheduler())
                             .subscribe();
 
                     Mono<Long> allSecondaryFunctions = Mono.when(

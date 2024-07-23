@@ -37,6 +37,7 @@ import java.util.Set;
 public class CommonConfig {
 
     private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
+    private static final String PARALLEL_THREAD_POOL_NAME = "appsmith-parallel-pool";
     public static final Integer LATEST_INSTANCE_SCHEMA_VERSION = 2;
 
     @Setter(AccessLevel.NONE)
@@ -79,11 +80,16 @@ public class CommonConfig {
     private static String adminEmailDomainHash;
 
     @Bean
-    public Scheduler scheduler() {
+    public Scheduler elasticScheduler() {
         return Schedulers.newBoundedElastic(
                 Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE,
                 Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE,
                 ELASTIC_THREAD_POOL_NAME);
+    }
+
+    @Bean
+    public Scheduler parallelScheduler() {
+        return Schedulers.newParallel(PARALLEL_THREAD_POOL_NAME);
     }
 
     @Bean

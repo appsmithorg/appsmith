@@ -1,5 +1,6 @@
 package com.appsmith.server.plugins.base;
 
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.WorkspaceService;
@@ -10,7 +11,6 @@ import org.pf4j.PluginManager;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.stereotype.Service;
-import reactor.core.scheduler.Scheduler;
 
 @Slf4j
 @Service
@@ -25,7 +25,7 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
             ObjectMapper objectMapper,
-            Scheduler scheduler) {
+            CommonConfig commonConfig) {
 
         super(
                 validator,
@@ -36,6 +36,6 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                 reactiveTemplate,
                 topic,
                 objectMapper,
-                scheduler);
+                commonConfig);
     }
 }
