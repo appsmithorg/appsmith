@@ -80,6 +80,7 @@ const UIEntityTagGroup = (props: Props) => {
       className={`pb-2 widget-tag-collapsible widget-tag-collapsible-${props.tag
         .toLowerCase()
         .replace(/ /g, "-")}`}
+      isOpen
       key={props.tag}
     >
       <CollapsibleHeader arrowPosition="start">
