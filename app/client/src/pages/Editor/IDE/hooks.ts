@@ -9,7 +9,7 @@ import {
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useDispatch, useSelector } from "react-redux";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { getIDEViewMode } from "selectors/ideSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import history, { NavigationMethod } from "utils/history";
@@ -78,28 +78,25 @@ export const useCurrentEditorState = () => {
 export const useEditorPaneWidth = (): string => {
   const [windowWidth] = useWindowDimensions();
   const [width, setWidth] = useState(windowWidth - APP_SIDEBAR_WIDTH + "px");
-  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
   const { segment } = useCurrentEditorState();
   const propertyPaneWidth = useSelector(getPropertyPaneWidth);
   useEffect(() => {
-    if (
-      isSideBySideEnabled &&
-      editorMode === EditorViewMode.SplitScreen &&
-      segment !== EditorEntityTab.UI
-    ) {
-      // 1px is propertypane border width
-      setWidth(windowWidth * SPLIT_SCREEN_RATIO + "px");
+    if (editorMode === EditorViewMode.SplitScreen) {
+      if (segment !== EditorEntityTab.UI) {
+        // 1px is propertypane border width
+        setWidth(windowWidth * SPLIT_SCREEN_RATIO + "px");
+      } else {
+        setWidth(DEFAULT_EXPLORER_PANE_WIDTH + "px");
+      }
     } else {
-      setWidth(DEFAULT_EXPLORER_PANE_WIDTH + "px");
+      if (segment !== EditorEntityTab.UI) {
+        setWidth(windowWidth - APP_SIDEBAR_WIDTH + "px");
+      } else {
+        setWidth(DEFAULT_EXPLORER_PANE_WIDTH + "px");
+      }
     }
-  }, [
-    isSideBySideEnabled,
-    editorMode,
-    segment,
-    propertyPaneWidth,
-    windowWidth,
-  ]);
+  }, [editorMode, segment, propertyPaneWidth, windowWidth]);
 
   return width;
 };
@@ -175,7 +172,7 @@ export function useWidgetSelectionBlockListener() {
       FocusEntity.WIDGET_LIST,
     ].includes(currentFocus.entity);
     dispatch(setWidgetSelectionBlock(!inUIMode));
-  }, [currentFocus]);
+  }, [currentFocus, dispatch]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);

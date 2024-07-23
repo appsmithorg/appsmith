@@ -9,12 +9,19 @@ import {
 import { JSEditorPane } from "./JS";
 import { QueryEditor } from "./Query";
 import EditorTabs from "../EditorTabs";
+import { useCurrentEditorState } from "../hooks";
+import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 
 const Editor = () => {
   const { path } = useRouteMatch();
+  const { segment } = useCurrentEditorState();
+  if (segment === EditorEntityTab.UI) {
+    return null;
+  }
   return (
     <Flex
       className="relative"
+      flex={1}
       flexDirection="column"
       height="100%"
       overflow="hidden"

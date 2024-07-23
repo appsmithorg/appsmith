@@ -42,7 +42,7 @@ function IDE() {
         <MainPane id="app-body" />
         <div
           className={classNames({
-            [`transition-transform transform duration-400 h-full ${tailwindLayers.propertyPane}`]:
+            [`transition-transform transform duration-400 ${tailwindLayers.propertyPane}`]:
               true,
             relative: !isCombinedPreviewMode,
             "translate-x-full fixed right-0": isCombinedPreviewMode,

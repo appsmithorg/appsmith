@@ -2,6 +2,9 @@ import React from "react";
 import List from "./List";
 import styled from "styled-components";
 import { Flex } from "design-system";
+import { useSelector } from "react-redux";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 const QueriesContainer = styled(Flex)`
   & .t--entity-item {
@@ -15,16 +18,20 @@ const QueriesContainer = styled(Flex)`
 `;
 
 const QueryExplorer = () => {
-  return (
-    <QueriesContainer
-      className="ide-editor-left-pane__content-queries"
-      flexDirection="column"
-      height="100%"
-      overflow="hidden"
-    >
-      <List />
-    </QueriesContainer>
-  );
+  const ideViewMode = useSelector(getIDEViewMode);
+  if (ideViewMode === EditorViewMode.FullScreen) {
+    return (
+      <QueriesContainer
+        className="ide-editor-left-pane__content-queries"
+        flexDirection="column"
+        height="100%"
+        overflow="hidden"
+      >
+        <List />
+      </QueriesContainer>
+    );
+  }
+  return null;
 };
 
 export { QueryExplorer };
