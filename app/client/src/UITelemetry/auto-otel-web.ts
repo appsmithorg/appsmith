@@ -14,7 +14,10 @@ import {
   MeterProvider,
   PeriodicExportingMetricReader,
 } from "@opentelemetry/sdk-metrics";
-import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
+import {
+  OTLPMetricExporter,
+  AggregationTemporalityPreference,
+} from "@opentelemetry/exporter-metrics-otlp-http";
 import type { Context, TextMapSetter } from "@opentelemetry/api";
 import { metrics } from "@opentelemetry/api";
 
@@ -79,11 +82,8 @@ tracerProvider.register({
   propagator: new CustomW3CTraceContextPropagator(),
 });
 
-// registerInstrumentations({
-//   instrumentations: [],
-// });
-
 const nrMetricsExporter = new OTLPMetricExporter({
+  temporalityPreference: AggregationTemporalityPreference.DELTA,
   url: `${otlpEndpoint}/v1/metrics`,
   headers: {
     "api-key": otlpLicenseKey,
