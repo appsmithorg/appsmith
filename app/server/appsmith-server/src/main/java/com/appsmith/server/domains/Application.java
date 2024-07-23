@@ -480,7 +480,7 @@ public class Application extends BaseDomain implements Artifact {
         IconStyle iconStyle;
 
         @JsonView({Views.Public.class, Git.class})
-        AppMaxWidth appMaxWidth;
+        AppMaxWidth appMaxWidth = AppMaxWidth.LARGE;
 
         public ThemeSetting(Type colorMode) {
             this.colorMode = colorMode;

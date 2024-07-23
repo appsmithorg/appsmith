@@ -39,7 +39,6 @@ interface MainCanvasWrapperProps {
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
   currentPageId: string;
   canvasWidth: number;
-  canvasMaxWidth?: APP_MAX_WIDTH;
 }
 
 const Wrapper = styled.section<{
@@ -163,7 +162,6 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
       <Canvas
         canvasWidth={props.canvasWidth}
         enableMainCanvasResizer={enableMainContainerResizer}
-        maxWidth={props.canvasMaxWidth}
         widgetsStructure={widgetsStructure}
       />
     );

@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { getRenderMode } from "selectors/editorSelectors";
+import { getAppMaxWidth, getRenderMode } from "selectors/editorSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import withWidgetProps from "widgets/withWidgetProps";
@@ -16,18 +16,15 @@ import { getLayoutSystem } from "./withLayoutSystemWidgetHOC";
 
 const LayoutSystemBasedCanvas = memo((props: WidgetProps) => {
   const renderMode = useSelector(getRenderMode);
+  const appMaxWidth = useSelector(getAppMaxWidth);
+
   const layoutSystemType = useSelector(getLayoutSystemType);
   const { canvasSystem } = useMemo(
     () => getLayoutSystem(renderMode, layoutSystemType),
-    [
-      {
-        renderMode,
-        layoutSystemType,
-      },
-    ],
+    [renderMode, layoutSystemType],
   );
   const { Canvas, propertyEnhancer } = canvasSystem;
-  return <Canvas {...propertyEnhancer(props)} />;
+  return <Canvas {...propertyEnhancer(props)} maxWidth={appMaxWidth} />;
 });
 
 const HydratedLayoutSystemBasedCanvas = withWidgetProps(
