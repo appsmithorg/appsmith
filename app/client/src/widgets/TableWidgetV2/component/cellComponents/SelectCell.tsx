@@ -189,6 +189,15 @@ export const SelectCell = (props: SelectProps) => {
     .map((d: DropdownOption) => d.value)
     .indexOf(value);
 
+  const getCellLabelValue = useCallback(() => {
+    let cellLabelValue: string | number | undefined | null = value;
+    const selectedOption = options.find((option) => option["value"] === value);
+    cellLabelValue = selectedOption ? selectedOption["label"] : "";
+    return cellLabelValue || "";
+  }, [value, options]);
+
+  const cellContent = getCellLabelValue();
+
   if (isEditable && isCellEditable && isCellEditMode) {
     return (
       <StyledCellWrapper
@@ -227,7 +236,7 @@ export const SelectCell = (props: SelectProps) => {
           resetFilterTextOnClose={resetFilterTextOnClose}
           selectedIndex={selectedIndex}
           serverSideFiltering={serverSideFiltering}
-          value={value}
+          value={cellContent}
           widgetId={""}
           width={width}
         />
@@ -257,7 +266,7 @@ export const SelectCell = (props: SelectProps) => {
         tableWidth={tableWidth}
         textColor={textColor}
         textSize={textSize}
-        value={value}
+        value={cellContent}
         verticalAlignment={verticalAlignment}
       />
     );
