@@ -41,55 +41,59 @@ function* addSuggestedWidgetToDSL(
     };
   }>,
 ) {
-  const { newWidget } = actionPayload.payload;
+  try {
+    const { newWidget } = actionPayload.payload;
 
-  // Find the corresponding WDS entry for the given widget type
-  const wdsEntry = Object.entries(WDS_V2_WIDGET_MAP).find(
-    ([legacyType]) => legacyType === newWidget.type,
-  );
-
-  // If a matching WDS entry is found, proceed with adding the suggested widget
-  if (wdsEntry) {
-    // Extract the WDS type for the suggested widget
-    const [, wdsType] = wdsEntry;
-
-    // Define parameters for the new widget based on the WDS type and provided dimensions
-    const newWidgetParams = {
-      newWidgetId: newWidget.newWidgetId,
-      parentId: MAIN_CONTAINER_WIDGET_ID,
-      type: wdsType,
-      detachFromLayout: newWidget.detachFromLayout,
-    };
-
-    // Get highlighting information for the last row in the main canvas
-    const mainCanvasHighLight: AnvilHighlightInfo = yield call(
-      getMainCanvasLastRowHighlight,
+    // Find the corresponding WDS entry for the given widget type
+    const wdsEntry = Object.entries(WDS_V2_WIDGET_MAP).find(
+      ([legacyType]) => legacyType === newWidget.type,
     );
 
-    // Add the new widget to the DSL
-    const updatedWidgets: CanvasWidgetsReduxState =
-      yield getUpdatedListOfWidgetsAfterAddingNewWidget(
-        mainCanvasHighLight,
-        newWidgetParams,
-        true,
-        false,
+    // If a matching WDS entry is found, proceed with adding the suggested widget
+    if (wdsEntry) {
+      // Extract the WDS type for the suggested widget
+      const [, wdsType] = wdsEntry;
+
+      // Define parameters for the new widget based on the WDS type and provided dimensions
+      const newWidgetParams = {
+        newWidgetId: newWidget.newWidgetId,
+        parentId: MAIN_CONTAINER_WIDGET_ID,
+        type: wdsType,
+        detachFromLayout: newWidget.detachFromLayout,
+      };
+
+      // Get highlighting information for the last row in the main canvas
+      const mainCanvasHighLight: AnvilHighlightInfo = yield call(
+        getMainCanvasLastRowHighlight,
       );
 
-    // Update the widget properties with the properties provided in the action payload
-    updatedWidgets[newWidgetParams.newWidgetId] = {
-      ...updatedWidgets[newWidgetParams.newWidgetId],
-      ...newWidget.props,
-    };
+      // Add the new widget to the DSL
+      const updatedWidgets: CanvasWidgetsReduxState =
+        yield getUpdatedListOfWidgetsAfterAddingNewWidget(
+          mainCanvasHighLight,
+          newWidgetParams,
+          true,
+          false,
+        );
 
-    // Save the updated Anvil layout
-    yield call(updateAndSaveAnvilLayout, updatedWidgets);
+      // Update the widget properties with the properties provided in the action payload
+      updatedWidgets[newWidgetParams.newWidgetId] = {
+        ...updatedWidgets[newWidgetParams.newWidgetId],
+        ...newWidget.props,
+      };
 
-    // Select the added widget
-    yield put(
-      selectWidgetInitAction(SelectionRequestType.One, [
-        newWidgetParams.newWidgetId,
-      ]),
-    );
+      // Save the updated Anvil layout
+      yield call(updateAndSaveAnvilLayout, updatedWidgets);
+
+      // Select the added widget
+      yield put(
+        selectWidgetInitAction(SelectionRequestType.One, [
+          newWidgetParams.newWidgetId,
+        ]),
+      );
+    }
+  } catch (e) {
+    log.debug("Error adding suggested widget to Anvil Canvas: ", e);
   }
 }
 
@@ -130,14 +134,14 @@ export function* getUpdatedListOfWidgetsAfterAddingNewWidget(
   } else {
     // Handle different scenarios based on the drop zone type (main canvas, section, or generic layout)
     // If the widget is dropped in the main canvas or into a detached widget like the Modal Widget
-    if (!!isMainCanvas || parentWidgetWithLayout.detachFromLayout) {
+    if (isMainCanvas || parentWidgetWithLayout.detachFromLayout) {
       updatedWidgets = yield call(
         addWidgetsToMainCanvasLayout,
         updatedWidgets,
         draggedWidgets,
         highlight,
       );
-    } else if (!!isSection) {
+    } else if (isSection) {
       const res: { canvasWidgets: CanvasWidgetsReduxState } = yield call(
         addWidgetsToSection,
         updatedWidgets,
