@@ -14,7 +14,7 @@ const Template: ComponentStory<typeof EmojiPickerComponent> = (args) => {
   return <EmojiPickerComponent {...args} />;
 };
 
-export const EmojiPicker = Template.bind({});
+export const EmojiPicker = Template.bind({}) as StoryObj;
 EmojiPicker.args = {
   iconName: "book-line",
   onSelectEmoji: (e, emojiObject) => {

@@ -17,7 +17,7 @@ const Template: ComponentStory<typeof TabItemBackgroundFillComponent> = (
   return <TabItemBackgroundFillComponent {...args} />;
 };
 
-export const TabItemBackgroundFill = Template.bind({});
+export const TabItemBackgroundFill = Template.bind({}) as StoryObj;
 TabItemBackgroundFill.args = {
   selected: true,
   tab: {

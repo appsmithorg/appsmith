@@ -23,17 +23,17 @@ const Template: ComponentStory<typeof ButtonComponent> = (args) => {
   return <ButtonComponent {...args} />;
 };
 
-export const Primary = Template.bind({});
+export const Primary = Template.bind({}) as StoryObj;
 Primary.args = {
   category: "primary",
 };
 
-export const Secondary = Template.bind({});
+export const Secondary = Template.bind({}) as StoryObj;
 Secondary.args = {
   category: "secondary",
 };
 
-export const Tertiary = Template.bind({});
+export const Tertiary = Template.bind({}) as StoryObj;
 Tertiary.args = {
   category: "tertiary",
 };

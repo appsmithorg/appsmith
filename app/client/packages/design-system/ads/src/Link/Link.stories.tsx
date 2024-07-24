@@ -1,7 +1,8 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
+import type { StoryObj } from "@storybook/react";
+import { MemoryRouter } from "react-router-dom";
 import { Link } from "./Link";
+import type { LinkProps } from "./Link.types";
 
 export default {
   title: "ADS/Link",
@@ -35,28 +36,31 @@ export default {
       description: "the words you want to display",
     },
   },
-} as ComponentMeta<typeof Link>;
+  decorators: [
+    (Story: () => React.ReactNode) => <MemoryRouter>{Story()}</MemoryRouter>,
+  ],
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Link> = (args) => {
+const Template = (args: LinkProps) => {
   return <Link {...args} />;
 };
 
-export const PrimaryLink = Template.bind({});
+export const PrimaryLink = Template.bind({}) as StoryObj;
 PrimaryLink.args = {
   to: "https://appsmith.com",
   children: "appsmith_",
   kind: "primary",
 };
 
-export const SecondaryLink = Template.bind({});
+export const SecondaryLink = Template.bind({}) as StoryObj;
 SecondaryLink.args = {
   to: "https://appsmith.com",
   children: "appsmith_",
   kind: "secondary",
 };
 
-export const InternalLink = Template.bind({});
+export const InternalLink = Template.bind({}) as StoryObj;
 InternalLink.args = {
   to: "old",
   children: "deprecated appsmith design system",
@@ -64,7 +68,7 @@ InternalLink.args = {
   kind: "primary",
 };
 
-export const LinkWithOnClick = Template.bind({});
+export const LinkWithOnClick = Template.bind({}) as StoryObj;
 LinkWithOnClick.args = {
   to: "old",
   children: "click me",
@@ -73,7 +77,7 @@ LinkWithOnClick.args = {
   kind: "primary",
 };
 
-export const ExternalLink = Template.bind({});
+export const ExternalLink = Template.bind({}) as StoryObj;
 ExternalLink.args = {
   to: "https://appsmith.com",
   children: "Appsmith",

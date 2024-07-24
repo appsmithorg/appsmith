@@ -20,7 +20,7 @@ const Template: ComponentStory<typeof FormGroupComponent> = (args) => {
   );
 };
 
-export const FormGroup = Template.bind({});
+export const FormGroup = Template.bind({}) as StoryObj;
 FormGroup.storyName = "Form Group";
 FormGroup.args = {
   label: "Email",

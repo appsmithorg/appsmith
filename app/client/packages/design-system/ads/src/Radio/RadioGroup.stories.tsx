@@ -1,18 +1,18 @@
 import React, { useState } from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { Radio, RadioGroup } from "./Radio";
 import { Text } from "../Text";
 import styled from "styled-components";
+import type { RadioGroupProps } from "./Radio.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Radio/Radio Group",
   component: RadioGroup,
   parameters: { controls: { sort: "requiredFirst" } },
-} as ComponentMeta<typeof RadioGroup>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof RadioGroup> = (args) => {
+const Template = (args: RadioGroupProps) => {
   return (
     <RadioGroup {...args}>
       <Radio value={"Value1"}>Radio1</Radio>
@@ -23,7 +23,7 @@ const Template: ComponentStory<typeof RadioGroup> = (args) => {
   );
 };
 
-export const RadioGroupStory = Template.bind({});
+export const RadioGroupStory = Template.bind({}) as StoryObj;
 RadioGroupStory.storyName = "Radio Group";
 RadioGroupStory.args = {
   defaultValue: "Value1",
@@ -68,7 +68,9 @@ export function RadioTabStory() {
             <Radio value={value}>Value 1</Radio>
             {selectedValue == value && possibleTabPanels[index] && (
               <RadioPanel>
+                {/*@ts-expect-error type error*/}
                 <Text>{possibleTabPanels[index].name}</Text>
+                {/*@ts-expect-error type error*/}
                 <Text>{possibleTabPanels[index].fruit}</Text>
               </RadioPanel>
             )}

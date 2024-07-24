@@ -22,7 +22,7 @@ const DropdownItemTemplate: ComponentStory<typeof DropdownItem> = (
   args: IMenuItemProps,
 ) => <DropdownItem text={args.text} {...args} />;
 
-export const DropdownItemExample = DropdownItemTemplate.bind({});
+export const DropdownItemExample = DropdownItemTemplate.bind({}) as StoryObj;
 DropdownItemExample.storyName = "Dropdown Item";
 DropdownItemExample.args = {
   text: "Lorem Ipsum Dolor",
@@ -35,7 +35,7 @@ const DropdownListTemplate: ComponentStory<typeof DropdownList> = (
   args: IMenuProps,
 ) => <DropdownList {...args} />;
 
-export const DropdownListExample = DropdownListTemplate.bind({});
+export const DropdownListExample = DropdownListTemplate.bind({}) as StoryObj;
 DropdownListExample.storyName = "Dropdown List";
 DropdownListExample.args = {
   children: [
@@ -48,7 +48,9 @@ const DropdownTriggerTemplate: ComponentStory<typeof DropdownTrigger> = (
   args: any,
 ) => <DropdownTrigger {...args} />;
 
-export const DropdownTriggerExample = DropdownTriggerTemplate.bind({});
+export const DropdownTriggerExample = DropdownTriggerTemplate.bind(
+  {},
+) as StoryObj;
 DropdownTriggerExample.storyName = "Dropdown Trigger";
 DropdownTriggerExample.args = {
   children: <button>Click me</button>,
@@ -58,7 +60,7 @@ const DropdownTemplate: ComponentStory<typeof DropdownV2> = (
   args: IPopoverProps & Props,
 ) => <DropdownV2 {...args} />;
 
-export const DropdownExample = DropdownTemplate.bind({});
+export const DropdownExample = DropdownTemplate.bind({}) as StoryObj;
 DropdownExample.storyName = "Dropdown";
 DropdownExample.args = {
   children: [
@@ -67,7 +69,7 @@ DropdownExample.args = {
   ],
 };
 
-export const DropdownWithSearch = DropdownTemplate.bind({});
+export const DropdownWithSearch = DropdownTemplate.bind({}) as StoryObj;
 DropdownWithSearch.args = {
   enableSearch: true,
   children: [

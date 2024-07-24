@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof NumberedStepComponent> = (args) => {
   return <NumberedStepComponent {...args} />;
 };
 
-export const NumberedStep = Template.bind({});
+export const NumberedStep = Template.bind({}) as StoryObj;
 NumberedStep.args = {
   total: 10,
   current: 5,

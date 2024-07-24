@@ -1,7 +1,6 @@
 import React from "react";
-import type { Meta, StoryObj } from "@storybook/react";
-
 import { Text } from "./Text";
+import type { Meta, StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Text",
@@ -31,6 +30,7 @@ export const EditableTextStory: Story = {
       <Text
         {...args}
         onChange={(e) => {
+          // @ts-expect-error type error
           setText(e.target.value);
         }}
       >

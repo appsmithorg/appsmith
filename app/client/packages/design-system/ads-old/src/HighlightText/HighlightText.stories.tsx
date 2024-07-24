@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof HighlightText> = (args) => (
   <HighlightText {...args} />
 );
 
-export const HighlightTextExample = Template.bind({});
+export const HighlightTextExample = Template.bind({}) as StoryObj;
 HighlightTextExample.storyName = "Highlight Text";
 HighlightTextExample.args = {
   highlight: "some",

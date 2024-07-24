@@ -1,19 +1,19 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { Tag } from "./Tag";
+import type { TagProps } from "./Tag.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Tag",
   component: Tag,
-} as ComponentMeta<typeof Tag>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Tag> = (args) => {
+const Template = (args: TagProps) => {
   return <Tag {...args} />;
 };
 
-export const TagStory = Template.bind({});
+export const TagStory = Template.bind({}) as StoryObj;
 TagStory.storyName = "Tag";
 TagStory.args = {
   children: "contact@appsmith.com",
@@ -21,21 +21,21 @@ TagStory.args = {
   size: "sm",
 };
 
-export const SpecialTag = Template.bind({});
+export const SpecialTag = Template.bind({}) as StoryObj;
 SpecialTag.args = {
   ...TagStory.args,
   children: "Enterprise",
   kind: "special",
 };
 
-export const PremiumTag = Template.bind({});
+export const PremiumTag = Template.bind({}) as StoryObj;
 PremiumTag.args = {
   ...TagStory.args,
   children: "Business Edition",
   kind: "premium",
 };
 
-export const TagCloseStory = Template.bind({});
+export const TagCloseStory = Template.bind({}) as StoryObj;
 TagCloseStory.args = {
   ...TagStory.args,
   isClosable: true,

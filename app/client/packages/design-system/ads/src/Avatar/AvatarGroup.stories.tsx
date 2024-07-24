@@ -1,5 +1,4 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
 import { AvatarGroup } from "./Avatar";
 
@@ -96,7 +95,7 @@ const Template: ComponentStory<typeof AvatarGroup> = (args) => {
   return <AvatarGroup {...args} />;
 };
 
-export const AvatarGroupStory = Template.bind({});
+export const AvatarGroupStory = Template.bind({}) as StoryObj;
 AvatarGroupStory.storyName = "Avatar Group";
 AvatarGroupStory.args = {
   avatars: [

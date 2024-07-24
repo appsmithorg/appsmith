@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof RadioComponent> = (args) => (
   <RadioComponent {...args} />
 );
 
-export const Radio = Template.bind({});
+export const Radio = Template.bind({}) as StoryObj;
 Radio.args = {
   className: "",
   defaultValue: "default",

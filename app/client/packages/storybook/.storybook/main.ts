@@ -2,7 +2,7 @@ import type { StorybookConfig } from "@storybook/react-vite";
 import * as glob from "glob";
 import * as path from "path";
 
-const dsDir = path.resolve(__dirname, "../../design-system/ads/src/List");
+const dsDir = path.resolve(__dirname, "../../design-system/ads/src");
 
 function getStories() {
   if (process.env.CHROMATIC) {

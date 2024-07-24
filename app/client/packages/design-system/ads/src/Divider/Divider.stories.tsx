@@ -1,8 +1,8 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { Divider } from "./Divider";
 import styled from "styled-components";
+import type { DividerProps } from "./Divider.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Divider",
@@ -13,10 +13,10 @@ export default {
       control: { type: "radio" },
     },
   },
-} as ComponentMeta<typeof Divider>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Divider> = (args) => {
+const Template = (args: DividerProps) => {
   return (
     <Box>
       <Divider {...args} />
@@ -33,10 +33,10 @@ const Box = styled.div`
   justify-content: center;
 `;
 
-export const DividerStory = Template.bind({});
+export const DividerStory = Template.bind({}) as StoryObj;
 DividerStory.storyName = "Divider";
 
-export const DividerVerticalStory = Template.bind({});
+export const DividerVerticalStory = Template.bind({}) as StoryObj;
 DividerVerticalStory.args = {
   orientation: "vertical",
 };

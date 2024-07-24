@@ -1,7 +1,8 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
+import { MemoryRouter } from "react-router-dom";
 import { Callout } from "./Callout";
+import type { CalloutProps } from "./Callout.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Callout",
@@ -13,14 +14,17 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof Callout>;
+  decorators: [
+    (Story: () => React.ReactNode) => <MemoryRouter>{Story()}</MemoryRouter>,
+  ],
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Callout> = (args) => {
+const Template = (args: CalloutProps) => {
   return <Callout {...args}>{args.children}</Callout>;
 };
 
-export const CalloutStory = Template.bind({});
+export const CalloutStory = Template.bind({}) as StoryObj;
 CalloutStory.storyName = "Callout";
 CalloutStory.args = {
   children: "This is a successful callout",
@@ -42,30 +46,30 @@ CalloutStory.argTypes = {
   },
 };
 
-export const CalloutInfoStory = Template.bind({});
+export const CalloutInfoStory = Template.bind({}) as StoryObj;
 CalloutInfoStory.args = {
   ...CalloutStory.args,
   kind: "info",
 };
-export const CalloutSuccessStory = Template.bind({});
+export const CalloutSuccessStory = Template.bind({}) as StoryObj;
 CalloutSuccessStory.args = {
   ...CalloutStory.args,
   kind: "success",
 };
 
-export const CalloutWarningStory = Template.bind({});
+export const CalloutWarningStory = Template.bind({}) as StoryObj;
 CalloutWarningStory.args = {
   ...CalloutStory.args,
   kind: "warning",
 };
 
-export const CalloutErrorStory = Template.bind({});
+export const CalloutErrorStory = Template.bind({}) as StoryObj;
 CalloutErrorStory.args = {
   ...CalloutStory.args,
   kind: "error",
 };
 
-export const CalloutWithLink = Template.bind({});
+export const CalloutWithLink = Template.bind({}) as StoryObj;
 CalloutWithLink.args = {
   children: "This is a successful callout",
   links: [
@@ -76,6 +80,7 @@ CalloutWithLink.args = {
     {
       children: "Docs",
       onClick: () => {
+        // eslint-disable-next-line no-console
         console.log("I'm clicking things!");
       },
     },

@@ -1,7 +1,5 @@
 import React, { useState } from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-import { useArgs } from "@storybook/client-api";
-
+import { useArgs } from "@storybook/preview-api";
 import {
   Modal,
   ModalContent,
@@ -12,6 +10,9 @@ import {
 } from "./Modal";
 import { Button } from "../Button";
 import { Text } from "../Text";
+import type { ModalHeaderProps } from "./Modal.types";
+import type { StoryObj } from "@storybook/react";
+import type { DialogProps } from "@radix-ui/react-dialog";
 
 export default {
   title: "ADS/Modal",
@@ -56,17 +57,11 @@ export default {
       },
     },
   },
-  subcomponents: {
-    ModalContent,
-    ModalHeader,
-    ModalBody,
-    ModalFooter,
-  },
-} as ComponentMeta<typeof Modal>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const ModalHeaderTemplate: ComponentStory<typeof ModalHeader> = (args) => {
-  const [{ open }, updateArgs] = useArgs();
+const ModalHeaderTemplate = (args: ModalHeaderProps) => {
+  const [{}, updateArgs] = useArgs();
   const changeOpenState = (state: boolean) => updateArgs({ open: state });
   return (
     <Modal onOpenChange={changeOpenState}>
@@ -80,15 +75,15 @@ const ModalHeaderTemplate: ComponentStory<typeof ModalHeader> = (args) => {
   );
 };
 
-export const ModalHeaderStory = ModalHeaderTemplate.bind({});
+export const ModalHeaderStory = ModalHeaderTemplate.bind({}) as StoryObj;
 ModalHeaderStory.storyName = "Header";
 ModalHeaderStory.args = {
   children: "Modal Header",
 };
 
 // eslint-disable-next-line react/function-component-definition
-const ModalBodyTemplate: ComponentStory<typeof ModalBody> = (args) => {
-  const [{ open }, updateArgs] = useArgs();
+const ModalBodyTemplate = (args: { children: React.ReactNode }) => {
+  const [{}, updateArgs] = useArgs();
   const changeOpenState = (state: boolean) => updateArgs({ open: state });
   return (
     <Modal onOpenChange={changeOpenState}>
@@ -104,7 +99,7 @@ const ModalBodyTemplate: ComponentStory<typeof ModalBody> = (args) => {
   );
 };
 
-export const ModalBodyStory = ModalBodyTemplate.bind({});
+export const ModalBodyStory = ModalBodyTemplate.bind({}) as StoryObj;
 ModalBodyStory.storyName = "Body";
 ModalBodyStory.args = {
   children:
@@ -112,8 +107,8 @@ ModalBodyStory.args = {
 };
 
 // eslint-disable-next-line react/function-component-definition
-const ModalFooterTemplate: ComponentStory<typeof ModalFooter> = () => {
-  const [{ open }, updateArgs] = useArgs();
+const ModalFooterTemplate = () => {
+  const [{}, updateArgs] = useArgs();
   const changeOpenState = (state: boolean) => updateArgs({ open: state });
 
   return (
@@ -135,13 +130,13 @@ const ModalFooterTemplate: ComponentStory<typeof ModalFooter> = () => {
   );
 };
 
-export const ModalFooterStory = ModalFooterTemplate.bind({});
+export const ModalFooterStory = ModalFooterTemplate.bind({}) as StoryObj;
 ModalFooterStory.storyName = "Footer";
 ModalFooterStory.args = {};
 
 // eslint-disable-next-line react/function-component-definition
-const ModalWithFooterTemplate: ComponentStory<typeof Modal> = (args) => {
-  const [{ open }, updateArgs] = useArgs();
+const ModalWithFooterTemplate = (args: DialogProps) => {
+  const [{}, updateArgs] = useArgs();
   const changeOpenState = (state: boolean) => updateArgs({ open: state });
 
   return (
@@ -177,13 +172,13 @@ const ModalWithFooterTemplate: ComponentStory<typeof Modal> = (args) => {
   );
 };
 
-export const ModalStory = ModalWithFooterTemplate.bind({});
+export const ModalStory = ModalWithFooterTemplate.bind({}) as StoryObj;
 ModalStory.storyName = "With Footer";
 ModalStory.args = {};
 
 // eslint-disable-next-line react/function-component-definition
-const ModalWithoutFooter: ComponentStory<typeof Modal> = (args) => {
-  const [{ open }, updateArgs] = useArgs();
+const ModalWithoutFooter = (args: DialogProps) => {
+  const [{}, updateArgs] = useArgs();
   const changeOpenState = (state: boolean) => {
     updateArgs({ open: state });
   };
@@ -209,7 +204,7 @@ const ModalWithoutFooter: ComponentStory<typeof Modal> = (args) => {
   );
 };
 
-export const ModalStoryTwo = ModalWithoutFooter.bind({});
+export const ModalStoryTwo = ModalWithoutFooter.bind({}) as StoryObj;
 ModalStoryTwo.storyName = "Without Footer";
 ModalStoryTwo.args = {};
 

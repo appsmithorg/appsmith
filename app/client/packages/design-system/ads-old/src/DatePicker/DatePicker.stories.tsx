@@ -14,7 +14,7 @@ const Template: ComponentStory<typeof DatePickerComponent> = (args) => {
   return <DatePickerComponent {...args} />;
 };
 
-export const DatePicker = Template.bind({});
+export const DatePicker = Template.bind({}) as StoryObj;
 
 const DATE_FORMAT = "YYYY-MM-DD";
 

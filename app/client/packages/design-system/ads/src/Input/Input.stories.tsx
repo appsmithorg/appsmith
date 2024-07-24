@@ -1,7 +1,7 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { Input } from "./Input";
+import type { InputProps } from "./Input.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Input",
@@ -168,20 +168,20 @@ export default {
   },
   parameters: { controls: { sort: "requiredFirst" } },
   decorators: [
-    (Story) => (
+    (Story: () => React.ReactNode) => (
       <div style={{ width: "100%", maxWidth: "250px", margin: "0 auto" }}>
         {Story()}
       </div>
     ),
   ],
-} as ComponentMeta<typeof Input>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Input> = (args) => {
+const Template = (args: InputProps) => {
   return <Input {...args} />;
 };
 
-export const InputStory = Template.bind({});
+export const InputStory = Template.bind({}) as StoryObj;
 InputStory.storyName = "Input";
 InputStory.args = {
   label: "Label",
@@ -192,7 +192,7 @@ InputStory.args = {
   size: "md",
 };
 
-export const InputTextareaStory = Template.bind({});
+export const InputTextareaStory = Template.bind({}) as StoryObj;
 InputTextareaStory.args = {
   ...InputStory.args,
   renderAs: "textarea",

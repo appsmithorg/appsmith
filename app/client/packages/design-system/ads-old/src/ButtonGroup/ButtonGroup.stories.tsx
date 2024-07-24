@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof ButtonGroup> = (args) => {
   return <ButtonGroup {...args} />;
 };
 
-export const ButtonGroupExample = Template.bind({});
+export const ButtonGroupExample = Template.bind({}) as StoryObj;
 ButtonGroupExample.storyName = "ButtonGroup";
 ButtonGroupExample.args = {
   options: [
@@ -35,7 +35,7 @@ ButtonGroupExample.args = {
   },
 };
 
-export const ButtonGroupWithLabel = Template.bind({});
+export const ButtonGroupWithLabel = Template.bind({}) as StoryObj;
 ButtonGroupWithLabel.args = {
   options: [
     {

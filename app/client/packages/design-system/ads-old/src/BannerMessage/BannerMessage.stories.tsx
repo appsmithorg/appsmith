@@ -14,7 +14,7 @@ const Template: ComponentStory<typeof BannerMessageComponent> = (args) => {
   return <BannerMessageComponent {...args} />;
 };
 
-export const BannerMessage = Template.bind({});
+export const BannerMessage = Template.bind({}) as StoryObj;
 BannerMessage.args = {
   backgroundColor: "#FFF8E2",
   className: "t--deprecation-warning",

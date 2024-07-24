@@ -12,7 +12,7 @@ const Template: ComponentStory<typeof Callout> = (args) => (
   <Callout {...args} />
 );
 
-export const CalloutExample = Template.bind({});
+export const CalloutExample = Template.bind({}) as StoryObj;
 CalloutExample.storyName = "Callout";
 CalloutExample.args = {
   text: "This is a call out",

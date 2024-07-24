@@ -35,7 +35,7 @@ const Template: ComponentStory<typeof SwitcherComponent> = (args) => (
   <SwitcherComponent {...args} />
 );
 
-export const Switcher = Template.bind({});
+export const Switcher = Template.bind({}) as StoryObj;
 
 Switcher.args = {
   activeObj: switches[0],

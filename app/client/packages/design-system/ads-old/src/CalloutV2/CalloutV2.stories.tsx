@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof CalloutV2> = (args) => {
   return <CalloutV2 {...args} />;
 };
 
-export const CalloutV2Example = Template.bind({});
+export const CalloutV2Example = Template.bind({}) as StoryObj;
 CalloutV2Example.storyName = "CalloutV2";
 CalloutV2Example.args = {
   // actionLabel: calloutBanner.actionLabel,

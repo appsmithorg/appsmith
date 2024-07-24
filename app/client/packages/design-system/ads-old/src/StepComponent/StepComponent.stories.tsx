@@ -15,7 +15,7 @@ const Template: ComponentStory<typeof StepComponent> = (args) => {
   return <StepComponent {...args} />;
 };
 
-export const StepComponentExample = Template.bind({});
+export const StepComponentExample = Template.bind({}) as StoryObj;
 StepComponentExample.storyName = "Step Component";
 StepComponentExample.args = {
   displayFormat: () => {

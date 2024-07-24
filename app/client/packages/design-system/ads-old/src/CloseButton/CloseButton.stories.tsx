@@ -15,7 +15,7 @@ const Template: ComponentStory<typeof CloseButton> = (args) => {
   return <CloseButton {...args} />;
 };
 
-export const CloseButtonExample = Template.bind({});
+export const CloseButtonExample = Template.bind({}) as StoryObj;
 CloseButtonExample.storyName = "Close Button";
 CloseButtonExample.args = {
   color: "#682377",

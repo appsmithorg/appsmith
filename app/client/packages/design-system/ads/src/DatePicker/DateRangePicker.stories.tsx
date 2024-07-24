@@ -1,5 +1,4 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
 import { DateRangePicker } from "./DatePicker";
 
@@ -500,7 +499,7 @@ const Template: ComponentStory<typeof DateRangePicker> = (args) => {
   return <DateRangePicker {...args} />;
 };
 
-export const DateRangePickerStory = Template.bind({});
+export const DateRangePickerStory = Template.bind({}) as StoryObj;
 DateRangePickerStory.storyName = "Date Range Picker";
 DateRangePickerStory.args = {
   //add arguments here

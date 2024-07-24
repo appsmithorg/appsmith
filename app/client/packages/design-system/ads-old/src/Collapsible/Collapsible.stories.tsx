@@ -12,7 +12,7 @@ const Template: ComponentStory<typeof Collapsible> = (args) => (
   <Collapsible {...args} />
 );
 
-export const CollapsibleExample = Template.bind({});
+export const CollapsibleExample = Template.bind({}) as StoryObj;
 CollapsibleExample.storyName = "Collapsible";
 CollapsibleExample.args = {
   title: "This is a collapsible",

@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof GifPlayerComponent> = (args) => {
   return <GifPlayerComponent {...args} />;
 };
 
-export const GifPlayer = Template.bind({});
+export const GifPlayer = Template.bind({}) as StoryObj;
 GifPlayer.args = {
   gif: "https://release.app.appsmith.com/static/media/config_pagination_lightmode.e9f496f79ef7826e375e.gif",
   thumbnail:

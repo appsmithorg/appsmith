@@ -15,7 +15,7 @@ const Template: ComponentStory<typeof NotificationBanner> = (args) => {
   return <NotificationBanner {...args} />;
 };
 
-export const NotificationBannerExample = Template.bind({});
+export const NotificationBannerExample = Template.bind({}) as StoryObj;
 NotificationBannerExample.storyName = "Notification Banner";
 NotificationBannerExample.args = {
   canClose: true,

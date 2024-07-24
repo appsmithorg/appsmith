@@ -1,6 +1,4 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import {
   Popover,
   PopoverBody,
@@ -12,16 +10,14 @@ import { Button } from "../Button";
 import { Input } from "../Input";
 import { Text } from "../Text";
 import styled from "styled-components";
+import type { PopoverContentProps, PopoverHeaderProps } from "./Popover.types";
+import type { StoryObj } from "@storybook/react";
+import type { PopoverProps } from "@radix-ui/react-popover";
 
 export default {
   title: "ADS/Popover",
   component: Popover,
-  subcomponents: {
-    PopoverBody,
-    PopoverContent,
-    PopoverHeader,
-  },
-} as ComponentMeta<typeof Popover>;
+};
 
 const FlexBox = styled.div`
   display: flex;
@@ -33,7 +29,7 @@ const FlexBox = styled.div`
 `;
 
 // eslint-disable-next-line react/function-component-definition
-const PopoverHeaderTemplate: ComponentStory<typeof PopoverHeader> = (args) => {
+const PopoverHeaderTemplate = (args: PopoverHeaderProps) => {
   return (
     <Popover>
       <PopoverTrigger>
@@ -46,14 +42,14 @@ const PopoverHeaderTemplate: ComponentStory<typeof PopoverHeader> = (args) => {
   );
 };
 
-export const PopoverHeaderStory = PopoverHeaderTemplate.bind({});
+export const PopoverHeaderStory = PopoverHeaderTemplate.bind({}) as StoryObj;
 PopoverHeaderStory.storyName = "Header";
 PopoverHeaderStory.args = {
   children: "JS Libraries",
   isClosable: true,
 };
 
-const PopoverContentTemplate: ComponentStory<typeof PopoverHeader> = (args) => {
+const PopoverContentTemplate = (args: PopoverContentProps) => {
   return (
     <Popover>
       <PopoverTrigger>
@@ -65,7 +61,7 @@ const PopoverContentTemplate: ComponentStory<typeof PopoverHeader> = (args) => {
 };
 
 //  TODO: The popover guidelines say that popovers should have at least one focusable element in it, but this story doesn't because PopoverHeader expects children to be a string. Change this.
-export const PopoverContentStory = PopoverContentTemplate.bind({});
+export const PopoverContentStory = PopoverContentTemplate.bind({}) as StoryObj;
 PopoverContentStory.storyName = "Small Content";
 PopoverContentStory.argTypes = {
   size: {
@@ -89,7 +85,9 @@ PopoverContentStory.args = {
   ),
 };
 
-export const MediumPopoverContentStory = PopoverContentTemplate.bind({});
+export const MediumPopoverContentStory = PopoverContentTemplate.bind(
+  {},
+) as StoryObj;
 MediumPopoverContentStory.storyName = "Medium Content";
 MediumPopoverContentStory.argTypes = {
   size: {
@@ -118,7 +116,7 @@ MediumPopoverContentStory.args = {
 };
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Popover> = (args) => {
+const Template = (args: PopoverProps) => {
   return (
     <Popover {...args}>
       <PopoverTrigger>
@@ -140,7 +138,7 @@ const Template: ComponentStory<typeof Popover> = (args) => {
   );
 };
 
-export const PopoverStory = Template.bind({});
+export const PopoverStory = Template.bind({}) as StoryObj;
 PopoverStory.storyName = "Popover";
 PopoverStory.args = {
   //add arguments here

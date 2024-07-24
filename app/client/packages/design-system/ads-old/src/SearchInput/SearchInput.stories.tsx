@@ -13,5 +13,5 @@ const Template: ComponentStory<typeof SearchInputComponent> = (args) => {
   return <SearchInputComponent {...args} />;
 };
 
-export const SearchInput = Template.bind({});
+export const SearchInput = Template.bind({}) as StoryObj;
 SearchInput.args = {};

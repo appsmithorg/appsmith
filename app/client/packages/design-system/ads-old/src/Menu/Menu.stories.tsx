@@ -19,7 +19,7 @@ const Template: ComponentStory<typeof MenuComponent> = (args) => {
   );
 };
 
-export const Menu = Template.bind({});
+export const Menu = Template.bind({}) as StoryObj;
 Menu.args = {
   position: "bottom",
   target: <button>Open menu</button>,

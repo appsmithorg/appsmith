@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof DialogComponent> = (args) => (
   <DialogComponent {...args} />
 );
 
-export const Dialog = Template.bind({});
+export const Dialog = Template.bind({}) as StoryObj;
 Dialog.args = {
   canEscapeKeyClose: true,
   canOutsideClickClose: true,

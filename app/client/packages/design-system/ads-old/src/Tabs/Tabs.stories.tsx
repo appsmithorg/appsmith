@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof TabComponent> = (args) => {
   return <TabComponent {...args} />;
 };
 
-export const Tabs = Template.bind({});
+export const Tabs = Template.bind({}) as StoryObj;
 
 function PanelComponent({ title }) {
   return (

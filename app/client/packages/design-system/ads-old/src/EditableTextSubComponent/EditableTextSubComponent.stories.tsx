@@ -15,7 +15,7 @@ const Template: ComponentStory<typeof EditableTextSubComponent> = (args) => {
   return <EditableTextSubComponent {...args} />;
 };
 
-export const EditableTextSubComponentExample = Template.bind({});
+export const EditableTextSubComponentExample = Template.bind({}) as StoryObj;
 EditableTextSubComponentExample.storyName = "EditableTextSubComponent";
 EditableTextSubComponentExample.args = {
   isEditing: false,

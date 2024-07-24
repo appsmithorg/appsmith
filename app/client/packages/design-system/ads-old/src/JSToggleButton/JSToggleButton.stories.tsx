@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof JSToggleButtonComponent> = (args) => {
   return <JSToggleButtonComponent {...args} />;
 };
 
-export const JSToggleButton = Template.bind({});
+export const JSToggleButton = Template.bind({}) as StoryObj;
 JSToggleButton.args = {
   //add arguments here
 };

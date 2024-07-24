@@ -12,7 +12,7 @@ export default {
 // @ts-ignore
 const Template = (args) => <SearchComponent {...args} />;
 
-export const SearchInput = Template.bind({});
+export const SearchInput = Template.bind({}) as StoryObj;
 SearchInput.args = {
   onSearch: () => {},
   placeholder: "This is a placeholder",

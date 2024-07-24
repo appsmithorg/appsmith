@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof SpinnerComponent> = (args) => (
   <SpinnerComponent {...args} />
 );
 
-export const Spinner = Template.bind({});
+export const Spinner = Template.bind({}) as StoryObj;
 
 Spinner.args = {
   size: "small",

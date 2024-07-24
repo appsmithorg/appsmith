@@ -15,7 +15,7 @@ const Template: ComponentStory<typeof SegmentHeader> = (args) => {
   return <SegmentHeader {...args} />;
 };
 
-export const ListSegmentHeader = Template.bind({});
+export const ListSegmentHeader = Template.bind({}) as StoryObj;
 ListSegmentHeader.args = {
   title: "The Bee Movie",
 };

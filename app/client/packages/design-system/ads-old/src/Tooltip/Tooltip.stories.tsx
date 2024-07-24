@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof TooltipComponent> = (args) => (
   <TooltipComponent {...args}>Hover over me 😁</TooltipComponent>
 );
 
-export const Tooltip = Template.bind({});
+export const Tooltip = Template.bind({}) as StoryObj;
 
 Tooltip.args = {
   hoverOpenDelay: 200,

@@ -34,7 +34,7 @@ const Template: ComponentStory<typeof IconComponent> = (args) => (
   <IconComponent {...args} />
 );
 
-export const Icon = Template.bind({});
+export const Icon = Template.bind({}) as StoryObj;
 Icon.args = {
   name: "filter",
   size: IconSize.XXXXL,

@@ -1,13 +1,13 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { DatePicker } from "./DatePicker";
+import type { DatePickerProps } from "./DatePicker.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Date Picker",
   component: DatePicker,
   decorators: [
-    (Story) => (
+    (Story: () => React.ReactNode) => (
       <div style={{ width: "100%", maxWidth: "250px", margin: "0 auto" }}>
         {Story()}
       </div>
@@ -481,14 +481,14 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof DatePicker>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof DatePicker> = (args) => {
+const Template = (args: DatePickerProps) => {
   return <DatePicker {...args} />;
 };
 
-export const DatePickerStory = Template.bind({});
+export const DatePickerStory = Template.bind({}) as StoryObj;
 DatePickerStory.storyName = "Date Picker";
 DatePickerStory.args = {
   //add arguments here

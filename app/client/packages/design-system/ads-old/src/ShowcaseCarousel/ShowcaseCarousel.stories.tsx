@@ -22,7 +22,7 @@ const Template: ComponentStory<typeof ShowcaseCarouselComponent> = (args) => {
   );
 };
 
-export const ShowcaseCarousel = Template.bind({});
+export const ShowcaseCarousel = Template.bind({}) as StoryObj;
 
 function StepComponent1() {
   return <div style={{ padding: "8px" }}>Step 1</div>;

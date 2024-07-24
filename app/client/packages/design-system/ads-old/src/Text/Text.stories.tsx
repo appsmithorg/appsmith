@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof TextComponent> = (args) => {
   return <TextComponent {...args}> Some Content 🍎 </TextComponent>;
 };
 
-export const Text = Template.bind({});
+export const Text = Template.bind({}) as StoryObj;
 Text.args = {
   type: TextType.P0,
 };

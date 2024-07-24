@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof ToggleComponent> = (args) => {
   return <ToggleComponent {...args} />;
 };
 
-export const Toggle = Template.bind({});
+export const Toggle = Template.bind({}) as StoryObj;
 Toggle.args = {
   value: true,
   // eslint-disable-next-line no-console

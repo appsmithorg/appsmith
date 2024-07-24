@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof StatusbarComponent> = (args) => {
   return <StatusbarComponent {...args} />;
 };
 
-export const Statusbar = Template.bind({});
+export const Statusbar = Template.bind({}) as StoryObj;
 Statusbar.args = {
   percentage: 40,
   active: true,

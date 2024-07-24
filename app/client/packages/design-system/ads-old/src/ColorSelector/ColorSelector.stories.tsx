@@ -36,7 +36,7 @@ const appColors = [
   "#FFEBFB",
 ];
 
-export const ColorSelectorExample = Template.bind({});
+export const ColorSelectorExample = Template.bind({}) as StoryObj;
 ColorSelectorExample.storyName = "Color Selector";
 ColorSelectorExample.args = {
   colorPalette: appColors,

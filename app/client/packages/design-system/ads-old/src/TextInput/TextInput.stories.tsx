@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof TextInput> = (args) => {
   return <TextInput {...args} />;
 };
 
-export const TextInputExample = Template.bind({});
+export const TextInputExample = Template.bind({}) as StoryObj;
 TextInputExample.storyName = "Text Input";
 TextInputExample.args = {
   $padding: "8px",

@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof FilePickerV2> = (args) => {
   return <FilePickerV2 {...args} />;
 };
 
-export const FilePicker = Template.bind({});
+export const FilePicker = Template.bind({}) as StoryObj;
 FilePicker.args = {
   containerClickable: true,
   description: "Drag and drop your file or upload from your computer",

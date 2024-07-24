@@ -42,7 +42,7 @@ const Template: ComponentStory<typeof DraggableListComponent> = (args) => {
   return <DraggableListComponent {...args} />;
 };
 
-export const DraggableList = Template.bind({});
+export const DraggableList = Template.bind({}) as StoryObj;
 
 const draggableListRenderItem = ({ item }) => {
   return <ItemRenderer>{item.name}</ItemRenderer>;

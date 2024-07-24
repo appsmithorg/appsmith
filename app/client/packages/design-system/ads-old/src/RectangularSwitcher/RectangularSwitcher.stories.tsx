@@ -15,7 +15,7 @@ const Template: ComponentStory<typeof RectangularSwitcherComponent> = (
   return <RectangularSwitcherComponent {...args} />;
 };
 
-export const RectangularSwitcher = Template.bind({});
+export const RectangularSwitcher = Template.bind({}) as StoryObj;
 RectangularSwitcher.args = {
   value: false,
   onSwitch: (v) => {

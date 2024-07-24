@@ -1,7 +1,7 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
+import type { StoryObj } from "@storybook/react";
 import { Button } from "./Button";
+import type { ButtonProps } from "./Button.types";
 
 export default {
   title: "ADS/Button",
@@ -14,14 +14,14 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof Button>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Button> = ({ children, ...args }) => {
+const Template = ({ children, ...args }: ButtonProps) => {
   return <Button {...args}>{children}</Button>;
 };
 
-export const ButtonStory = Template.bind({});
+export const ButtonStory = Template.bind({}) as StoryObj;
 ButtonStory.storyName = "Button";
 ButtonStory.args = {
   children: "Click me",
@@ -33,43 +33,43 @@ ButtonStory.args = {
   type: "button",
 };
 
-export const ButtonPrimaryStory = Template.bind({});
+export const ButtonPrimaryStory = Template.bind({}) as StoryObj;
 ButtonPrimaryStory.args = {
   ...ButtonStory.args,
   kind: "primary",
 };
 
-export const ButtonSecondaryStory = Template.bind({});
+export const ButtonSecondaryStory = Template.bind({}) as StoryObj;
 ButtonSecondaryStory.args = {
   ...ButtonStory.args,
   kind: "secondary",
 };
 
-export const ButtonTertiaryStory = Template.bind({});
+export const ButtonTertiaryStory = Template.bind({}) as StoryObj;
 ButtonTertiaryStory.args = {
   ...ButtonStory.args,
   kind: "tertiary",
 };
 
-export const ButtonErrorStory = Template.bind({});
+export const ButtonErrorStory = Template.bind({}) as StoryObj;
 ButtonErrorStory.args = {
   ...ButtonStory.args,
   kind: "error",
 };
 
-export const ButtonDisabledStory = Template.bind({});
+export const ButtonDisabledStory = Template.bind({}) as StoryObj;
 ButtonDisabledStory.args = {
   ...ButtonStory.args,
   isDisabled: true,
 };
 
-export const ButtonLoadingStory = Template.bind({});
+export const ButtonLoadingStory = Template.bind({}) as StoryObj;
 ButtonLoadingStory.args = {
   ...ButtonStory.args,
   isLoading: true,
 };
 
-export const IconButtonStory = Template.bind({});
+export const IconButtonStory = Template.bind({}) as StoryObj;
 IconButtonStory.storyName = "Icon Button";
 IconButtonStory.args = {
   onClick: () => alert("Button clicked!"),

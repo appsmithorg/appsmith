@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof CopyToClipboard> = (args) => {
   return <CopyToClipboard {...args} />;
 };
 
-export const CopyToClipboardExample = Template.bind({});
+export const CopyToClipboardExample = Template.bind({}) as StoryObj;
 CopyToClipboardExample.storyName = "Copy to Clipboard";
 CopyToClipboardExample.args = {
   copyText:

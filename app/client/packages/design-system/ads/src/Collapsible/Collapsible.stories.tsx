@@ -1,18 +1,20 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleHeader,
 } from "./Collapsible";
 import { Text } from "../Text";
-import { useArgs } from "@storybook/client-api";
-import { ARROW_POSITIONS } from "./Collapsible.types";
+import { useArgs } from "@storybook/preview-api";
+import { ARROW_POSITIONS, type CollapsibleProps } from "./Collapsible.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Collapsible",
   decorators: [
-    (Story) => <div style={{ width: "95%", maxWidth: "500px" }}>{Story()}</div>,
+    (Story: () => React.ReactNode) => (
+      <div style={{ width: "95%", maxWidth: "500px" }}>{Story()}</div>
+    ),
   ],
   component: Collapsible,
   parameters: {
@@ -27,10 +29,10 @@ export default {
     CollapsibleContent,
     CollapsibleHeader,
   },
-} as ComponentMeta<typeof Collapsible>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const CollapsibleTemplate: ComponentStory<typeof Collapsible> = (args) => {
+const CollapsibleTemplate = () => {
   const [{ arrowPosition, className, isOpen }, updateArgs] = useArgs();
   const changeOpenState = (state: boolean) => updateArgs({ isOpen: state });
 
@@ -59,7 +61,7 @@ const CollapsibleTemplate: ComponentStory<typeof Collapsible> = (args) => {
   );
 };
 
-export const CollapsibleStory = CollapsibleTemplate.bind({});
+export const CollapsibleStory = CollapsibleTemplate.bind({}) as StoryObj;
 CollapsibleStory.storyName = "Collapsible";
 CollapsibleStory.args = {
   isOpen: false,
@@ -128,9 +130,7 @@ CollapsibleStory.argTypes = {
 };
 
 // eslint-disable-next-line react/function-component-definition
-const CollapsibleHeaderTemplate: ComponentStory<typeof CollapsibleHeader> = (
-  args,
-) => {
+const CollapsibleHeaderTemplate = (args: CollapsibleProps) => {
   const [{ arrowPosition, className, isOpen }, updateArgs] = useArgs();
   const changeOpenState = (state: boolean) => updateArgs({ isOpen: state });
 
@@ -143,7 +143,9 @@ const CollapsibleHeaderTemplate: ComponentStory<typeof CollapsibleHeader> = (
   );
 };
 
-export const CollapsibleHeaderStory = CollapsibleHeaderTemplate.bind({});
+export const CollapsibleHeaderStory = CollapsibleHeaderTemplate.bind(
+  {},
+) as StoryObj;
 CollapsibleHeaderStory.storyName = "Header";
 CollapsibleHeaderStory.args = {
   children: <Text>Collapsible Header</Text>,
@@ -188,9 +190,7 @@ CollapsibleHeaderStory.argTypes = {
 };
 
 // eslint-disable-next-line react/function-component-definition
-const CollapsibleContentTemplate: ComponentStory<typeof CollapsibleContent> = (
-  args,
-) => {
+const CollapsibleContentTemplate = (args: CollapsibleProps) => {
   const [{ className, isOpen }, updateArgs] = useArgs();
   const changeOpenState = (state: boolean) => updateArgs({ isOpen: state });
 
@@ -203,7 +203,9 @@ const CollapsibleContentTemplate: ComponentStory<typeof CollapsibleContent> = (
   );
 };
 
-export const CollapsibleContentStory = CollapsibleContentTemplate.bind({});
+export const CollapsibleContentStory = CollapsibleContentTemplate.bind(
+  {},
+) as StoryObj;
 CollapsibleContentStory.storyName = "Content";
 CollapsibleContentStory.args = {
   isOpen: true,

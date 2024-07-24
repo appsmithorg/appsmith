@@ -1,7 +1,7 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { ToggleButtonGroup } from "./ToggleButtonGroup";
+import type { ToggleGroupProps } from "./ToggleButtonGroup.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Toggle Button/Toggle Button Group",
@@ -14,14 +14,14 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof ToggleButtonGroup>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof ToggleButtonGroup> = (args) => {
+const Template = (args: ToggleGroupProps) => {
   return <ToggleButtonGroup {...args} />;
 };
 
-export const ToggleButtonGroupStory = Template.bind({});
+export const ToggleButtonGroupStory = Template.bind({}) as StoryObj;
 ToggleButtonGroupStory.storyName = "ToggleButtonGroup";
 ToggleButtonGroupStory.args = {
   options: [

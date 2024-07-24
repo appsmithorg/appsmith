@@ -15,7 +15,7 @@ const Template: ComponentStory<typeof ThisComponent> = (args) => {
   return <ThisComponent {...args} />;
 };
 
-export const ComponentDisplay = Template.bind({});
+export const ComponentDisplay = Template.bind({}) as StoryObj;
 ComponentDisplay.args = {
   //add arguments here
 };

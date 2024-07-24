@@ -1,21 +1,21 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { ToggleButton } from "./ToggleButton";
+import type { StoryObj } from "@storybook/react";
+import type { ToggleButtonProps } from "./ToggleButton.types";
 
 export default {
   title: "ADS/Toggle Button/Toggle Button",
   component: ToggleButton,
-} as ComponentMeta<typeof ToggleButton>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof ToggleButton> = (args) => {
+const Template = (args: ToggleButtonProps) => {
   return <ToggleButton {...args} />;
 };
 
-export const ToggleButtonStory = Template.bind({});
+export const ToggleButtonStory = Template.bind({}) as StoryObj;
 ToggleButtonStory.storyName = "Toggle Button";
 ToggleButtonStory.args = {
   size: "sm",
-  icon: "js-toggle-v2",
+  icon: "add-more",
 };

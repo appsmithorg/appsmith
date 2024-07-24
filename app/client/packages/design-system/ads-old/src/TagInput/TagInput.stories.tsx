@@ -29,7 +29,7 @@ const Template: ComponentStory<typeof TagInputComponent> = (args) => {
   );
 };
 
-export const TagIpt = Template.bind({});
+export const TagIpt = Template.bind({}) as StoryObj;
 TagIpt.args = {
   label: "Emails",
   placeholder: "Enter email address",

@@ -28,7 +28,7 @@ const Template: ComponentStory<typeof ProgressiveImageComponent> = (args) => {
   return <ProgressiveImageComponent {...args} />;
 };
 
-export const ProgressiveImage = Template.bind({});
+export const ProgressiveImage = Template.bind({}) as StoryObj;
 ProgressiveImage.args = {
   thumbnailSource: "https://via.placeholder.com/5x5",
   imageSource: "https://via.placeholder.com/600x600",

@@ -3028,6 +3028,7 @@ __metadata:
     "@storybook/components": ^8.0.8
     "@storybook/manager-api": ^8.0.8
     "@storybook/preset-create-react-app": ^8.0.8
+    "@storybook/preview-api": 8.0.8
     "@storybook/react-vite": ^8.0.8
     "@storybook/theming": ^8.0.8
     "@vitejs/plugin-react": ^4.2.1

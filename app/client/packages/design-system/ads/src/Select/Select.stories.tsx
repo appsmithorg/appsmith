@@ -1,15 +1,15 @@
 import React, { useState } from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { Select, Option } from "./Select";
 import { Icon } from "../Icon";
 import { Checkbox } from "../Checkbox";
+import type { SelectProps } from "./Select.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Select",
   component: Select,
   decorators: [
-    (Story) => (
+    (Story: () => React.ReactNode) => (
       <div style={{ width: "100%", maxWidth: "250px", margin: "0 auto" }}>
         {Story()}
       </div>
@@ -27,10 +27,10 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof Select>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const SelectTemplate: ComponentStory<typeof Select> = ({ ...args }) => {
+const SelectTemplate = ({ ...args }) => {
   return (
     <Select {...args}>
       <Option value="value 1">Option 1</Option>
@@ -607,94 +607,117 @@ const ArgTypes = {
 
 const consoleStyle = "color: #ff7818; font-weight: bold;";
 
-export const SelectStory = SelectTemplate.bind({});
+export const SelectStory = SelectTemplate.bind({}) as StoryObj;
 SelectStory.storyName = "Select";
 SelectStory.argTypes = ArgTypes;
 SelectStory.args = {
   optionLabelProp: "value",
   autoClearSearchValue: false,
-  onSearch: (v) => {
+  onSearch: (v: unknown) => {
+    // eslint-disable-next-line no-console
     console.info("%conSearch", consoleStyle);
+    // eslint-disable-next-line no-console
     console.log("value -", v);
   },
-  onBlur: (e) => {
+  onBlur: (e: unknown) => {
+    // eslint-disable-next-line no-console
     console.info("%conBlur", consoleStyle);
+    // eslint-disable-next-line no-console
     console.log("event -", e);
   },
-  onFocus: (e) => {
+  onFocus: (e: unknown) => {
+    // eslint-disable-next-line no-console
     console.info("%conFocus", consoleStyle);
+    // eslint-disable-next-line no-console
     console.log("event -", e);
   },
-  onDropdownVisibleChange: (v) => {
+  onDropdownVisibleChange: (v: unknown) => {
+    // eslint-disable-next-line no-console
     console.info("%conDropdownVisibleChange", consoleStyle);
+    // eslint-disable-next-line no-console
     console.log("value -", v);
   },
-  onInputKeyDown: (e) => {
+  onInputKeyDown: (e: unknown) => {
+    // eslint-disable-next-line no-console
     console.info("%conInputKeyDown", consoleStyle);
+    // eslint-disable-next-line no-console
     console.log("event -", e);
   },
-  onChange: (v) => {
+  onChange: (v: unknown) => {
+    // eslint-disable-next-line no-console
     console.info("%conChange", consoleStyle);
+    // eslint-disable-next-line no-console
     console.log("value -", v);
   },
-  onSelect: (v, option) => {
+  onSelect: (v: unknown, option: unknown) => {
+    // eslint-disable-next-line no-console
     console.info("%conSelect", consoleStyle);
+    // eslint-disable-next-line no-console
     console.log("value = ", v);
+    // eslint-disable-next-line no-console
     console.log("option = ", option);
   },
-  onDeselect: (v, option) => {
+  onDeselect: (v: unknown, option: unknown) => {
+    // eslint-disable-next-line no-console
     console.info("%conDeselect", consoleStyle);
+    // eslint-disable-next-line no-console
     console.log("value = ", v);
+    // eslint-disable-next-line no-console
     console.log("option = ", option);
   },
   onClear: () => {
+    // eslint-disable-next-line no-console
     console.info("%conClear", consoleStyle);
   },
-  onPopupScroll: (e) => {
+  onPopupScroll: (e: unknown) => {
+    // eslint-disable-next-line no-console
     console.info("%conPopupScroll", consoleStyle);
+    // eslint-disable-next-line no-console
     console.log("event -", e);
   },
 };
 
-export const SelectSearchStory = SelectTemplate.bind({});
+export const SelectSearchStory = SelectTemplate.bind({}) as StoryObj;
 SelectSearchStory.args = {
   ...SelectStory.args,
   showSearch: true,
 };
 
-export const SelectDisabledStory = SelectTemplate.bind({});
+export const SelectDisabledStory = SelectTemplate.bind({}) as StoryObj;
 SelectDisabledStory.args = {
   ...SelectStory.args,
   isDisabled: true,
 };
 
-export const SelectLoadingStory = SelectTemplate.bind({});
+export const SelectLoadingStory = SelectTemplate.bind({}) as StoryObj;
 SelectLoadingStory.args = {
   ...SelectStory.args,
   isLoading: true,
 };
 
-export const SelectInvalidStory = SelectTemplate.bind({});
+export const SelectInvalidStory = SelectTemplate.bind({}) as StoryObj;
 SelectInvalidStory.args = {
   ...SelectStory.args,
   isValid: false,
 };
 
-export const SelectMultiselectStory = SelectTemplate.bind({});
+export const SelectMultiselectStory = SelectTemplate.bind({}) as StoryObj;
 SelectMultiselectStory.args = {
   ...SelectStory.args,
   isMultiSelect: true,
 };
 
 // eslint-disable-next-line react/function-component-definition
-const OptionTemplate: ComponentStory<typeof Option> = ({
+const OptionTemplate = ({
   children,
   ...args
+}: {
+  children: React.ReactNode;
 }) => {
   return (
     <Select defaultValue="option 2" open size="md">
       <Option {...args} value="Test">
-        {children || (
+        {children ?? (
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <Icon name="arrow-left-line" size="md" />
             Option 1
@@ -705,7 +728,7 @@ const OptionTemplate: ComponentStory<typeof Option> = ({
   );
 };
 
-export const OptionStory = OptionTemplate.bind({});
+export const OptionStory = OptionTemplate.bind({}) as StoryObj;
 OptionStory.storyName = "Option";
 OptionStory.argTypes = {
   className: {
@@ -791,7 +814,7 @@ OptionStory.argTypes = {
 };
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Select> = (args) => {
+const Template = (args: SelectProps) => {
   return (
     <Select {...args}>
       <Option value="value 1">
@@ -888,7 +911,7 @@ const Template: ComponentStory<typeof Select> = (args) => {
   );
 };
 
-export const ComplexSelectStory = Template.bind({});
+export const ComplexSelectStory = Template.bind({}) as StoryObj;
 ComplexSelectStory.storyName = "Select with complex options";
 ComplexSelectStory.args = {
   size: "md",
@@ -920,10 +943,12 @@ export function SelectWithCheckbox() {
       isMultiSelect
       onDeselect={(value, unselectedOption) =>
         setSelectedOptions(
+          // @ts-expect-error type error
           selectedOptions.filter((opt) => opt.value !== unselectedOption.value),
         )
       }
       onSelect={(value, newSelectedOption) =>
+        // @ts-expect-error type error
         setSelectedOptions([...selectedOptions, newSelectedOption])
       }
       optionLabelProp="label"
@@ -933,6 +958,7 @@ export function SelectWithCheckbox() {
         <Option key={option.key}>
           <Checkbox
             isSelected={selectedOptions.find(
+              // @ts-expect-error type error
               (selectedOption) => selectedOption.key == option.key,
             )}
           >

@@ -1,6 +1,4 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { Tabs, TabsList, Tab, TabPanel } from "./Tab";
 import type {
   TabPanelProps,
@@ -11,6 +9,7 @@ import type {
 import { Text } from "../Text";
 import { Input } from "../Input";
 import { Button } from "../Button";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Tab",
@@ -22,10 +21,10 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof Tabs>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const TabsTemplate: ComponentStory<typeof Tabs> = (args: TabsProps) => {
+const TabsTemplate = (args: TabsProps) => {
   return (
     <Tabs defaultValue="tab1" {...args}>
       <TabsList>
@@ -86,7 +85,7 @@ const TabsTemplate: ComponentStory<typeof Tabs> = (args: TabsProps) => {
   );
 };
 
-export const TabsExample = TabsTemplate.bind({});
+export const TabsExample = TabsTemplate.bind({}) as StoryObj;
 TabsExample.storyName = "Tabs";
 TabsExample.args = {
   defaultValue: "tab1",
@@ -120,7 +119,7 @@ TabsExample.argTypes = {
 };
 
 // eslint-disable-next-line react/function-component-definition
-const TabTemplate: ComponentStory<typeof Tab> = (args: TabProps) => {
+const TabTemplate = (args: TabProps) => {
   return (
     <Tabs>
       <TabsList>
@@ -130,7 +129,7 @@ const TabTemplate: ComponentStory<typeof Tab> = (args: TabProps) => {
   );
 };
 
-export const TabExample = TabTemplate.bind({});
+export const TabExample = TabTemplate.bind({}) as StoryObj;
 TabExample.storyName = "Tab";
 TabExample.args = {
   children: "Account",
@@ -155,9 +154,7 @@ TabExample.argTypes = {
 };
 
 // eslint-disable-next-line react/function-component-definition
-const TabsListTemplate: ComponentStory<typeof TabsList> = (
-  args: TabsListProps,
-) => {
+const TabsListTemplate = (args: TabsListProps) => {
   return (
     <Tabs>
       <TabsList {...args}>
@@ -168,29 +165,27 @@ const TabsListTemplate: ComponentStory<typeof TabsList> = (
   );
 };
 
-export const TabsListExample = TabsListTemplate.bind({});
+export const TabsListExample = TabsListTemplate.bind({}) as StoryObj;
 TabsListExample.storyName = "TabsList";
 TabsListExample.parameters = {
   controls: { hideNoControlsWarning: true },
 };
 
 // eslint-disable-next-line react/function-component-definition
-const TabPanelTemplate: ComponentStory<typeof TabPanel> = (
-  args: TabPanelProps,
-) => {
+const TabPanelTemplate = (args: TabPanelProps) => {
   return (
     <Tabs defaultValue="tabber1">
       <TabsList>
         <Tab value="tabber1">Account</Tab>
         <Tab value="tabber2">Password</Tab>
       </TabsList>
-      <TabPanel value="tabber1" {...args} />
-      <TabPanel value="tabber2" {...args} />
+      <TabPanel {...args} value="tabber1" />
+      <TabPanel {...args} value="tabber2" />
     </Tabs>
   );
 };
 
-export const TabPanelExample = TabPanelTemplate.bind({});
+export const TabPanelExample = TabPanelTemplate.bind({}) as StoryObj;
 TabPanelExample.storyName = "TabPanel";
 TabPanelExample.args = {
   children: (

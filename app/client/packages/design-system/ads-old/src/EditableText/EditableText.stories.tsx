@@ -16,7 +16,7 @@ const Template: ComponentStory<typeof EditableText> = (args) => {
   return <EditableText {...args} />;
 };
 
-export const EditableTextExample = Template.bind({});
+export const EditableTextExample = Template.bind({}) as StoryObj;
 EditableTextExample.storyName = "EditableText";
 EditableTextExample.args = {
   defaultValue: "Some Editable Text",

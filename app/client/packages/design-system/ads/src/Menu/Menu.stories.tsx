@@ -1,5 +1,4 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
 
 import {
   Menu,
@@ -16,14 +15,16 @@ import {
 import { Button } from "../Button";
 import { Text } from "../Text";
 import { Tooltip } from "../Tooltip";
+import type { MenuProps } from "./Menu.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Menu",
   component: Menu,
-} as ComponentMeta<typeof Menu>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Menu> = () => {
+const Template = () => {
   return (
     <Menu>
       <MenuTrigger>
@@ -70,11 +71,11 @@ const Template: ComponentStory<typeof Menu> = () => {
   );
 };
 
-export const MenuFullStory = Template.bind({});
+export const MenuFullStory = Template.bind({}) as StoryObj;
 MenuFullStory.storyName = "Complete Menu";
 MenuFullStory.args = {};
 
-export function MenuStory({ children, ...args }) {
+export function MenuStory({ children, ...args }: MenuProps) {
   return <Menu {...args}>{children}</Menu>;
 }
 MenuStory.storyName = "Menu";
@@ -169,7 +170,7 @@ MenuStory.args = {
   children: "This doesn't work alone. This is just to showcase props of Menu.",
 };
 
-export function MenuTriggerStory({ children, ...args }) {
+export function MenuTriggerStory({ children, ...args }: MenuProps) {
   return (
     <Menu>
       <MenuTrigger {...args}>{children}</MenuTrigger>
@@ -197,7 +198,7 @@ MenuTriggerStory.args = {
   children: <Button>Open Menu</Button>,
 };
 
-export function MenuContentStory({ children, ...args }) {
+export function MenuContentStory({ children, ...args }: MenuProps) {
   return (
     <Menu>
       <MenuTrigger>
@@ -497,7 +498,7 @@ MenuContentStory.args = {
   width: "150px",
 };
 
-export function MenuItemStory({ children, ...args }) {
+export function MenuItemStory({ children, ...args }: MenuProps) {
   return (
     <Menu>
       <MenuTrigger>
@@ -601,7 +602,7 @@ MenuItemStory.args = {
   children: "Item",
 };
 
-export function MenuSeparatorStory({ ...args }) {
+export function MenuSeparatorStory({ ...args }: MenuProps) {
   return (
     <Menu>
       <MenuTrigger>
@@ -618,7 +619,7 @@ export function MenuSeparatorStory({ ...args }) {
 }
 MenuSeparatorStory.storyName = "Menu Separator";
 
-export function MenuSubmenuStory({ ...args }) {
+export function MenuSubmenuStory({ ...args }: MenuProps) {
   return (
     <Menu>
       <MenuTrigger>

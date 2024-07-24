@@ -31,7 +31,7 @@ function formatDate(date: Date): string {
   return moment(date).format(dateFormat);
 }
 
-export const DateRangePicker = Template.bind({});
+export const DateRangePicker = Template.bind({}) as StoryObj;
 DateRangePicker.args = {
   formatDate,
   parseDate,

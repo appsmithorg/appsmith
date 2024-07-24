@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof FormFieldErrorComponent> = (args) => {
   return <FormFieldErrorComponent {...args} />;
 };
 
-export const FieldError = Template.bind({});
+export const FieldError = Template.bind({}) as StoryObj;
 FieldError.args = {
   error: "This is an error",
 };

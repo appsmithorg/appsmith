@@ -16,7 +16,7 @@ const Template: ComponentStory<typeof ToastComponent> = (args) => {
   return <ToastComponent {...args} />;
 };
 
-export const Toast = Template.bind({});
+export const Toast = Template.bind({}) as StoryObj;
 Toast.args = {
   text: "I hope you have good bread",
   variant: Variant.success,
@@ -32,7 +32,7 @@ const DebugButton = () => (
   />
 );
 
-export const ToastWithDebugButton = Template.bind({});
+export const ToastWithDebugButton = Template.bind({}) as StoryObj;
 ToastWithDebugButton.args = {
   text: "Different bread pop",
   variant: Variant.danger,

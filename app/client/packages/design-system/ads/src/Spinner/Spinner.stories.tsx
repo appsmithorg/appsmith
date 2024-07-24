@@ -1,31 +1,31 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { Spinner } from "./Spinner";
+import type { StoryObj } from "@storybook/react";
+import type { SpinnerProps } from "./Spinner.types";
 
 export default {
   title: "ADS/Spinner",
   component: Spinner,
-} as ComponentMeta<typeof Spinner>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Spinner> = (args) => {
+const Template = (args: SpinnerProps) => {
   return <Spinner {...args} />;
 };
 
-export const SmallSpinnerStory = Template.bind({});
+export const SmallSpinnerStory = Template.bind({}) as StoryObj;
 SmallSpinnerStory.storyName = "Spinner";
 SmallSpinnerStory.args = {
   size: "sm",
 };
 
-export const MediumSpinnerStory = Template.bind({});
+export const MediumSpinnerStory = Template.bind({}) as StoryObj;
 MediumSpinnerStory.storyName = "Spinner";
 MediumSpinnerStory.args = {
   size: "md",
 };
 
-export const LargeSpinnerStory = Template.bind({});
+export const LargeSpinnerStory = Template.bind({}) as StoryObj;
 LargeSpinnerStory.storyName = "Spinner";
 LargeSpinnerStory.args = {
   size: "lg",

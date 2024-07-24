@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof FormMessage> = (args) => {
   return <FormMessage {...args} />;
 };
 
-export const FormMessageExample = Template.bind({});
+export const FormMessageExample = Template.bind({}) as StoryObj;
 FormMessageExample.storyName = "Form Message";
 FormMessageExample.args = {
   actions: [

@@ -1,20 +1,24 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { Switch } from "./Switch";
+import type { SwitchProps } from "./Switch.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Switch",
   component: Switch,
-  decorators: [(Story) => <div style={{ width: "30vw" }}>{Story()}</div>],
-} as ComponentMeta<typeof Switch>;
+  decorators: [
+    (Story: () => React.ReactNode) => (
+      <div style={{ width: "30vw" }}>{Story()}</div>
+    ),
+  ],
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Switch> = (args) => {
+const Template = (args: SwitchProps) => {
   return <Switch {...args} />;
 };
 
-export const SwitchStory = Template.bind({});
+export const SwitchStory = Template.bind({}) as StoryObj;
 SwitchStory.storyName = "Switch";
 SwitchStory.args = {
   children: "Set as homepage",

@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof IconSelectorComponent> = (args) => {
   return <IconSelectorComponent {...args} />;
 };
 
-export const IconSelector = Template.bind({});
+export const IconSelector = Template.bind({}) as StoryObj;
 IconSelector.args = {
   selectedColor: "#F9936B",
 };

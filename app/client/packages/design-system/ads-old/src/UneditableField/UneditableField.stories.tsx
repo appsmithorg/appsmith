@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof UneditableField> = (args) => {
   return <UneditableField {...args} />;
 };
 
-export const UneditableFieldExample = Template.bind({});
+export const UneditableFieldExample = Template.bind({}) as StoryObj;
 UneditableFieldExample.storyName = "Uneditable Field";
 UneditableFieldExample.args = {
   disabled: true,

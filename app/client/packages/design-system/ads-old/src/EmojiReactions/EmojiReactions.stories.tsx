@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof EmojiReactionsComponent> = (args) => {
   return <EmojiReactionsComponent {...args} />;
 };
 
-export const EmojiReactions = Template.bind({});
+export const EmojiReactions = Template.bind({}) as StoryObj;
 EmojiReactions.args = {
   onSelectReaction: (...data: any) => {
     // eslint-disable-next-line no-console

@@ -1,26 +1,26 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { NumberInput } from "./NumberInput";
+import type { NumberInputProps } from "./NumberInput.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Input/NumberInput",
   component: NumberInput,
   decorators: [
-    (Story) => (
+    (Story: () => React.ReactNode) => (
       <div style={{ width: "100%", maxWidth: "250px", margin: "0 auto" }}>
         {Story()}
       </div>
     ),
   ],
-} as ComponentMeta<typeof NumberInput>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof NumberInput> = (args) => {
+const Template = (args: NumberInputProps) => {
   return <NumberInput {...args} />;
 };
 
-export const NumberInputStory = Template.bind({});
+export const NumberInputStory = Template.bind({}) as StoryObj;
 NumberInputStory.storyName = "NumberInput";
 NumberInputStory.args = {
   prefix: "$",

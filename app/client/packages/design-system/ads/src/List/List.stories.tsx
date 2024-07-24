@@ -1,12 +1,13 @@
 import React from "react";
-
 import { List, ListItem, Icon } from "design-system";
+import type { StoryObj } from "@storybook/react";
+import type { ListItemProps, ListProps } from "design-system";
 
 export default {
   title: "ADS/List",
   component: List,
   decorators: [
-    (Story) => (
+    (Story: () => React.ReactNode) => (
       <div
         style={{
           width: "350px",
@@ -21,11 +22,11 @@ export default {
 };
 
 // eslint-disable-next-line react/function-component-definition
-const ListTemplate = (args) => {
+const ListTemplate = (args: ListProps) => {
   return <List {...args} />;
 };
 
-export const ListStory = ListTemplate.bind({});
+export const ListStory = ListTemplate.bind({}) as StoryObj;
 ListStory.storyName = "List";
 ListStory.args = {
   items: [
@@ -149,10 +150,10 @@ const ListItemArgTypes = {
   },
 };
 
-function ListItemTemplate(args) {
+function ListItemTemplate(args: JSX.IntrinsicAttributes & ListItemProps) {
   return <ListItem {...args} />;
 }
-export const ListItemLargeStory = ListItemTemplate.bind({});
+export const ListItemLargeStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemLargeStory.storyName = "List item size large";
 ListItemLargeStory.argTypes = ListItemArgTypes;
 ListItemLargeStory.args = {
@@ -161,10 +162,10 @@ ListItemLargeStory.args = {
   description: "inline",
   descriptionType: "inline",
   size: "lg",
-  endIcon: "open",
+  endIcon: "add-more",
 };
 
-export const ListItemErrorStory = ListItemTemplate.bind({});
+export const ListItemErrorStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemErrorStory.storyName = "List item with error";
 ListItemErrorStory.argTypes = ListItemArgTypes;
 ListItemErrorStory.args = {
@@ -180,7 +181,7 @@ ListItemErrorStory.args = {
   onClick: () => alert("Clicked"),
 };
 
-export const ListItemDisabledStory = ListItemTemplate.bind({});
+export const ListItemDisabledStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemDisabledStory.storyName = "List item disabled";
 ListItemDisabledStory.argTypes = ListItemArgTypes;
 ListItemDisabledStory.args = {
@@ -189,7 +190,7 @@ ListItemDisabledStory.args = {
   onClick: () => alert("Clicked"),
 };
 
-export const ListItemInlineDescStory = ListItemTemplate.bind({});
+export const ListItemInlineDescStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemInlineDescStory.storyName = "List item inline description";
 ListItemInlineDescStory.argTypes = ListItemArgTypes;
 ListItemInlineDescStory.args = {
@@ -197,7 +198,7 @@ ListItemInlineDescStory.args = {
   description: "inline",
 };
 
-export const ListItemBlockDescStory = ListItemTemplate.bind({});
+export const ListItemBlockDescStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemBlockDescStory.storyName = "List item block description";
 ListItemBlockDescStory.argTypes = ListItemArgTypes;
 ListItemBlockDescStory.args = {
@@ -206,17 +207,17 @@ ListItemBlockDescStory.args = {
   descriptionType: "block",
 };
 
-export const ListItemOverflowStory = ListItemTemplate.bind({});
+export const ListItemOverflowStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemOverflowStory.storyName = "List item title overflow";
 ListItemOverflowStory.argTypes = ListItemArgTypes;
 ListItemOverflowStory.args = {
   title: "Action item 1 Action item 1 Action item 1 Action item 1",
 };
 
-export const ListItemEndIconStory = ListItemTemplate.bind({});
+export const ListItemEndIconStory = ListItemTemplate.bind({}) as StoryObj;
 ListItemEndIconStory.storyName = "List item end icon";
 ListItemEndIconStory.argTypes = ListItemArgTypes;
 ListItemEndIconStory.args = {
   title: "Action item 1",
-  endIcon: "open",
+  endIcon: "add-more",
 };

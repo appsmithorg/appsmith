@@ -1,6 +1,5 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-
 import { Table } from "./Table";
 import { Tooltip } from "../Tooltip";
 import type { ColumnType } from "rc-table/lib/interface";
@@ -321,7 +320,7 @@ export const TableStory: Story = {
 };
 
 interface RecordType {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 type ColumnStory = StoryObj<ColumnType<RecordType>>;

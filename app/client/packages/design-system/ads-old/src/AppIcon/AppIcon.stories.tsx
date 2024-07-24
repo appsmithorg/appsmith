@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof AppIconComponent> = (args) => {
   return <AppIconComponent {...args} />;
 };
 
-export const AppIcon = Template.bind({});
+export const AppIcon = Template.bind({}) as StoryObj;
 AppIcon.args = {
   name: "arrow-down",
   size: "large",

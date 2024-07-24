@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof TableDropdownComponent> = (args) => {
   return <TableDropdownComponent {...args} />;
 };
 
-export const TableDropdown = Template.bind({});
+export const TableDropdown = Template.bind({}) as StoryObj;
 TableDropdown.args = {
   options: [
     {

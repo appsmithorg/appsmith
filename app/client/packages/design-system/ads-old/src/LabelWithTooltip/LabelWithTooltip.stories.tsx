@@ -17,7 +17,7 @@ const Template: ComponentStory<typeof LabelWithTooltip> = (args) => {
   return <LabelWithTooltip {...args} />;
 };
 
-export const LabelWithTooltipExample = Template.bind({});
+export const LabelWithTooltipExample = Template.bind({}) as StoryObj;
 LabelWithTooltipExample.storyName = "Label With Tooltip";
 LabelWithTooltipExample.args = {
   alignment: Alignment.CENTER,

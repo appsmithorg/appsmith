@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof DisplayImageUploadComponent> = (args) => {
   return <DisplayImageUploadComponent {...args} />;
 };
 
-export const DisplayImageUpload = Template.bind({});
+export const DisplayImageUpload = Template.bind({}) as StoryObj;
 // DisplayImageUpload.args = {
 //   //add arguments here
 // };

@@ -21,7 +21,7 @@ const Template: ComponentStory<typeof BreadcrumbsComponent> = (args) => {
   return <BreadcrumbsComponent {...args} />;
 };
 
-export const Breadcrumbs = Template.bind({});
+export const Breadcrumbs = Template.bind({}) as StoryObj;
 Breadcrumbs.args = {
   items: [
     {

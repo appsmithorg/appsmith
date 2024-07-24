@@ -27,7 +27,7 @@ const options = [
   },
 ];
 
-export const TreeDropdownExample = Template.bind({});
+export const TreeDropdownExample = Template.bind({}) as StoryObj;
 TreeDropdownExample.storyName = "Tree Dropdown";
 TreeDropdownExample.args = {
   defaultText: "Some default text here",

@@ -1,8 +1,8 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { Tooltip } from "./Tooltip";
 import { Text } from "../Text";
+import type { TooltipProps } from "./Tooltip.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Tooltip",
@@ -100,10 +100,10 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof Tooltip>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof Tooltip> = (args) => {
+const Template = (args: TooltipProps) => {
   return (
     <Tooltip {...args}>
       <Text>
@@ -129,7 +129,7 @@ const Template: ComponentStory<typeof Tooltip> = (args) => {
  */
 
 // eslint-disable-next-line react/function-component-definition
-const TemplateButton: ComponentStory<typeof Tooltip> = (args) => {
+const TemplateButton = (args: TooltipProps) => {
   return (
     <Tooltip {...args}>
       {/* Replace this with DS button once button is in live */}
@@ -138,14 +138,14 @@ const TemplateButton: ComponentStory<typeof Tooltip> = (args) => {
   );
 };
 
-export const TooltipStory = Template.bind({});
+export const TooltipStory = Template.bind({}) as StoryObj;
 TooltipStory.storyName = "Tooltip";
 TooltipStory.args = {
   content: "This is a tooltip",
   trigger: "hover",
 };
 
-export const TooltipButtonStory = TemplateButton.bind({});
+export const TooltipButtonStory = TemplateButton.bind({}) as StoryObj;
 TooltipButtonStory.storyName = "Tooltip Button Trigger";
 TooltipButtonStory.args = {
   content: "This is a tooltip",

@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof SwitchComponent> = (args) => (
   <SwitchComponent {...args} />
 );
 
-export const Switch = Template.bind({});
+export const Switch = Template.bind({}) as StoryObj;
 
 Switch.args = {
   checked: true,

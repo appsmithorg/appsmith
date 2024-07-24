@@ -13,7 +13,7 @@ const Template: ComponentStory<typeof ColorPickerComponent> = (args) => (
   <ColorPickerComponent {...args} />
 );
 
-export const ColorPicker = Template.bind({});
+export const ColorPicker = Template.bind({}) as StoryObj;
 
 ColorPicker.args = {
   color: "#ff0000",

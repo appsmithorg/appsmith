@@ -51,7 +51,7 @@ const data = [
   },
 ];
 
-export const TableExample = Template.bind({});
+export const TableExample = Template.bind({}) as StoryObj;
 TableExample.storyName = "Table";
 TableExample.args = {
   columns: columns,

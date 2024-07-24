@@ -30,7 +30,7 @@ const selected = [
   },
 ];
 
-export const DropdownExample = Template.bind({});
+export const DropdownExample = Template.bind({}) as StoryObj;
 DropdownExample.storyName = "Dropdown";
 DropdownExample.args = {
   allowDeselection: true,

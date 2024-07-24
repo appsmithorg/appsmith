@@ -1,20 +1,20 @@
 import React from "react";
-import type { ComponentMeta, ComponentStory } from "@storybook/react";
-
 import { SegmentedControl } from "./SegmentedControl";
+import type { SegmentedControlProps } from "./SegmentedControl.types";
+import type { StoryObj } from "@storybook/react";
 
 export default {
   title: "ADS/Segmented Control",
   component: SegmentedControl,
-} as ComponentMeta<typeof SegmentedControl>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof SegmentedControl> = (args) => {
+const Template = (args: SegmentedControlProps) => {
   return <SegmentedControl {...args} />;
 };
 // TODO (albin): isFullWidth is not working as expected
 
-export const SegmentedControlStory = Template.bind({});
+export const SegmentedControlStory = Template.bind({}) as StoryObj;
 SegmentedControlStory.storyName = "Default";
 SegmentedControlStory.args = {
   options: [
@@ -54,7 +54,7 @@ SegmentedControlStory.args = {
   isFullWidth: true,
 };
 
-export const SegmentedControlStoryWithIcons = Template.bind({});
+export const SegmentedControlStoryWithIcons = Template.bind({}) as StoryObj;
 SegmentedControlStoryWithIcons.storyName = "Only Icons";
 SegmentedControlStoryWithIcons.args = {
   options: [
@@ -75,7 +75,7 @@ SegmentedControlStoryWithIcons.args = {
   isFullWidth: true,
 };
 
-export const SegmentedControlStoryWithLabels = Template.bind({});
+export const SegmentedControlStoryWithLabels = Template.bind({}) as StoryObj;
 SegmentedControlStoryWithLabels.storyName = "Only Labels";
 SegmentedControlStoryWithLabels.args = {
   options: [
