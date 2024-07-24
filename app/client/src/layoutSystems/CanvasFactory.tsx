@@ -1,10 +1,11 @@
 import React, { memo, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { getAppMaxWidth, getRenderMode } from "selectors/editorSelectors";
+import { getRenderMode } from "selectors/editorSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import withWidgetProps from "widgets/withWidgetProps";
 import { getLayoutSystem } from "./withLayoutSystemWidgetHOC";
+import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
 
 // ToDo(#27615): destructure withWidgetProps to withCanvasProps by picking only necessary props of a canvas.
 
@@ -16,7 +17,7 @@ import { getLayoutSystem } from "./withLayoutSystemWidgetHOC";
 
 const LayoutSystemBasedCanvas = memo((props: WidgetProps) => {
   const renderMode = useSelector(getRenderMode);
-  const appMaxWidth = useSelector(getAppMaxWidth);
+  const themeSetting = useSelector(getAppThemeSettings);
 
   const layoutSystemType = useSelector(getLayoutSystemType);
   const { canvasSystem } = useMemo(
@@ -24,7 +25,9 @@ const LayoutSystemBasedCanvas = memo((props: WidgetProps) => {
     [renderMode, layoutSystemType],
   );
   const { Canvas, propertyEnhancer } = canvasSystem;
-  return <Canvas {...propertyEnhancer(props)} maxWidth={appMaxWidth} />;
+  return (
+    <Canvas {...propertyEnhancer(props)} maxWidth={themeSetting.appMaxWidth} />
+  );
 });
 
 const HydratedLayoutSystemBasedCanvas = withWidgetProps(
