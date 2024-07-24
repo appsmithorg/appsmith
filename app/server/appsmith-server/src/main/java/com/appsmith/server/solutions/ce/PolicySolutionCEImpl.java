@@ -22,6 +22,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -54,20 +55,18 @@ public class PolicySolutionCEImpl implements PolicySolutionCE {
     private final PagePermission pagePermission;
 
     @Override
-    public <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
+    public <T extends BaseDomain> T addPoliciesToExistingObject(@NonNull Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
         // TODO: Investigate a solution without using deep-copy.
         // TODO: Do we need to return the domain object?
         final Map<String, Policy> policyMap1 = new HashMap<>();
-        if (policyMap != null) {
-            for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
-                Policy entryValue = entry.getValue();
-                Policy policy = Policy.builder()
-                        .permission(entryValue.getPermission())
-                        .permissionGroups(new HashSet<>(entryValue.getPermissionGroups()))
-                        .build();
-                policyMap1.put(entry.getKey(), policy);
-            }
+        for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
+            Policy entryValue = entry.getValue();
+            Policy policy = Policy.builder()
+                    .permission(entryValue.getPermission())
+                    .permissionGroups(new HashSet<>(entryValue.getPermissionGroups()))
+                    .build();
+            policyMap1.put(entry.getKey(), policy);
         }
 
         final Set<Policy> policies = new HashSet<>(obj.getPolicies());
