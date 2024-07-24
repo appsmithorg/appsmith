@@ -1,7 +1,10 @@
-import React, { useMemo } from "react";
-import SelectComponent from "widgets/SelectWidget/component";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import React, { useCallback, useMemo } from "react";
 import styled from "styled-components";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import SelectComponent from "widgets/SelectWidget/component";
 import type { DropdownOption } from "widgets/SelectWidget/constants";
+import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import type { BaseCellComponentProps } from "../Constants";
 import {
   EDITABLE_CELL_PADDING_OFFSET,
@@ -9,9 +12,7 @@ import {
   TableSelectColumnOptionKeys,
 } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
-import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { BasicCell } from "./BasicCell";
-import { useCallback } from "react";
 
 const StyledSelectComponent = styled(SelectComponent)<{
   accentColor: string;
@@ -193,16 +194,22 @@ export const SelectCell = (props: SelectProps) => {
     .map((d: DropdownOption) => d.value)
     .indexOf(value);
 
+  const releaseTableSelectCellLabelValue = useFeatureFlag(
+    FEATURE_FLAG.release_table_cell_label_value_enabled,
+  );
+
   const cellLabelValue = useMemo(() => {
-    let cellLabelValue: string | number | undefined | null = value;
-    const selectedOption = options.find(
-      (option) => option[TableSelectColumnOptionKeys.VALUE] === value,
-    );
-    cellLabelValue = selectedOption
-      ? selectedOption[TableSelectColumnOptionKeys.LABEL]
-      : "";
-    return cellLabelValue || "";
-  }, [value, options]);
+    if (releaseTableSelectCellLabelValue) {
+      const selectedOption = options.find(
+        (option) => option[TableSelectColumnOptionKeys.VALUE] === value,
+      );
+      return selectedOption
+        ? selectedOption[TableSelectColumnOptionKeys.LABEL]
+        : "";
+    } else {
+      return value;
+    }
+  }, [releaseTableSelectCellLabelValue, value, options]);
 
   if (isEditable && isCellEditable && isCellEditMode) {
     return (
