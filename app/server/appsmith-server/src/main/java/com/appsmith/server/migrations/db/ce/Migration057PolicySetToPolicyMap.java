@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.external.models.BaseDomain;
 import com.mongodb.client.result.UpdateResult;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -12,6 +11,7 @@ import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.AggregationUpdate;
 import org.springframework.data.mongodb.core.aggregation.ArrayOperators;
 import org.springframework.data.mongodb.core.aggregation.VariableOperators;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Mono;
 
@@ -33,6 +33,8 @@ import static com.appsmith.server.helpers.ce.bridge.BridgeQuery.where;
 public class Migration057PolicySetToPolicyMap {
 
     private final ReactiveMongoTemplate mongoTemplate;
+
+    private static final String POLICY_MAP = "policyMap";
 
     private static final Set<String> CE_COLLECTION_NAMES = Set.of(
             "actionCollection",
@@ -58,22 +60,14 @@ public class Migration057PolicySetToPolicyMap {
             "userData",
             "workspace");
 
-    private static final Set<String> EE_COLLECTION_NAMES = Set.of(
-            // Empty here
-            );
-
     @RollbackExecution
     public void rollbackExecution() {}
 
     @Execution
     public void execute() {
-        Mono.whenDelayError(
-                        Mono.whenDelayError(CE_COLLECTION_NAMES.stream()
-                                .map(c -> executeForCollection(mongoTemplate, c))
-                                .toList()),
-                        Mono.whenDelayError(EE_COLLECTION_NAMES.stream()
-                                .map(c -> executeForCollection(mongoTemplate, c))
-                                .toList()))
+        Mono.whenDelayError(CE_COLLECTION_NAMES.stream()
+                        .map(c -> executeForCollection(mongoTemplate, c))
+                        .toList())
                 .onErrorResume(error -> {
                     String errorPrefix = "Error while migrating policies to policyMap";
                     // As we are using Mono.whenDelayError, we expect multiple errors to be suppressed in a single error
@@ -92,22 +86,27 @@ public class Migration057PolicySetToPolicyMap {
     private static Mono<Void> executeForCollection(ReactiveMongoTemplate mongoTemplate, String collectionName) {
         log.info("Migrating policies to policyMap in {}", collectionName);
 
+        // We are creating a aggregation pipeline to convert the policies field to a policyMap field. We use `this`
+        // keyword to capture the policies field within the object and then convert it to a key-value pair. Key is the
+        // permission and value is the policy object itself.
         final ArrayOperators.ArrayToObject operator =
                 ArrayOperators.ArrayToObject.arrayValueOfToObject(VariableOperators.Map.itemsOf(POLICIES)
                         .as("this")
                         .andApply(agg -> new Document("k", "$$this.permission").append("v", "$$this")));
 
+        // Migrate the policies field to the policyMap field only if the policies field exists and is not empty
+        // Also policyMap is used as idempotency key to avoid updating same docs in case of failures
+        Criteria validPolicyCriteria = where(dotted(POLICIES, "0")).exists(true);
+        Criteria policyMapNotExists = new Criteria()
+                .orOperator(where(POLICY_MAP).exists(false), where(POLICY_MAP).is(new HashMap<>()));
+        Criteria notDeletedCriteria = where("deletedAt").isNull();
+
+        final Query query = new Query()
+                .addCriteria(validPolicyCriteria)
+                .addCriteria(policyMapNotExists)
+                .addCriteria(notDeletedCriteria);
         final Mono<UpdateResult> convertToMap = mongoTemplate.updateMulti(
-                // Migrate the policies field to the policyMap field only if the policies field exists and is not empty
-                new Query(where(dotted(POLICIES, "0"))
-                        .exists(true)
-                        .and(BaseDomain.Fields.deletedAt)
-                        .isNull()
-                        .orOperator(
-                                where(BaseDomain.Fields.policyMap).exists(false),
-                                where(BaseDomain.Fields.policyMap).is(new HashMap<>()))),
-                AggregationUpdate.update().set(BaseDomain.Fields.policyMap).toValueOf(operator),
-                collectionName);
+                query, AggregationUpdate.update().set(POLICY_MAP).toValueOf(operator), collectionName);
 
         return convertToMap
                 .elapsed()

@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -63,15 +62,6 @@ public class PolicySolutionCEImplTest {
         assertTrue(result.getPolicies().stream()
                 .anyMatch(p -> p.getPermission().equals("write")
                         && p.getPermissionGroups().contains("group1")));
-    }
-
-    @Test
-    void testHandleNullPolicyMap() {
-        BaseDomain obj = new TestClass(); // Assuming BaseDomain has a default empty set of policies.
-        BaseDomain result = policySolution.addPoliciesToExistingObject(null, obj);
-
-        assertNotNull(result.getPolicies());
-        assertTrue(result.getPolicies().isEmpty());
     }
 
     @Test

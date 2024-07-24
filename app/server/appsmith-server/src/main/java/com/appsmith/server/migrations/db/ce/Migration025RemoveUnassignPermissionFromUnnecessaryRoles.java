@@ -27,6 +27,8 @@ public class Migration025RemoveUnassignPermissionFromUnnecessaryRoles {
 
     private final MongoTemplate mongoTemplate;
 
+    private static final String POLICY_MAP = "policyMap";
+
     @RollbackExecution
     public void rollbackExecution() {}
 
@@ -41,7 +43,7 @@ public class Migration025RemoveUnassignPermissionFromUnnecessaryRoles {
 
         Query queryInterestingPermissionGroups = new Query(workspaceDeveloperAndAppViewerRolesCriteria);
         queryInterestingPermissionGroups.fields().include("id");
-        queryInterestingPermissionGroups.fields().include(POLICIES, PermissionGroup.Fields.policyMap);
+        queryInterestingPermissionGroups.fields().include(POLICIES, POLICY_MAP);
 
         Query optimizedQueryForInterestingPermissionGroups =
                 optimizeQueryForNoCursorTimeout(mongoTemplate, queryInterestingPermissionGroups, PermissionGroup.class);

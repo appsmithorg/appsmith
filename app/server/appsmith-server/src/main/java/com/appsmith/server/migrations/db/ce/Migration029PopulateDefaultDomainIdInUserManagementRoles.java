@@ -36,6 +36,7 @@ public class Migration029PopulateDefaultDomainIdInUserManagementRoles {
     private static final String migrationId = "populate-default-domain-id-in-user-management-roles";
     private static final String migrationNote = "This will not have any adverse effects on the Data. Restarting the "
             + "server will begin the migration from where it left.";
+    private static final String POLICY_MAP = "policyMap";
 
     @RollbackExecution
     public void rollbackExecution() {}
@@ -46,7 +47,7 @@ public class Migration029PopulateDefaultDomainIdInUserManagementRoles {
                 .is(RESET_PASSWORD_USERS.getValue())
                 .andOperator(notDeleted());
         Query queryExistingUsersWithResetPasswordPolicy = new Query(resetPasswordPolicyExistsAndNotDeleted);
-        queryExistingUsersWithResetPasswordPolicy.fields().include(POLICIES, User.Fields.policyMap);
+        queryExistingUsersWithResetPasswordPolicy.fields().include(POLICIES, POLICY_MAP);
         Map<String, String> userManagementRoleIdToUserIdMap = new HashMap<>();
         mongoTemplate.stream(queryExistingUsersWithResetPasswordPolicy, User.class)
                 .forEach(existingUser -> {

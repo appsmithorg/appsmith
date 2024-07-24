@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
@@ -125,7 +124,7 @@ public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
      */
     private Pair<Boolean, Set<String>> getAllApplicationIdsOfDatasourceAndCheckIfAnyAppPublic(String datasourceId) {
         Query newActionsQuery = new Query().addCriteria(newActionCriteria(datasourceId));
-        newActionsQuery.fields().include(FieldName.ID, FieldName.APPLICATION_ID, POLICIES, BaseDomain.Fields.policyMap);
+        newActionsQuery.fields().include(FieldName.ID, FieldName.APPLICATION_ID, POLICIES, "policyMap");
 
         Set<String> allApplicationIds = new HashSet<>();
         AtomicReference<Boolean> isPublic = new AtomicReference<>(false);

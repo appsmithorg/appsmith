@@ -29,6 +29,7 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 public class Migration028TagUserManagementRolesWithoutDefaultDomainTypeAndId {
     private final MongoTemplate mongoTemplate;
 
+    private static final String POLICY_MAP = "policyMap";
     public static final String MIGRATION_FLAG_028_TAG_USER_MANAGEMENT_ROLE_WITHOUT_DEFAULT_DOMAIN_TYPE_AND_ID =
             "tagUserManagementRoleWithoutDefaultDomainTypeAndId";
 
@@ -41,7 +42,7 @@ public class Migration028TagUserManagementRolesWithoutDefaultDomainTypeAndId {
                 .is(RESET_PASSWORD_USERS.getValue())
                 .andOperator(notDeleted());
         Query queryExistingUsersWithResetPasswordPolicy = new Query(resetPasswordPolicyExistsAndNotDeleted);
-        queryExistingUsersWithResetPasswordPolicy.fields().include(POLICIES, PermissionGroup.Fields.policyMap);
+        queryExistingUsersWithResetPasswordPolicy.fields().include(POLICIES, POLICY_MAP);
 
         List<User> existingUsers = mongoTemplate.find(queryExistingUsersWithResetPasswordPolicy, User.class);
 
