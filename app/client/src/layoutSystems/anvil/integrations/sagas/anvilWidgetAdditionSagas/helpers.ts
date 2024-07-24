@@ -219,10 +219,6 @@ export function* addNewAnvilWidgetToDSL(
 ) {
   const { type, widgetId } = payload;
 
-  //   // The widgets from the redux state will be modified
-  //   // So, we create a shallow copy of the state object
-  //   const widgets = Object.assign({}, stateWidgets);
-
   const updatedWidgets: CanvasWidgetsReduxState =
     yield updateWidgetListWithNewWidget(payload, widgets);
 
