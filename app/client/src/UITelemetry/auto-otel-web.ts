@@ -104,7 +104,7 @@ const meterProvider = new MeterProvider({
   readers: [
     new PeriodicExportingMetricReader({
       exporter: nrMetricsExporter,
-      exportIntervalMillis: 10000, // Adjust the export interval as needed
+      exportIntervalMillis: 30000, // Adjust the export interval as needed
     }),
   ],
 });
