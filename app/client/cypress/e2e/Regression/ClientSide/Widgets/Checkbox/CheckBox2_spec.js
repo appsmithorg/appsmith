@@ -13,13 +13,15 @@ describe(
     });
     it("Checkbox and it's label should be aligned in center", function () {
       cy.openPropertyPane("checkboxwidget");
-      cy.get(".sc-hINMOq").click({ force: true });
-      cy.get("#radix-61-trigger-style > .sc-bcXHqe").click({ force: true });
-
+      const checkboxLabel = ".sc-hINMOq";
+      const triggerStyle = "#radix-61-trigger-style > .sc-bcXHqe";
+      cy.get(checkboxLabel).click({ force: true });
+      cy.get(triggerStyle).click({ force: true });
       _.propPane.EnterJSContext("Font size", "");
       _.propPane.EnterJSContext("Font size", "4rem");
-
-      cy.get(".bp3-control").should("have.css", "align-items", "center");
+      const checkboxControl = ".bp3-control";
+      cy.get(checkboxControl).should("have.css", "align-items", "center");
+      cy.get(checkboxControl).should("exist");
     });
   },
 );
