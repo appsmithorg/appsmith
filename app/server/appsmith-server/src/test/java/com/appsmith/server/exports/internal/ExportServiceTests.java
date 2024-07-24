@@ -73,7 +73,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -81,7 +80,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -109,7 +107,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -188,6 +185,9 @@ public class ExportServiceTests {
 
     @Autowired
     SessionUserService sessionUserService;
+
+    @Autowired
+    JsonSchemaVersions jsonSchemaVersions;
 
     @BeforeEach
     public void setup() {
@@ -729,8 +729,10 @@ public class ExportServiceTests {
 
                     NewPage newPage = pageList.get(0);
 
-                    assertThat(applicationJson.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
-                    assertThat(applicationJson.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
+                    assertThat(applicationJson.getServerSchemaVersion())
+                            .isEqualTo(jsonSchemaVersions.getServerVersion());
+                    assertThat(applicationJson.getClientSchemaVersion())
+                            .isEqualTo(jsonSchemaVersions.getClientVersion());
 
                     assertThat(exportedApp.getName()).isNotNull();
                     assertThat(exportedApp.getWorkspaceId()).isNull();
@@ -1812,8 +1814,14 @@ public class ExportServiceTests {
                 .assertNext(applicationJson -> {
                     List<NewPage> pages = applicationJson.getPageList();
                     assertThat(pages).hasSize(2);
-                    assertThat(pages.get(1).getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
-                    assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");
+                    NewPage page = pages.stream()
+                            .filter(page1 ->
+                                    page1.getUnpublishedPage().getName().equals("page_" + randomId))
+                            .findFirst()
+                            .orElse(null);
+                    assertThat(page).isNotNull();
+                    assertThat(page.getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
+                    assertThat(page.getUnpublishedPage().getIcon()).isEqualTo("flight");
                 })
                 .verifyComplete();
     }
@@ -1910,8 +1918,8 @@ public class ExportServiceTests {
         testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
-        testApplication.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
-        testApplication.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        testApplication.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
+        testApplication.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
 
         Mono<ApplicationJson> applicationJsonMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -2009,8 +2017,8 @@ public class ExportServiceTests {
         testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
-        testApplication.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
-        testApplication.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        testApplication.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
+        testApplication.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
 
         Mono<ApplicationJson> applicationJsonMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -2062,7 +2070,7 @@ public class ExportServiceTests {
                     Application application = objects.getT2();
                     datasource.setName("DS_FOR_RENAME_TEST_RENAMED");
                     return datasourceService
-                            .save(datasource)
+                            .save(datasource, false)
                             .then(exportService.exportByArtifactId(
                                     application.getId(),
                                     SerialiseArtifactObjective.VERSION_CONTROL,

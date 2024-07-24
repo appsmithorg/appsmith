@@ -72,6 +72,7 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           size={this.props.fontSize}
           textAlign={this.props.textAlign}
           title={this.props.lineClamp ? this.props.text : undefined}
+          wordBreak="break-word"
         >
           {this.props.text}
         </Text>

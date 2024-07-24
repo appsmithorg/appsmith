@@ -1,10 +1,12 @@
 package com.appsmith.server.services;
 
+import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ce.TenantServiceCEImpl;
 import com.appsmith.server.solutions.EnvManager;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -21,7 +23,9 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
             ConfigService configService,
             @Lazy EnvManager envManager,
             FeatureFlagMigrationHelper featureFlagMigrationHelper,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
+            CacheableRepositoryHelper cacheableRepositoryHelper,
+            CommonConfig commonConfig,
+            ObservationRegistry observationRegistry) {
         super(
                 validator,
                 repository,
@@ -29,6 +33,8 @@ public class TenantServiceImpl extends TenantServiceCEImpl implements TenantServ
                 configService,
                 envManager,
                 featureFlagMigrationHelper,
-                cacheableRepositoryHelper);
+                cacheableRepositoryHelper,
+                commonConfig,
+                observationRegistry);
     }
 }

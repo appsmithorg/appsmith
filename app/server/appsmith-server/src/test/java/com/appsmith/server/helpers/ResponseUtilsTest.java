@@ -13,11 +13,9 @@ import com.google.gson.Gson;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 
@@ -25,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 public class ResponseUtilsTest {
@@ -37,6 +34,9 @@ public class ResponseUtilsTest {
 
     @Autowired
     ResponseUtils responseUtils;
+
+    @Autowired
+    JsonSchemaVersions jsonSchemaVersions;
 
     Gson gson = new Gson();
 
@@ -184,13 +184,13 @@ public class ResponseUtilsTest {
 
         application.setIsAutoUpdate(null);
         application.setClientSchemaVersion(1000);
-        application.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        application.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
         responseUtils.updateApplicationWithDefaultResources(application);
         assertEquals(application.getIsAutoUpdate(), true);
 
         application.setIsAutoUpdate(null);
-        application.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
-        application.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        application.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
+        application.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
         responseUtils.updateApplicationWithDefaultResources(application);
         assertEquals(application.getIsAutoUpdate(), false);
     }

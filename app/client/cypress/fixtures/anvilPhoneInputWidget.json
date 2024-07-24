@@ -1,0 +1,2899 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 4896,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 380,
+    "containerStyle": "none",
+    "snapRows": 124,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 89,
+    "minHeight": 1292,
+    "layout": [
+      {
+        "layoutId": "pm2tg2btf5",
+        "layoutType": "ALIGNED_LAYOUT_COLUMN",
+        "layout": [
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "xaovhk8xu5",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "81w8ikp7hh",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "vx2xt42hqh",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "q3e5tico7e",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "tpd5ngwn8u",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "2e56gzju6a",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "58jl1i571e",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "5efcsdo8s9",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          }
+        ],
+        "layoutStyle": {
+          "border": "none",
+          "height": "100%",
+          "padding": "spacing-4",
+          "gap": "spacing-4"
+        },
+        "isDropTarget": true,
+        "isPermanent": true,
+        "childTemplate": {
+          "insertChild": true,
+          "isDropTarget": false,
+          "isPermanent": false,
+          "layout": [],
+          "layoutId": "",
+          "layoutType": "WIDGET_ROW",
+          "maxChildLimit": 1
+        }
+      }
+    ],
+    "dynamicTriggerPathList": [],
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section1",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone1",
+            "flexGrow": 12,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "k3lmvd0svt",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1CopyCopyCopy",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+7",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "placeholderText": "Placeholder",
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "k9lhazbxp4",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1CopyCopy",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "placeholderText": "Placeholder",
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "0c4ps0snsz",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy1CopyCopy",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "tooltip": "Tooltip",
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": true,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "hjqgs9lhig",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy1Copy",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": true,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "ecljxuocf0",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy1CopyCopyCopy",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "tooltip": "Tooltip",
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "rl3zgzrpl2",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy1",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "m41jkky8vo",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": false,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy3",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": true,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "cfw4roujgq",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": false,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy2",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": true,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "jzzcn1jxt1",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": false,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy4",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "tslwf7548h",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy5",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "direfbn8xr",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy6",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "ntvdlwe4lf",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy7",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "3e0l9fak94",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy10",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "v1f6fsb78d",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy19",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "33ev0ih53j",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "1234567890",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "bqi6tfm3wd",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "w4w5569je9",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "1234567890",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "03emh155cm",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "w4w5569je9",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "xaovhk8xu5",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "2bm5iffhni",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "v1f6fsb78d",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "2wh5s44wkk",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "bqi6tfm3wd",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "k3lmvd0svt",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "33ev0ih53j",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "m51nlek1ra",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "k9lhazbxp4",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "0c4ps0snsz",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "5lv717aq4t",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "hjqgs9lhig",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "ecljxuocf0",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "rl3zgzrpl2",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "il7vui1ed3",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "m41jkky8vo",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "cfw4roujgq",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "jzzcn1jxt1",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "f0i64gxlb4",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "tslwf7548h",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "direfbn8xr",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "ntvdlwe4lf",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "3e0l9fak94",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "79lghy2tdz",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "jme5k6o3os",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "xaovhk8xu5",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 1,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "w4w5569je9",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "esyuz8sha2",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "w4w5569je9": 12
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section2",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy8",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "w9pwlznhxy",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "csojywtmff",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "03emh155cm",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "csojywtmff",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "vx2xt42hqh",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "2w4xp7prej",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "w9pwlznhxy",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "vy4q6ff2ku",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone4",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy9",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "cxh1m2hnui",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "rwxiyx4djc",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "03emh155cm",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "rwxiyx4djc",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "vx2xt42hqh",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "eqjk6noek1",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "cxh1m2hnui",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "p5hwlld6g3",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "jme5k6o3os",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "vx2xt42hqh",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 2,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "csojywtmff",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "rwxiyx4djc",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "sstv1rf4ih",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "csojywtmff": 6,
+          "rwxiyx4djc": 6
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section3",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone3",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy11",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "b2p5nrwshh",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "sp4frfec7y",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "03emh155cm",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "sp4frfec7y",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "tpd5ngwn8u",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "dsyjorl7ce",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "b2p5nrwshh",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "1lsuuctiof",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone5",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy13",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "9czzadajxy",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "ah26cgcm64",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "03emh155cm",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "ah26cgcm64",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "tpd5ngwn8u",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "wj2rqedonk",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "9czzadajxy",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "eyxz0qt1l2",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone6",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy12",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "3oqyopalpc",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "feyk9hseab",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "03emh155cm",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "feyk9hseab",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "tpd5ngwn8u",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "kixd4vmvz0",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "3oqyopalpc",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "yoj8f4x8wt",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "jme5k6o3os",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "tpd5ngwn8u",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 3,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "sp4frfec7y",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "ah26cgcm64",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "feyk9hseab",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "zo1euki4wl",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "sp4frfec7y": 4,
+          "ah26cgcm64": 4,
+          "feyk9hseab": 4
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section4",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone7",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy14",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "9au4sek5m9",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "7pnrou8jov",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "03emh155cm",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "7pnrou8jov",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "58jl1i571e",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "a36zcszo1l",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "9au4sek5m9",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "tpj4ixadtl",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone8",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy15",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "srdr4g3jor",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "7xiq7y83ua",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy18",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "hol7rjthxn",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "7xiq7y83ua",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "03emh155cm",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "7xiq7y83ua",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "58jl1i571e",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "6phwxdfb3f",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "hol7rjthxn",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "gf6hxu4mg7",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone9",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy17",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "1y70549x2q",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "5yc2x4aoly",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "03emh155cm",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "5yc2x4aoly",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "58jl1i571e",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "xm3j8ugfcc",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "1y70549x2q",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "qbzq4qyezq",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone10",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "PhoneInput1Copy16",
+                "displayName": "Phone Input",
+                "searchTags": [
+                  "call"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "defaultDialCode": "+1",
+                "autoFocus": false,
+                "type": "WDS_PHONE_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "0n88wu1c8f",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "6y3jsv0vll",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "allowDialCodeChange": false,
+                "isVisible": true,
+                "label": "Phone number",
+                "version": 1,
+                "parentId": "pkg2l3veya",
+                "tags": [
+                  "Inputs"
+                ],
+                "allowFormatting": true,
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "03emh155cm",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "pkg2l3veya",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "58jl1i571e",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "3mov8dilbd",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "6y3jsv0vll",
+                        "widgetType": "WDS_PHONE_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "ogv8u94kji",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "jme5k6o3os",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "58jl1i571e",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 4,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "7pnrou8jov",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "7xiq7y83ua",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "5yc2x4aoly",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "pkg2l3veya",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "jqw4dj7tow",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "7pnrou8jov": 3,
+          "7xiq7y83ua": 3,
+          "5yc2x4aoly": 3,
+          "pkg2l3veya": 3
+        }
+      }
+    ]
+  }
+}

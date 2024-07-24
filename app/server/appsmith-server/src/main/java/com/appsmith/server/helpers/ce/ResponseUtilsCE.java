@@ -17,6 +17,7 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.migrations.JsonSchemaVersions;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Component;
@@ -26,7 +27,10 @@ import java.util.List;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class ResponseUtilsCE {
+
+    protected final JsonSchemaVersions jsonSchemaVersions;
 
     public PageDTO updatePageDTOWithDefaultResources(PageDTO page) {
         DefaultResources defaultResourceIds = page.getDefaultResources();
@@ -295,8 +299,8 @@ public class ResponseUtilsCE {
 
     public Application updateApplicationWithDefaultResources(Application application) {
         if (application.getGitApplicationMetadata() != null
-                && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultApplicationId())) {
-            application.setId(application.getGitApplicationMetadata().getDefaultApplicationId());
+                && !StringUtils.isEmpty(application.getGitApplicationMetadata().getDefaultArtifactId())) {
+            application.setId(application.getGitApplicationMetadata().getDefaultArtifactId());
         }
         if (!CollectionUtils.isEmpty(application.getPages())) {
             application.getPages().forEach(page -> {
@@ -315,8 +319,8 @@ public class ResponseUtilsCE {
 
         if (application.getClientSchemaVersion() == null
                 || application.getServerSchemaVersion() == null
-                || (JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion())
-                        && JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion()))) {
+                || (jsonSchemaVersions.getClientVersion().equals(application.getClientSchemaVersion())
+                        && jsonSchemaVersions.getServerVersion().equals(application.getServerSchemaVersion()))) {
             application.setIsAutoUpdate(false);
         } else {
             application.setIsAutoUpdate(true);

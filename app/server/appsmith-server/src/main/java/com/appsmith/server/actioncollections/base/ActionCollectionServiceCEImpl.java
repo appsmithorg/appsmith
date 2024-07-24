@@ -42,7 +42,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -256,7 +255,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         actionCollectionViewDTO.setDefaultResources(defaults);
         return newActionService
                 .findByCollectionIdAndViewMode(actionCollection.getId(), viewMode, aclPermission)
-                .map(action -> newActionService.generateActionByViewMode(action, false))
+                .map(action -> newActionService.generateActionByViewMode(action, viewMode))
                 .collectList()
                 .map(actionDTOList -> {
                     actionCollectionViewDTO.setActions(actionDTOList);
@@ -343,28 +342,18 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollectionDTO> deleteWithoutPermissionUnpublishedActionCollection(String id) {
-        return deleteUnpublishedActionCollectionEx(
-                id, Optional.empty(), Optional.of(actionPermission.getDeletePermission()));
+        return deleteUnpublishedActionCollection(id, null, actionPermission.getDeletePermission());
     }
 
     @Override
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id) {
-        return deleteUnpublishedActionCollectionEx(
-                id,
-                Optional.of(actionPermission.getDeletePermission()),
-                Optional.of(actionPermission.getDeletePermission()));
+        return deleteUnpublishedActionCollection(
+                id, actionPermission.getDeletePermission(), actionPermission.getDeletePermission());
     }
 
     @Override
-    public Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionWithOptionalPermission(
-            String id,
-            Optional<AclPermission> deleteCollectionPermission,
-            Optional<AclPermission> deleteActionPermission) {
-        return deleteUnpublishedActionCollectionEx(id, deleteCollectionPermission, deleteActionPermission);
-    }
-
-    public Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionEx(
-            String id, Optional<AclPermission> permission, Optional<AclPermission> deleteActionPermission) {
+    public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(
+            String id, AclPermission permission, AclPermission deleteActionPermission) {
         Mono<ActionCollection> actionCollectionMono = repository
                 .findById(id, permission)
                 .switchIfEmpty(Mono.error(
@@ -377,7 +366,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                             && toDelete.getPublishedCollection().getName() != null) {
                         toDelete.getUnpublishedCollection().setDeletedAt(Instant.now());
                         modifiedActionCollectionMono = newActionService
-                                .findByCollectionIdAndViewMode(id, false, deleteActionPermission.orElse(null))
+                                .findByCollectionIdAndViewMode(id, false, deleteActionPermission)
                                 .flatMap(newAction -> newActionService
                                         .deleteGivenNewAction(newAction)
                                         // return an empty action so that the filter can remove it from the list

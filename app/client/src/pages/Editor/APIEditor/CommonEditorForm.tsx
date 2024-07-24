@@ -61,6 +61,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { ApiEditorContext } from "./ApiEditorContext";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
+import RunHistory from "@appsmith/components/RunHistory";
 
 const Form = styled.form`
   position: relative;
@@ -319,6 +320,10 @@ const StyledTabPanel = styled(TabPanel)`
   height: calc(100% - 50px);
   overflow: auto;
   padding: 0 var(--ads-v2-spaces-7);
+`;
+
+const StyledNotificationWrapper = styled.div`
+  padding-top: var(--ads-v2-spaces-5);
 `;
 
 function ImportedKeyValue(props: {
@@ -607,7 +612,11 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               </Button>
             </ActionButtons>
           </FormRow>
-          {notification}
+          {notification && (
+            <StyledNotificationWrapper>
+              {notification}
+            </StyledNotificationWrapper>
+          )}
           <FormRow className="api-info-row">
             <div>
               {/* eslint-disable-next-line */}
@@ -746,6 +755,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 responseDisplayFormat={responseDisplayFormat}
                 theme={theme}
               />
+              <RunHistory />
             </SecondaryWrapper>
           </div>
           <ActionRightPane

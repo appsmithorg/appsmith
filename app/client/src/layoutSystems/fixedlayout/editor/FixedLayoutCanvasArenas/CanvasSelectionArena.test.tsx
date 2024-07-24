@@ -25,6 +25,8 @@ import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import Canvas from "pages/Editor/Canvas";
 
+const pageId = "0123456789abcdef00000000";
+
 describe("Canvas selection test cases", () => {
   jest
     .spyOn(dataTreeSelectors, "getWidgetEvalValues")
@@ -76,7 +78,7 @@ describe("Canvas selection test cases", () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
     const component = render(
       <MemoryRouter
-        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -136,7 +138,7 @@ describe("Canvas selection test cases", () => {
     mockGetIsFetchingPage.mockImplementation(() => false);
     const component = render(
       <MemoryRouter
-        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -233,7 +235,7 @@ describe("Canvas selection test cases", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -364,7 +366,7 @@ describe("Canvas selection test cases", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -456,7 +458,7 @@ describe("Canvas selection test cases", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>

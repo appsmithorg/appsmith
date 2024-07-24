@@ -14,11 +14,6 @@ on:
         required: false
         type: number
         default: 0
-      matrix:
-        description: "Matrix jobs"
-        required: false
-        type: string
-        default: "[0, 1, 2]"
   workflow_call:
     inputs:
       pr:
@@ -30,11 +25,6 @@ on:
         required: false
         type: number
         default: 0
-      matrix:
-        description: "This is the matrix job number"
-        required: false
-        type: string
-        default: "[0, 1, 2]"
 
 jobs:
   ci-test-limited:
@@ -48,10 +38,6 @@ jobs:
     defaults:
       run:
         shell: bash
-    strategy:
-      fail-fast: false
-      matrix:
-        job: ${{ fromJson(inputs.matrix) }}
 
     # Service containers to run with this job. Required for running tests
     services:
@@ -100,9 +86,9 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}
           restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+            ${{ github.run_id }}-${{ github.job }}
 
       - name: Get the previous run result
         if: steps.cache-appsmith.outputs.cache-hit == 'true'
@@ -166,7 +152,7 @@ jobs:
           sudo /etc/init.d/ssh stop ;
           mkdir -p ~/git-server/keys
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
-            -p 5432:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+            -p 5433:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
             appsmith/test-event-driver:latest
           docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
             --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
@@ -382,7 +368,7 @@ jobs:
         working-directory: "."
         run: |
           mkdir -p  ~/dockerlogs
-          docker logs appsmith 2>&1 > ~/dockerlogs/dockerlogs-${{ matrix.job }}.txt
+          docker logs appsmith 2>&1 > ~/dockerlogs/dockerlogs-log.txt
 
       # Upload docker logs
       - name: Upload failed test list artifact
@@ -397,7 +383,7 @@ jobs:
         if: failure()
         run: |
           mkdir -p ~/results
-          mv ${{ github.workspace }}/app/client/results ~/results/${{ matrix.job }}
+          mv ${{ github.workspace }}/app/client/results ~/results
 
       - name: Upload cypress report
         if: failure()
@@ -420,14 +406,14 @@ jobs:
         with:
           path: |
             ~/run_result
-          key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
+          key: ${{ github.run_id }}-${{ github.job }}
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
         uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: server-logs-${{ matrix.job }}
+          name: server-logs
           path: app/server/server-logs.log
           overwrite: true
 

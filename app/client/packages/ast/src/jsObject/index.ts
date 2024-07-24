@@ -1,4 +1,4 @@
-import type { Node } from "acorn";
+import { parseExpressionAt, type Node } from "acorn";
 import { simple } from "acorn-walk";
 import type {
   IdentifierNode,
@@ -15,8 +15,8 @@ import {
 import { generate } from "astring";
 import type { functionParam } from "../index";
 import { getFunctionalParamsFromNode, isPropertyAFunctionNode } from "../index";
-import { SourceType } from "../../index";
-import { attachComments } from "escodegen";
+import { ECMA_VERSION, SourceType } from "../../index";
+import escodegen, { attachComments } from "escodegen";
 import { extractContentByPosition } from "../utils";
 
 const jsObjectVariableName =
@@ -51,6 +51,10 @@ export type JSFunctionProperty = BaseJSProperty & {
 export type JSVarProperty = BaseJSProperty;
 
 export type TParsedJSProperty = JSVarProperty | JSFunctionProperty;
+
+interface Property extends PropertyNode {
+  key: IdentifierNode;
+}
 
 export const isJSFunctionProperty = (
   t: TParsedJSProperty,
@@ -122,9 +126,7 @@ export const parseJSObject = (code: string) => {
     };
 
     if (isPropertyAFunctionNode(node.value)) {
-      // if in future we need default values of each param, we could implement that in getFunctionalParamsFromNode
-      // currently we don't consume it anywhere hence avoiding to calculate that.
-      const params = getFunctionalParamsFromNode(node.value);
+      const params = getFunctionalParamsFromNode(node.value, true, code);
       property = {
         ...property,
         arguments: [...params],
@@ -136,4 +138,52 @@ export const parseJSObject = (code: string) => {
   });
 
   return { parsedObject: [...parsedObjectProperties], success: true };
+};
+
+export const addPropertiesToJSObjectCode = (
+  code: string,
+  obj: Record<string, string>,
+) => {
+  try {
+    const ast = getAST(code, { sourceType: "module" });
+
+    simple(ast, {
+      ExportDefaultDeclaration(node: any) {
+        const properties: Property[] = node?.declaration?.properties;
+
+        Object.entries(obj).forEach(([key, value]) => {
+          // Check if a property with the same name already exists
+          const existingPropertyIndex = properties.findIndex(
+            (property) => property.key.name === key,
+          );
+
+          const astValue = parseExpressionAt(value, 0, {
+            ecmaVersion: ECMA_VERSION,
+          });
+
+          // Create a new property
+          const newProperty = {
+            type: "Property",
+            key: { type: "Identifier", name: key },
+            value: astValue,
+            kind: "init",
+            method: false,
+            shorthand: false,
+            computed: false,
+          } as unknown as Property;
+
+          if (existingPropertyIndex >= 0) {
+            // Replace the existing property
+            properties[existingPropertyIndex] = newProperty;
+          } else {
+            // Add the new property
+            properties.push(newProperty);
+          }
+        });
+      },
+    });
+    return escodegen.generate(ast);
+  } catch (e) {
+    return code;
+  }
 };

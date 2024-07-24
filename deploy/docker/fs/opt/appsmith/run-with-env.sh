@@ -2,7 +2,7 @@
 
 ENV_PATH="/appsmith-stacks/configuration/docker.env"
 PRE_DEFINED_ENV_PATH="$TMP/pre-define.env"
-echo 'Load environment configuration'
+tlog 'Load environment configuration'
 set -o allexport
 . "$ENV_PATH"
 . "$PRE_DEFINED_ENV_PATH"
@@ -31,7 +31,7 @@ fi
 if [[ -z "${APPSMITH_GIT_ROOT:-}" ]]; then
   export APPSMITH_GIT_ROOT=/appsmith-stacks/git-storage
 else
-  echo "WARNING: It appears a custom value has been configured for APPSMITH_GIT_ROOT. This behaviour is deprecated and will soon be removed."
+  tlog "WARNING: It appears a custom value has been configured for APPSMITH_GIT_ROOT. This behaviour is deprecated and will soon be removed." >&2
 fi
 mkdir -pv "$APPSMITH_GIT_ROOT"
 

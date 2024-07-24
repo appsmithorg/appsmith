@@ -925,6 +925,11 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columns={tableColumns}
           delimiter={delimiter}
           disableDrag={this.toggleDrag}
+          disableScroll={
+            this.props.renderMode === RenderModes.CANVAS &&
+            !Boolean(this.props.isPreviewMode)
+          }
+          excludeFromTabOrder={this.props.disableWidgetInteraction}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
@@ -961,7 +966,8 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           showConnectDataOverlay={
             primaryColumns &&
             !Object.keys(primaryColumns).length &&
-            this.props.renderMode === RenderModes.CANVAS
+            this.props.renderMode === RenderModes.CANVAS &&
+            !Boolean(this.props.isPreviewMode)
           }
           sortTableColumn={this.handleColumnSorting}
           tableData={finalTableData}
@@ -1559,6 +1565,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             buttonColor={cellProperties.buttonColor}
             buttonLabel={cellProperties.buttonLabel || "Action"}
             buttonVariant={cellProperties.buttonVariant}
+            excludeFromTabOrder={this.props.disableWidgetInteraction}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isDisabled={cellProperties.isDisabled}
             isHidden={isHidden}

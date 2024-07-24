@@ -183,6 +183,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
           {canDeleteDatasource && (
             <MenuWrapper
               className="t--datasource-menu-option"
+              key={datasourceId}
               onClick={(e) => {
                 e.stopPropagation();
               }}

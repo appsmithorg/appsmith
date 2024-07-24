@@ -253,7 +253,7 @@ function PageSettings(props: { page: Page }) {
       {!appNeedsUpdate && (
         <UrlPreviewWrapper className="mb-2">
           <UrlPreviewScroll
-            className="py-1 pl-2 mr-0.5 text-xs break-all"
+            className="py-1 pl-2 mr-0.5 text-xs break-all select-text"
             onCopy={() => {
               navigator.clipboard.writeText(
                 location.protocol +
