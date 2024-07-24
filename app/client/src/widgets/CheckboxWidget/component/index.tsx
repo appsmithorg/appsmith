@@ -76,6 +76,10 @@ export const CheckboxLabel = styled.div<{
 export const StyledCheckbox = styled(Checkbox)`
   &.bp3-control.bp3-align-right {
     padding-right: 0px;
+  };
+  align-items: center;
+  &.bp3-control.bp3-checkbox .bp3-control-indicator {
+    margin-top: -0.05rem;
   }
 `;
 
