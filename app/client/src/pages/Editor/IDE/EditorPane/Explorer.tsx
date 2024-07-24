@@ -32,7 +32,7 @@ const EditorPaneExplorer = () => {
           ? "1px solid var(--ads-v2-color-border)"
           : null
       }
-      className="relative"
+      className="relative ide-editor-left-pane__content"
       flexDirection="column"
       overflow="hidden"
       width={
