@@ -21,6 +21,10 @@ import {
 import type { Context, TextMapSetter } from "@opentelemetry/api";
 import { metrics } from "@opentelemetry/api";
 
+enum CompressionAlgorithm {
+  NONE = "none",
+  GZIP = "gzip",
+}
 const { newRelic } = getAppsmithConfigs();
 const { applicationId, otlpEndpoint, otlpLicenseKey, otlpServiceName } =
   newRelic;
@@ -83,6 +87,7 @@ tracerProvider.register({
 });
 
 const nrMetricsExporter = new OTLPMetricExporter({
+  compression: CompressionAlgorithm.GZIP,
   temporalityPreference: AggregationTemporalityPreference.DELTA,
   url: `${otlpEndpoint}/v1/metrics`,
   headers: {
