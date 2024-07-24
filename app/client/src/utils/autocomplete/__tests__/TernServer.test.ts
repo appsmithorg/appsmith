@@ -416,6 +416,7 @@ describe("Tern server sorting", () => {
       entityName: "sameEntity",
       entityType: ENTITY_TYPE.WIDGET,
       expectedType: AutocompleteDataType.STRING,
+      propertyPath: "tableData",
     };
     //completion that matches type and is present in dataTree.
     const scoredCompletion1 = new ScoredCompletion(

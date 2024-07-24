@@ -63,3 +63,9 @@ export interface EvalTreeResponseData {
   webworkerTelemetry?: Record<string, WebworkerSpanData | SpanAttributes>;
   updates: string;
 }
+
+export interface UpdateTreeResponse {
+  unEvalUpdates: DataTreeDiff[];
+  evalOrder: string[];
+  jsUpdates: Record<string, JSUpdate>;
+}

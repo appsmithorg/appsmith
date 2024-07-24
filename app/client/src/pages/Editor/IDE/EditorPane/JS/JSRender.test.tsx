@@ -151,7 +151,7 @@ describe("IDE Render: JS", () => {
       ).toBe(true);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-JSObject1").classList.contains("active"),
+        getByTestId("t--ide-tab-jsobject1").classList.contains("active"),
       ).toBe(true);
       // Check if the form is rendered
       expect(container.querySelector(".js-editor-tab")).not.toBeNull();
@@ -161,9 +161,7 @@ describe("IDE Render: JS", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByRole("button", {
-        name: createMessage(EDITOR_PANE_TEXTS.js_add_button),
-      });
+      getByTestId("t--add-item");
     });
 
     it("Renders JS routes in Split Screen", async () => {
@@ -201,7 +199,7 @@ describe("IDE Render: JS", () => {
       expect(getAllByText("JSObject2").length).toBe(2);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-JSObject2").classList.contains("active"),
+        getByTestId("t--ide-tab-jsobject2").classList.contains("active"),
       ).toBe(true);
 
       // Check if the form is rendered
@@ -245,7 +243,7 @@ describe("IDE Render: JS", () => {
       expect(getAllByText("JSObject3").length).toEqual(2);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-JSObject3").classList.contains("active"),
+        getByTestId("t--ide-tab-jsobject3").classList.contains("active"),
       ).toBe(false);
       // Check js object is not rendered. Instead new tab should render
       expect(container.querySelector(".js-editor-tab")).toBeNull();
@@ -283,7 +281,7 @@ describe("IDE Render: JS", () => {
       expect(getAllByText("JSObject4").length).toEqual(1);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-JSObject4").classList.contains("active"),
+        getByTestId("t--ide-tab-jsobject4").classList.contains("active"),
       ).toBe(false);
 
       // Check if the form is not rendered

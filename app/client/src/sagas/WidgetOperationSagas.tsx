@@ -75,6 +75,8 @@ import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 
 import { builderURL } from "@appsmith/RouteBuilder";
 import {
+  ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT,
+  ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT,
   ERROR_WIDGET_COPY_NOT_ALLOWED,
   ERROR_WIDGET_COPY_NO_WIDGET_SELECTED,
   ERROR_WIDGET_CUT_NOT_ALLOWED,
@@ -140,7 +142,9 @@ import {
   getValueFromTree,
   getWidgetDescendantToReset,
   groupWidgetsIntoContainer,
+  handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
+  isLayoutSystemConflictingForPaste,
   isSelectedWidgetsColliding,
   mergeDynamicPropertyPaths,
   purgeOrphanedDynamicPaths,
@@ -976,6 +980,8 @@ function* createSelectedWidgetsCopy(
   flexLayers: FlexLayer[],
 ) {
   if (!selectedWidgets || !selectedWidgets.length) return;
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+
   const widgetListsToStore: {
     widgetId: string;
     parentId: string;
@@ -985,6 +991,7 @@ function* createSelectedWidgetsCopy(
 
   const saveResult: boolean = yield saveCopiedWidgets(
     JSON.stringify({
+      layoutSystemType,
       widgets: widgetListsToStore,
       flexLayers,
     }),
@@ -1548,6 +1555,8 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
               widgetNameMap,
               newWidgetList,
             );
+            // Moved handleIfParentIsListWidgetWhilePasting out of handleSpecificCasesWhilePasting as it is a compound case meaning it checks for parent of current widget rather than the current one itself(which are handled in handleSpecificCasesWhilePasting)
+            widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
           }
         }),
       ),
@@ -1840,6 +1849,56 @@ function* widgetBatchUpdatePropertySaga() {
   }
 }
 
+/**
+ * This saga check if the paste operation is performed on a layout system compatible with the widgets being pasted
+ * If the widgets are not compatible, we show a toast warning to the user and prevent the paste operation
+ * If the widgets are compatible, we call the paste action
+ * @param action The page action payload and verify paste action type
+ * @returns void
+ */
+function* verifyPasteFeasibilitySaga(
+  action: ReduxAction<PasteWidgetReduxAction>,
+) {
+  try {
+    const {
+      layoutSystemType,
+    }: {
+      layoutSystemType?: LayoutSystemTypes;
+    } = yield getCopiedWidgets();
+
+    const currentLayoutSystemType: LayoutSystemTypes =
+      yield select(getLayoutSystemType);
+
+    const isConflicting = isLayoutSystemConflictingForPaste(
+      currentLayoutSystemType,
+      layoutSystemType,
+    );
+
+    if (isConflicting) {
+      const message =
+        currentLayoutSystemType === LayoutSystemTypes.ANVIL
+          ? ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT
+          : ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT;
+      toast.show(createMessage(message), {
+        kind: "warning",
+      });
+      return;
+    }
+
+    yield put({
+      type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+      payload: action.payload,
+    });
+  } finally {
+    if (action.payload.existingWidgets) {
+      yield call(
+        saveCopiedWidgets,
+        JSON.stringify(action.payload.existingWidgets),
+      );
+    }
+  }
+}
+
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
   if (!isAnvilLayout) {
@@ -1889,6 +1948,13 @@ export default function* widgetOperationSagas() {
       ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
       shouldCallSaga,
       pasteWidgetSaga,
+    ),
+    // This was originally PASTE_COPIED_WIDGET_INIT, however, we now need to make sure
+    // that the paste happens between compatible widgets and layout systems.
+    // This saga is the intermidiary between the paste trigger and the actual paste operation
+    takeLeading(
+      ReduxActionTypes.VERIFY_LAYOUT_SYSTEM_AND_PASTE_WIDGETS,
+      verifyPasteFeasibilitySaga,
     ),
     takeEvery(ReduxActionTypes.CUT_SELECTED_WIDGET, cutWidgetSaga),
     takeEvery(ReduxActionTypes.GROUP_WIDGETS_INIT, groupWidgetsSaga),

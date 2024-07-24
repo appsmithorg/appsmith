@@ -19,9 +19,6 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import { getQueryParams } from "utils/URLUtils";
-import history from "utils/history";
-import { curlImportPageURL } from "@appsmith/RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
@@ -31,6 +28,7 @@ import {
   createNewAPIBasedOnParentEntity,
   createNewJSCollectionBasedOnParentEntity,
 } from "@appsmith/actions/helpers";
+import { openCurlImportModal } from "pages/Editor/CurlImport/helpers";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -329,17 +327,7 @@ export const actionOperations: ActionOperation[] = [
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,
-    redirect: (entityId: string, from: EventLocation) => {
-      const queryParams = getQueryParams();
-      const curlImportURL = curlImportPageURL({
-        parentEntityId: entityId,
-        params: {
-          from,
-          ...queryParams,
-        },
-      });
-      history.push(curlImportURL);
-    },
+    action: () => openCurlImportModal(),
     focusEntityType: FocusEntity.API,
   },
 ];

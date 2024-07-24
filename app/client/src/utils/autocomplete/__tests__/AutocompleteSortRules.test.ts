@@ -198,4 +198,169 @@ describe("Autocomplete Ranking", () => {
       expect.arrayContaining(["showAlert(), APIQuery.clear(), APIQuery.run()"]),
     );
   });
+  it("Blocks self reference of entity", () => {
+    const completions: unknown[] = [
+      {
+        text: "appsmith",
+        displayText: "appsmith",
+        className:
+          "CodeMirror-Tern-completion CodeMirror-Tern-completion-object",
+        data: {
+          name: "appsmith",
+          type: "appsmith",
+          origin: "DATA_TREE",
+        },
+        origin: "DATA_TREE",
+        type: "OBJECT",
+        isHeader: false,
+      },
+      {
+        text: "Table1",
+        displayText: "Table1",
+        className:
+          "CodeMirror-Tern-completion CodeMirror-Tern-completion-object",
+        data: {
+          name: "Table1",
+          type: "Table1",
+          doc: "Table widget",
+          url: "https://docs.appsmith.com/reference/appsmith-framework/query-object",
+          origin: "DATA_TREE",
+        },
+        origin: "DATA_TREE",
+        type: "OBJECT",
+        isHeader: false,
+      },
+      {
+        text: "Table2.updatedRows",
+        displayText: "Table2.updatedRows",
+        className:
+          "CodeMirror-Tern-completion CodeMirror-Tern-completion-array",
+        data: {
+          name: "Table2.updatedRows",
+          type: "[?]",
+          origin: "DATA_TREE",
+        },
+        origin: "DATA_TREE",
+        type: "ARRAY",
+        isHeader: false,
+        recencyWeight: 2,
+        isEntityName: false,
+      },
+      {
+        text: "Table2.updatedRowIndices",
+        displayText: "Table2.updatedRowIndices",
+        className:
+          "CodeMirror-Tern-completion CodeMirror-Tern-completion-array",
+        data: {
+          name: "Table2.updatedRowIndices",
+          type: "[?]",
+          origin: "DATA_TREE",
+        },
+        origin: "DATA_TREE",
+        type: "ARRAY",
+        isHeader: false,
+        recencyWeight: 2,
+        isEntityName: false,
+      },
+      {
+        text: "Table2.updatedRow",
+        displayText: "Table2.updatedRow",
+        className:
+          "CodeMirror-Tern-completion CodeMirror-Tern-completion-object",
+        data: {
+          name: "Table2.updatedRow",
+          type: "Table2.updatedRow",
+          origin: "DATA_TREE",
+        },
+        origin: "DATA_TREE",
+        type: "OBJECT",
+        isHeader: false,
+        recencyWeight: 2,
+        isEntityName: false,
+      },
+      {
+        text: "Table2.tableData",
+        displayText: "Table2.tableData",
+        className:
+          "CodeMirror-Tern-completion CodeMirror-Tern-completion-array",
+        data: {
+          name: "Table2.tableData",
+          type: "[?]",
+          origin: "DATA_TREE",
+        },
+        origin: "DATA_TREE",
+        type: "ARRAY",
+        isHeader: false,
+        recencyWeight: 2,
+        isEntityName: false,
+      },
+    ];
+    const currentFieldInfo: unknown = {
+      expectedType: "ARRAY",
+      example: '[{ "name": "John" }]',
+      mode: "text-js",
+      entityName: "Table2",
+      entityType: "WIDGET",
+      entityId: "xy1ezsr0l5",
+      widgetType: "TABLE_WIDGET_V2",
+      propertyPath: "tableData",
+      token: {
+        start: 2,
+        end: 4,
+        string: "Ta",
+        type: "variable",
+        state: {
+          outer: true,
+          innerActive: {
+            open: "{{",
+            close: "}}",
+            delimStyle: "binding-brackets",
+            mode: {
+              electricInput: {},
+              blockCommentStart: null,
+              blockCommentEnd: null,
+              blockCommentContinue: null,
+              lineComment: null,
+              fold: "brace",
+              closeBrackets: "()[]{}''\"\"``",
+              helperType: "json",
+              jsonMode: true,
+              name: "javascript",
+            },
+          },
+          inner: {
+            lastType: "variable",
+            cc: [null],
+            lexical: {
+              indented: -2,
+              column: 0,
+              type: "block",
+              align: false,
+            },
+            indented: 0,
+          },
+          startingInner: false,
+        },
+      },
+    };
+    const entityInfo: DataTreeDefEntityInformation = {
+      type: ENTITY_TYPE.WIDGET,
+      subType: "TABLE_WIDGET_V2",
+    };
+    const sortedCompletionsText = AutocompleteSorter.sort(
+      completions as Completion<TernCompletionResult>[],
+      currentFieldInfo as FieldEntityInformation,
+      entityInfo,
+      true,
+    )
+      .filter((c) => !c.isHeader)
+      .map((c) => c.displayText);
+    expect(sortedCompletionsText).toEqual([
+      "Table2.updatedRowIndices",
+      "Table2.updatedRows",
+      "Table2.updatedRow",
+      "appsmith",
+      "Table1",
+    ]);
+  });
 });

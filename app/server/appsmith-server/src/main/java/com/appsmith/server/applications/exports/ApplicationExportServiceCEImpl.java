@@ -46,6 +46,7 @@ public class ApplicationExportServiceCEImpl implements ArtifactBasedExportServic
     protected final ExportableService<ActionCollection> actionCollectionExportableService;
     private final ExportableService<Theme> themeExportableService;
     private final Map<String, String> applicationConstantsMap = new HashMap<>();
+    private final JsonSchemaVersions jsonSchemaVersions;
 
     public ApplicationExportServiceCEImpl(
             ApplicationService applicationService,
@@ -53,13 +54,15 @@ public class ApplicationExportServiceCEImpl implements ArtifactBasedExportServic
             ExportableService<NewPage> newPageExportableService,
             ExportableService<NewAction> newActionExportableService,
             ExportableService<ActionCollection> actionCollectionExportableService,
-            ExportableService<Theme> themeExportableService) {
+            ExportableService<Theme> themeExportableService,
+            JsonSchemaVersions jsonSchemaVersions) {
         this.applicationService = applicationService;
         this.newPageExportableService = newPageExportableService;
         this.newActionExportableService = newActionExportableService;
         this.actionCollectionExportableService = actionCollectionExportableService;
         this.themeExportableService = themeExportableService;
         this.applicationPermission = applicationPermission;
+        this.jsonSchemaVersions = jsonSchemaVersions;
         applicationConstantsMap.putAll(
                 Map.of(FieldName.ARTIFACT_CONTEXT, FieldName.APPLICATION, FieldName.ID, FieldName.APPLICATION_ID));
     }
@@ -120,8 +123,10 @@ public class ApplicationExportServiceCEImpl implements ArtifactBasedExportServic
         GitArtifactMetadata gitArtifactMetadata = application.getGitApplicationMetadata();
         Instant applicationLastCommittedAt =
                 gitArtifactMetadata != null ? gitArtifactMetadata.getLastCommittedAt() : null;
-        boolean isClientSchemaMigrated = !JsonSchemaVersions.clientVersion.equals(application.getClientSchemaVersion());
-        boolean isServerSchemaMigrated = !JsonSchemaVersions.serverVersion.equals(application.getServerSchemaVersion());
+        boolean isClientSchemaMigrated =
+                !jsonSchemaVersions.getClientVersion().equals(application.getClientSchemaVersion());
+        boolean isServerSchemaMigrated =
+                !jsonSchemaVersions.getServerVersion().equals(application.getServerSchemaVersion());
 
         exportingMetaDTO.setArtifactLastCommittedAt(applicationLastCommittedAt);
         exportingMetaDTO.setClientSchemaMigrated(isClientSchemaMigrated);

@@ -16,6 +16,7 @@ import com.appsmith.server.domains.Layout;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.AutoCommitResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.git.autocommit.helpers.AutoCommitEligibilityHelper;
 import com.appsmith.server.git.common.CommonGitService;
 import com.appsmith.server.helpers.CommonGitFileUtils;
@@ -36,13 +37,12 @@ import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -53,6 +53,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -65,7 +66,6 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 public class AutoCommitServiceTest {
@@ -122,6 +122,8 @@ public class AutoCommitServiceTest {
 
     Path baseRepoSuffix;
 
+    JsonSchemaVersions jsonSchemaVersions = new JsonSchemaVersions();
+
     private static final Integer DSL_VERSION_NUMBER = 88;
     private static final String WORKSPACE_ID = "test-workspace";
     private static final String REPO_NAME = "test-repo";
@@ -133,7 +135,6 @@ public class AutoCommitServiceTest {
     private static final String PRIVATE_KEY = "private-key";
     private static final String REPO_URL = "domain.xy";
     private static final String DEFAULT_APP_ID = "default-app-id", DEFAULT_BRANCH_NAME = "master";
-    private static final Integer SERVER_SCHEMA_VERSION = JsonSchemaVersions.serverVersion;
 
     private Application createApplication() {
         Application application = new Application();
@@ -196,8 +197,9 @@ public class AutoCommitServiceTest {
                 .when(commonGitFileUtils)
                 .getPageDslVersionNumber(anyString(), any(), any(), anyBoolean(), any());
 
+        Integer serverVersion = jsonSchemaVersions.getServerVersion();
         Integer dslVersionNumber = clientMigration ? DSL_VERSION_NUMBER + 1 : DSL_VERSION_NUMBER;
-        Integer serverSchemaVersionNumber = serverMigration ? SERVER_SCHEMA_VERSION - 1 : SERVER_SCHEMA_VERSION;
+        Integer serverSchemaVersionNumber = serverMigration ? serverVersion - 1 : serverVersion;
 
         doReturn(Mono.just(dslVersionNumber)).when(dslMigrationUtils).getLatestDslVersion();
 
@@ -225,6 +227,12 @@ public class AutoCommitServiceTest {
         Mockito.when(newPageService.findByApplicationIdAndApplicationMode(
                         DEFAULT_APP_ID, pagePermission.getEditPermission(), ApplicationMode.PUBLISHED))
                 .thenReturn(Flux.just(pageDTO));
+
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
+
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
+                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_eligibility_enabled))
                 .thenReturn(Mono.just(TRUE));
@@ -266,7 +274,7 @@ public class AutoCommitServiceTest {
 
         ApplicationJson applicationJson1 = new ApplicationJson();
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(applicationJson, applicationJson1);
-        applicationJson1.setServerSchemaVersion(JsonSchemaVersions.serverVersion + 1);
+        applicationJson1.setServerSchemaVersion(jsonSchemaVersions.getServerVersion() + 1);
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
@@ -547,7 +555,7 @@ public class AutoCommitServiceTest {
 
         ApplicationJson applicationJson1 = new ApplicationJson();
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(applicationJson, applicationJson1);
-        applicationJson1.setServerSchemaVersion(JsonSchemaVersions.serverVersion + 1);
+        applicationJson1.setServerSchemaVersion(jsonSchemaVersions.getServerVersion() + 1);
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
@@ -620,7 +628,7 @@ public class AutoCommitServiceTest {
 
         ApplicationJson applicationJson1 = new ApplicationJson();
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(applicationJson, applicationJson1);
-        applicationJson1.setServerSchemaVersion(JsonSchemaVersions.serverVersion + 1);
+        applicationJson1.setServerSchemaVersion(jsonSchemaVersions.getServerVersion() + 1);
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)

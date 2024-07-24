@@ -64,6 +64,8 @@ public class CommonGitFileUtilsCE {
     @Value("${appsmith.index.lock.file.time}")
     public final int INDEX_LOCK_FILE_STALE_TIME = 300;
 
+    private final JsonSchemaVersions jsonSchemaVersions;
+
     private ArtifactGitFileUtils<?> getArtifactBasedFileHelper(ArtifactType artifactType) {
         if (ArtifactType.APPLICATION.equals(artifactType)) {
             return applicationGitFileUtils;
@@ -359,7 +361,7 @@ public class CommonGitFileUtilsCE {
                         workspaceId, defaultArtifactId, repoName, branchName, isResetToLastCommitRequired, artifactType)
                 .map(metadataMap -> {
                     return metadataMap.getOrDefault(
-                            CommonConstants.SERVER_SCHEMA_VERSION, JsonSchemaVersions.serverVersion);
+                            CommonConstants.SERVER_SCHEMA_VERSION, jsonSchemaVersions.getServerVersion());
                 });
 
         return Mono.create(
@@ -422,7 +424,7 @@ public class CommonGitFileUtilsCE {
 
     private Integer getServerSchemaVersion(JsonObject metadataJsonObject) {
         if (metadataJsonObject == null) {
-            return JsonSchemaVersions.serverVersion;
+            return jsonSchemaVersions.getServerVersion();
         }
 
         JsonElement serverSchemaVersion = metadataJsonObject.get(SERVER_SCHEMA_VERSION);

@@ -1,13 +1,8 @@
 import type { RadioGroupProps } from "@design-system/widgets";
 import type { WidgetProps } from "widgets/BaseWidget";
 
-export interface RadioOption {
-  label: string;
-  value: string;
-}
-
 export interface RadioGroupWidgetProps extends WidgetProps {
-  options: RadioOption[];
+  options: RadioGroupProps["items"];
   selectedOptionValue: string;
   onSelectionChange: string;
   defaultOptionValue: string;

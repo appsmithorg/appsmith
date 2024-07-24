@@ -137,9 +137,7 @@ function UIEntitySidebar({
           </Text>
         )}
         <div>
-          {Object.keys(filteredCards).map((tag) => {
-            const cardsForThisTag = filteredCards[tag as WidgetTags];
-
+          {Object.entries(filteredCards).map(([tag, cardsForThisTag]) => {
             if (!cardsForThisTag?.length && !entityLoading[tag as WidgetTags]) {
               return null;
             }

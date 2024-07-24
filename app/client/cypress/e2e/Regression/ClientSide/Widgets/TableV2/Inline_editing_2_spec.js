@@ -30,7 +30,7 @@ describe(
 
     it("1. should check that onDiscard event is working", () => {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.editColumn("EditActions1");
       cy.get(".t--property-pane-section-collapse-savebutton").click();
       //cy.get(".t--property-pane-section-collapse-discardbutton").click();
@@ -51,7 +51,7 @@ describe(
     it("2. should check that inline editing works with text wrapping disabled", () => {
       agHelper.AddDsl("Table/InlineEditingDSL");
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", false, true);
       cy.editTableCell(0, 0);
       cy.get(
         "[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor input.bp3-input",
@@ -60,7 +60,7 @@ describe(
 
     it("3. should check that inline editing works with text wrapping enabled", () => {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.editColumn("step");
       cy.get(".t--property-control-cellwrapping .ads-v2-switch")
         .first()
@@ -130,7 +130,7 @@ describe(
 
       cy.openPropertyPane("tablewidgetv2");
 
-      cy.makeColumnEditable("step");
+      table.toggleColumnEditableViaColSettingsPane("step", "v2", false, true);
       cy.wait(1000);
 
       // case 2: check if updatedRowIndex is 0, when cell at row 0 is updated.
