@@ -45,7 +45,7 @@
     "clean:workspaces": "yarn workspaces foreach -pAv exec rm -rf node_modules",
     "cypress:snapshot": "npx cypress run -b chromium -s",
     "cypress:snapshot:docker": "docker run --network='host' -it --rm -e CYPRESS_$1 -v $PWD:/cypress -w /cypress cypress-snapshot $0",
-    "cypress:snapshot:docker:build": " docker build . -f cypress/Dockerfile -t cypress-snapshot"
+    "cypress:snapshot:docker:build": "docker build . -f cypress/Dockerfile -t cypress-snapshot"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.441.0",
