@@ -24,6 +24,10 @@ import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import { getWebAutoInstrumentations } from "@opentelemetry/auto-instrumentations-web";
 import { CompressionAlgorithm } from "@opentelemetry/otlp-exporter-base/build/src/platform/node/types";
 
+enum CompressionAlgorithm {
+  NONE = "none",
+  GZIP = "gzip",
+}
 const { newRelic } = getAppsmithConfigs();
 const { applicationId, otlpEndpoint, otlpLicenseKey, otlpServiceName } =
   newRelic;
@@ -103,7 +107,7 @@ const meterProvider = new MeterProvider({
   readers: [
     new PeriodicExportingMetricReader({
       exporter: nrMetricsExporter,
-      exportIntervalMillis: 10000, // Adjust the export interval as needed
+      exportIntervalMillis: 30000, // Adjust the export interval as needed
     }),
   ],
 });
