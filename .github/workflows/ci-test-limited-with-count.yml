@@ -346,6 +346,7 @@ jobs:
           install : false
           working-directory : app/client
         run: |
+            cd app/client
             npx cypress run --spec cypress/integration/editing-spec.js \
             --config-file cypress_ci_custom.config.ts \
             --env "NODE_ENV=development" \
