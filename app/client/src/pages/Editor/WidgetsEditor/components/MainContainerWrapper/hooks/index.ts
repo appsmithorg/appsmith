@@ -1,1 +1,0 @@
-export { useCanvasWidthAutoResize } from "./useCanvasWidthAutoResize";
