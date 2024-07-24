@@ -323,6 +323,7 @@
     "cypress-network-idle": "^1.14.2",
     "cypress-plugin-tab": "^1.0.5",
     "cypress-real-events": "^1.8.1",
+    "cypress-repeat": "^2.3.5",
     "cypress-tags": "^1.1.2",
     "cypress-terminal-report": "^5.3.6",
     "cypress-wait-until": "^1.7.2",
