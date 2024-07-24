@@ -34,14 +34,12 @@ const LoadingContainer = styled.div`
 `;
 
 interface Props {
-  isInitiallyOpen: boolean;
   tag: string;
   cards: WidgetCardProps[];
   isLoading: boolean;
 }
 
 const UIEntityTagGroup = (props: Props) => {
-  const [isOpen, setIsOpen] = React.useState(props.isInitiallyOpen);
   const [showFullItems, setShowFullItems] = React.useState(false);
   const toggleShowFullItems = () => {
     setShowFullItems(!showFullItems);
@@ -82,9 +80,8 @@ const UIEntityTagGroup = (props: Props) => {
       className={`pb-2 widget-tag-collapsible widget-tag-collapsible-${props.tag
         .toLowerCase()
         .replace(/ /g, "-")}`}
-      isOpen={isOpen}
+      isOpen
       key={props.tag}
-      onOpenChange={setIsOpen}
     >
       <CollapsibleHeader arrowPosition="start">
         <Text
@@ -98,7 +95,6 @@ const UIEntityTagGroup = (props: Props) => {
       <CollapsibleContent>
         <div
           className="grid items-stretch grid-cols-3 gap-x-1 gap-y-1 justify-items-stretch"
-          data-collapsed={!isOpen}
           data-testid="ui-entity-tag-group"
         >
           {props.tag === WIDGET_TAGS.SUGGESTED_WIDGETS
