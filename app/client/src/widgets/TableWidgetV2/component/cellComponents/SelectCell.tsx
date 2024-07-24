@@ -1,9 +1,13 @@
-import React from "react";
+import React, { useMemo } from "react";
 import SelectComponent from "widgets/SelectWidget/component";
 import styled from "styled-components";
 import type { DropdownOption } from "widgets/SelectWidget/constants";
 import type { BaseCellComponentProps } from "../Constants";
-import { EDITABLE_CELL_PADDING_OFFSET, TABLE_SIZES } from "../Constants";
+import {
+  EDITABLE_CELL_PADDING_OFFSET,
+  TABLE_SIZES,
+  TableSelectColumnOptionKeys,
+} from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { BasicCell } from "./BasicCell";
@@ -189,14 +193,16 @@ export const SelectCell = (props: SelectProps) => {
     .map((d: DropdownOption) => d.value)
     .indexOf(value);
 
-  const getCellLabelValue = useCallback(() => {
+  const cellLabelValue = useMemo(() => {
     let cellLabelValue: string | number | undefined | null = value;
-    const selectedOption = options.find((option) => option["value"] === value);
-    cellLabelValue = selectedOption ? selectedOption["label"] : "";
+    const selectedOption = options.find(
+      (option) => option[TableSelectColumnOptionKeys.VALUE] === value,
+    );
+    cellLabelValue = selectedOption
+      ? selectedOption[TableSelectColumnOptionKeys.LABEL]
+      : "";
     return cellLabelValue || "";
   }, [value, options]);
-
-  const cellContent = getCellLabelValue();
 
   if (isEditable && isCellEditable && isCellEditMode) {
     return (
@@ -236,7 +242,7 @@ export const SelectCell = (props: SelectProps) => {
           resetFilterTextOnClose={resetFilterTextOnClose}
           selectedIndex={selectedIndex}
           serverSideFiltering={serverSideFiltering}
-          value={cellContent}
+          value={cellLabelValue}
           widgetId={""}
           width={width}
         />
@@ -266,7 +272,7 @@ export const SelectCell = (props: SelectProps) => {
         tableWidth={tableWidth}
         textColor={textColor}
         textSize={textSize}
-        value={cellContent}
+        value={cellLabelValue}
         verticalAlignment={verticalAlignment}
       />
     );
