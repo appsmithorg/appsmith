@@ -1,6 +1,5 @@
 package com.appsmith.server.plugins.base;
 
-import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.WorkspaceService;
@@ -24,8 +23,7 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
             PluginManager pluginManager,
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
-            ObjectMapper objectMapper,
-            LoadShifter loadShifter) {
+            ObjectMapper objectMapper) {
 
         super(
                 validator,
@@ -35,7 +33,6 @@ public class PluginServiceImpl extends PluginServiceCEImpl implements PluginServ
                 pluginManager,
                 reactiveTemplate,
                 topic,
-                objectMapper,
-                loadShifter);
+                objectMapper);
     }
 }

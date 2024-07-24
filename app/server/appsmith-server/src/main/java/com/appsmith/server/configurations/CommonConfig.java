@@ -1,5 +1,6 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.util.JSONPrettyPrinter;
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.PrettyPrinter;
@@ -21,7 +22,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -36,8 +36,6 @@ import java.util.Set;
 @Configuration
 public class CommonConfig {
 
-    private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
-    private static final String PARALLEL_THREAD_POOL_NAME = "appsmith-parallel-pool";
     public static final Integer LATEST_INSTANCE_SCHEMA_VERSION = 2;
 
     @Setter(AccessLevel.NONE)
@@ -81,15 +79,7 @@ public class CommonConfig {
 
     @Bean
     public Scheduler elasticScheduler() {
-        return Schedulers.newBoundedElastic(
-                Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE,
-                Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE,
-                ELASTIC_THREAD_POOL_NAME);
-    }
-
-    @Bean
-    public Scheduler parallelScheduler() {
-        return Schedulers.newParallel(PARALLEL_THREAD_POOL_NAME);
+        return LoadShifter.elasticScheduler;
     }
 
     @Bean

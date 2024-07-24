@@ -38,7 +38,6 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     private final ApplicationPermission applicationPermission;
     private final Gson gson;
     private final ResponseUtils responseUtils;
-    private final LoadShifter loadShifter;
     private static final int MAX_SNAPSHOT_SIZE = 15 * 1024 * 1024; // 15 MB
 
     @Override
@@ -82,7 +81,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
         /*
          * Load the subscription to fetch the application snapshot on the elastic scheduler.
          */
-        return loadShifter.subscribeOnElastic(applicationSnapshotResponseDTOMono, "applicationSnapshotResponseDTOMono");
+        return LoadShifter.subscribeOnElastic(applicationSnapshotResponseDTOMono, "applicationSnapshotResponseDTOMono");
     }
 
     @Override

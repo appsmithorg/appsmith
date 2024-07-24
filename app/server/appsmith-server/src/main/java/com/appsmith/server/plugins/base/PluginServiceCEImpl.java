@@ -65,8 +65,6 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
     private final ObjectMapper objectMapper;
-    private final LoadShifter loadShifter;
-
     private final Map<String, Mono<Map<?, ?>>> formCache = new HashMap<>();
     private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
     private final Map<String, Mono<Map>> labelCache = new HashMap<>();
@@ -96,15 +94,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             PluginManager pluginManager,
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
-            ObjectMapper objectMapper,
-            LoadShifter loadShifter) {
+            ObjectMapper objectMapper) {
         super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;
         this.objectMapper = objectMapper;
-        this.loadShifter = loadShifter;
     }
 
     @Override
@@ -413,7 +409,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
              * thread pool and then publishing the result on the parallel thread pool.
              */
             templateCache.put(
-                    pluginId, loadShifter.subscribeOnElasticPublishOnParallel(mono, "loadTemplatesFromPlugin"));
+                    pluginId, LoadShifter.subscribeOnElasticPublishOnParallel(mono, "loadTemplatesFromPlugin"));
         }
 
         return templateCache.get(pluginId);
@@ -636,7 +632,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             Mono<? extends Map<?, ?>> pluginResourceMono =
                     Mono.fromCallable(() -> loadPluginResourceGivenPluginAsMap(plugin, resourcePath));
 
-            return loadShifter.subscribeOnElasticPublishOnParallel(pluginResourceMono, "pluginResourceMono");
+            return LoadShifter.subscribeOnElasticPublishOnParallel(pluginResourceMono, "pluginResourceMono");
         });
     }
 

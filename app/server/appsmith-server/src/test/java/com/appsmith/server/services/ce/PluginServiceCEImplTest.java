@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.plugins.base.PluginServiceCE;
 import com.appsmith.server.plugins.base.PluginServiceCEImpl;
 import com.appsmith.server.repositories.PluginRepository;
@@ -32,9 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 public class PluginServiceCEImplTest {
-
-    @MockBean
-    LoadShifter loadShifter;
 
     @MockBean
     Validator validator;
@@ -72,8 +68,7 @@ public class PluginServiceCEImplTest {
                 pluginManager,
                 reactiveTemplate,
                 topic,
-                objectMapper,
-                loadShifter);
+                objectMapper);
     }
 
     @Test
