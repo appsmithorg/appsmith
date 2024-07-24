@@ -343,15 +343,15 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
           CYPRESS_STATIC_ALLOCATION: true
+          install : false
+          working-directory : app/client
         run: | 
           npx cypress-repeat run \
             -n ${{ github.event.inputs.run_count }} \
             --spec "${{ env.specs_to_run }}" \
             --config-file cypress_ci_custom.config.ts \
             --env "NODE_ENV=development" \
-            --browser ${{ env.BROWSER_PATH }} \
-            --install false \
-            --working-directory app/client
+            --browser ${{ env.BROWSER_PATH }} 
 
       - name: Trim number of cypress log files
         if: failure()
