@@ -27,7 +27,5 @@ public class ApplicationDetailCE {
         this.appPositioning = null;
         this.navigationSetting = null;
         this.themeSetting = new Application.ThemeSetting();
-
-        this.themeSetting.setAppMaxWidth(Application.ThemeSetting.AppMaxWidth.LARGE);
     }
 }
