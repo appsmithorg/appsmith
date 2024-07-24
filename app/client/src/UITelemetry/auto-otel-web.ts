@@ -18,8 +18,11 @@ import {
   OTLPMetricExporter,
   AggregationTemporalityPreference,
 } from "@opentelemetry/exporter-metrics-otlp-http";
-import type { Context, TextMapSetter } from "@opentelemetry/api";
+import type { Context, TextMapSetter, Span } from "@opentelemetry/api";
 import { metrics } from "@opentelemetry/api";
+import { registerInstrumentations } from "@opentelemetry/instrumentation";
+import { getWebAutoInstrumentations } from "@opentelemetry/auto-instrumentations-web";
+import { CompressionAlgorithm } from "@opentelemetry/otlp-exporter-base/build/src/platform/node/types";
 
 const { newRelic } = getAppsmithConfigs();
 const { applicationId, otlpEndpoint, otlpLicenseKey, otlpServiceName } =
@@ -83,6 +86,7 @@ tracerProvider.register({
 });
 
 const nrMetricsExporter = new OTLPMetricExporter({
+  compression: CompressionAlgorithm.GZIP,
   temporalityPreference: AggregationTemporalityPreference.DELTA,
   url: `${otlpEndpoint}/v1/metrics`,
   headers: {
@@ -106,3 +110,37 @@ const meterProvider = new MeterProvider({
 
 // Register the MeterProvider globally
 metrics.setGlobalMeterProvider(meterProvider);
+
+const addCustomAttributesToSpan = (span: Span) => {
+  const sessionId = window.localStorage.getItem("OTLP_SESSION_ID") || "";
+  span.setAttribute("otlpsessionId", sessionId);
+};
+
+registerInstrumentations({
+  instrumentations: [
+    getWebAutoInstrumentations({
+      "@opentelemetry/instrumentation-xml-http-request": {
+        enabled: true,
+
+        ignoreUrls: [/bam.nr-data.net/],
+        applyCustomAttributesOnSpan: addCustomAttributesToSpan,
+      },
+      "@opentelemetry/instrumentation-user-interaction": {
+        enabled: false,
+      },
+      "@opentelemetry/instrumentation-document-load": {
+        enabled: true,
+
+        applyCustomAttributesOnSpan: {
+          documentFetch: addCustomAttributesToSpan,
+          documentLoad: addCustomAttributesToSpan,
+          resourceFetch: addCustomAttributesToSpan,
+        },
+      },
+      "@opentelemetry/instrumentation-fetch": {
+        enabled: true,
+        applyCustomAttributesOnSpan: addCustomAttributesToSpan,
+      },
+    }),
+  ],
+});
