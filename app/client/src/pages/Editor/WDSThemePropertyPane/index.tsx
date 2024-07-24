@@ -306,7 +306,7 @@ function WDSThemePropertyPane() {
               });
             }}
             options={THEME_SETTINGS_ICON_STYLE_OPTIONS}
-            value={theme.appMaxWidth}
+            value={theme.iconStyle}
           />
         </section>
       </SettingSection>
