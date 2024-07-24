@@ -91,7 +91,8 @@ public interface ArtifactBasedImportServiceCE<
      * @param importableArtifact : the artifact which has to be updated
      * @return
      */
-    Mono<T> updateImportableArtifact(Artifact importableArtifact);
+    Mono<T> updateImportableArtifact(
+            Artifact importableArtifact, MappedImportableResourcesDTO mappedImportableResourcesDTO);
 
     Map<String, Object> createImportAnalyticsData(
             ArtifactExchangeJson artifactExchangeJson, Artifact importableArtifact);

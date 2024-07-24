@@ -497,7 +497,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .then(importableArtifactMono)
                 .flatMap(importableArtifact -> updateImportableEntities(
                         contextBasedImportService, importableArtifact, mappedImportableResourcesDTO, importingMetaDTO))
-                .flatMap(importableArtifact -> updateImportableArtifact(contextBasedImportService, importableArtifact))
+                .flatMap(importableArtifact -> updateImportableArtifact(
+                        contextBasedImportService, importableArtifact, mappedImportableResourcesDTO))
                 .onErrorResume(throwable -> {
                     String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                     log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
@@ -580,8 +581,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
      * @return
      */
     private Mono<? extends Artifact> updateImportableArtifact(
-            ArtifactBasedImportService<?, ?, ?> contextBasedImportService, Artifact importableArtifact) {
-        return contextBasedImportService.updateImportableArtifact(importableArtifact);
+            ArtifactBasedImportService<?, ?, ?> contextBasedImportService,
+            Artifact importableArtifact,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+        return contextBasedImportService.updateImportableArtifact(importableArtifact, mappedImportableResourcesDTO);
     }
 
     /**

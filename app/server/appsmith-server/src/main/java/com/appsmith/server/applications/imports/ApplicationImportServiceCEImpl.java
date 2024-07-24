@@ -37,7 +37,6 @@ import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -385,7 +384,12 @@ public class ApplicationImportServiceCEImpl
 
         if (!StringUtils.hasText(importingMetaDTO.getArtifactId())) {
             importApplicationMono = importApplicationMono.flatMap(application -> {
-                return applicationPageService.createOrUpdateSuffixedApplication(application, application.getName(), 0);
+                return applicationPageService
+                        .createOrUpdateSuffixedApplication(application, application.getName(), 0, true)
+                        .map(newApp -> {
+                            mappedImportableResourcesDTO.setUpdateApplication(newApp);
+                            return newApp;
+                        });
             });
         } else {
             Mono<Application> existingApplicationMono = applicationService
@@ -407,15 +411,12 @@ public class ApplicationImportServiceCEImpl
             // this can be a git sync, import page from template, update app with json, restore snapshot
             if (importingMetaDTO.getAppendToArtifact()) { // we don't need to do anything with the imported application
                 if (!CollectionUtils.isEmpty(mappedImportableResourcesDTO.getInstalledJsLibsList())) {
-                    Application update = new Application();
-                    update.setUnpublishedCustomJSLibs(
-                            new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
-                    importApplicationMono = applicationService
-                            .update(importingMetaDTO.getArtifactId(), update)
-                            .then(existingApplicationMono);
-                } else {
-                    importApplicationMono = existingApplicationMono;
+                    mappedImportableResourcesDTO
+                            .getUpdateApplication()
+                            .setUnpublishedCustomJSLibs(
+                                    new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
                 }
+                importApplicationMono = existingApplicationMono;
             } else {
                 importApplicationMono = importApplicationMono
                         .zipWith(existingApplicationMono)
@@ -446,14 +447,11 @@ public class ApplicationImportServiceCEImpl
                             Application application = objects.getT1();
                             Application parentApplication = objects.getT2();
                             application.setPolicies(parentApplication.getPolicies());
-                            return applicationService
-                                    .save(application)
-                                    .onErrorResume(DuplicateKeyException.class, error -> {
-                                        if (error.getMessage() != null) {
-                                            return applicationPageService.createOrUpdateSuffixedApplication(
-                                                    application, application.getName(), 0);
-                                        }
-                                        throw error;
+                            return applicationPageService
+                                    .createOrUpdateSuffixedApplication(application, application.getName(), 0, true)
+                                    .map(newApp -> {
+                                        mappedImportableResourcesDTO.setUpdateApplication(newApp);
+                                        return newApp;
                                     });
                         });
             }
@@ -471,7 +469,8 @@ public class ApplicationImportServiceCEImpl
     }
 
     @Override
-    public Mono<Application> updateImportableArtifact(Artifact importableArtifact) {
+    public Mono<Application> updateImportableArtifact(
+            Artifact importableArtifact, MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         return Mono.just((Application) importableArtifact)
                 .flatMap(application -> {
                     log.info("Imported application with id {}", application.getId());
@@ -479,8 +478,11 @@ public class ApplicationImportServiceCEImpl
                     Application updateApplication = new Application();
                     updateApplication.setPages(application.getPages());
                     updateApplication.setPublishedPages(application.getPublishedPages());
-
-                    return applicationService.update(application.getId(), updateApplication);
+                    mappedImportableResourcesDTO.getUpdateApplication().setPages(application.getPages());
+                    mappedImportableResourcesDTO
+                            .getUpdateApplication()
+                            .setPublishedPages(application.getPublishedPages());
+                    return Mono.just(application);
                 })
                 .flatMap(application -> {
                     return Flux.fromIterable(application.getPages())

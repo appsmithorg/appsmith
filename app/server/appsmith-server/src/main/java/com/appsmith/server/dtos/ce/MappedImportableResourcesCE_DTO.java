@@ -2,6 +2,7 @@ package com.appsmith.server.dtos.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Context;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
@@ -56,6 +57,8 @@ public class MappedImportableResourcesCE_DTO {
     Map<DBOpsType, List<DatasourceStorage>> datasourceStorageDryRunQueries = new HashMap<>();
 
     Map<DBOpsType, List<CustomJSLib>> customJSLibsDryOps = new HashMap<>();
+
+    Application updateApplication = new Application();
 
     {
         for (DBOpsType dbOpsType : DBOpsType.values()) {
