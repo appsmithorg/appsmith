@@ -226,5 +226,8 @@
   "codeScannerScanButton": "//*[text()='Scan a QR/Barcode']/parent::button",
   "codeScannerNewScanButton": "//*[text()='Scan Code']/parent::button",
   "codeScannerClose": ".code-scanner-close",
-  "codeScannerModal": ".code-scanner-content"
+  "codeScannerModal": ".code-scanner-content",
+  "switchlabel": "label.bp3-switch",
+  "switchAlignRight": "bp3-align-right",
+  "switchAlignLeft": "bp3-align-left"
 }

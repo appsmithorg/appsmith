@@ -7,7 +7,7 @@ import { Colors } from "constants/Colors";
 import { IconWrapper } from "constants/IconConstants";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { THEMEING_TEXT_SIZES } from "constants/ThemeConstants";
-import type { AlignWidget } from "WidgetProvider/constants";
+import { AlignWidgetTypes, type AlignWidget } from "WidgetProvider/constants";
 import { importSvg } from "design-system-old";
 import { LabelPosition } from "components/constants";
 
@@ -91,10 +91,10 @@ const InlineStyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
     line-height: 0;
   }
   ${({ labelPosition, alignField }) =>
-    labelPosition === LabelPosition.Left &&  alignField === "LEFT"
+    labelPosition === LabelPosition.Left &&  alignField === AlignWidgetTypes.LEFT
       && "width: 100%;" }
   ${({ labelPosition, alignField }) =>
-    alignField === "RIGHT" &&  (labelPosition === LabelPosition.Right || labelPosition === LabelPosition.Left)
+    alignField === AlignWidgetTypes.RIGHT &&  (labelPosition === LabelPosition.Right || labelPosition === LabelPosition.Left)
       &&  "margin-left: auto;"}
 `;
 
@@ -160,7 +160,7 @@ function FieldLabel({
   }, [labelStyle, labelTextColor, labelTextSize]);
 
   /**
-   * If field and label are to be displayed horizontally then we consider the alignField
+   * If field and label are to be displayed horizontally then we consider based on the labelposition 
    * prop else we always want to have label then field in case of vertical alignment (direction === "column")
    */
 
@@ -194,7 +194,7 @@ function FieldLabel({
     return (
     <StyledLabel direction={direction}>
         {labelPosition === LabelPosition.Right && children}
-      <InlineStyledLabelTextWrapper direction={direction} alignField={alignField} labelPosition={labelPosition}>
+      <InlineStyledLabelTextWrapper direction={direction} alignField={alignField} labelPosition={labelPosition} data-testid="inlinelabel">
         <StyledLabelText isRequiredField={isRequiredField} {...labelStyleProps}>
           {label}
         </StyledLabelText>
