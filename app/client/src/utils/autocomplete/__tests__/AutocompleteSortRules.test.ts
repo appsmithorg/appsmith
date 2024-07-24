@@ -343,6 +343,12 @@ describe("Autocomplete Ranking", () => {
         },
       },
     };
+    const defEntityInformation: Map<string, DataTreeDefEntityInformation> =
+      new Map();
+    defEntityInformation.set("sameEntity", {
+      type: ENTITY_TYPE.WIDGET,
+      subType: "TABLE_WIDGET_V2",
+    });
     const entityInfo: DataTreeDefEntityInformation = {
       type: ENTITY_TYPE.WIDGET,
       subType: "TABLE_WIDGET_V2",
@@ -350,6 +356,7 @@ describe("Autocomplete Ranking", () => {
     const sortedCompletionsText = AutocompleteSorter.sort(
       completions as Completion<TernCompletionResult>[],
       currentFieldInfo as FieldEntityInformation,
+      defEntityInformation,
       entityInfo,
       true,
     )
