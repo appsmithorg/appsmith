@@ -1,8 +1,8 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import SegmentAddHeader from "../components/SegmentAddHeader";
-import { EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
 import type { ListItemProps } from "design-system";
-import { Flex, Tag } from "design-system";
+import { Flex, SearchInput } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import GroupedList from "../components/GroupedList";
@@ -12,11 +12,15 @@ import {
 } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import type { AddProps } from "../types/AddProps";
-import { createAddClassName } from "../utils";
+import { createAddClassName, fuzzySearchInObjectItems } from "../utils";
+import { FocusEntity } from "navigation/FocusEntity";
+import type { GroupedListProps } from "../components/types";
+import { EmptySearchResult } from "../components/EmptySearchResult";
 
 const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
   const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const groupedJsOperations = useGroupedAddJsOperations();
 
@@ -35,12 +39,28 @@ const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
     return {
       startIcon: data.icon,
       title,
-      description: !!data.isBeta ? <Tag isClosable={false}>Beta</Tag> : "",
+      description:
+        data.focusEntityType === FocusEntity.JS_MODULE_INSTANCE
+          ? data.dsName
+          : "",
       descriptionType: "inline",
       onClick: onCreateItemClick.bind(null, data),
       wrapperClassName: createAddClassName(title),
     } as ListItemProps;
   };
+
+  const groups = groupedJsOperations.map(
+    ({ className, operations, title }) => ({
+      groupTitle: title,
+      className: className,
+      items: operations.map(getListItems),
+    }),
+  );
+
+  const localGroups = fuzzySearchInObjectItems<GroupedListProps[]>(
+    searchTerm,
+    groups,
+  );
 
   return (
     <Flex
@@ -61,14 +81,13 @@ const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
           onCloseClick={closeAddJS}
           titleMessage={EDITOR_PANE_TEXTS.js_create_tab_title}
         />
-
-        <GroupedList
-          groups={groupedJsOperations.map((op) => ({
-            groupTitle: op.title,
-            className: op.className,
-            items: op.operations.map(getListItems),
-          }))}
-        />
+        <SearchInput onChange={setSearchTerm} value={searchTerm} />
+        {localGroups.length > 0 ? <GroupedList groups={localGroups} /> : null}
+        {localGroups.length === 0 && searchTerm !== "" ? (
+          <EmptySearchResult
+            type={createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject)}
+          />
+        ) : null}
       </Flex>
     </Flex>
   );
