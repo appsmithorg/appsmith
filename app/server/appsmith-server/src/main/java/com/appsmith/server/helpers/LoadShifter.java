@@ -30,12 +30,7 @@ public class LoadShifter {
      * @param <T> The type of the mono.
      */
     public static <T> Mono<T> subscribeOnElasticPublishOnParallel(Mono<T> mono, String message) {
-        return mono.doOnSubscribe(__ -> log.info("Shifting load for {} to elastic scheduler", message))
-                .subscribeOn(elasticScheduler)
-                .publishOn(parallelScheduler)
-                .doOnSuccess(__ -> log.info("Load shifted for {} to parallel scheduler", message))
-                .doOnError(
-                        error -> log.error("Error while shifting load for {} to parallel scheduler", message, error));
+        return mono.subscribeOn(elasticScheduler).publishOn(parallelScheduler);
     }
 
     /**
@@ -47,7 +42,6 @@ public class LoadShifter {
      * @param <T> The type of the mono.
      */
     public static <T> Mono<T> subscribeOnElastic(Mono<T> mono, String message) {
-        return mono.doOnSubscribe(__ -> log.debug("Shifting load for {} to elastic scheduler", message))
-                .subscribeOn(elasticScheduler);
+        return mono.subscribeOn(elasticScheduler);
     }
 }
