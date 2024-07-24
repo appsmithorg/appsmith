@@ -135,13 +135,17 @@ class WidgetFactory {
       onCanvasUI,
     };
 
-    // When adding widgets in Anvil, we don't need all of the extra properties
+    // When adding widgets to canvas in Anvil, we don't need all of configured properties
+    // (See _config object)
     // and that should ideally be the case for Fixed mode widgets as well
     // So, creating this map to use in WidgetAdditionSagas for both Fixed
     // and Anvil.
+    // Before this we were using "ALL" configured properties when creating
+    // the newly added widget. This lead to many extra properties being added
+    // to the DSL
     WidgetFactory.widgetDefaultPropertiesMap.set(
       widget.type,
-      Object.freeze(defaultConfig),
+      Object.freeze({ ...defaultConfig }),
     );
     WidgetFactory.widgetConfigMap.set(widget.type, Object.freeze(_config));
   }

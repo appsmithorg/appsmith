@@ -18,12 +18,12 @@ import {
   transformMovedWidgets,
 } from "./moveUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilDraggingSagas";
 import {
   hasWidgetJsPropertiesEnabled,
   isEmptyWidget,
   widgetChildren,
 } from "../widgetUtils";
+import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
 
 export function* createZoneAndAddWidgets(
   allWidgets: CanvasWidgetsReduxState,

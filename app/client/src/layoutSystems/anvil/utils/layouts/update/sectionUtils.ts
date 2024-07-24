@@ -14,7 +14,7 @@ import { call } from "redux-saga/effects";
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { anvilWidgets } from "widgets/anvil/constants";
-import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilDraggingSagas";
+import { addNewAnvilWidgetToDSL } from "layoutSystems/anvil/integrations/sagas/anvilWidgetAdditionSagas/helpers";
 
 export function* createSectionAndAddWidget(
   allWidgets: CanvasWidgetsReduxState,
@@ -26,14 +26,13 @@ export function* createSectionAndAddWidget(
    * Step 1: Create Section widget.
    */
   const widgetId: string = generateReactKey();
-  const newWidgetContext = {
-    widgetId,
-    type: anvilWidgets.SECTION_WIDGET,
-    parentId,
-  };
   const updatedWidgets: CanvasWidgetsReduxState = yield addNewAnvilWidgetToDSL(
     allWidgets,
-    newWidgetContext,
+    {
+      widgetId,
+      type: anvilWidgets.SECTION_WIDGET,
+      parentId,
+    },
   );
 
   /**
