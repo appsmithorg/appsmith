@@ -551,9 +551,14 @@ class CodeMirrorTernService {
     const isCursorInsideBindingOrJSObject =
       checkIfCursorInsideBinding(cm) || checkIfCursorInsideJSObject(cm);
 
+    const dotOperatorCountInputQuery =
+      inputQuery.replace(parentPath, "").match(/\./g)?.length || 0;
     for (let i = 0; i < data.completions.length; ++i) {
       const completion = data.completions[i];
       if (typeof completion === "string") continue;
+      const dotOperatorCountCompletion =
+        completion.name.match(/\./g)?.length || 0;
+      if (dotOperatorCountInputQuery !== dotOperatorCountCompletion) continue;
       const isKeyword = isCustomKeywordType(completion);
       const className = typeToIcon(completion.type as string, isKeyword);
       const dataType = getDataType(completion.type as string);
