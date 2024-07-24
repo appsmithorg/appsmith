@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
@@ -11,6 +10,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.helpers.LoadShift;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
@@ -18,6 +18,7 @@ import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -28,6 +29,7 @@ import java.util.Comparator;
 import java.util.List;
 
 @RequiredArgsConstructor
+@Slf4j
 public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServiceCE {
     private final ApplicationSnapshotRepository applicationSnapshotRepository;
     private final ApplicationService applicationService;
@@ -36,7 +38,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     private final ApplicationPermission applicationPermission;
     private final Gson gson;
     private final ResponseUtils responseUtils;
-    private final CommonConfig commonConfig;
+    private final LoadShift loadShift;
     private static final int MAX_SNAPSHOT_SIZE = 15 * 1024 * 1024; // 15 MB
 
     @Override
@@ -71,19 +73,13 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     @Override
     public Mono<ApplicationSnapshotResponseDTO> getWithoutDataByApplicationId(String applicationId, String branchName) {
         // get application first to check the permission and get child aka branched application ID
-        return applicationService
+        Mono<ApplicationSnapshotResponseDTO> applicationSnapshotResponseDTOMono = applicationService
                 .findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplicationId ->
                         applicationSnapshotRepository.findByApplicationIdAndChunkOrder(branchedApplicationId, 1))
-                .defaultIfEmpty(new ApplicationSnapshotResponseDTO(null))
-                .subscribeOn(commonConfig.elasticScheduler())
-                .publishOn(commonConfig.parallelScheduler())
-                .doOnSubscribe(__ -> System.out.println("Subscribed to getWithoutDataByApplicationId on thread: "
-                        + Thread.currentThread().getName()))
-                .doOnNext(__ -> System.out.println("Received next from getWithoutDataByApplicationId on thread: "
-                        + Thread.currentThread().getName()))
-                .doOnError(__ -> System.out.println("Received Error from getWithoutDataByApplicationId on thread: "
-                        + Thread.currentThread().getName()));
+                .defaultIfEmpty(new ApplicationSnapshotResponseDTO(null));
+
+        return loadShift.subscribeOnElasticPublishOnParallel(applicationSnapshotResponseDTOMono);
     }
 
     @Override

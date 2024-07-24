@@ -27,7 +27,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import reactor.blockhound.BlockHound;
-import reactor.core.publisher.Hooks;
 
 import java.time.Duration;
 
@@ -57,10 +56,7 @@ public class ServerApplication {
     }
 
     public static void main(String[] args) {
-        Hooks.onOperatorDebug();
-        BlockHound.install(b -> {
-            b.allowBlockingCallsInside(java.util.UUID.class.getName(), "randomUUID");
-        });
+        BlockHound.install();
         new SpringApplicationBuilder(ServerApplication.class)
                 .bannerMode(Banner.Mode.OFF)
                 .run(args);

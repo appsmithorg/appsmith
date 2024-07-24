@@ -2,7 +2,6 @@ package com.appsmith.server.plugins.base;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
@@ -12,6 +11,7 @@ import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.LoadShift;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -65,6 +65,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
     private final ObjectMapper objectMapper;
+    private final LoadShift loadShift;
 
     private final Map<String, Mono<Map<?, ?>>> formCache = new HashMap<>();
     private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
@@ -85,7 +86,6 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     public static final String KEY_CONTROL_TYPE = "controlType";
     public static final String KEY_COMMENT = "_comment";
     public static final String KEY_FILES = "files";
-    private final CommonConfig commonConfig;
 
     @Autowired
     public PluginServiceCEImpl(
@@ -97,14 +97,14 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
             ObjectMapper objectMapper,
-            CommonConfig commonConfig) {
+            LoadShift loadShift) {
         super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;
         this.objectMapper = objectMapper;
-        this.commonConfig = commonConfig;
+        this.loadShift = loadShift;
     }
 
     @Override
@@ -405,16 +405,9 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                                 AppsmithError.PLUGIN_LOAD_TEMPLATES_FAIL,
                                 Exceptions.unwrap(throwable).getMessage());
                     })
-                    .subscribeOn(commonConfig.elasticScheduler())
-                    .publishOn(commonConfig.parallelScheduler())
-                    .doOnSubscribe(__ -> System.out.println("Subscribed to getTemplates on thread: "
-                            + Thread.currentThread().getName()))
-                    .doOnNext(__ -> System.out.println("Received next from getTemplates on thread: "
-                            + Thread.currentThread().getName()))
-                    .doOnError(__ -> System.out.println("Received Error from getTemplates on thread: "
-                            + Thread.currentThread().getName()))
                     .cache();
-            templateCache.put(pluginId, mono);
+
+            templateCache.put(pluginId, loadShift.subscribeOnElasticPublishOnParallel(mono));
         }
 
         return templateCache.get(pluginId);
@@ -628,15 +621,10 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     return Mono.just(plugin.getDatasourceUiConfig());
                 }
             }
-            return Mono.fromCallable(() -> loadPluginResourceGivenPluginAsMap(plugin, resourcePath))
-                    .subscribeOn(commonConfig.elasticScheduler())
-                    .publishOn(commonConfig.parallelScheduler())
-                    .doOnSubscribe(__ -> System.out.println("Subscribed to pluginResourcesMono on thread: "
-                            + Thread.currentThread().getName()))
-                    .doOnNext(__ -> System.out.println("Received next from pluginResourcesMono on thread: "
-                            + Thread.currentThread().getName()))
-                    .doOnError(__ -> System.out.println("Received Error from pluginResourcesMono on thread: "
-                            + Thread.currentThread().getName()));
+            Mono<? extends Map<?, ?>> pluginResourceMono =
+                    Mono.fromCallable(() -> loadPluginResourceGivenPluginAsMap(plugin, resourcePath));
+
+            return loadShift.subscribeOnElasticPublishOnParallel(pluginResourceMono);
         });
     }
 

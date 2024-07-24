@@ -1,8 +1,8 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.helpers.LoadShift;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
@@ -25,7 +25,7 @@ public class ApplicationSnapshotServiceImpl extends ApplicationSnapshotServiceCE
             ApplicationPermission applicationPermission,
             Gson gson,
             ResponseUtils responseUtils,
-            CommonConfig commonConfig) {
+            LoadShift loadShift) {
         super(
                 applicationSnapshotRepository,
                 applicationService,
@@ -34,6 +34,6 @@ public class ApplicationSnapshotServiceImpl extends ApplicationSnapshotServiceCE
                 applicationPermission,
                 gson,
                 responseUtils,
-                commonConfig);
+                loadShift);
     }
 }
