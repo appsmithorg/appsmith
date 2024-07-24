@@ -29,6 +29,9 @@ import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integ
 import { isEnabledForPreviewData } from "utils/editorContextUtils";
 import history from "utils/history";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
+// import { isEnabledForPreviewData } from "utils/editorContextUtils";
+// import { getPlugin } from "@appsmith/selectors/entitiesSelector";
 import { EditorNames } from "./";
 
 export interface HeaderActionProps {
@@ -67,12 +70,12 @@ export const useHeaderActions = (
   // for Anvil, we're removing the button that generates the page for users in Anvil
   const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
-  const plugin = useSelector((state: AppState) =>
-    getPlugin(state, datasource?.pluginId || ""),
-  );
+//   const plugin = useSelector((state: AppState) =>
+//     getPlugin(state, datasource?.pluginId || ""),
+//   );
 
-  const isPluginAllowedToPreviewData =
-    !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
+  // const isPluginAllowedToPreviewData =
+  //   !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
 
   const shouldShowSecondaryGenerateButton = releaseDragDropBuildingBlocks
     ? false
@@ -112,7 +115,7 @@ export const useHeaderActions = (
         datasource={datasource as Datasource}
         disabled={!canCreateDatasourceActions || !isPluginAuthorized}
         eventFrom="datasource-pane"
-        isNewQuerySecondaryButton={shouldShowSecondaryGenerateButton}
+        isNewQuerySecondaryButton={false}
         pluginType={pluginType}
       />
     );

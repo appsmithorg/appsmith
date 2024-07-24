@@ -65,6 +65,13 @@ export const checkIfCursorInsideBinding = (
   return cursorBetweenBinding;
 };
 
+export const checkIfCursorInsideJSObject = (
+  editor: CodeMirror.Editor,
+): boolean => {
+  const value = editor.getValue();
+  return /^\s*export default /.test(value);
+};
+
 export const isActionEntity = (entity: any): entity is ActionEntity => {
   return entity.ENTITY_TYPE === ENTITY_TYPE.ACTION;
 };

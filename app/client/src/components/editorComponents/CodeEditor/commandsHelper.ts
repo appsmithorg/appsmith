@@ -9,10 +9,7 @@ import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import log from "loglevel";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import {
-  checkIfCursorInsideBinding,
-  shouldShowSlashCommandMenu,
-} from "components/editorComponents/CodeEditor/codeEditorUtils";
+import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import type { SlashCommandPayload } from "entities/Action";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import type {
@@ -133,23 +130,18 @@ export const slashCommandHintHelper: HintHelper = (
     ): boolean => {
       // @ts-expect-error: Types are not available
       editor.closeHint();
-      const { entityType, propertyPath, widgetType } = entityInfo;
+      const { entityType } = entityInfo;
       const currentEntityType = entityType || ENTITY_TYPE.ACTION;
       const filteredEntitiesForSuggestions = entitiesForSuggestions.filter(
         (entity) => {
           return entity.type !== currentEntityType;
         },
       );
-      const showSlashCommandMenu = shouldShowSlashCommandMenu(
-        widgetType,
-        propertyPath,
-      );
       const cursorBetweenBinding = checkIfCursorInsideBinding(editor);
       const cursorPosition = editor.getCursor();
       const currentLineValue = editor.getLine(cursorPosition.line);
       const slashIndex = currentLineValue.lastIndexOf("/");
-      const shouldShowBinding =
-        showSlashCommandMenu || (!cursorBetweenBinding && slashIndex > -1);
+      const shouldShowBinding = !cursorBetweenBinding && slashIndex > -1;
       const searchText = currentLineValue.substring(slashIndex + 1);
 
       if (!shouldShowBinding) return false;
@@ -185,6 +177,5 @@ export const slashCommandHintHelper: HintHelper = (
       );
       return true;
     },
-    fireOnFocus: true,
   };
 };

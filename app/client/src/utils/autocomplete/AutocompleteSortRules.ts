@@ -9,9 +9,13 @@ import type {
   DataTreeDefEntityInformation,
   TernCompletionResult,
 } from "./CodemirrorTernService";
-import { createCompletionHeader } from "./CodemirrorTernService";
+import {
+  createCompletionHeader,
+  createNoQueriesCTACompletion,
+} from "./CodemirrorTernService";
 import { AutocompleteDataType } from "./AutocompleteDataType";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { queryAddURL } from "@appsmith/RouteBuilder";
 
 interface AutocompleteRule {
   computeScore(
@@ -351,6 +355,7 @@ export class AutocompleteSorter {
   static sort(
     completions: Completion<TernCompletionResult>[],
     currentFieldInfo: FieldEntityInformation,
+    defEntityInformation: Map<string, DataTreeDefEntityInformation>,
     entityDefInfo?: DataTreeDefEntityInformation,
     shouldComputeBestMatch = true,
   ) {
@@ -378,15 +383,110 @@ export class AutocompleteSorter {
     const sortedCompletions = sortedScoredCompletions.map(
       (comp) => comp.completion,
     );
+
+    const groupedCompletetions = this.getGroupedCompletions(
+      sortedCompletions,
+      defEntityInformation,
+    );
+
     if (!shouldComputeBestMatch) return sortedCompletions;
-    return bestMatchEndIndex > 0
-      ? [
-          createCompletionHeader("Best match"),
-          ...sortedCompletions.slice(0, bestMatchEndIndex),
-          createCompletionHeader("Search results"),
-          ...sortedCompletions.slice(bestMatchEndIndex),
-        ]
-      : sortedCompletions;
+
+    return bestMatchEndIndex <= 0 ? sortedCompletions : groupedCompletetions;
+
+    // return bestMatchEndIndex > 0
+    //   ? [
+    //       createCompletionHeader("Best match"),
+    //       ...sortedCompletions.slice(0, bestMatchEndIndex),
+    //       createCompletionHeader("Search results"),
+    //       ...sortedCompletions.slice(bestMatchEndIndex),
+    //     ]
+    //   : sortedCompletions;
+  }
+
+  static getGroupedCompletions(
+    sortedCompletions: Completion<TernCompletionResult>[],
+    defEntityInformation: Map<string, DataTreeDefEntityInformation>,
+  ) {
+    const widgetCompletionsList: Completion<TernCompletionResult>[] = [];
+    const actionCompletionsList: Completion<TernCompletionResult>[] = [];
+    const jsObjectCompletionsList: Completion<TernCompletionResult>[] = [];
+    const appsmithCompletionsList: Completion<TernCompletionResult>[] = [];
+    const miscList: Completion<TernCompletionResult>[] = [];
+    sortedCompletions.forEach(
+      (completionObj: Completion<TernCompletionResult>) => {
+        if (completionObj.origin === "DATA_TREE") {
+          const objectName: string | undefined =
+            completionObj.fullPath?.split(".")[0];
+          if (!!objectName) {
+            const entityInformation: DataTreeDefEntityInformation | undefined =
+              defEntityInformation.get(objectName);
+            switch (entityInformation?.type) {
+              case ENTITY_TYPE.WIDGET:
+                if (widgetCompletionsList.length === 0) {
+                  widgetCompletionsList.push(
+                    createCompletionHeader("UI Elements"),
+                  );
+                }
+                widgetCompletionsList.push(completionObj);
+                break;
+              case ENTITY_TYPE.ACTION:
+                if (actionCompletionsList.length === 0) {
+                  actionCompletionsList.push(createCompletionHeader("Queries"));
+                }
+                actionCompletionsList.push(completionObj);
+                break;
+              case ENTITY_TYPE.JSACTION:
+                if (jsObjectCompletionsList.length === 0) {
+                  jsObjectCompletionsList.push(
+                    createCompletionHeader("JS Objects"),
+                  );
+                }
+                jsObjectCompletionsList.push(completionObj);
+                break;
+              case ENTITY_TYPE.APPSMITH:
+                if (appsmithCompletionsList.length === 0) {
+                  appsmithCompletionsList.push(
+                    createCompletionHeader("Global State"),
+                  );
+                }
+                appsmithCompletionsList.push(completionObj);
+                break;
+              default:
+                break;
+            }
+          } else {
+            if (miscList.length === 0) {
+              miscList.push(createCompletionHeader("Search results"));
+            }
+            miscList.push(completionObj);
+          }
+        } else {
+          if (miscList.length === 0) {
+            miscList.push(createCompletionHeader("Search results"));
+          }
+          miscList.push(completionObj);
+        }
+      },
+    );
+
+    // No actions present, add a CTA for create query
+    if (actionCompletionsList.length === 0) {
+      actionCompletionsList.push(createCompletionHeader("Queries"));
+      actionCompletionsList.push(
+        createNoQueriesCTACompletion(
+          "No queries to bind. Create a new query",
+          queryAddURL({
+            pageId: AutocompleteSorter.currentFieldInfo?.currentPageId,
+          }),
+        ),
+      );
+    }
+    return [
+      ...actionCompletionsList,
+      ...jsObjectCompletionsList,
+      ...appsmithCompletionsList,
+      ...widgetCompletionsList,
+    ];
   }
 }
 

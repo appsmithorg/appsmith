@@ -389,10 +389,12 @@ describe("Tern server sorting", () => {
         entityType: ENTITY_TYPE.WIDGET,
         expectedType: AutocompleteDataType.STRING,
       },
+      defEntityInformation,
       {
         type: ENTITY_TYPE.WIDGET,
         subType: "TABLE_WIDGET",
       },
+      false,
     );
     expect(sortedCompletions[1]).toStrictEqual(contextCompletion);
     expect(sortedCompletions).toEqual(
