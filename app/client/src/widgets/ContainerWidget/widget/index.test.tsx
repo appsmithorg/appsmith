@@ -2,7 +2,7 @@ import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
 import React from "react";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
-import * as useCanvasWidthAutoResize from "pages/Editor/WidgetsEditor/components/MainContainerWrapper";
+import * as useDynamicAppLayoutHook from "utils/hooks/useDynamicAppLayout";
 
 import * as useCanvasDraggingHook from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/hooks/useCanvasDragging";
 import store from "store";
@@ -20,9 +20,8 @@ const pageId = "0123456789abcdef00000000";
 describe("ContainerWidget tests", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
   jest
-    .spyOn(useCanvasWidthAutoResize, "useCanvasWidthAutoResize")
+    .spyOn(useDynamicAppLayoutHook, "useDynamicAppLayout")
     .mockImplementation(() => true);
-
   const pushState = jest.spyOn(window.history, "pushState");
 
   pushState.mockImplementation((state: any, title: any, url: any) => {

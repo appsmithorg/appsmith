@@ -8,7 +8,7 @@ import {
   combinedPreviewModeSelector,
   getCurrentApplication,
 } from "selectors/editorSelectors";
-import { PageViewWrapper } from "pages/AppViewer/AppPage";
+import { PageViewWrapper } from "pages/AppViewer/AppPage.styled";
 import classNames from "classnames";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";

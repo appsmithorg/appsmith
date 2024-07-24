@@ -1,1 +1,0 @@
-export const RESIZE_DEBOUNCE_THRESHOLD = 100;
