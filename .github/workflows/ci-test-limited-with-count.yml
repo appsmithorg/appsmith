@@ -343,11 +343,8 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
           CYPRESS_STATIC_ALLOCATION: true
-          install : false
-          working-directory : app/client
         run: |
-            cd app/client
-            npx cypress run --spec cypress/integration/editing-spec.js \
+            cd app/client && npx cypress run --spec cypress/integration/editing-spec.js \
             --config-file cypress_ci_custom.config.ts \
             --env "NODE_ENV=development" \
             --browser ${{ env.BROWSER_PATH }}  \
