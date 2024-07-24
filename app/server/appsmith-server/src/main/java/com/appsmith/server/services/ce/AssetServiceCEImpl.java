@@ -7,6 +7,7 @@ import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.services.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -25,9 +26,11 @@ import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.Constraint.THUMBNAIL_PHOTO_DIMENSION;
@@ -43,11 +46,12 @@ public class AssetServiceCEImpl implements AssetServiceCE {
     private static final Set<MediaType> ALLOWED_CONTENT_TYPES = Set.of(
             MediaType.IMAGE_JPEG,
             MediaType.IMAGE_PNG,
+            MediaType.valueOf("image/svg+xml"),
             MediaType.valueOf("image/x-icon"),
             MediaType.valueOf("image/vnd.microsoft.icon"));
 
     private static final Set<String> ALLOWED_CONTENT_TYPES_STR =
-            Set.of(MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE);
+            Set.of(MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE, "image/svg+xml");
 
     @Override
     public Mono<Asset> getById(String id) {
@@ -65,10 +69,43 @@ public class AssetServiceCEImpl implements AssetServiceCE {
                means the file is not an image type file rather any other corrupted file but the extension has been
                changed to .png or .jpeg to upload the flawed file. This is a security vulnerability hence reject
             */
-            if (ALLOWED_CONTENT_TYPES_STR.contains(contentType.toString())) {
+            Boolean isSvgType = MediaType.valueOf("image/svg+xml").equals(contentType);
+            if (isSvgType) {
+                String svgContent = IOUtils.toString(dataBuffer.asInputStream(), StandardCharsets.UTF_8);
+                dataBuffer.readPosition(0);
+
+                if (!isSvgSafe(svgContent)) {
+                    // Throwing validation exception to return separate response for svg type.
+                    throw new AppsmithException(AppsmithError.VALIDATION_FAILURE, "Please upload a valid svg.");
+                }
+            } else if (ALLOWED_CONTENT_TYPES_STR.contains(contentType.toString())) {
                 return false;
             }
         }
+        return true;
+    }
+
+    private boolean isSvgSafe(String svgContent) {
+        // Array of regex patterns to check any malicious content like(style,link,script etc.) against SVG content
+        String[] patterns = {
+            "<script\\b[^<]*(?:(?!<\\/script>)<[^<]*)*<\\/script>",
+            "<style\\b[^<]*(?:(?!<\\/style>)<[^<]*)*<\\/style>",
+            "<a\\b[^>]*>",
+            "</a>",
+            "\\s(on[a-zA-Z]+|style)\\s*=\\s*(['\"]).*?\\2",
+            "\\s(href|src)\\s*=\\s*(['\"])javascript:[^'\"]*\\2"
+        };
+
+        // Compile patterns and check each against svgContent to detect any malicious code.
+        for (String pattern : patterns) {
+            if (Pattern.compile(pattern, Pattern.CASE_INSENSITIVE | Pattern.DOTALL)
+                    .matcher(svgContent)
+                    .find()) {
+                return false; // Unsafe SVG
+            }
+        }
+
+        // If none of the patterns match, consider the SVG safe
         return true;
     }
 
