@@ -11,7 +11,7 @@ import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.LoadShift;
+import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -65,7 +65,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
     private final ReactiveRedisTemplate<String, String> reactiveTemplate;
     private final ChannelTopic topic;
     private final ObjectMapper objectMapper;
-    private final LoadShift loadShift;
+    private final LoadShifter loadShifter;
 
     private final Map<String, Mono<Map<?, ?>>> formCache = new HashMap<>();
     private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
@@ -97,14 +97,14 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
             ObjectMapper objectMapper,
-            LoadShift loadShift) {
+            LoadShifter loadShifter) {
         super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
         this.topic = topic;
         this.objectMapper = objectMapper;
-        this.loadShift = loadShift;
+        this.loadShifter = loadShifter;
     }
 
     @Override
@@ -407,7 +407,13 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     })
                     .cache();
 
-            templateCache.put(pluginId, loadShift.subscribeOnElasticPublishOnParallel(mono));
+            /*
+             * The method loadTemplatesFromPlugin is reads a file from the system, and this is a blocking process.
+             * Since, we need to keep the nioEventLoop thread pool free, we are shifting the subscription to elastic
+             * thread pool and then publishing the result on the parallel thread pool.
+             */
+            templateCache.put(
+                    pluginId, loadShifter.subscribeOnElasticPublishOnParallel(mono, "loadTemplatesFromPlugin"));
         }
 
         return templateCache.get(pluginId);
@@ -621,10 +627,16 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     return Mono.just(plugin.getDatasourceUiConfig());
                 }
             }
+
+            /*
+             * The method loadPluginResourceGivenPluginAsMap is reads a file from the system, and this is a blocking
+             * process. Since, we need to keep the nioEventLoop thread pool free, we are shifting the subscription to
+             * elastic thread pool and then publishing the result on the parallel thread pool.
+             */
             Mono<? extends Map<?, ?>> pluginResourceMono =
                     Mono.fromCallable(() -> loadPluginResourceGivenPluginAsMap(plugin, resourcePath));
 
-            return loadShift.subscribeOnElasticPublishOnParallel(pluginResourceMono);
+            return loadShifter.subscribeOnElasticPublishOnParallel(pluginResourceMono, "pluginResourceMono");
         });
     }
 

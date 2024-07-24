@@ -10,7 +10,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
-import com.appsmith.server.helpers.LoadShift;
+import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
@@ -38,7 +38,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     private final ApplicationPermission applicationPermission;
     private final Gson gson;
     private final ResponseUtils responseUtils;
-    private final LoadShift loadShift;
+    private final LoadShifter loadShifter;
     private static final int MAX_SNAPSHOT_SIZE = 15 * 1024 * 1024; // 15 MB
 
     @Override
@@ -79,7 +79,10 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                         applicationSnapshotRepository.findByApplicationIdAndChunkOrder(branchedApplicationId, 1))
                 .defaultIfEmpty(new ApplicationSnapshotResponseDTO(null));
 
-        return loadShift.subscribeOnElasticPublishOnParallel(applicationSnapshotResponseDTOMono);
+        /*
+         * Load the subscription to fetch the application snapshot on the elastic scheduler.
+         */
+        return loadShifter.subscribeOnElastic(applicationSnapshotResponseDTOMono, "applicationSnapshotResponseDTOMono");
     }
 
     @Override
