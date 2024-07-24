@@ -124,7 +124,7 @@ export function Login(props: LoginFormProps) {
 
   let forgotPasswordURL = `${FORGOT_PASSWORD_URL}`;
   if (props.emailValue && !isEmptyString(props.emailValue)) {
-    forgotPasswordURL += `?email=${props.emailValue}`;
+    forgotPasswordURL += `?email=${encodeURIComponent(props.emailValue)}`;
   }
 
   const footerSection = isFormLoginEnabled && (
