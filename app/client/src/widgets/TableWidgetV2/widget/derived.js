@@ -265,45 +265,6 @@ export default {
     let processedTableData = [...props.processedTableData];
     const derivedColumns = {};
 
-    /* 
-    Check if there are select columns, 
-    and if the columns are sorting by label instead of default value 
-    */
-    const selectColumnKeys = [];
-    Object.keys(primaryColumns).forEach((id) => {
-      if (
-        primaryColumns[id] &&
-        primaryColumns[id].columnType === "select" &&
-        primaryColumns[id].sortBy &&
-        primaryColumns[id].sortBy === "label"
-      ) {
-        selectColumnKeys.push(id);
-      }
-    });
-
-    /* 
-    If there are select columns, 
-    transform the specific columns data to show the label instead of the value for soritng 
-    */
-    if (selectColumnKeys.length) {
-      const transformedValueToLabelData = processedTableData.map((row) => {
-        const newRow = { ...row };
-        selectColumnKeys.forEach((key) => {
-          const value = row[key];
-          const selectOptions =
-            primaryColumns[key].selectOptions[row.__originalIndex__];
-          const option = selectOptions.find((option) => option.value === value);
-
-          if (option) {
-            newRow[key] = option.label;
-          }
-        });
-
-        return newRow;
-      });
-      processedTableData = transformedValueToLabelData;
-    }
-
     Object.keys(primaryColumns).forEach((id) => {
       if (primaryColumns[id] && primaryColumns[id].isDerived) {
         derivedColumns[id] = primaryColumns[id];
@@ -356,6 +317,45 @@ export default {
     const sortByColumnId = props.sortOrder.column;
 
     let sortedTableData;
+    /* 
+    Check if there are select columns, 
+    and if the columns are sorting by label instead of default value 
+    */
+    const selectColumnKeysWithSortByLabel = [];
+    Object.keys(primaryColumns).forEach((id) => {
+      if (
+        primaryColumns[id] &&
+        primaryColumns[id].columnType === "select" &&
+        primaryColumns[id].sortBy &&
+        primaryColumns[id].sortBy === "label"
+      ) {
+        selectColumnKeysWithSortByLabel.push(id);
+      }
+    });
+
+    /* 
+    If there are select columns, 
+    transform the specific columns data to show the label instead of the value for sorting 
+    */
+    let transformedSortTableData;
+    if (selectColumnKeysWithSortByLabel.length) {
+      const transformedValueToLabelData = processedTableData.map((row) => {
+        const newRow = { ...row };
+        selectColumnKeysWithSortByLabel.forEach((key) => {
+          const value = row[key];
+          const selectOptions =
+            primaryColumns[key].selectOptions[row.__originalIndex__];
+          const option = selectOptions.find((option) => option.value === value);
+
+          if (option) {
+            newRow[key] = option.label;
+          }
+        });
+
+        return newRow;
+      });
+      transformedSortTableData = transformedValueToLabelData;
+    }
 
     if (sortByColumnId) {
       const sortBycolumn = columns.find(
@@ -391,7 +391,11 @@ export default {
         }
       };
 
-      sortedTableData = processedTableData.sort((a, b) => {
+      const tableDataForSorting = selectColumnKeysWithSortByLabel.length
+        ? transformedSortTableData
+        : processedTableData;
+
+      sortedTableData = tableDataForSorting.sort((a, b) => {
         if (_.isPlainObject(a) && _.isPlainObject(b)) {
           if (
             isEmptyOrNil(a[sortByColumnOriginalId]) ||
@@ -444,6 +448,26 @@ export default {
           return isAscOrder ? 1 : 0;
         }
       });
+
+      if (selectColumnKeysWithSortByLabel.length) {
+        const finalSortedTableData = sortedTableData.map((row) => {
+          const newRow = { ...row };
+          selectColumnKeysWithSortByLabel.forEach((key) => {
+            const label = row[key];
+            const selectOptions =
+              primaryColumns[key].selectOptions[row.__originalIndex__];
+            const option = selectOptions.find(
+              (option) => option.label === label,
+            );
+            if (option) {
+              newRow[key] = option.value;
+            }
+          });
+
+          return newRow;
+        });
+        sortedTableData = finalSortedTableData;
+      }
     } else {
       sortedTableData = [...processedTableData];
     }
