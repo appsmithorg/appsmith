@@ -80,6 +80,7 @@ export class JSLintEntityParser implements EntityParser {
         if (isJSFunctionProperty(parsedPropertyDetails)) {
           parsedJSEntityConfig[propertyName] = {
             isMarkedAsync: parsedPropertyDetails.isMarkedAsync,
+            customLintErrors: parsedPropertyDetails.customLintErrors,
             position,
             value: rawContent,
             type,

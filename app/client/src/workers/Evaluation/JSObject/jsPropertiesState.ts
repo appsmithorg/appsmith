@@ -1,6 +1,7 @@
 import type { JSPropertyPosition, TParsedJSProperty } from "@shared/ast";
 import { isJSFunctionProperty } from "@shared/ast";
 import { set } from "lodash";
+import type { LintError } from "utils/DynamicBindingUtils";
 
 class JsPropertiesState {
   private jsPropertiesState: TJSPropertiesState = {};
@@ -44,6 +45,7 @@ export interface TBasePropertyState {
 }
 export interface TJSFunctionPropertyState extends TBasePropertyState {
   isMarkedAsync: boolean;
+  customLintErrors: LintError[];
 }
 
 export type TJSpropertyState = TBasePropertyState | TJSFunctionPropertyState;

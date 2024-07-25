@@ -42,6 +42,17 @@ export default function lintJSObjectProperty(
       ),
     );
   }
+
+  if (jsPropertyState.hasOwnProperty("customLintErrors")) {
+    lintErrors = [
+      ...lintErrors,
+      ...(jsPropertyState as TJSFunctionPropertyState).customLintErrors,
+    ];
+    // merge(
+    //   lintErrors,
+    //   (jsPropertyState as TJSFunctionPropertyState).customLintErrors,
+    // );
+  }
   return lintErrors;
 }
 
