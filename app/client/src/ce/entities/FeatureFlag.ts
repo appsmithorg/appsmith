@@ -34,6 +34,8 @@ export const FEATURE_FLAG = {
     "rollout_remove_feature_walkthrough_enabled",
   release_drag_drop_building_blocks_enabled:
     "release_drag_drop_building_blocks_enabled",
+  release_table_cell_label_value_enabled:
+    "release_table_cell_label_value_enabled",
   rollout_js_enabled_one_click_binding_enabled:
     "rollout_js_enabled_one_click_binding_enabled",
   rollout_side_by_side_enabled: "rollout_side_by_side_enabled",
@@ -63,6 +65,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_gac_enabled: false,
   release_anvil_enabled: false,
   release_drag_drop_building_blocks_enabled: false,
+  release_table_cell_label_value_enabled: false,
   license_git_branch_protection_enabled: false,
   release_git_autocommit_feature_enabled: false,
   license_git_continuous_delivery_enabled: false,
