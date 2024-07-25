@@ -18,4 +18,4 @@ export type IconProps = {
   wrapperColor?: string;
 } & React.HTMLAttributes<HTMLSpanElement>;
 
-export { IconNames };
+export type { IconNames };

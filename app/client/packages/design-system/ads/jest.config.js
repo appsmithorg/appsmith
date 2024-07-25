@@ -5,7 +5,15 @@ module.exports = {
   setupFilesAfterEnv: ["<rootDir>/jest.setup.js"], // Optional: Additional setup
   testEnvironment: "jsdom",
   transform: {
-    "^.+\\.(ts|tsx)$": "ts-jest", // Use ts-jest for transforming TypeScript files
+    "^.+\\.(ts|tsx)$": [
+      "ts-jest",
+      {
+        useESM: true,
+        tsconfig: {
+          verbatimModuleSyntax: false,
+        },
+      },
+    ], // Use ts-jest for transforming TypeScript files
     "\\.(svg)$": "<rootDir>/fileTransformer.js", // Create this file for SVG handling (see below)
   },
   moduleNameMapper: {
