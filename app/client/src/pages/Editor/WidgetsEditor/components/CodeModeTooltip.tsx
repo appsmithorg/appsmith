@@ -33,7 +33,12 @@ const CodeModeTooltip = (props: { children: React.ReactElement }) => {
       });
   }, [isWidgetSelectionBlock]);
   if (!isWidgetSelectionBlock) return props.children;
-  if (editorState !== EditorState.EDITOR) return props.children;
+  if (
+    editorState !== EditorState.UI &&
+    editorState !== EditorState.DATA &&
+    editorState !== EditorState.LOGIC
+  )
+    return props.children;
   return (
     <Tooltip
       content={createMessage(CANVAS_VIEW_MODE_TOOLTIP, `${modText()}`)}

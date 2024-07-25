@@ -93,14 +93,16 @@ interface HeaderTitleProps {
 
 const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
   switch (appState) {
-    case EditorState.DATA:
+    case EditorState.DATASOURCES:
       return (
         <IDEHeaderTitle
           key={appState}
           title={createMessage(HEADER_TITLES.DATA)}
         />
       );
-    case EditorState.EDITOR:
+    case EditorState.UI:
+    case EditorState.DATA:
+    case EditorState.LOGIC:
       return <EditorTitle key={appState} title={currentPage?.pageName || ""} />;
     case EditorState.SETTINGS:
       return (

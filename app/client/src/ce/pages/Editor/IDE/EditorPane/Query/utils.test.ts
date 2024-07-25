@@ -35,7 +35,7 @@ describe("getQueryUrl", () => {
     const focusEntity: FocusEntityInfo = {
       entity: FocusEntity.QUERY,
       id: "abc",
-      appState: EditorState.EDITOR,
+      appState: EditorState.DATA,
       params: {
         pluginPackageName: PluginPackageName.GOOGLE_SHEETS,
         apiId: "abc",
@@ -57,7 +57,7 @@ describe("getQueryUrl", () => {
     const focusEntity: FocusEntityInfo = {
       entity: FocusEntity.QUERY,
       id: "abc",
-      appState: EditorState.EDITOR,
+      appState: EditorState.DATA,
       params: {
         apiId: "abc",
       },
@@ -78,7 +78,7 @@ describe("getQueryUrl", () => {
     const focusEntity: FocusEntityInfo = {
       entity: FocusEntity.QUERY,
       id: "abc",
-      appState: EditorState.EDITOR,
+      appState: EditorState.DATA,
       params: {
         queryId: "abc",
       },
@@ -99,7 +99,7 @@ describe("getQueryUrl", () => {
     const focusEntity: FocusEntityInfo = {
       entity: FocusEntity.QUERY,
       id: "add",
-      appState: EditorState.EDITOR,
+      appState: EditorState.DATA,
       params: {
         queryId: "add",
       },
@@ -115,7 +115,7 @@ describe("getQueryUrl", () => {
     const focusEntity: FocusEntityInfo = {
       entity: FocusEntity.JS_OBJECT,
       id: "abc",
-      appState: EditorState.EDITOR,
+      appState: EditorState.LOGIC,
       params: {
         collectionId: "abc",
       },

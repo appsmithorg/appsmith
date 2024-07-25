@@ -15,7 +15,7 @@ import Onboarding from ".";
 import { unitTestBaseMockStore } from "../unitTestUtils";
 
 jest.mock("pages/Editor/IDE/hooks", () => ({
-  useCurrentAppState: jest.fn().mockReturnValue(EditorState.EDITOR),
+  useCurrentAppState: jest.fn().mockReturnValue(EditorState.UI),
   useCurrentEditorState: jest.fn(),
 }));
 

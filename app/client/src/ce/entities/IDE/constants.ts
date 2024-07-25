@@ -25,17 +25,21 @@ import type { IDESidebarButton } from "IDE";
 
 export enum EditorState {
   DATA = "DATA",
-  EDITOR = "EDITOR",
+  UI = "UI",
+  LOGIC = "LOGIC",
+  DATASOURCES = "DATASOURCES",
   SETTINGS = "SETTINGS",
   LIBRARIES = "LIBRARIES",
 }
 
 export const SidebarTopButtonTitles = {
   DATA: "Data",
-  EDITOR: "Editor",
+  UI: "UI",
+  LOGIC: "Logic",
 };
 
 export const SidebarBottomButtonTitles = {
+  DATASOURCES: "Datasources",
   SETTINGS: "Settings",
   LIBRARIES: "Libraries",
 };
@@ -59,20 +63,32 @@ export enum EditorViewMode {
 
 export const TopButtons: IDESidebarButton[] = [
   {
-    state: EditorState.EDITOR,
+    state: EditorState.DATA,
+    icon: "queries-v3",
+    title: SidebarTopButtonTitles.DATA,
+    urlSuffix: "queries",
+  },
+  {
+    state: EditorState.UI,
     icon: "editor-v3",
-    title: SidebarTopButtonTitles.EDITOR,
+    title: SidebarTopButtonTitles.UI,
     urlSuffix: "",
   },
   {
-    state: EditorState.DATA,
-    icon: "datasource-v3",
-    title: SidebarTopButtonTitles.DATA,
-    urlSuffix: "datasource",
+    state: EditorState.LOGIC,
+    icon: "snippet",
+    title: SidebarTopButtonTitles.LOGIC,
+    urlSuffix: "jsObjects",
   },
 ];
 
 export const BottomButtons: IDESidebarButton[] = [
+  {
+    state: EditorState.DATASOURCES,
+    icon: "datasource-v3",
+    urlSuffix: "datasource",
+    tooltip: SidebarBottomButtonTitles.DATASOURCES,
+  },
   {
     state: EditorState.LIBRARIES,
     icon: "packages-v3",

@@ -21,7 +21,10 @@ export const useHoverToFocusWidget = (
   // This state tells the current IDE state
   const ideState = useCurrentAppState();
   // Check if in the editor state
-  const isEditor = ideState === EditorState.EDITOR;
+  const isEditor =
+    ideState === EditorState.UI ||
+    ideState === EditorState.LOGIC ||
+    ideState === EditorState.DATA;
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(

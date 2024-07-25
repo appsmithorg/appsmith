@@ -87,7 +87,7 @@ export const createEditorFocusInfo = (pageId: string, branch?: string) => ({
   key: createEditorFocusInfoKey(pageId, branch),
   entityInfo: {
     id: `EDITOR.${pageId}`,
-    appState: EditorState.EDITOR,
+    appState: EditorState.UI,
     entity: FocusEntity.EDITOR,
     params: {},
   },
@@ -156,7 +156,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     // Store editor state if previous url was in editor.
     // Does not matter if still in editor or not
     if (
-      prevFocusEntityInfo.appState === EditorState.EDITOR &&
+      prevFocusEntityInfo.appState === EditorState.UI &&
       prevFocusEntityInfo.entity !== FocusEntity.NONE &&
       (prevFocusEntityInfo.entity !== currentFocusEntityInfo.entity ||
         prevFocusEntityInfo.params.pageId !==
@@ -166,7 +166,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
         entityInfo: {
           entity: FocusEntity.EDITOR,
           id: `EDITOR.${prevFocusEntityInfo.params.pageId}`,
-          appState: EditorState.EDITOR,
+          appState: EditorState.UI,
           params: prevFocusEntityInfo.params,
         },
         key: `EDITOR_STATE.${prevFocusEntityInfo.params.pageId}#${branch}`,
