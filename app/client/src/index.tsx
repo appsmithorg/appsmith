@@ -25,6 +25,7 @@ import AppErrorBoundary from "./AppErrorBoundry";
 import log from "loglevel";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { PageViewTiming } from "@newrelic/browser-agent/features/page_view_timing";
+import { PageViewEvent } from "@newrelic/browser-agent/features/page_view_event";
 import { Agent } from "@newrelic/browser-agent/loaders/agent";
 
 const { newRelic } = getAppsmithConfigs();
@@ -56,7 +57,7 @@ if (enableNewRelic) {
   new Agent(
     {
       ...newRelicBrowserAgentConfig,
-      features: [PageViewTiming],
+      features: [PageViewTiming, PageViewEvent],
     },
     // The second argument agentIdentifier is not marked as optional in its type definition.
     // Passing a null value throws an error as well. So we pass undefined.

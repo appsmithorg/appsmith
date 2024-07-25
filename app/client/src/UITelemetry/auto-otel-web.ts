@@ -18,23 +18,28 @@ import {
   OTLPMetricExporter,
   AggregationTemporalityPreference,
 } from "@opentelemetry/exporter-metrics-otlp-http";
-import type { Context, TextMapSetter, Span } from "@opentelemetry/api";
+import type { Context, TextMapSetter } from "@opentelemetry/api";
 import { metrics } from "@opentelemetry/api";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
-import { getWebAutoInstrumentations } from "@opentelemetry/auto-instrumentations-web";
-import { CompressionAlgorithm } from "@opentelemetry/otlp-exporter-base/build/src/platform/node/types";
+import { PageLoadInstrumentation } from "./PageLoadInstrumentation";
 
 enum CompressionAlgorithm {
   NONE = "none",
   GZIP = "gzip",
 }
 const { newRelic } = getAppsmithConfigs();
-const { applicationId, otlpEndpoint, otlpLicenseKey, otlpServiceName } =
-  newRelic;
+const {
+  applicationId,
+  browserAgentEndpoint,
+  otlpEndpoint,
+  otlpLicenseKey,
+  otlpServiceName,
+} = newRelic;
 
+const SERVICE_NAME = `${otlpServiceName} - 1`;
 const tracerProvider = new WebTracerProvider({
   resource: new Resource({
-    [SEMRESATTRS_SERVICE_NAME]: otlpServiceName,
+    [SEMRESATTRS_SERVICE_NAME]: SERVICE_NAME,
     [SEMRESATTRS_SERVICE_INSTANCE_ID]: applicationId,
     [SEMRESATTRS_SERVICE_VERSION]: "1.0.0",
   }),
@@ -100,7 +105,7 @@ const nrMetricsExporter = new OTLPMetricExporter({
 
 const meterProvider = new MeterProvider({
   resource: new Resource({
-    [SEMRESATTRS_SERVICE_NAME]: otlpServiceName,
+    [SEMRESATTRS_SERVICE_NAME]: SERVICE_NAME,
     [SEMRESATTRS_SERVICE_INSTANCE_ID]: applicationId,
     [SEMRESATTRS_SERVICE_VERSION]: "1.0.0",
   }),
@@ -115,36 +120,12 @@ const meterProvider = new MeterProvider({
 // Register the MeterProvider globally
 metrics.setGlobalMeterProvider(meterProvider);
 
-const addCustomAttributesToSpan = (span: Span) => {
-  const sessionId = window.localStorage.getItem("OTLP_SESSION_ID") || "";
-  span.setAttribute("otlpsessionId", sessionId);
-};
-
 registerInstrumentations({
+  tracerProvider,
+  meterProvider,
   instrumentations: [
-    getWebAutoInstrumentations({
-      "@opentelemetry/instrumentation-xml-http-request": {
-        enabled: true,
-
-        ignoreUrls: [/bam.nr-data.net/],
-        applyCustomAttributesOnSpan: addCustomAttributesToSpan,
-      },
-      "@opentelemetry/instrumentation-user-interaction": {
-        enabled: false,
-      },
-      "@opentelemetry/instrumentation-document-load": {
-        enabled: true,
-
-        applyCustomAttributesOnSpan: {
-          documentFetch: addCustomAttributesToSpan,
-          documentLoad: addCustomAttributesToSpan,
-          resourceFetch: addCustomAttributesToSpan,
-        },
-      },
-      "@opentelemetry/instrumentation-fetch": {
-        enabled: true,
-        applyCustomAttributesOnSpan: addCustomAttributesToSpan,
-      },
+    new PageLoadInstrumentation({
+      ignoreResourceUrls: [browserAgentEndpoint, otlpEndpoint],
     }),
   ],
 });
