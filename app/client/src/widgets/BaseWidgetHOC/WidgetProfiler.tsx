@@ -12,12 +12,13 @@ export const WidgetProfiler = ({
   return (
     <Profiler
       id={widgetId}
-      onRender={(...args) => {
-        const [, phase, actualDuaration, baseDuration] = args;
+      onRender={(id, phase, actualDuaration, baseDuration) => {
         generateRootSpan("widgetRender", actualDuaration, {
           widgetType: type,
-          widgetId,
+          id,
+          // mount or update phase
           phase,
+          // estimated time to render the entire subtree without memoization
           baseDuration,
         });
       }}
