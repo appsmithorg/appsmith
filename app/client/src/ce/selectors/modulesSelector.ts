@@ -5,3 +5,5 @@ import type { Module } from "@appsmith/constants/ModuleConstants";
 export const getAllModules = (
   state: AppState,
 ): Record<string, Module> | any => {};
+
+export const getCurrentModuleId = (state: AppState) => "";
