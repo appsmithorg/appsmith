@@ -36,7 +36,6 @@ const {
   otlpServiceName,
 } = newRelic;
 
-// TODO: Remove this
 const tracerProvider = new WebTracerProvider({
   resource: new Resource({
     [SEMRESATTRS_SERVICE_NAME]: otlpServiceName,
