@@ -6,8 +6,8 @@ tlog "Running as: $(id)"
 
 stacks_path=/appsmith-stacks
 
-export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/"  # export for use in supervisord.conf
-export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor process mongodb.conf
+export SUPERVISORD_CONF_TARGET="$TMP/supervisor-conf.d/" # export for use in supervisord.conf
+export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"           # export for use in supervisor process mongodb.conf
 
 mkdir -pv "$SUPERVISORD_CONF_TARGET" "$WWW_PATH"
 
@@ -39,7 +39,6 @@ setup_proxy_variables() {
   fi
 }
 
-
 init_env_file() {
   CONF_PATH="/appsmith-stacks/configuration"
   ENV_PATH="$CONF_PATH/docker.env"
@@ -51,7 +50,7 @@ init_env_file() {
   fi
 
   # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
-  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TMP/pre-define.env"
+  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" >"$TMP/pre-define.env"
 
   tlog "Initialize .env file"
   if ! [[ -e "$ENV_PATH" ]]; then
@@ -75,9 +74,8 @@ init_env_file() {
       tr -dc A-Za-z0-9 </dev/urandom | head -c 13
       echo ''
     )
-    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" >"$ENV_PATH"
   fi
-
 
   tlog "Load environment configuration"
 
@@ -104,7 +102,10 @@ setup_proxy_variables
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
 # https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
 if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
-  ip="$(set -o pipefail; curl --connect-timeout 5 -sS https://cs.appsmith.com/api/v1/ip | grep -Eo '\d+(\.\d+){3}' || echo "unknown")"
+  ip="$(
+    set -o pipefail
+    curl --connect-timeout 5 -sS https://cs.appsmith.com/api/v1/ip | grep -Eo '\d+(\.\d+){3}' || echo "unknown"
+  )"
   curl \
     --connect-timeout 5 \
     --user "$APPSMITH_SEGMENT_CE_KEY:" \
@@ -117,8 +118,8 @@ if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
         "ipAddress": "'"$ip"'"
       }
     }' \
-    https://api.segment.io/v1/track \
-    || true
+    https://api.segment.io/v1/track ||
+    true
 fi
 
 if [[ -n "${FILESTORE_IP_ADDRESS-}" ]]; then
@@ -137,21 +138,20 @@ if [[ -n "${FILESTORE_IP_ADDRESS-}" ]]; then
   export HOSTNAME="cloudrun"
 fi
 
-
 function get_maximum_heap() {
-    resource=$(ulimit -u)
-    tlog "Resource : $resource"
-    if [[ "$resource" -le 256 ]]; then
-        maximum_heap=128
-    elif [[ "$resource" -le 512 ]]; then
-        maximum_heap=256
-    fi
+  resource=$(ulimit -u)
+  tlog "Resource : $resource"
+  if [[ "$resource" -le 256 ]]; then
+    maximum_heap=128
+  elif [[ "$resource" -le 512 ]]; then
+    maximum_heap=256
+  fi
 }
 
 function setup_backend_heap_arg() {
-    if [[ ! -z ${maximum_heap} ]]; then
-      export APPSMITH_JAVA_HEAP_ARG="-Xmx${maximum_heap}m"
-    fi
+  if [[ ! -z ${maximum_heap} ]]; then
+    export APPSMITH_JAVA_HEAP_ARG="-Xmx${maximum_heap}m"
+  fi
 }
 
 unset_unused_variables() {
@@ -215,7 +215,7 @@ init_mongodb() {
     touch "$MONGO_LOG_PATH"
 
     if [[ ! -f "$MONGO_DB_KEY" ]]; then
-      openssl rand -base64 756 > "$MONGO_DB_KEY"
+      openssl rand -base64 756 >"$MONGO_DB_KEY"
     fi
     use-mongodb-key "$MONGO_DB_KEY"
 
@@ -320,7 +320,7 @@ check_setup_custom_ca_certificates() {
     ln --verbose --force --symbolic --no-target-directory "$stacks_ca_certs_path" "$container_ca_certs_path"
 
   elif [[ ! -e $container_ca_certs_path ]]; then
-    rm -vf "$container_ca_certs_path"  # If it exists as a broken symlink, this will be needed.
+    rm -vf "$container_ca_certs_path" # If it exists as a broken symlink, this will be needed.
     mkdir -v "$container_ca_certs_path"
 
   fi
@@ -359,7 +359,7 @@ setup-custom-ca-certificates() (
   {
     echo "-Djavax.net.ssl.trustStore=$store"
     echo "-Djavax.net.ssl.trustStorePassword=changeit"
-  } > "$opts_file"
+  } >"$opts_file"
 )
 
 configure_supervisord() {
@@ -393,13 +393,13 @@ check_redis_compatible_page_size() {
   page_size="$(getconf PAGE_SIZE)"
   if [[ $page_size -gt 4096 ]]; then
     curl \
-    --connect-timeout 5 \
+      --connect-timeout 5 \
       --silent \
       --user "$APPSMITH_SEGMENT_CE_KEY:" \
       --header 'Content-Type: application/json' \
       --data '{ "userId": "'"$HOSTNAME"'", "event":"RedisCompile" }' \
-      https://api.segment.io/v1/track \
-      || true
+      https://api.segment.io/v1/track ||
+      true
     tlog "Compile Redis stable with page size of $page_size"
     apt-get update
     apt-get install --yes build-essential
@@ -437,10 +437,19 @@ init_postgres() {
 
 }
 
-safe_init_postgres(){
-runEmbeddedPostgres=1
-# fail safe to prevent entrypoint from exiting, and prevent postgres from starting
-init_postgres || runEmbeddedPostgres=0
+safe_init_postgres() {
+  runEmbeddedPostgres=1
+  # fail safe to prevent entrypoint from exiting, and prevent postgres from starting
+  # when runEmbeddedPostgres=0 , postgres conf file for supervisord will not be copied
+  # so postgres will not be started by supervisor
+
+  if init_postgres; then
+    tlog "init_postgres succeeded."
+  else
+    local exit_status=$?
+    tlog "init_postgres failed with exit status $exit_status."
+    runEmbeddedPostgres=0
+  fi
 }
 
 setup_caddy() {
@@ -451,8 +460,8 @@ setup_caddy() {
   fi
 }
 
-init_loading_pages(){
-  export XDG_DATA_HOME=/appsmith-stacks/data  # so that caddy saves tls certs and other data under stacks/data/caddy
+init_loading_pages() {
+  export XDG_DATA_HOME=/appsmith-stacks/data # so that caddy saves tls certs and other data under stacks/data/caddy
   export XDG_CONFIG_HOME=/appsmith-stacks/configuration
   mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
   cp templates/loading.html "$WWW_PATH"
@@ -460,19 +469,19 @@ init_loading_pages(){
   "$_APPSMITH_CADDY" start --config "$TMP/Caddyfile"
 }
 
-function setup_auto_heal(){
-   if [[ ${APPSMITH_AUTO_HEAL-} = 1 ]]; then
-     # By default APPSMITH_AUTO_HEAL=0
-     # To enable auto heal set APPSMITH_AUTO_HEAL=1
-     bash /opt/appsmith/auto_heal.sh $APPSMITH_AUTO_HEAL_CURL_TIMEOUT >> "$APPSMITH_LOG_DIR"/cron/auto_heal.log 2>&1 &
-   fi
+function setup_auto_heal() {
+  if [[ ${APPSMITH_AUTO_HEAL-} = 1 ]]; then
+    # By default APPSMITH_AUTO_HEAL=0
+    # To enable auto heal set APPSMITH_AUTO_HEAL=1
+    bash /opt/appsmith/auto_heal.sh $APPSMITH_AUTO_HEAL_CURL_TIMEOUT >>"$APPSMITH_LOG_DIR"/cron/auto_heal.log 2>&1 &
+  fi
 }
 
-print_appsmith_info(){
-  tr '\n' ' ' < /opt/appsmith/info.json
+print_appsmith_info() {
+  tr '\n' ' ' </opt/appsmith/info.json
 }
 
-function capture_infra_details(){
+function capture_infra_details() {
   bash /opt/appsmith/generate-infra-details.sh || true
 }
 

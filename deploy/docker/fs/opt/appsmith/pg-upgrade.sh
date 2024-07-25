@@ -2,7 +2,6 @@
 
 set -o errexit
 set -o nounset
-set -x
 
 # This script will upgrade Postgres to the "current" version of Postgres, if needed.
 
@@ -100,7 +99,7 @@ if [[ "$old_version" == 13 && "$top_available_version" > "$old_version" ]]; then
 fi
 
 if [[ -n "${#to_uninstall[@]}" ]]; then
-	apt-get purge "${to_uninstall[@]}"
+	DEBIAN_FRONTEND=noninteractive apt-get purge --yes "${to_uninstall[@]}"
 	apt-get clean
 fi
 
