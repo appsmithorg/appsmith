@@ -43,6 +43,8 @@ import org.apache.commons.lang.ObjectUtils;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
 import org.postgresql.util.PGobject;
+import org.postgresql.util.PSQLException;
+import org.postgresql.util.PSQLState;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -668,6 +670,9 @@ public class PostgresPlugin extends BasePlugin {
                         invalids.add(
                                 String.format(PostgresErrorMessages.DS_INVALID_HOSTNAME_ERROR_MSG, endpoint.getHost()));
                     }
+                    if (StringUtils.isEmpty(endpoint.getPort())) {
+                        invalids.add(PostgresErrorMessages.DS_MISSING_PORT_ERROR_MSG);
+                    }
                 }
             }
 
@@ -1131,7 +1136,7 @@ public class PostgresPlugin extends BasePlugin {
         StringBuilder urlBuilder = new StringBuilder("jdbc:postgresql://");
 
         List<String> hosts = datasourceConfiguration.getEndpoints().stream()
-                .map(endpoint -> endpoint.getHost() + ":" + ObjectUtils.defaultIfNull(endpoint.getPort(), 5432L))
+                .map(endpoint -> endpoint.getHost() + ":" + endpoint.getPort())
                 .collect(Collectors.toList());
 
         urlBuilder.append(String.join(",", hosts)).append("/");
@@ -1260,10 +1265,27 @@ public class PostgresPlugin extends BasePlugin {
         try {
             datasource = new HikariDataSource(config);
         } catch (PoolInitializationException e) {
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    PostgresErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
-                    e.getMessage());
+            Throwable cause = e.getCause();
+            if (cause instanceof PSQLException) {
+                PSQLException psqlException = (PSQLException) cause;
+                String sqlState = psqlException.getSQLState();
+                if (PSQLState.CONNECTION_UNABLE_TO_CONNECT.getState().equals(sqlState)) {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            PostgresErrorMessages.DS_INVALID_HOSTNAME_AND_PORT_MSG,
+                            psqlException.getMessage());
+                } else {
+                    throw new AppsmithPluginException(
+                            AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                            PostgresErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
+                            cause.getMessage());
+                }
+            } else {
+                throw new AppsmithPluginException(
+                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
+                        PostgresErrorMessages.CONNECTION_POOL_CREATION_FAILED_ERROR_MSG,
+                        cause != null ? cause.getMessage() : e.getMessage());
+            }
         }
 
         return datasource;
