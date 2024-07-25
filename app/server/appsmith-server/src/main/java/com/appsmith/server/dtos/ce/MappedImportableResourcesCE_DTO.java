@@ -2,8 +2,10 @@ package com.appsmith.server.dtos.ce;
 
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Context;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
@@ -71,4 +73,8 @@ public class MappedImportableResourcesCE_DTO {
             datasourceDryRunQueries.put(dbOpsType, Collections.synchronizedList(new ArrayList<>()));
         }
     }
+
+    Map<String, List<Theme>> themeDryRunQueries = new HashMap<>();
+
+    Map<String, List<Application>> applicationDryRunQueries = new HashMap<>();
 }
