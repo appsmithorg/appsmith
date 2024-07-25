@@ -645,7 +645,7 @@ export function* handleDatasourceCreatedSaga(
   if (actionRouteInfo && redirect) {
     history.push(
       apiEditorIdURL({
-        pageId: actionRouteInfo?.parentEntityId ?? "",
+        parentEntityId: actionRouteInfo?.parentEntityId ?? "",
         apiId: actionRouteInfo.apiId ?? "",
       }),
     );
