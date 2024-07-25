@@ -180,7 +180,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     if (_.get(authentication, "grantType") === GrantType.AuthorizationCode) {
       if (
         _.get(authentication, "refreshTokenClientCredentialsLocation") ===
-          undefined ||
+        undefined ||
         _.get(authentication, "refreshTokenClientCredentialsLocation") === ""
       ) {
         this.props.change(
@@ -247,9 +247,9 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       return regex.test(value)
         ? { isValid: true, message: "" }
         : {
-            isValid: false,
-            message: createMessage(INVALID_URL),
-          };
+          isValid: false,
+          message: createMessage(INVALID_URL),
+        };
     }
 
     return { isValid: true, message: "" };
@@ -660,6 +660,16 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             isRequired: false,
           })}
         </FormInputContainer>
+        <FormInputContainer data-location-id={btoa("authentication.expiresIn")}>
+          {this.renderInputTextControlViaFormControl({
+            configProperty: "authentication.expiresIn",
+            label: "Authorization expires in (seconds)",
+            placeholderText: "3600",
+            dataType: "NUMBER",
+            encrypted: false,
+            isRequired: false,
+          })}
+        </FormInputContainer>
         <FormInputContainer
           data-location-id={btoa("authentication.isAuthorizationHeader")}
         >
@@ -845,16 +855,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
             false,
           )}
-        </FormInputContainer>
-        <FormInputContainer data-location-id={btoa("authentication.expiresIn")}>
-          {this.renderInputTextControlViaFormControl({
-            configProperty: "authentication.expiresIn",
-            label: "Authorization expires in (seconds)",
-            placeholderText: "3600",
-            dataType: "NUMBER",
-            encrypted: false,
-            isRequired: false,
-          })}
         </FormInputContainer>
 
         {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
