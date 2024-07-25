@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Flex, Icon, Text, Tooltip } from "design-system";
+import { Flex, Icon, Tag, Text, Tooltip } from "design-system";
 import styled from "styled-components";
 
 import { Condition } from "../../../enums";
@@ -22,6 +22,7 @@ export interface SidebarButtonProps {
   urlSuffix: string;
   tooltip?: string;
   condition?: Condition;
+  count?: number;
 }
 
 const Container = styled(Flex)`
@@ -67,8 +68,17 @@ const ConditionIcon = styled(Icon)`
 `;
 
 function SidebarButton(props: SidebarButtonProps) {
-  const { condition, icon, onClick, selected, title, tooltip, urlSuffix } =
-    props;
+  const {
+    condition,
+    count,
+    icon,
+    onClick,
+    selected,
+    title,
+    tooltip,
+    urlSuffix,
+  } = props;
+
   const handleOnClick = useCallback(() => {
     if (!selected) {
       onClick(urlSuffix);
@@ -88,7 +98,15 @@ function SidebarButton(props: SidebarButtonProps) {
           role="button"
           selected={selected}
         >
-          <Icon name={icon} size="lg" />
+          <Icon className="mix-blend-luminosity" name={icon} size="lg" />
+          {count && count > 0 ? (
+            <Tag
+              className="absolute right-[-4px] top-[-6px] !border-[var(--ads-v2-color-border)]"
+              isClosable={false}
+            >
+              {count > 9 ? "9+" : count}
+            </Tag>
+          ) : null}
           {condition && (
             <ConditionIcon
               className={`t--sidebar-${condition}-condition-icon`}
