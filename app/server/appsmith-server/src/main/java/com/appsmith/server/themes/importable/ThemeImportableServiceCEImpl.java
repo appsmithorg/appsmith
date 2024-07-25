@@ -94,13 +94,11 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                         // this will update the theme in the application and will be updated to db in the dry ops
                         // execution
 
-                        Application application = new Application();
-                        application.setPublishedModeThemeId(publishedModeThemeId);
-                        application.setUnpublishedThemeId(editModeThemeId);
-                        application.setId(importableArtifact.getId());
+                        mappedImportableResourcesDTO
+                                .getUpdateApplication()
+                                .setPublishedModeThemeId(publishedModeThemeId);
+                        mappedImportableResourcesDTO.getUpdateApplication().setUnpublishedThemeId(editModeThemeId);
 
-                        addDryOpsForApplication(
-                                mappedImportableResourcesDTO.getApplicationDryRunQueries(), application);
                         return Mono.just(importableArtifact);
                     })
                     .then();

@@ -59,6 +59,10 @@ public class MappedImportableResourcesCE_DTO {
 
     Map<DBOpsType, List<CustomJSLib>> customJSLibsDryOps = new HashMap<>();
 
+    Map<String, List<Theme>> themeDryRunQueries = new HashMap<>();
+
+    Map<String, List<Application>> applicationDryRunQueries = new HashMap<>();
+
     Application updateApplication = new Application();
 
     {
@@ -75,8 +79,4 @@ public class MappedImportableResourcesCE_DTO {
             datasourceDryRunQueries.put(dbOpsType, Collections.synchronizedList(new ArrayList<>()));
         }
     }
-
-    Map<String, List<Theme>> themeDryRunQueries = new HashMap<>();
-
-    Map<String, List<Application>> applicationDryRunQueries = new HashMap<>();
 }
