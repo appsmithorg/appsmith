@@ -437,10 +437,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         Mono<String> branchedPageIdMono =
                 newPageService.findBranchedPageId(branchName, buildingBlockDTO.getPageId(), AclPermission.MANAGE_PAGES);
 
-        Stopwatch processStopwatch = new Stopwatch("Download Content from Cloud service");
         return applicationJsonMono.flatMap(applicationJson -> {
-            processStopwatch.stopAndLogTimeInMillis();
-            Stopwatch processStopwatch1 = new Stopwatch("Importing resource in db ");
             return this.importResourceInPage(
                             buildingBlockDTO.getWorkspaceId(),
                             buildingBlockDTO.getApplicationId(),
@@ -451,7 +448,6 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                     .flatMap(tuple -> {
                         BuildingBlockImportDTO buildingBlockImportDTO = tuple.getT1();
                         String branchedPageId = tuple.getT2();
-                        processStopwatch1.stopAndLogTimeInMillis();
                         // Fetch layout and get new onPageLoadActions
                         // This data is not present in a client, since these are created
                         // after importing the block
