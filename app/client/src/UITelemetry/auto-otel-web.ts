@@ -36,10 +36,10 @@ const {
   otlpServiceName,
 } = newRelic;
 
-const SERVICE_NAME = `${otlpServiceName} - 1`;
+// TODO: Remove this
 const tracerProvider = new WebTracerProvider({
   resource: new Resource({
-    [SEMRESATTRS_SERVICE_NAME]: SERVICE_NAME,
+    [SEMRESATTRS_SERVICE_NAME]: otlpServiceName,
     [SEMRESATTRS_SERVICE_INSTANCE_ID]: applicationId,
     [SEMRESATTRS_SERVICE_VERSION]: "1.0.0",
   }),
@@ -105,7 +105,7 @@ const nrMetricsExporter = new OTLPMetricExporter({
 
 const meterProvider = new MeterProvider({
   resource: new Resource({
-    [SEMRESATTRS_SERVICE_NAME]: SERVICE_NAME,
+    [SEMRESATTRS_SERVICE_NAME]: otlpServiceName,
     [SEMRESATTRS_SERVICE_INSTANCE_ID]: applicationId,
     [SEMRESATTRS_SERVICE_VERSION]: "1.0.0",
   }),
