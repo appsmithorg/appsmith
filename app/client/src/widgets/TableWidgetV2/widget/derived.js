@@ -265,6 +265,45 @@ export default {
     let processedTableData = [...props.processedTableData];
     const derivedColumns = {};
 
+    /* 
+    Check if there are select columns, 
+    and if the columns are sorting by label instead of default value 
+    */
+    const selectColumnKeys = [];
+    Object.keys(primaryColumns).forEach((id) => {
+      if (
+        primaryColumns[id] &&
+        primaryColumns[id].columnType === "select" &&
+        primaryColumns[id].sortBy &&
+        primaryColumns[id].sortBy === "label"
+      ) {
+        selectColumnKeys.push(id);
+      }
+    });
+
+    /* 
+    If there are select columns, 
+    transform the specific columns data to show the label instead of the value for soritng 
+    */
+    if (selectColumnKeys.length) {
+      const transformedValueToLabelData = processedTableData.map((row) => {
+        const newRow = { ...row };
+        selectColumnKeys.forEach((key) => {
+          const value = row[key];
+          const selectOptions =
+            primaryColumns[key].selectOptions[row.__originalIndex__];
+          const option = selectOptions.find((option) => option.value === value);
+
+          if (option) {
+            newRow[key] = option.label;
+          }
+        });
+
+        return newRow;
+      });
+      processedTableData = transformedValueToLabelData;
+    }
+
     Object.keys(primaryColumns).forEach((id) => {
       if (primaryColumns[id] && primaryColumns[id].isDerived) {
         derivedColumns[id] = primaryColumns[id];

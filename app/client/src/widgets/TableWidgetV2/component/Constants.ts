@@ -183,6 +183,7 @@ export interface SelectCellProperties {
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
   selectOptions?: DropdownOption[];
+  sortBy?: string;
 }
 
 export interface ImageCellProperties {
@@ -341,6 +342,7 @@ export interface EditActionColumnProperties {
   placeholderText?: string;
   resetFilterTextOnClose?: boolean;
   selectOptions?: DropdownOption[] | DropdownOption[][];
+  sortBy?: string;
 }
 
 export interface CurrencyColumnProperties {
@@ -571,3 +573,8 @@ export const noOfItemsToDisplay = 4;
 
 // 12px for the (noOfItemsToDisplay+ 1) item to let the user know there are more items to scroll
 export const extraSpace = 12;
+
+export enum TableSelectColumnOptionKeys {
+  LABEL = "label",
+  VALUE = "value",
+}
