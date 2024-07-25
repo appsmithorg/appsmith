@@ -12,8 +12,8 @@ export const WidgetProfiler = ({
   return (
     <Profiler
       id={widgetId}
-      onRender={(id, phase, actualDuaration, baseDuration) => {
-        generateRootSpan("widgetRender", actualDuaration, {
+      onRender={(id, phase, actualDuration, baseDuration) => {
+        generateRootSpan("widgetRender", actualDuration, {
           widgetType: type,
           id,
           // mount or update phase
