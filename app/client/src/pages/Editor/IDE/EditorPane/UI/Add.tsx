@@ -26,6 +26,7 @@ const AddWidgets = (props: { focusSearchInput?: boolean }) => {
       <Container
         alignItems="center"
         borderBottom={"1px solid var(--ads-v2-color-border)"}
+        borderRight="1px solid var(--ads-v2-color-border)"
         data-testid="t--ide-add-pane"
         justifyContent="space-between"
         px="spaces-4"

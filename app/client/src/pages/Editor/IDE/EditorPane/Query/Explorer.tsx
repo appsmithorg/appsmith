@@ -22,6 +22,7 @@ const QueryExplorer = () => {
   if (ideViewMode === EditorViewMode.FullScreen) {
     return (
       <QueriesContainer
+        borderRight="1px solid var(--ads-v2-color-border)"
         className="ide-editor-left-pane__content-queries"
         flexDirection="column"
         height="100%"

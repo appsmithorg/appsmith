@@ -1,4 +1,4 @@
-import { clamp, debounce, get } from "lodash";
+import { debounce, get } from "lodash";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -192,9 +192,7 @@ export const useDynamicAppLayout = () => {
     const calculatedWidth = calculateCanvasWidth();
     const { width: rightColumn } = mainCanvasProps || {};
     if (rightColumn !== calculatedWidth || !isCanvasInitialized) {
-      dispatch(
-        updateCanvasLayoutAction(clamp(calculatedWidth, 0, rightColumn)),
-      );
+      dispatch(updateCanvasLayoutAction(Math.max(0, calculatedWidth)));
     }
     return calculatedWidth;
   };

@@ -60,6 +60,7 @@ const ListJSObjects = () => {
 
   return (
     <JSContainer
+      borderRight="1px solid var(--ads-v2-color-border)"
       className="ide-editor-left-pane__content-js"
       flex="1"
       flexDirection="column"
