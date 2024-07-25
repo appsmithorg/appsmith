@@ -194,8 +194,9 @@ export const SelectCell = (props: SelectProps) => {
     .map((d: DropdownOption) => d.value)
     .indexOf(value);
 
-  const releaseTableSelectCellLabelValue = true;
-  useFeatureFlag(FEATURE_FLAG.release_table_cell_label_value_enabled);
+  const releaseTableSelectCellLabelValue = useFeatureFlag(
+    FEATURE_FLAG.release_table_cell_label_value_enabled,
+  );
 
   const cellLabelValue = useMemo(() => {
     if (releaseTableSelectCellLabelValue) {
