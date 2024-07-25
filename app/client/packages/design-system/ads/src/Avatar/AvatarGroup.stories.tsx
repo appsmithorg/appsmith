@@ -1,6 +1,7 @@
 import React from "react";
-
 import { AvatarGroup } from "./Avatar";
+import type { StoryObj } from "@storybook/react";
+import type { AvatarGroupProps } from "./Avatar.types";
 
 export default {
   title: "ADS/Avatar/Avatar Group",
@@ -88,10 +89,10 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof AvatarGroup>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof AvatarGroup> = (args) => {
+const Template = (args: AvatarGroupProps) => {
   return <AvatarGroup {...args} />;
 };
 

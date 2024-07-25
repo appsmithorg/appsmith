@@ -784,7 +784,7 @@ function DefaultDropDownValueNode({
                     : selected?.iconColor
                 }
                 name={selected.icon}
-                size={selected.iconSize != null || IconSize.XL}
+                size={selected.iconSize ?? IconSize.XL}
               />
             ) : null}
             {selected?.leftElement && (
@@ -825,13 +825,7 @@ interface DropdownOptionsProps extends DropdownProps, DropdownSearchProps {
 }
 
 export function RenderDropdownOptions(props: DropdownOptionsProps) {
-  const {
-    onSearch,
-    optionClickHandler,
-    optionWidth,
-    renderOption,
-    showEmptyOptions = false,
-  } = props;
+  const { onSearch, optionClickHandler, optionWidth, renderOption } = props;
   const [options, setOptions] = useState<Array<DropdownOption>>(props.options);
   const [searchValue, setSearchValue] = useState<string>("");
   const onOptionSearch = (searchStr: string) => {
@@ -956,7 +950,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
                     fillColor={option?.iconColor}
                     hoverFillColor={option?.iconColor}
                     name={option.icon}
-                    size={option.iconSize != null || IconSize.XL}
+                    size={option.iconSize ?? IconSize.XL}
                   />
                 ) : null}
                 {props.isMultiSelect ? (

@@ -2,7 +2,7 @@ import type { ReactElement } from "react";
 import React from "react";
 import styled from "styled-components";
 import Icon, { IconSize } from "../Icon";
-import CloseButton from "CloseButton";
+import CloseButton from "../CloseButton";
 import { createMessage, LEARN_MORE } from "../constants/messages";
 
 export enum NotificationVariant {

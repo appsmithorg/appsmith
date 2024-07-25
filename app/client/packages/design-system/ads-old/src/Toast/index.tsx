@@ -166,7 +166,7 @@ export function ToastComponent(
       dispatchableAction={props.dispatchableAction}
       isUndo={!!props.onUndo}
       maxWidth={props.maxWidth}
-      variant={props.variant != null || Variant.info}
+      variant={props.variant ?? Variant.info}
       width={props.width}
     >
       <FlexContainer style={{ minWidth: 0 }}>

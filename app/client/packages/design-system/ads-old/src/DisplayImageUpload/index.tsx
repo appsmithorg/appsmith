@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from "react";
-import Dialog from "DialogComponent";
+import Dialog from "../DialogComponent";
 
 import styled from "styled-components";
 import {
@@ -10,6 +10,7 @@ import {
 
 import { getTypographyByKey } from "../constants/typography";
 
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { ReactComponent as ProfileImagePlaceholder } from "../assets/icons/others/profile-placeholder.svg";
 import Icon, { IconSize } from "../Icon";
 
@@ -17,6 +18,7 @@ interface Props {
   onChange: (file: File) => void;
   onRemove?: () => void;
   onInvalidFileContent?: () => void;
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
   submit: (uppy: import("@uppy/core").Uppy) => void;
   value: string;
   label?: string;

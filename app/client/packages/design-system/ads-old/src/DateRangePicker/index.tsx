@@ -101,4 +101,5 @@ function DateRangePicker(props: DateRangePickerProps) {
   );
 }
 
-export { DateRangePicker, DateRangePickerProps };
+export { DateRangePicker };
+export type { DateRangePickerProps };

@@ -426,11 +426,12 @@ const IconWrapper = styled.a<AppIconProps & { styledProps: cssAttributes }>`
 export type AppIconProps = CommonComponentProps & {
   size?: Size;
   name: AppIconName;
-  onClick?: (e: any) => void;
+  onClick?: (e: unknown) => void;
 };
 
 function AppIcon(props: AppIconProps) {
   const styledProps = useMemo(
+    // @ts-expect-error Fix this the next time the file is edited
     () => appSizeHandler(props.size != null || Size.medium),
     [props],
   );

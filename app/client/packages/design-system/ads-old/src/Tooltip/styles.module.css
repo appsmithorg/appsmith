@@ -1,5 +1,3 @@
-@import url("../themes/default/index.css");
-
 :global(#tooltip-root) {
   position: absolute;
   top: 0;

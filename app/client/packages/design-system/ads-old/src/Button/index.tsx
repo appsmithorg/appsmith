@@ -163,8 +163,8 @@ const ButtonColors: ButtonColorType = {
 const WhiteTextVariants = [Variant.danger, Variant.warning, Variant.success];
 
 const getDisabledStyles = (props: ButtonProps) => {
-  const variant = props.variant != null || defaultProps.variant;
-  const category = props.category != null || defaultProps.category;
+  const variant = props.variant ?? defaultProps.variant;
+  const category = props.category ?? defaultProps.category;
 
   const stylesByCategory = {
     [Category.primary]: {
@@ -188,8 +188,8 @@ const getDisabledStyles = (props: ButtonProps) => {
 };
 
 const getMainStateStyles = (props: ButtonProps) => {
-  const variant = props.variant != null || defaultProps.variant;
-  const category = props.category != null || defaultProps.category;
+  const variant = props.variant ?? defaultProps.variant;
+  const category = props.category ?? defaultProps.category;
 
   const stylesByCategory = {
     [Category.primary]: {
@@ -216,8 +216,8 @@ const getMainStateStyles = (props: ButtonProps) => {
 };
 
 const getHoverStateStyles = (props: ButtonProps) => {
-  const variant = props.variant != null || defaultProps.variant;
-  const category = props.category != null || defaultProps.category;
+  const variant = props.variant ?? defaultProps.variant;
+  const category = props.category ?? defaultProps.category;
 
   const stylesByCategory = {
     [Category.primary]: {
@@ -244,8 +244,8 @@ const getHoverStateStyles = (props: ButtonProps) => {
 };
 
 const getActiveStateStyles = (props: ButtonProps) => {
-  const variant = props.variant != null || defaultProps.variant;
-  const category = props.category != null || defaultProps.category;
+  const variant = props.variant ?? defaultProps.variant;
+  const category = props.category ?? defaultProps.category;
 
   const stylesByCategory = {
     [Category.primary]: {
@@ -343,6 +343,7 @@ const getPaddingBySize = (props: ButtonProps) => {
   const paddingConfig = isIconOnly ? paddingBySizeForJustIcon : paddingBySize;
 
   const iSizeInConfig =
+    // @ts-expect-error fix this the next time the file is edited
     Object.keys(paddingConfig).indexOf(props.size != null || "") !== -1;
   const size: any =
     props.size != null && iSizeInConfig ? props.size : Size.small;
@@ -358,6 +359,7 @@ const getHeightBySize = (props: ButtonProps) => {
   };
 
   const iSizeInConfig =
+    // @ts-expect-error fix this the next time the file is edited
     Object.keys(heightBySize).indexOf(props.size != null || "") !== -1;
   const size: any =
     props.size != null && iSizeInConfig ? props.size : Size.small;
@@ -373,6 +375,7 @@ const getBtnFontBySize = (props: ButtonProps) => {
   };
 
   const iSizeInConfig =
+    // @ts-expect-error fix this the next time the file is edited
     Object.keys(fontBySize).indexOf(props.size != null || "") !== -1;
   const size: any =
     props.size != null && iSizeInConfig ? props.size : Size.small;
@@ -402,10 +405,10 @@ const ButtonStyles = css<ButtonProps>`
   border: ${(props) => btnColorStyles(props, "main").border};
   border-radius: 0;
   ${(props) => btnFontStyles(props).buttonFont};
-  padding: ${(props) => btnFontStyles(props).padding};
+  padding: ${(props: ButtonProps) => btnFontStyles(props).padding};
   .${Classes.ICON}:not([name="no-response"]) {
     svg {
-      fill: ${(props) => btnColorStyles(props, "main").txtColor};
+      fill: ${(props: ButtonProps) => btnColorStyles(props, "main").txtColor};
     }
   }
   &,
@@ -415,24 +418,26 @@ const ButtonStyles = css<ButtonProps>`
   }
   &:hover {
     text-decoration: none;
-    background-color: ${(props) => btnColorStyles(props, "hover").bgColor};
-    color: ${(props) => btnColorStyles(props, "hover").txtColor};
-    border: ${(props) => btnColorStyles(props, "hover").border};
+    background-color: ${(props: ButtonProps) =>
+      btnColorStyles(props, "hover").bgColor};
+    color: ${(props: ButtonProps) => btnColorStyles(props, "hover").txtColor};
+    border: ${(props: ButtonProps) => btnColorStyles(props, "hover").border};
     .${Classes.ICON} {
-      fill: ${(props) => btnColorStyles(props, "hover").txtColor};
+      fill: ${(props: ButtonProps) => btnColorStyles(props, "hover").txtColor};
     }
   }
   &:focus-visible {
-    outline: ${(props) => btnColorStyles(props, "active").outline};
+    outline: ${(props: ButtonProps) => btnColorStyles(props, "active").outline};
     outline-offset: 0px;
   }
   font-style: normal;
   &:active {
-    background-color: ${(props) => btnColorStyles(props, "active").bgColor};
-    color: ${(props) => btnColorStyles(props, "active").txtColor};
-    border: ${(props) => btnColorStyles(props, "active").border};
+    background-color: ${(props: ButtonProps) =>
+      btnColorStyles(props, "active").bgColor};
+    color: ${(props: ButtonProps) => btnColorStyles(props, "active").txtColor};
+    border: ${(props: ButtonProps) => btnColorStyles(props, "active").border};
     .${Classes.ICON} {
-      fill: ${(props) => btnColorStyles(props, "active").txtColor};
+      fill: ${(props: ButtonProps) => btnColorStyles(props, "active").txtColor};
     }
   }
   display: flex;

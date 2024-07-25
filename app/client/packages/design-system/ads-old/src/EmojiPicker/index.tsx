@@ -72,7 +72,7 @@ function EmojiPicker({
           fillColor="var(--ads-color-black-450)"
           keepColors
           name={iconName || "emoji"}
-          size={iconSize != null || IconSize.XXXL}
+          size={iconSize ?? IconSize.XXXL}
         />
       </Tooltip>
     </Popover2>

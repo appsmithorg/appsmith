@@ -196,7 +196,7 @@ function Checkbox(props: CheckboxProps) {
         disabled={props.disabled}
         info={props.info}
         isChecked={checked}
-        type={props.type != null || CheckboxType.PRIMARY}
+        type={props.type ?? CheckboxType.PRIMARY}
       />
     </StyledCheckbox>
   );

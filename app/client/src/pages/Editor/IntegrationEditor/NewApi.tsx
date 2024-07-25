@@ -257,6 +257,7 @@ function NewApiScreen(props: Props) {
                 />
                 <p className="textBtn">REST API</p>
               </CardContentWrapper>
+              {/*@ts-expect-error Fix this the next time the file is edited*/}
               {isCreating && <Spinner className="cta" size={25} />}
             </ApiCard>
             <ApiCard

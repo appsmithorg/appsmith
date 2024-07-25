@@ -20,7 +20,7 @@ import {
 import styled from "styled-components";
 import Icon, { IconSize } from "../Icon";
 import { replayHighlightClass } from "../constants/classes";
-import useDSEvent from "hooks/useDSEvent";
+import useDSEvent from "../hooks/useDSEvent";
 import { DSEventTypes } from "../types/common";
 import { typography } from "../constants/typography";
 import type { Intent as BlueprintIntent } from "@blueprintjs/core";

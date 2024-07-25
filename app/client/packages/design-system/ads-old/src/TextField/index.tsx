@@ -7,7 +7,7 @@ import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 import { Field } from "redux-form";
 import type { InputType } from "../TextInput";
 import InputComponent from "../TextInput";
-import FormFieldError from "FieldError";
+import FormFieldError from "../FieldError";
 
 const renderComponent = (
   componentProps: FormTextFieldProps & {

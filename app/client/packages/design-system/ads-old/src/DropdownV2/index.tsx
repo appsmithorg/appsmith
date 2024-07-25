@@ -161,4 +161,5 @@ function DropdownItem(props: IMenuItemProps) {
 
 DropdownItem.displayName = "DropdownItem";
 
-export { Props, DropdownV2, DropdownList, DropdownItem, DropdownTrigger };
+export { DropdownV2, DropdownList, DropdownItem, DropdownTrigger };
+export type { Props };

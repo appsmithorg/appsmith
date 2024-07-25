@@ -76,6 +76,7 @@ const ModalControls = (props: { children: ReactNode }) => {
     <Modal onOpenChange={handleModalOpenChange} open={isCurlModalOpen}>
       <ModalContent>
         <ModalHeader>
+          {/*@ts-expect-error Fix this the next time the file is edited*/}
           <Flex direction="column">
             <CurlIconWrapper>
               <img alt="CURL" src={CurlLogo} />

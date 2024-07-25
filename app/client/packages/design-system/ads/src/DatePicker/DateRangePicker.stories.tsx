@@ -1,12 +1,13 @@
 import React from "react";
 import { DateRangePicker } from "./DatePicker";
 import type { StoryObj } from "@storybook/react";
+import type { DateRangePickerProps } from "./DatePicker.types";
 
 export default {
   title: "ADS/Date Picker",
   component: DateRangePicker,
   decorators: [
-    (Story) => (
+    (Story: () => React.ReactNode) => (
       <div style={{ width: "100%", maxWidth: "250px", margin: "0 auto" }}>
         {Story()}
       </div>
@@ -492,10 +493,10 @@ export default {
       },
     },
   },
-} as ComponentMeta<typeof DateRangePicker>;
+};
 
 // eslint-disable-next-line react/function-component-definition
-const Template: ComponentStory<typeof DateRangePicker> = (args) => {
+const Template = (args: DateRangePickerProps) => {
   return <DateRangePicker {...args} />;
 };
 

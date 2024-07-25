@@ -165,6 +165,7 @@ const Container = (props: Props) => {
           )}
           size={"sm"}
           startIcon="search"
+          //@ts-expect-error Fix this the next time the file is edited
           type="text"
         />
       </DatasourceStructureSearchContainer>

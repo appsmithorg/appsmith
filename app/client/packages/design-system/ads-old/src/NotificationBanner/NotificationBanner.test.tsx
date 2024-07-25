@@ -1,5 +1,5 @@
 import React from "react";
-import { NotificationBanner, NotificationVariant } from "./index";
+import NotificationBanner, { NotificationVariant } from "./index";
 import { render, screen } from "test/testUtils";
 import "jest-styled-components";
 
@@ -16,6 +16,7 @@ describe("NotificationBanner", function () {
     );
     render(el);
 
+    // eslint-disable-next-line testing-library/no-await-sync-queries
     const rendered = await screen.getByTestId("t--notification-banner");
     expect(rendered).not.toBeNull();
     expect(rendered?.classList).toContain("test-error");

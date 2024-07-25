@@ -87,7 +87,7 @@ function Callout(props: CalloutProps) {
       addMarginTop={props.addMarginTop}
       className={props.className}
       fillUp={props.fill}
-      variant={props.variant != null || Variant.info}
+      variant={props.variant ?? Variant.info}
     >
       {props.text && props.variant !== Variant.info ? (
         <Icon name={props.variant} size={IconSize.XL} />
@@ -95,10 +95,7 @@ function Callout(props: CalloutProps) {
       <Text type={TextType.P2}>{props.text}</Text>
       {props.label ? props.label : null}
       {props.closeButton ? (
-        <Label
-          onClick={onClose}
-          variant={props.variant != null || Variant.info}
-        >
+        <Label onClick={onClose} variant={props.variant ?? Variant.info}>
           <Icon name="close-modal" size={IconSize.XXL} />
         </Label>
       ) : null}

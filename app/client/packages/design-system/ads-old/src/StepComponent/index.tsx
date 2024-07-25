@@ -2,7 +2,7 @@ import React, { useCallback } from "react";
 import { ControlIcons } from "../ControlIcons";
 import type { AnyStyledComponent } from "styled-components";
 import styled from "styled-components";
-import useDSEvent from "hooks/useDSEvent";
+import useDSEvent from "../hooks/useDSEvent";
 import { DSEventTypes } from "../types/common";
 
 const StyledIncreaseIcon = styled(
