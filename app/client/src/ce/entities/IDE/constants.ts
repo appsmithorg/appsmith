@@ -33,9 +33,9 @@ export enum EditorState {
 }
 
 export const SidebarTopButtonTitles = {
-  DATA: "Data",
+  DATA: "Queries",
   UI: "UI",
-  LOGIC: "Logic",
+  LOGIC: "JS",
 };
 
 export const SidebarBottomButtonTitles = {
