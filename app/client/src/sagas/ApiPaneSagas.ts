@@ -587,7 +587,7 @@ function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
   }
 }
 
-function* handleDatasourceCreatedSaga(
+export function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
 ) {
   const plugin: Plugin | undefined = yield select(
@@ -608,12 +608,8 @@ function* handleDatasourceCreatedSaga(
     ? application?.defaultPageId
     : yield select(getCurrentPageId);
 
-  const actionRouteInfo: Partial<{
-    apiId: string;
-    datasourceId: string;
-    pageId: string;
-    applicationId: string;
-  }> = yield select(getDatasourceActionRouteInfo);
+  const actionRouteInfo: ReturnType<typeof getDatasourceActionRouteInfo> =
+    yield select(getDatasourceActionRouteInfo);
 
   // This will ensure that API if saved as datasource, will get attached with datasource
   // once the datasource is saved
@@ -649,7 +645,7 @@ function* handleDatasourceCreatedSaga(
   if (actionRouteInfo && redirect) {
     history.push(
       apiEditorIdURL({
-        pageId: actionRouteInfo?.pageId ?? "",
+        parentEntityId: actionRouteInfo?.parentEntityId ?? "",
         apiId: actionRouteInfo.apiId ?? "",
       }),
     );
