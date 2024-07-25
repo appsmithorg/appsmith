@@ -12,7 +12,6 @@ export function* getMainCanvasLastRowHighlight() {
     MAIN_CONTAINER_WIDGET_ID,
   );
 
-  // Extract the layout ID and row index for the last row in the main canvas
   const layoutId: string = mainCanvas.layout[0].layoutId;
   const layoutOrder = [layoutId];
   const rowIndex = mainCanvas.layout[0].layout.length;

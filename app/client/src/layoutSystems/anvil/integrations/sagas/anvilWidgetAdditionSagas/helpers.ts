@@ -41,32 +41,31 @@ export function getWidgetSessionValues(
   }
 
   for (const key in configMap) {
-    if (configMap[key] != undefined) {
-      let sessionStorageKey = `${widgetType}.${key}`;
+    if (configMap[key] === undefined) continue;
+    let sessionStorageKey = `${widgetType}.${key}`;
 
-      if (type === "ZONE_WIDGET") {
-        sessionStorageKey = `${widgetType}.${parent.widgetId}.${key}`;
-      }
+    if (type === "ZONE_WIDGET") {
+      sessionStorageKey = `${widgetType}.${parent.widgetId}.${key}`;
+    }
 
-      let valueFromSession: any = sessionStorage.getItem(sessionStorageKey);
+    let valueFromSession: any = sessionStorage.getItem(sessionStorageKey);
 
-      // parse "true" as true and "false" as false
-      if (valueFromSession === "true") {
-        valueFromSession = true;
-      } else if (valueFromSession === "false") {
-        valueFromSession = false;
-      }
+    // parse "true" as true and "false" as false
+    if (valueFromSession === "true") {
+      valueFromSession = true;
+    } else if (valueFromSession === "false") {
+      valueFromSession = false;
+    }
 
-      if (valueFromSession !== undefined && valueFromSession !== null) {
-        widgetSessionValues[key] = valueFromSession;
-      }
+    if (valueFromSession !== undefined && valueFromSession !== null) {
+      widgetSessionValues[key] = valueFromSession;
     }
   }
 
   return widgetSessionValues;
 }
 
-function* getUniqueWidgetName(prefix: string) {
+export function* getUniqueWidgetName(prefix: string) {
   // The dataTree contains all entities (widgets, actions, etc).
   // We need to make sure that none of the entities have the same name
   // as the evaluations use the names of the entities as the unique identifier
@@ -90,28 +89,27 @@ function* getUniqueWidgetName(prefix: string) {
  * @param blueprint The configured operations to be run on the list of widgets
  * @returns An updated list of widgets
  */
-function* runBlueprintOperationsOnWidgets(
+export function* runBlueprintOperationsOnWidgets(
   widgets: CanvasWidgetsReduxState,
   widgetId: string,
   blueprint?: WidgetBlueprint,
 ) {
-  if (!blueprint) return widgets;
-
+  if (!blueprint?.operations || blueprint.operations.length === 0) {
+    return widgets;
+  }
   // Some widgets need to run a few operations like modifying props or adding an action
   // these operations can be performed on the parent of the widget we're adding
   // therefore, we pass all widgets to executeWidgetBlueprintOperations
   // blueprint.operations contain the set of operations to perform to update the canvasWidgets
   // The blueprint operations configuration can be found in the default configurations of the widgets
-  if (blueprint && blueprint.operations && blueprint.operations.length > 0) {
-    // Finalize the canvasWidgets with everything that needs to be updated
-    const updatedWidgets: CanvasWidgetsReduxState = yield call(
-      executeWidgetBlueprintOperations,
-      blueprint.operations,
-      widgets,
-      widgetId,
-    );
-    return updatedWidgets;
-  }
+  // Finalize the canvasWidgets with everything that needs to be updated
+  const updatedWidgets: CanvasWidgetsReduxState = yield call(
+    executeWidgetBlueprintOperations,
+    blueprint.operations,
+    widgets,
+    widgetId,
+  );
+  return updatedWidgets;
 }
 
 /**
@@ -122,7 +120,7 @@ function* runBlueprintOperationsOnWidgets(
  * @param newChildWidgetId WidgetId of the new child widget
  * @returns An updated list of widgets
  */
-function addChildReferenceToParent(
+export function addChildReferenceToParent(
   widgets: CanvasWidgetsReduxState,
   parentId: string,
   newChildWidgetId: string,
@@ -178,6 +176,8 @@ export function* updateWidgetListWithNewWidget(
     version: widgetDefaultProperties.version,
     ...widgetSessionValues, // This is at the end of the spread to override
     blueprint: undefined, // This is usually non-serializable and needs to be removed
+    rows: undefined,
+    columns: undefined,
   };
 
   // Add the widget to the canvasWidgets (type: CanvasWidgetsReduxState)
