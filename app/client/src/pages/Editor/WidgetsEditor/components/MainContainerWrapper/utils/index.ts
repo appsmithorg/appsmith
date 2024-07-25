@@ -1,1 +1,0 @@
-export { resolveCanvasWidth } from "./resolveCanvasWidth";
