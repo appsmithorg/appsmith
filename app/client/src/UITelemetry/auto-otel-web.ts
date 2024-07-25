@@ -39,7 +39,7 @@ const tracerProvider = new WebTracerProvider({
 
 const nrTracesExporter = new OTLPTraceExporter({
   url: `${otlpEndpoint}/v1/traces`,
-  compression: "gzip",
+  compression: CompressionAlgorithm.GZIP,
   headers: {
     "api-key": otlpLicenseKey,
   },
