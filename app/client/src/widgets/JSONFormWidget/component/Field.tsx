@@ -39,6 +39,7 @@ function Field<TValue>({
   alignField,
   children,
   defaultValue,
+  fieldClassName,
   hideLabel = false,
   inlineLabel = false,
   isRequiredField,
@@ -71,7 +72,7 @@ function Field<TValue>({
 
   return (
     <StyledWrapper
-      className={`t--jsonformfield`}
+      className={`t--jsonformfield-${fieldClassName}`}
       direction={direction}
     >
       {hideLabel ? (
