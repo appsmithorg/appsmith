@@ -1,5 +1,5 @@
 import { parseExpressionAt, type Node } from "acorn";
-import { simple } from "acorn-walk";
+import { ancestor, simple } from "acorn-walk";
 import type {
   IdentifierNode,
   LiteralNode,
@@ -43,10 +43,26 @@ interface BaseJSProperty {
   rawContent: string;
 }
 
+export interface LintError {
+  raw: string;
+  errorMessage: Error;
+  severity: "warning" | "error";
+  errorType: "LINT" | "PARSE";
+  errorSegment: string;
+  originalBinding: string;
+  variables: (string | undefined | null)[];
+  code: string;
+  line: number;
+  ch: number;
+  originalPath?: string;
+}
+
 export type JSFunctionProperty = BaseJSProperty & {
   arguments: functionParam[];
   // If function uses the "async" keyword
   isMarkedAsync: boolean;
+  // Custom lint errors
+  customLintErrors: LintError[];
 };
 export type JSVarProperty = BaseJSProperty;
 
@@ -127,10 +143,54 @@ export const parseJSObject = (code: string) => {
 
     if (isPropertyAFunctionNode(node.value)) {
       const params = getFunctionalParamsFromNode(node.value, true, code);
+      const customLintErrors: LintError[] = [];
+
+      try {
+        if (node.value.async) {
+          ancestor(node.value, {
+            CallExpression(callNode, ancestors: any[]) {
+              if (!callNode) return;
+
+              const parent = ancestors[ancestors.length - 2];
+
+              // check for async function calls
+              // CallExpression(callNode: any) {
+              //   const parent = parentMap.get(callNode);
+              if (
+                parent &&
+                parent.type !== "AwaitExpression" &&
+                parent.type !== "ReturnStatement"
+              ) {
+                customLintErrors.push({
+                  raw: property.rawContent,
+                  errorMessage: {
+                    name: "LintingError",
+                    message: " Async function call should be awaited.",
+                  },
+                  severity: "warning",
+                  errorType: "LINT",
+                  errorSegment: code.substring(callNode.start, callNode.end),
+                  variables: [(callNode as any).callee.object.name],
+                  originalBinding: code.substring(callNode.start, callNode.end),
+                  code: "AP001",
+                  line: callNode?.loc?.start.line
+                    ? callNode?.loc?.start.line - 1
+                    : 0,
+                  ch: callNode?.loc?.start.column
+                    ? callNode?.loc?.start.column * 2 + 1
+                    : 0,
+                  originalPath: `Main.${property.key}`,
+                });
+              }
+            },
+          });
+        }
+      } catch (e) {}
       property = {
         ...property,
         arguments: [...params],
         isMarkedAsync: node.value.async,
+        customLintErrors,
       };
     }
 
