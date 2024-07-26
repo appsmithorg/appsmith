@@ -289,7 +289,6 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
                 2,
               ),
             },
-            isJSConvertible: true,
             placeholderText: '[{ "label": "label1", "value": "value1" }]',
             isBindProperty: true,
             isTriggerProperty: false,

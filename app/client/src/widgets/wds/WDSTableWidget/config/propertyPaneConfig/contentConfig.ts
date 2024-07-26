@@ -36,7 +36,6 @@ export const contentConfig = [
         inputType: "ARRAY",
         isBindProperty: true,
         isTriggerProperty: false,
-        isJSConvertible: true,
         validation: {
           type: ValidationTypes.FUNCTION,
           params: {

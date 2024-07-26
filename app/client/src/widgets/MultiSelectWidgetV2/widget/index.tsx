@@ -267,7 +267,6 @@ class MultiSelectWidget extends BaseWidget<
                 2,
               ),
             },
-            isJSConvertible: true,
             placeholderText: '[{ "label": "Option1", "value": "Option2" }]',
             isBindProperty: true,
             isTriggerProperty: false,

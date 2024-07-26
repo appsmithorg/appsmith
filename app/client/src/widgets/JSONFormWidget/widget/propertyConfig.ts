@@ -238,7 +238,6 @@ export const contentConfig = [
             },
           ],
         },
-        isJSConvertible: true,
         placeholderText: '{ "name": "John", "age": 24 }',
         isBindProperty: true,
         isTriggerProperty: false,
