@@ -4645,6 +4645,8 @@ public class ImportServiceTests {
 
                             Mono<List<NewPage>> pageList = newPageService
                                     .findNewPagesByApplicationId(newApp.getId(), MANAGE_PAGES)
+                                    .filter(newPage ->
+                                            newPage.getUnpublishedPage().getDeletedAt() == null)
                                     .collectList();
                             Mono<List<NewAction>> actionList = newActionService
                                     .findAllByApplicationIdAndViewMode(newApp.getId(), false, MANAGE_ACTIONS, null)
@@ -4652,7 +4654,11 @@ public class ImportServiceTests {
                             Mono<List<ActionCollection>> actionCollectionList = actionCollectionService
                                     .findAllByApplicationIdAndViewMode(newApp.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList();
-                            return Mono.zip(Mono.just(newApp), pageList, actionList, actionCollectionList);
+                            return Mono.zip(
+                                    applicationService.findById(newApp.getId(), MANAGE_APPLICATIONS),
+                                    pageList,
+                                    actionList,
+                                    actionCollectionList);
                         });
 
         StepVerifier.create(importedApplication)
