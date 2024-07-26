@@ -191,14 +191,14 @@ jobs:
             -e ENTERPRISE_ADMIN_PASSWORD=ent_admin_password \
             -e LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY=$LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY \
             appsmith/cloud-services:release
-          cd cicontainerlocal
-          docker run -d --name appsmith -p 80:80 \
-            -v "$PWD/stacks:/appsmith-stacks" \
-            -e APPSMITH_DISABLE_TELEMETRY=true \
-            -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
-            -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
-            --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
-            cicontainer
+        #   cd cicontainerlocal
+        #   docker run -d --name appsmith -p 80:80 \
+        #     -v "$PWD/stacks:/appsmith-stacks" \
+        #     -e APPSMITH_DISABLE_TELEMETRY=true \
+        #     -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
+        #     -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+        #     --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
+        #     cicontainer
 
       - name: Use Node.js
         uses: actions/setup-node@v4
