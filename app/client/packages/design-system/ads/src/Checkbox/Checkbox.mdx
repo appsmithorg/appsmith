@@ -1,7 +1,6 @@
+import { Canvas, Meta } from "@storybook/blocks";
 
-import { Canvas, Meta } from '@storybook/blocks';
-
-import * as CheckboxStories from './Checkbox.stories';
+import * as CheckboxStories from "./Checkbox.stories";
 
 <Meta of={CheckboxStories} />
 
@@ -29,6 +28,7 @@ Checkboxes can also be used to allow users to select multiple options from a gro
 ![Checkbox anatomy](./docs/checkbox-anatomy.png)
 
 ## Spacing
+
 ![Checkbox spacing](./docs/checkbox-spacing.png)
 
 ## Usage
@@ -48,12 +48,17 @@ Checkboxes can also be used to allow users to select multiple options from a gro
 ## States
 
 ### Checked
+
 The state of the checkbox is handled internally by default. If you need the state of the checkbox, you can control it yourself via the `isSelected` and `onChange` props.
+
 <Canvas of={CheckboxStories.CheckboxCheckedStory} />
 
 ### Disabled
+
 <Canvas of={CheckboxStories.CheckboxDisabledStory} />
 
 ### Indeterminate
+
 Indeterminate state is typically used in a table, or some other group, to convey that some of the children checkboxes have been ticked and others have not. You can find an example of this usage in the audit logs.
+
 <Canvas of={CheckboxStories.CheckboxIndeterminateStory} />

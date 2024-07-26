@@ -1,6 +1,6 @@
-import { Canvas, Meta } from '@storybook/blocks';
+import { Canvas, Meta } from "@storybook/blocks";
 
-import * as ListStories from './List.stories';
+import * as ListStories from "./List.stories";
 
 <Meta of={ListStories} />
 
@@ -12,7 +12,7 @@ List is a set of interactive actions or choices. It consists of items displayed 
 
 ![ListItem anatomy](./docs/list-item-anatomy.png)
 
-1. Container. 
+1. Container.
 2. The Start icon represents a visual indicator related to the action item.
 3. "Label" is the label for the action item.
 4. The End icon could show more options or relevant actions connected to the list.
@@ -20,6 +20,7 @@ List is a set of interactive actions or choices. It consists of items displayed 
 ## Overview
 
 Lists offer a wide range of practical applications:
+
 - In page sidebars, they effectively present individual actions, manage local navigation.
 - Lists facilitate organizational clarity through section dividers, headers for categorization, and dividers for each individual item.
 - Lists dynamically adjust to the size of their parent container, ensuring a consistent single-column layout across various screen dimensions.
@@ -31,6 +32,7 @@ Lists offer a wide range of practical applications:
 **List** can encompass a variety of layouts, including variations like "horizontal," "vertical," "stacked," and "grid," each tailored to the specific user interface and design preferences. These variations offer flexibility in presenting interactive actions or choices to users in a visually pleasing and efficient manner.
 
 ## List vs Menu
+
 - **List:** No additional user interaction required; actions are directly accessible and visible.
 - **Menu Component:** Requires a triggering action to display the menu, revealing a list of options or actions, which provides a more organized approach for presenting complex sets of choices.
 
@@ -41,30 +43,41 @@ A List typically doesn't have any dependencies on user actions. It's a straightf
 A Menu Component often depends on a specific user action to trigger its appearance. This could be a click, hover, or tap action. When the user performs the triggering action, the menu opens, revealing a list of options or actions, often in a hierarchical structure. The menu closes when the user selects an option, clicks outside the menu, or performs a designated close action.
 
 ## Grouping and Sorting
+
 Group related actions together, and consider using dividers or headers to visually separate different groups. Provide sorting options if the list is extensive.
 
 ## State
+
 ![ListItem states](./docs/list-item-state.png)
 
 ## Examples
+
 ![ListItem examples](./docs/list-item-example.png)
 
 ## Interaction
+
 ![ListItem interaction](./docs/list-item-interaction.png)
 
 ## Spacing
+
 ![ListItem spacing](./docs/list-item-spacing.png)
 
 ## Sizing
+
 ### Sizing Variants
+
 #### Medium
+
 The medium variant is designed for constrained spaces, such as sidebars or mobile screens.
 ![ListItem spacing](./docs/list-item-medium.png)
+
 #### Large
+
 The large variant maximizes item visibility and provides ample space for detailed descriptions. It's ideal for expansive layouts like dashboards.
 ![ListItem spacing](./docs/list-item-large.png)
 
 ## Description
+
 Description on the Right
 ![ListItem spacing](./docs/list-item-description-right.png)
 

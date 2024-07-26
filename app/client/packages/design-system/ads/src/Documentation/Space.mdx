@@ -1,8 +1,9 @@
-import { Meta } from '@storybook/blocks';
+import { Meta } from "@storybook/blocks";
 
 <Meta title="Docs/Space" />
 
 # Space
+
 Space is a key part of UI design. Mastering the use of space helps one become a better visual designer.
 
 Usage of space is depends on the content on the screen and the emphasis that this content needs. It is cumbersome to create higher order tokens for spacing rules and hence ADS 2.0 defines primitive tokens for space.
@@ -31,22 +32,21 @@ This simply means to use ‘increments of 4’ to size and space out the element
 
 For most containers, we use an external spacing of **24px** between them, and a **padding of 16px** or **12px** if the content is simpler and more compact. Elements within the container usually have **16px** gutters, with **24px** gutters between major sections.
 
-Smaller container like *datepicker, property pane, menu* can have 12px.
+Smaller container like _datepicker, property pane, menu_ can have 12px.
 
 ![External spacing - 12px](./docs/external-spacing-12.png)
 
-Larger container like Modal ***can*** have 16px.
+Larger container like Modal **_can_** have 16px.
 
 ![External spacing - 16px](./docs/external-spacing-16.png)
 
-  > 💡 **Example:** If you are using a 4px baseline grid, your spacing values should be 4, 8, 12, 16, 20, 24, 32 and so on.
+> 💡 **Example:** If you are using a 4px baseline grid, your spacing values should be 4, 8, 12, 16, 20, 24, 32 and so on.
 
 ### Component Level Spacing
 
 4px Examples
 
 ![Internal spacing - 4px](./docs/internal-spacing-4.png)
-
 
 Two Related Components will have spacing of 8px.
 
@@ -56,23 +56,21 @@ Two Related Components will have spacing of 8px.
 
 ![Layout spacing](./docs/layout-spacing.png)
 
-
 ## Spacing Token Names
 
 Skip spacing multiples that might be too close to one another.
 
 | Token Name | Value |
-| --- | --- |
-| Sp-1 | 4px |
-| Sp-2 | 8px |
-| Sp-3 | 12px |
-| Sp-4 | 16px |
-| Sp-5 | 24px |
-| Sp-6 | 32px |
-| Sp-7 | 40px |
-| Sp-8 | 48px |
-| Sp-9 | 56px |
-
+| ---------- | ----- |
+| Sp-1       | 4px   |
+| Sp-2       | 8px   |
+| Sp-3       | 12px  |
+| Sp-4       | 16px  |
+| Sp-5       | 24px  |
+| Sp-6       | 32px  |
+| Sp-7       | 40px  |
+| Sp-8       | 48px  |
+| Sp-9       | 56px  |
 
 # How to use space in design
 
@@ -105,7 +103,6 @@ Sections are logical units that group information together. A section comprises 
 
 A section could also comprise of information blocks or catalog blocks
 
-
 While the container acts like a parent block holding the information, the actual information itself is organised in terms of sections.
 
 Note: A section does not need to have a heading. It is a logical unit to indicate grouping of information.
@@ -117,16 +114,16 @@ The spacing rules to remember are:
 <aside>
   ☝️ The gap between items in a section *depends* on the size of the parent.
 
-  If the parent container is of large type (Page, Modal, Overlay) — the gap is 16px.
-  If the parent container is a small one (Property pane, Sidebar, menu) — the gap between items is 12px.
+If the parent container is of large type (Page, Modal, Overlay) — the gap is 16px.
+If the parent container is a small one (Property pane, Sidebar, menu) — the gap between items is 12px.
 
 </aside>
 
 <aside>
   📏 The gap between two sections *depends* on the size of the parent.
 
-  If the parent container if of large type (Page, Modal, Overlay) — the gap is at least 24px.
-  For smaller containers (Menu, small overlay) — the gap is at least 12px.
+If the parent container if of large type (Page, Modal, Overlay) — the gap is at least 24px.
+For smaller containers (Menu, small overlay) — the gap is at least 12px.
 
 </aside>
 
@@ -140,18 +137,19 @@ Eg: The ‘Add more’ button in the following UI is related to the input field 
 
 ### Specs for layout spacing
 
-| Container type / space | padding (vertical, horizontal) | semantic token | gap between sections in a container | gap within sections - controls | Examples in Appsmith | TBD:::gap within sections - Info. blocks |
-| --- | --- | --- | --- | --- | --- | --- |
-| Page | spacing-XL
-20, 20 | UI/container/Page/padding | 24 | 16 (datasource config) | Admin settings, Datasources, Queries etc. | ListItem:
+| Container type / space | padding (vertical, horizontal) | semantic token | gap between sections in a container | gap within sections - controls            | Examples in Appsmith | TBD:::gap within sections - Info. blocks |
+| ---------------------- | ------------------------------ | -------------- | ----------------------------------- | ----------------------------------------- | -------------------- | ---------------------------------------- |
+| Page                   | spacing-XL                     |
+| 20, 20                 | UI/container/Page/padding      | 24             | 16 (datasource config)              | Admin settings, Datasources, Queries etc. | ListItem:            |
+
 GridItem:
 Card: |
-| Large overlay | 20, 20 | UI/container/Page/padding | 24 |  | Templates |  |
-| Modal | 16, 20 | UI/container/Modal/padding | 24 | 16 | Share modal |  |
-| Pane | 12, 12 | UI/container/Pane/padding | 24 | 12 | Property pane |  |
-| Sidebar | 12, 12 | UI/container/Sidebar/padding | 24 | 12 (eg: filters in Templates) | Filters sidebar in Templates |  |
-| Small overlay | 12, 12 | UI/container/Modal/padding | 20 | 12 (action selector) | Action selector overlay |  |
-| Menu | 4, 4 | UI/container/Menu/padding | 12 | 12 |  |  |
+| Large overlay | 20, 20 | UI/container/Page/padding | 24 | | Templates | |
+| Modal | 16, 20 | UI/container/Modal/padding | 24 | 16 | Share modal | |
+| Pane | 12, 12 | UI/container/Pane/padding | 24 | 12 | Property pane | |
+| Sidebar | 12, 12 | UI/container/Sidebar/padding | 24 | 12 (eg: filters in Templates) | Filters sidebar in Templates | |
+| Small overlay | 12, 12 | UI/container/Modal/padding | 20 | 12 (action selector) | Action selector overlay | |
+| Menu | 4, 4 | UI/container/Menu/padding | 12 | 12 | | |
 | Toolbar | 4, 4 | UI/container/Toolbar/padding | TBD | NA | Header, Footer | NA |
 
 ### Visual reference
@@ -173,7 +171,6 @@ The heading of a container has a padding.
 Sections and gap between sections in a container
 
 ![Padding in container 3](./docs/padding-in-container-3.png)
-
 
 ## For Designers
 

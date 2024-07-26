@@ -1,8 +1,11 @@
 import type { PropsWithChildren } from "react";
 import React, { useMemo } from "react";
 import type { CommonComponentProps } from "../types/common";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import type { PopperBoundary } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { Tooltip } from "@blueprintjs/core/lib/esnext/components/tooltip/tooltip";
 import type { Modifiers } from "popper.js";
 import type noop from "lodash/noop";

@@ -1,6 +1,6 @@
-import { Canvas, Meta } from '@storybook/blocks';
+import { Canvas, Meta } from "@storybook/blocks";
 
-import * as AvatarStories from './Avatar.stories';
+import * as AvatarStories from "./Avatar.stories";
 import * as AvatarGroupStories from "./AvatarGroup.stories";
 
 <Meta of={AvatarStories} />
@@ -17,25 +17,25 @@ In case there is an error loading the avatar image, the component will fallback 
 - The first letter of the label
 - A generic avatar icon
 
-
 ## Kind
 
 Image
+
 <Canvas of={AvatarStories.AvatarStory} />
 
-
 Initials
-<Canvas of={AvatarStories.AvatarInitialStory} />
 
+<Canvas of={AvatarStories.AvatarInitialStory} />
 
 ## Size
 
 Small (24px)
+
 <Canvas of={AvatarStories.AvatarSmallStory} />
 
 Medium (32px)
-<Canvas of={AvatarStories.AvatarMediumStory} />
 
+<Canvas of={AvatarStories.AvatarMediumStory} />
 
 # Avatar Group
 
@@ -43,4 +43,3 @@ An avatar group is a collection of avatars that are displayed stacked on top of 
 Stacked groups are limited to five avatars and should only be used with medium or small avatars.
 
 <Canvas of={AvatarGroupStories.AvatarGroupStory} />
-

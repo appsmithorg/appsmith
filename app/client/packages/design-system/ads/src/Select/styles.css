@@ -1,4 +1,4 @@
-.ads-v2-select{
+.ads-v2-select {
   --select-color-border: var(--ads-v2-colors-control-field-default-border);
   --select-padding-x: var(--ads-v2-spaces-2); /* padding left and right */
   --select-padding-y: var(--ads-v2-spaces-2); /* padding top and bottom */
@@ -49,8 +49,7 @@
 
 /* Focused */
 .ads-v2-select.rc-select-focused {
-  outline: var(--ads-v2-border-width-outline) solid
-    var(--ads-v2-color-outline);
+  outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
   outline-offset: var(--ads-v2-offset-outline);
   --select-color-border: var(--ads-v2-colors-control-field-active-border);
 }
@@ -89,7 +88,8 @@
   --select-search-input-padding-right: calc(var(--select-padding-x) + 16px);
 }
 .ads-v2-select.rc-select-allow-clear.rc-select-show-arrow.rc-select-selection-search-input,
-.ads-v2-select.rc-select-allow-clear.rc-select-show-arrow .rc-select-selection-overflow {
+.ads-v2-select.rc-select-allow-clear.rc-select-show-arrow
+  .rc-select-selection-overflow {
   /* padding x + icon size + gap + icon size */
   --select-search-input-padding-right: calc(
     var(--select-padding-x) + 20px + 16px
@@ -133,13 +133,21 @@
   line-height: 18px;
 }
 
-.ads-v2-select[data-size="sm"] > .rc-select-selector > .rc-select-selection-placeholder,
-.ads-v2-select[data-size="sm"] > .rc-select-selector > .rc-select-selection-item {
+.ads-v2-select[data-size="sm"]
+  > .rc-select-selector
+  > .rc-select-selection-placeholder,
+.ads-v2-select[data-size="sm"]
+  > .rc-select-selector
+  > .rc-select-selection-item {
   top: -1px;
 }
 
-.ads-v2-select[data-size="md"] > .rc-select-selector > .rc-select-selection-placeholder,
-.ads-v2-select[data-size="md"] > .rc-select-selector > .rc-select-selection-item {
+.ads-v2-select[data-size="md"]
+  > .rc-select-selector
+  > .rc-select-selection-placeholder,
+.ads-v2-select[data-size="md"]
+  > .rc-select-selector
+  > .rc-select-selection-item {
   top: 0;
 }
 
@@ -164,7 +172,11 @@
 }
 
 /* +9 item */
-.ads-v2-select > .rc-select-selector > .rc-select-selection-overflow > .rc-select-selection-overflow-item.rc-select-selection-overflow-item-rest > .rc-select-selection-item {
+.ads-v2-select
+  > .rc-select-selector
+  > .rc-select-selection-overflow
+  > .rc-select-selection-overflow-item.rc-select-selection-overflow-item-rest
+  > .rc-select-selection-item {
   height: 100%;
   display: flex;
   font-size: 12px;
@@ -173,7 +185,12 @@
 }
 
 /* typing space */
-.ads-v2-select > .rc-select-selector > .rc-select-selection-overflow > .rc-select-selection-overflow-item > .rc-select-selection-search > input {
+.ads-v2-select
+  > .rc-select-selector
+  > .rc-select-selection-overflow
+  > .rc-select-selection-overflow-item
+  > .rc-select-selection-search
+  > input {
   padding: 0;
 }
 
@@ -231,7 +248,9 @@
 }
 
 /* Item content */
-.ads-v2-select__dropdown .rc-select-item.rc-select-item-option .rc-select-item-option-content {
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option
+  .rc-select-item-option-content {
   display: flex;
   align-items: center;
   gap: var(--select-option-gap);
@@ -243,7 +262,8 @@
 
 /* Option hover */
 .ads-v2-select__dropdown .rc-select-item.rc-select-item-option:hover,
-.ads-v2-select__dropdown .rc-select-item.rc-select-item-option.rc-select-item-option-active {
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option.rc-select-item-option-active {
   --select-option-color-bg: var(--ads-v2-colors-content-surface-hover-bg);
   outline: none;
 }
@@ -256,8 +276,7 @@
 
 /* Option focus visible */
 .ads-v2-select__dropdown .rc-select-item.rc-select-item-option:focus-visible {
-  outline: var(--ads-v2-border-width-outline) solid
-      var(--ads-v2-color-outline);
+  outline: var(--ads-v2-border-width-outline) solid var(--ads-v2-color-outline);
   outline-offset: var(--ads-v2-offset-outline);
 }
 
@@ -267,7 +286,8 @@
 }
 
 /* Option disabled */
-.ads-v2-select__dropdown .rc-select-item.rc-select-item-option.rc-select-item-option-disabled {
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option.rc-select-item-option-disabled {
   --select-option-color-bg: var(--ads-v2-colors-content-surface-default-bg);
   opacity: var(--ads-v2-opacity-disabled);
   cursor: not-allowed;
@@ -281,6 +301,7 @@
 }
 
 /* Selected option */
-.ads-v2-select__dropdown .rc-select-item.rc-select-item-option.rc-select-item-option-selected {
+.ads-v2-select__dropdown
+  .rc-select-item.rc-select-item-option.rc-select-item-option-selected {
   --select-option-color-bg: var(--ads-v2-colors-content-surface-active-bg);
 }

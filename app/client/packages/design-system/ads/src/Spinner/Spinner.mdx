@@ -1,10 +1,9 @@
-import { Canvas, Meta } from '@storybook/blocks';
+import { Canvas, Meta } from "@storybook/blocks";
 
-import * as SpinnerStories from './Spinner.stories';
+import * as SpinnerStories from "./Spinner.stories";
 import { ButtonLoadingStory } from "../Button/Button.stories";
 
 <Meta of={SpinnerStories} />
-
 
 # Spinner
 
@@ -16,22 +15,21 @@ The spinner is a special implementation of an icon-only button that is used as a
 
 1. **Icon:** Indicates the loading action; it is available in either a medium (md) or large (lg) size
 
-[//]: # (![Spinner anatomy]&#40;./docs/spinner-anatomy.png&#41;)
+[//]: # "![Spinner anatomy](./docs/spinner-anatomy.png)"
 
 ## Spacing
 
 The spinner follows the exact same spacing of an icon-only button. See [Icon Buttons](https://design-system.appsmith.com/?path=/docs/design-system-button--documentation#icon-buttons)
 
-[//]: # (![Spinner spacing]&#40;./docs/spinner-spacing.png&#41;)
-
+[//]: # "![Spinner spacing](./docs/spinner-spacing.png)"
 
 ## Size
 
 Spinners are available in 3 sizes: small (sm), medium (md) and large (lg).
 
 ### Small
-<Canvas of={SpinnerStories.SmallSpinnerStory} />
 
+<Canvas of={SpinnerStories.SmallSpinnerStory} />
 
 ### Medium
 
@@ -42,11 +40,11 @@ Use a medium spinner to indicate when content is loading within smaller areas, s
 ### Large
 
 Use a large spinner to indicate when content is loading within larger areas, such as full-page views, large panels, and modals. They're also ideal for any areas that don't have space constraints.
-<Canvas of={SpinnerStories.LargeSpinnerStory} />
 
+<Canvas of={SpinnerStories.LargeSpinnerStory} />
 
 ## Usage
 
 1. Use a spinner whenever the wait time is anticipated to be longer than three seconds.
 2. Don't use a spinner when the action has occured after a button has been clicked, use the button's `isLoading` prop for this.
-<Canvas of={ButtonLoadingStory} />
+   <Canvas of={ButtonLoadingStory} />

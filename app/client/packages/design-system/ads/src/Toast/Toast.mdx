@@ -1,6 +1,6 @@
-import { Canvas, Meta } from '@storybook/blocks';
+import { Canvas, Meta } from "@storybook/blocks";
 
-import * as ToastStories from './Toast.stories';
+import * as ToastStories from "./Toast.stories";
 
 <Meta of={ToastStories} />
 
@@ -25,18 +25,25 @@ Toasts typically have a simple design, consisting of a container with text and a
 There are 4 different kinds of toast notifications: info, success, warning, and error.
 
 ### Info
+
 <Canvas of={ToastStories.InformationToast} />
 
 ### Success
+
 Success toasts are used to inform users that an action has been completed successfully, and the desired outcome has been achieved.
+
 <Canvas of={ToastStories.SuccessToast} />
 
 ### Warning
+
 Warning toasts are used to inform users about potential issues that may arise in the future. Finally, Info toasts are used to provide users with additional information about a particular action or event.
+
 <Canvas of={ToastStories.WarningToast} />
 
 ### Error
+
 Error toasts are used to inform users that something went wrong, and they need to take action to fix it.
+
 <Canvas of={ToastStories.ErrorToast} />
 
 ## Usage
@@ -52,5 +59,7 @@ When to use:
 - Only for non-critical errors that are relevant at the moment and can be explained in a few words.
 
 ---
+
 ## Resources
+
 1. Internally, toast uses [react-toastify](https://fkhadra.github.io/react-toastify/introduction/)

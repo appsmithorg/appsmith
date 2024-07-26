@@ -7,6 +7,7 @@ import type { IconName } from "../Icon";
 import Icon, { IconSize } from "../Icon";
 import TooltipComponent from "../Tooltip";
 import Text, { TextType, FontWeight } from "../Text";
+// eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import type { PopoverPosition } from "@blueprintjs/core/lib/esnext/components/popover/popoverSharedProps";
 
 export type MenuItemProps = CommonComponentProps & {

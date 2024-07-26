@@ -1,9 +1,8 @@
-import { Meta, IconGallery, IconItem } from '@storybook/blocks';
+import { Meta, IconGallery, IconItem } from "@storybook/blocks";
 
-import { Icon, } from "./Icon";
+import { Icon } from "./Icon";
 import { IconCollection } from "./Icon.provider";
 import IconStories from "./Icon.stories";
-
 
 <Meta of={IconStories} />
 
@@ -13,8 +12,8 @@ Icons that are part of a subset of remix icon library are available for use. Onl
 
 <IconGallery>
   {IconCollection.sort().map((icon, index) => (
-      <IconItem key={index} name={icon}>
-        <Icon color="var(--ads-v2-color-fg)" name={icon} size="lg"  />
-      </IconItem>
+    <IconItem key={index} name={icon}>
+      <Icon color="var(--ads-v2-color-fg)" name={icon} size="lg" />
+    </IconItem>
   ))}
 </IconGallery>

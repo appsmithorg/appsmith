@@ -1,5 +1,6 @@
 {
   "extends": ["../../../.eslintrc.base.json", "plugin:storybook/recommended"],
+  "ignorePatterns": ["fileTransformer.js", "jest.setup.js"],
   "rules": {
     "@typescript-eslint/strict-boolean-expressions": "off",
     "@typescript-eslint/no-explicit-any": "off",

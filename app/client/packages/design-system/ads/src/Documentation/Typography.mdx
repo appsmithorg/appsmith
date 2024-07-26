@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/blocks';
+import { Meta } from "@storybook/blocks";
 
 <Meta title="Docs/Typography" />
 
@@ -6,7 +6,7 @@ import { Meta } from '@storybook/blocks';
 
 We use system font stack for typography in the product. This will default to SF Pro, Segoe UI and Ubuntu on mac, windows and linux systems, respectively. This also applies to monospace fonts that come into play when writing code or displaying output in the form of a JSON object.
 
-[//]: # (TODO: image of sans-serif font stack >> image of monospace font stack)
+[//]: # "TODO: image of sans-serif font stack >> image of monospace font stack"
 
 ## How to use?
 
@@ -18,23 +18,23 @@ For majority of the cases of dealing with text, this is the component you need. 
 
 ### Guidelines
 
-| Text element | When to use? |
-| --- | --- |
-| Page heading (XL) | These headings are prominent anchors that convey what the page is about. There should only be one page heading on a page. |
-| Modal heading (L) | Used on Modals and big overlays (eg: New JS libraries) |
-| Section heading (M) | To be used to demarcate a section within a page or a pane. Can also be used as a heading for an overlay pane. (eg: action selector overlay) |
-| Sub-section / small heading (S) | Used within a section. Or can be used as a heading for highlighting information subtly, along with body text. |
-| body (M) | The default content type on ADS2.0. Use this to convey primary information. |
-| supplementary (S) | Used to supplement primary information. Can be used for helpers, tags, metadata etc. |
+| Text element                    | When to use?                                                                                                                                |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| Page heading (XL)               | These headings are prominent anchors that convey what the page is about. There should only be one page heading on a page.                   |
+| Modal heading (L)               | Used on Modals and big overlays (eg: New JS libraries)                                                                                      |
+| Section heading (M)             | To be used to demarcate a section within a page or a pane. Can also be used as a heading for an overlay pane. (eg: action selector overlay) |
+| Sub-section / small heading (S) | Used within a section. Or can be used as a heading for highlighting information subtly, along with body text.                               |
+| body (M)                        | The default content type on ADS2.0. Use this to convey primary information.                                                                 |
+| supplementary (S)               | Used to supplement primary information. Can be used for helpers, tags, metadata etc.                                                        |
 
-Text that is part of components belonging to input controls (eg: input fields, checkbox labels etc.), actions (buttons, links), system responses (eg: callouts) are all embedded within the  components of those respective categories. To make it simpler we do not expose this to the users of the system, as of now.
+Text that is part of components belonging to input controls (eg: input fields, checkbox labels etc.), actions (buttons, links), system responses (eg: callouts) are all embedded within the components of those respective categories. To make it simpler we do not expose this to the users of the system, as of now.
 
->  👉 In case you have to create a new component or if the text component does not meet your need, you can look at the diverse typographic tokens on offer to style your UI.
-  [Read this page on how to style your design using tokens.](https://design-system.appsmith.com/?path=/docs/design-tokens--documentation#how-to-style-using-design-tokens) A list of all available typography tokens is [available in storybook](TODO: Add link to category tokens for typography here).
+> 👉 In case you have to create a new component or if the text component does not meet your need, you can look at the diverse typographic tokens on offer to style your UI.
+> [Read this page on how to style your design using tokens.](https://design-system.appsmith.com/?path=/docs/design-tokens--documentation#how-to-style-using-design-tokens) A list of all available typography tokens is [available in storybook](TODO: Add link to category tokens for typography here).
 
 ### Text casing in ADS 2.0
 
-[//]: # (TODO: Column layout)
+[//]: # "TODO: Column layout"
 
 All text in the product should be sentence cased. This typically means that only the first letter of the word should be capitalised in a sentence.
 
@@ -75,13 +75,14 @@ The first letter of a word should be capitalised, if
 
 ### For designers
 
-Drag the desired kind of the Text component from Figma’s library to your canvas.  The content kind group is far more used than the rest of the categories in a UI. And, the text within the rest of the categories (controls, actions and responses) have specific components within which text is embedded. (eg: A textual label of an input field comes by default with the input field component).
+Drag the desired kind of the Text component from Figma’s library to your canvas. The content kind group is far more used than the rest of the categories in a UI. And, the text within the rest of the categories (controls, actions and responses) have specific components within which text is embedded. (eg: A textual label of an input field comes by default with the input field component).
 
 Converting your existing designs using ADS 2.0 requires you to substitute the old components with components from ADS 2.0. This is the case with **text** too.
 
->  ☝ Do not merely change the text style token in Figma. Replace the text on the UI with the **Text component**, instead.
+> ☝ Do not merely change the text style token in Figma. Replace the text on the UI with the **Text component**, instead.
 
-[//]: # ( TODO: Column layout )
+[//]: # " TODO: Column layout "
+
 ### Why a Text component in Figma?
 
 While this might seem like a roundabout way of using text, this done with an intention of **simplifying decision making** w.r.t selecting typographic tokens for your designs.
@@ -96,9 +97,9 @@ If you need to a lot more flexibility in terms of styling your design, you can u
 
 ![Text component Figma](./docs/text-component-figma.png)
 
->  ⚠️ **Note:** Every text element has a designated color and should not be overridden. Eg: A page heading has a color represented by the token `colors/ui/heading/PageHeading` and this needs to be the case in all of it’s instances.
+> ⚠️ **Note:** Every text element has a designated color and should not be overridden. Eg: A page heading has a color represented by the token `colors/ui/heading/PageHeading` and this needs to be the case in all of it’s instances.
 
->  🔎 Inspect the Text component (or any component) and you will see that it is composed of tokens applied to the text styles and color styles in Figma. This will help you understand how the components have been constructed and make you better at using a design system.
+> 🔎 Inspect the Text component (or any component) and you will see that it is composed of tokens applied to the text styles and color styles in Figma. This will help you understand how the components have been constructed and make you better at using a design system.
 
 If you find the text component not meeting your needs, please reach out with your query on [#design-system](https://theappsmith.slack.com/archives/C0293DVQACW) tagging the design system pod (@design-system-pod)
 

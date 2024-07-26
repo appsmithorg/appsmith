@@ -1,6 +1,6 @@
-import { Canvas, Meta } from '@storybook/blocks';
+import { Canvas, Meta } from "@storybook/blocks";
 
-import * as SegmentedControlStories from './SegmentedControl.stories';
+import * as SegmentedControlStories from "./SegmentedControl.stories";
 
 <Meta of={SegmentedControlStories} />
 
@@ -24,7 +24,6 @@ The options presented should not be binary. If you have a `yes | no` scenario, u
 - Be concise and specific and limit text labels to one to three words.
 - Text labels should clearly communicate the view users will see and the content contained in the view.
 
-
 ## Spacing
 
 ![Segmented control spacing](./docs/segmented-control-spacing.png)
@@ -39,4 +38,5 @@ The options presented should not be binary. If you have a `yes | no` scenario, u
 Avoid using more than five control as provided in the component. Instead, consider using a [select](https://design-system.appsmith.com/?path=/docs/design-system-select--documentation).
 
 ### State
+
 The state of the individual segment in the segmented control is only controlled from within the component. You may, however, define the default value to be selected.

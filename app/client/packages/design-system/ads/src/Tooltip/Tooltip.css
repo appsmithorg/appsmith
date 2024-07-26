@@ -1,8 +1,12 @@
 /* TODO: Find a better way to style */
 /* wrapping in styled component is not working anymore */
 .rc-tooltip.ads-v2-tooltip {
-  --ads-v2-colors-content-tooltip-surface-default-bg: var(--ads-v2-color-bg-emphasis-max);
-  --ads-v2-colors-content-tooltip-label-default-fg: var(--ads-v2-color-fg-on-emphasis-max);
+  --ads-v2-colors-content-tooltip-surface-default-bg: var(
+    --ads-v2-color-bg-emphasis-max
+  );
+  --ads-v2-colors-content-tooltip-label-default-fg: var(
+    --ads-v2-color-fg-on-emphasis-max
+  );
 
   /* This is important because the styles is getting overridden by main repo */
   opacity: 1;
@@ -20,7 +24,9 @@
   border-radius: var(--ads-v2-border-radius);
   min-height: unset;
   padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
-  box-shadow: 0 2px 4px -2px rgba(0, 0, 0, 0.06), 0 4px 8px -2px rgba(0, 0, 0, 0.1);
+  box-shadow:
+    0 2px 4px -2px rgba(0, 0, 0, 0.06),
+    0 4px 8px -2px rgba(0, 0, 0, 0.1);
 }
 
 /* arrow color for different placement */
@@ -47,4 +53,3 @@
 .ads-v2-tooltip.rc-tooltip-placement-bottomRight .rc-tooltip-arrow {
   border-bottom-color: var(--ads-v2-colors-content-tooltip-surface-default-bg);
 }
-

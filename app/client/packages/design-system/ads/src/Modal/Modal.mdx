@@ -1,12 +1,13 @@
-import { Canvas, Meta } from '@storybook/blocks';
+import { Canvas, Meta } from "@storybook/blocks";
 
-import * as ModalStories from './Modal.stories';
+import * as ModalStories from "./Modal.stories";
 
 <Meta of={ModalStories} />
 
 # Modal
 
 Modals are commonly used to display additional content or prompt for user interaction while blocking the main flow of the application. Use a modal to bring attention to a certain action that the user needs to take, where no other state in the application can be changed. In appsmith, modals will always have a title and may or may not be closed. The content of the modal can be customised. The buttons in the footer of a modal are optional, but typically always present. When there is a group of action buttons, always place the primary button furthest to the right.
+
 <Canvas of={ModalStories.ModalStory} />
 
 ## Anatomy
@@ -15,7 +16,7 @@ Modals are commonly used to display additional content or prompt for user intera
 
 1. **Header:** Text title accompanied by an optional close button
 2. **Content** Container for the main content of the modal; the content can be text, forms, lists, cards, or other elements.
-4. **Footer:** Container for buttons related to the content of the modal
+3. **Footer:** Container for buttons related to the content of the modal
 
 ## Spacing
 
@@ -43,5 +44,7 @@ To do this, use a primary button on the right to indicate if the user should pro
 <Canvas of={ModalStories.ModalStoryTwo} />
 
 ---
+
 ## Resources
+
 1. Internally, our modal component depends on [radix's dialog](https://www.radix-ui.com/docs/primitives/components/dialog)

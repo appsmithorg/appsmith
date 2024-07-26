@@ -44,12 +44,16 @@
   border-right: none;
 }
 
-.rc-table.ads-v2-table-wrapper.rc-table-has-fix-left .rc-table-cell-fix-left-first::after,
-.rc-table.ads-v2-table-wrapper.rc-table-has-fix-left .rc-table-cell-fix-left-last::after {
+.rc-table.ads-v2-table-wrapper.rc-table-has-fix-left
+  .rc-table-cell-fix-left-first::after,
+.rc-table.ads-v2-table-wrapper.rc-table-has-fix-left
+  .rc-table-cell-fix-left-last::after {
   box-shadow: inset 10px 0 8px -8px var(--ads-v2-shadow-color);
 }
 
-.rc-table.ads-v2-table-wrapper.rc-table-has-fix-right .rc-table-cell-fix-right-first::after,
-.rc-table.ads-v2-table-wrapper.rc-table-has-fix-right .rc-table-cell-fix-right-last::after {
+.rc-table.ads-v2-table-wrapper.rc-table-has-fix-right
+  .rc-table-cell-fix-right-first::after,
+.rc-table.ads-v2-table-wrapper.rc-table-has-fix-right
+  .rc-table-cell-fix-right-last::after {
   box-shadow: inset -10px 0 8px -8px var(--ads-v2-shadow-color);
 }

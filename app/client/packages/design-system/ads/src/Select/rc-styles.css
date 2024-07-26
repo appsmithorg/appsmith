@@ -55,7 +55,9 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.rc-select-single:not(.rc-select-customize-input) .rc-select-selector .rc-select-selection-search-input {
+.rc-select-single:not(.rc-select-customize-input)
+  .rc-select-selector
+  .rc-select-selection-search-input {
   border: none;
   outline: none;
   width: 100%;
@@ -108,7 +110,7 @@
 .rc-select-multiple .rc-select-selector .rc-select-selection-search-input {
   border: none;
   outline: none;
-  background: rgba(255,0,0,0.2);
+  background: rgba(255, 0, 0, 0.2);
   width: 100%;
 }
 .rc-select-allow-clear.rc-select-multiple .rc-select-selector {
@@ -129,7 +131,7 @@
   top: 0;
 }
 .rc-select-show-arrow .rc-select-arrow-icon::after {
-  content: '';
+  content: "";
   border: 5px solid transparent;
   width: 0;
   height: 0;
@@ -203,7 +205,7 @@
   animation-fill-mode: both;
   transform-origin: 0 0;
   opacity: 0;
-  animation-timing-function: cubic-bezier(0.08,0.82,0.17,1);
+  animation-timing-function: cubic-bezier(0.08, 0.82, 0.17, 1);
   animation-play-state: paused;
 }
 .rc-select-dropdown-slide-up-leave {
@@ -211,7 +213,7 @@
   animation-fill-mode: both;
   transform-origin: 0 0;
   opacity: 1;
-  animation-timing-function: cubic-bezier(0.6,0.04,0.98,0.34);
+  animation-timing-function: cubic-bezier(0.6, 0.04, 0.98, 0.34);
   animation-play-state: paused;
 }
 .rc-select-dropdown-slide-up-enter.rc-select-dropdown-slide-up-enter-active.rc-select-dropdown-placement-bottomLeft,

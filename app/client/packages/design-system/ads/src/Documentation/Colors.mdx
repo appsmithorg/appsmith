@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/blocks';
+import { Meta } from "@storybook/blocks";
 
 <Meta title="Docs/Colors" />
 
@@ -18,7 +18,7 @@ Use the Text component and the right color gets automatically applied.
 
 If you have to style your text using a typographic token in certain specific cases, use the corresponding color token.
 
-[//]: # (TODO: insert text tokens image >> insert corresponding color tokens image)
+[//]: # "TODO: insert text tokens image >> insert corresponding color tokens image"
 
 > ⚠️ Do not use a different color than the color intended for a specific type.
 
@@ -26,7 +26,7 @@ Important links are styled with the primary color of ADS 2.0 defined by the toke
 
 Remember the order of preference:
 
->  🎏 Component >>> UI category token >> semantic token > primitive token.
+> 🎏 Component >>> UI category token >> semantic token > primitive token.
 
 Use a component if it exists. If it doesn’t meet your case, style your design using a UI category token. If you cannot find the right token at this level, go down a level and find semantic tokens. In rare cases where you do not find the right token at this level, use a primitive token.
 
@@ -34,9 +34,9 @@ Use a component if it exists. If it doesn’t meet your case, style your design 
 
 Icons can be accessed using the Icon component in ADS 2.0. Icons by default come with the color defined by the token, `colors.ui.content.icon.color` which in turn refers to `Gray-600`. Do not change this color unless necessary.
 
->  👉 Always use the highest level token to style your UI. That way your designs are future-proof if the underlying value were to change in a new version of ADS.
+> 👉 Always use the highest level token to style your UI. That way your designs are future-proof if the underlying value were to change in a new version of ADS.
 
-[//]: # (TODO: Insert visual from the snapshot modal from mobile responsive project)
+[//]: # "TODO: Insert visual from the snapshot modal from mobile responsive project"
 
 Icons do support a color override in cases where you need to style them differently. Use this choice judiciously.
 
@@ -44,11 +44,11 @@ Icons do support a color override in cases where you need to style them differen
 
 Background color would be needed to apply to page, pane, overlay backgrounds. While most of these use the `semantics.bg.default` token which refers to `colors.raw.white`, there are cases where background color is needed for hover states and selected states - for example, in a menu of items.
 
-| Use-case | Token to use | Refers to | Refers to |
-| --- | --- | --- | --- |
-| Page/pane/overlay/modal backgrounds | colors.semantics.bg.default | colors.raw.white | Gray-0 / White |
-| Menu item :hover | colors.UI.content.menu-item.hover | colors.semantics.bg.muted | Gray-100 |
-| Menu item :active | colors.UI.content.menu-ite.active | colors.semantics.bg.emphasis | Gray-200 |
+| Use-case                            | Token to use                      | Refers to                    | Refers to      |
+| ----------------------------------- | --------------------------------- | ---------------------------- | -------------- |
+| Page/pane/overlay/modal backgrounds | colors.semantics.bg.default       | colors.raw.white             | Gray-0 / White |
+| Menu item :hover                    | colors.UI.content.menu-item.hover | colors.semantics.bg.muted    | Gray-100       |
+| Menu item :active                   | colors.UI.content.menu-ite.active | colors.semantics.bg.emphasis | Gray-200       |
 
 In addition to this, there are other background colors that exist in order to indicate information, warning, success and danger states to the users. Use this according to your needs. These are used for styling callouts, notification banners, debugger errors, warning logs to list a few.
 
@@ -58,7 +58,7 @@ ADS 2.0 comes with a divider component that helps you segregate content. This us
 
 There also exist other border tokens, that have been used in components, should the need arise.
 
-[//]: # (TODO: Generate Color Palette block here of just the border colors)
+[//]: # "TODO: Generate Color Palette block here of just the border colors"
 
 ### Styling text on colored backgrounds
 
@@ -68,7 +68,7 @@ If you have to manually style this, for example for styling error messages in th
 
 ## FAQs
 
-****What if the color I need isn’t listed?****
+\***\*What if the color I need isn’t listed?\*\***
 
 Our tokens should help you in almost all scenarios. However, a design system is never complete and we recognise that there may be edge cases we haven’t factored in.
 

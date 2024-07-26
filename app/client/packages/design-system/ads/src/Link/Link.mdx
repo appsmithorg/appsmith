@@ -1,6 +1,6 @@
-import { Canvas, Meta } from '@storybook/blocks';
+import { Canvas, Meta } from "@storybook/blocks";
 
-import * as LinkStories from './Link.stories';
+import * as LinkStories from "./Link.stories";
 
 <Meta of={LinkStories} />
 
@@ -21,9 +21,11 @@ Links should be designed to blend seamlessly with the surrounding text, adopting
 ## Kind
 
 ### Primary
+
 <Canvas of={LinkStories.PrimaryLink} />
 
 ### Secondary
+
 <Canvas of={LinkStories.SecondaryLink} />
 
 ## Usage
@@ -42,8 +44,11 @@ To enhance usability, ensure that link text is meaningful even when viewed out o
 Links should be visually consistent with the surrounding text by adopting the default primary color. Links inher
 
 ---
+
 ## Resources
+
 1. Internally, our link component uses [React Aria's useLink hook](https://react-spectrum.adobe.com/react-aria/useLink.html).
 
 ## References
+
 1. https://marcysutton.com/links-vs-buttons-in-modern-web-applications

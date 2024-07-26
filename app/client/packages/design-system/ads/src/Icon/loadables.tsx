@@ -30,6 +30,7 @@ function importIconImpl(
 }
 
 export function importSvg(
+  // eslint-disable-next-line @typescript-eslint/consistent-type-imports
   importFn: () => Promise<typeof import("*.svg")>,
 ): React.ComponentType<React.SVGProps<SVGSVGElement>> {
   return importIconImpl(async () =>

@@ -13,6 +13,7 @@ describe("Link component", () => {
         </Link>
       </StaticRouter>,
     );
+    // eslint-disable-next-line testing-library/prefer-screen-queries
     const link = getByTestId(LinkClassName);
     expect(link).toBeInTheDocument();
     expect(link.getAttribute("href")).toBe("/old");
@@ -24,6 +25,7 @@ describe("Link component", () => {
         External Link
       </Link>,
     );
+    // eslint-disable-next-line testing-library/prefer-screen-queries
     const link = getByTestId(LinkClassName);
     expect(link).toBeInTheDocument();
     expect(link.getAttribute("href")).toBe("https://appsmith.com");
@@ -38,6 +40,7 @@ describe("Link component", () => {
         </Link>
       </StaticRouter>,
     );
+    // eslint-disable-next-line testing-library/prefer-screen-queries
     const link = getByTestId(LinkClassName);
 
     fireEvent.click(link);

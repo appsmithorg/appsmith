@@ -1,7 +1,6 @@
 @import url("../../__assets__/fonts/pt-root-ui.css");
 
 :root {
-
   /* Font Weights */
   --ads-v2-font-weight-0: 0;
   --ads-v2-font-weight-normal: 400;
@@ -41,5 +40,4 @@
   --ads-v2-letter-spacing-3: 0.4;
   --ads-v2-letter-spacing-4: 0.6;
   --ads-v2-letter-spacing-5: 0.8;
-
 }
