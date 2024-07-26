@@ -5,7 +5,7 @@ import type { RouteComponentProps } from "react-router-dom";
 import { withRouter } from "react-router-dom";
 import type { BuilderRouteParams } from "constants/routes";
 import type { AppState } from "@appsmith/reducers";
-import IDE from "./IDE";
+// import IDE from "./IDE";
 import {
   getCurrentApplicationId,
   getIsEditorInitialized,
@@ -48,6 +48,7 @@ import DisableCDModal from "@appsmith/components/gitComponents/DisableCDModal";
 import { PartialExportModal } from "components/editorComponents/PartialImportExport/PartialExportModal";
 import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
 import { AppCURLImportModal } from "@appsmith/pages/Editor/CurlImport";
+import AnimatedGridIDE from "./IDE/AnimatedGridIDE";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -170,7 +171,7 @@ class Editor extends Component<Props> {
             </title>
           </Helmet>
           <GlobalHotKeys>
-            <IDE />
+            <AnimatedGridIDE />
             <GitSyncModal />
             <GitSettingsModal />
             <DisableCDModal />
