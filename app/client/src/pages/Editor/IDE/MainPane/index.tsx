@@ -3,19 +3,12 @@ import { Route, Switch, useRouteMatch } from "react-router";
 import * as Sentry from "@sentry/react";
 import useRoutes from "@appsmith/pages/Editor/IDE/MainPane/useRoutes";
 import { useWidgetSelectionBlockListener } from "pages/Editor/IDE/hooks";
-import { useSelector } from "react-redux";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import WidgetsEditor from "../../WidgetsEditor";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 export const MainPane = (props: { id: string }) => {
   const { path } = useRouteMatch();
   const routes = useRoutes(path);
   useWidgetSelectionBlockListener();
-  const isCombinedPreviewMode = useSelector(combinedPreviewModeSelector);
-  if (isCombinedPreviewMode) {
-    return <WidgetsEditor />;
-  }
 
   return (
     <div

@@ -35,6 +35,8 @@ import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
 import GeneratePage from "pages/Editor/GeneratePage";
 import type { RouteProps } from "react-router";
+import { useSelector } from "react-redux";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 
 export interface RouteReturnType extends RouteProps {
   key: string;
@@ -46,6 +48,7 @@ export interface RouteReturnType extends RouteProps {
  */
 
 function useRoutes(path: string): RouteReturnType[] {
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   return [
     {
       key: "Canvas",
@@ -83,37 +86,37 @@ function useRoutes(path: string): RouteReturnType[] {
     },
     {
       key: "Datasource Create and Active",
-      component: CreateNewDatasourceTab,
+      component: isPreviewMode ? WidgetsEditor : CreateNewDatasourceTab,
       exact: true,
       path: `${path}${INTEGRATION_EDITOR_PATH}`,
     },
     {
       key: "OnboardingChecklist",
-      component: OnboardingChecklist,
+      component: isPreviewMode ? WidgetsEditor : OnboardingChecklist,
       exact: true,
       path: `${path}${BUILDER_CHECKLIST_PATH}`,
     },
     {
       key: "DatasourceEditor",
-      component: DataSourceEditor,
+      component: isPreviewMode ? WidgetsEditor : DataSourceEditor,
       exact: true,
       path: `${path}${DATA_SOURCES_EDITOR_ID_PATH}`,
     },
     {
       key: "DatasourceBlankState",
-      component: DatasourceBlankState,
+      component: isPreviewMode ? WidgetsEditor : DatasourceBlankState,
       exact: true,
       path: `${path}${DATA_SOURCES_EDITOR_LIST_PATH}`,
     },
     {
       key: "SAASDatasourceEditor",
-      component: DatasourceForm,
+      component: isPreviewMode ? WidgetsEditor : DatasourceForm,
       exact: true,
       path: `${path}${SAAS_EDITOR_DATASOURCE_ID_PATH}`,
     },
     {
       key: "GeneratePage",
-      component: GeneratePage,
+      component: isPreviewMode ? WidgetsEditor : GeneratePage,
       exact: true,
       path: `${path}${GENERATE_TEMPLATE_FORM_PATH}`,
     },
