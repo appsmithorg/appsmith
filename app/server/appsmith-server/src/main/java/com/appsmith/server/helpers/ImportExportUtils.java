@@ -93,8 +93,10 @@ public class ImportExportUtils {
         // would be confusing to user
         // when it is reset to false during importing where the
         // application already is present in DB
-        importedApplication.setIsPublic(null);
-        importedApplication.setPolicies(null);
+
+        importedApplication.setIsPublic(existingApplication.getIsPublic());
+        importedApplication.setPolicies(existingApplication.getPolicies());
+
         // These properties are not present in the application when it is created, hence the initial commit
         // to git doesn't contain these keys and if we want to discard the changes, the function
         // copyNestedNonNullProperties ignore these properties and the changes are not discarded

@@ -1,5 +1,6 @@
 package com.appsmith.server.applications.imports;
 
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -384,12 +385,8 @@ public class ApplicationImportServiceCEImpl
 
         if (!StringUtils.hasText(importingMetaDTO.getArtifactId())) {
             importApplicationMono = importApplicationMono.flatMap(application -> {
-                return applicationPageService
-                        .createOrUpdateSuffixedApplication(application, application.getName(), 0, true)
-                        .map(newApp -> {
-                            mappedImportableResourcesDTO.setUpdateApplication(newApp);
-                            return newApp;
-                        });
+                return applicationPageService.createOrUpdateSuffixedApplication(
+                        application, application.getName(), 0, true);
             });
         } else {
             Mono<Application> existingApplicationMono = applicationService
@@ -447,12 +444,8 @@ public class ApplicationImportServiceCEImpl
                             Application application = objects.getT1();
                             Application parentApplication = objects.getT2();
                             application.setPolicies(parentApplication.getPolicies());
-                            return applicationPageService
-                                    .createOrUpdateSuffixedApplication(application, application.getName(), 0, true)
-                                    .map(newApp -> {
-                                        mappedImportableResourcesDTO.setUpdateApplication(newApp);
-                                        return newApp;
-                                    });
+                            return applicationPageService.createOrUpdateSuffixedApplication(
+                                    application, application.getName(), 0, true);
                         });
             }
         }
@@ -460,7 +453,8 @@ public class ApplicationImportServiceCEImpl
                 .elapsed()
                 .map(tuples -> {
                     log.debug("time to create or update application object: {}", tuples.getT1());
-                    return tuples.getT2();
+                    AppsmithBeanUtils.copyNestedNonNullProperties(tuples.getT2(), importableArtifact);
+                    return (Application) importableArtifact;
                 })
                 .onErrorResume(error -> {
                     log.error("Error while creating or updating application object", error);
@@ -469,40 +463,25 @@ public class ApplicationImportServiceCEImpl
     }
 
     @Override
-    public Mono<Application> updateImportableArtifact(
-            Artifact importableArtifact, MappedImportableResourcesDTO mappedImportableResourcesDTO) {
-        return Mono.just((Application) importableArtifact)
-                .flatMap(application -> {
-                    log.info("Imported application with id {}", application.getId());
-                    // Need to update the application object with updated pages and publishedPages
-                    Application updateApplication = new Application();
-                    updateApplication.setPages(application.getPages());
-                    updateApplication.setPublishedPages(application.getPublishedPages());
-                    mappedImportableResourcesDTO.getUpdateApplication().setPages(application.getPages());
-                    mappedImportableResourcesDTO
-                            .getUpdateApplication()
-                            .setPublishedPages(application.getPublishedPages());
-                    return Mono.just(application);
-                })
-                .flatMap(application -> {
-                    return Flux.fromIterable(application.getPages())
-                            .map(ApplicationPage::getId)
-                            .flatMap(pageId -> {
-                                return updateLayoutService
-                                        .updatePageLayoutsByPageId(pageId)
-                                        .onErrorResume(throwable -> {
-                                            // the error would most probably arise because of update layout error,
-                                            // this shouldn't stop the application from getting imported.
-                                            String errorMessage = ImportExportUtils.getErrorMessage(throwable);
-                                            log.error(
-                                                    "Error while updating layout. Error: {}", errorMessage, throwable);
-                                            // continuing the execution
-                                            return Mono.just("");
-                                        });
-                            })
-                            .collectList()
-                            .thenReturn(application);
-                });
+    public Mono<Application> updateImportableArtifact(Artifact importableArtifact) {
+        return Mono.just((Application) importableArtifact).flatMap(application -> {
+            return Flux.fromIterable(application.getPages())
+                    .map(ApplicationPage::getId)
+                    .flatMap(pageId -> {
+                        return updateLayoutService
+                                .updatePageLayoutsByPageId(pageId)
+                                .onErrorResume(throwable -> {
+                                    // the error would most probably arise because of update layout error,
+                                    // this shouldn't stop the application from getting imported.
+                                    String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                                    log.error("Error while updating layout. Error: {}", errorMessage, throwable);
+                                    // continuing the execution
+                                    return Mono.just("");
+                                });
+                    })
+                    .collectList()
+                    .thenReturn(application);
+        });
     }
 
     @Override
