@@ -137,12 +137,12 @@ jobs:
           key: docker-image-${{ inputs.previous-workflow-run-id }}
 
       # In case of run-id is 0 download the artifact from the current run
-      - name: Download Docker image artifact
-        if: inputs.previous-workflow-run-id == 0
-        uses: actions/cache@v4
-        with:
-          path: cicontainer.tar.gz
-          key: docker-image-${{github.run_id}}
+    #   - name: Download Docker image artifact
+    #     if: inputs.previous-workflow-run-id == 0
+    #     uses: actions/cache@v4
+    #     with:
+    #       path: cicontainer.tar.gz
+    #       key: docker-image-${{github.run_id}}
 
       - name: Load Docker image from tar file
         run: |
