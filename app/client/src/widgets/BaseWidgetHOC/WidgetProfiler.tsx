@@ -1,5 +1,5 @@
 import React, { Profiler, useCallback } from "react";
-import { generateRootSpan } from "UITelemetry/generateTraces";
+import { startAndEndSpan } from "UITelemetry/generateTraces";
 export const WidgetProfiler = ({
   children,
   type,
@@ -11,7 +11,7 @@ export const WidgetProfiler = ({
 }) => {
   const onRender = useCallback(
     (id: string, phase: string, actualDuration: number) => {
-      generateRootSpan("widgetRender", actualDuration, {
+      startAndEndSpan("widgetRender", Date.now(), actualDuration, {
         widgetType: type,
         // mount or update phase
         phase,

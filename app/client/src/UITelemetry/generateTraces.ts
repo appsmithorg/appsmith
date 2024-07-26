@@ -92,12 +92,12 @@ export function wrapFnWithParentTraceContext(parentSpan: Span, fn: () => any) {
   return context.with(parentContext, fn);
 }
 
-export function generateRootSpan(
+export function startAndEndSpan(
   spanName: string,
+  startTime: number,
   difference: number,
   spanAttributes: SpanAttributes = {},
 ) {
-  const startTime = Date.now();
   const endTime = startTime + Math.floor(difference);
 
   const span = startRootSpan(spanName, spanAttributes, startTime);
