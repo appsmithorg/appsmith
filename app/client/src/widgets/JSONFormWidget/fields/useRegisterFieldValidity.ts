@@ -38,9 +38,11 @@ function useRegisterFieldValidity({
           ? startAndEndSpanForFn("JSONFormWidget.clearErrors", {}, () => {
               clearErrors(fieldName);
             })
-          : setError(fieldName, {
-              type: fieldType,
-              message: "Invalid field",
+          : startAndEndSpanForFn("JSONFormWidget.setError", {}, () => {
+              setError(fieldName, {
+                type: fieldType,
+                message: "Invalid field",
+              });
             });
       } catch (e) {
         Sentry.captureException(e);
