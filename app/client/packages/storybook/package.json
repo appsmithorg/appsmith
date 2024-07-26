@@ -8,6 +8,8 @@
     "lint": "yarn g:lint",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
+    "test-storybook": "test-storybook --testTimeout 40000",
+    "test-storybook:ci": "npx concurrently -k -s first -n 'SB,TEST' -c 'magenta,blue' 'npx http-server storybook-static --port 6006 --silent' 'npx wait-on tcp:6006 && yarn test-storybook'",
     "chromatic": "CHROMATIC=1 storybook dev -p 6006"
   },
   "devDependencies": {
@@ -26,6 +28,7 @@
     "@storybook/preset-create-react-app": "^8.2.6",
     "@storybook/preview-api": "^8.2.6",
     "@storybook/react-vite": "^8.2.6",
+    "@storybook/test-runner": "^0.19.1",
     "@storybook/theming": "^8.2.6",
     "@vitejs/plugin-react": "^4.2.1",
     "babel-loader": "9.1.2",
