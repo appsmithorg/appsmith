@@ -22,12 +22,8 @@ describe(
         "and check that date cell edit mode can be turned on",
       () => {
         EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
-        agHelper.AssertElementEnabledDisabled(
-          table._columnCheckbox("release_date"),
-          0,
-          false,
-        );
         table.EditColumn("release_date", "v2");
+        propPane.AssertPropertySwitchState("Editable", "disabled");
         propPane.TogglePropertyState("Editable", "On");
         agHelper.Sleep(1000);
         agHelper.AssertElementVisibility(

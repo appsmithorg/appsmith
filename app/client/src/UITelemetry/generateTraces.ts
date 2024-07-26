@@ -76,18 +76,30 @@ export function startNestedSpan(
   return generatorTrace.startSpan(spanName, spanOptions, parentContext);
 }
 
-export function endSpan(span: Span) {
-  span.end();
+export function endSpan(span?: Span) {
+  span?.end();
 }
 
 export function setAttributesToSpan(
-  span: Span,
-  spanAttributes: SpanAttributes,
+  span?: Span,
+  spanAttributes: SpanAttributes = {},
 ) {
-  span.setAttributes(spanAttributes);
+  span?.setAttributes(spanAttributes);
 }
 
 export function wrapFnWithParentTraceContext(parentSpan: Span, fn: () => any) {
   const parentContext = trace.setSpan(context.active(), parentSpan);
   return context.with(parentContext, fn);
+}
+
+export function startAndEndSpan(
+  spanName: string,
+  startTime: number,
+  difference: number,
+  spanAttributes: SpanAttributes = {},
+) {
+  const endTime = startTime + Math.floor(difference);
+
+  const span = startRootSpan(spanName, spanAttributes, startTime);
+  span.end(endTime);
 }

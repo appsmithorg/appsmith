@@ -6,10 +6,13 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.dtos.DBOpsType;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface DatasourceServiceCE {
@@ -36,7 +39,7 @@ public interface DatasourceServiceCE {
 
     Mono<Set<MustacheBindingToken>> extractKeysFromDatasource(Datasource datasource);
 
-    Mono<Datasource> save(Datasource datasource);
+    Mono<Datasource> save(Datasource datasource, boolean isDryOps);
 
     /**
      * Retrieves all datasources based on input params, currently only workspaceId.
@@ -58,9 +61,14 @@ public interface DatasourceServiceCE {
      */
     Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, AclPermission permission);
 
+    Flux<Datasource> saveAll(List<Datasource> datasourceList);
+
     Mono<Datasource> create(Datasource datasource);
 
     Mono<Datasource> createWithoutPermissions(Datasource datasource);
+
+    Mono<Datasource> createWithoutPermissions(
+            Datasource datasource, Map<DBOpsType, List<DatasourceStorage>> datasourceStorageDryRunQueries);
 
     Mono<Datasource> updateDatasourceStorage(
             DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId, Boolean IsUserRefreshedUpdate);

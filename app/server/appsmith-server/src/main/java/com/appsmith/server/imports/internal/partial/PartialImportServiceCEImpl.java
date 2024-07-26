@@ -35,6 +35,7 @@ import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
+import com.appsmith.server.repositories.DryOperationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -99,6 +100,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final DatasourceService datasourceService;
     private final CustomJSLibService customJSLibService;
     private final UpdateLayoutService updateLayoutService;
+    private final DryOperationRepository dryOperationRepository;
 
     @Override
     public Mono<Application> importResourceInPage(
@@ -247,6 +249,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                         .thenReturn(application);
                             });
                 })
+                // execute dry run ops
+                .flatMap(importableArtifact -> dryOperationRepository
+                        .executeAllDbOps(mappedImportableResourcesDTO)
+                        .thenReturn(importableArtifact))
                 .flatMap(application -> {
                     Map<String, Object> fieldNameValueMap = Map.of(
                             FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS,
@@ -431,10 +437,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         Mono<String> branchedPageIdMono =
                 newPageService.findBranchedPageId(branchName, buildingBlockDTO.getPageId(), AclPermission.MANAGE_PAGES);
 
-        Stopwatch processStopwatch = new Stopwatch("Download Content from Cloud service");
         return applicationJsonMono.flatMap(applicationJson -> {
-            processStopwatch.stopAndLogTimeInMillis();
-            Stopwatch processStopwatch1 = new Stopwatch("Importing resource in db ");
             return this.importResourceInPage(
                             buildingBlockDTO.getWorkspaceId(),
                             buildingBlockDTO.getApplicationId(),
@@ -445,7 +448,6 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                     .flatMap(tuple -> {
                         BuildingBlockImportDTO buildingBlockImportDTO = tuple.getT1();
                         String branchedPageId = tuple.getT2();
-                        processStopwatch1.stopAndLogTimeInMillis();
                         // Fetch layout and get new onPageLoadActions
                         // This data is not present in a client, since these are created
                         // after importing the block
