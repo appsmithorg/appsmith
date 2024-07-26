@@ -139,19 +139,19 @@ fi
 
 
 function get_maximum_heap() {
-  resource=$(ulimit -u)
-  tlog "Resource : $resource"
-  if [[ "$resource" -le 256 ]]; then
-    maximum_heap=128
-  elif [[ "$resource" -le 512 ]]; then
-    maximum_heap=256
-  fi
+    resource=$(ulimit -u)
+    tlog "Resource : $resource"
+    if [[ "$resource" -le 256 ]]; then
+        maximum_heap=128
+    elif [[ "$resource" -le 512 ]]; then
+        maximum_heap=256
+    fi
 }
 
 function setup_backend_heap_arg() {
-  if [[ ! -z ${maximum_heap} ]]; then
-    export APPSMITH_JAVA_HEAP_ARG="-Xmx${maximum_heap}m"
-  fi
+    if [[ ! -z ${maximum_heap} ]]; then
+      export APPSMITH_JAVA_HEAP_ARG="-Xmx${maximum_heap}m"
+    fi
 }
 
 unset_unused_variables() {
@@ -320,7 +320,7 @@ check_setup_custom_ca_certificates() {
     ln --verbose --force --symbolic --no-target-directory "$stacks_ca_certs_path" "$container_ca_certs_path"
 
   elif [[ ! -e $container_ca_certs_path ]]; then
-    rm -vf "$container_ca_certs_path" # If it exists as a broken symlink, this will be needed.
+    rm -vf "$container_ca_certs_path"  # If it exists as a broken symlink, this will be needed.
     mkdir -v "$container_ca_certs_path"
 
   fi
@@ -393,7 +393,7 @@ check_redis_compatible_page_size() {
   page_size="$(getconf PAGE_SIZE)"
   if [[ $page_size -gt 4096 ]]; then
     curl \
-      --connect-timeout 5 \
+    --connect-timeout 5 \
       --silent \
       --user "$APPSMITH_SEGMENT_CE_KEY:" \
       --header 'Content-Type: application/json' \
@@ -470,11 +470,11 @@ init_loading_pages(){
 }
 
 function setup_auto_heal(){
-  if [[ ${APPSMITH_AUTO_HEAL-} = 1 ]]; then
-    # By default APPSMITH_AUTO_HEAL=0
-    # To enable auto heal set APPSMITH_AUTO_HEAL=1
+   if [[ ${APPSMITH_AUTO_HEAL-} = 1 ]]; then
+     # By default APPSMITH_AUTO_HEAL=0
+     # To enable auto heal set APPSMITH_AUTO_HEAL=1
      bash /opt/appsmith/auto_heal.sh $APPSMITH_AUTO_HEAL_CURL_TIMEOUT >> "$APPSMITH_LOG_DIR"/cron/auto_heal.log 2>&1 &
-  fi
+   fi
 }
 
 print_appsmith_info(){

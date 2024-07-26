@@ -19,8 +19,8 @@ set -o nounset
 
 # Check if any Postgres server is running
 if pgrep -x "postgres" > /dev/null; then
-	echo "Error: A Postgres server is currently running. Please stop it before proceeding with the upgrade."
-	exit 1
+  echo "Error: A Postgres server is currently running. Please stop it before proceeding with the upgrade."
+  exit 1
 fi
 
 postgres_path=/usr/lib/postgresql
@@ -86,7 +86,7 @@ if [[ "$old_version" == 13 && "$top_available_version" > "$old_version" ]]; then
 		'$postgres_path/$new_version/bin/pg_upgrade' \
 			--old-datadir='$pg_data_dir' \
 			--new-datadir='$new_data_dir' \
-			--old-bindir='$postgres_path/$old_version/bin' \ 
+			--old-bindir='$postgres_path/$old_version/bin' \
 			--new-bindir='$postgres_path/$new_version/bin'
 	"
 
