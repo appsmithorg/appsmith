@@ -1,5 +1,4 @@
 import React from "react";
-import { DISPLAY_CONFIG } from "./constants";
 export interface LayoutAreaProps {
   name: string;
   hidden?: boolean;
@@ -14,20 +13,10 @@ export function LayoutArea(props: LayoutAreaProps) {
     <div
       style={{
         gridArea: name,
-        position: "relative",
-        ...DISPLAY_CONFIG[display],
+        display,
       }}
     >
-      <div
-        style={{
-          width: "100%",
-          height: "100%",
-          position: "absolute",
-          overflow: "auto",
-        }}
-      >
-        {children}
-      </div>
+      {children}
     </div>
   );
 }
