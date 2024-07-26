@@ -344,11 +344,10 @@ jobs:
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
           CYPRESS_STATIC_ALLOCATION: true
         run: |
-            cd app/client && npx cypress-repeat run -n 4 --force --spec ${{ env.specs_to_run }} \
-            --config-file "cypress_ci_custom.config.ts" \
+            cd app/client && npx cypress-repeat run -n ${{ github.event.inputs.run_count }} --force --spec ${{ env.specs_to_run }} \
+            --config-file "app/client/cypress_ci_custom.config.ts" \
             --env "NODE_ENV=development" \
-            --browser ${{ env.BROWSER_PATH }}  \
-            --env grepBurn=${{ github.event.inputs.run_count }}
+            --browser ${{ env.BROWSER_PATH }} 
             
       - name: Trim number of cypress log files
         if: failure()
