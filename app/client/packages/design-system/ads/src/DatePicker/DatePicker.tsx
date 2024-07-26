@@ -6,7 +6,7 @@ import getMonth from "date-fns/getMonth";
 import clsx from "classnames";
 
 import "react-datepicker/dist/react-datepicker.css";
-import "./styles.css";
+import "./styles.module.css";
 import {
   DatePickerCalenderClassName,
   DatePickerCalenderHeaderClassName,

@@ -25,7 +25,7 @@ import { DSEventTypes } from "../types/common";
 import { typography } from "../constants/typography";
 import type { Intent as BlueprintIntent } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
-import "./styles.css";
+import "./styles.module.css";
 
 export interface TreeDropdownOption {
   label: string;
