@@ -68,6 +68,43 @@ export const excludeList: WidgetType[] = [
   "JSON_FORM_WIDGET",
   "CUSTOM_WIDGET",
 ];
+export function getActions(
+  widgetProperties: any,
+  onCopy: () => void,
+  onDelete: () => void
+): Array<{
+  tooltipContent: any;
+  icon: ReactElement;
+}> {
+  return widgetProperties?.type === "CONTAINER_WIDGET"
+    ? []
+    : [
+        {
+          tooltipContent: "Copy widget",
+          icon: (
+            <Button
+              data-testid="t--copy-widget"
+              isIconButton
+              kind="tertiary"
+              onClick={onCopy}
+              startIcon="duplicate"
+            />
+          ),
+        },
+        {
+          tooltipContent: "Delete widget",
+          icon: (
+            <Button
+              data-testid="t--delete-widget"
+              isIconButton
+              kind="tertiary"
+              onClick={onDelete}
+              startIcon="delete-bin-line"
+            />
+          ),
+        },
+      ];
+}
 
 function PropertyPaneView(
   props: {
@@ -204,37 +241,10 @@ function PropertyPaneView(
   /**
    * actions shown on the right of title
    */
-  const actions = useMemo((): Array<{
-    tooltipContent: any;
-    icon: ReactElement;
-  }> => {
-    return [
-      {
-        tooltipContent: "Copy widget",
-        icon: (
-          <Button
-            data-testid="t--copy-widget"
-            isIconButton
-            kind="tertiary"
-            onClick={onCopy}
-            startIcon="duplicate"
-          />
-        ),
-      },
-      {
-        tooltipContent: "Delete widget",
-        icon: (
-          <Button
-            data-testid="t--delete-widget"
-            isIconButton
-            kind="tertiary"
-            onClick={onDelete}
-            startIcon="delete-bin-line"
-          />
-        ),
-      },
-    ];
-  }, [onCopy, onDelete]);
+  const actions = useMemo(
+    () => getActions(widgetProperties, onCopy, onDelete),
+    [onCopy, onDelete, widgetProperties]
+  );
 
   useEffect(() => {
     setSearchText("");
