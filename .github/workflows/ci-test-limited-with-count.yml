@@ -146,7 +146,7 @@ jobs:
 
       - name: Load Docker image from tar file
         run: |
-          docker run -d --name appsmith -p 80:80 -p 9001:9001 -v "$PWD/stacks:/appsmith-stacks" cicontainer:latest
+          docker run -d --name cicontainer -p 80:80 -p 9001:9001 -v "$PWD/stacks:/appsmith-stacks" appsmith/appsmith-ce:latest
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
