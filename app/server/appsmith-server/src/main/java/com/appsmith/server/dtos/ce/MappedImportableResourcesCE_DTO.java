@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Context;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.dtos.ImportActionCollectionResultDTO;
@@ -59,6 +60,10 @@ public class MappedImportableResourcesCE_DTO {
 
     Map<DBOpsType, List<CustomJSLib>> customJSLibsDryOps = new HashMap<>();
 
+    Map<String, List<Theme>> themeDryRunQueries = new HashMap<>();
+
+    Map<String, List<Application>> applicationDryRunQueries = new HashMap<>();
+
     List<NewPage> newPageDryOps = new ArrayList<>();
 
     // List to store invalid ids
@@ -79,6 +84,7 @@ public class MappedImportableResourcesCE_DTO {
             datasourceStorageDryRunQueries.put(dbOpsType, Collections.synchronizedList(new ArrayList<>()));
             datasourceDryRunQueries.put(dbOpsType, Collections.synchronizedList(new ArrayList<>()));
             customJSLibsDryOps.put(dbOpsType, Collections.synchronizedList(new ArrayList<>()));
+            themeDryRunQueries.put(dbOpsType.name(), Collections.synchronizedList(new ArrayList<>()));
         }
     }
 }

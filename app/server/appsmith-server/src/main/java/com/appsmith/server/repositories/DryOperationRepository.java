@@ -8,6 +8,8 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Theme;
+import com.appsmith.server.dtos.DBOpsType;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.services.AnalyticsService;
@@ -44,6 +46,8 @@ public class DryOperationRepository {
 
     private final ApplicationRepository applicationRepository;
 
+    private final ThemeRepository themeRepository;
+
     private Map<Class<?>, AppsmithRepository<?>> repoByEntityClass;
 
     @PostConstruct
@@ -51,6 +55,7 @@ public class DryOperationRepository {
         final Map<Class<?>, AppsmithRepository<?>> map = new HashMap<>();
         map.put(Datasource.class, datasourceRepository);
         map.put(DatasourceStorage.class, datasourceStorageRepository);
+        map.put(Theme.class, themeRepository);
         map.put(CustomJSLib.class, customJSLibRepository);
         repoByEntityClass = Collections.unmodifiableMap(map);
     }
@@ -69,6 +74,18 @@ public class DryOperationRepository {
 
     private Flux<CustomJSLib> saveCustomJSLibToDb(List<CustomJSLib> customJSLibs) {
         return customJSLibRepository.saveAll(customJSLibs);
+    }
+
+    private Flux<Theme> saveThemeToDb(List<Theme> theme) {
+        return themeRepository.saveAll(theme);
+    }
+
+    private Mono<Boolean> archiveTheme(List<String> themeIds) {
+        return themeRepository.archiveAllById(themeIds);
+    }
+
+    private Mono<List<Theme>> updateTheme(List<Theme> themes) {
+        return themeRepository.bulkUpdate(themes).thenReturn(themes);
     }
 
     private Flux<NewPage> deletePageAndDependencies(List<String> invalidPageIds) {
@@ -130,7 +147,7 @@ public class DryOperationRepository {
     public Mono<Void> executeAllDbOps(MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
         Flux<List<Datasource>> datasourceFLux = Flux.fromIterable(mappedImportableResourcesDTO
-                        .getDatasourceStorageDryRunQueries()
+                        .getDatasourceDryRunQueries()
                         .keySet())
                 .flatMap(key -> {
                     List<Datasource> datasourceList = mappedImportableResourcesDTO
@@ -149,12 +166,45 @@ public class DryOperationRepository {
                     return saveDatasourceStorageToDb(datasourceStorageList).collectList();
                 });
 
-        Flux<List<CustomJSLib>> customJSLibFLux = Flux.fromIterable(
+        Flux<List<CustomJSLib>> customJSLibFlux = Flux.fromIterable(
                         mappedImportableResourcesDTO.getCustomJSLibsDryOps().keySet())
                 .flatMap(key -> {
                     List<CustomJSLib> customJSLibList =
                             mappedImportableResourcesDTO.getCustomJSLibsDryOps().get(key);
                     return saveCustomJSLibToDb(customJSLibList).collectList();
+                });
+
+        Flux<List<Theme>> themeFlux = Flux.fromIterable(
+                        mappedImportableResourcesDTO.getThemeDryRunQueries().keySet())
+                .flatMap(key -> {
+                    List<Theme> themeList =
+                            mappedImportableResourcesDTO.getThemeDryRunQueries().get(key);
+                    if (key.equals(DBOpsType.SAVE.name())) {
+                        return saveThemeToDb(themeList).collectList();
+                    } else if (key.equals(DBOpsType.DELETE.name())) {
+                        return archiveTheme(themeList.stream().map(Theme::getId).toList())
+                                .then(Mono.just(themeList));
+                    } else {
+                        return updateTheme(themeList);
+                    }
+                });
+
+        Flux<List<Application>> applicationFlux = Flux.fromIterable(mappedImportableResourcesDTO
+                        .getApplicationDryRunQueries()
+                        .keySet())
+                .flatMap(key -> {
+                    List<Application> applicationList = mappedImportableResourcesDTO
+                            .getApplicationDryRunQueries()
+                            .get(key);
+                    if (key.equals(DBOpsType.SAVE.name())) {
+                        return Flux.fromIterable(applicationList)
+                                .flatMap(this::updateApplication)
+                                .collectList();
+                    } else {
+                        return Flux.fromIterable(applicationList)
+                                .flatMap(this::updateApplication)
+                                .collectList();
+                    }
                 });
 
         Flux<NewPage> pageDeleteFlux = deletePageAndDependencies(mappedImportableResourcesDTO.getInvalidPageIds());
@@ -166,7 +216,9 @@ public class DryOperationRepository {
         return Flux.merge(
                         datasourceFLux,
                         datasourceStorageFLux,
-                        customJSLibFLux,
+                        customJSLibFlux,
+                        themeFlux,
+                        applicationFlux,
                         applicationMono,
                         pageSaveFlux,
                         pageDeleteFlux)
