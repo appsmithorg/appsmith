@@ -1,5 +1,5 @@
 import type React from "react";
-import _, { get, some } from "lodash";
+import _, { get, some, debounce } from "lodash";
 import equal from "fast-deep-equal/es6";
 import type { WidgetProps } from "../../BaseWidget";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
@@ -330,6 +330,11 @@ class FormWidget extends ContainerWidget {
     super.resetChildrenMetaProperty(this.props.widgetId);
   };
 
+  /* Before this fix,  the input fields within form were truncated if the user clicks on submit instantly. To resolve this
+  added debounce to handleResetInputs so that form data is captured correctly on submit*/
+
+  debouncedHandleResetInputs = debounce(this.handleResetInputs, 300);
+
   componentDidMount() {
     super.componentDidMount();
     this.updateFormData();
@@ -408,7 +413,7 @@ class FormWidget extends ContainerWidget {
           const grandChild = { ...child };
           if (isInvalid) grandChild.isFormValid = false;
           // Add submit and reset handlers
-          grandChild.onReset = this.handleResetInputs;
+          grandChild.onReset = this.debouncedHandleResetInputs;
           return grandChild;
         },
       );
