@@ -213,7 +213,7 @@ export const AnnouncementPopoverContentStory: StoryContent = {
     },
     collisionBoundary: {
       control: {
-        type: "Object",
+        type: "number",
       },
       description:
         "The element used as the collision boundary. By default this is the viewport, though you can provide additional element(s) to be included in this check.",
@@ -228,7 +228,7 @@ export const AnnouncementPopoverContentStory: StoryContent = {
     },
     collisionPadding: {
       control: {
-        type: "Object",
+        type: "number",
       },
       description:
         "The distance in pixels from the boundary edges where collision detection should occur. Accepts a number (same for all sides), or a partial padding object, for example: { top: 20, left: 20 }.",
@@ -306,7 +306,7 @@ export const AnnouncementPopoverContentStory: StoryContent = {
     },
     onCloseButtonClick: {
       control: {
-        type: null,
+        type: "number",
       },
       description: "Callback when the close button is clicked.",
       table: {

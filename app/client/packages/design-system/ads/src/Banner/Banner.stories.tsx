@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { StoryObj } from "@storybook/react";
 import React from "react";
 import { MemoryRouter } from "react-router-dom";
 
@@ -85,7 +85,7 @@ export default {
   decorators: [
     (Story: () => React.ReactNode) => <MemoryRouter>{Story()}</MemoryRouter>,
   ],
-} as Meta<typeof Banner>;
+};
 
 // eslint-disable-next-line react/function-component-definition
 type Story = StoryObj<typeof Banner>;
