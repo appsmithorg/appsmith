@@ -21,6 +21,7 @@ import {
 } from "../propertyUtils";
 import panelConfig from "./PanelConfig";
 import Widget from "../index";
+import { getIsOneClickBindingEnabled } from "@appsmith/entities/featureFlagUtils";
 
 export default [
   {
@@ -31,7 +32,9 @@ export default [
           "Takes in an array of objects to display rows in the table. Bind data from an API using {{}}",
         propertyName: "tableData",
         label: "Table data",
-        controlType: "ONE_CLICK_BINDING_CONTROL",
+        controlType: getIsOneClickBindingEnabled()
+          ? "ONE_CLICK_BINDING_CONTROL"
+          : "INPUT_TEXT",
         controlConfig: {
           searchableColumn: true,
         },

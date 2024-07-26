@@ -43,6 +43,7 @@ export const FEATURE_FLAG = {
     "ab_learnability_discoverability_collapse_all_except_data_enabled",
   release_layout_conversion_enabled: "release_layout_conversion_enabled",
   release_anvil_toggle_enabled: "release_anvil_toggle_enabled",
+  release_enable_one_click_binding: "release_enable_one_click_binding",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -79,6 +80,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_learnability_discoverability_collapse_all_except_data_enabled: true,
   release_layout_conversion_enabled: false,
   release_anvil_toggle_enabled: false,
+  release_enable_one_click_binding: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

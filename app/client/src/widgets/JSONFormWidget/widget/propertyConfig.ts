@@ -18,6 +18,7 @@ import {
 import { createMessage } from "@appsmith/constants/messages";
 import { FieldOptionsType } from "components/editorComponents/WidgetQueryGeneratorForm/WidgetSpecificControls/OtherFields/Field/Dropdown/types";
 import { DROPDOWN_VARIANT } from "components/editorComponents/WidgetQueryGeneratorForm/CommonControls/DatasourceDropdown/types";
+import { getIsOneClickBindingEnabled } from "@appsmith/entities/featureFlagUtils";
 
 const MAX_NESTING_LEVEL = 5;
 
@@ -168,7 +169,9 @@ export const contentConfig = [
         propertyName: "sourceData",
         helpText: "Input JSON sample for default form layout",
         label: "Source data",
-        controlType: "ONE_CLICK_BINDING_CONTROL",
+        controlType: getIsOneClickBindingEnabled()
+          ? "ONE_CLICK_BINDING_CONTROL"
+          : "INPUT_TEXT",
         controlConfig: {
           showEditFieldsModal: true, // Shows edit field modals button in the datasource table control
           datasourceDropdownVariant: DROPDOWN_VARIANT.CREATE_OR_EDIT_RECORDS, // Decides the variant of the datasource dropdown which alters the text and some options

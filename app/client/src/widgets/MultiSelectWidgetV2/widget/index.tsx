@@ -50,6 +50,7 @@ import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
+import { getIsOneClickBindingEnabled } from "@appsmith/entities/featureFlagUtils";
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
@@ -241,7 +242,9 @@ class MultiSelectWidget extends BaseWidget<
               "Takes in an array of objects to display options. Bind data from an API using {{}}",
             propertyName: "sourceData",
             label: "Source Data",
-            controlType: "ONE_CLICK_BINDING_CONTROL",
+            controlType: getIsOneClickBindingEnabled()
+              ? "ONE_CLICK_BINDING_CONTROL"
+              : "INPUT_TEXT",
             controlConfig: {
               aliases: [
                 {
