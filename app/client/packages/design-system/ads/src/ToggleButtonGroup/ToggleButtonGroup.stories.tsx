@@ -4,7 +4,7 @@ import type { ToggleGroupProps } from "./ToggleButtonGroup.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Toggle Button/Toggle Button Group",
+  title: "ADS/Components/Toggle Button/Toggle Button Group",
   component: ToggleButtonGroup,
   parameters: {
     docs: {

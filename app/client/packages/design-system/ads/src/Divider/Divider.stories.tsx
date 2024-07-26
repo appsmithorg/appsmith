@@ -5,7 +5,7 @@ import type { DividerProps } from "./Divider.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Divider",
+  title: "ADS/Components/Divider",
   component: Divider,
   argTypes: {
     orientation: {

@@ -5,7 +5,7 @@ import { Text } from "../Text";
 import type { Meta, StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Grid",
+  title: "ADS/Components/Grid",
   component: Grid,
   argTypes: {
     width: {

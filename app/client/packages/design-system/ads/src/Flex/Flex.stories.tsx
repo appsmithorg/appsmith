@@ -4,7 +4,7 @@ import { Text } from "../Text";
 import type { Meta, StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Flex",
+  title: "ADS/Components/Flex",
   component: Flex,
   argTypes: {
     width: {

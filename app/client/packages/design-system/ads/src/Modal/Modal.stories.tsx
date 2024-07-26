@@ -15,7 +15,7 @@ import type { StoryObj } from "@storybook/react";
 import type { DialogProps } from "@radix-ui/react-dialog";
 
 export default {
-  title: "ADS/Modal",
+  title: "ADS/Components/Modal",
   component: Modal,
   argTypes: {
     open: {

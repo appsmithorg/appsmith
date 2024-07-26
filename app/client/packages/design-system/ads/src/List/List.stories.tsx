@@ -4,7 +4,7 @@ import type { StoryObj } from "@storybook/react";
 import type { ListItemProps, ListProps } from "design-system";
 
 export default {
-  title: "ADS/List",
+  title: "ADS/Components/List",
   component: List,
   decorators: [
     (Story: () => React.ReactNode) => (

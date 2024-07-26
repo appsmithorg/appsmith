@@ -4,7 +4,7 @@ import type { SegmentedControlProps } from "./SegmentedControl.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Segmented Control",
+  title: "ADS/Components/Segmented Control",
   component: SegmentedControl,
 };
 

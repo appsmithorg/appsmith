@@ -5,7 +5,7 @@ import { Link } from "./Link";
 import type { LinkProps } from "./Link.types";
 
 export default {
-  title: "ADS/Link",
+  title: "ADS/Components/Link",
   component: Link,
   argTypes: {
     startIcon: {

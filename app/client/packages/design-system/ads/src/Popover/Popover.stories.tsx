@@ -15,7 +15,7 @@ import type { StoryObj } from "@storybook/react";
 import type { PopoverProps } from "@radix-ui/react-popover";
 
 export default {
-  title: "ADS/Popover",
+  title: "ADS/Components/Popover",
   component: Popover,
 };
 

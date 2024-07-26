@@ -3,7 +3,7 @@ import { Text } from "./Text";
 import type { Meta, StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Text",
+  title: "ADS/Components/Text",
   component: Text,
 } as Meta<typeof Text>;
 

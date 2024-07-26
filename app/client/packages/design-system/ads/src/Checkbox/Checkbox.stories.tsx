@@ -4,7 +4,7 @@ import type { CheckboxProps } from "./Checkbox.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Checkbox",
+  title: "ADS/Components/Checkbox",
   component: Checkbox,
 };
 

@@ -12,7 +12,7 @@ import { Button } from "../Button";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Tab",
+  title: "ADS/Components/Tab",
   component: Tabs,
   argTypes: {
     asChild: {

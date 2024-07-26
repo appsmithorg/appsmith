@@ -4,7 +4,7 @@ import type { StoryObj } from "@storybook/react";
 import type { SpinnerProps } from "./Spinner.types";
 
 export default {
-  title: "ADS/Spinner",
+  title: "ADS/Components/Spinner",
   component: Spinner,
 };
 

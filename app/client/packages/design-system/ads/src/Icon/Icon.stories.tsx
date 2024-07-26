@@ -4,7 +4,7 @@ import type { IconProps } from "./Icon.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Icon",
+  title: "ADS/Components/Icon",
   component: Icon,
   parameters: {
     docs: {

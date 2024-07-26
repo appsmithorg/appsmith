@@ -4,7 +4,7 @@ import type { TagProps } from "./Tag.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Tag",
+  title: "ADS/Components/Tag",
   component: Tag,
 };
 

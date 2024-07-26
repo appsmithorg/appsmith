@@ -4,7 +4,7 @@ import type { AvatarProps } from "./Avatar.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Avatar",
+  title: "ADS/Components/Avatar",
   component: Avatar,
 };
 

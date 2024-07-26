@@ -4,7 +4,7 @@ import type { SwitchProps } from "./Switch.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Switch",
+  title: "ADS/Components/Switch",
   component: Switch,
   decorators: [
     (Story: () => React.ReactNode) => (

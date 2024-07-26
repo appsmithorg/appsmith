@@ -6,7 +6,7 @@ import type { SelectProps } from "./Select.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Select",
+  title: "ADS/Components/Select",
   component: Select,
   decorators: [
     (Story: () => React.ReactNode) => (

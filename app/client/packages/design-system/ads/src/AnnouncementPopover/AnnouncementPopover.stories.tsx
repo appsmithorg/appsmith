@@ -10,7 +10,7 @@ import { Button } from "../Button";
 import { Flex } from "../Flex";
 
 export default {
-  title: "ADS/Announcement",
+  title: "ADS/Components/Announcement",
   component: AnnouncementPopover,
   decorators: [
     (Story) => (

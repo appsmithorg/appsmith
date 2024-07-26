@@ -4,7 +4,7 @@ import type { NumberInputProps } from "./NumberInput.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Input/NumberInput",
+  title: "ADS/Components/Input/NumberInput",
   component: NumberInput,
   decorators: [
     (Story: () => React.ReactNode) => (

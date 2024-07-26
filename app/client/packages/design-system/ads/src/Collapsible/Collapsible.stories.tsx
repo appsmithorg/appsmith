@@ -10,7 +10,7 @@ import { ARROW_POSITIONS, type CollapsibleProps } from "./Collapsible.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Collapsible",
+  title: "ADS/Components/Collapsible",
   decorators: [
     (Story: () => React.ReactNode) => (
       <div style={{ width: "95%", maxWidth: "500px" }}>{Story()}</div>

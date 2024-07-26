@@ -5,7 +5,7 @@ import type { CalloutProps } from "./Callout.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Callout",
+  title: "ADS/Components/Callout",
   component: Callout,
   argTypes: {
     _componentType: {

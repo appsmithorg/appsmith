@@ -5,7 +5,7 @@ import { FormControl, FormError, FormHelper, FormLabel } from "./FormControl";
 import { Input } from "../Input";
 
 export default {
-  title: "ADS/FormControl",
+  title: "ADS/Components/FormControl",
   component: FormControl,
 } as Meta<typeof FormControl>;
 

@@ -4,7 +4,7 @@ import type { InputProps } from "./Input.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Input",
+  title: "ADS/Components/Input",
   component: Input,
   argTypes: {
     renderAs: {

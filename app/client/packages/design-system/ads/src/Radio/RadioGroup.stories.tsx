@@ -6,7 +6,7 @@ import type { RadioGroupProps } from "./Radio.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Radio/Radio Group",
+  title: "ADS/Components/Radio/Radio Group",
   component: RadioGroup,
   parameters: { controls: { sort: "requiredFirst" } },
 };

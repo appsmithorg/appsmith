@@ -4,7 +4,7 @@ import { AnnouncementModal } from "./AnnouncementModal";
 import { Button } from "../Button";
 
 export default {
-  title: "ADS/Announcement",
+  title: "ADS/Components/Announcement",
   component: AnnouncementModal,
 } as Meta<typeof AnnouncementModal>;
 

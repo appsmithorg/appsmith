@@ -5,7 +5,7 @@ import { Tooltip } from "../Tooltip";
 import type { ColumnType } from "rc-table/lib/interface";
 
 export default {
-  title: "ADS/Table",
+  title: "ADS/Components/Table",
   component: Table,
   decorators: [
     (Story) => (

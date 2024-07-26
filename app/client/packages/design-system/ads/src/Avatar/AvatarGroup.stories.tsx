@@ -4,7 +4,7 @@ import type { StoryObj } from "@storybook/react";
 import type { AvatarGroupProps } from "./Avatar.types";
 
 export default {
-  title: "ADS/Avatar/Avatar Group",
+  title: "ADS/Components/Avatar/Avatar Group",
   component: AvatarGroup,
   docs: {
     autodocs: false,

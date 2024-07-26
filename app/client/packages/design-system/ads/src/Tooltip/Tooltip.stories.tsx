@@ -5,7 +5,7 @@ import type { TooltipProps } from "./Tooltip.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Tooltip",
+  title: "ADS/Components/Tooltip",
   component: Tooltip,
   argTypes: {
     content: {

@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { ScrollArea } from "./ScrollArea";
 
 export default {
-  title: "ADS/Scrollbar",
+  title: "ADS/Components/Scrollbar",
   component: ScrollArea,
 } as Meta<typeof ScrollArea>;
 

@@ -4,7 +4,7 @@ import { Button } from "./Button";
 import type { ButtonProps } from "./Button.types";
 
 export default {
-  title: "ADS/Button",
+  title: "ADS/Components/Button",
   component: Button,
   parameters: {
     docs: {

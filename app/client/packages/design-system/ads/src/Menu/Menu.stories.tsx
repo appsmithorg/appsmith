@@ -19,7 +19,7 @@ import type { MenuProps } from "./Menu.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Menu",
+  title: "ADS/Components/Menu",
   component: Menu,
 };
 

@@ -5,7 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { Banner } from "./Banner";
 
 export default {
-  title: "ADS/Banner",
+  title: "ADS/Components/Banner",
   component: Banner,
   argTypes: {
     link: {

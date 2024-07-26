@@ -4,7 +4,7 @@ import type { StoryObj } from "@storybook/react";
 import type { DateRangePickerProps } from "./DatePicker.types";
 
 export default {
-  title: "ADS/Date Picker",
+  title: "ADS/Components/Date Picker",
   component: DateRangePicker,
   decorators: [
     (Story: () => React.ReactNode) => (

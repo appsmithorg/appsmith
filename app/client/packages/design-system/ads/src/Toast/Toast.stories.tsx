@@ -4,7 +4,7 @@ import type { ToastProps } from "./Toast.types";
 import type { StoryObj } from "@storybook/react";
 
 export default {
-  title: "ADS/Toast",
+  title: "ADS/Components/Toast",
   component: Toast,
   argTypes: {
     content: {

@@ -4,7 +4,7 @@ import type { StoryObj } from "@storybook/react";
 import type { ToggleButtonProps } from "./ToggleButton.types";
 
 export default {
-  title: "ADS/Toggle Button/Toggle Button",
+  title: "ADS/Components/Toggle Button/Toggle Button",
   component: ToggleButton,
 };
 
