@@ -18,7 +18,7 @@ set -o nounset
 #   5. Mark old/stale/deprecated data with a date, so it can be deleted with confidence later.
 
 # Check if any Postgres server is running
-if pgrep -x "postgres" >/dev/null; then
+if pgrep -x "postgres" > /dev/null; then
 	echo "Error: A Postgres server is currently running. Please stop it before proceeding with the upgrade."
 	exit 1
 fi
@@ -86,11 +86,11 @@ if [[ "$old_version" == 13 && "$top_available_version" > "$old_version" ]]; then
 		'$postgres_path/$new_version/bin/pg_upgrade' \
 			--old-datadir='$pg_data_dir' \
 			--new-datadir='$new_data_dir' \
-			--old-bindir='$postgres_path/$old_version/bin' \
+			--old-bindir='$postgres_path/$old_version/bin' \ 
 			--new-bindir='$postgres_path/$new_version/bin'
 	"
 
-	date -u '+%FT%T.%3NZ' >"$pg_data_dir/deprecated-on.txt"
+	date -u '+%FT%T.%3NZ' > "$pg_data_dir/deprecated-on.txt"
 	mv -v "$pg_data_dir" "$pg_data_dir-$old_version"
 	mv -v "$new_data_dir" "$pg_data_dir"
 
