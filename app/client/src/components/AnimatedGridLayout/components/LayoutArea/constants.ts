@@ -1,8 +1,12 @@
-export const DISPLAY_CONFIG = {
+export const SPRING_CONFIG = {
   block: {
-    display: "block",
+    to: {
+      opacity: 1,
+    },
   },
   none: {
-    display: "none",
+    to: {
+      opacity: 0,
+    },
   },
 };

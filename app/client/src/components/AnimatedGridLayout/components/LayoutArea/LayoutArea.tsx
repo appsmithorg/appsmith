@@ -1,5 +1,7 @@
 import React from "react";
-import { DISPLAY_CONFIG } from "./constants";
+import { animated, useSpring } from "@react-spring/web";
+import { SPRING_CONFIG } from "./constants";
+
 export interface LayoutAreaProps {
   name: string;
   hidden?: boolean;
@@ -9,13 +11,14 @@ export interface LayoutAreaProps {
 export function LayoutArea(props: LayoutAreaProps) {
   const { children, hidden = false, name } = props;
   const display = hidden ? "none" : "block";
+  const springs = useSpring(SPRING_CONFIG[display]);
 
   return (
-    <div
+    <animated.div
       style={{
         gridArea: name,
         position: "relative",
-        ...DISPLAY_CONFIG[display],
+        ...springs,
       }}
     >
       <div
@@ -23,11 +26,10 @@ export function LayoutArea(props: LayoutAreaProps) {
           width: "100%",
           height: "100%",
           position: "absolute",
-          overflow: "auto",
         }}
       >
         {children}
       </div>
-    </div>
+    </animated.div>
   );
 }
