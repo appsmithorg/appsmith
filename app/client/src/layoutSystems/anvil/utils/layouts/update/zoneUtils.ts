@@ -34,7 +34,7 @@ export function* createZoneAndAddWidgets(
   /**
    * Create Zone widget.
    */
-  const widgetId: string = generateReactKey();
+  const widgetId: string = generateReactKey({ prefix: "zone-" });
   const updatedWidgets: CanvasWidgetsReduxState = yield addNewAnvilWidgetToDSL(
     allWidgets,
     {
