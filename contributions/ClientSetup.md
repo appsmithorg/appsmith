@@ -94,7 +94,7 @@ On your development machine, please ensure that:
    - Check below for installation and usage details:
 
      1. Install a node version manager. For eg: check [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm).
-     1. In the project's root, run `nvm use 18.17.1` or `fnm use 18.17.1`.
+     1. In the project's root, run `nvm use 20.11.1` or `fnm use 20.11.1`.
 
 ### Running Tests on Client
 
