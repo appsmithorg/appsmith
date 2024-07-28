@@ -1,18 +1,22 @@
 import type { Span } from "@opentelemetry/api";
 import { InstrumentationBase } from "@opentelemetry/instrumentation";
 import { startRootSpan, startNestedSpan } from "./generateTraces";
-
-type LargestContentfulPaint = PerformanceEntry & {
-  renderTime: number;
-  url: string;
-};
+import { onLCP, onFCP } from "web-vitals/attribution";
+import type {
+  LCPMetricWithAttribution,
+  FCPMetricWithAttribution,
+  NavigationTimingPolyfillEntry,
+} from "web-vitals";
 
 export class PageLoadInstrumentation extends InstrumentationBase {
-  paintTimingObserver: PerformanceObserver | null = null;
-  navigationTimingObserver: PerformanceObserver | null = null;
   resourceTimingObserver: PerformanceObserver | null = null;
   rootSpan: Span;
   ignoreResourceUrls: string[] = [];
+  pageLastHiddenAt: number = 0;
+  pageHiddenFor: number = 0;
+  wasNavigationEntryPushed: boolean = false;
+  resourceEntriesSet: Set<string> = new Set();
+  resourceEntryPollTimeout: number | null = null;
 
   constructor({ ignoreResourceUrls = [] }: { ignoreResourceUrls?: string[] }) {
     super("appsmith-page-load-instrumentation", "1.0.0", {
@@ -25,111 +29,127 @@ export class PageLoadInstrumentation extends InstrumentationBase {
   init() {}
 
   enable(): void {
+    this.addVisibilityChangeListener();
+
+    onLCP(this.onLCPReport.bind(this), { reportAllChanges: true });
+    onFCP(this.onFCPReport.bind(this), { reportAllChanges: true });
+
     if (PerformanceObserver) {
-      this._observePaintTimings();
-      this._observeLCPTiming();
-      this._observeNavigationTimings();
       this._observeResourceTimings();
     } else {
-      this._registerPerformanceObserverFallback();
+      this.pollResourceTimingEntries();
     }
+  }
+
+  addVisibilityChangeListener() {
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") {
+        this.pageLastHiddenAt = performance.now();
+      } else {
+        const endTime = performance.now();
+        this.pageHiddenFor = endTime - this.pageLastHiddenAt;
+      }
+    });
+  }
+
+  onLCPReport(metric: LCPMetricWithAttribution) {
+    const {
+      attribution: { lcpEntry },
+    } = metric;
+
+    if (lcpEntry) {
+      this._pushLcpTimingToSpan(lcpEntry);
+    }
+  }
+
+  onFCPReport(metric: FCPMetricWithAttribution) {
+    const {
+      attribution: { fcpEntry, navigationEntry },
+    } = metric;
+
+    if (navigationEntry && !this.wasNavigationEntryPushed) {
+      this._pushNavigationTimingToSpan(navigationEntry);
+      this.wasNavigationEntryPushed = true;
+    }
+
+    if (fcpEntry) {
+      this._pushPaintTimingToSpan(fcpEntry);
+    }
+  }
+
+  private getElementName(element?: Element | null, depth = 0): string {
+    if (!element || depth > 3) {
+      return "";
+    }
+
+    const elementTestId = element.getAttribute("data-testid");
+    const className = element.className
+      ? "." + element.className.split(" ").join(".")
+      : "";
+    const elementId = element.id ? `#${element.id}` : "";
+
+    const elementName = `${element.tagName}${elementId}${className}:${elementTestId}`;
+
+    const parentElementName = this.getElementName(
+      element.parentElement,
+      depth + 1,
+    );
+
+    return `${parentElementName} > ${elementName}`;
   }
 
   private _kebabToScreamingSnakeCase(str: string) {
     return str.replace(/-/g, "_").toUpperCase();
   }
 
-  private _pushPaintTimingToSpan(entries: PerformanceEntry[]) {
-    entries.forEach((entry) => {
-      const paintSpan = startNestedSpan(
-        this._kebabToScreamingSnakeCase(entry.name),
-        this.rootSpan,
-        {},
-        0,
-      );
-
-      paintSpan.end(entry.startTime);
-    });
-  }
-
-  private _observePaintTimings() {
-    this.paintTimingObserver = new PerformanceObserver((list) => {
-      const entries = list.getEntries() as PerformanceEntry[];
-      this._pushPaintTimingToSpan(entries);
-    });
-
-    this.paintTimingObserver.observe({
-      type: "paint",
-      buffered: true,
-    });
-  }
-
-  private _pushLcpTimingToSpan(entries: LargestContentfulPaint[]) {
-    const pageLcpEntries = entries.filter((entry) => entry.url === "");
-
-    const lastEntry = pageLcpEntries[entries.length - 1];
-
-    if (!lastEntry) {
-      return;
-    }
-
-    const lcpSpan = startNestedSpan(
-      "LARGEST_CONTENTFUL_PAINT",
+  private _pushPaintTimingToSpan(entry: PerformanceEntry) {
+    const paintSpan = startNestedSpan(
+      this._kebabToScreamingSnakeCase(entry.name),
       this.rootSpan,
       {},
       0,
     );
 
-    lcpSpan.end(lastEntry.renderTime);
+    paintSpan.end(entry.startTime);
   }
 
-  private _observeLCPTiming() {
-    this.paintTimingObserver = new PerformanceObserver((list) => {
-      const entries = list.getEntries() as LargestContentfulPaint[];
-      this._pushLcpTimingToSpan(entries);
-      this.paintTimingObserver?.disconnect();
-    });
+  private _pushLcpTimingToSpan(entry: LargestContentfulPaint) {
+    const { element, entryType, loadTime, renderTime, startTime, url } = entry;
 
-    this.paintTimingObserver.observe({
-      type: "largest-contentful-paint",
-      buffered: true,
-    });
+    const lcpSpan = startNestedSpan(
+      this._kebabToScreamingSnakeCase(entryType),
+      this.rootSpan,
+      {
+        url,
+        renderTime,
+        element: this.getElementName(element),
+        entryType,
+        loadTime,
+        pageHidden: this.pageHiddenFor,
+      },
+      0,
+    );
+
+    lcpSpan.end(startTime);
   }
 
-  private _observeNavigationTimings() {
-    this.navigationTimingObserver = new PerformanceObserver((list) => {
-      const entries = list.getEntries() as PerformanceNavigationTiming[];
-      this._pushNavigationTimingToSpan(entries);
-    });
-
-    this.navigationTimingObserver.observe({
-      type: "navigation",
-      buffered: true,
-    });
-  }
-
-  private _pushNavigationTimingToSpan(entries: PerformanceNavigationTiming[]) {
-    const navigationEntry = entries[0];
-
+  private _pushNavigationTimingToSpan(
+    entry: PerformanceNavigationTiming | NavigationTimingPolyfillEntry,
+  ) {
     const {
       connectEnd,
       connectStart,
-      decodedBodySize,
       domainLookupEnd,
       domainLookupStart,
       domComplete,
       domContentLoadedEventEnd,
       domContentLoadedEventStart,
       domInteractive,
-      encodedBodySize,
       entryType,
       fetchStart,
-      initiatorType,
       loadEventEnd,
       loadEventStart,
       name: url,
-      nextHopProtocol,
-      redirectCount,
       redirectEnd,
       redirectStart,
       requestStart,
@@ -137,31 +157,34 @@ export class PageLoadInstrumentation extends InstrumentationBase {
       responseStart,
       secureConnectionStart,
       startTime: navigationStartTime,
-      transferSize,
       type: navigationType,
       unloadEventEnd,
       unloadEventStart,
       workerStart,
-    } = navigationEntry;
+    } = entry;
 
     this.rootSpan.setAttributes({
       connectEnd,
       connectStart,
-      decodedBodySize,
+      decodedBodySize:
+        (entry as PerformanceNavigationTiming).decodedBodySize || 0,
       domComplete,
       domContentLoadedEventEnd,
       domContentLoadedEventStart,
       domInteractive,
       domainLookupEnd,
       domainLookupStart,
-      encodedBodySize,
+      encodedBodySize:
+        (entry as PerformanceNavigationTiming).encodedBodySize || 0,
       entryType,
       fetchStart,
-      initiatorType,
+      initiatorType:
+        (entry as PerformanceNavigationTiming).initiatorType || "navigation",
       loadEventEnd,
       loadEventStart,
-      nextHopProtocol,
-      redirectCount,
+      nextHopProtocol:
+        (entry as PerformanceNavigationTiming).nextHopProtocol || "",
+      redirectCount: (entry as PerformanceNavigationTiming).redirectCount || 0,
       redirectEnd,
       redirectStart,
       requestStart,
@@ -169,7 +192,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
       responseStart,
       secureConnectionStart,
       navigationStartTime,
-      transferSize,
+      transferSize: (entry as PerformanceNavigationTiming).transferSize || 0,
       navigationType,
       url,
       unloadEventEnd,
@@ -177,13 +200,16 @@ export class PageLoadInstrumentation extends InstrumentationBase {
       workerStart,
     });
 
-    this.rootSpan?.end(navigationEntry.domContentLoadedEventEnd);
+    this.rootSpan?.end(entry.domContentLoadedEventEnd);
   }
 
   private _observeResourceTimings() {
     this.resourceTimingObserver = new PerformanceObserver((list) => {
       const entries = list.getEntries() as PerformanceResourceTiming[];
-      this._pushResourceTimingToSpan(entries);
+      const resources = this.getResourcesToTrack(entries);
+      resources.forEach((entry) => {
+        this._pushResourceTimingToSpan(entry);
+      });
     });
 
     this.resourceTimingObserver.observe({
@@ -192,98 +218,101 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     });
   }
 
-  private _pushResourceTimingToSpan(entries: PerformanceResourceTiming[]) {
-    entries
-      .filter(({ name }) => {
-        return !this.ignoreResourceUrls.some((ignoreUrl) =>
-          name.includes(ignoreUrl),
-        );
-      })
-      .forEach((entry) => {
-        const {
-          connectEnd,
-          connectStart,
-          decodedBodySize,
-          domainLookupEnd,
-          domainLookupStart,
-          duration: resourceDuration,
-          encodedBodySize,
-          entryType,
-          fetchStart,
-          initiatorType,
-          name: url,
-          nextHopProtocol,
-          redirectEnd,
-          redirectStart,
-          requestStart,
-          responseEnd,
-          responseStart,
-          secureConnectionStart,
-          transferSize,
-          workerStart,
-        } = entry;
-
-        const resourceSpan = startNestedSpan(
-          entry.name,
-          this.rootSpan,
-          {
-            connectEnd,
-            connectStart,
-            decodedBodySize,
-            domainLookupEnd,
-            domainLookupStart,
-            encodedBodySize,
-            entryType,
-            fetchStart,
-            firstInterimResponseStart: (entry as any).firstInterimResponseStart,
-            initiatorType,
-            nextHopProtocol,
-            redirectEnd,
-            redirectStart,
-            requestStart,
-            responseEnd,
-            responseStart,
-            resourceDuration,
-            secureConnectionStart,
-            transferSize,
-            url,
-            workerStart,
-            renderBlockingStatus: (entry as any).renderBlockingStatus,
-          },
-          entry.startTime,
-        );
-
-        resourceSpan.end(entry.responseEnd);
-      });
-  }
-
-  private _registerPerformanceObserverFallback() {
-    window.removeEventListener("load", this._onDocumentLoaded);
-
-    if (window.document.readyState === "complete") {
-      this._collectPerformanceEntries();
-    } else {
-      window.addEventListener("load", this._onDocumentLoaded);
-    }
-  }
-
-  private _onDocumentLoaded() {
-    setTimeout(() => {
-      this._collectPerformanceEntries();
+  private getResourcesToTrack(resources: PerformanceResourceTiming[]) {
+    return resources.filter(({ name }) => {
+      return !this.ignoreResourceUrls.some((ignoreUrl) =>
+        name.includes(ignoreUrl),
+      );
     });
   }
 
-  private _collectPerformanceEntries() {}
+  private _pushResourceTimingToSpan(entry: PerformanceResourceTiming) {
+    const {
+      connectEnd,
+      connectStart,
+      decodedBodySize,
+      domainLookupEnd,
+      domainLookupStart,
+      duration: resourceDuration,
+      encodedBodySize,
+      entryType,
+      fetchStart,
+      initiatorType,
+      name: url,
+      nextHopProtocol,
+      redirectEnd,
+      redirectStart,
+      requestStart,
+      responseEnd,
+      responseStart,
+      secureConnectionStart,
+      transferSize,
+      workerStart,
+    } = entry;
+
+    const resourceSpan = startNestedSpan(
+      entry.name,
+      this.rootSpan,
+      {
+        connectEnd,
+        connectStart,
+        decodedBodySize,
+        domainLookupEnd,
+        domainLookupStart,
+        encodedBodySize,
+        entryType,
+        fetchStart,
+        firstInterimResponseStart: (entry as any).firstInterimResponseStart,
+        initiatorType,
+        nextHopProtocol,
+        redirectEnd,
+        redirectStart,
+        requestStart,
+        responseEnd,
+        responseStart,
+        resourceDuration,
+        secureConnectionStart,
+        transferSize,
+        url,
+        workerStart,
+        renderBlockingStatus: (entry as any).renderBlockingStatus,
+      },
+      entry.startTime,
+    );
+
+    resourceSpan.end(entry.startTime + entry.responseEnd);
+  }
+
+  private getResourceEntryKey(entry: PerformanceResourceTiming) {
+    return `${entry.name}:${entry.startTime}:${entry.entryType}`;
+  }
+
+  private pollResourceTimingEntries() {
+    if (this.resourceEntryPollTimeout) {
+      clearInterval(this.resourceEntryPollTimeout);
+    }
+
+    const resources = performance.getEntriesByType(
+      "resource",
+    ) as PerformanceResourceTiming[];
+
+    const filteredResources = this.getResourcesToTrack(resources);
+
+    filteredResources.forEach((entry) => {
+      const key = this.getResourceEntryKey(entry);
+      if (!this.resourceEntriesSet.has(key)) {
+        this._pushResourceTimingToSpan(entry);
+        this.resourceEntriesSet.add(key);
+      }
+    });
+
+    this.resourceEntryPollTimeout = setTimeout(
+      this.pollResourceTimingEntries,
+      5000,
+    );
+  }
 
   disable(): void {
-    if (this.paintTimingObserver) {
-      this.paintTimingObserver.disconnect();
-    }
-
-    if (this.navigationTimingObserver) {
-      this.navigationTimingObserver.disconnect();
-    }
-
     if (this.resourceTimingObserver) {
       this.resourceTimingObserver.disconnect();
     }
