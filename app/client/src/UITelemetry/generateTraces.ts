@@ -91,3 +91,15 @@ export function wrapFnWithParentTraceContext(parentSpan: Span, fn: () => any) {
   const parentContext = trace.setSpan(context.active(), parentSpan);
   return context.with(parentContext, fn);
 }
+
+export function startAndEndSpan(
+  spanName: string,
+  startTime: number,
+  difference: number,
+  spanAttributes: SpanAttributes = {},
+) {
+  const endTime = startTime + Math.floor(difference);
+
+  const span = startRootSpan(spanName, spanAttributes, startTime);
+  span.end(endTime);
+}
