@@ -35,13 +35,13 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     onFCP(this.onFCPReport.bind(this), { reportAllChanges: true });
 
     if (PerformanceObserver) {
-      this._observeResourceTimings();
+      this.observeResourceTimings();
     } else {
       this.pollResourceTimingEntries();
     }
   }
 
-  addVisibilityChangeListener() {
+  private addVisibilityChangeListener() {
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") {
         this.pageLastHiddenAt = performance.now();
@@ -52,28 +52,28 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     });
   }
 
-  onLCPReport(metric: LCPMetricWithAttribution) {
+  private onLCPReport(metric: LCPMetricWithAttribution) {
     const {
       attribution: { lcpEntry },
     } = metric;
 
     if (lcpEntry) {
-      this._pushLcpTimingToSpan(lcpEntry);
+      this.pushLcpTimingToSpan(lcpEntry);
     }
   }
 
-  onFCPReport(metric: FCPMetricWithAttribution) {
+  private onFCPReport(metric: FCPMetricWithAttribution) {
     const {
       attribution: { fcpEntry, navigationEntry },
     } = metric;
 
     if (navigationEntry && !this.wasNavigationEntryPushed) {
-      this._pushNavigationTimingToSpan(navigationEntry);
+      this.pushNavigationTimingToSpan(navigationEntry);
       this.wasNavigationEntryPushed = true;
     }
 
     if (fcpEntry) {
-      this._pushPaintTimingToSpan(fcpEntry);
+      this.pushPaintTimingToSpan(fcpEntry);
     }
   }
 
@@ -98,13 +98,13 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     return `${parentElementName} > ${elementName}`;
   }
 
-  private _kebabToScreamingSnakeCase(str: string) {
+  private kebabToScreamingSnakeCase(str: string) {
     return str.replace(/-/g, "_").toUpperCase();
   }
 
-  private _pushPaintTimingToSpan(entry: PerformanceEntry) {
+  private pushPaintTimingToSpan(entry: PerformanceEntry) {
     const paintSpan = startNestedSpan(
-      this._kebabToScreamingSnakeCase(entry.name),
+      this.kebabToScreamingSnakeCase(entry.name),
       this.rootSpan,
       {},
       0,
@@ -113,11 +113,11 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     paintSpan.end(entry.startTime);
   }
 
-  private _pushLcpTimingToSpan(entry: LargestContentfulPaint) {
+  private pushLcpTimingToSpan(entry: LargestContentfulPaint) {
     const { element, entryType, loadTime, renderTime, startTime, url } = entry;
 
     const lcpSpan = startNestedSpan(
-      this._kebabToScreamingSnakeCase(entryType),
+      this.kebabToScreamingSnakeCase(entryType),
       this.rootSpan,
       {
         url,
@@ -125,7 +125,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
         element: this.getElementName(element),
         entryType,
         loadTime,
-        pageHidden: this.pageHiddenFor,
+        pageHiddenFor: this.pageHiddenFor,
       },
       0,
     );
@@ -133,7 +133,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     lcpSpan.end(startTime);
   }
 
-  private _pushNavigationTimingToSpan(
+  private pushNavigationTimingToSpan(
     entry: PerformanceNavigationTiming | NavigationTimingPolyfillEntry,
   ) {
     const {
@@ -203,12 +203,12 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     this.rootSpan?.end(entry.domContentLoadedEventEnd);
   }
 
-  private _observeResourceTimings() {
+  private observeResourceTimings() {
     this.resourceTimingObserver = new PerformanceObserver((list) => {
       const entries = list.getEntries() as PerformanceResourceTiming[];
       const resources = this.getResourcesToTrack(entries);
       resources.forEach((entry) => {
-        this._pushResourceTimingToSpan(entry);
+        this.pushResourceTimingToSpan(entry);
       });
     });
 
@@ -226,7 +226,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     });
   }
 
-  private _pushResourceTimingToSpan(entry: PerformanceResourceTiming) {
+  private pushResourceTimingToSpan(entry: PerformanceResourceTiming) {
     const {
       connectEnd,
       connectStart,
@@ -301,7 +301,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     filteredResources.forEach((entry) => {
       const key = this.getResourceEntryKey(entry);
       if (!this.resourceEntriesSet.has(key)) {
-        this._pushResourceTimingToSpan(entry);
+        this.pushResourceTimingToSpan(entry);
         this.resourceEntriesSet.add(key);
       }
     });
