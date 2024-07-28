@@ -9,39 +9,59 @@ import type {
 } from "web-vitals";
 
 export class PageLoadInstrumentation extends InstrumentationBase {
+  // PerformanceObserver to observe resource timings
   resourceTimingObserver: PerformanceObserver | null = null;
+  // Root span for the page load instrumentation
   rootSpan: Span;
+  // List of resource URLs to ignore
   ignoreResourceUrls: string[] = [];
+  // Timestamp when the page was last hidden
   pageLastHiddenAt: number = 0;
+  // Duration the page was hidden for
   pageHiddenFor: number = 0;
+  // Flag to check if navigation entry was pushed
   wasNavigationEntryPushed: boolean = false;
+  // Set to keep track of resource entries
   resourceEntriesSet: Set<string> = new Set();
+  // Timeout for polling resource entries
   resourceEntryPollTimeout: number | null = null;
 
   constructor({ ignoreResourceUrls = [] }: { ignoreResourceUrls?: string[] }) {
+    // Initialize the base instrumentation with the name and version
     super("appsmith-page-load-instrumentation", "1.0.0", {
       enabled: true,
     });
     this.ignoreResourceUrls = ignoreResourceUrls;
+    // Start the root span for the page load
     this.rootSpan = startRootSpan("PAGE_LOAD", {}, 0);
   }
 
-  init() {}
+  init() {
+    // init method is present in the base class and needs to be implemented
+    // This is method is never called by the OpenTelemetry SDK
+    // Leaving it empty as it is done by other OpenTelemetry instrumentation classes
+  }
 
   enable(): void {
     this.addVisibilityChangeListener();
 
+    // Listen for LCP and FCP events
+    // reportAllChanges: true will report all LCP and FCP events
+    // binding the context to the class to access class properties
     onLCP(this.onLCPReport.bind(this), { reportAllChanges: true });
     onFCP(this.onFCPReport.bind(this), { reportAllChanges: true });
 
+    // Check if PerformanceObserver is available
     if (PerformanceObserver) {
       this.observeResourceTimings();
     } else {
+      // If PerformanceObserver is not available, fallback to polling
       this.pollResourceTimingEntries();
     }
   }
 
   private addVisibilityChangeListener() {
+    // Listen for page visibility changes to track time spent on hidden page
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") {
         this.pageLastHiddenAt = performance.now();
@@ -52,6 +72,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     });
   }
 
+  // Handler for LCP report
   private onLCPReport(metric: LCPMetricWithAttribution) {
     const {
       attribution: { lcpEntry },
@@ -62,11 +83,14 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     }
   }
 
+  // Handler for FCP report
   private onFCPReport(metric: FCPMetricWithAttribution) {
     const {
       attribution: { fcpEntry, navigationEntry },
     } = metric;
 
+    // Push navigation entry only once
+    // This is to avoid pushing multiple navigation entries
     if (navigationEntry && !this.wasNavigationEntryPushed) {
       this.pushNavigationTimingToSpan(navigationEntry);
       this.wasNavigationEntryPushed = true;
@@ -78,6 +102,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
   }
 
   private getElementName(element?: Element | null, depth = 0): string {
+    // Limit the depth to 3 to avoid long element names
     if (!element || depth > 3) {
       return "";
     }
@@ -90,6 +115,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
 
     const elementName = `${element.tagName}${elementId}${className}:${elementTestId}`;
 
+    // Recursively get the parent element names
     const parentElementName = this.getElementName(
       element.parentElement,
       depth + 1,
@@ -98,10 +124,12 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     return `${parentElementName} > ${elementName}`;
   }
 
+  // Convert kebab-case to SCREAMING_SNAKE_CASE
   private kebabToScreamingSnakeCase(str: string) {
     return str.replace(/-/g, "_").toUpperCase();
   }
 
+  // Push paint timing to span
   private pushPaintTimingToSpan(entry: PerformanceEntry) {
     const paintSpan = startNestedSpan(
       this.kebabToScreamingSnakeCase(entry.name),
@@ -113,6 +141,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     paintSpan.end(entry.startTime);
   }
 
+  // Push LCP timing to span
   private pushLcpTimingToSpan(entry: LargestContentfulPaint) {
     const { element, entryType, loadTime, renderTime, startTime, url } = entry;
 
@@ -133,6 +162,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     lcpSpan.end(startTime);
   }
 
+  // Push navigation timing to span
   private pushNavigationTimingToSpan(
     entry: PerformanceNavigationTiming | NavigationTimingPolyfillEntry,
   ) {
@@ -203,6 +233,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     this.rootSpan?.end(entry.domContentLoadedEventEnd);
   }
 
+  // Observe resource timings using PerformanceObserver
   private observeResourceTimings() {
     this.resourceTimingObserver = new PerformanceObserver((list) => {
       const entries = list.getEntries() as PerformanceResourceTiming[];
@@ -218,6 +249,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     });
   }
 
+  // Filter out resources to track based on ignoreResourceUrls
   private getResourcesToTrack(resources: PerformanceResourceTiming[]) {
     return resources.filter(({ name }) => {
       return !this.ignoreResourceUrls.some((ignoreUrl) =>
@@ -226,6 +258,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     });
   }
 
+  // Push resource timing to span
   private pushResourceTimingToSpan(entry: PerformanceResourceTiming) {
     const {
       connectEnd,
@@ -283,11 +316,14 @@ export class PageLoadInstrumentation extends InstrumentationBase {
     resourceSpan.end(entry.startTime + entry.responseEnd);
   }
 
+  // Get unique key for a resource entry
   private getResourceEntryKey(entry: PerformanceResourceTiming) {
     return `${entry.name}:${entry.startTime}:${entry.entryType}`;
   }
 
+  // Poll resource timing entries periodically
   private pollResourceTimingEntries() {
+    // Clear the previous timeout
     if (this.resourceEntryPollTimeout) {
       clearInterval(this.resourceEntryPollTimeout);
     }
@@ -306,6 +342,7 @@ export class PageLoadInstrumentation extends InstrumentationBase {
       }
     });
 
+    // Poll every 5 seconds
     this.resourceEntryPollTimeout = setTimeout(
       this.pollResourceTimingEntries,
       5000,
