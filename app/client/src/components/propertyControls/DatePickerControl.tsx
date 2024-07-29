@@ -84,6 +84,7 @@ class DatePickerControl extends BaseControl<
           inputRef={this.inputRef}
           maxDate={this.maxDate}
           minDate={this.minDate}
+          // @ts-expect-error types methods and component do not match
           onChange={this.onDateSelected}
           parseDate={this.parseDate}
           placeholderText="YYYY-MM-DD HH:mm"

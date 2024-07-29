@@ -6,6 +6,8 @@ import "./wdyr";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import "./index.css";
+import "design-system/src/__theme__/default/index.css";
+import "design-system-old/src/themes/default/index.css";
 import { ThemeProvider } from "styled-components";
 import { appInitializer } from "utils/AppUtils";
 import store, { runSagaMiddleware } from "./store";

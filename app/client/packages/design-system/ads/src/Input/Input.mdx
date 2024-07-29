@@ -1,0 +1,62 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as InputStories from "./Input.stories";
+import * as NumberInputStories from "../NumberInput/NumberInput.stories";
+import * as SearchInputStories from "../SearchInput/SearchInput.stories";
+
+<Meta of={InputStories} />
+
+# Input
+
+An input element primarily contains a text field that enables users to input or edit text in a user interface.
+Text fields are typically used within forms but can also be incorporated into modals, search bars, or cards. Examples of common text input types include usernames, descriptions, URLs, emails, addresses, and plain text searches.
+
+<Canvas of={InputStories.InputStory} />
+
+## Anatomy
+
+1. **Label:** Descriptive text that identifies the input field and indicates what type of information is expected or what action should be performed.
+2. **Placeholder text:** Optional text that can be displayed within the input field as a hint or example of the expected input format.
+3. **Input area:** This is where people enter text.
+4. **Description:** Use the helper text to communicate more information about how to fill the input field or to communicate additional information about input fields state.
+
+![Input anatomy](./docs/input-anatomy.png)
+
+## Spacing
+
+![Input spacing](./docs/input-spacing.png)
+
+## Kind
+
+### Textarea
+
+When designing a form that requires text input from users, consider the length of the expected content and adjust the size of the input box accordingly. For shorter inputs, such as a single word or short phrase, a smaller input box size is appropriate also for debugger. For longer inputs, such as a paragraph or multiple sentences, a larger input box size is recommended. This helps to ensure that the user has enough space to comfortably input their content without feeling cramped or confined. If users are anticipated to input longer form content, consider using a textarea instead of a standard text input box. A textarea allows for multiple lines of text input, making it more suitable for longer form content.
+
+<Canvas of={InputStories.InputTextareaStory} />
+
+### Number Input
+
+The [number input](https://design-system.appsmith.com/?path=/docs/design-system-input-numberinput--docs) allows users to enter a numeric value, increase or decrease it using a two-segment control (+ / -).
+
+<Canvas of={NumberInputStories.NumberInputStory} />
+
+### Search Input
+
+<Canvas of={SearchInputStories.SearchInputStory} />
+
+## Usage
+
+- Provide clear and concise labels for input fields to ensure users understand the required information.
+- Do not rely on using placeholder text as the only hint because it disappears once users start typing in the field. Well thought out placeholder text is a good flavour and adds to the polish of the product, but for formatting and other nudges always use the description as well.
+- Provide feedback to users when their input is invalid or incomplete, via `errorMessage` prop to explain what went wrong and how to fix it.
+
+### Copy
+
+### Sizing
+
+---
+
+## Resources
+
+1. Internally, our input component uses [React Aria's useTextField hook](https://react-spectrum.adobe.com/react-aria/useTextField.html)
+2. It accepts all the props specified in [React Aria's TextField](https://react-spectrum.adobe.com/react-aria/TextField.html)
