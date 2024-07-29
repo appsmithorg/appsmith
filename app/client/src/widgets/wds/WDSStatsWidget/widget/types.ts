@@ -8,6 +8,6 @@ export interface StatsWidgetProps extends WidgetProps {
   iconAlign?: "start" | "end";
   valueChange?: string;
   valueChangeColor: keyof typeof COLORS;
-  valueColor?: keyof typeof COLORS;
+  valueColor?: "default" | keyof typeof COLORS;
   caption?: string;
 }

@@ -8,12 +8,10 @@ import lombok.extern.slf4j.Slf4j;
 import mockwebserver3.MockResponse;
 import mockwebserver3.MockWebServer;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
@@ -23,7 +21,6 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 @TestMethodOrder(MethodOrderer.MethodName.class)

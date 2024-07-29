@@ -17,12 +17,10 @@ import org.eclipse.jgit.api.errors.RefNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -36,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @Import({GitExecutorImpl.class})
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class GitExecutorTest {
 

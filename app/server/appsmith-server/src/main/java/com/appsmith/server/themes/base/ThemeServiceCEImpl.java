@@ -81,9 +81,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
                     if (StringUtils.hasLength(themeId)) {
                         return repository
                                 .findById(themeId, READ_THEMES)
-                                .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
+                                .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES));
                     } else { // theme id is not present, return default theme
-                        return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
+                        return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES);
                     }
                 });
     }
@@ -102,9 +102,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
                     if (StringUtils.hasLength(themeId)) {
                         return repository
                                 .findById(themeId, READ_THEMES)
-                                .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
+                                .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES));
                     } else { // theme id is not present, return default theme
-                        return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME);
+                        return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES);
                     }
                 });
     }
@@ -126,7 +126,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
 
     @Override
     public Flux<Theme> getSystemThemes() {
-        return repository.getSystemThemes();
+        return repository.getSystemThemes(READ_THEMES);
     }
 
     @Override
@@ -201,10 +201,12 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     @Override
     public Mono<String> getDefaultThemeId() {
         if (StringUtils.isEmpty(defaultThemeId)) {
-            return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME).map(theme -> {
-                defaultThemeId = theme.getId();
-                return theme.getId();
-            });
+            return repository
+                    .getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES)
+                    .map(theme -> {
+                        defaultThemeId = theme.getId();
+                        return theme.getId();
+                    });
         }
         return Mono.just(defaultThemeId);
     }
@@ -240,7 +242,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
                     Mono<Theme> editModeThemeMono;
                     if (!StringUtils.hasLength(
                             application.getEditModeThemeId())) { // theme id is empty, use the default theme
-                        editModeThemeMono = repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME);
+                        editModeThemeMono = repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME, READ_THEMES);
                     } else { // theme id is not empty, fetch it by id
                         editModeThemeMono = repository.findById(application.getEditModeThemeId(), READ_THEMES);
                     }
@@ -427,7 +429,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
 
     @Override
     public Mono<Theme> getSystemTheme(String themeName) {
-        return repository.getSystemThemeByName(themeName);
+        return repository.getSystemThemeByName(themeName, READ_THEMES);
     }
 
     @Override
@@ -459,12 +461,17 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
 
     @Override
     public Mono<Theme> getOrSaveTheme(Theme theme, Application destApplication) {
+        return getOrSaveTheme(theme, destApplication, false);
+    }
+
+    @Override
+    public Mono<Theme> getOrSaveTheme(Theme theme, Application destApplication, boolean isDryOps) {
         if (theme == null) { // this application was exported without theme, assign the legacy theme to it
-            return repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME); // return the default theme
+            return repository.getSystemThemeByName(Theme.LEGACY_THEME_NAME, READ_THEMES); // return the default theme
         } else if (theme.isSystemTheme()) {
             return repository
-                    .getSystemThemeByName(theme.getName())
-                    .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME));
+                    .getSystemThemeByName(theme.getName(), READ_THEMES)
+                    .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES));
         } else {
             // create a new theme
             Theme newTheme = new Theme();
@@ -476,6 +483,10 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
             newTheme.setName(theme.getName());
             newTheme.setDisplayName(theme.getDisplayName());
             newTheme.setSystemTheme(false);
+            if (isDryOps) {
+                newTheme.updateForBulkWriteOperation();
+                return Mono.just(newTheme);
+            }
             return repository.save(newTheme);
         }
     }
@@ -490,9 +501,9 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     @Override
     public Mono<Application> archiveApplicationThemes(Application application) {
         return repository
-                .archiveByApplicationId(application.getId())
+                .archiveByApplicationId(application.getId(), MANAGE_THEMES)
                 .then(repository.archiveDraftThemesById(
-                        application.getEditModeThemeId(), application.getPublishedModeThemeId()))
+                        application.getEditModeThemeId(), application.getPublishedModeThemeId(), MANAGE_THEMES))
                 .thenReturn(application);
     }
 }

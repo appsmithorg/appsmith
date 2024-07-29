@@ -22,7 +22,7 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
-    public BridgeQuery<T> equal(@NonNull String key, @NonNull int value) {
+    public BridgeQuery<T> equal(@NonNull String key, int value) {
         checks.add(Criteria.where(key).is(value));
         return this;
     }
@@ -58,11 +58,6 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
-    public BridgeQuery<T> regexMatchIgnoreCase(@NonNull String key, @NonNull String regexPattern) {
-        checks.add(Criteria.where(key).regex(regexPattern, "i"));
-        return this;
-    }
-
     public BridgeQuery<T> searchIgnoreCase(@NonNull String key, @NonNull String needle) {
         if (key.contains(".")) {
             throw new UnsupportedOperationException("Search-ignore-case is not supported for nested fields");
@@ -74,6 +69,11 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
 
     public BridgeQuery<T> in(@NonNull String key, @NonNull Collection<String> value) {
         checks.add(Criteria.where(key).in(value));
+        return this;
+    }
+
+    public BridgeQuery<T> notIn(@NonNull String needle, @NonNull Collection<String> haystack) {
+        checks.add(Criteria.where(needle).not().in(haystack));
         return this;
     }
 

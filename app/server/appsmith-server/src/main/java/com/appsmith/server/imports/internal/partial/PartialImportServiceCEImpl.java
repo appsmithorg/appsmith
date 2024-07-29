@@ -438,8 +438,6 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
 
         Stopwatch processStopwatch = new Stopwatch("Download Content from Cloud service");
         return applicationJsonMono.flatMap(applicationJson -> {
-            processStopwatch.stopAndLogTimeInMillis();
-            Stopwatch processStopwatch1 = new Stopwatch("Importing resource in db ");
             return this.importResourceInPage(
                             buildingBlockDTO.getWorkspaceId(),
                             buildingBlockDTO.getApplicationId(),
@@ -447,7 +445,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                             applicationJson)
                     .flatMap(buildingBlockImportDTO -> {
                         String branchedPageId = buildingBlockDTO.getPageId();
-                        processStopwatch1.stopAndLogTimeInMillis();
+                        processStopwatch.stopAndLogTimeInMillis();
                         // Fetch layout and get new onPageLoadActions
                         // This data is not present in a client, since these are created
                         // after importing the block

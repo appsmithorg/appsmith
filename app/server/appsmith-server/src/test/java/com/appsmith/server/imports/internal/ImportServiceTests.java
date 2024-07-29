@@ -85,7 +85,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -100,7 +99,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.LinkedMultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -142,7 +140,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @Slf4j
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @DirtiesContext
 @TestMethodOrder(MethodOrderer.MethodName.class)
@@ -983,7 +980,7 @@ public class ImportServiceTests {
                                     applicationImportDTO.getApplication().getId(), MANAGE_APPLICATIONS));
                 }))
                 .assertNext(tuple -> {
-                    final Application application = tuple.getT1().getApplication();
+                    final Application application = tuple.getT7();
                     final List<Datasource> unConfiguredDatasourceList =
                             tuple.getT1().getUnConfiguredDatasourceList();
                     final boolean isPartialImport = tuple.getT1().getIsPartialImport();
@@ -1129,20 +1126,20 @@ public class ImportServiceTests {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Import theme test org");
 
-        final Mono<ApplicationImportDTO> resultMono = workspaceService
+        final Mono<Application> resultMono = workspaceService
                 .create(newWorkspace)
                 .flatMap(workspace ->
                         importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
-                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
+                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO)
+                .flatMap(importDTO ->
+                        applicationService.findById(importDTO.getApplication().getId(), MANAGE_APPLICATIONS));
 
         StepVerifier.create(resultMono.flatMap(applicationImportDTO -> Mono.zip(
                         Mono.just(applicationImportDTO),
-                        themeRepository.findById(
-                                applicationImportDTO.getApplication().getEditModeThemeId()),
-                        themeRepository.findById(
-                                applicationImportDTO.getApplication().getPublishedModeThemeId()))))
+                        themeRepository.findById(applicationImportDTO.getEditModeThemeId()),
+                        themeRepository.findById(applicationImportDTO.getPublishedModeThemeId()))))
                 .assertNext(tuple -> {
-                    final Application application = tuple.getT1().getApplication();
+                    final Application application = tuple.getT1();
                     Theme editTheme = tuple.getT2();
                     Theme publishedTheme = tuple.getT3();
 
@@ -1287,18 +1284,20 @@ public class ImportServiceTests {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        final Mono<ApplicationImportDTO> resultMono = workspaceService
+        final Mono<Application> resultMono = workspaceService
                 .create(newWorkspace)
                 .flatMap(workspace ->
                         importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
-                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
+                .flatMap(importableArtifactDTO -> {
+                    ApplicationImportDTO applicationImportDTO = (ApplicationImportDTO) importableArtifactDTO;
+                    return applicationService.findById(
+                            applicationImportDTO.getApplication().getId(), MANAGE_APPLICATIONS);
+                });
 
         StepVerifier.create(resultMono)
                 .assertNext(applicationImportDTO -> {
-                    assertThat(applicationImportDTO.getApplication().getEditModeThemeId())
-                            .isNotEmpty();
-                    assertThat(applicationImportDTO.getApplication().getPublishedModeThemeId())
-                            .isNotEmpty();
+                    assertThat(applicationImportDTO.getEditModeThemeId()).isNotEmpty();
+                    assertThat(applicationImportDTO.getPublishedModeThemeId()).isNotEmpty();
                 })
                 .verifyComplete();
     }
@@ -1509,10 +1508,12 @@ public class ImportServiceTests {
                                     .collectList(),
                             actionCollectionService
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null)
-                                    .collectList());
+                                    .collectList(),
+                            applicationService.findById(
+                                    applicationImportDTO.getApplication().getId(), MANAGE_APPLICATIONS));
                 }))
                 .assertNext(tuple -> {
-                    final Application application = tuple.getT1().getApplication();
+                    final Application application = tuple.getT6();
                     final List<Datasource> unConfiguredDatasourceList =
                             tuple.getT1().getUnConfiguredDatasourceList();
                     final boolean isPartialImport = tuple.getT1().getIsPartialImport();
@@ -1570,6 +1571,8 @@ public class ImportServiceTests {
                 .verifyComplete();
     }
 
+    @Test
+    @WithUserDetails(value = "api_user")
     public void importArtifactIntoWorkspace_pageRemovedAndUpdatedDefaultPageNameInBranchApplication_Success() {
         Application testApplication = new Application();
         testApplication.setName("importApplicationIntoWorkspace_pageRemovedInBranchApplication_Success");
@@ -5263,10 +5266,12 @@ public class ImportServiceTests {
                                     .collectList(),
                             actionCollectionService
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null)
-                                    .collectList());
+                                    .collectList(),
+                            applicationService.findById(
+                                    applicationImportDTO.getApplication().getId(), MANAGE_APPLICATIONS));
                 }))
                 .assertNext(tuple -> {
-                    final Application application = tuple.getT1().getApplication();
+                    final Application application = tuple.getT6();
                     final List<Datasource> unConfiguredDatasourceList =
                             tuple.getT1().getUnConfiguredDatasourceList();
                     final boolean isPartialImport = tuple.getT1().getIsPartialImport();

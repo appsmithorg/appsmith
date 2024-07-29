@@ -25,9 +25,9 @@ const StyledSelect = styled(Form.Select)`
 
 interface ThemeSettingsProps {
   seedColor?: string;
-  setSeedColor?: (value: string) => void;
+  setSeedColor?: (value?: string) => void;
   isDarkMode?: boolean;
-  setDarkMode?: (value: boolean) => void;
+  setDarkMode?: (value?: boolean) => void;
   borderRadius?: string;
   setBorderRadius?: (value: string) => void;
   fontFamily?: string;
@@ -54,7 +54,7 @@ export const ThemeSettings = ({
   userDensity = 1,
   userSizing = 1,
 }: ThemeSettingsProps) => {
-  const colorChange = (value: string) => setSeedColor && setSeedColor(value);
+  const colorChange = (value?: string) => setSeedColor && setSeedColor(value);
   const debouncedSeedColorChange = useCallback(debounce(colorChange, 300), []);
 
   return (

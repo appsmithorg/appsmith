@@ -28,13 +28,13 @@ module.exports = {
     "^!!raw-loader!": "<rootDir>/test/__mocks__/derivedMock.js",
     "test/(.*)": "<rootDir>/test/$1",
     "@appsmith/(.*)": "<rootDir>/src/ee/$1",
-    "design-system-old": "<rootDir>/node_modules/design-system-old/build",
+    "design-system-old": "<rootDir>/node_modules/design-system-old",
     "@design-system/widgets-old":
       "<rootDir>/node_modules/@design-system/widgets-old",
     "@design-system/widgets": "<rootDir>/node_modules/@design-system/widgets",
     "@design-system/headless": "<rootDir>/node_modules/@design-system/headless",
     "@design-system/theming": "<rootDir>/node_modules/@design-system/theming",
-    "design-system": "<rootDir>/node_modules/design-system/build",
+    "design-system": "<rootDir>/node_modules/design-system",
     "^proxy-memoize$": "<rootDir>/node_modules/proxy-memoize/dist/wrapper.cjs",
     // @blueprintjs packages need to be resolved to the `esnext` directory. The default `esm` directory
     // contains sources that are transpiled to ES5. As Jest does not transpile our sources to ES5,
@@ -51,7 +51,7 @@ module.exports = {
       "<rootDir>/node_modules/@blueprintjs/popover2/lib/esnext",
     "^@blueprintjs/select$":
       "<rootDir>/node_modules/@blueprintjs/select/lib/esnext",
-    "design-system": "<rootDir>/node_modules/design-system/build",
+    "design-system": "<rootDir>/node_modules/design-system",
     "^canvas$": "jest-canvas-mock",
   },
   globals: {
@@ -89,7 +89,7 @@ module.exports = {
         browserAgentlicenseKey: parseConfig(
           "__APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY__",
         ),
-        browserAgentEndpoint:  parseConfig(
+        browserAgentEndpoint: parseConfig(
           "__APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT__",
         ),
         otlpLicenseKey: parseConfig("__APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY__"),

@@ -1,5 +1,5 @@
 import { select } from "redux-saga/effects";
-import { addWidgetsSaga, moveWidgetsSaga } from ".";
+import { moveWidgetsSaga } from ".";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { generateReactKey } from "@shared/dsl/src/migrate/utils";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
@@ -33,6 +33,7 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
+import { addWidgetsSaga } from "../anvilWidgetAdditionSagas";
 
 describe("", () => {
   beforeAll(() => {
