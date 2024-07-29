@@ -94,13 +94,9 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
                         // this will update the theme in the application and will be updated to db in the dry ops
                         // execution
 
-                        Application application = new Application();
-                        application.setPublishedModeThemeId(publishedModeThemeId);
-                        application.setUnpublishedThemeId(editModeThemeId);
-                        application.setId(importableArtifact.getId());
+                        mappedImportableResourcesDTO.getApplication().setUnpublishedThemeId(editModeThemeId);
+                        mappedImportableResourcesDTO.getApplication().setPublishedModeThemeId(publishedModeThemeId);
 
-                        addDryOpsForApplication(
-                                mappedImportableResourcesDTO.getApplicationDryRunQueries(), application);
                         return Mono.just(importableArtifact);
                     })
                     .then();
@@ -187,16 +183,6 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             List<Theme> themes = new ArrayList<>();
             themes.add(createdTheme);
             dryRunOpsMap.put(queryType.name(), themes);
-        }
-    }
-
-    private void addDryOpsForApplication(Map<String, List<Application>> dryRunOpsMap, Application application) {
-        if (dryRunOpsMap.containsKey(DBOpsType.UPDATE.name())) {
-            dryRunOpsMap.get(DBOpsType.UPDATE.name()).add(application);
-        } else {
-            List<Application> applicationList = new ArrayList<>();
-            applicationList.add(application);
-            dryRunOpsMap.put(DBOpsType.UPDATE.name(), applicationList);
         }
     }
 }

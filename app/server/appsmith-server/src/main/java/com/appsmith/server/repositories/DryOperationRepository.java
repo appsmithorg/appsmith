@@ -81,6 +81,9 @@ public class DryOperationRepository {
     }
 
     private Mono<Boolean> archiveTheme(List<String> themeIds) {
+        if (themeIds.isEmpty()) {
+            return Mono.just(true);
+        }
         return themeRepository.archiveAllById(themeIds);
     }
 
@@ -189,24 +192,6 @@ public class DryOperationRepository {
                     }
                 });
 
-        Flux<List<Application>> applicationFlux = Flux.fromIterable(mappedImportableResourcesDTO
-                        .getApplicationDryRunQueries()
-                        .keySet())
-                .flatMap(key -> {
-                    List<Application> applicationList = mappedImportableResourcesDTO
-                            .getApplicationDryRunQueries()
-                            .get(key);
-                    if (key.equals(DBOpsType.SAVE.name())) {
-                        return Flux.fromIterable(applicationList)
-                                .flatMap(this::updateApplication)
-                                .collectList();
-                    } else {
-                        return Flux.fromIterable(applicationList)
-                                .flatMap(this::updateApplication)
-                                .collectList();
-                    }
-                });
-
         Flux<NewPage> pageDeleteFlux = deletePageAndDependencies(mappedImportableResourcesDTO.getInvalidPageIds());
 
         Flux<NewPage> pageSaveFlux = saveNewPageToDb(mappedImportableResourcesDTO.getNewPageDryOps());
@@ -218,7 +203,6 @@ public class DryOperationRepository {
                         datasourceStorageFLux,
                         customJSLibFlux,
                         themeFlux,
-                        applicationFlux,
                         applicationMono,
                         pageSaveFlux,
                         pageDeleteFlux)
