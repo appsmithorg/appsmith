@@ -154,6 +154,18 @@ describe(
       cy.readTableV2data(0, 0).then((data) => {
         expect(data).to.eq("Software Engineer");
       });
+      cy.readTableV2data(1, 0).then((data) => {
+        expect(data).to.eq("Software Engineer");
+      });
+      cy.readTableV2data(2, 0).then((data) => {
+        expect(data).to.eq("Product Manager");
+      });
+      cy.readTableV2data(3, 0).then((data) => {
+        expect(data).to.eq("Product Manager");
+      });
+      cy.readTableV2data(4, 0).then((data) => {
+        expect(data).to.eq("UX Designer");
+      });
     });
 
     it("3. Verifies that sorting works for the select column type when sortBy is set to label", function () {
@@ -197,6 +209,18 @@ describe(
       cy.sortColumn("role", "ascending");
       cy.readTableV2data(0, 0).then((data) => {
         expect(data).to.eq("Product Manager");
+      });
+      cy.readTableV2data(1, 0).then((data) => {
+        expect(data).to.eq("Product Manager");
+      });
+      cy.readTableV2data(2, 0).then((data) => {
+        expect(data).to.eq("Software Engineer");
+      });
+      cy.readTableV2data(3, 0).then((data) => {
+        expect(data).to.eq("Software Engineer");
+      });
+      cy.readTableV2data(4, 0).then((data) => {
+        expect(data).to.eq("UX Designer");
       });
     });
   },

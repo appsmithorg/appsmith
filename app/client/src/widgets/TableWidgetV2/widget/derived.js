@@ -323,14 +323,13 @@ export default {
     */
     const selectColumnKeysWithSortByLabel = [];
     Object.keys(primaryColumns).forEach((id) => {
-      if (
-        primaryColumns[id] &&
-        primaryColumns[id].columnType === "select" &&
-        primaryColumns[id].sortBy &&
-        primaryColumns[id].sortBy === "label" &&
-        primaryColumns[id].selectOptions &&
-        primaryColumns[id].selectOptions.length
-      ) {
+      const column = primaryColumns[id];
+      const isColumnSortedByLabel =
+        column &&
+        column.columnType === "select" &&
+        column?.sortBy === "label" &&
+        column?.selectOptions?.length;
+      if (isColumnSortedByLabel) {
         selectColumnKeysWithSortByLabel.push(id);
       }
     });

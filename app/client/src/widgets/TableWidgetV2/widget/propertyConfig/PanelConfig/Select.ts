@@ -60,7 +60,10 @@ export default {
       validation: {
         type: ValidationTypes.TEXT,
         params: {
-          allowedValues: ["label", "value"],
+          allowedValues: [
+            TableSelectColumnOptionKeys.LABEL,
+            TableSelectColumnOptionKeys.VALUE,
+          ],
         },
       },
     },
