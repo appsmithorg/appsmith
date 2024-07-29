@@ -42,6 +42,7 @@ public class ApplicationPage {
         return Boolean.TRUE.equals(isDefault);
     }
 
+    @JsonView({Views.Internal.class, Views.Public.class})
     public String getBaseId() {
         return StringUtils.hasLength(defaultPageId) ? defaultPageId : id;
     }

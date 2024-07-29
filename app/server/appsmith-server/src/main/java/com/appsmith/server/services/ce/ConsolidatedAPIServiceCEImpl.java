@@ -202,7 +202,7 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         Mono<Application> branchedApplicationMonoCached;
         if (isBlank(baseApplicationId)) {
             branchedApplicationMonoCached = newPageService
-                    .findByBranchNameAndBasePageId(branchName, basePageId, null)
+                    .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
                     .map(NewPage::getApplicationId)
                     .flatMap(applicationId ->
                             applicationService.findByBranchedApplicationIdAndApplicationMode(applicationId, mode))

@@ -978,7 +978,9 @@ public class ImportServiceTests {
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList(),
                             customJSLibService.getAllJSLibsInContext(
-                                    application.getId(), CreatorContextType.APPLICATION, false));
+                                    application.getId(), CreatorContextType.APPLICATION, false),
+                            applicationService.findById(
+                                    applicationImportDTO.getApplication().getId(), MANAGE_APPLICATIONS));
                 }))
                 .assertNext(tuple -> {
                     final Application application = tuple.getT1().getApplication();

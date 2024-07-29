@@ -72,6 +72,9 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<NewPage> findByBranchNameAndBasePageId(String branchName, String defaultPageId, AclPermission permission);
 
+    Mono<NewPage> findByBranchNameAndBasePageIdAndApplicationMode(
+            String branchName, String basePageId, ApplicationMode mode);
+
     Mono<String> findBranchedPageId(String branchName, String basePageId, AclPermission permission);
 
     Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission);

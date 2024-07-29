@@ -1041,6 +1041,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 ? applicationPermission.getReadPermission()
                 : applicationPermission.getEditPermission();
 
-        return findById(branchedApplicationId, permissionForApplication);
+        return findById(branchedApplicationId, permissionForApplication)
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)));
     }
 }

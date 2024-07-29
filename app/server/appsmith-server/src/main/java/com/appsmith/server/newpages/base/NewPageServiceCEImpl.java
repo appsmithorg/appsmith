@@ -522,6 +522,20 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
+    public Mono<NewPage> findByBranchNameAndBasePageIdAndApplicationMode(
+            String branchName, String basePageId, ApplicationMode mode) {
+
+        AclPermission permission;
+        if (ApplicationMode.EDIT.equals(mode)) {
+            permission = pagePermission.getEditPermission();
+        } else {
+            permission = pagePermission.getReadPermission();
+        }
+
+        return this.findByBranchNameAndBasePageId(branchName, basePageId, permission);
+    }
+
+    @Override
     public Mono<String> findBranchedPageId(String branchName, String basePageId, AclPermission permission) {
         if (!StringUtils.hasText(branchName)) {
             if (!StringUtils.hasText(basePageId)) {

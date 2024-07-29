@@ -297,9 +297,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)))
                 .cache();
 
-        // It is expected that client will be aware of baseActionIds and not the branched (actual) action ID
         final Set<String> validBaseActionIds = actionCollectionDTO.getActions().stream()
-                .map(ActionDTO::getId)
+                .map(ActionDTO::getBaseId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toUnmodifiableSet());
         final Set<String> baseActionIds = new HashSet<>();

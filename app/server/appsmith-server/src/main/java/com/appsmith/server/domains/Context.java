@@ -9,4 +9,6 @@ public interface Context {
     Layout getLayout();
 
     String getBranchName();
+
+    String getUnpublishedName();
 }
