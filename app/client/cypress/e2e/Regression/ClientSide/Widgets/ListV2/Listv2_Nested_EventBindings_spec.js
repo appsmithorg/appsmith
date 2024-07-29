@@ -1,6 +1,6 @@
 const nestedListDSL = require("../../../../../fixtures/Listv2/nestedList.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 

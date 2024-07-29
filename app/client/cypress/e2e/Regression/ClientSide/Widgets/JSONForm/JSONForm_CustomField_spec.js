@@ -25,7 +25,7 @@ describe(
 
       cy.addDsl(formDsl);
 
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
 
       // Add new custom field
       cy.get(".t--add-column-btn")

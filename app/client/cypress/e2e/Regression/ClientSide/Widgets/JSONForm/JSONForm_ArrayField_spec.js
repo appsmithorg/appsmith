@@ -48,7 +48,7 @@ describe(
         ],
       };
 
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
 
       deployMode.DeployApp();
@@ -87,7 +87,7 @@ describe(
     it("2. can add more items to the field", () => {
       cy.addDsl(dslWithSchema);
 
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       cy.get(locators._jsToggle("sourcedata")).click({ force: true });
       cy.get(`${education}-item`)
         .should("have.length", 1)
@@ -168,7 +168,7 @@ describe(
       cy.get(education).should("exist");
       agHelper.AssertElementExist(education);
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("education");
 
       // Visible -> false

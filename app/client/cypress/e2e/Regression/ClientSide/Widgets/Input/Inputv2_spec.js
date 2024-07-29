@@ -1,4 +1,4 @@
-import { agHelper } from "../../../../../support/Objects/ObjectsCore";
+import { agHelper, propPane } from "../../../../../support/Objects/ObjectsCore";
 
 const widgetName = "inputwidgetv2";
 const widgetInput = `.t--widget-${widgetName} input`;
@@ -8,7 +8,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
     cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
     cy.get(`.t--widget-${widgetName}`).should("exist");
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-    _.propPane.openPropertyPane("textwidget");
+    propPane.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
       `{{Input1.text}}:{{Input1.value}}:{{Input1.isValid}}`,
@@ -16,7 +16,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   });
 
   it("2. Validate input widget resets OnSubmit", () => {
-    _.propPane.openPropertyPane(widgetName);
+    propPane.openPropertyPane(widgetName);
     cy.getAlert("onSubmit", "Submitted!!");
     cy.get(widgetInput).clear();
     cy.wait(300);
@@ -64,7 +64,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
       },
     ].forEach(({ expected, input }) => enterAndTest(input, expected));
 
-    _.propPane.openPropertyPane(widgetName);
+    propPane.openPropertyPane(widgetName);
 
     //required: on
     cy.get(".t--property-control-required label").last().click({ force: true });
@@ -106,7 +106,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   });
 
   it("4. Validate DataType - NUMBER can be entered into Input widget", () => {
-    _.propPane.openPropertyPane(widgetName);
+    propPane.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype input", "Number");
     [
       {
@@ -192,7 +192,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   });
 
   it("5. Validate DataType - PASSWORD can be entered into Input widget", () => {
-    _.propPane.openPropertyPane(widgetName);
+    propPane.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype input", "Password");
     [
       {
@@ -263,7 +263,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   });
 
   it("6. Validate DataType - EMAIL can be entered into Input widget", () => {
-    _.propPane.openPropertyPane(widgetName);
+    propPane.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype input", "Email");
     [
       {
@@ -334,7 +334,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   });
 
   it("7. Validating other properties - Input validity with #valid", () => {
-    _.propPane.openPropertyPane(widgetName);
+    propPane.openPropertyPane(widgetName);
     [
       ["{{1 === 2}}", "false", true],
       ["", "true", false],
@@ -348,7 +348,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   });
 
   it("8. onSubmit should be triggered with the whole input value", () => {
-    _.propPane.openPropertyPane(widgetName);
+    propPane.openPropertyPane(widgetName);
     cy.selectDropdownValue(
       ".t--property-control-datatype input",
       "Single-line text",
@@ -361,7 +361,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
       "{{storeValue('textPayloadOnSubmit',Input1.text)}}",
     );
     // Bind to stored value above
-    _.propPane.openPropertyPane("textwidget");
+    propPane.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
       "{{appsmith.store.textPayloadOnSubmit}}",
@@ -378,12 +378,12 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   });
 
   it("9. changing default text should change text", () => {
-    _.propPane.openPropertyPane("textwidget");
+    propPane.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
       `{{Input1.text}}:{{Input1.value}}:{{Input1.isValid}}`,
     );
-    _.propPane.openPropertyPane(widgetName);
+    propPane.openPropertyPane(widgetName);
     cy.updateCodeInput(".t--property-control-defaultvalue", `test`);
     // wait for evaluations
     cy.wait(300);
@@ -418,10 +418,10 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   });
 
   it("10. Check isDirty meta property", function () {
-    _.propPane.openPropertyPane("textwidget");
+    propPane.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{Input1.isDirty}}`);
     // Init isDirty
-    _.propPane.openPropertyPane(widgetName);
+    propPane.openPropertyPane(widgetName);
     cy.selectDropdownValue(
       ".t--property-control-datatype input",
       "Single-line text",
@@ -437,7 +437,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
     // Check if isDirty is set to true
     cy.get(".t--widget-textwidget").should("contain", "true");
     // Change defaultText
-    _.propPane.openPropertyPane(widgetName);
+    propPane.openPropertyPane(widgetName);
     cy.updateCodeInput(".t--property-control-defaultvalue", "c");
     // Check if isDirty is reset to false
     cy.get(".t--widget-textwidget").should("contain", "false");
@@ -457,8 +457,8 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   function validateAutocompleteAttribute() {
     //validate autocomplete behaviour for email and password
 
-    _.propPane.openPropertyPane("textwidget");
-    _.propPane.openPropertyPane(widgetName);
+    propPane.openPropertyPane("textwidget");
+    propPane.openPropertyPane(widgetName);
     //check if autofill toggle option is present and is checked by default
     cy.get(".t--property-control-allowautofill input").should("be.checked");
     //check if autocomplete attribute is not present in the text widget when autofill is enabled

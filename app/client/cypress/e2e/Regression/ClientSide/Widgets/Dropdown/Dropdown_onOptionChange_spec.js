@@ -96,7 +96,7 @@ describe(
       // Going to HomePage where the button widget is located and opeing it's property pane.
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       PageLeftPane.switchSegment(PagePaneSegment.UI);
-      _.propPane.openPropertyPane("selectwidget");
+      propPane.openPropertyPane("selectwidget");
       cy.reload();
       // Adding the query in the onOptionChangeAction of the dropdown widget.
       cy.executeDbQuery("Query1", "onOptionChange");
@@ -164,7 +164,7 @@ describe(
         .click({ force: true });
       cy.get(formWidgetsPage.apiCallToast).should("contain.text", "Success");
       deployMode.NavigateBacktoEditor();
-      _.propPane.openPropertyPane("selectwidget");
+      propPane.openPropertyPane("selectwidget");
     });
 
     it("6. Dropdown Widget Functionality to Verify On Option Change Action", function () {

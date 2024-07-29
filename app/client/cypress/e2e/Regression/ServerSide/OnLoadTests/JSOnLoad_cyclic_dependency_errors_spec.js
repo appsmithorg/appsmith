@@ -49,7 +49,7 @@ describe(
           dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
         });
         PageLeftPane.switchSegment(PagePaneSegment.UI);
-        _.propPane.openPropertyPane("inputwidgetv2");
+        propPane.openPropertyPane("inputwidgetv2");
         cy.get(widgetsPage.defaultInput).type(
           "{{" + queryName + ".data[0].gender",
         );
@@ -76,7 +76,7 @@ describe(
         dataSources.EnterQuery("SELECT * FROM users LIMIT 10");
         dataSources.ToggleUsePreparedStatement(false);
         PageLeftPane.switchSegment(PagePaneSegment.UI);
-        _.propPane.openPropertyPane("inputwidgetv2");
+        propPane.openPropertyPane("inputwidgetv2");
         cy.get(widgetsPage.defaultInput).type(
           "{{" + queryName + ".data[0].gender",
         );
@@ -93,7 +93,7 @@ describe(
     it("2. Reload Page and it should not provide errors in response & update input widget's placeholder property and check errors array to be empty", () => {
       // cy.get(widgetsPage.NavHomePage).click({ force: true });
       cy.reload();
-      _.propPane.openPropertyPane("inputwidgetv2");
+      propPane.openPropertyPane("inputwidgetv2");
       cy.wait("@getConsolidatedData").should(
         "have.nested.property",
         "response.body.data.pageWithMigratedDsl.data.layouts[0].layoutOnLoadActionErrors.length",

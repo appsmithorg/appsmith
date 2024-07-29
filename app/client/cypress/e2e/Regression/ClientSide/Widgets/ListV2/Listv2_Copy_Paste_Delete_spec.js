@@ -1,5 +1,5 @@
 const commonlocators = require("../../../../../locators/commonlocators.json");
-
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
 
 describe(

@@ -7,7 +7,7 @@ describe("List v2- Tabs Widget", { tags: ["@tag.Widget", "@tag.List"] }, () => {
   });
 
   it("1. change in the properties of the tabs widget should retain the default selected tab", () => {
-    _.propPane.openPropertyPaneByWidgetName("Tabs1", "tabswidget");
+    cy.openPropertyPaneByWidgetName("Tabs1", "tabswidget");
 
     // Check if Tab1 selected
     cy.get(".t--page-switch-tab.is-active").contains("Tab 1");

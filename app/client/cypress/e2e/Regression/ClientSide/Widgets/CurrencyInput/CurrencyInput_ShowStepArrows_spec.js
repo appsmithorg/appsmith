@@ -1,5 +1,5 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const { agHelper } = require("../../../../../support/Objects/ObjectsCore");
+const { agHelper, propPane } = require("../../../../../support/Objects/ObjectsCore");
 
 const widgetName = "currencyinputwidget";
 
@@ -9,7 +9,7 @@ describe(
   function () {
     it("1. Validate that For new currency input widgets being dragged, the value for showStepArrows should be set to false", () => {
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 400 });
-      _.propPane.openPropertyPane(widgetName);
+      propPane.openPropertyPane(widgetName);
 
       cy.get(widgetsPage.showStepArrowsToggleCheckBox).should("not.be.checked");
 

@@ -2,6 +2,7 @@ const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.jso
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
 const locators = ObjectsRegistry.CommonLocators;
 const fieldPrefix = ".t--jsonformfield";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("JSON Form reset", { tags: ["@tag.Widget", "@tag.JSONForm"] }, () => {
   before(() => {

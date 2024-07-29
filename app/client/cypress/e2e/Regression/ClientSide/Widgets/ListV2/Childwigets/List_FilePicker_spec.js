@@ -25,7 +25,7 @@ describe(
         x: 150,
         y: 50,
       });
-      _.propPane.openPropertyPane("filepickerwidgetv2");
+      propPane.openPropertyPane("filepickerwidgetv2");
       cy.get(".t--property-control-required .t--js-toggle").click({
         force: true,
       });

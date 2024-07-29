@@ -18,7 +18,7 @@ describe(
     });
 
     it("1. Test to validate text color and text background", function () {
-      _.propPane.openPropertyPane("tablewidgetv2");
+      propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("id");
       cy.moveToStyleTab();
       // Changing text color to rgb(219, 234, 254) and validate
@@ -59,7 +59,7 @@ describe(
 
     it("2. Verify default search text", function () {
       // Open property pane
-      _.propPane.openPropertyPane("tablewidgetv2");
+      propPane.openPropertyPane("tablewidgetv2");
       cy.moveToContentTab();
       // Chage deat search text value to "data"
       cy.backFromPropertyPanel();
@@ -73,7 +73,7 @@ describe(
 
     it("3. Verify custom column property name changes with change in column name ([FEATURE]: #17142)", function () {
       // Open property pane
-      _.propPane.openPropertyPane("tablewidgetv2");
+      propPane.openPropertyPane("tablewidgetv2");
       cy.moveToContentTab();
       cy.addColumnV2("customColumn18");
       cy.editColumn("customColumn1");
@@ -113,7 +113,7 @@ describe(
 
     it("4. It provides currentRow and currentIndex properties in min validation field", function () {
       agHelper.AddDsl("tableV2NewDslWithPagination");
-      _.propPane.openPropertyPane("tablewidgetv2");
+      propPane.openPropertyPane("tablewidgetv2");
       table.toggleColumnEditableViaColSettingsPane(
         "orderAmount",
         "v2",
@@ -253,7 +253,7 @@ describe(
     });
 
     it("5. Verify default prompt message for min field", function () {
-      _.propPane.openPropertyPane("tablewidgetv2");
+      propPane.openPropertyPane("tablewidgetv2");
       table.toggleColumnEditableViaColSettingsPane(
         "orderAmount",
         "v2",

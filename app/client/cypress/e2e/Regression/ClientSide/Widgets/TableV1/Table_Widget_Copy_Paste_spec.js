@@ -9,6 +9,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
   entityExplorer,
+  propPane
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -21,7 +22,7 @@ describe(
 
     it("Copy paste table widget and valdiate application status", function () {
       const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-      _.propPane.openPropertyPane("tablewidget");
+      propPane.openPropertyPane("tablewidget");
       cy.widgetText(
         "Table1",
         widgetsPage.tableWidget,

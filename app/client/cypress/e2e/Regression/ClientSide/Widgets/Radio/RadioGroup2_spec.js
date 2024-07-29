@@ -1,3 +1,4 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetName = "radiogroupwidget";
 
 describe("Radio Group Widget", { tags: ["@tag.Widget", "@tag.Radio"] }, () => {

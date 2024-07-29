@@ -5,6 +5,8 @@ import {
   PROPERTY_SELECTOR,
 } from "../../../../../locators/WidgetLocators";
 import homePage from "../../../../../locators/HomePage";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 
 describe(
   "Input Widget Multiline feature",

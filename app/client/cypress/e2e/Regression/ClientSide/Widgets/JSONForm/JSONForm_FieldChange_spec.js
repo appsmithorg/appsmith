@@ -24,7 +24,7 @@ describe(
     });
 
     it("1. modifies field type text to number", () => {
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       cy.get(locators._jsToggle("sourcedata")).click({ force: true });
       cy.get(`${fieldPrefix}-name`).find("button").should("not.exist");
       cy.openFieldConfiguration("name");

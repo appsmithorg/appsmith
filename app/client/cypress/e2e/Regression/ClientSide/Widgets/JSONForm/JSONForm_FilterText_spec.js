@@ -34,7 +34,7 @@ describe(
           color: "GREEN",
         };
         cy.addDsl(dslWithoutSchema);
-        _.propPane.openPropertyPane("jsonformwidget");
+        propPane.openPropertyPane("jsonformwidget");
         propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
         cy.openFieldConfiguration("color");
         cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
@@ -45,7 +45,7 @@ describe(
     it("1. shows alert on filter text change", () => {
       const filterText = "Test string";
 
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("color");
 
       // Enable filterable
@@ -75,12 +75,12 @@ describe(
         colors: ["GREEN", "BLUE"],
       };
       cy.addDsl(dslWithoutSchema);
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       const filterText = "Test string";
 
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("colors");
 
       propPane.TogglePropertyState("Allow searching", "On");

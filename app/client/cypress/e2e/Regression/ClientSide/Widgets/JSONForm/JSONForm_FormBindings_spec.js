@@ -1,5 +1,6 @@
 const dslWithSchema = require("../../../../../fixtures/jsonFormDslWithSchema.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const fieldPrefix = ".t--jsonformfield";
 const propertyControlPrefix = ".t--property-control";

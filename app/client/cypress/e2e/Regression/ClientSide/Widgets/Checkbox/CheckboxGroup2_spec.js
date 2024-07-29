@@ -1,5 +1,6 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
+
 import {
   agHelper,
   propPane,
@@ -61,7 +62,7 @@ describe(
       cy.get(publish.checkboxGroupWidget + " " + "input").should("not.exist");
       deployMode.NavigateBacktoEditor();
       //Checkbox Group Functionality To Check Visible Widget
-      _.propPane.openPropertyPane("checkboxgroupwidget");
+      propPane.openPropertyPane("checkboxgroupwidget");
       propPane.TogglePropertyState("Visible", "On");
       deployMode.DeployApp();
       cy.wait(500);
@@ -90,7 +91,7 @@ describe(
     });
 
     it("4. Checkbox Group Functionality To alignment options", function () {
-      _.propPane.openPropertyPane("checkboxgroupwidget");
+      propPane.openPropertyPane("checkboxgroupwidget");
       cy.moveToStyleTab();
       // check default value
       cy.get(".t--property-control-alignment").should("exist");
@@ -117,10 +118,10 @@ describe(
 
     it("5. Check isDirty meta property", function () {
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-      _.propPane.openPropertyPane("textwidget");
+      propPane.openPropertyPane("textwidget");
       propPane.UpdatePropertyFieldValue("Text", "{{CBGTest.isDirty}}");
       // Change defaultSelectedValues
-      _.propPane.openPropertyPane("checkboxgroupwidget");
+      propPane.openPropertyPane("checkboxgroupwidget");
       cy.moveToContentTab();
       propPane.UpdatePropertyFieldValue("Default selected values", "GREEN");
 

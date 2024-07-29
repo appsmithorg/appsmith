@@ -159,7 +159,7 @@ describe(
       };
       agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
       cy.openFieldConfiguration("check");
       cy.selectDropdownValue(commonlocators.jsonFormFieldType, "Checkbox");

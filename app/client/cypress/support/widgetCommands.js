@@ -1132,7 +1132,7 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
       cy.wait(1000);
       cy.get("body").type(`{${modifierKey}}v`);
       cy.wait(3000);
-      _.propPane.openPropertyPaneCopy(widget);
+      cy.openPropertyPaneCopy(widget);
       cy.get(widgetsPage.propertypaneText)
         .children()
         .last()

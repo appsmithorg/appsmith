@@ -45,13 +45,13 @@ describe(
       agHelper.RestoreLocalStorageCache();
       cy.addDsl(dslWithoutSchema);
       // Bind formData to Text1 widget text property
-      _.propPane.openPropertyPane("textwidget");
+      propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
       cy.closePropertyPane();
     });
 
     it("1. accepts numeric options value", () => {
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       const schema = {
         binary: 1,
       };
@@ -69,7 +69,7 @@ describe(
       ];
 
       // Apply schema and change the field type to radio group
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       cy.openFieldConfiguration("binary");
@@ -100,7 +100,7 @@ describe(
     });
 
     it("2. accepts string options value", () => {
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       const schema = {
         accept: "N",
       };
@@ -119,7 +119,7 @@ describe(
       ];
 
       // Apply schema and change the field type to radio group
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       cy.openFieldConfiguration("accept");

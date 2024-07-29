@@ -69,7 +69,7 @@ describe(
     });
 
     it("4. Shows updated formData values in onOptionChange binding", () => {
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("colors");
 
       // Enable JS mode for onOptionChange

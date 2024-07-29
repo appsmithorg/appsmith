@@ -1,5 +1,5 @@
 const widgetsPage = require("../../../../../locators/Widgets.json");
-const { agHelper } = require("../../../../../support/Objects/ObjectsCore");
+const { agHelper, propPane } = require("../../../../../support/Objects/ObjectsCore");
 
 const widgetName = "inputwidgetv2";
 
@@ -9,7 +9,7 @@ describe(
   function () {
     it("1. Validate that dataType - NUMBER, For new widgets being dragged, the value for showStepArrows should be set to false", () => {
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 400 });
-      _.propPane.openPropertyPane(widgetName);
+      propPane.openPropertyPane(widgetName);
 
       cy.selectDropdownValue(widgetsPage.inputPropsDataType, "Number");
 

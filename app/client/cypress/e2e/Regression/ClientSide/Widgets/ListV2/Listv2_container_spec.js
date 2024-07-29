@@ -10,7 +10,7 @@ describe(
     });
 
     it("1. can open property pane of container widget", () => {
-      _.propPane.openPropertyPaneByWidgetName("Container1", "containerwidget");
+      cy.openPropertyPaneByWidgetName("Container1", "containerwidget");
 
       cy.get(".t--propertypane").contains("Container1");
     });
@@ -18,7 +18,7 @@ describe(
     it("2. currentItem can be used in the container", () => {
       const colors = ["rgb(0, 0, 255)", "rgb(0, 128, 0)", "rgb(255, 0, 0)"];
 
-      _.propPane.openPropertyPaneByWidgetName("Container1", "containerwidget");
+      cy.openPropertyPaneByWidgetName("Container1", "containerwidget");
 
       // Open style table
       cy.get(commonlocators.propertyStyle).first().click({ force: true });

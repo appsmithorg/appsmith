@@ -8,6 +8,7 @@ import EditorNavigation, {
   EntityType,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Tab widget test", { tags: ["@tag.IDE"] }, function () {
   const tabname = "UpdatedTab";

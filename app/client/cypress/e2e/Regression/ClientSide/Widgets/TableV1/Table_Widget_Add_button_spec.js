@@ -12,7 +12,7 @@ describe(
     });
 
     it("1. Table widget with Add button test and validation", function () {
-      _.propPane.openPropertyPane("tablewidget");
+      propPane.openPropertyPane("tablewidget");
       // Open column details of "id".
       cy.editColumn("id");
       cy.get(widgetsPage.tableBtn).should("not.exist");
@@ -69,7 +69,7 @@ describe(
     });
 
     it("2. Table Button color validation", function () {
-      _.propPane.openPropertyPane("tablewidget");
+      propPane.openPropertyPane("tablewidget");
       // Open column details of "id".
       cy.editColumn("id");
       // Changing column data type to "Button"
@@ -160,7 +160,7 @@ describe(
     });
 
     it("5. Table widget add new menu button column", function () {
-      _.propPane.openPropertyPane("tablewidget");
+      propPane.openPropertyPane("tablewidget");
       // click on Add new Column.
       cy.get(".t--add-column-btn").click();
       //Open New Custom Column
@@ -285,7 +285,7 @@ describe(
       });
 
       // Close Property pane
-      _.propPane.openPropertyPane("tablewidget");
+      propPane.openPropertyPane("tablewidget");
       // Click on the Menu button
       cy.contains("Menu button").click({
         force: true,
@@ -309,7 +309,7 @@ describe(
       cy.closePropertyPane();
 
       // disable menu item 3
-      //_.propPane.openPropertyPane("tablewidget");
+      //propPane.openPropertyPane("tablewidget");
 
       //cy.editColumn("customColumn1");
       // Edit a Menu item

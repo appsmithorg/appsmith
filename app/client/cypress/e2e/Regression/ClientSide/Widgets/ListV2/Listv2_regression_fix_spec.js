@@ -11,7 +11,7 @@ describe(
         x: 300,
         y: 300,
       });
-      _.propPane.openPropertyPaneByWidgetName("Text1", "textwidget");
+      cy.openPropertyPaneByWidgetName("Text1", "textwidget");
 
       cy.get(widgetsPage.toggleVisible).click({ force: true });
       cy.testJsontext("visible", "false");

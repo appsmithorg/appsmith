@@ -71,7 +71,7 @@ function changeFieldType(fieldName, fieldType) {
 }
 
 function addCustomField(fieldType) {
-  _.propPane.openPropertyPane("jsonformwidget");
+  propPane.openPropertyPane("jsonformwidget");
   cy.backFromPropertyPanel();
 
   // Add new field
@@ -83,7 +83,7 @@ function addCustomField(fieldType) {
 }
 
 function removeCustomField() {
-  _.propPane.openPropertyPane("jsonformwidget");
+  propPane.openPropertyPane("jsonformwidget");
   cy.deleteJSONFormField("customField1");
 }
 
@@ -93,7 +93,7 @@ describe(
   () => {
     before(() => {
       agHelper.AddDsl("jsonFormDslWithSchema");
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       cy.get(locators._jsToggle("sourcedata")).click({ force: true });
       EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
@@ -114,7 +114,7 @@ describe(
     });
 
     it("2. can hide Array Field's inner fields", () => {
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("education");
       cy.openFieldConfiguration("__array_item__", false);
       cy.openFieldConfiguration("college", false);
@@ -143,28 +143,28 @@ describe(
     });
 
     it("5. can hide Date Field", () => {
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("dob");
 
       hideAndVerifyProperties("dob", "10/12/1992");
     });
 
     it("6. can hide Input Field", () => {
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("name");
 
       hideAndVerifyProperties("name", "John");
     });
 
     it("7. can hide Multiselect Field", () => {
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("hobbies");
 
       hideAndVerifyProperties("hobbies", ["travelling", "swimming"]);
     });
 
     it("8. can hide Object Field", () => {
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("address");
 
       hideAndVerifyProperties("address", {

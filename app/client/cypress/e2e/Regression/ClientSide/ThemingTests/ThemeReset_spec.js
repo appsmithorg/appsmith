@@ -1,6 +1,6 @@
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
-import { ObjectsRegistry } from "../../../../support/Objects/Registry";
+import { ObjectsRegistry, propPane } from "../../../../support/Objects/Registry";
 
 const appSettings = ObjectsRegistry.AppSettings;
 
@@ -11,7 +11,7 @@ describe("Theme validation usecases", { tags: ["@tag.Theme"] }, function () {
     cy.get(".t--widget-buttonwidget").should("exist");
 
     // open property pane
-    _.propPane.openPropertyPane("buttonwidget");
+    propPane.openPropertyPane("buttonwidget");
     cy.moveToStyleTab();
     // change color to red
     cy.get(widgetsPage.buttonColor).click({ force: true }).clear().type("red");

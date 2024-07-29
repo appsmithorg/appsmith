@@ -19,7 +19,7 @@ describe(
     });
 
     it("1. Parse CSV,XLS,JSON,TSV,Binary,Text and Base64 file data to table Widget", () => {
-      _.propPane.openPropertyPane(widgetName);
+      propPane.openPropertyPane(widgetName);
       cy.get(
         `.t--property-control-dataformat ${commonlocators.helperText}`,
       ).should("not.exist");
@@ -137,14 +137,14 @@ describe(
 
       // Drag and drop a text widget for binding file data
       cy.dragAndDropToCanvas("textwidget", { x: 100, y: 100 });
-      _.propPane.openPropertyPane("textwidget");
+      propPane.openPropertyPane("textwidget");
       propPane.UpdatePropertyFieldValue(
         "Text",
         `{{FilePicker1.files[0].data}}`,
       );
 
       // Test for Base64
-      _.propPane.openPropertyPane(widgetName);
+      propPane.openPropertyPane(widgetName);
       cy.selectDropdownValue(commonlocators.filePickerDataFormat, "Base64");
       cy.get(commonlocators.filePickerInput)
         .first()

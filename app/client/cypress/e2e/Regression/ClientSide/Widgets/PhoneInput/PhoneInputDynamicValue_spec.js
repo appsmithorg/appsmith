@@ -43,7 +43,7 @@ describe(
     });
 
     it("2. should check that widget can be used with dynamic default dial code", () => {
-      _.propPane.openPropertyPane(widgetName);
+      propPane.openPropertyPane(widgetName);
       cy.get(".t--property-control-defaultcountrycode .CodeMirror-code").should(
         "contain",
         "{{appsmith.store.test}}",

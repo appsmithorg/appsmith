@@ -15,7 +15,7 @@ describe(
     });
 
     beforeEach(() => {
-      _.propPane.openPropertyPane("textwidget");
+      propPane.openPropertyPane("textwidget");
     });
     it("1. Test to validate parsing link", function () {
       // Add link to text widget

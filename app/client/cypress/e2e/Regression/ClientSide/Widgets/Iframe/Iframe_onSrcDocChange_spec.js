@@ -3,6 +3,7 @@ const { ObjectsRegistry } = require("../../../../../support/Objects/Registry");
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;

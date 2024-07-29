@@ -29,7 +29,7 @@ describe(
     let propPaneBack = "[data-testid='t--property-pane-back-btn']";
 
     it("1. should check that onDiscard event is working", () => {
-      _.propPane.openPropertyPane("tablewidgetv2");
+      propPane.openPropertyPane("tablewidgetv2");
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.editColumn("EditActions1");
       cy.get(".t--property-pane-section-collapse-savebutton").click();
@@ -37,7 +37,7 @@ describe(
       cy.getAlert("onDiscard", "discarded!!");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "NewValue");
-      _.propPane.openPropertyPane("tablewidgetv2");
+      propPane.openPropertyPane("tablewidgetv2");
       cy.discardTableRow(4, 0);
       cy.get(widgetsPage.toastAction).should("be.visible");
       cy.get(widgetsPage.toastActionText)
@@ -50,7 +50,7 @@ describe(
 
     it("2. should check that inline editing works with text wrapping disabled", () => {
       agHelper.AddDsl("Table/InlineEditingDSL");
-      _.propPane.openPropertyPane("tablewidgetv2");
+      propPane.openPropertyPane("tablewidgetv2");
       table.toggleColumnEditableViaColSettingsPane("step", "v2", false, true);
       cy.editTableCell(0, 0);
       cy.get(
@@ -59,7 +59,7 @@ describe(
     });
 
     it("3. should check that inline editing works with text wrapping enabled", () => {
-      _.propPane.openPropertyPane("tablewidgetv2");
+      propPane.openPropertyPane("tablewidgetv2");
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.editColumn("step");
       cy.get(".t--property-control-cellwrapping .ads-v2-switch")
@@ -128,7 +128,7 @@ describe(
       // case 1: check if updatedRowIndex has -1 as the default value:
       cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
 
-      _.propPane.openPropertyPane("tablewidgetv2");
+      propPane.openPropertyPane("tablewidgetv2");
 
       table.toggleColumnEditableViaColSettingsPane("step", "v2", false, true);
       cy.wait(1000);
@@ -152,7 +152,7 @@ describe(
       cy.wait(1000);
       cy.editTableCell(0, 2);
       cy.enterTableCellValue(0, 2, "#14").type("{enter}");
-      _.propPane.openPropertyPane("tablewidgetv2");
+      propPane.openPropertyPane("tablewidgetv2");
       cy.get(widgetsPage.tabedataField).type("{cmd}{a} {backspace}");
       cy.wait(300);
       cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);
@@ -193,7 +193,7 @@ describe(
       cy.wait(1000);
       table.EditTableCell(2, 0, "#14");
       cy.get(commonlocators.textWidgetContainer).should("contain.text", 2);
-      _.propPane.openPropertyPane("tablewidgetv2");
+      propPane.openPropertyPane("tablewidgetv2");
       cy.get(widgetsPage.tabedataField).type("{cmd}{a} {backspace}");
       cy.wait(300);
       cy.get(commonlocators.textWidgetContainer).should("contain.text", -1);

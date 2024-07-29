@@ -1,3 +1,4 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetName = "audiorecorderwidget";
 
 describe(

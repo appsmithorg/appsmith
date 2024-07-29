@@ -167,7 +167,7 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
     const formattedText = "123,456,789";
 
     cy.addDsl(dslWithCurrencyWidget);
-    _.propPane.openPropertyPane("currencyinputwidget");
+    propPane.openPropertyPane("currencyinputwidget");
     cy.updateCodeInput(".t--property-control-defaultvalue", value);
 
     // Observe the value of 2nd item currency widget - formatted text

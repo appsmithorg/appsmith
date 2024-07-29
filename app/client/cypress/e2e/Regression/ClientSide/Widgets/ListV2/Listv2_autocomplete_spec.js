@@ -20,7 +20,7 @@ describe(
 
     it("1. shows autocomplete for currentItem/currentIndex/currentView for level_1 list", () => {
       // Open the property pane of level 1 list widget's Text widget
-      _.propPane.openPropertyPaneByWidgetName("Text1", "textwidget");
+      cy.openPropertyPaneByWidgetName("Text1", "textwidget");
 
       cy.testJsontext("text", "");
       cy.get(".t--property-control-text .CodeMirror textarea").type("{{curr", {
@@ -33,7 +33,7 @@ describe(
 
     it("2. shows autocomplete for currentItem/currentIndex/currentView for level_2 list", () => {
       // Open the property pane of level 2 list widget's Text widget
-      _.propPane.openPropertyPaneByWidgetName("Text5", "textwidget");
+      cy.openPropertyPaneByWidgetName("Text5", "textwidget");
 
       cy.testJsontext("text", "");
       cy.get(".t--property-control-text .CodeMirror textarea").type("{{curr", {
@@ -46,7 +46,7 @@ describe(
 
     it("3. shows autocomplete for level_1's currentItem/currentIndex/currentView for level_2 list", () => {
       // Open the property pane of level 2 list widget's Text widget
-      _.propPane.openPropertyPaneByWidgetName("Text5", "textwidget");
+      cy.openPropertyPaneByWidgetName("Text5", "textwidget");
 
       cy.testJsontext("text", "");
       cy.get(".t--property-control-text .CodeMirror textarea").type(
@@ -60,7 +60,7 @@ describe(
 
     it("4. shows autocomplete for currentItem/currentIndex/currentView for level_3 list", () => {
       // Open the property pane of level 3 list widget's Text widget
-      _.propPane.openPropertyPaneByWidgetName("Text7", "textwidget");
+      cy.openPropertyPaneByWidgetName("Text7", "textwidget");
 
       cy.testJsontext("text", "");
       cy.get(".t--property-control-text .CodeMirror textarea").type("{{curr", {
@@ -73,7 +73,7 @@ describe(
 
     it("5. shows autocomplete for level_1's currentItem/currentIndex/currentView for level_3 list", () => {
       // Open the property pane of level 3 list widget's Text widget
-      _.propPane.openPropertyPaneByWidgetName("Text7", "textwidget");
+      cy.openPropertyPaneByWidgetName("Text7", "textwidget");
 
       cy.testJsontext("text", "");
       cy.get(".t--property-control-text .CodeMirror textarea").type(
@@ -87,7 +87,7 @@ describe(
 
     it("6. shows autocomplete for level_2's currentItem/currentIndex/currentView for level_3 list", () => {
       // Open the property pane of level 3 list widget's Text widget
-      _.propPane.openPropertyPaneByWidgetName("Text7", "textwidget");
+      cy.openPropertyPaneByWidgetName("Text7", "textwidget");
 
       cy.testJsontext("text", "");
       cy.get(".t--property-control-text .CodeMirror textarea").type(
@@ -101,7 +101,7 @@ describe(
 
     it("7. should not show List's currentItemsView in currentView of level_1/level_2 properties", () => {
       // Open the property pane of level 3 list widget's Text widget
-      _.propPane.openPropertyPaneByWidgetName("Text7", "textwidget");
+      cy.openPropertyPaneByWidgetName("Text7", "textwidget");
 
       // level_1 List currentItemsView should not exist
       cy.testJsontext("text", "");
@@ -126,7 +126,7 @@ describe(
 
     it("8. currentItem should reflect appropriate data types", () => {
       // Open the property pane of level 1 list widget's Text widget
-      _.propPane.openPropertyPaneByWidgetName("Text1", "textwidget");
+      cy.openPropertyPaneByWidgetName("Text1", "textwidget");
 
       cy.testJsontext("text", "");
       cy.get(".t--property-control-text .CodeMirror textarea").type(
@@ -141,7 +141,7 @@ describe(
 
     it("9. currentView should reflect appropriate widgets for level_1 for level_3 list", () => {
       // Open the property pane of level 3 list widget's Text widget
-      _.propPane.openPropertyPaneByWidgetName("Text6", "textwidget");
+      cy.openPropertyPaneByWidgetName("Text6", "textwidget");
 
       // level_1.currentView
       cy.testJsontext("text", "");
