@@ -4,6 +4,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.dtos.ProductAlertResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.LoadShifter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.expression.EvaluationContext;
@@ -14,8 +15,6 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -30,8 +29,6 @@ public class ProductAlertServiceCEImpl implements ProductAlertServiceCE {
     private final ObjectMapper mapper;
 
     private final ProductAlertResponseDTO[] messages;
-
-    private final Scheduler scheduler = Schedulers.boundedElastic();
 
     public ProductAlertServiceCEImpl(ObjectMapper objectMapper, CommonConfig commonConfig) {
         this.commonConfig = commonConfig;
@@ -64,7 +61,7 @@ public class ProductAlertServiceCEImpl implements ProductAlertServiceCE {
                     log.error("exception while getting and filtering product alert messages", error);
                     throw new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR, error.getMessage());
                 })
-                .subscribeOn(scheduler);
+                .subscribeOn(LoadShifter.elasticScheduler);
     }
 
     public Boolean evaluateAlertApplicability(ProductAlertResponseDTO productAlertResponseDTO) {

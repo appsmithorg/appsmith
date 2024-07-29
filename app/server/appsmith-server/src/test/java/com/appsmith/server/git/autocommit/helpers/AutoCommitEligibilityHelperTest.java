@@ -10,6 +10,7 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.AutoCommitTriggerDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.git.GitRedisUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
@@ -21,26 +22,26 @@ import net.minidev.json.JSONObject;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitCommandConstantsCE.AUTO_COMMIT_ELIGIBILITY;
+import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 public class AutoCommitEligibilityHelperTest {
 
     @SpyBean
@@ -60,6 +61,8 @@ public class AutoCommitEligibilityHelperTest {
 
     @Autowired
     GitFileSystemTestHelper gitFileSystemTestHelper;
+
+    JsonSchemaVersions jsonSchemaVersions = new JsonSchemaVersions();
 
     private static final int RANDOM_DSL_VERSION_NUMBER = 123;
     private static final String REPO_NAME = "test-repo";
@@ -125,7 +128,7 @@ public class AutoCommitEligibilityHelperTest {
                         WORKSPACE_ID, gitArtifactMetadata, pageDTO, Boolean.TRUE, ArtifactType.APPLICATION);
 
         // this leads to server migration requirement as true
-        Mockito.doReturn(Mono.just(JsonSchemaVersions.serverVersion - 1))
+        Mockito.doReturn(Mono.just(jsonSchemaVersions.getServerVersion() - 1))
                 .when(commonGitFileUtils)
                 .getMetadataServerSchemaMigrationVersion(
                         WORKSPACE_ID, gitArtifactMetadata, Boolean.TRUE, ArtifactType.APPLICATION);
@@ -156,7 +159,7 @@ public class AutoCommitEligibilityHelperTest {
                         WORKSPACE_ID, gitArtifactMetadata, pageDTO, Boolean.TRUE, ArtifactType.APPLICATION);
 
         // this leads to server migration requirement as false
-        Mockito.doReturn(Mono.just(JsonSchemaVersions.serverVersion))
+        Mockito.doReturn(Mono.just(jsonSchemaVersions.getServerVersion()))
                 .when(commonGitFileUtils)
                 .getMetadataServerSchemaMigrationVersion(
                         WORKSPACE_ID, gitArtifactMetadata, Boolean.FALSE, ArtifactType.APPLICATION);
@@ -187,7 +190,7 @@ public class AutoCommitEligibilityHelperTest {
                         WORKSPACE_ID, gitArtifactMetadata, pageDTO, Boolean.TRUE, ArtifactType.APPLICATION);
 
         // this leads to server migration requirement as false
-        Mockito.doReturn(Mono.just(JsonSchemaVersions.serverVersion))
+        Mockito.doReturn(Mono.just(jsonSchemaVersions.getServerVersion()))
                 .when(commonGitFileUtils)
                 .getMetadataServerSchemaMigrationVersion(
                         WORKSPACE_ID, gitArtifactMetadata, Boolean.FALSE, ArtifactType.APPLICATION);
@@ -209,6 +212,11 @@ public class AutoCommitEligibilityHelperTest {
 
     @Test
     public void isAutoCommitRequired_whenOnlyServerIsEligible_verifyDTOReturnTrue() {
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
+
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
+                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
 
         GitArtifactMetadata gitArtifactMetadata = createGitMetadata();
         PageDTO pageDTO = createPageDTO(RANDOM_DSL_VERSION_NUMBER);
@@ -219,7 +227,7 @@ public class AutoCommitEligibilityHelperTest {
                         WORKSPACE_ID, gitArtifactMetadata, pageDTO, Boolean.TRUE, ArtifactType.APPLICATION);
 
         // this leads to server migration requirement as true
-        Mockito.doReturn(Mono.just(JsonSchemaVersions.serverVersion - 1))
+        Mockito.doReturn(Mono.just(jsonSchemaVersions.getServerVersion() - 1))
                 .when(commonGitFileUtils)
                 .getMetadataServerSchemaMigrationVersion(
                         WORKSPACE_ID, gitArtifactMetadata, Boolean.FALSE, ArtifactType.APPLICATION);
@@ -243,7 +251,7 @@ public class AutoCommitEligibilityHelperTest {
         GitArtifactMetadata gitArtifactMetadata = createGitMetadata();
 
         // this leads to server migration requirement as false
-        Mockito.doReturn(Mono.just(JsonSchemaVersions.serverVersion))
+        Mockito.doReturn(Mono.just(jsonSchemaVersions.getServerVersion()))
                 .when(commonGitFileUtils)
                 .getMetadataServerSchemaMigrationVersion(
                         WORKSPACE_ID, gitArtifactMetadata, Boolean.TRUE, ArtifactType.APPLICATION);
@@ -261,8 +269,14 @@ public class AutoCommitEligibilityHelperTest {
     public void isServerMigrationRequired_whenJsonSchemaIsAhead_returnsTrue() {
         GitArtifactMetadata gitArtifactMetadata = createGitMetadata();
 
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
+
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
+                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
+
         // this leads to server migration requirement as true
-        Mockito.doReturn(Mono.just(JsonSchemaVersions.serverVersion - 1))
+        Mockito.doReturn(Mono.just(jsonSchemaVersions.getServerVersion() - 1))
                 .when(commonGitFileUtils)
                 .getMetadataServerSchemaMigrationVersion(
                         WORKSPACE_ID, gitArtifactMetadata, Boolean.FALSE, ArtifactType.APPLICATION);
@@ -372,6 +386,12 @@ public class AutoCommitEligibilityHelperTest {
 
     @Test
     public void isServerMigrationRequired_fileSystemOperation_returnsTrue() throws GitAPIException, IOException {
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.release_git_autocommit_feature_enabled.name(), TRUE));
+
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags())
+                .thenAnswer((Answer<CachedFeatures>) invocations -> cachedFeatures);
+
         ApplicationJson applicationJson = new ApplicationJson();
 
         Application application = new Application();
@@ -385,8 +405,8 @@ public class AutoCommitEligibilityHelperTest {
         applicationJson.setPageList(List.of());
         applicationJson.setPublishedTheme(new Theme());
         applicationJson.setEditModeTheme(new Theme());
-        applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
-        applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion - 1);
+        applicationJson.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
+        applicationJson.setServerSchemaVersion(jsonSchemaVersions.getServerVersion() - 1);
 
         ModifiedResources modifiedResources = new ModifiedResources();
         modifiedResources.setAllModified(true);

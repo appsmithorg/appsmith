@@ -112,6 +112,7 @@ function UIEntitySidebar({
     >
       <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
+          // @ts-expect-error fix this the next time the file is edited
           autoComplete="off"
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
@@ -137,9 +138,7 @@ function UIEntitySidebar({
           </Text>
         )}
         <div>
-          {Object.keys(filteredCards).map((tag) => {
-            const cardsForThisTag = filteredCards[tag as WidgetTags];
-
+          {Object.entries(filteredCards).map(([tag, cardsForThisTag]) => {
             if (!cardsForThisTag?.length && !entityLoading[tag as WidgetTags]) {
               return null;
             }

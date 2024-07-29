@@ -24,6 +24,7 @@ import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
+import com.appsmith.server.repositories.DryOperationRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -65,6 +66,8 @@ public class ImportServiceCEImpl implements ImportServiceCE {
     private final ImportableService<Datasource> datasourceImportableService;
     private final GsonBuilder gsonBuilder;
     private final ArtifactExchangeJsonAdapter artifactExchangeJsonAdapter;
+    private final JsonSchemaMigration jsonSchemaMigration;
+    private final DryOperationRepository dryOperationRepository;
 
     /**
      * This method provides the importService specific to the artifact based on the ArtifactType.
@@ -420,7 +423,7 @@ public class ImportServiceCEImpl implements ImportServiceCE {
         String artifactContextString = artifactSpecificConstantsMap.get(FieldName.ARTIFACT_CONTEXT);
 
         // step 1: Schema Migration
-        ArtifactExchangeJson importedDoc = JsonSchemaMigration.migrateArtifactToLatestSchema(artifactExchangeJson);
+        ArtifactExchangeJson importedDoc = jsonSchemaMigration.migrateArtifactToLatestSchema(artifactExchangeJson);
 
         // Step 2: Validation of artifact Json
         // check for validation error and raise exception if error found
@@ -501,6 +504,10 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                     return Mono.error(
                             new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
+                // execute dry run for datasource
+                .flatMap(importableArtifact -> dryOperationRepository
+                        .executeAllDbOps(mappedImportableResourcesDTO)
+                        .thenReturn(importableArtifact))
                 .as(transactionalOperator::transactional);
 
         final Mono<? extends Artifact> resultMono = importMono

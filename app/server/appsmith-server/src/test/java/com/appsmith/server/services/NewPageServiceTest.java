@@ -24,11 +24,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -36,7 +34,6 @@ import reactor.test.StepVerifier;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -46,7 +43,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @Slf4j
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 public class NewPageServiceTest {
 
     @Autowired
@@ -431,7 +427,7 @@ public class NewPageServiceTest {
                     dependencyMap.put("key3", List.of("val1", "val2"));
                     return newPageService
                             .updateDependencyMap(pageDTO.getId(), dependencyMap, null)
-                            .then(newPageService.findById(pageDTO.getId(), Optional.empty()));
+                            .then(newPageService.findById(pageDTO.getId(), null));
                 });
 
         StepVerifier.create(newPageMono)
@@ -468,7 +464,7 @@ public class NewPageServiceTest {
                     return newPageService
                             .updateDependencyMap(pageDTO.getId(), dependencyMap, null)
                             .flatMap(page -> applicationPageService.publish(application.getId(), null, false))
-                            .then(newPageService.findById(pageDTO.getId(), Optional.empty()));
+                            .then(newPageService.findById(pageDTO.getId(), null));
                 });
 
         StepVerifier.create(newPageMono)
@@ -504,7 +500,7 @@ public class NewPageServiceTest {
                 })
                 .flatMap(pageDTO -> newPageService
                         .updateDependencyMap(pageDTO.getId(), null, null)
-                        .then(newPageService.findById(pageDTO.getId(), Optional.empty())));
+                        .then(newPageService.findById(pageDTO.getId(), null)));
 
         StepVerifier.create(newPageMono)
                 .assertNext(newPage -> {

@@ -31,7 +31,7 @@ describe(
           );
           cy.LogOut();
 
-          cy.LogintoApp(
+          cy.LoginFromAPI(
             Cypress.env("TESTUSERNAME1"),
             Cypress.env("TESTPASSWORD1"),
           );
@@ -52,7 +52,7 @@ describe(
     });
 
     it("2. User with developer access,should not be able to export the app", function () {
-      cy.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
@@ -68,7 +68,7 @@ describe(
 
         cy.LogOut();
 
-        cy.LogintoApp(
+        cy.LoginFromAPI(
           Cypress.env("TESTUSERNAME1"),
           Cypress.env("TESTPASSWORD1"),
         );
@@ -90,7 +90,7 @@ describe(
     });
 
     it("3. User with viewer access,should not be able to export the app", function () {
-      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       if (CURRENT_REPO === REPO.EE) adminSettings.EnableGAC(false, true);
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
@@ -106,7 +106,7 @@ describe(
         );
         cy.LogOut();
 
-        cy.LogintoApp(
+        cy.LoginFromAPI(
           Cypress.env("TESTUSERNAME1"),
           Cypress.env("TESTPASSWORD1"),
         );

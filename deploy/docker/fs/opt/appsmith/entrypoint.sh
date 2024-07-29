@@ -426,25 +426,10 @@ init_postgres() {
     chown -R postgres:postgres "$POSTGRES_DB_PATH" "$TMP/pg-runtime"
 
     if [[ -e "$POSTGRES_DB_PATH/PG_VERSION" ]]; then
-      tlog "Found existing Postgres, Skipping initialization"
+      /opt/appsmith/pg-upgrade.sh
     else
-      tlog "Initializing local postgresql database"
-      mkdir -p "$POSTGRES_DB_PATH"
-
-      # Postgres does not allow it's server to be run with super user access, we use user postgres and the file system owner also needs to be the same user postgres
-      chown postgres:postgres "$POSTGRES_DB_PATH"
-
-      # Initialize the postgres db file system
-      su postgres -c "/usr/lib/postgresql/13/bin/initdb -D $POSTGRES_DB_PATH"
-      sed -Ei "s,^#(unix_socket_directories =).*,\\1 '$TMP/pg-runtime'," "$POSTGRES_DB_PATH/postgresql.conf"
-
-      # Start the postgres server in daemon mode
-      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl -D $POSTGRES_DB_PATH start"
-
-      # Create mockdb db and user and populate it with the data
-      seed_embedded_postgres
-      # Stop the postgres daemon
-      su postgres -c "/usr/lib/postgresql/13/bin/pg_ctl stop -D $POSTGRES_DB_PATH"
+      tlog "Initializing local Postgres data folder"
+      su postgres -c "env PATH='$PATH' initdb -D $POSTGRES_DB_PATH"
     fi
   else
     runEmbeddedPostgres=0
@@ -452,26 +437,19 @@ init_postgres() {
 
 }
 
-seed_embedded_postgres(){
-    # Create mockdb database
-    psql -U postgres -c "CREATE DATABASE mockdb;"
-    # Create mockdb superuser
-    su postgres -c "/usr/lib/postgresql/13/bin/createuser mockdb -s"
-    # Dump the sql file containing mockdb data
-    psql -U postgres -d mockdb --file='/opt/appsmith/templates/mockdb_postgres.sql'
+safe_init_postgres() {
+  runEmbeddedPostgres=1
+  # fail safe to prevent entrypoint from exiting, and prevent postgres from starting
+  # when runEmbeddedPostgres=0 , postgres conf file for supervisord will not be copied
+  # so postgres will not be started by supervisor. Explicit message helps us to know upgrade script failed.
 
-    # Create users database
-    psql -U postgres -c "CREATE DATABASE users;"
-    # Create users superuser
-    su postgres -c "/usr/lib/postgresql/13/bin/createuser users -s"
-    # Dump the sql file containing mockdb data
-    psql -U postgres -d users --file='/opt/appsmith/templates/users_postgres.sql'
-}
-
-safe_init_postgres(){
-runEmbeddedPostgres=1
-# fail safe to prevent entrypoint from exiting, and prevent postgres from starting
-init_postgres || runEmbeddedPostgres=0
+  if init_postgres; then
+    tlog "init_postgres succeeded."
+  else
+    local exit_status=$?
+    tlog "init_postgres failed with exit status $exit_status."
+    runEmbeddedPostgres=0
+  fi
 }
 
 setup_caddy() {

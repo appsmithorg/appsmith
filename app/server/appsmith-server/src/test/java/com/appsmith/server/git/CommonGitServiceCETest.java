@@ -84,7 +84,6 @@ import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -100,7 +99,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -139,7 +137,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -230,6 +227,12 @@ public class CommonGitServiceCETest {
     @Autowired
     CacheableRepositoryHelper cacheableRepositoryHelper;
 
+    @Autowired
+    JsonSchemaMigration jsonSchemaMigration;
+
+    @Autowired
+    JsonSchemaVersions jsonSchemaVersions;
+
     @SpyBean
     AnalyticsService analyticsService;
 
@@ -290,7 +293,7 @@ public class CommonGitServiceCETest {
 
         return stringifiedFile
                 .map(data -> gson.fromJson(data, ApplicationJson.class))
-                .map(JsonSchemaMigration::migrateArtifactToLatestSchema)
+                .map(jsonSchemaMigration::migrateArtifactToLatestSchema)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
     }
 
@@ -2295,8 +2298,8 @@ public class CommonGitServiceCETest {
                     Application application = tuple.getT2();
                     assertThat(commitMsg).contains("sample response for commit");
                     assertThat(commitMsg).contains("pushed successfully");
-                    assertThat(application.getClientSchemaVersion()).isEqualTo(JsonSchemaVersions.clientVersion);
-                    assertThat(application.getServerSchemaVersion()).isEqualTo(JsonSchemaVersions.serverVersion);
+                    assertThat(application.getClientSchemaVersion()).isEqualTo(jsonSchemaVersions.getClientVersion());
+                    assertThat(application.getServerSchemaVersion()).isEqualTo(jsonSchemaVersions.getServerVersion());
                     assertThat(application.getIsManualUpdate()).isFalse();
                 })
                 .verifyComplete();

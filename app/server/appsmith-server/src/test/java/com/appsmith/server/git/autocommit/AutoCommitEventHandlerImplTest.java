@@ -29,7 +29,6 @@ import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +37,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -60,7 +58,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -102,6 +99,8 @@ public class AutoCommitEventHandlerImplTest {
     ProjectProperties projectProperties;
 
     AutoCommitEventHandler autoCommitEventHandler;
+
+    JsonSchemaVersions jsonSchemaVersions = new JsonSchemaVersions();
 
     private static final String defaultApplicationId = "default-app-id",
             branchName = "develop",
@@ -439,7 +438,7 @@ public class AutoCommitEventHandlerImplTest {
 
         ApplicationJson applicationJson1 = new ApplicationJson();
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(applicationJson, applicationJson1);
-        applicationJson1.setServerSchemaVersion(JsonSchemaVersions.serverVersion + 1);
+        applicationJson1.setServerSchemaVersion(jsonSchemaVersions.getServerVersion() + 1);
 
         doReturn(Mono.just(applicationJson1))
                 .when(jsonSchemaMigration)
@@ -573,7 +572,7 @@ public class AutoCommitEventHandlerImplTest {
 
         ApplicationJson applicationJson1 = new ApplicationJson();
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(applicationJson, applicationJson1);
-        applicationJson1.setServerSchemaVersion(JsonSchemaVersions.serverVersion + 1);
+        applicationJson1.setServerSchemaVersion(jsonSchemaVersions.getServerVersion() + 1);
 
         doReturn(Mono.just(applicationJson1)).when(jsonSchemaMigration).migrateApplicationJsonToLatestSchema(any());
 

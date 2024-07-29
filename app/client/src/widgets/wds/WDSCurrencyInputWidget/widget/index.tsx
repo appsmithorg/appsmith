@@ -109,7 +109,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      isValid: `{{(()=>{${derivedProperties.isValid}})()}}`,
+      isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
     };
   }
 
@@ -177,7 +177,9 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
       Sentry.captureException(e);
     }
 
-    this.props.updateWidgetMetaProperty("parsedText", String(formattedValue), {
+    this.props.updateWidgetMetaProperty("parsedText", String(formattedValue));
+
+    this.props.updateWidgetMetaProperty("rawText", value, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
@@ -297,8 +299,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   }
 
   getWidgetView() {
-    const value = this.props.parsedText ?? "";
-
+    const value = this.props.rawText ?? "";
     const validation = validateInput(this.props);
 
     return (
@@ -308,6 +309,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
         currencyCode={this.props.currencyCode}
         defaultValue={this.props.defaultText}
         errorMessage={validation.errorMessage}
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
         isReadOnly={this.props.isReadOnly}
@@ -319,7 +321,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         tooltip={this.props.tooltip}
-        validationStatus={validation.validattionStatus}
+        validationStatus={validation.validationStatus}
         value={value}
         widgetId={this.props.widgetId}
       />

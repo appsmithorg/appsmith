@@ -1,6 +1,4 @@
 {
-  "id": "64746c35c8cae423b46bf2b0",
-  "userPermissions": [],
   "dsl": {
       "widgetName": "MainContainer",
       "backgroundColor": "none",
@@ -251,27 +249,5 @@
               "placement": "CENTER"
           }
       ]
-  },
-  "layoutOnLoadActions": [
-      [
-          {
-              "id": "64746c35c8cae423b46bf2b3",
-              "name": "Incorrect_users",
-              "confirmBeforeExecute": false,
-              "pluginType": "API",
-              "jsonPathKeys": [],
-              "timeoutInMillisecond": 10000
-          },
-          {
-              "id": "64746c35c8cae423b46bf2b2",
-              "name": "Correct_users",
-              "confirmBeforeExecute": false,
-              "pluginType": "API",
-              "jsonPathKeys": [],
-              "timeoutInMillisecond": 10000
-          }
-      ]
-  ],
-  "layoutOnLoadActionErrors": [],
-  "new": false
+  }
 }

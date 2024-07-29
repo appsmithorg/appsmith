@@ -1,0 +1,45 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as TagStories from "./Tag.stories";
+
+<Meta of={TagStories} />
+
+# Tag
+
+Use tags to categorize items with descriptive keywords. Use short labels for easy scanning. Use two words only if necessary to differentiate it.
+
+<Canvas of={TagStories.TagStory} />
+
+## Anatomy
+
+![Tag anatomy](./docs/tag-anatomy.png)
+
+## Spacing
+
+![Tag spacing](./docs/tag-spacing.png)
+
+## Kind
+
+### Special
+
+Used to indicate features that are available as a custom option under Enterprise Edition
+
+<Canvas of={TagStories.SpecialTag} />
+
+### Premium
+
+Used to tag and upsell features that are included in the Business Edition
+
+<Canvas of={TagStories.PremiumTag} />
+
+## Removing tags
+
+Tags can be permanent or closable (by displaying the close icon). The `isClosable` prop enables users to actively remove any tag and is frequently utilized in filtering.
+
+<Canvas of={TagStories.TagCloseStory} />
+
+## Usage
+
+- Use sentence case for writing labels.
+- Keep labels short to prevent wrapping.
+- Avoid overloading an interface with tags as it reduces their meaning and makes them easier to overlook.
