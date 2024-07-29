@@ -16,6 +16,7 @@ describe(
       const valueToType = "1000000";
       cy.get(_.locators._input).type(valueToType);
       cy.get(".t--property-control-currency").click();
+      cy.get(widgetInput).should('have.value', '10,00,000');
       cy.get(".t--property-control-currency").type("usd");
       cy.selectDropdownValue(
         ".t--property-control-currency input",
@@ -25,6 +26,7 @@ describe(
       cy.get(_.locators._input).type(valueToType);
       cy.scrollTo('top', { ensureScrollable: false });
       cy.get(".t--property-control-currency").click();
+      cy.get(widgetInput).should('have.value', '1,000,000');
     });
   },
 );

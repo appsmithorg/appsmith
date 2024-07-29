@@ -13,7 +13,7 @@ export const countryToFlag = (isoCode: string) => {
         )
     : isoCode;
 };
-export const getLocale = (countryCode: string) => {
+export const getLocaleString = (countryCode: string) => {
   return "en-" + countryCode;
 };
 
@@ -30,7 +30,7 @@ export const formatCurrencyNumber = (
   countryCode: string,
 ) => {  const fractionDigits = decimalsInCurrency || 0;
   const hasDecimal = value.includes(getLocaleDecimalSeperator());
-  const locale = getLocale(countryCode);
+  const locale = getLocaleString(countryCode);
   const formatter = new Intl.NumberFormat(locale, {
     style: "decimal",
     minimumFractionDigits: hasDecimal ? fractionDigits : 0,
