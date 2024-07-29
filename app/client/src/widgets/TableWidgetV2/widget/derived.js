@@ -327,7 +327,9 @@ export default {
         primaryColumns[id] &&
         primaryColumns[id].columnType === "select" &&
         primaryColumns[id].sortBy &&
-        primaryColumns[id].sortBy === "label"
+        primaryColumns[id].sortBy === "label" &&
+        primaryColumns[id].selectOptions &&
+        primaryColumns[id].selectOptions.length
       ) {
         selectColumnKeysWithSortByLabel.push(id);
       }
@@ -337,9 +339,9 @@ export default {
     If there are select columns, 
     transform the specific columns data to show the label instead of the value for sorting 
     */
-    let transformedSortTableData;
+    let processedTableDataWithLabelInseadOfValue;
     if (selectColumnKeysWithSortByLabel.length) {
-      const transformedValueToLabelData = processedTableData.map((row) => {
+      const transformedValueToLabelTableData = processedTableData.map((row) => {
         const newRow = { ...row };
         selectColumnKeysWithSortByLabel.forEach((key) => {
           const value = row[key];
@@ -354,7 +356,8 @@ export default {
 
         return newRow;
       });
-      transformedSortTableData = transformedValueToLabelData;
+      processedTableDataWithLabelInseadOfValue =
+        transformedValueToLabelTableData;
     }
 
     if (sortByColumnId) {
@@ -391,11 +394,12 @@ export default {
         }
       };
 
-      const tableDataForSorting = selectColumnKeysWithSortByLabel.length
-        ? transformedSortTableData
-        : processedTableData;
+      const transformedTableDataForSorting =
+        selectColumnKeysWithSortByLabel.length
+          ? processedTableDataWithLabelInseadOfValue
+          : processedTableData;
 
-      sortedTableData = tableDataForSorting.sort((a, b) => {
+      sortedTableData = transformedTableDataForSorting.sort((a, b) => {
         if (_.isPlainObject(a) && _.isPlainObject(b)) {
           if (
             isEmptyOrNil(a[sortByColumnOriginalId]) ||
@@ -450,7 +454,7 @@ export default {
       });
 
       if (selectColumnKeysWithSortByLabel.length) {
-        const finalSortedTableData = sortedTableData.map((row) => {
+        const transformedLabelToValueData = sortedTableData.map((row) => {
           const newRow = { ...row };
           selectColumnKeysWithSortByLabel.forEach((key) => {
             const label = row[key];
@@ -466,7 +470,7 @@ export default {
 
           return newRow;
         });
-        sortedTableData = finalSortedTableData;
+        sortedTableData = transformedLabelToValueData;
       }
     } else {
       sortedTableData = [...processedTableData];
