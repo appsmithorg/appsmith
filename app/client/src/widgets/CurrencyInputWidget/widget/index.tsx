@@ -471,6 +471,18 @@ class CurrencyInputWidget extends BaseInputWidget<
     ) {
       this.onCurrencyTypeChange(this.props.currencyCode);
     }
+    if (
+      // Check if the 'decimals' prop is defined, is a non-negative number, and has changed from the previous props
+      this.props.decimals !== undefined &&
+      this.props.decimals >= 0 &&
+      this.props.decimals !== prevProps.decimals
+    ) {
+      // Call the formatCurrencyNumber function to truncate and round off the current 'text' prop to the specified number of decimal places
+      // If 'text' is undefined or empty, default to an empty string
+      const truncatedValue = formatCurrencyNumber(this.props.decimals, this.props.text || "");
+      // Update the widget's meta property 'text' with the truncated value
+      this.props.updateWidgetMetaProperty("text", truncatedValue);
+    }
   }
 
   formatText() {
