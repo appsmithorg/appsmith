@@ -37,7 +37,7 @@ describe(
         x: 300,
         y: 300,
       });
-      _.propPane.openPropertyPane("listwidgetv2");
+      propPane.openPropertyPane("listwidgetv2");
 
       cy.get(toggleJSButton("onitemclick")).click({ force: true });
 

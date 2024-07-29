@@ -48,7 +48,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       cy.get(`${fieldPrefix}-name`).find("button").should("have.length", 2);
-      _.propPane.openPropertyPane("jsonformwidget");
+      propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("name");
       cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
     });
