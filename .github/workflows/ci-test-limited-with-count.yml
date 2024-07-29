@@ -349,6 +349,15 @@ jobs:
     #         --browser ${{ env.BROWSER_PATH }} 
           
       - name: Trim number of cypress log files
+        env:
+            CYPRESS_TESTUSERNAME1: ${{ secrets.CYPRESS_TESTUSERNAME1 }}
+            CYPRESS_TESTPASSWORD1: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+            CYPRESS_TESTUSERNAME2: ${{ secrets.CYPRESS_TESTUSERNAME2 }}
+            CYPRESS_TESTPASSWORD2: ${{ secrets.CYPRESS_TESTPASSWORD1 }}
+            CYPRESS_TESTUSERNAME3: ${{ secrets.CYPRESS_TESTUSERNAME3 }}
+            CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
+            CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
+            CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
         run: |
           cd app/client && npx cypress-repeat run -n 4 --force --spec "cypress/e2e/Regression/ClientSide/DynamicHeight/TextWidget_Spec.ts" --config-file "cypress_ci_custom.config.ts" --env "NODE_ENV=development"
 
