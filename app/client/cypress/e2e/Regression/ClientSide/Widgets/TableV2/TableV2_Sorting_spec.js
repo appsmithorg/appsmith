@@ -5,51 +5,51 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 import PageList from "../../../../../support/Pages/PageList";
 
 const demoTableData = `
-        {{
-[
-  {
-    role: 1,
-    id: 1,
-    name: "Alice Johnson",
-    email: "alice.johnson@example.com",
-    age: 28,
-    gender: 2
-  },
-  {
-    role: 2,
-    id: 2,
-    name: "Bob Smith",
-    email: "bob.smith@example.com",
-    age: 34,
-    gender: 1
-  },
-  {
-    role: 3,
-    id: 3,
-    name: "Charlie Brown",
-    email: "charlie.brown@example.com",
-    age: 25,
-    gender: 3
-  },
-  {
-    role: 2,
-    id: 4,
-    name: "Diana Prince",
-    email: "diana.prince@example.com",
-    age: 30,
-    gender: 2
-  },
-  {
-    role: 1,
-    id: 5,
-    name: "Evan Williams",
-    email: "evan.williams@example.com",
-    age: 27,
-    gender: 1
-  }
-]
+{{
+  [
+    {
+      role: 1,
+      id: 1,
+      name: "Alice Johnson",
+      email: "alice.johnson@example.com",
+      age: 28,
+      gender: 2
+    },
+    {
+      role: 2,
+      id: 2,
+      name: "Bob Smith",
+      email: "bob.smith@example.com",
+      age: 34,
+      gender: 1
+    },
+    {
+      role: 3,
+      id: 3,
+      name: "Charlie Brown",
+      email: "charlie.brown@example.com",
+      age: 25,
+      gender: 3
+    },
+    {
+      role: 2,
+      id: 4,
+      name: "Diana Prince",
+      email: "diana.prince@example.com",
+      age: 30,
+      gender: 2
+    },
+    {
+      role: 1,
+      id: 5,
+      name: "Evan Williams",
+      email: "evan.williams@example.com",
+      age: 27,
+      gender: 1
+    }
+  ]
 }}
-        `;
+  `;
 
 describe(
   "Table Widget V2 Sorting",
@@ -88,8 +88,8 @@ describe(
       // Rename customColumn1 to customColumn2
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("customColumn1");
-      cy.get(".t--property-pane-title").click({ force: true });
-      cy.get(".t--property-pane-title")
+      cy.get(_.propPane._paneTitle).click({ force: true });
+      cy.get(_.propPane._paneTitle)
         .type("customColumn2", { delay: 300 })
         .type("{enter}");
 
@@ -127,13 +127,13 @@ describe(
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("role");
       cy.get(commonlocators.changeColType).last().click();
-      cy.get(".t--dropdown-option").children().contains("Select").click();
+      cy.get(_.locators._dropdownText).children().contains("Select").click();
       cy.wait("@updateLayout");
 
       // add dummy select data to the column
-      cy.get(".t--property-control-options").should("exist");
+      cy.get(_.locators._controlOption).should("exist");
       cy.updateCodeInput(
-        ".t--property-control-options",
+        _.locators._controlOption,
         `
       {{
         [
@@ -167,17 +167,17 @@ describe(
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("role");
       cy.get(commonlocators.changeColType).last().click();
-      cy.get(".t--dropdown-option").children().contains("Select").click();
+      cy.get(_.locators._dropdownText).children().contains("Select").click();
 
       // change sortBy to label
       cy.get(commonlocators.changeSortBy).last().click();
-      cy.get(".t--dropdown-option").children().contains("Label").click();
+      cy.get(_.locators._dropdownText).children().contains("Label").click();
       cy.wait("@updateLayout");
 
       // add dummy select data to the column
-      cy.get(".t--property-control-options").should("exist");
+      cy.get(_.locators._controlOption).should("exist");
       cy.updateCodeInput(
-        ".t--property-control-options",
+        _.locators._controlOption,
         `
       {{
         [
