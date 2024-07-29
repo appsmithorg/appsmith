@@ -360,6 +360,7 @@ jobs:
             CYPRESS_TESTPASSWORD3: ${{ secrets.CYPRESS_TESTPASSWORD3 }}
             CYPRESS_TESTUSERNAME4: ${{ secrets.CYPRESS_TESTUSERNAME4 }}
             CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
+            NODE_ENV: development
         run: |
             cd app/client
             npx cypress-repeat run -n 4 --force \
@@ -376,7 +377,7 @@ jobs:
                 CYPRESS_TESTUSERNAME4=${{ secrets.CYPRESS_TESTUSERNAME4 }},\
                 CYPRESS_TESTPASSWORD4=${{ secrets.CYPRESS_TESTPASSWORD4 }},\
                 NODE_ENV=development
-                
+
       - name: Trim number of cypress log files
         if: failure()
         run: |
