@@ -21,7 +21,7 @@ describe(
     });
     it("1. Copy paste table widget and valdiate application status", function () {
       const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.widgetText(
         "Table1",
         widgetsPage.tableWidgetV2,

@@ -46,12 +46,12 @@ describe(
     });
 
     it("1. Setup necessary data and widgets", () => {
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
 
       cy.wait("@updateLayout");
 
       // Update widgets with right data and confirm
-      cy.openPropertyPaneByWidgetName("TriggeredRow", "textwidget");
+      _.propPane.openPropertyPaneByWidgetName("TriggeredRow", "textwidget");
       cy.testJsontext("text", `{{List1.triggeredItemView}}`);
       cy.get(
         `${widgetSelector("TriggeredRow")} ${commonlocators.bodyTextStyle}`,
@@ -59,13 +59,13 @@ describe(
         .first()
         .should("have.text", JSON.stringify({}));
 
-      cy.openPropertyPaneByWidgetName("SelectedRow", "textwidget");
+      _.propPane.openPropertyPaneByWidgetName("SelectedRow", "textwidget");
       cy.testJsontext("text", `{{List1.selectedItemView}}`);
       cy.get(`${widgetSelector("SelectedRow")} ${commonlocators.bodyTextStyle}`)
         .first()
         .should("have.text", JSON.stringify({}));
 
-      cy.openPropertyPaneByWidgetName("SelectedItem", "textwidget");
+      _.propPane.openPropertyPaneByWidgetName("SelectedItem", "textwidget");
       cy.testJsontext("text", `{{List1.selectedItem}}`);
       cy.get(
         `${widgetSelector("SelectedItem")} ${commonlocators.bodyTextStyle}`,
@@ -73,13 +73,13 @@ describe(
         .first()
         .should("not.have.text");
 
-      cy.openPropertyPaneByWidgetName("PageNumber", "textwidget");
+      _.propPane.openPropertyPaneByWidgetName("PageNumber", "textwidget");
       cy.testJsontext("text", `{{List1.pageNo}}`);
       cy.get(`${widgetSelector("PageNumber")} ${commonlocators.bodyTextStyle}`)
         .first()
         .should("have.text", "1");
 
-      cy.openPropertyPaneByWidgetName("PageSize", "textwidget");
+      _.propPane.openPropertyPaneByWidgetName("PageSize", "textwidget");
       cy.testJsontext("text", `{{List1.pageSize}}`);
 
       cy.get(`${widgetSelector("PageSize")} ${commonlocators.bodyTextStyle}`)

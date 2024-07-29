@@ -10,7 +10,7 @@ describe(
     });
 
     it("1. onDropdownOpen and onDropdownClose should be triggered from the select widget", () => {
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
 
       _.propPane.EnterJSContext(
         "onDropdownOpen",
@@ -28,7 +28,7 @@ describe(
     });
 
     it("2. onDropdownOpen and onDropdownClose should be triggered from the multiselect widget", () => {
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       _.propPane.EnterJSContext(
         "onDropdownOpen",
         "{{showAlert('MultiSelect1 dropdown opened', 'success')}}",
@@ -45,7 +45,7 @@ describe(
     });
 
     it("3. onDropdownOpen and onDropdownClose should be triggered from the treeselect widget", () => {
-      cy.openPropertyPane("singleselecttreewidget");
+      _.propPane.openPropertyPane("singleselecttreewidget");
       _.propPane.EnterJSContext(
         "onDropdownOpen",
         "{{showAlert('TreeSelect1 dropdown opened', 'success')}}",
@@ -63,7 +63,7 @@ describe(
     });
 
     it("4. onDropdownOpen and onDropdownClose should be triggered from the multitreeselect widget", () => {
-      cy.openPropertyPane("multiselecttreewidget");
+      _.propPane.openPropertyPane("multiselecttreewidget");
 
       _.propPane.EnterJSContext(
         "onDropdownOpen",

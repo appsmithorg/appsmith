@@ -35,7 +35,7 @@ describe(
         ],
       };
       cy.addDsl(dslWithoutSchema);
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       cy.openFieldConfiguration("object");
@@ -43,7 +43,7 @@ describe(
       cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
 
       cy.closePropertyPane();
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("array");
       cy.openFieldConfiguration("__array_item__", false);
       cy.openFieldConfiguration("select", false);
@@ -96,7 +96,7 @@ describe(
         ],
       };
       cy.addDsl(dslWithoutSchema);
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       cy.openFieldConfiguration("object");
@@ -104,7 +104,7 @@ describe(
       cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Multiselect$/);
 
       cy.closePropertyPane();
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("array");
       cy.openFieldConfiguration("__array_item__", false);
       cy.openFieldConfiguration("multiselect", false);

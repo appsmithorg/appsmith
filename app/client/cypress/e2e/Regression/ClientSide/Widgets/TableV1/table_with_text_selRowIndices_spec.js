@@ -11,7 +11,7 @@ describe(
     });
 
     it("Check if the selectedRowIndices does not contain -1", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
 
       //Update the property default selected row to blank
       cy.updateCodeInput(".t--property-control-defaultselectedrow", "");

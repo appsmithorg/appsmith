@@ -13,7 +13,7 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
     agHelper.AddDsl("layoutdsl");
   });
   it("1. Tab Widget Functionality Test", function () {
-    cy.openPropertyPane("tabswidget");
+    _.propPane.openPropertyPane("tabswidget");
     /**
      * @param{Text} Random Text
      * @param{TabWidget}Mouseover
@@ -62,7 +62,7 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
   });
 
   it("3. Tab Widget Functionality To Unchecked Visible Widget", function () {
-    cy.openPropertyPane("tabswidget");
+    _.propPane.openPropertyPane("tabswidget");
     agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
     deployMode.DeployApp();
     cy.get(publish.tabWidget).should("not.exist");
@@ -70,7 +70,7 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
   });
 
   it("4. Tab Widget Functionality To Check Visible Widget", function () {
-    cy.openPropertyPane("tabswidget");
+    _.propPane.openPropertyPane("tabswidget");
     agHelper.CheckUncheck(commonlocators.visibleCheckbox);
     deployMode.DeployApp();
     cy.get(publish.tabWidget).should("be.visible");
@@ -78,7 +78,7 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
   });
 
   it("5. Tab Widget Functionality To Check tab invisiblity", function () {
-    cy.openPropertyPane("tabswidget");
+    _.propPane.openPropertyPane("tabswidget");
     cy.xpath(Layoutpage.tabEdit.replace("tabName", "Tab 1")).click({
       force: true,
     });
@@ -90,7 +90,7 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
   });
 
   it("6. Tab Widget Functionality To Check tab visibility", function () {
-    cy.openPropertyPane("tabswidget");
+    _.propPane.openPropertyPane("tabswidget");
     cy.xpath(Layoutpage.tabEdit.replace("tabName", "Tab 1")).click({
       force: true,
     });
@@ -102,7 +102,7 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
   });
   /* Test to be revisted as the undo action is inconsistent in automation
   it("7. Tab Widget Functionality To Check undo action after delete", function() {
-    cy.openPropertyPane("tabswidget");
+    _.propPane.openPropertyPane("tabswidget");
     cy.get(Layoutpage.tabDelete)
       .eq(1)
       .click({ force: true });
@@ -131,7 +131,7 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
     const leftNavButtonSelector =
       Layoutpage.tabWidget + " .scroll-nav-left-button";
 
-    cy.openPropertyPane("tabswidget");
+    _.propPane.openPropertyPane("tabswidget");
     // Add a new tab
     agHelper.ClickButton("Add tab");
     agHelper.ClickButton("Add tab");

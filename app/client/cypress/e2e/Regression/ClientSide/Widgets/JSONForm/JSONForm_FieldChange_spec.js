@@ -24,7 +24,7 @@ describe(
     });
 
     it("1. modifies field type text to number", () => {
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.get(locators._jsToggle("sourcedata")).click({ force: true });
       cy.get(`${fieldPrefix}-name`).find("button").should("not.exist");
       cy.openFieldConfiguration("name");
@@ -48,7 +48,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       cy.get(`${fieldPrefix}-name`).find("button").should("have.length", 2);
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("name");
       cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Text Input/);
     });

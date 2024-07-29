@@ -16,7 +16,7 @@ describe(
     });
 
     it("1. Video Widget play functionality validation", function () {
-      cy.openPropertyPane("videowidget");
+      _.propPane.openPropertyPane("videowidget");
       cy.getAlert("onPlay", "Play success");
       cy.get(widgetsPage.autoPlay).click();
       cy.wait("@updateLayout").should(
@@ -84,7 +84,7 @@ describe(
       propPane.UpdatePropertyFieldValue("Text", "{{Video1.playState}}");
       agHelper.Sleep(1500); // Wait time added for the widget to load current video state
 
-      cy.openPropertyPane("videowidget");
+      _.propPane.openPropertyPane("videowidget");
       propPane.TogglePropertyState("Autoplay", "On");
       agHelper.Sleep(1500); // Wait time added for the widget to load current video state
       cy.get(".t--widget-textwidget").should("contain", "ENDED");

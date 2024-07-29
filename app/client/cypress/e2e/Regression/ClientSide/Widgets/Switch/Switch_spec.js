@@ -12,7 +12,7 @@ describe(
       _.agHelper.AddDsl("newFormDsl");
     });
     it("1. Switch Widget Functionality", function () {
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       /**
        * @param{Text} Random Text
        * @param{SwitchWidget}Mouseover
@@ -47,28 +47,28 @@ describe(
       _.deployMode.NavigateBacktoEditor();
 
       //Switch Functionality To Check Disabled Widget
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       _.agHelper.CheckUncheck(commonlocators.Disablejs + " " + "input");
       _.deployMode.DeployApp();
       cy.get(publish.switchwidget + " " + "input").should("be.disabled");
       _.deployMode.NavigateBacktoEditor();
 
       //Switch Functionality To Check Enabled Widget
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       _.agHelper.CheckUncheck(commonlocators.Disablejs + " " + "input", false);
       _.deployMode.DeployApp();
       cy.get(publish.switchwidget + " " + "input").should("be.enabled");
       _.deployMode.NavigateBacktoEditor();
 
       //Switch Functionality To Unchecked Visible Widget
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
       cy.get(publish.switchwidget + " " + "input").should("not.exist");
       _.deployMode.NavigateBacktoEditor();
 
       // Switch Functionality To Check Visible Widget
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
       cy.get(publish.switchwidget + " " + "input").should("be.checked");
@@ -76,7 +76,7 @@ describe(
     });
 
     it("3. Switch Functionality To swap label alignment of switch", function () {
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       cy.get(publish.switchwidget + " " + ".t--switch-widget-label").should(
         "have.css",
         "text-align",
@@ -95,7 +95,7 @@ describe(
     });
 
     it("4. Switch Functionality To swap label position of switch", function () {
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       cy.get(publish.switchwidget + " " + ".bp3-align-left").should("exist");
       cy.get(publish.switchwidget + " " + ".bp3-align-right").should(
         "not.exist",
@@ -114,7 +114,7 @@ describe(
     });
 
     it("5. Switch Functionality To change label color of switch", function () {
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       cy.moveToStyleTab();
       cy.get(".t--property-control-fontcolor .bp3-input").type("red");
       cy.wait(200);
@@ -127,7 +127,7 @@ describe(
       _.deployMode.NavigateBacktoEditor();
 
       //Switch Functionality To change label size of switch
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       cy.moveToStyleTab();
       cy.get(widgetsPage.textSizeNew).last().click({ force: true });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -142,7 +142,7 @@ describe(
       _.deployMode.NavigateBacktoEditor();
 
       //Switch Functionality To change label style of switch
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       cy.moveToStyleTab();
       cy.get(".t--property-control-emphasis .t--button-group-BOLD").click();
       _.deployMode.DeployApp();
@@ -155,10 +155,10 @@ describe(
     });
 
     it("6. Check isDirty meta property", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(".t--property-control-text", `{{Toggler.isDirty}}`);
       // Change defaultSwitchState property
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       cy.get(".t--property-control-defaultstate label").last().click();
       // Check if isDirty is reset to false
       cy.get(".t--widget-textwidget")
@@ -171,7 +171,7 @@ describe(
         .scrollIntoView()
         .should("contain", "true");
       // Change defaultSwitchState property
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       cy.get(".t--property-control-defaultstate input").last().click();
       // Check if isDirty is reset to false
       cy.get(".t--widget-textwidget")

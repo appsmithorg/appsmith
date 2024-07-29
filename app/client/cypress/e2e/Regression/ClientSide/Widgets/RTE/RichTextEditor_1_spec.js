@@ -42,7 +42,7 @@ describe(
 
     beforeEach(() => {
       cy.wait(3000);
-      cy.openPropertyPane("richtexteditorwidget");
+      _.propPane.openPropertyPane("richtexteditorwidget");
     });
 
     it("1. RichTextEditor-Edit Text area with HTML body functionality", function () {
@@ -85,7 +85,7 @@ describe(
         commonlocators.disabledBtn,
       );
       _.deployMode.NavigateBacktoEditor();
-      cy.openPropertyPane("richtexteditorwidget");
+      _.propPane.openPropertyPane("richtexteditorwidget");
 
       //Check the Disabled checkbox
       cy.CheckWidgetProperties(formWidgetsPage.disableJs);
@@ -109,7 +109,7 @@ describe(
       cy.get(publishPage.richTextEditorWidget).should("not.exist");
 
       _.deployMode.NavigateBacktoEditor();
-      cy.openPropertyPane("richtexteditorwidget");
+      _.propPane.openPropertyPane("richtexteditorwidget");
 
       // RichTextEditor-uncheck Visible field validation
       cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
@@ -132,7 +132,7 @@ describe(
       );
 
       _.deployMode.NavigateBacktoEditor();
-      cy.openPropertyPane("richtexteditorwidget");
+      _.propPane.openPropertyPane("richtexteditorwidget");
 
       //RichTextEditor-uncheck Hide toolbar field validation - // Uncheck the Hide toolbar checkbox
       cy.UncheckWidgetProperties(commonlocators.hideToolbarCheckbox);
@@ -159,7 +159,7 @@ describe(
         "h1",
         "content",
       );
-      cy.openPropertyPane("buttonwidget");
+      _.propPane.openPropertyPane("buttonwidget");
       cy.get(".t--property-control-onclick")
         .find(".t--js-toggle")
         .click({ force: true });
@@ -174,12 +174,12 @@ describe(
     });
 
     it("6. Check isDirty meta property", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{RichtextEditor.isDirty}}`,
       );
-      cy.openPropertyPane("richtexteditorwidget");
+      _.propPane.openPropertyPane("richtexteditorwidget");
       // Change defaultText
       cy.testJsontext("defaultvalue", "a");
       // Check if isDirty has been changed into false
@@ -194,7 +194,7 @@ describe(
       // Check if isDirty is set to true
       cy.get(".t--widget-textwidget").should("contain", "true");
       // Change defaultText
-      cy.openPropertyPane("richtexteditorwidget");
+      _.propPane.openPropertyPane("richtexteditorwidget");
       cy.testJsontext("defaultvalue", "b");
       // Check if isDirty is reset to false
       cy.get(".t--widget-textwidget").should("contain", "false");
@@ -205,7 +205,7 @@ describe(
        */
       cy.get(".t--widget-buttonwidget .bp3-button").click({ force: true });
       cy.wait(500);
-      cy.openPropertyPane("richtexteditorwidget");
+      _.propPane.openPropertyPane("richtexteditorwidget");
       cy.testJsontext("defaultvalue", "c");
       cy.get(".t--widget-textwidget").should("contain", "false");
     });

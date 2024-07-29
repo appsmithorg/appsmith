@@ -65,10 +65,10 @@ describe(
     });
 
     it("2. Copy and paste multiselect widget", () => {
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
       //copy and paste
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       cy.get("body").type(`{${modifierKey}}c`);
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
@@ -97,7 +97,7 @@ describe(
     });
 
     it("3. Select tooltip renders if tooltip prop is not empty", () => {
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       // enter tooltip in property pan
       cy.get(widgetsPage.inputTooltipControl).type(
         "Helpful text for tooltip !",

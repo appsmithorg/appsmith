@@ -20,7 +20,7 @@ describe(
 
     it("1. Verify On Row Selected Action", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       // Select show message in the "on selected row" dropdown
       cy.getAlert("onRowSelected", "Row is selected");
       deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
@@ -34,7 +34,7 @@ describe(
 
     it("2. Check On Page Change Action", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       // Select show message in the "on selected row" dropdown
       cy.getAlert("onPageChange", "Page Changed");
       deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
@@ -49,7 +49,7 @@ describe(
 
     it("3. Verify On Search Text Change Action", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       // Show Message on Search text change Action
       cy.getAlert("onSearchTextChanged", "Search Text Changed");
       deployMode.DeployApp(locators._widgetInDeployed("tablewidget"));
@@ -62,7 +62,7 @@ describe(
     });
 
     it("4. Test to validate text format", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       cy.editColumn("id");
       // Validate Bold text
       cy.get(widgetsPage.bold).click({ force: true });
@@ -76,7 +76,7 @@ describe(
 
     it("5. Verify default search text", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       cy.backFromPropertyPanel();
       // Chage deat search text value to "data"
       cy.testJsontext("defaultsearchtext", "data");
@@ -89,7 +89,7 @@ describe(
 
     it("6. Verify default selected row", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       cy.backFromPropertyPanel();
       cy.testJsontext("defaultsearchtext", "");
       // Change default selected row value to 1
@@ -108,7 +108,7 @@ describe(
 
     it("7. Verify table column type button with button variant", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       // Add new column in the table with name "CustomColumn"
       cy.addColumn("CustomColumn");
 

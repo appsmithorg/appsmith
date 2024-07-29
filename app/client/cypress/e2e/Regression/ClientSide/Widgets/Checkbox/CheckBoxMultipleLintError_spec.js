@@ -9,7 +9,7 @@ describe(
       _.agHelper.AddDsl("snippetErrordsl");
     });
     it("Linting warning validation", function () {
-      cy.openPropertyPane("checkboxwidget");
+      _.propPane.openPropertyPane("checkboxwidget");
       /**
        * @param{Text} Random Text
        * @param{CheckboxWidget}Mouseover

@@ -17,7 +17,7 @@ describe(
     });
 
     it("1. Image Widget Functionality", function () {
-      cy.openPropertyPane("imagewidget");
+      _.propPane.openPropertyPane("imagewidget");
       /**
        * @param{Text} Random Text
        * @param{ImageWidget}Mouseover
@@ -42,7 +42,7 @@ describe(
     });
 
     it("2. No Zoom functionality check", function () {
-      cy.openPropertyPane("imagewidget");
+      _.propPane.openPropertyPane("imagewidget");
       //Zoom validation
       cy.changeZoomLevel("1x (No Zoom)");
 
@@ -58,20 +58,20 @@ describe(
 
     it("3. Image Widget Functionality To Check/Uncheck Visible Widget", function () {
       deployMode.NavigateBacktoEditor();
-      cy.openPropertyPane("imagewidget");
+      _.propPane.openPropertyPane("imagewidget");
       agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       deployMode.DeployApp();
       cy.get(publish.imageWidget).should("not.exist");
       deployMode.NavigateBacktoEditor();
       //Image Widget Functionality To Check Visible Widget", function () {
-      cy.openPropertyPane("imagewidget");
+      _.propPane.openPropertyPane("imagewidget");
       agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       deployMode.DeployApp(publish.imageWidget);
       deployMode.NavigateBacktoEditor();
     });
 
     it("4. In case of an image loading error, show off the error message", () => {
-      cy.openPropertyPane("imagewidget");
+      _.propPane.openPropertyPane("imagewidget");
       // Invalid image url
       const invalidImageUrl =
         "http://host.docker.internal:4200/photo-not-exists.jpeg";

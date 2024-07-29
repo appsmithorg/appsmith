@@ -19,7 +19,7 @@ describe(
 
     it("1. Test to validate text color and text background", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.moveToStyleTab();
       // Click on text color input field
       cy.selectColor("textcolor");
@@ -55,7 +55,7 @@ describe(
         "rgb(219, 234, 254)",
       );
       _.deployMode.NavigateBacktoEditor();
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.moveToStyleTab();
       // Change the cell background color and enter purple in input field
       cy.get(
@@ -79,7 +79,7 @@ describe(
     });
 
     it("2. check background of the edit action column", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       _.table.toggleColumnEditableViaColSettingsPane("id", "v2", true, true);
       cy.readTableV2dataValidateCSS(
         0,

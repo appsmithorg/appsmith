@@ -18,7 +18,7 @@ describe(
       const sourceData = {
         name: "John",
       };
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       _.propPane.EnterJSContext(
         "Source data",
         JSON.stringify(sourceData),
@@ -58,7 +58,7 @@ describe(
       _.agHelper.AddDsl("jsonFormDslWithSchema");
       _.agHelper.AddDsl("jsonFormDslWithSchema"); //Should not be needed, to check
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
       // check if fixed footer enabled
       cy.get(".t--property-control-fixedfooter")

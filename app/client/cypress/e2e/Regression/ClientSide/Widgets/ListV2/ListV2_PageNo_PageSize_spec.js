@@ -103,10 +103,10 @@ describe(
     });
 
     it("1. List widget V2 with client side pagination", () => {
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
       cy.testJsontext("items", JSON.stringify(listData));
       cy.wait("@updateLayout");
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", `PageSize {{List1.pageSize}}`);
       cy.wait("@updateLayout");
 
@@ -114,7 +114,7 @@ describe(
         .first()
         .should("have.text", "PageSize 4");
 
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", `Page Number {{List1.pageNo}}`);
       cy.wait("@updateLayout");
       cy.get(commonlocators.bodyTextStyle)
@@ -128,7 +128,7 @@ describe(
         .first()
         .should("have.text", "Page Number 2");
 
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
       cy.get(commonlocators.deleteWidget).click({ force: true });
     });
 
@@ -137,9 +137,9 @@ describe(
         x: 300,
         y: 300,
       });
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
 
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       _.propPane.UpdatePropertyFieldValue(
         "Text",
         "PageSize {{List1.pageSize}}",
@@ -150,7 +150,7 @@ describe(
         .should("have.text", "PageSize 3");
 
       // toggle serversidepagination -> true
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
       _.agHelper.CheckUncheck(commonlocators.serverSidePaginationCheckbox);
 
       cy.get(commonlocators.bodyTextStyle)
@@ -185,7 +185,7 @@ describe(
       cy.get(".t--list-widget-next-page").find("button").click({ force: true });
 
       // Change to client side pagination
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
       _.propPane.UpdatePropertyFieldValue("Items", "{{Query1.data}}");
       _.propPane.TogglePropertyState("Server side pagination", "Off");
 

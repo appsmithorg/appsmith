@@ -17,7 +17,7 @@ describe(
     let propPaneBack = "[data-testid='t--property-pane-back-btn']";
 
     it("1. should check that editable property is only available for Plain text & number columns", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       [
         {
@@ -68,7 +68,7 @@ describe(
     });
 
     it("2. should check that inline save option is shown only when a column is made editable", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.get(".t--property-control-updatemode").should("not.exist");
 
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
@@ -77,7 +77,7 @@ describe(
       cy.get(".t--property-control-updatemode").should("exist");
 
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{Table1.inlineEditingSaveOption}}`,
@@ -89,7 +89,7 @@ describe(
     });
 
     it("3. should check that save/discard column is added when a column is made editable and removed when made uneditable", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
       cy.get(

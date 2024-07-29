@@ -17,7 +17,7 @@ describe(
     });
 
     it("2. toggle on allow clear selection and clear the input", () => {
-      cy.openPropertyPane("singleselecttreewidget");
+      _.propPane.openPropertyPane("singleselecttreewidget");
       // toggle on allow clear selection
       _.agHelper.CheckUncheck(commonlocators.allowclearingValueInput);
       // assert if cancel icon exists on the widget input
@@ -51,7 +51,7 @@ describe(
     });
 
     it("3. toggle of allow clear selection", () => {
-      cy.openPropertyPane("singleselecttreewidget");
+      _.propPane.openPropertyPane("singleselecttreewidget");
       // toggle off allow clear selection
       _.agHelper.CheckUncheck(commonlocators.allowclearingValueInput, false);
       // assert if cancel icon does not exists on the widget input
@@ -74,7 +74,7 @@ describe(
     });
 
     it("4. should check that empty value is allowed in options", () => {
-      cy.openPropertyPane("singleselecttreewidget");
+      _.propPane.openPropertyPane("singleselecttreewidget");
       cy.updateCodeInput(
         ".t--property-control-options",
         `[
@@ -108,7 +108,7 @@ describe(
     });
 
     it("5. should check that more than empty value is not allowed in options", () => {
-      cy.openPropertyPane("singleselecttreewidget");
+      _.propPane.openPropertyPane("singleselecttreewidget");
       cy.updateCodeInput(
         ".t--property-control-options",
         `[

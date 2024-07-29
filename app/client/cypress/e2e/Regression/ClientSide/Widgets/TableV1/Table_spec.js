@@ -12,7 +12,7 @@ describe(
     });
 
     it("Table Widget Functionality", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
 
       /**
        * @param{Text} Random Text
@@ -52,7 +52,7 @@ describe(
     });
 
     it("Table Widget Functionality To Show a Base64 Image", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       cy.editColumn("image");
       cy.changeColumnType("Image", false);
       _.table.SelectTableRow(1);
@@ -66,7 +66,7 @@ describe(
 
     it("Table Widget Functionality To Check if Table is Sortable", function () {
       cy.get(commonlocators.editPropBackButton).click();
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       // Confirm if isSortable is true
       cy.get(commonlocators.isSortable_tablev1).should("be.checked");
       // Publish App
@@ -97,7 +97,7 @@ describe(
       // Back to edit page
       _.deployMode.NavigateBacktoEditor();
 
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       // Disable isSortable
       // Confirm if isSortable is false
       _.agHelper.CheckUncheck(commonlocators.isSortable_tablev1, false);

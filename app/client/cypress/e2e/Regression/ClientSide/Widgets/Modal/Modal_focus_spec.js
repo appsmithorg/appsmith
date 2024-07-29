@@ -12,7 +12,7 @@ describe("Modal focus", { tags: ["@tag.Widget", "@tag.Modal"] }, function () {
   function setupModalWithInputWidget() {
     //drag a button to open modal
     cy.dragAndDropToCanvas("buttonwidget", { x: 400, y: 550 });
-    cy.openPropertyPane("buttonwidget");
+    _.propPane.openPropertyPane("buttonwidget");
     cy.get(widgets.toggleOnClick).click();
 
     cy.updateCodeInput(
@@ -51,7 +51,7 @@ describe("Modal focus", { tags: ["@tag.Widget", "@tag.Modal"] }, function () {
 
   it("1. Should focus on the input field when autofocus for the input field is enabled", () => {
     setupModalWithInputWidget();
-    cy.openPropertyPaneFromModal("inputwidgetv2");
+    _.propPane.openPropertyPaneFromModal("inputwidgetv2");
 
     // autofocus for input field is enabled
     cy.get(".t--property-control-autofocus")
@@ -73,7 +73,7 @@ describe("Modal focus", { tags: ["@tag.Widget", "@tag.Modal"] }, function () {
     cy.focused().should("have.value", someInputText);
   });
   it("2. Should not focus on the input field if autofocus is disabled", () => {
-    cy.openPropertyPaneFromModal("inputwidgetv2");
+    _.propPane.openPropertyPaneFromModal("inputwidgetv2");
     // autofocus for input field is disabled
     cy.get(".t--property-control-autofocus")
       .find(".ads-v2-switch")

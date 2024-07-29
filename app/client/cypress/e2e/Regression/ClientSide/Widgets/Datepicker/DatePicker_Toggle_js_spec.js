@@ -9,7 +9,7 @@ describe(
     before(() => {
       _.agHelper.AddDsl("newFormDsl");
 
-      cy.openPropertyPane("datepickerwidget");
+      _.propPane.openPropertyPane("datepickerwidget");
     });
 
     it("1. Datepicker default date validation with js binding", function () {

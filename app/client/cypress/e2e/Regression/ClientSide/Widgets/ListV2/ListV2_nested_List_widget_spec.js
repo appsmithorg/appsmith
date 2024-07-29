@@ -38,7 +38,7 @@ describe(
 
     it("1. Pasting - should show toast when nesting is greater than 3", function () {
       agHelper.AddDsl("Listv2/copy_paste_listv2_dsl");
-      cy.openPropertyPaneByWidgetName("List1", "listwidgetv2");
+      _.propPane.openPropertyPaneByWidgetName("List1", "listwidgetv2");
       // Copy List1
       cy.get(widgetsPage.copyWidget).click({ force: true });
       cy.wait(500);
@@ -50,7 +50,7 @@ describe(
       cy.wait(500);
 
       //Copy List 2 and Paste inside list 2
-      cy.openPropertyPaneByWidgetName("List2", "listwidgetv2");
+      _.propPane.openPropertyPaneByWidgetName("List2", "listwidgetv2");
       cy.get(widgetsPage.copyWidget).click({ force: true });
       cy.wait(500);
       // Paste inside list 2
@@ -63,7 +63,7 @@ describe(
       //Now Both List1 and List2 are n-2 levels
 
       //Copy List2 and Past in List 1
-      cy.openPropertyPaneByWidgetName("List2", "listwidgetv2");
+      _.propPane.openPropertyPaneByWidgetName("List2", "listwidgetv2");
       cy.get(widgetsPage.copyWidget).click({ force: true });
       cy.wait(500);
       cy.get(`${widgetSelector("List1Copy")} [type="CONTAINER_WIDGET"]`)
@@ -143,7 +143,7 @@ describe(
           .should("have.length", 3),
       );
 
-      cy.openPropertyPaneByWidgetName("Text4", "textwidget");
+      _.propPane.openPropertyPaneByWidgetName("Text4", "textwidget");
       propPane.RemoveText("Text");
       cy.get(".t--property-control-text .CodeMirror textarea").type(
         "{{level_1.currentView.List3.currentItemsView",
@@ -156,7 +156,7 @@ describe(
         .first()
         .should("be.empty");
 
-      cy.openPropertyPaneByWidgetName("Text4", "textwidget");
+      _.propPane.openPropertyPaneByWidgetName("Text4", "textwidget");
 
       propPane.RemoveText("Text");
       cy.get(".t--property-control-text .CodeMirror textarea").type(
@@ -171,7 +171,7 @@ describe(
         .first()
         .should("be.empty");
 
-      cy.openPropertyPaneByWidgetName("Text5", "textwidget");
+      _.propPane.openPropertyPaneByWidgetName("Text5", "textwidget");
       propPane.RemoveText("Text");
 
       cy.get(".t--property-control-text .CodeMirror textarea").type(

@@ -10,7 +10,7 @@ describe(
     });
 
     it("1. Verify table column type changes effect on menuButton and iconButton", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.addColumnV2("CustomColumn");
       cy.editColumn("customColumn1");
       _.propPane.SelectPropertiesDropDown("Column type", "Menu button");

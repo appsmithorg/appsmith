@@ -13,7 +13,7 @@ describe(
     it("Check if the selectedRowIndices does not contain 2d array", function () {
       testTimeout(seconds(120)); //2mins
 
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
 
       //Enable Multi row select
       cy.get(widgetsPage.toggleEnableMultirowselection_tablev1)

@@ -71,7 +71,7 @@ function changeFieldType(fieldName, fieldType) {
 }
 
 function addCustomField(fieldType) {
-  cy.openPropertyPane("jsonformwidget");
+  _.propPane.openPropertyPane("jsonformwidget");
   cy.get(".t--property-control-sourcedata")
     .find(".t--js-toggle")
     .click({ force: true });
@@ -86,7 +86,7 @@ function addCustomField(fieldType) {
 }
 
 function removeCustomField() {
-  cy.openPropertyPane("jsonformwidget");
+  _.propPane.openPropertyPane("jsonformwidget");
   cy.deleteJSONFormField("customField1");
 }
 
@@ -96,7 +96,7 @@ describe(
   () => {
     before(() => {
       agHelper.AddDsl("jsonFormDslWithSchema");
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.get(locators._jsToggle("sourcedata")).click({ force: true });
       EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue(
@@ -151,7 +151,7 @@ describe(
     });
 
     it("5. hides fields on first load", () => {
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
 
       // hide education field
       cy.openFieldConfiguration("education");

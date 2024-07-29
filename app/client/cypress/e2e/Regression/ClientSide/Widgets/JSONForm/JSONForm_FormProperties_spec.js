@@ -34,7 +34,7 @@ describe(
 
     before("Add dsl and check fields under field configuration", () => {
       cy.addDsl(dslWithSchema);
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       const fieldNames = [
         "name",
         "age",
@@ -51,7 +51,7 @@ describe(
     });
 
     it("1. Field Configuration - adds new custom field", () => {
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
 
       // Add new field
       cy.get(commonlocators.jsonFormAddNewCustomFieldBtn).click({
@@ -95,7 +95,7 @@ describe(
 
     it("3. Should set isValid to false when form is invalid", () => {
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{JSONForm1.isValid}}");
       cy.get(`${widgetsPage.textWidget} .bp3-ui-text`).contains("true");
       cy.get(`${fieldPrefix}-name input`).clear().wait(300);
@@ -105,7 +105,7 @@ describe(
     });
 
     it("4. show show icon select when a collapsed section is opened", () => {
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.moveToStyleTab();
 
       // Click Icon property
@@ -124,10 +124,10 @@ describe(
         name: "",
       };
 
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{JSONForm1.isValid}}");
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       // make name field required
@@ -148,10 +148,10 @@ describe(
         name: "",
       };
 
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{JSONForm1.isValid}}");
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       // make name field required
@@ -185,7 +185,7 @@ describe(
         age: 10,
       };
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       agHelper.CheckUncheck(
@@ -195,7 +195,7 @@ describe(
       cy.openFieldConfiguration("age");
       agHelper.CheckUncheck(`${propertyControlPrefix}-visible input`, false);
 
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
 
       cy.get(".t--widget-textwidget .bp3-ui-text").contains(
@@ -213,7 +213,7 @@ describe(
         age: 10,
       };
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       agHelper.CheckUncheck(
@@ -224,7 +224,7 @@ describe(
       cy.openFieldConfiguration("age");
       agHelper.CheckUncheck(`${propertyControlPrefix}-visible input`, false);
 
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
 
       cy.get(".t--widget-textwidget .bp3-ui-text").contains(

@@ -14,7 +14,7 @@ describe(
     });
 
     it("should check that prefilled option is added and empty value is allowed in options", () => {
-      cy.openPropertyPane("checkboxgroupwidget");
+      _.propPane.openPropertyPane("checkboxgroupwidget");
       cy.get(".t--property-control-options-add").click({ force: true });
       cy.get(".t--property-control-options")
         .find(".t--js-toggle")
@@ -42,7 +42,7 @@ describe(
     });
 
     it("should check that more thatn empty value is not allowed in options", () => {
-      cy.openPropertyPane("checkboxgroupwidget");
+      _.propPane.openPropertyPane("checkboxgroupwidget");
       cy.updateCodeInput(
         ".t--property-control-options",
         `[

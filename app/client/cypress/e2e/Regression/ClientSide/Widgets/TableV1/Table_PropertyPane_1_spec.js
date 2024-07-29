@@ -14,7 +14,7 @@ describe(
     // To be done:
     // Column Data type: Video
     it("1. Check open section and column data in property pane", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
 
       // Validate the columns are visible in the property pane
       cy.tableColumnDataValidation("id");
@@ -47,7 +47,7 @@ describe(
       cy.makeColumnVisible("userName");
       cy.makeColumnVisible("productName");
       cy.makeColumnVisible("orderAmount");
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
 
       // Open column detail to be edited by draggable id
       cy.editColumn("id");
@@ -178,7 +178,7 @@ describe(
     });
 
     it("6. Test to validate text color and text background", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
 
       // Changing text color to rgb(219, 234, 254) and validate
       cy.selectColor("textcolor");
@@ -219,7 +219,7 @@ describe(
 
     it("7. Table-Delete Verification", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       // Delete the Table widget
       cy.deleteWidget(widgetsPage.tableWidget);
       _.deployMode.DeployApp();

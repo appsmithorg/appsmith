@@ -80,7 +80,7 @@ describe("Undo/Redo functionality", function () {
   // });
 
   it("2. checks undo/redo for toggle control in property pane", function () {
-    cy.openPropertyPane("checkboxwidget");
+    _.propPane.openPropertyPane("checkboxwidget");
     cy.CheckWidgetProperties(commonlocators.disableCheckbox);
 
     cy.get("body").type(`{${modifierKey}}z`);

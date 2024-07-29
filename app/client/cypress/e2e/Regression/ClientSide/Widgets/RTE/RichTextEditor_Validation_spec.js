@@ -12,7 +12,7 @@ describe(
 
     beforeEach(() => {
       cy.wait(7000);
-      cy.openPropertyPane("richtexteditorwidget");
+      _.propPane.openPropertyPane("richtexteditorwidget");
     });
 
     it("RichTextEditor-required with empty content show error border for textarea", function () {

@@ -18,13 +18,13 @@ describe(
       /**
        * Bind DatePicker1 to Text for "selectedDate"
        */
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{DatePicker1.selectedDate}}");
 
       /**
        * Set the Calender for today's date in DatePicker1
        */
-      cy.openPropertyPane("datepickerwidget");
+      _.propPane.openPropertyPane("datepickerwidget");
       cy.get(formWidgetsPage.defaultDate).click();
       cy.ClearDateFooter();
       cy.SetDateToToday();
@@ -52,7 +52,7 @@ describe(
     });
 
     it.skip("2. DatePicker1-text: Change the date in DatePicker1 and Validate the same in text widget", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
 
       /**
        * Bind the datepicker1 to text widget
@@ -73,7 +73,7 @@ describe(
       /**
        * Changing date on datepicker1 to current date +1
        */
-      cy.openPropertyPane("datepickerwidget");
+      _.propPane.openPropertyPane("datepickerwidget");
       cy.get(formWidgetsPage.defaultDate).click();
       cy.ClearDateFooter();
       cy.setDate(1, "ddd MMM DD YYYY");
@@ -107,7 +107,7 @@ describe(
       /**
        * Bind the DatePicker1 and DatePicker2 along with hard coded text to Text widget
        */
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext(
         "text",
         "{{DatePicker1.isDisabled}} DatePicker {{DatePicker2.isDisabled}}",
@@ -128,7 +128,7 @@ describe(
       /**
        * bind datepicker to show a message "Hello" on date selected
        */
-      cy.openPropertyPane("datepickerwidget");
+      _.propPane.openPropertyPane("datepickerwidget");
       cy.getAlert("onDateSelected");
 
       /**

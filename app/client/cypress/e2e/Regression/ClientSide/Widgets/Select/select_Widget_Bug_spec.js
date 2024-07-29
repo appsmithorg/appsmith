@@ -13,7 +13,7 @@ describe(
     });
 
     it("Select Widget name update", function () {
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       cy.widgetText(
         "Select1",
         widgetsPage.selectwidget,
@@ -22,7 +22,7 @@ describe(
     });
 
     it("should check that virtualization works well", () => {
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       _.propPane.ToggleJSMode("sourcedata");
       cy.updateCodeInput(
         ".t--property-control-sourcedata",
@@ -166,7 +166,7 @@ describe(
     });
 
     it("should check that filtering works well", () => {
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       cy.updateCodeInput(
         ".t--property-control-sourcedata",
         `[
@@ -223,7 +223,7 @@ describe(
     });
 
     it("enable the widget and check in publish mode", function () {
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       cy.get(".bp3-disabled").should("be.visible");
       cy.get(widgetsPage.disable).scrollIntoView({ force: true });
       cy.get(widgetsPage.selectWidgetDisabled).click({ force: true });
@@ -249,7 +249,7 @@ describe(
       _.deployMode.NavigateBacktoEditor();
     });
     it("should check that filtering works well using numeric labels", () => {
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       cy.updateCodeInput(
         ".t--property-control-sourcedata",
         `[
@@ -268,7 +268,7 @@ describe(
       ]`,
       );
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 80 });
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{typeof Select1.selectedOptionLabel}}");
       // Filtering the option
       cy.get(formWidgetsPage.selectWidget)

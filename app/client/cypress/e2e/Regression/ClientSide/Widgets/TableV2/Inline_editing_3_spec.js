@@ -21,7 +21,7 @@ describe(
     let propPaneBack = "[data-testid='t--property-pane-back-btn']";
 
     it("1. should check that save/discard column is added/removed when inline save option is changed", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       tableHelper.toggleColumnEditableViaColSettingsPane("step");
       cy.get("[data-rbd-draggable-id='EditActions1']").should("exist");
       cy.get(".t--property-control-updatemode .t--property-control-label")
@@ -65,7 +65,7 @@ describe(
     });
 
     it("2. should check that cell of an editable column is editable", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       tableHelper.toggleColumnEditableViaColSettingsPane("step");
       // click the edit icon
       cy.editTableCell(0, 0);
@@ -74,7 +74,7 @@ describe(
       ).should("not.be.disabled");
 
       //double click the cell
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.get(
         `[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor input.bp3-input`,
       ).should("not.exist");
@@ -90,7 +90,7 @@ describe(
     });
 
     it("3. should check that changes can be discarded by clicking escape", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       let value;
       cy.readTableV2data(0, 0).then((val) => {
         value = val;
@@ -108,7 +108,7 @@ describe(
     });
 
     it("4. should check that changes can be saved by pressing enter or clicking outside", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       let value;
       cy.readTableV2data(0, 0).then((val) => {
         value = val;
@@ -127,7 +127,7 @@ describe(
       });
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "someOtherNewValue");
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.get(
         `[data-colindex="0"][data-rowindex="0"] .t--inlined-cell-editor input.bp3-input`,
       ).should("not.exist");
@@ -139,9 +139,9 @@ describe(
 
     it("5. should check that updatedRows and updatedRowIndices have correct values", () => {
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(".t--property-control-text", `{{Table1.updatedRows}}`);
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       tableHelper.toggleColumnEditableViaColSettingsPane("step");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "newValue");
@@ -150,7 +150,7 @@ describe(
         "contain",
         `[  {    "index": 0,    "updatedFields": {      "step": "newValue"    },    "allFields": {      "step": "newValue",      "task": "Drop a table",      "status": "✅"    }  }]`,
       );
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{Table1.updatedRowIndices}}`,
@@ -159,7 +159,7 @@ describe(
     });
 
     it("6. should check that onsubmit event is available for the columns that are editable", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       cy.wait(500);
       [
@@ -268,7 +268,7 @@ describe(
     });
 
     it("7. should check that onsubmit event is triggered when changes are saved", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       tableHelper.toggleColumnEditableViaColSettingsPane(
         "step",
         "v2",
@@ -291,7 +291,7 @@ describe(
 
     it("8. should check that onSubmit events has access to edit values through triggeredRow", () => {
       const value = "newCellValue";
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       tableHelper.toggleColumnEditableViaColSettingsPane(
         "step",
         "v2",
@@ -313,7 +313,7 @@ describe(
     });
 
     it("9. should check that onSave is working", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       tableHelper.toggleColumnEditableViaColSettingsPane("step");
       cy.editColumn("EditActions1");
       //cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
@@ -323,7 +323,7 @@ describe(
       cy.getAlert("onSave", "Saved!!");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "NewValue");
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.saveTableRow(4, 0);
       cy.get(widgetsPage.toastAction).should("be.visible");
       cy.get(widgetsPage.toastActionText)
@@ -335,7 +335,7 @@ describe(
     });
 
     it("10. should check that onSave events has access to edit values through triggeredRow", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       tableHelper.toggleColumnEditableViaColSettingsPane("step");
       cy.editColumn("EditActions1");
       //cy.get(".t--property-pane-section-collapse-savebutton").click({force:true});
@@ -351,7 +351,7 @@ describe(
     */
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "NewValue");
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.saveTableRow(4, 0);
       cy.get(widgetsPage.toastAction).should("be.visible");
       cy.get(widgetsPage.toastActionText)

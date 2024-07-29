@@ -12,7 +12,7 @@ describe(
     });
 
     it("1. Icon alignment should not change when changing the icon", () => {
-      cy.openPropertyPane("menubuttonwidget");
+      _.propPane.openPropertyPane("menubuttonwidget");
       cy.moveToStyleTab();
       // Add an icon
       cy.get(".t--property-control-icon .bp3-icon-caret-down").click({
@@ -52,7 +52,7 @@ describe(
     });
 
     it("2. MenuButton widget functionality on undo after delete", function () {
-      cy.openPropertyPane("menubuttonwidget");
+      _.propPane.openPropertyPane("menubuttonwidget");
       cy.moveToContentTab();
       // Delete Second Menu Item
       cy.get(".t--property-control-menuitems .t--delete-column-btn")
@@ -93,7 +93,7 @@ describe(
     });
 
     it("3. MenuButton widget functionality to add dynamic menu items", function () {
-      cy.openPropertyPane("menubuttonwidget");
+      _.propPane.openPropertyPane("menubuttonwidget");
       cy.moveToContentTab();
 
       // Select menu items source as Dynamic
@@ -135,7 +135,7 @@ describe(
     });
 
     it("4. Disable one dynamic item using {{currentItem}} binding", function () {
-      cy.openPropertyPane("menubuttonwidget");
+      _.propPane.openPropertyPane("menubuttonwidget");
       cy.moveToContentTab();
 
       // Open configure array item panel
@@ -163,7 +163,7 @@ describe(
     });
 
     it("5. Apply background color to dynamic items using {{currentItem}} binding", function () {
-      cy.openPropertyPane("menubuttonwidget");
+      _.propPane.openPropertyPane("menubuttonwidget");
       cy.moveToContentTab();
 
       // Open configure array item panel

@@ -32,7 +32,7 @@ describe(
         name: "John",
       };
       agHelper.AddDsl("jsonFormDslWithoutSchema");
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
     });
 
@@ -42,7 +42,7 @@ describe(
       };
       agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
       cy.openFieldConfiguration("switch");
       // assert default property
@@ -98,7 +98,7 @@ describe(
       };
       agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       cy.openFieldConfiguration("state");
@@ -131,7 +131,7 @@ describe(
       };
       agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
       cy.openFieldConfiguration("hobbies");
       // assert valid default value
@@ -142,7 +142,7 @@ describe(
     });
 
     it("8. adds placeholder text", () => {
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("hobbies");
 
       cy.testJsontext("placeholder", "Select placeholder");
@@ -181,7 +181,7 @@ describe(
       };
       agHelper.AddDsl("jsonFormDslWithoutSchema");
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
 
       cy.openFieldConfiguration("radio");

@@ -18,7 +18,7 @@ describe(
   function () {
     it("1. onBlur and onFocus should be triggered from the input widget", () => {
       cy.dragAndDropToCanvas(inputWidgetName, { x: 300, y: 200 });
-      cy.openPropertyPane(inputWidgetName);
+      _.propPane.openPropertyPane(inputWidgetName);
 
       cy.get(widgetsPage.toggleOnFocus).click({ force: true });
       cy.testJsontext("onfocus", "{{showAlert('Focused','success')}}");
@@ -28,13 +28,13 @@ describe(
       cy.get(widgetInput).click({ force: true });
       cy.validateToastMessage("Focused");
       agHelper.PressEscape();
-      cy.openPropertyPane(inputWidgetName);
+      _.propPane.openPropertyPane(inputWidgetName);
       cy.validateToastMessage("Blurred");
     });
 
     it("2. onBlur and onFocus should be triggered from the phone input widget", () => {
       cy.dragAndDropToCanvas(phoneInputWidgetName, { x: 300, y: 400 });
-      cy.openPropertyPane(phoneInputWidgetName);
+      _.propPane.openPropertyPane(phoneInputWidgetName);
 
       cy.get(widgetsPage.toggleOnFocus).click({ force: true });
       cy.testJsontext("onfocus", "{{showAlert('Focused','success')}}");
@@ -44,13 +44,13 @@ describe(
       cy.get(phoneInputWidget).click({ force: true });
       cy.validateToastMessage("Focused");
       agHelper.PressEscape();
-      cy.openPropertyPane(phoneInputWidgetName);
+      _.propPane.openPropertyPane(phoneInputWidgetName);
       cy.validateToastMessage("Blurred");
     });
 
     it("3. onBlur and onFocus should be triggered from the currency input widget", () => {
       cy.dragAndDropToCanvas(currencyInputWidgetName, { x: 300, y: 600 });
-      cy.openPropertyPane(currencyInputWidgetName);
+      _.propPane.openPropertyPane(currencyInputWidgetName);
 
       cy.get(widgetsPage.toggleOnFocus).click({ force: true });
       cy.testJsontext("onfocus", "{{showAlert('Focused','success')}}");
@@ -60,7 +60,7 @@ describe(
       cy.get(currencyInputWidget).click({ force: true });
       cy.validateToastMessage("Focused");
       agHelper.PressEscape();
-      cy.openPropertyPane(currencyInputWidgetName);
+      _.propPane.openPropertyPane(currencyInputWidgetName);
       cy.validateToastMessage("Blurred");
     });
   },

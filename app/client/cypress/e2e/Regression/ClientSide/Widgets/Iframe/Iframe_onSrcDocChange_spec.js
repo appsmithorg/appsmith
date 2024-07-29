@@ -34,7 +34,7 @@ describe(
       cy.wait(2000);
       PageList.ShowList();
       PageList.VerifyIsCurrentPage("Page1");
-      cy.openPropertyPane("iframewidget");
+      _.propPane.openPropertyPane("iframewidget");
       cy.testJsontext("srcdoc", "<h1>Hello World!</h1>");
       cy.wait(2000);
       PageList.VerifyIsCurrentPage("Page2");

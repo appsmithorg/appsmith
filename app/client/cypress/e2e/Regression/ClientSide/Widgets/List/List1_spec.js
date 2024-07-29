@@ -8,7 +8,7 @@ describe(
     //const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
     it("1. Validate delete widget action from side bar", function () {
       _.agHelper.AddDsl("listRegressionDsl");
-      cy.openPropertyPane("listwidget");
+      _.propPane.openPropertyPane("listwidget");
       cy.verifyUpdatedWidgetName("Test");
       cy.verifyUpdatedWidgetName("#$%1234", "___1234");
       cy.verifyUpdatedWidgetName("56789");

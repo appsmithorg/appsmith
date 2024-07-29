@@ -56,7 +56,7 @@ describe(
     });
 
     it("2. Table Button color validation", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       // Open column details of "id".
       cy.editColumn("id");
       const color1 = "rgb(255, 0, 0)";
@@ -124,7 +124,7 @@ describe(
     });
 
     it("4. Table widget add new menu button column", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       // click on Add new Column.
       cy.get(".t--add-column-btn").click();
       //Open New Custom Column
@@ -238,7 +238,7 @@ describe(
       });
 
       // Close Property pane
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       // Click on the Menu button
       cy.contains("Menu button").click({
         force: true,

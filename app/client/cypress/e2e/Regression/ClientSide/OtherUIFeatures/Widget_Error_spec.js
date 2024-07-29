@@ -14,7 +14,7 @@ describe("Widget error state", function () {
   });
 
   it("1. Check widget error state", function () {
-    cy.openPropertyPane("buttonwidget");
+    _.propPane.openPropertyPane("buttonwidget");
 
     cy.get(".t--property-control-visible").find(".t--js-toggle").click();
     cy.EnableAllCodeEditors();

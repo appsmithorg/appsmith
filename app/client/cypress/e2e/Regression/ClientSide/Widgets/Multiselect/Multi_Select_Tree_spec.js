@@ -14,13 +14,13 @@ describe(
 
     it("1. Check isDirty meta property", function () {
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{MultiSelectTree1.isDirty}}`,
       );
       // Change defaultValue
-      cy.openPropertyPane("multiselecttreewidget");
+      _.propPane.openPropertyPane("multiselecttreewidget");
       cy.testJsontext("defaultselectedvalues", "GREEN\n");
       // Check if isDirty is set to false
       cy.get(".t--widget-textwidget").should("contain", "false");
@@ -40,7 +40,7 @@ describe(
     });
 
     it("2. Selects value with enter in default value", () => {
-      cy.openPropertyPane("multiselecttreewidget");
+      _.propPane.openPropertyPane("multiselecttreewidget");
       cy.testJsontext("defaultselectedvalues", "RED\n");
       cy.get(formWidgetsPage.multiselecttreeWidget)
         .find(".rc-tree-select-selection-item-content")
@@ -58,7 +58,7 @@ describe(
     it("3. Clears the search field when widget is closed", () => {
       // open the multi-tree select widget
       // search for option Red in the search input
-      cy.openPropertyPane("multiselecttreewidget");
+      _.propPane.openPropertyPane("multiselecttreewidget");
       cy.testJsontext("defaultselectedvalues", "");
       cy.wait(2000)
         .get(formWidgetsPage.treeSelectInput)
@@ -109,7 +109,7 @@ describe(
     });
 
     it("6. To Check Visible Widget", function () {
-      cy.openPropertyPane("multiselecttreewidget");
+      _.propPane.openPropertyPane("multiselecttreewidget");
       _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
       cy.get(
@@ -131,7 +131,7 @@ describe(
     });
 
     it("8. Select tooltip renders if tooltip prop is not empty", () => {
-      cy.openPropertyPane("multiselecttreewidget");
+      _.propPane.openPropertyPane("multiselecttreewidget");
       // enter tooltip in property pan
       cy.get(widgetsPage.inputTooltipControl).type(
         "Helpful text for tooltip !",

@@ -1056,17 +1056,17 @@ Cypress.Commands.add("tabVerify", (index, text) => {
     .should("be.visible");
 });
 
-Cypress.Commands.add("openPropertyPane", (widgetType) => {
-  const selector = `.t--draggable-${widgetType}`;
-  cy.wait(500);
-  cy.get(selector).first().trigger("mouseover", { force: true }).wait(500);
-  cy.get(`${selector}:first-of-type`).first().click({ force: true }).wait(500);
-  cy.get(".t--widget-propertypane-toggle > .t--widget-name")
-    .first()
-    .click({ force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(1000);
-});
+// Cypress.Commands.add("openPropertyPane", (widgetType) => {
+//   const selector = `.t--draggable-${widgetType}`;
+//   cy.wait(500);
+//   cy.get(selector).first().trigger("mouseover", { force: true }).wait(500);
+//   cy.get(`${selector}:first-of-type`).first().click({ force: true }).wait(500);
+//   cy.get(".t--widget-propertypane-toggle > .t--widget-name")
+//     .first()
+//     .click({ force: true });
+//   // eslint-disable-next-line cypress/no-unnecessary-waiting
+//   cy.wait(1000);
+// });
 
 Cypress.Commands.add("openPropertyPaneFromModal", (widgetType) => {
   const selector = `.t--draggable-${widgetType}`;
@@ -1132,7 +1132,7 @@ Cypress.Commands.add("copyWidget", (widget, widgetLocator) => {
       cy.wait(1000);
       cy.get("body").type(`{${modifierKey}}v`);
       cy.wait(3000);
-      cy.openPropertyPaneCopy(widget);
+      _.propPane.openPropertyPaneCopy(widget);
       cy.get(widgetsPage.propertypaneText)
         .children()
         .last()

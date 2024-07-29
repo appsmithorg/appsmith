@@ -12,7 +12,7 @@ describe("Basic flow ", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
   });
 
   it("1.1. should test that allow Add new row property is present", () => {
-    cy.openPropertyPane("tablewidgetv2");
+    _.propPane.openPropertyPane("tablewidgetv2");
     cy.get(".t--property-control-allowaddingarow").should("exist");
     cy.get(".t--property-control-allowaddingarow input").should("exist");
     cy.get(".t--add-new-row").should("not.exist");
@@ -32,7 +32,7 @@ describe("Basic flow ", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     table.toggleColumnEditableViaColSettingsPane("step");
     cy.editTableCell(0, 0);
     cy.get(".t--add-new-row.disabled").should("exist");
-    cy.openPropertyPane("tablewidgetv2");
+    _.propPane.openPropertyPane("tablewidgetv2");
     cy.get(".tableWrap .new-row").should("not.exist");
     // clicking on add new row link adds an empty row at the top of the table
     cy.get(".t--add-new-row").click();
@@ -125,7 +125,7 @@ describe("Basic flow ", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     cy.enterTableCellValue(0, 0, "22");
     cy.enterTableCellValue(1, 0, "21");
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
-    cy.openPropertyPane("textwidget");
+    _.propPane.openPropertyPane("textwidget");
     cy.updateCodeInput(".t--property-control-text", `{{Table1.newRow}}`);
     cy.get(".t--widget-textwidget .bp3-ui-text").should(
       "contain",
@@ -134,7 +134,7 @@ describe("Basic flow ", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
   });
 
   it("1.6. should test that non data (iconBitton, button, menubutton) column cells are not showing up", () => {
-    cy.openPropertyPane("tablewidgetv2");
+    _.propPane.openPropertyPane("tablewidgetv2");
     table.toggleColumnEditableViaColSettingsPane("step", "v2", false, false);
     ["Button", "Menu button", "Icon button"].forEach((columnType) => {
       cy.get(commonlocators.changeColType).last().click();

@@ -17,7 +17,7 @@ describe(
     });
 
     it("Table Widget Functionality To Filter and search data", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       cy.get(publish.searchInput).first().type("query");
       cy.get(publish.filterBtn).click();
       cy.get(publish.attributeDropdown).click();

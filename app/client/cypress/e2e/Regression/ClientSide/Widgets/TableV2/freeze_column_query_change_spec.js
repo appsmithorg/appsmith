@@ -17,7 +17,7 @@ describe(
     before(() => {
       cy.dragAndDropToCanvas(WIDGET.TABLE, { x: 600, y: 200 });
       cy.wait(2000);
-      cy.openPropertyPane(WIDGET.TABLE);
+      _.propPane.openPropertyPane(WIDGET.TABLE);
       _.propPane.EnterJSContext("Table data", TABLE_DATA_STATIC);
     });
 
@@ -26,7 +26,7 @@ describe(
       cy.freezeColumnFromDropdown("id", "right");
 
       //Change the table data:
-      cy.openPropertyPane(WIDGET.TABLE);
+      _.propPane.openPropertyPane(WIDGET.TABLE);
       _.propPane.EnterJSContext("Table data", TABLE_DATA_DYNAMIC);
 
       //Check the id column is still frozen to the right:
@@ -43,7 +43,7 @@ describe(
       cy.freezeColumnFromDropdown("customColumn1", "right");
 
       // Change the table data:
-      cy.openPropertyPane(WIDGET.TABLE);
+      _.propPane.openPropertyPane(WIDGET.TABLE);
       cy.updateCodeInput(PROPERTY_SELECTOR.tableData, TABLE_DATA_STATIC);
 
       //Check the id column is still frozen to the right:

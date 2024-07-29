@@ -20,7 +20,7 @@ describe(
       });
 
       // Enable cell wrapping and check that height is more than 28px
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("image");
 
       propPane.TogglePropertyState("Cell wrapping", "On");
@@ -61,7 +61,7 @@ describe(
       });
 
       // Enable cell wrapping and check that height is more than 28px
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.wait(2000);
       cy.editColumn("email");
 
@@ -72,7 +72,7 @@ describe(
     });
 
     it("4. should check that cell wrapping option is only available for plain text, number and URL", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("email");
       [
         {
@@ -123,7 +123,7 @@ describe(
     });
 
     it("5. should check that plain text, number and URL column is getting wrapped when cell wrapping is enabled", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("id");
 
       ["URL", "Number", "Plain text"].forEach((data, i) => {
@@ -143,7 +143,7 @@ describe(
     });
 
     it("6. should check that pageSize does not change when cell wrapping is enabled", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("image");
       let pageSizeBeforeWrapping;
       cy.get(".t--widget-textwidget .bp3-ui-text")

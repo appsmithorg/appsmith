@@ -117,7 +117,7 @@ Object.entries(widgetsToTest).forEach(([widgetSelector, testConfig], index) => {
       it("2. StoreValue should have complete input value", () => {
         // if default input widget type is changed from text to any other type then uncomment below code.
         // if (widgetSelector === draggableWidgets.INPUT_V2) {
-        //   cy.openPropertyPane(widgetSelector);
+        //   _.propPane.openPropertyPane(widgetSelector);
         //   cy.selectDropdownValue(".t--property-control-datatype", "Text");
         //   cy.get(".t--property-control-required label")
         //     .last()

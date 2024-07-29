@@ -9,11 +9,11 @@ describe(
     });
 
     it("1. Check if the connection shows an error state when a connection has an error", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
 
       cy.testJsontext("tabledata", "{{error}}");
 
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{Table1.searchText}}");
 
       // Find class which indicates an error

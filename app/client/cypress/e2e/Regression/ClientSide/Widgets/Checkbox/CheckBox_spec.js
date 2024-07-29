@@ -12,7 +12,7 @@ describe(
       _.agHelper.AddDsl("newFormDsl");
     });
     it("Checkbox Widget Functionality", function () {
-      cy.openPropertyPane("checkboxwidget");
+      _.propPane.openPropertyPane("checkboxwidget");
       /**
        * @param{Text} Random Text
        * @param{CheckboxWidget}Mouseover
@@ -44,32 +44,32 @@ describe(
       );
     });
     it("Checkbox Functionality To Check Disabled Widget", function () {
-      cy.openPropertyPane("checkboxwidget");
+      _.propPane.openPropertyPane("checkboxwidget");
       _.agHelper.CheckUncheck(commonlocators.Disablejs + " " + "input");
       _.deployMode.DeployApp();
       cy.get(publish.checkboxWidget + " " + "input").should("be.disabled");
     });
     it("Checkbox Functionality To Check Enabled Widget", function () {
-      cy.openPropertyPane("checkboxwidget");
+      _.propPane.openPropertyPane("checkboxwidget");
       _.agHelper.CheckUncheck(commonlocators.Disablejs + " " + "input", false);
       _.deployMode.DeployApp();
       cy.get(publish.checkboxWidget + " " + "input").should("be.enabled");
     });
     it("Checkbox Functionality To Unchecked Visible Widget", function () {
-      cy.openPropertyPane("checkboxwidget");
+      _.propPane.openPropertyPane("checkboxwidget");
       _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
       cy.get(publish.checkboxWidget + " " + "input").should("not.exist");
     });
     it("Checkbox Functionality To Check Visible Widget", function () {
-      cy.openPropertyPane("checkboxwidget");
+      _.propPane.openPropertyPane("checkboxwidget");
       _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
       cy.get(publish.checkboxWidget + " " + "input").should("be.checked");
     });
 
     it("Check isDirty meta property", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(".t--property-control-text", `{{checker.isDirty}}`);
       // Check if initial value of isDirty is false
       cy.get(".t--widget-textwidget").should("contain", "false");
@@ -78,7 +78,7 @@ describe(
       // Check if isDirty is set to true
       cy.get(".t--widget-textwidget").should("contain", "true");
       // Change defaultCheckedState property
-      cy.openPropertyPane("checkboxwidget");
+      _.propPane.openPropertyPane("checkboxwidget");
       cy.get(".t--property-control-defaultstate label").last().click();
       // Check if isDirty is reset to false
       cy.get(".t--widget-textwidget").should("contain", "false");

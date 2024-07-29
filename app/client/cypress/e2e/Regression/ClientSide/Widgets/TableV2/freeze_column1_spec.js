@@ -29,7 +29,7 @@ describe(
       cy.wait(1000);
       cy.get(widgetsPage.tableWidgetV2).then(($elem) => {
         if ($elem) {
-          cy.openPropertyPane(_.draggableWidgets.TABLE);
+          _.propPane.openPropertyPane(_.draggableWidgets.TABLE);
           cy.deleteWidget(widgetsPage.tableWidgetV2);
         }
       });
@@ -39,7 +39,7 @@ describe(
       { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         it("1.1.1 Freeze column to left", () => {
-          cy.openPropertyPane(_.draggableWidgets.TABLE);
+          _.propPane.openPropertyPane(_.draggableWidgets.TABLE);
           cy.openFieldConfiguration("step");
           cy.get(
             ".t--property-control-columnfreeze span[data-value='left']",
@@ -117,7 +117,7 @@ describe(
       { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         it("1.2.1 Check if column freeze for user mode is enabled", () => {
-          cy.openPropertyPane(_.draggableWidgets.TABLE);
+          _.propPane.openPropertyPane(_.draggableWidgets.TABLE);
 
           cy.get(
             ".t--property-control-allowcolumnfreeze input[type='checkbox']",
@@ -196,7 +196,7 @@ describe(
         });
 
         it("1.2.6 Check if column freeze for user mode is disabled", () => {
-          cy.openPropertyPane(_.draggableWidgets.TABLE);
+          _.propPane.openPropertyPane(_.draggableWidgets.TABLE);
           cy.get(
             ".t--property-control-allowcolumnfreeze input[type='checkbox']",
           ).click({

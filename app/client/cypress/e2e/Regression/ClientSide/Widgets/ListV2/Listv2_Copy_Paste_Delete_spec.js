@@ -11,11 +11,11 @@ describe(
         x: 300,
         y: 300,
       });
-      cy.openPropertyPane("imagewidget");
+      _.propPane.openPropertyPane("imagewidget");
       cy.get(commonlocators.PropertyPaneSearchInput).type("border");
       cy.get(commonlocators.BorderRadius0px).click({ force: true });
 
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
 
       cy.get("body").type(`{${modifierKey}}c`);
       cy.wait(500);
@@ -40,7 +40,7 @@ describe(
       // Represents the toast message is closed
       cy.get(commonlocators.toastmsg).should("not.exist");
 
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
       cy.get("[data-testid='t--delete-widget']").click({ force: true });
       cy.get(".Toastify__toast-body").eq(0).contains("List1 is removed");
       cy.wait("@updateLayout").should(

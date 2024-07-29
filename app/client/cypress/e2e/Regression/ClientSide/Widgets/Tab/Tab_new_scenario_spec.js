@@ -8,7 +8,7 @@ describe("Tab widget test", { tags: ["@tag.Widget", "@tag.Tab"] }, function () {
     _.agHelper.AddDsl("tabsWithWidgetDsl");
   });
   it("Tab Widget Functionality Test with Modal on change of selected tab", function () {
-    cy.openPropertyPane("tabswidget");
+    _.propPane.openPropertyPane("tabswidget");
     cy.widgetText("tab", Layoutpage.tabWidget, widgetsPage.widgetNameSpan);
     cy.AddActionWithModal();
     cy.get(".t--draggable-buttonwidget:contains('Close')").click({

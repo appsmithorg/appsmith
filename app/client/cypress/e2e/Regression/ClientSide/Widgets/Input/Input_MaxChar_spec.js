@@ -25,14 +25,14 @@ describe(
     });
 
     it("Text Input maxChar shows error if inputText longer than maxChar", () => {
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       cy.clearComputedValueFirst();
       cy.testJsontext("defaultvalue", "");
       cy.closePropertyPane("inputwidgetv2");
 
       cy.get(widgetsPage.innertext).click({ force: true }).type("1234567");
 
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
 
       cy.testJsontext("maxcharacters", "3");
       cy.closePropertyPane("inputwidgetv2");
@@ -44,7 +44,7 @@ describe(
     });
 
     it("Number Input will not show error for maxChar validation", () => {
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       cy.selectDropdownValue(commonlocators.dataType, "Number");
       cy.get(".bp3-popover-content").should("not.exist");
     });

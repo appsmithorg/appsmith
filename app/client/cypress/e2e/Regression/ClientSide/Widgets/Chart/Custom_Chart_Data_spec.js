@@ -10,7 +10,7 @@ describe(
 
     it("1. change chart type to custom chart", function () {
       const value1 = 40;
-      cy.openPropertyPane("chartwidget");
+      _.propPane.openPropertyPane("chartwidget");
       cy.UpdateChartType("Custom Fusion Charts (deprecated)");
       //change chart value via input widget and validate
       enterAndTest("inputwidgetv2", value1, value1);

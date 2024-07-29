@@ -131,7 +131,7 @@ describe(
         ],
       };
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext(
         "Source data",
         JSON.stringify(modifiedSourceData),

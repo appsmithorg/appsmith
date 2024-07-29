@@ -13,7 +13,7 @@ describe(
         cy.get(`${selector} img`).should("have.css", "height", "32px");
       });
 
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("image");
       cy.moveToStyleTab();
 
@@ -36,7 +36,7 @@ describe(
     });
 
     it("2. Verify image size with cell wrapping turned on", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("title");
       cy.moveToContentTab();
       cy.get(".t--property-control-cellwrapping input").click();
@@ -46,7 +46,7 @@ describe(
         cy.get(`${selector} img`).should("have.css", "height", "32px");
       });
 
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("image");
       cy.moveToStyleTab();
 

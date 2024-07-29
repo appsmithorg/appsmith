@@ -61,14 +61,14 @@ describe(
 
     it("3. re-runs query of page 1 when reset", () => {
       // Modify onPageChange
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
       cy.get(toggleJSButton("onpagechange")).click({ force: true });
       cy.testJsontext(
         "onpagechange",
         "{{Query1.run(() => {showAlert(`Query Ran ${new Date().getTime()}`)}, () => {})}}",
       );
 
-      cy.openPropertyPane("buttonwidget");
+      _.propPane.openPropertyPane("buttonwidget");
 
       cy.get(toggleJSButton("onclick")).click({ force: true });
 
@@ -153,7 +153,7 @@ describe(
     });
 
     it("5. Total Record Count", () => {
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
 
       cy.updateCodeInput(".t--property-control-totalrecords", `{{10}}`);
 
@@ -213,7 +213,7 @@ describe(
 
       cy.wait(1000);
 
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
 
       cy.testJsontext("items", "{{Query2.data}}");
 

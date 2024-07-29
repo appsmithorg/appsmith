@@ -23,7 +23,7 @@ describe(
       cy.get(".bp3-disabled").should("be.visible");
       _.deployMode.NavigateBacktoEditor();
       //Enable the widget and check in publish mode", function () {
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       EditorNavigation.SelectEntityByName("SelectRenamed", EntityType.Widget);
       cy.get(".bp3-disabled").should("be.visible");
       _.propPane.TogglePropertyState("Disabled", "Off");

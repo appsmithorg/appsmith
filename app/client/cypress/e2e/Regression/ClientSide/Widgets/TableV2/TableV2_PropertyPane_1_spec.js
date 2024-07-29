@@ -27,7 +27,7 @@ describe(
     // Column Data type: Video
     it("1. Verify default array data", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       // Drag and drop table widget
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 200);
       EditorNavigation.SelectEntityByName("Table2", EntityType.Widget);
@@ -62,7 +62,7 @@ describe(
 
     it("3. Verify On Row Selected Action", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       // Select show message in the "on selected row" dropdown
       cy.getAlert("onRowSelected", "Row is selected");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
@@ -76,7 +76,7 @@ describe(
 
     it("4. Verify On Search Text Change Action", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       // Show Message on Search text change Action
       cy.getAlert("onSearchTextChanged", "Search Text Changed");
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
@@ -90,7 +90,7 @@ describe(
 
     it("5. Check On Page Change Action", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.get(".t--property-control-serversidepagination input").click({
         force: true,
       });
@@ -107,7 +107,7 @@ describe(
     });
 
     it("6. Check open section and column data in property pane", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
 
       // Validate the columns are visible in the property pane
       cy.tableV2ColumnDataValidation("id");
@@ -135,13 +135,13 @@ describe(
     });
 
     it("7. Column Detail - Edit column name and validate test for computed value based on column type selected", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.wait(1000);
       cy.makeColumnVisible("email");
       cy.makeColumnVisible("userName");
       cy.makeColumnVisible("productName");
       cy.makeColumnVisible("orderAmount");
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
 
       // Open column detail to be edited by draggable id
       cy.editColumn("id");
@@ -235,7 +235,7 @@ describe(
     });
 
     it("8. Test to validate text allignment", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.get(commonlocators.changeColType).last().click();
       cy.get(".t--dropdown-option").children().contains("URL").click();
       // cy.get(".t--property-control-visible span.bp3-control-indicator").click();

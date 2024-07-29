@@ -154,7 +154,7 @@ describe(
       { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         it("2.3.1 Hide left frozen column and check it's position is before right frozen columns", () => {
-          cy.openPropertyPane(_.draggableWidgets.TABLE);
+          _.propPane.openPropertyPane(_.draggableWidgets.TABLE);
           cy.hideColumn("action");
           cy.getTableV2DataSelector("0", "2").then((selector) => {
             cy.get(selector).should("have.class", "hidden-cell");

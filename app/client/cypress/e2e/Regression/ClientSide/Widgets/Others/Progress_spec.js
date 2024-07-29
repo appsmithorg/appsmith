@@ -21,7 +21,7 @@ describe(
 
     // Linear progress
     it("1. Property: isIndeterminate, Toggle infinite loading", function () {
-      cy.openPropertyPane("progresswidget");
+      _.propPane.openPropertyPane("progresswidget");
       // enable infinite loading
       agHelper.CheckUncheck(widgets.infiniteLoading);
       // show indeterminate linear progress
@@ -69,7 +69,7 @@ describe(
       cy.get("[data-testid='circular']").should("exist");
     });
     it("6. Property: isIndeterminate, Toggle infinite loading", function () {
-      cy.openPropertyPane("progresswidget");
+      _.propPane.openPropertyPane("progresswidget");
       // enable infinite loading
       agHelper.CheckUncheck(widgets.infiniteLoading);
       // show indeterminate linear progress
@@ -128,7 +128,7 @@ describe(
     });
 
     it("11. The binding property, progress should be exposed for an auto suggestion", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.get(".t--property-control-text .CodeMirror textarea").type(
         "{{Progress1.",
         { force: true },

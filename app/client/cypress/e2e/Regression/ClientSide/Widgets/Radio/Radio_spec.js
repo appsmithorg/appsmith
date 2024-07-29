@@ -63,13 +63,13 @@ describe(
     });
 
     it("2. Radio Functionality To Check/Uncheck Visible property", function () {
-      cy.openPropertyPane("radiogroupwidget");
+      _.propPane.openPropertyPane("radiogroupwidget");
       propPane.TogglePropertyState("Visible", "Off");
       deployMode.DeployApp();
       cy.get(publish.radioWidget + " " + "input").should("not.exist");
       deployMode.NavigateBacktoEditor();
       //Radio Functionality To Check Visible Widget
-      cy.openPropertyPane("radiogroupwidget");
+      _.propPane.openPropertyPane("radiogroupwidget");
       propPane.TogglePropertyState("Visible", "On");
       deployMode.DeployApp();
       agHelper.AssertExistingCheckedState(

@@ -10,7 +10,7 @@ describe(
     });
 
     it("1. Check default image src", function () {
-      cy.openPropertyPane("imagewidget");
+      _.propPane.openPropertyPane("imagewidget");
       cy.get(viewWidgetsPage.imageinner)
         .invoke("attr", "src")
         .should(
@@ -28,7 +28,7 @@ describe(
     });
 
     it("3. Remove both images and check empty screen", function () {
-      cy.openPropertyPane("imagewidget");
+      _.propPane.openPropertyPane("imagewidget");
 
       cy.get(".t--property-control-image").then(($el) =>
         cy.updateCodeInput($el, ""),
@@ -51,7 +51,7 @@ describe(
     });
 
     it("4. Add new image and check image src", function () {
-      cy.openPropertyPane("imagewidget");
+      _.propPane.openPropertyPane("imagewidget");
       cy.clearPropertyValue(0);
 
       cy.testCodeMirror(this.dataSet.NewImage);

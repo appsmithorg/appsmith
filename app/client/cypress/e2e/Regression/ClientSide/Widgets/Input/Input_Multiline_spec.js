@@ -44,7 +44,7 @@ describe(
     it("2. Multi-line text with different heights i.e. Auto height, Auto height with limit and Fixed", () => {
       const textMsg = "Dynamic panel validation for input widget wrt height";
       cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 300 });
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       cy.selectDropdownValue(widgetsPage.datatype, "Multi-line text");
       // verify height changes to auto height
 
@@ -84,7 +84,7 @@ describe(
             });
         });
       // select height as fixed for multiline datatype
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       cy.moveToContentTab();
       cy.get(widgetsPage.datatype).last().click({ force: true });
       cy.selectDropdownValue(commonlocators.heightDropdown, "Fixed");
@@ -124,7 +124,7 @@ describe(
 
     it("3. Enter key behaviour with single line and multi line selection", () => {
       cy.dragAndDropToCanvas("inputwidgetv2", { x: 300, y: 500 });
-      cy.openPropertyPane(WIDGET.INPUT_V2);
+      _.propPane.openPropertyPane(WIDGET.INPUT_V2);
       cy.get(PROPERTY_SELECTOR.onSubmit).find(".t--js-toggle").click();
       cy.updateCodeInput(
         PROPERTY_SELECTOR.onSubmit,

@@ -32,7 +32,7 @@ describe(
       }]}}`,
       );
 
-      cy.openPropertyPaneByWidgetName("Text1", "textwidget");
+      _.propPane.openPropertyPaneByWidgetName("Text1", "textwidget");
 
       [
         ["{{currentItem.name}}", "Blue"],
@@ -57,7 +57,7 @@ describe(
     });
 
     it("2. List widget V2 with error input", () => {
-      cy.openPropertyPaneByWidgetName("Text1", "textwidget");
+      _.propPane.openPropertyPaneByWidgetName("Text1", "textwidget");
 
       [
         ["{{currentItem}}", "This value does not evaluate to type string"],

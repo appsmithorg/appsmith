@@ -6,7 +6,7 @@ const fieldPrefix = ".t--jsonformfield";
 describe("JSON Form reset", { tags: ["@tag.Widget", "@tag.JSONForm"] }, () => {
   before(() => {
     cy.addDsl(dslWithSchema);
-    cy.openPropertyPane("jsonformwidget");
+    _.propPane.openPropertyPane("jsonformwidget");
     cy.get(locators._jsToggle("sourcedata")).click({ force: true });
   });
 

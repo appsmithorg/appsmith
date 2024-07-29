@@ -20,7 +20,7 @@ describe(
     });
 
     it("1. should test that Non ASCII characters in the tableData are shown in the table column header", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       _.propPane.UpdatePropertyFieldValue("Table data", JSON.stringify(data));
       cy.wait("@updateLayout");
       Object.keys(data[0]).forEach((column) => {
@@ -32,7 +32,7 @@ describe(
 
     it("2. should test that selectedRow also retains the non-ascii characters", () => {
       cy.dragAndDropToCanvas("textwidget", { x: 200, y: 100 });
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow}}");
       cy.get(".t--widget-textwidget .bp3-ui-text").should(
         "contain",
@@ -46,9 +46,9 @@ describe(
     });
 
     it("3. should test that triggeredRow also retains the non-ascii characters", () => {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.triggeredRow}}");
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.addColumnV2("button");
       cy.editColumn("customColumn1");
       cy.get(commonlocators.changeColType).last().click();

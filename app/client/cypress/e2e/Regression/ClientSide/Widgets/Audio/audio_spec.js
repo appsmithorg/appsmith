@@ -11,7 +11,7 @@ describe(
     });
 
     it("1. Audio Widget play functionality validation", function () {
-      cy.openPropertyPane("audiowidget");
+      _.propPane.openPropertyPane("audiowidget");
       cy.widgetText(
         "Audio1",
         widgetsPage.audioWidget,
@@ -53,7 +53,7 @@ describe(
 
     it("3. Checks if audio widget is reset on button click", function () {
       cy.dragAndDropToCanvas("buttonwidget", { x: 300, y: 300 });
-      cy.openPropertyPane("buttonwidget");
+      _.propPane.openPropertyPane("buttonwidget");
       cy.widgetText(
         "Button1",
         widgetsPage.buttonWidget,
@@ -63,10 +63,10 @@ describe(
       cy.selectWidgetForReset("Audio1");
 
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(".t--property-control-text", `{{Audio1.playState}}`);
 
-      cy.openPropertyPane("audiowidget");
+      _.propPane.openPropertyPane("audiowidget");
       cy.get(widgetsPage.autoPlay).click({ force: true });
       // Wait time added, allowing a second to pass between playing and pausing the widget, before it is reset to zero
       cy.wait(1000);

@@ -18,7 +18,7 @@ describe(
     it("1. Validate calendar on clicking date field", () => {
       const schema = { Key: "20/03/1992" };
       cy.addDsl(dslWithoutSchema);
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       _.propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       cy.xpath(jsonform.datepickerContainer).click({
@@ -30,7 +30,7 @@ describe(
     it("2. Validate calendar on clicking date field", () => {
       const schema = { Key: true };
       cy.addDsl(dslWithoutSchema);
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       _.propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       cy.get(jsonform.switchStatus).should("be.visible");
@@ -40,7 +40,7 @@ describe(
     it("3. Validate email input field in form", () => {
       const schema = { Key: "Value@mail.com" };
       cy.addDsl(dslWithoutSchema);
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       _.propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       cy.xpath(jsonform.emailField).should("be.visible");
@@ -50,7 +50,7 @@ describe(
     it("4. Validate email input field in form", () => {
       const schema = { Key: "value" };
       cy.addDsl(dslWithoutSchema);
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       _.propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       cy.get(jsonform.keyInput).should("be.visible");
@@ -64,7 +64,7 @@ describe(
         employee_id: 1001,
       };
       cy.addDsl(dslWithoutSchema);
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       _.propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       cy.get(jsonform.settings)
@@ -91,7 +91,7 @@ describe(
 
     it("7. Verify property name change with json/text widget binding - Modify property name and check how the binding value changes", () => {
       cy.addDsl(jsonText);
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.get(_.locators._jsToggle("sourcedata")).click({ force: true });
       cy.get(jsonform.settings)
         .first()

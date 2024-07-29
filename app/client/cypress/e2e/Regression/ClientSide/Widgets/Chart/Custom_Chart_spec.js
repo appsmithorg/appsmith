@@ -15,7 +15,7 @@ describe(
     });
 
     beforeEach(() => {
-      cy.openPropertyPane("chartwidget");
+      _.propPane.openPropertyPane("chartwidget");
     });
 
     it("1. Fill the Chart Widget Properties.", function () {

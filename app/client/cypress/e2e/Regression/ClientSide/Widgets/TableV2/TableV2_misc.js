@@ -10,7 +10,7 @@ describe(
     });
 
     it("1. when the column label value is a valid string should show the evaluated string", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.get(
         ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
       ).clear();
@@ -26,7 +26,7 @@ describe(
     });
 
     it("2. when the column label value is a boolean replace column name with default column name", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.get(
         ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
       ).clear();
@@ -41,7 +41,7 @@ describe(
     });
 
     it("3. when the column label value is a number replace column name with default column name", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.get(
         ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
       ).clear();
@@ -68,7 +68,7 @@ describe(
     });
 
     it("4. when the column label value is an object replace column name with default column name", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.get(
         ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
       ).clear();
@@ -83,7 +83,7 @@ describe(
     });
 
     it("5. when the column label value is undefined replace column name with default column name", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.get(
         ".tablewidgetv2-primarycolumn-list div[data-rbd-draggable-id='id'] input[type=text]",
       ).clear();

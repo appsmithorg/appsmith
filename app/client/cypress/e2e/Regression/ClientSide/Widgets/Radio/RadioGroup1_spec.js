@@ -14,7 +14,7 @@ describe(
     });
 
     it("should check that empty value is allowed in options", () => {
-      cy.openPropertyPane("radiogroupwidget");
+      _.propPane.openPropertyPane("radiogroupwidget");
       cy.get(".t--property-control-options")
         .find(".t--js-toggle")
         .click({ force: true });
@@ -37,7 +37,7 @@ describe(
     });
 
     it("should check that more thatn empty value is not allowed in options", () => {
-      cy.openPropertyPane("radiogroupwidget");
+      _.propPane.openPropertyPane("radiogroupwidget");
       cy.updateCodeInput(
         ".t--property-control-options",
         `[

@@ -61,7 +61,7 @@ describe(
       cy.get(publish.checkboxGroupWidget + " " + "input").should("not.exist");
       deployMode.NavigateBacktoEditor();
       //Checkbox Group Functionality To Check Visible Widget
-      cy.openPropertyPane("checkboxgroupwidget");
+      _.propPane.openPropertyPane("checkboxgroupwidget");
       propPane.TogglePropertyState("Visible", "On");
       deployMode.DeployApp();
       cy.wait(500);
@@ -90,7 +90,7 @@ describe(
     });
 
     it("4. Checkbox Group Functionality To alignment options", function () {
-      cy.openPropertyPane("checkboxgroupwidget");
+      _.propPane.openPropertyPane("checkboxgroupwidget");
       cy.moveToStyleTab();
       // check default value
       cy.get(".t--property-control-alignment").should("exist");
@@ -117,10 +117,10 @@ describe(
 
     it("5. Check isDirty meta property", function () {
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       propPane.UpdatePropertyFieldValue("Text", "{{CBGTest.isDirty}}");
       // Change defaultSelectedValues
-      cy.openPropertyPane("checkboxgroupwidget");
+      _.propPane.openPropertyPane("checkboxgroupwidget");
       cy.moveToContentTab();
       propPane.UpdatePropertyFieldValue("Default selected values", "GREEN");
 

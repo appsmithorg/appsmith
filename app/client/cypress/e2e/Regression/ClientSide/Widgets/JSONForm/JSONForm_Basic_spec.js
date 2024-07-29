@@ -16,7 +16,7 @@ describe(
     before(() => {
       cy.dragAndDropToCanvas("jsonformwidget", { x: 200, y: 200 });
       cy.fixture("TestDataSet1").then(function (dataSet) {
-        cy.openPropertyPane("jsonformwidget");
+        _.propPane.openPropertyPane("jsonformwidget");
         propPane.EnterJSContext(
           "Source data",
           JSON.stringify(dataSet.defaultSource),
@@ -27,7 +27,7 @@ describe(
     });
 
     it("json form widget validate default data", function () {
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.get(jsonform.jsformInput).should(
         "have.value",
         this.dataSet.defaultSource.name,
@@ -72,7 +72,7 @@ describe(
       EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
       const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
       //copy and paste
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.get("body").type(`{${modifierKey}}c`);
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);

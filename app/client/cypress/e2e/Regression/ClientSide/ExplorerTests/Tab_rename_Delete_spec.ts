@@ -53,7 +53,7 @@ describe("Tab widget test", { tags: ["@tag.IDE"] }, function () {
 
     it("Tab Widget Functionality To Unchecked Visible Widget", function() {
 deployMode.NavigateBacktoEditor();
-      cy.openPropertyPane("tabswidget");
+      _.propPane.openPropertyPane("tabswidget");
       cy.closePropertyPane();
       cy.get(Layoutpage.tabWidget)
         .contains("Tab 2")

@@ -19,7 +19,7 @@ describe(
     });
 
     beforeEach(() => {
-      cy.openPropertyPane("buttonwidget");
+      _.propPane.openPropertyPane("buttonwidget");
     });
 
     it("1. Icon alignment should not change when changing the icon", () => {
@@ -70,7 +70,7 @@ describe(
       _.deployMode.NavigateBacktoEditor();
       // Button default variant validation", function () {
       // Checks whether the default variant is PRIMARY or not
-      cy.openPropertyPane("buttonwidget");
+      _.propPane.openPropertyPane("buttonwidget");
       cy.get(widgetsPage.widgetBtn).should(
         "have.attr",
         "data-test-variant",
@@ -120,7 +120,7 @@ describe(
       _.deployMode.NavigateBacktoEditor();
 
       //Uncheck the disabled checkbox and validate
-      cy.openPropertyPane("buttonwidget");
+      _.propPane.openPropertyPane("buttonwidget");
       cy.UncheckWidgetProperties(commonlocators.disableCheckbox);
       cy.validateEnableWidget(
         widgetsPage.buttonWidget,
@@ -150,7 +150,7 @@ describe(
       _.deployMode.NavigateBacktoEditor();
 
       //Uncheck the disabled checkbox and validate
-      cy.openPropertyPane("buttonwidget");
+      _.propPane.openPropertyPane("buttonwidget");
       cy.testJsontext("disabled", "false");
       cy.validateEnableWidget(
         widgetsPage.buttonWidget,
@@ -172,7 +172,7 @@ describe(
       _.deployMode.NavigateBacktoEditor();
 
       //Check the disableed checkbox and Validate
-      cy.openPropertyPane("buttonwidget");
+      _.propPane.openPropertyPane("buttonwidget");
       cy.CheckWidgetProperties(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
       cy.get(publishPage.buttonWidget).should("be.visible");
@@ -188,7 +188,7 @@ describe(
       cy.get(publishPage.buttonWidget).should("not.exist");
       _.deployMode.NavigateBacktoEditor();
       //Check the disabled checkbox using JS and Validate
-      cy.openPropertyPane("buttonwidget");
+      _.propPane.openPropertyPane("buttonwidget");
       cy.EnableAllCodeEditors();
       cy.testJsontext("visible", "true");
       _.deployMode.DeployApp();

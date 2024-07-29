@@ -684,4 +684,14 @@ export class PropertyPane {
       .GetElement(this._propertyToggle(propertyName))
       .should(state === "enabled" ? "be.checked" : "not.be.checked");
   }
+
+  public openPropertyPane(widgetType: string): void {
+    const selector = `.t--draggable-${widgetType}`;
+    cy.get(selector).first().trigger("mouseover", { force: true }).wait(500);
+    cy.get(`${selector}:first-of-type`).first().click({ force: true }).wait(500);
+    cy.get(".t--widget-propertypane-toggle > .t--widget-name")
+      .first()
+      .click({ force: true });
+  }
+  
 }

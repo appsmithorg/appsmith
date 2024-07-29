@@ -10,7 +10,7 @@ describe(
       _.agHelper.AddDsl("textWidgetDsl");
     });
     it("Change the cell background color", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.moveToStyleTab();
       /**
        * @param{Text} Random Text
@@ -65,7 +65,7 @@ describe(
     });
 
     it("Change the text sizes", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.moveToStyleTab();
 
       //Check the label text size with dropdown

@@ -20,13 +20,13 @@ describe(
     });
 
     it("1. Check isDirty meta property", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{SingleSelectTree1.isDirty}}`,
       );
       // Change defaultText
-      cy.openPropertyPane("singleselecttreewidget");
+      _.propPane.openPropertyPane("singleselecttreewidget");
       propPane.UpdatePropertyFieldValue("Default selected value", "GREEN");
       // Check if isDirty is reset to false
       cy.get(".t--widget-textwidget").should("contain", "false");
@@ -41,14 +41,14 @@ describe(
       // Check if isDirty is set to true
       cy.get(".t--widget-textwidget").should("contain", "true");
       // Change defaultText
-      cy.openPropertyPane("singleselecttreewidget");
+      _.propPane.openPropertyPane("singleselecttreewidget");
       cy.updateCodeInput(".t--property-control-defaultselectedvalue", "RED");
       // Check if isDirty is reset to false
       cy.get(".t--widget-textwidget").should("contain", "false");
     });
 
     it("2. Selects value with enter in default value", () => {
-      cy.openPropertyPane("singleselecttreewidget");
+      _.propPane.openPropertyPane("singleselecttreewidget");
       cy.testJsontext("defaultselectedvalue", "RED\n");
       cy.get(formWidgetsPage.singleselecttreeWidget)
         .find(".rc-tree-select-selection-item")
@@ -104,7 +104,7 @@ describe(
     });
 
     it("6. To Check Visible Widget", function () {
-      cy.openPropertyPane("singleselecttreewidget");
+      _.propPane.openPropertyPane("singleselecttreewidget");
       agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       deployMode.DeployApp();
       cy.get(
@@ -126,12 +126,12 @@ describe(
     });
 
     it("8. To Check Clear all functionality", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{SingleSelectTree1.selectedOptionValue}}`,
       );
-      cy.openPropertyPane("singleselecttreewidget");
+      _.propPane.openPropertyPane("singleselecttreewidget");
       agHelper.CheckUncheck(commonlocators.allowclearingValueInput);
 
       cy.get(formWidgetsPage.treeSelectClearAll).last().click({ force: true });
@@ -145,7 +145,7 @@ describe(
     });
 
     it("9. Select tooltip renders if tooltip prop is not empty", () => {
-      cy.openPropertyPane("singleselecttreewidget");
+      _.propPane.openPropertyPane("singleselecttreewidget");
       // enter tooltip in property pan
       cy.get(widgetsPage.inputTooltipControl).type(
         "Helpful text for tooltip !",
@@ -155,7 +155,7 @@ describe(
     });
 
     it("10. To Validate onOptionChange Event gets triggered only when option is changed", () => {
-      cy.openPropertyPane("singleselecttreewidget");
+      _.propPane.openPropertyPane("singleselecttreewidget");
       // Click onOptionChange Event from propertypane
       cy.get(toggleJSButton("onoptionchange")).click({ force: true });
       // Add a message to alert event in onOptionChange

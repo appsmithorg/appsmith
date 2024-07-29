@@ -9,7 +9,7 @@ describe(
       _.agHelper.AddDsl("listWidgetLintDsl");
     });
     it("Linting Error validation on mouseover and errorlog tab", function () {
-      cy.openPropertyPane("listwidget");
+      _.propPane.openPropertyPane("listwidget");
       /**
        * @param{Text} Random Text
        * @param{CheckboxWidget}Mouseover

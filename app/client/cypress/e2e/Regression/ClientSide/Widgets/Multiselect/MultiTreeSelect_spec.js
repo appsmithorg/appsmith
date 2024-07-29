@@ -14,7 +14,7 @@ describe(
     });
 
     it("should check that empty value is allowed in options", () => {
-      cy.openPropertyPane("multiselecttreewidget");
+      _.propPane.openPropertyPane("multiselecttreewidget");
       cy.updateCodeInput(
         ".t--property-control-options",
         `[
@@ -48,7 +48,7 @@ describe(
     });
 
     it("should check that more thatn empty value is not allowed in options", () => {
-      cy.openPropertyPane("multiselecttreewidget");
+      _.propPane.openPropertyPane("multiselecttreewidget");
       cy.updateCodeInput(
         ".t--property-control-options",
         `[

@@ -10,7 +10,7 @@ describe(
     });
 
     it("Table Widget Data validation with Switch ON", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       cy.readTabledataPublish("1", "1").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("30");

@@ -11,7 +11,7 @@ describe(
     });
 
     beforeEach(() => {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
     });
 
     it("1. Text-TextStyle Heading, Text Name Validation", function () {

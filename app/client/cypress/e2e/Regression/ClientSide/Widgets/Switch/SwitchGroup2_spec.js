@@ -12,13 +12,13 @@ describe(
     });
 
     it("1. Check isDirty meta property", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{SwitchGroupTest.isDirty}}`,
       );
       // Change defaultSelectedValues
-      cy.openPropertyPane("switchgroupwidget");
+      _.propPane.openPropertyPane("switchgroupwidget");
       cy.updateCodeInput(
         ".t--property-control-defaultselectedvalues",
         `[\n"BLUE"\n]`,
@@ -31,7 +31,7 @@ describe(
       // Check if isDirty is set to true
       cy.get(".t--widget-textwidget").should("contain", "true");
       // Change defaultSelectedValues
-      cy.openPropertyPane("switchgroupwidget");
+      _.propPane.openPropertyPane("switchgroupwidget");
       cy.updateCodeInput(
         ".t--property-control-defaultselectedvalues",
         `[\n"GREEN"\n]`,

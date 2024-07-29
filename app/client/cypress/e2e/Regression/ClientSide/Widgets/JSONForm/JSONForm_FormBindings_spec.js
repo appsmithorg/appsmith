@@ -20,7 +20,7 @@ describe(
     beforeEach(() => {
       agHelper.RestoreLocalStorageCache();
       cy.addDsl(dslWithSchema);
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.get(locators._jsToggle("sourcedata")).click({ force: true });
     });
 
@@ -44,7 +44,7 @@ describe(
         name: "Test",
       };
       // Bind formData to Text1 widget text property
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
       cy.closePropertyPane();
 
@@ -212,7 +212,7 @@ describe(
         },
       };
 
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.get(".t--property-control-text .CodeMirror textarea").first().clear({
         force: true,
       });
@@ -226,7 +226,7 @@ describe(
         cy.wrap(formData).should("deep.equal", expectedInitialFieldState);
       });
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
 
       // name.required -> true
       cy.openFieldConfiguration("name");
@@ -343,13 +343,13 @@ describe(
         },
       };
 
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.get(".t--property-control-text .CodeMirror textarea").first().clear({
         force: true,
       });
       cy.testJsontext("text", "{{JSON.stringify(JSONForm1.fieldState)}}");
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
 
       // Change accessor name -> firstName
       cy.openFieldConfiguration("name");
@@ -384,7 +384,7 @@ describe(
         firstName: "John",
       };
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
 
       // Change accessor name -> firstName
       cy.openFieldConfiguration("name");
@@ -401,7 +401,7 @@ describe(
 
       cy.wait(5000);
 
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
 
       cy.wait(1000);

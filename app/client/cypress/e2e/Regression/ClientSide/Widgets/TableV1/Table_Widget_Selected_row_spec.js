@@ -8,7 +8,7 @@ describe(
       _.agHelper.AddDsl("tableAndTextDsl");
     });
     it("Table widget new menu button column should not deselect row", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
 
       cy.get(".t--widget-textwidget").should("have.text", "0");
       cy.contains("Open Menu").click({

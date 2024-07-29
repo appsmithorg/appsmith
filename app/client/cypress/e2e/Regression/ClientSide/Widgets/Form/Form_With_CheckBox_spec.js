@@ -12,7 +12,7 @@ describe(
     });
 
     it("1. Checkbox Functionality To Check required toggle for form", function () {
-      cy.openPropertyPane("checkboxwidget");
+      _.propPane.openPropertyPane("checkboxwidget");
       _.agHelper.CheckUncheck(commonlocators.requiredjs + " " + "input");
       _.deployMode.DeployApp();
       cy.wait(2000);
@@ -31,7 +31,7 @@ describe(
     });
 
     it("2. Checkbox Functionality To swap label alignment of checkbox", function () {
-      cy.openPropertyPane("checkboxwidget");
+      _.propPane.openPropertyPane("checkboxwidget");
       cy.get(publish.checkboxWidget + " " + ".t--checkbox-widget-label").should(
         "have.css",
         "text-align",
@@ -56,7 +56,7 @@ describe(
     });
 
     it("3. Checkbox Functionality To swap label position of checkbox", function () {
-      cy.openPropertyPane("checkboxwidget");
+      _.propPane.openPropertyPane("checkboxwidget");
       cy.get(publish.checkboxWidget + " " + ".bp3-align-right").should(
         "not.exist",
       );
@@ -77,7 +77,7 @@ describe(
     });
 
     it("4. Checkbox Functionality To change label color of checkbox", function () {
-      cy.openPropertyPane("checkboxwidget");
+      _.propPane.openPropertyPane("checkboxwidget");
       cy.moveToStyleTab();
       cy.get(".t--property-control-fontcolor .bp3-input").type("red");
       cy.wait(200);
@@ -91,7 +91,7 @@ describe(
     });
 
     it("5. Checkbox Functionality To change label size of checkbox", function () {
-      cy.openPropertyPane("checkboxwidget");
+      _.propPane.openPropertyPane("checkboxwidget");
       cy.moveToStyleTab();
       cy.get(widgetsPage.textSizeNew).last().click({ force: true });
       // eslint-disable-next-line cypress/no-unnecessary-waiting
@@ -107,7 +107,7 @@ describe(
     });
 
     it("6. Checkbox Functionality To change label style of checkbox", function () {
-      cy.openPropertyPane("checkboxwidget");
+      _.propPane.openPropertyPane("checkboxwidget");
       cy.moveToStyleTab();
       cy.get(".t--property-control-emphasis .t--button-group-BOLD").click();
       _.deployMode.DeployApp();

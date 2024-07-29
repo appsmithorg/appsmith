@@ -11,7 +11,7 @@ describe(
     });
 
     it("1. Test multi select column shows when enable Multirowselection is true", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       cy.get(widgetsPage.toggleEnableMultirowselection_tablev1)
         .first()
         .click({ force: true });
@@ -34,7 +34,7 @@ describe(
       );
     });
     it("2. Test action configured on onRowSelected get triggered whenever a table row is selected", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       cy.getAlert("onRowSelected", "Row Selected");
       // un select first row
       cy.get(".t--table-multiselect").first().click({ force: true });
@@ -45,7 +45,7 @@ describe(
     });
 
     it("3. It should deselected default Selected Row when the header cell is clicked", () => {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       cy.testJsontext("defaultselectedrow", 0);
 
       // click on header check cell

@@ -52,7 +52,7 @@ describe(
         cy.get(selector).should("not.exist");
       });
       _.deployMode.NavigateBacktoEditor();
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("completed");
       _.propPane.TogglePropertyState("Visible");
       cy.getTableV2DataSelector("0", "4").then((selector) => {

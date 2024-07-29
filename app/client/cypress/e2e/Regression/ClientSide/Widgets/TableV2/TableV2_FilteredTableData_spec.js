@@ -15,7 +15,7 @@ describe(
   function () {
     before("Table Widget V2 Functionality", () => {
       _.agHelper.AddDsl("tableV2AndTextDsl");
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
     });
 
     it("1. Table Widget V2 Functionality To Filter and search data", function () {

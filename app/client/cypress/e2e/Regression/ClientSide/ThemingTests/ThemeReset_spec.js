@@ -11,7 +11,7 @@ describe("Theme validation usecases", { tags: ["@tag.Theme"] }, function () {
     cy.get(".t--widget-buttonwidget").should("exist");
 
     // open property pane
-    cy.openPropertyPane("buttonwidget");
+    _.propPane.openPropertyPane("buttonwidget");
     cy.moveToStyleTab();
     // change color to red
     cy.get(widgetsPage.buttonColor).click({ force: true }).clear().type("red");

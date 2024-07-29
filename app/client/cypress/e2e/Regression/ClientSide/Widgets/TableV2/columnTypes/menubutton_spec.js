@@ -10,7 +10,7 @@ describe(
     });
 
     it("1. should check that menuitems background color property has access to currentRow", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("task");
       cy.changeColumnType("Menu button");
       cy.get(".t--add-menu-item-btn").click();
