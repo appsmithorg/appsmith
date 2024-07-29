@@ -37,11 +37,6 @@ if [[ -z "$old_version" ]]; then
 	exit
 fi
 
-if [[ -f "$pg_data_dir/postmaster.pid" ]]; then
-	tlog "Previous Postgres was not shutdown cleanly. Please start and stop Postgres $old_version properly with 'supervisorctl' only." >&2
-	exit 1
-fi
-
 top_available_version="$(postgres --version | grep -o '[[:digit:]]\+' | head -1)"
 
 declare -a to_uninstall
@@ -55,14 +50,30 @@ if [[ "$old_version" == 13 && "$top_available_version" > "$old_version" ]]; then
 		to_uninstall+=("postgresql-$old_version")
 	fi
 
-  new_version="$((old_version + 1))"
-  new_data_dir="$pg_data_dir-$new_version"
+	if [[ -f "$pg_data_dir/postmaster.pid" ]]; then
+		# Start old PostgreSQL using pg_ctl
+		tlog "Stale postmaster.pid found. Starting old PostgreSQL $old_version using pg_ctl to cleanup."
+		su postgres -c "$postgres_path/$old_version/bin/pg_ctl start -D '$pg_data_dir' "
 
-  # `pg_upgrade` writes log to current folder. So change to a temp folder first.
-  rm -rf "$TMP/pg_upgrade" "$new_data_dir"
-  mkdir -p "$TMP/pg_upgrade" "$new_data_dir"
-  chown -R postgres "$TMP/pg_upgrade" "$new_data_dir"
-  cd "$TMP/pg_upgrade"
+		# Wait for old PostgreSQL to be ready
+		until su postgres -c "$postgres_path/$old_version/bin/pg_isready"; do
+			tlog "Waiting for PostgreSQL $old_version to start..."
+			sleep 1
+		done
+
+		# Shut down PostgreSQL gracefully using pg_ctl
+		su postgres -c "$postgres_path/$old_version/bin/pg_ctl stop -D '$pg_data_dir' -m smart"
+		tlog "PostgreSQL $old_version has been shut down."
+	fi
+
+	new_version="$((old_version + 1))"
+	new_data_dir="$pg_data_dir-$new_version"
+
+	# `pg_upgrade` writes log to current folder. So change to a temp folder first.
+	rm -rf "$TMP/pg_upgrade" "$new_data_dir"
+	mkdir -p "$TMP/pg_upgrade" "$new_data_dir"
+	chown -R postgres "$TMP/pg_upgrade" "$new_data_dir"
+	cd "$TMP/pg_upgrade"
 
 	# Required by the temporary Postgres server started by `pg_upgrade`.
 	chown postgres /etc/ssl/private/ssl-cert-snakeoil.key
@@ -88,7 +99,7 @@ if [[ "$old_version" == 13 && "$top_available_version" > "$old_version" ]]; then
 fi
 
 if [[ -n "${#to_uninstall[@]}" ]]; then
-	apt-get purge "${to_uninstall[@]}"
+	DEBIAN_FRONTEND=noninteractive apt-get purge --yes "${to_uninstall[@]}"
 	apt-get clean
 fi
 

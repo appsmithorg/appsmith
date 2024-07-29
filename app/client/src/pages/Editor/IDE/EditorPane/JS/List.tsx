@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import { Flex, Text } from "design-system";
 import styled from "styled-components";
 
+import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
 import { selectJSSegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
 import {
@@ -19,7 +20,8 @@ import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { JSListItem } from "@appsmith/pages/Editor/IDE/EditorPane/JS/ListItem";
 import { BlankState } from "./BlankState";
 import { AddAndSearchbar } from "../components/AddAndSearchbar";
-import { fuzzySearchInFiles } from "../utils";
+import { fuzzySearchInObjectItems } from "../utils";
+import { EmptySearchResult } from "../components/EmptySearchResult";
 import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
 
 const JSContainer = styled(Flex)`
@@ -44,7 +46,10 @@ const ListJSObjects = () => {
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const localFiles = fuzzySearchInFiles(searchTerm, files);
+  const localFiles = fuzzySearchInObjectItems<EditorSegmentList>(
+    searchTerm,
+    files,
+  );
 
   const canCreateActions = getHasCreateActionPermission(
     isFeatureEnabled,
@@ -60,6 +65,7 @@ const ListJSObjects = () => {
       flexDirection="column"
       gap="spaces-3"
       overflow="hidden"
+      px="spaces-3"
       py="spaces-3"
     >
       {files && files.length > 0 ? (
@@ -80,13 +86,12 @@ const ListJSObjects = () => {
           flexDirection="column"
           gap="spaces-4"
           overflowY="auto"
-          px="spaces-3"
         >
           {localFiles.map(({ group, items }) => {
             return (
               <Flex flexDirection={"column"} key={group}>
                 {group !== "NA" ? (
-                  <Flex px="spaces-3" py="spaces-1">
+                  <Flex py="spaces-1">
                     <Text
                       className="overflow-hidden overflow-ellipsis whitespace-nowrap"
                       kind="body-s"
@@ -112,13 +117,9 @@ const ListJSObjects = () => {
             );
           })}
           {localFiles.length === 0 && searchTerm !== "" ? (
-            <Text
-              className="font-normal text-center"
-              color="var(--ads-v2-color-fg-muted)"
-              kind="body-s"
-            >
-              {createMessage(EDITOR_PANE_TEXTS.empty_search_result, "JS")}
-            </Text>
+            <EmptySearchResult
+              type={createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject)}
+            />
           ) : null}
         </Flex>
       </FilesContextProvider>

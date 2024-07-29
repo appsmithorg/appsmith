@@ -39,7 +39,6 @@ describe("EditorTabs render checks", () => {
       `/app/applicationSlug/pageSlug-${page.pageId}/edit`,
       state,
     );
-    // check toggle is active
     expect(container.firstChild).toBeNull();
   });
 
@@ -48,11 +47,6 @@ describe("EditorTabs render checks", () => {
     const { getByTestId, queryByTestId } = renderComponent(
       `/app/applicationSlug/pageSlug-${page.pageId}/edit/queries`,
       state,
-    );
-    // check toggle is active
-    expect(getByTestId("t--list-toggle")).toHaveAttribute(
-      "data-selected",
-      "true",
     );
     // check tabs is empty
     const tabsContainer = getByTestId("t--tabs-container");
@@ -74,7 +68,7 @@ describe("EditorTabs render checks", () => {
       `/app/applicationSlug/pageSlug-${page.pageId}/edit/queries`,
       state,
     );
-    // check toggle is active
+    // check toggle
     expect(queryByTestId("t--list-toggle")).toBeNull();
 
     // check tabs is empty
@@ -143,7 +137,7 @@ describe("EditorTabs render checks", () => {
       state,
     );
 
-    // check toggle is not active
+    // check toggle
     expect(queryByTestId("t--list-toggle")).toBeNull();
 
     // check tabs is not empty
