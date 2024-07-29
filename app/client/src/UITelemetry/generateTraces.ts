@@ -87,6 +87,17 @@ export function setAttributesToSpan(
   span?.setAttributes(spanAttributes);
 }
 
+export const startAndEndSpanForFn = <T>(
+  spanName: string,
+  spanAttributes: SpanAttributes = {},
+  fn: () => T,
+) => {
+  const span = startRootSpan(spanName, spanAttributes);
+  const res: T = fn();
+  span.end();
+  return res;
+};
+
 export function wrapFnWithParentTraceContext(parentSpan: Span, fn: () => any) {
   const parentContext = trace.setSpan(context.active(), parentSpan);
   return context.with(parentContext, fn);
