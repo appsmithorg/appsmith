@@ -6,7 +6,7 @@ import { Button } from "design-system";
 import { generateReactKey } from "utils/generators";
 import { debounce } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { ReactComponent as WarningErrorIcon } from 'assets/icons/alert/warning-error.svg';
+import { ReactComponent as WarningErrorIcon } from "assets/icons/alert/warning-error.svg";
 
 function updateOptionLabel<T>(
   options: Array<T>,
@@ -46,12 +46,12 @@ const FlexBox = styled.div`
 `;
 
 const ErrorMessageBox = styled.div`
-  color: ${props => props.theme.colors.error};
+  color: ${(props) => props.theme.colors.error};
   display: flex;
   flex-direction: row;
   gap: 10px;
   align-items: center;
-  justify-content:center;
+  justify-content: center;
   margin-left: 0;
   margin-bottom: 12px;
 `;
@@ -65,10 +65,14 @@ const StyledInputGroup = styled(InputGroup)<{ hasError: boolean }>`
     min-width: 0px;
   }
   & input {
-    ${props => props.hasError && `
+    ${(props) =>
+      props.hasError &&
+      `
       border-color: ${props.theme.colors.error};
     `}
-    ${props => !props.hasError && `
+    ${(props) =>
+      !props.hasError &&
+      `
       border-color: #cdd5df;
       &:focus {
         border-color: #4c5664;
