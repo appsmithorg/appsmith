@@ -68,6 +68,7 @@ import {
   ONSUBMIT_NOT_CONFIGURED_MESSAGE,
 } from "../constants/messages";
 import { createMessage } from "@appsmith/constants/messages";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -651,6 +652,7 @@ class JSONFormWidget extends BaseWidget<
     schema: Schema,
     afterUpdateAction?: ExecuteTriggerPayload,
   ) => {
+    const span = startRootSpan("JSONFormWidget.parseAndSaveFieldState");
     const fieldState = generateFieldState(schema, metaInternalFieldState);
     const action = klona(afterUpdateAction);
 
@@ -664,6 +666,7 @@ class JSONFormWidget extends BaseWidget<
         actionPayload,
       );
     }
+    endSpan(span);
   };
 
   onSubmit = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {

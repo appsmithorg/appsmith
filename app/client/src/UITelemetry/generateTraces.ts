@@ -11,14 +11,14 @@ import { deviceType } from "react-device-detect";
 
 import { APP_MODE } from "entities/App";
 import { matchBuilderPath, matchViewerPath } from "constants/routes";
+import memoizeOne from "memoize-one";
 
 const GENERATOR_TRACE = "generator-tracer";
 
 export type OtlpSpan = Span;
 export type SpanAttributes = Attributes;
 
-const getCommonTelemetryAttributes = () => {
-  const pathname = window.location.pathname;
+const getAppMode = memoizeOne((pathname: string) => {
   const isEditorUrl = matchBuilderPath(pathname);
   const isViewerUrl = matchViewerPath(pathname);
 
@@ -27,6 +27,11 @@ const getCommonTelemetryAttributes = () => {
     : isViewerUrl
       ? APP_MODE.PUBLISHED
       : "";
+  return appMode;
+});
+const getCommonTelemetryAttributes = () => {
+  const pathname = window.location.pathname;
+  const appMode = getAppMode(pathname);
 
   return {
     appMode,
@@ -87,7 +92,30 @@ export function setAttributesToSpan(
   span?.setAttributes(spanAttributes);
 }
 
+export const startAndEndSpanForFn = <T>(
+  spanName: string,
+  spanAttributes: SpanAttributes = {},
+  fn: () => T,
+) => {
+  const span = startRootSpan(spanName, spanAttributes);
+  const res: T = fn();
+  span.end();
+  return res;
+};
+
 export function wrapFnWithParentTraceContext(parentSpan: Span, fn: () => any) {
   const parentContext = trace.setSpan(context.active(), parentSpan);
   return context.with(parentContext, fn);
+}
+
+export function startAndEndSpan(
+  spanName: string,
+  startTime: number,
+  difference: number,
+  spanAttributes: SpanAttributes = {},
+) {
+  const endTime = startTime + Math.floor(difference);
+
+  const span = startRootSpan(spanName, spanAttributes, startTime);
+  span.end(endTime);
 }

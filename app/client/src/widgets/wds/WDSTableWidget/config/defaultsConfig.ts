@@ -36,7 +36,7 @@ export const defaultsConfig = {
   isVisiblePagination: true,
   isSortable: true,
   delimiter: ",",
-  version: 2,
+  version: 1,
   inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
   pageSize: 8,
   buttonLabel: "Action",
