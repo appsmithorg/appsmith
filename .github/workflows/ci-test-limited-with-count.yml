@@ -350,7 +350,7 @@ jobs:
           
       - name: Trim number of cypress log files
         run: |
-          cd app/client && npx cypress-repeat run -n 4 --force --spec "cypress/e2e/Regression/ClientSide/DynamicHeight/TextWidget_Spec.ts"
+          cd app/client && npx cypress-repeat run -n 4 --force --spec "cypress/e2e/Regression/ClientSide/DynamicHeight/TextWidget_Spec.ts" --config-file "cypress_ci_custom.config.ts"
 
       - name: Trim number of cypress log files
         if: failure()
