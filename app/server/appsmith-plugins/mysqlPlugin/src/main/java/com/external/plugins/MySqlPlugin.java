@@ -374,7 +374,7 @@ public class MySqlPlugin extends BasePlugin {
                                 Optional<PoolMetrics> poolMetricsOptional = connectionPool.getMetrics();
                                 if (poolMetricsOptional.isPresent()) {
                                     PoolMetrics poolMetrics = poolMetricsOptional.get();
-                                    log.debug(
+                                    log.info(
                                             "Execute query: connection Pool Metrics: Acquired {}, Pending: {}, Allocated: {}, idle: {}, Max allocations: {}, Max pending acquire: {}",
                                             poolMetrics.acquiredSize(),
                                             poolMetrics.pendingAcquireSize(),
@@ -734,7 +734,7 @@ public class MySqlPlugin extends BasePlugin {
                                         Optional<PoolMetrics> poolMetricsOptional = connectionPool.getMetrics();
                                         if (poolMetricsOptional.isPresent()) {
                                             PoolMetrics poolMetrics = poolMetricsOptional.get();
-                                            log.debug(
+                                            log.info(
                                                     "Get structure: connection Pool Metrics: Acquired {}, Pending: {}, Allocated: {}, idle: {}, Max allocations: {}, Max pending acquire: {}",
                                                     poolMetrics.acquiredSize(),
                                                     poolMetrics.pendingAcquireSize(),
