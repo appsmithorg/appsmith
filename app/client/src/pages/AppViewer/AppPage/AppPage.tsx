@@ -1,18 +1,16 @@
 import React, { useEffect, useMemo, useRef } from "react";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
-import { debounce } from "lodash";
-import { updateCanvasLayoutAction } from "actions/editorActions";
 
 import { PageView, PageViewWrapper } from "./AppPage.styled";
-import { RESIZE_DEBOUNCE_THRESHOLD } from "./constants";
+import { useCanvasWidthAutoResize } from "../../hooks/useCanvasWidthAutoResize";
 
 interface AppPageProps {
   appName?: string;
@@ -25,7 +23,6 @@ interface AppPageProps {
 export function AppPage(props: AppPageProps) {
   const { appName, canvasWidth, pageId, pageName, widgetsStructure } = props;
 
-  const dispatch = useDispatch();
   const appMode = useSelector(getAppMode);
   const isPublished = appMode === APP_MODE.PUBLISHED;
   const isAnvilLayout = useSelector(getIsAnvilLayout);
@@ -36,28 +33,7 @@ export function AppPage(props: AppPageProps) {
   }, [isAnvilLayout, canvasWidth]);
 
   const pageViewWrapperRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    const wrapperElement = pageViewWrapperRef.current;
-    if (wrapperElement) {
-      const debouncedResize = debounce(
-        ([
-          {
-            contentRect: { width },
-          },
-        ]) => {
-          dispatch(updateCanvasLayoutAction(width - sidebarWidth));
-        },
-        RESIZE_DEBOUNCE_THRESHOLD,
-      );
-
-      const resizeObserver = new ResizeObserver(debouncedResize);
-      resizeObserver.observe(wrapperElement);
-
-      return () => {
-        resizeObserver.unobserve(wrapperElement);
-      };
-    }
-  }, [dispatch, sidebarWidth]);
+  useCanvasWidthAutoResize({ ref: pageViewWrapperRef, sidebarWidth });
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGE_LOAD", {

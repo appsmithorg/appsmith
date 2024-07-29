@@ -2,7 +2,7 @@ import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
 import React from "react";
 import { MemoryRouter } from "react-router-dom";
 import * as utilities from "selectors/editorSelectors";
-import * as useCanvasWidthAutoResize from "pages/Editor/WidgetsEditor/components/MainContainerWrapper";
+import * as useCanvasWidthAutoResize from "pages/hooks";
 
 import * as useCanvasDraggingHook from "layoutSystems/fixedlayout/editor/FixedLayoutCanvasArenas/hooks/useCanvasDragging";
 import store from "store";

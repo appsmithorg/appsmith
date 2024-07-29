@@ -22,7 +22,7 @@ import { UpdatedEditor } from "test/testMockedWidgets";
 import { act, fireEvent, render } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
-import * as useCanvasWidthAutoResize from "pages/Editor/WidgetsEditor/components/MainContainerWrapper";
+import * as useCanvasWidthAutoResize from "pages/hooks";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import GlobalHotKeys from "../GlobalHotKeys";
 import * as uiSelectors from "selectors/ui";
