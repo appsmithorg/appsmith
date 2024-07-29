@@ -4,7 +4,7 @@ export const metaConfig = {
   name: "Modal",
   tags: [WIDGET_TAGS.LAYOUT],
   needsMeta: true,
-  searchTags: ["dialog", "popup", "notification"],
+  searchTags: ["dialog", "popup", "modal"],
   onCanvasUI: {
     selectionBGCSSVar: "--on-canvas-ui-widget-selection",
     focusBGCSSVar: "--on-canvas-ui-widget-focus",

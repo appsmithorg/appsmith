@@ -4,5 +4,15 @@ export const metaConfig = {
   name: "Switch",
   tags: [WIDGET_TAGS.TOGGLES],
   needsMeta: true,
-  searchTags: ["boolean"],
+  searchTags: [
+    "checkbox",
+    "check",
+    "toggle",
+    "option",
+    "switch",
+    "binary",
+    "boolean",
+    "on",
+    "off",
+  ],
 };

@@ -4,6 +4,14 @@ export const metaConfig = {
   name: "Inline Buttons",
   needsMeta: false,
   isCanvas: false,
-  searchTags: ["click", "submit"],
+  searchTags: [
+    "click",
+    "submit",
+    "button",
+    "action",
+    "toolbar",
+    "menu",
+    "panel",
+  ],
   tags: [WIDGET_TAGS.BUTTONS],
 };
