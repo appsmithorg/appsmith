@@ -19,5 +19,9 @@ export const metaConfig = {
     "textfield",
     "text field",
     "enter",
+    "cash",
+    "expense",
+    "cost",
+    "price",
   ],
 };

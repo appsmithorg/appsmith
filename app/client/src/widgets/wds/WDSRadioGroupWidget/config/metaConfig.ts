@@ -4,5 +4,14 @@ export const metaConfig = {
   name: "Radio Group",
   tags: [WIDGET_TAGS.TOGGLES],
   needsMeta: true,
-  searchTags: ["choice", "option", "radio", "variant"],
+  searchTags: [
+    "choice",
+    "option",
+    "radio",
+    "variant",
+    "choose",
+    "pick",
+    "group",
+    "select",
+  ],
 };

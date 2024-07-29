@@ -12,6 +12,13 @@ export const metaConfig = {
     "toolbar",
     "menu",
     "panel",
+    "delete",
+    "save",
+    "cancel",
+    "group",
+    "bar",
+    "footer",
+    "form",
   ],
   tags: [WIDGET_TAGS.BUTTONS],
 };
