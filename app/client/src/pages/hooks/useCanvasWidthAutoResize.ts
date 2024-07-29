@@ -3,9 +3,19 @@ import { useDispatch, useSelector } from "react-redux";
 import { debounce } from "lodash";
 
 import { updateCanvasLayoutAction } from "actions/editorActions";
-import { DefaultLayoutType } from "constants/WidgetConstants";
-import { getCurrentApplicationLayout } from "selectors/editorSelectors";
+import {
+  DefaultLayoutType,
+  MAIN_CONTAINER_WIDGET_ID,
+} from "constants/WidgetConstants";
+import {
+  getCurrentApplicationLayout,
+  getMainCanvasProps,
+} from "selectors/editorSelectors";
 import { getIsCanvasInitialized } from "selectors/mainCanvasSelectors";
+import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { scrollbarWidth } from "utils/helpers";
 
 import { resolveCanvasWidth } from "./utils/resolveCanvasWidth";
 import { RESIZE_DEBOUNCE_THRESHOLD } from "./constants";
@@ -29,11 +39,15 @@ export const useCanvasWidthAutoResize = ({
     getCurrentApplicationLayout,
   );
 
+  const layoutSystemType = useSelector(getLayoutSystemType);
+  const { isMobile } = useSelector(getMainCanvasProps);
+
   useEffect(() => {
     if (!isCanvasInitialized && ref.current) {
       const resolvedCanvasWidth = resolveCanvasWidth({
         appLayoutType,
-        containerWidth: ref.current.offsetWidth - sidebarWidth,
+        containerWidth:
+          ref.current.offsetWidth - sidebarWidth - scrollbarWidth(),
       });
       dispatch(updateCanvasLayoutAction(resolvedCanvasWidth));
     }
@@ -50,8 +64,17 @@ export const useCanvasWidthAutoResize = ({
         ]) => {
           const resolvedCanvasWidth = resolveCanvasWidth({
             appLayoutType,
-            containerWidth: width - sidebarWidth,
+            containerWidth: width - sidebarWidth - scrollbarWidth(),
           });
+
+          // TODO: this is for AutoLayout only, remove when AutoLayout is sunset.
+          dispatch(
+            updateLayoutForMobileBreakpointAction(
+              MAIN_CONTAINER_WIDGET_ID,
+              layoutSystemType === LayoutSystemTypes.AUTO ? isMobile : false,
+              resolvedCanvasWidth,
+            ),
+          );
 
           dispatch(updateCanvasLayoutAction(resolvedCanvasWidth));
         },
@@ -65,7 +88,7 @@ export const useCanvasWidthAutoResize = ({
         resizeObserver.unobserve(canvasContainerElement);
       };
     }
-  }, [ref, dispatch, appLayoutType, sidebarWidth]);
+  }, [ref, dispatch, appLayoutType, sidebarWidth, layoutSystemType, isMobile]);
 
   return isCanvasInitialized;
 };
