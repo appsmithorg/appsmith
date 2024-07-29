@@ -1,6 +1,5 @@
 .DS_Store
 *.iml
-.env
 
 stacks
 /deploy/docker/fs/opt/appsmith/info.json
