@@ -375,11 +375,13 @@ public class MySqlPlugin extends BasePlugin {
                                 if (poolMetricsOptional.isPresent()) {
                                     PoolMetrics poolMetrics = poolMetricsOptional.get();
                                     log.debug(
-                                            "Execute query: connection Pool Metrics: Acquired {}, Pending: {}, Allocated: {}, idle: {}: ",
+                                            "Execute query: connection Pool Metrics: Acquired {}, Pending: {}, Allocated: {}, idle: {}, Max allocations: {}, Max pending acquire: {}",
                                             poolMetrics.acquiredSize(),
                                             poolMetrics.pendingAcquireSize(),
                                             poolMetrics.allocatedSize(),
-                                            poolMetrics.idleSize());
+                                            poolMetrics.idleSize(),
+                                            poolMetrics.getMaxAllocatedSize(),
+                                            poolMetrics.getMaxPendingAcquireSize());
                                 }
 
                                 return resultMono
@@ -733,11 +735,13 @@ public class MySqlPlugin extends BasePlugin {
                                         if (poolMetricsOptional.isPresent()) {
                                             PoolMetrics poolMetrics = poolMetricsOptional.get();
                                             log.debug(
-                                                    "Get structure: connection Pool Metrics: Acquired {}, Pending: {}, Allocated: {}, idle: {}: ",
+                                                    "Get structure: connection Pool Metrics: Acquired {}, Pending: {}, Allocated: {}, idle: {}, Max allocations: {}, Max pending acquire: {}",
                                                     poolMetrics.acquiredSize(),
                                                     poolMetrics.pendingAcquireSize(),
                                                     poolMetrics.allocatedSize(),
-                                                    poolMetrics.idleSize());
+                                                    poolMetrics.idleSize(),
+                                                    poolMetrics.getMaxAllocatedSize(),
+                                                    poolMetrics.getMaxPendingAcquireSize());
                                         }
                                         if (isValid) {
                                             return connection
