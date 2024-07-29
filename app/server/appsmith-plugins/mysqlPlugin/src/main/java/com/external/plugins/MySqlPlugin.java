@@ -34,6 +34,7 @@ import com.external.utils.MySqlDatasourceUtils;
 import com.external.utils.MySqlErrorUtils;
 import com.external.utils.QueryUtils;
 import io.r2dbc.pool.ConnectionPool;
+import io.r2dbc.pool.PoolMetrics;
 import io.r2dbc.spi.Connection;
 import io.r2dbc.spi.R2dbcBadGrammarException;
 import io.r2dbc.spi.R2dbcException;
@@ -63,18 +64,8 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 import java.util.AbstractMap.SimpleEntry;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.IntStream;
 
@@ -376,6 +367,19 @@ public class MySqlPlugin extends BasePlugin {
                                                         "affectedRows", ObjectUtils.defaultIfNull(rowsUpdated, 0)));
                                                 return rowsList;
                                             });
+                                }
+
+                                // Adding connection pool logs in order to debug memroy leak issue
+                                // Refer: https://github.com/appsmithorg/appsmith/issues/34028
+                                Optional<PoolMetrics> poolMetricsOptional = connectionPool.getMetrics();
+                                if (poolMetricsOptional.isPresent()) {
+                                    PoolMetrics poolMetrics = poolMetricsOptional.get();
+                                    log.debug(
+                                            "Execute query: connection Pool Metrics: Acquired {}, Pending: {}, Allocated: {}, idle: {}: ",
+                                            poolMetrics.acquiredSize(),
+                                            poolMetrics.pendingAcquireSize(),
+                                            poolMetrics.allocatedSize(),
+                                            poolMetrics.idleSize());
                                 }
 
                                 return resultMono
@@ -723,6 +727,18 @@ public class MySqlPlugin extends BasePlugin {
                                     .map(isConnectionValid ->
                                             isConnectionValid && isSSHTunnelConnected(sshTunnelContext))
                                     .flatMapMany(isValid -> {
+                                        // Adding connection pool logs in order to debug memroy leak issue
+                                        // Refer: https://github.com/appsmithorg/appsmith/issues/34028
+                                        Optional<PoolMetrics> poolMetricsOptional = connectionPool.getMetrics();
+                                        if (poolMetricsOptional.isPresent()) {
+                                            PoolMetrics poolMetrics = poolMetricsOptional.get();
+                                            log.debug(
+                                                    "Get structure: connection Pool Metrics: Acquired {}, Pending: {}, Allocated: {}, idle: {}: ",
+                                                    poolMetrics.acquiredSize(),
+                                                    poolMetrics.pendingAcquireSize(),
+                                                    poolMetrics.allocatedSize(),
+                                                    poolMetrics.idleSize());
+                                        }
                                         if (isValid) {
                                             return connection
                                                     .createStatement(COLUMNS_QUERY)
