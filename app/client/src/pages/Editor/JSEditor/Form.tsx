@@ -369,7 +369,7 @@ function JSEditorForm({
             </StyledNotificationWrapper>
           )}
           <Wrapper>
-            <div className="flex flex-1">
+            <div className="flex flex-1 w-full">
               <SecondaryWrapper>
                 <TabbedViewContainer isExecuting={isExecutingCurrentJSAction}>
                   <Tabs
