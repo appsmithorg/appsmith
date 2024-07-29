@@ -1,6 +1,6 @@
 describe("Password Reset Flow", () => {
   const loginUrl = "/user/login";
-  const email = "majahar+12@gmail.com";
+  const email = "test12+34@gmail.com";
   const forgotPasswordClassName = ".sc-hoaEDx > .sc-lknQiW > .sc-bcXHqe";
   const emailPlaceholder = `[placeholder="Enter your email"]`;
   it("Should navigate to reset password page with the correct email", () => {
