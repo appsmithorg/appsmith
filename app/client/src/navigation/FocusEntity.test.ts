@@ -17,7 +17,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.CANVAS,
         id: "",
-        appState: EditorState.EDITOR,
+        appState: EditorState.UI,
         params: {
           applicationId,
           pageId,
@@ -29,7 +29,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.PROPERTY_PANE,
         id: "ryvc8i7oja",
-        appState: EditorState.EDITOR,
+        appState: EditorState.UI,
         params: {
           applicationId,
           pageId,
@@ -42,7 +42,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.QUERY_LIST,
         id: "",
-        appState: EditorState.EDITOR,
+        appState: EditorState.DATA,
         params: {
           applicationId,
           entity: "queries",
@@ -55,7 +55,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.QUERY,
         id: "myApiId",
-        appState: EditorState.EDITOR,
+        appState: EditorState.DATA,
         params: {
           apiId: "myApiId",
           applicationId,
@@ -68,7 +68,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.QUERY,
         id: "myQueryId",
-        appState: EditorState.EDITOR,
+        appState: EditorState.DATA,
         params: {
           queryId: "myQueryId",
           applicationId,
@@ -81,7 +81,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.JS_OBJECT_LIST,
         id: "",
-        appState: EditorState.EDITOR,
+        appState: EditorState.LOGIC,
         params: {
           applicationId,
           entity: "jsObjects",
@@ -94,7 +94,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.JS_OBJECT,
         id: "myJSId",
-        appState: EditorState.EDITOR,
+        appState: EditorState.LOGIC,
         params: {
           applicationId,
           collectionId: "myJSId",
@@ -107,7 +107,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.DATASOURCE_LIST,
         id: "",
-        appState: EditorState.DATA,
+        appState: EditorState.DATASOURCES,
         params: {
           applicationId,
           entity: "datasource",
@@ -120,7 +120,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.DATASOURCE,
         id: "myDatasourceId",
-        appState: EditorState.DATA,
+        appState: EditorState.DATASOURCES,
         params: {
           applicationId,
           datasourceId: "myDatasourceId",
@@ -135,7 +135,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.CANVAS,
         id: "",
-        appState: EditorState.EDITOR,
+        appState: EditorState.UI,
         params: {
           applicationSlug: "eval",
           pageId,
@@ -148,7 +148,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.PROPERTY_PANE,
         id: "ryvc8i7oja",
-        appState: EditorState.EDITOR,
+        appState: EditorState.UI,
         params: {
           applicationSlug: "app-slug",
           pageId,
@@ -162,7 +162,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.QUERY_LIST,
         id: "",
-        appState: EditorState.EDITOR,
+        appState: EditorState.DATA,
         params: {
           applicationSlug: "eval",
           entity: "queries",
@@ -176,7 +176,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.QUERY,
         id: "myApiId",
-        appState: EditorState.EDITOR,
+        appState: EditorState.DATA,
         params: {
           apiId: "myApiId",
           applicationSlug: "eval",
@@ -190,7 +190,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.QUERY,
         id: "myQueryId",
-        appState: EditorState.EDITOR,
+        appState: EditorState.DATA,
         params: {
           applicationSlug: "eval",
           pageId,
@@ -204,7 +204,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.JS_OBJECT_LIST,
         id: "",
-        appState: EditorState.EDITOR,
+        appState: EditorState.LOGIC,
         params: {
           applicationSlug: "eval",
           entity: "jsObjects",
@@ -218,7 +218,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.JS_OBJECT,
         id: "myJSId",
-        appState: EditorState.EDITOR,
+        appState: EditorState.LOGIC,
         params: {
           applicationSlug: "eval",
           collectionId: "myJSId",
@@ -262,7 +262,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.CANVAS,
         id: "",
-        appState: EditorState.EDITOR,
+        appState: EditorState.UI,
         params: {
           pageId,
           customSlug: "myCustomSlug-",
@@ -274,7 +274,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.PROPERTY_PANE,
         id: "ryvc8i7oja",
-        appState: EditorState.EDITOR,
+        appState: EditorState.UI,
         params: {
           pageId,
           customSlug: "myCustomSlug-",
@@ -287,7 +287,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.QUERY_LIST,
         id: "",
-        appState: EditorState.EDITOR,
+        appState: EditorState.DATA,
         params: {
           pageId,
           customSlug: "myCustomSlug-",
@@ -300,7 +300,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.QUERY,
         id: "myApiId",
-        appState: EditorState.EDITOR,
+        appState: EditorState.DATA,
         params: {
           pageId,
           customSlug: "myCustomSlug-",
@@ -313,7 +313,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.QUERY,
         id: "myQueryId",
-        appState: EditorState.EDITOR,
+        appState: EditorState.DATA,
         params: {
           pageId,
           customSlug: "myCustomSlug-",
@@ -326,7 +326,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.JS_OBJECT_LIST,
         id: "",
-        appState: EditorState.EDITOR,
+        appState: EditorState.LOGIC,
         params: {
           pageId,
           entity: "jsObjects",
@@ -339,7 +339,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.JS_OBJECT,
         id: "myJSId",
-        appState: EditorState.EDITOR,
+        appState: EditorState.LOGIC,
         params: {
           collectionId: "myJSId",
           pageId,
@@ -352,7 +352,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.DATASOURCE_LIST,
         id: "",
-        appState: EditorState.DATA,
+        appState: EditorState.DATASOURCES,
         params: {
           entity: "datasource",
           pageId,
@@ -365,7 +365,7 @@ describe("identifyEntityFromPath", () => {
       expected: {
         entity: FocusEntity.DATASOURCE,
         id: "myDatasourceId",
-        appState: EditorState.DATA,
+        appState: EditorState.DATASOURCES,
         params: {
           pageId,
           customSlug: "myCustomSlug-",

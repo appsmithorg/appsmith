@@ -37,7 +37,7 @@ import { closeQueryActionTab } from "actions/pluginActionActions";
 import { getCurrentEntityInfo } from "../utils";
 
 export const useCurrentAppState = () => {
-  const [appState, setAppState] = useState(EditorState.EDITOR);
+  const [appState, setAppState] = useState(EditorState.UI);
   const { pathname } = useLocation();
   const entityInfo = identifyEntityFromPath(pathname);
   useEffect(() => {

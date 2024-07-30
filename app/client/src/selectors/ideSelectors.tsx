@@ -1,7 +1,6 @@
 import { createSelector } from "reselect";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { AppState } from "@appsmith/reducers";
-import { getPageActions } from "@appsmith/selectors/entitiesSelector";
 import {
   EditorEntityTab,
   EditorViewMode,
@@ -28,14 +27,21 @@ export const getIDEViewMode = createSelector(
   },
 );
 
-export const getActionsCount = (pageId: string) =>
-  createSelector(getPageActions(pageId), (actions) => {
-    return actions.length || 0;
-  });
+export const getActionsCount = createSelector(
+  getCurrentPageId,
+  (state: AppState) => state.entities.actions,
+  (pageId, actions) => {
+    return actions.filter((v) => v.config.pageId === pageId).length || 0;
+  },
+);
 
-export const getJsActionsCount = (state: AppState, pageId: string) =>
-  state.entities.jsActions.filter((v) => v.config.pageId === pageId).length ||
-  0;
+export const getJsActionsCount = createSelector(
+  getCurrentPageId,
+  (state) => state.entities.jsActions,
+  (pageId, jsActions) => {
+    return jsActions.filter((v) => v.config.pageId === pageId).length || 0;
+  },
+);
 
 export const getWidgetsCount = (state: AppState, pageId: string) =>
   Object.values(state.ui.pageWidgets[pageId].dsl).filter(

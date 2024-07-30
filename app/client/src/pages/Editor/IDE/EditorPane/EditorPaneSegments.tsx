@@ -5,7 +5,7 @@ import { SentryRoute } from "@appsmith/AppRouter";
 import QueriesSegment from "./Query";
 import WidgetsSegment from "./UI";
 import JSSegment from "./JS";
-import SegmentedHeader from "./components/SegmentedHeader";
+// import SegmentedHeader from "./components/SegmentedHeader";
 import EditorTabs from "../EditorTabs";
 import {
   jsSegmentRoutes,
@@ -32,7 +32,7 @@ const EditorPaneSegments = () => {
       height="100%"
       overflow="hidden"
     >
-      <SegmentedHeader />
+      {/* <SegmentedHeader /> */}
       {ideViewMode === EditorViewMode.SplitScreen ? <EditorTabs /> : null}
       <Flex
         className="ide-editor-left-pane__content"

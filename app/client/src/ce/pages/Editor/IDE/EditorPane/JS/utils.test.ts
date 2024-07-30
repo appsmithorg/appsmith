@@ -29,7 +29,7 @@ describe("getJSUrl", () => {
     const focusEntity: FocusEntityInfo = {
       entity: FocusEntity.JS_OBJECT,
       id: "abc",
-      appState: EditorState.EDITOR,
+      appState: EditorState.LOGIC,
       params: {},
     };
     const url = getJSUrl(focusEntity, false);
@@ -47,7 +47,7 @@ describe("getJSUrl", () => {
     const focusEntity: FocusEntityInfo = {
       entity: FocusEntity.JS_OBJECT_ADD,
       id: "abc",
-      appState: EditorState.EDITOR,
+      appState: EditorState.LOGIC,
       params: {},
     };
     const url = getJSUrl(focusEntity, false);
@@ -60,7 +60,7 @@ describe("getJSUrl", () => {
     const focusEntity: FocusEntityInfo = {
       entity: FocusEntity.QUERY,
       id: "abc",
-      appState: EditorState.EDITOR,
+      appState: EditorState.DATA,
       params: {
         queryId: "abc",
         pageId: "0123456789abcdef00000000",

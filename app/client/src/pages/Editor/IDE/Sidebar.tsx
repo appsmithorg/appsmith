@@ -17,6 +17,7 @@ import {
   createMessage,
   EMPTY_DATASOURCE_TOOLTIP_SIDEBUTTON,
 } from "@appsmith/constants/messages";
+import { getActionsCount, getJsActionsCount } from "selectors/ideSelectors";
 
 function Sidebar() {
   const dispatch = useDispatch();
@@ -25,13 +26,33 @@ function Sidebar() {
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
   const datasources = useSelector(getDatasources);
   const datasourcesExist = datasources.length > 0;
+  const actionsCount = useSelector(getActionsCount);
+  const jsObjectCount = useSelector(getJsActionsCount);
 
-  // Updates the top button config based on datasource existence
   const topButtons = React.useMemo(() => {
+    return TopButtons.map((button) => {
+      if (button.state === EditorState.DATA) {
+        return {
+          ...button,
+          count: actionsCount,
+        };
+      }
+      if (button.state === EditorState.LOGIC) {
+        return {
+          ...button,
+          count: jsObjectCount,
+        };
+      }
+      return button;
+    });
+  }, [actionsCount, jsObjectCount]);
+
+  // Updates the bottom button config based on datasource existence
+  const bottomButtons = React.useMemo(() => {
     return datasourcesExist
-      ? TopButtons
-      : TopButtons.map((button) => {
-          if (button.state === EditorState.DATA) {
+      ? BottomButtons
+      : BottomButtons.map((button) => {
+          if (button.state === EditorState.DATASOURCES) {
             return {
               ...button,
               condition: Condition.Warn,
@@ -63,7 +84,7 @@ function Sidebar() {
 
   return (
     <IDESidebar
-      bottomButtons={BottomButtons}
+      bottomButtons={bottomButtons}
       editorState={appState}
       id={"t--app-sidebar"}
       onClick={onClick}

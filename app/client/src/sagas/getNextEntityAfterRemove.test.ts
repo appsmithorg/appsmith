@@ -25,7 +25,7 @@ describe("getNextEntityAfterRemove function", () => {
     .mockImplementation(() => ({
       entity: FocusEntity.QUERY,
       id: "2",
-      appState: EditorState.EDITOR,
+      appState: EditorState.DATA,
       params: {},
     }));
 

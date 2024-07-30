@@ -498,7 +498,9 @@ export function isInSideBySideEditor({
 }) {
   return (
     viewMode === EditorViewMode.SplitScreen &&
-    appState === EditorState.EDITOR &&
+    (appState === EditorState.UI ||
+      appState === EditorState.LOGIC ||
+      appState === EditorState.DATA) &&
     segment !== EditorEntityTab.UI
   );
 }

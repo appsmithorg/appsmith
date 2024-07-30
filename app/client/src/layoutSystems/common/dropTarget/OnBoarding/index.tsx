@@ -28,7 +28,10 @@ function Onboarding() {
     FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
   );
 
-  const isEditorState = appState === IDEAppState.EDITOR;
+  const isEditorState =
+    appState === IDEAppState.UI ||
+    appState === IDEAppState.LOGIC ||
+    appState === IDEAppState.DATA;
   const isUISegment = segment === EditorEntityTab.UI;
 
   const shouldShowBuildingBlocksDropTarget = useMemo(
