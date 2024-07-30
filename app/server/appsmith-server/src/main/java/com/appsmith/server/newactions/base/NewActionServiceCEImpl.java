@@ -895,6 +895,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                         }
                     }))
                     .flatMap(zippedActions -> {
+                        // create a DTO of analytics events data points
                         final Datasource datasource = zippedActions.getT2();
                         final NewAction newAction1 = zippedActions.getT1();
                         final Map<String, Object> data = this.getAnalyticsProperties(newAction1, datasource);

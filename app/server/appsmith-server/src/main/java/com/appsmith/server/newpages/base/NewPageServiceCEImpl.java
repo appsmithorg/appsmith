@@ -503,9 +503,18 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Override
     public Mono<NewPage> save(NewPage page) {
+        return save(page, false);
+    }
+
+    @Override
+    public Mono<NewPage> save(NewPage page, boolean isDryOps) {
         // gitSyncId will be used to sync resource across instances
         if (page.getGitSyncId() == null) {
             page.setGitSyncId(page.getApplicationId() + "_" + UUID.randomUUID());
+        }
+        if (isDryOps) {
+            page.updateForBulkWriteOperation();
+            return Mono.just(page);
         }
         return repository.save(page);
     }

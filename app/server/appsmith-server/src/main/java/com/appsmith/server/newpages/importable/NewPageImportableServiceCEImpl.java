@@ -25,6 +25,7 @@ import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImporta
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.ApplicationPageService;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -198,7 +199,12 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                     Map<String, String> newToOldNameMap = objects.getT1().getT2();
                     Application application = (Application) objects.getT2();
                     return importAndSavePages(
-                                    importedNewPages, application, branchName, existingPagesMono, permissionProvider)
+                                    importedNewPages,
+                                    application,
+                                    branchName,
+                                    existingPagesMono,
+                                    permissionProvider,
+                                    mappedImportableResourcesDTO)
                             .collectList()
                             .zipWith(Mono.just(newToOldNameMap));
                 })
@@ -357,21 +363,15 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
 
                         // Delete the pages which were removed during git merge operation
                         // This does not apply to the traditional import via file approach
-                        return Flux.fromIterable(invalidPageIds)
-                                .flatMap(pageId -> {
-                                    return applicationPageService.deleteUnpublishedPage(pageId, null, null, null, null);
-                                })
-                                .flatMap(page -> newPageService
-                                        .archiveByIdWithoutPermission(page.getId())
-                                        .onErrorResume(e -> {
-                                            log.debug(
-                                                    "Unable to archive page {} with error {}",
-                                                    page.getId(),
-                                                    e.getMessage());
-                                            return Mono.empty();
-                                        }))
-                                .then()
-                                .thenReturn(applicationPages);
+                        /*
+                         * Save the invalid ids in mappedDTO
+                         * Repo class that deletes nested objects - action & action collection
+                         * Update the application page objects with ids to be removed - not list
+                         * Calculate actions and actionCollection to be removed via the pageIds
+                         * */
+                        mappedImportableResourcesDTO.getInvalidPageIds().addAll(invalidPageIds);
+
+                        return Mono.just(applicationPages);
                     });
         }
         return applicationMono.zipWith(applicationPagesMono).map(objects -> {
@@ -379,6 +379,20 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Map<ResourceModes, List<ApplicationPage>> applicationPages = objects.getT2();
             application.setPages(applicationPages.get(EDIT));
             application.setPublishedPages(applicationPages.get(VIEW));
+
+            mappedImportableResourcesDTO.getApplication().setId(application.getId());
+            mappedImportableResourcesDTO.getApplication().setPages(applicationPages.get(EDIT));
+            mappedImportableResourcesDTO.getApplication().setPublishedPages(applicationPages.get(VIEW));
+
+            for (String id : mappedImportableResourcesDTO.getInvalidPageIds()) {
+                mappedImportableResourcesDTO.getApplication().getPages().removeIf(page -> page.getId()
+                        .equals(id));
+                mappedImportableResourcesDTO
+                        .getApplication()
+                        .getPublishedPages()
+                        .removeIf(page -> page.getId().equals(id));
+            }
+
             return application;
         });
     }
@@ -401,7 +415,8 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             Application application,
             String branchName,
             Mono<List<NewPage>> existingPages,
-            ImportArtifactPermissionProvider permissionProvider) {
+            ImportArtifactPermissionProvider permissionProvider,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
         Map<String, String> oldToNewLayoutIds = new HashMap<>();
         pages.forEach(newPage -> {
@@ -460,7 +475,10 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                     .setDeletedAt(newPage.getUnpublishedPage().getDeletedAt());
                             existingPage.setDeletedAt(newPage.getDeletedAt());
                             existingPage.setPolicies(existingPagePolicy);
-                            return newPageService.save(existingPage);
+                            return newPageService.save(existingPage, true).flatMap(page -> {
+                                addDryOpsForEntity(mappedImportableResourcesDTO.getNewPageDryOps(), page);
+                                return Mono.just(page);
+                            });
                         } else {
                             // check if user has permission to add new page to the application
                             if (!permissionProvider.canCreatePage(application)) {
@@ -485,7 +503,12 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                             defaultResources.setApplicationId(defaultApplicationId);
                                             defaultResources.setBranchName(branchName);
                                             newPage.setDefaultResources(defaultResources);
-                                            return saveNewPageAndUpdateDefaultResources(newPage, branchName);
+                                            return saveNewPageAndUpdateDefaultResources(newPage, branchName)
+                                                    .flatMap(page -> {
+                                                        addDryOpsForEntity(
+                                                                mappedImportableResourcesDTO.getNewPageDryOps(), page);
+                                                        return Mono.just(page);
+                                                    });
                                         }))
                                         .flatMap(branchedPage -> {
                                             DefaultResources defaultResources = branchedPage.getDefaultResources();
@@ -501,10 +524,20 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                                             newPage.setDeletedAt(branchedPage.getDeletedAt());
                                             // Set policies from existing branch object
                                             newPage.setPolicies(branchedPage.getPolicies());
-                                            return newPageService.save(newPage);
+                                            return newPageService
+                                                    .save(newPage, true)
+                                                    .flatMap(page -> {
+                                                        addDryOpsForEntity(
+                                                                mappedImportableResourcesDTO.getNewPageDryOps(), page);
+                                                        return Mono.just(page);
+                                                    });
                                         });
                             }
-                            return saveNewPageAndUpdateDefaultResources(newPage, branchName);
+                            return saveNewPageAndUpdateDefaultResources(newPage, branchName)
+                                    .flatMap(page -> {
+                                        addDryOpsForEntity(mappedImportableResourcesDTO.getNewPageDryOps(), page);
+                                        return Mono.just(page);
+                                    });
                         }
                     });
                 })
@@ -515,12 +548,12 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
     }
 
     private Mono<NewPage> saveNewPageAndUpdateDefaultResources(NewPage newPage, String branchName) {
-        NewPage update = new NewPage();
-        return newPageService.save(newPage).flatMap(page -> {
-            update.setDefaultResources(
+        return newPageService.save(newPage, true).flatMap(page -> {
+            page.setDefaultResources(
                     DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(page, branchName)
                             .getDefaultResources());
-            return newPageService.update(page.getId(), update);
+
+            return Mono.just(page);
         });
     }
 
@@ -712,5 +745,9 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
 
         layoutOnLoadActions.remove(null);
         return layoutOnLoadActions;
+    }
+
+    private void addDryOpsForEntity(@NonNull List<NewPage> dryRunOpsList, NewPage newPage) {
+        dryRunOpsList.add(newPage);
     }
 }

@@ -65,6 +65,8 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<NewPage> save(NewPage page);
 
+    Mono<NewPage> save(NewPage page, boolean isDryOps);
+
     Mono<NewPage> archive(NewPage page);
 
     Mono<NewPage> archiveById(String id);
