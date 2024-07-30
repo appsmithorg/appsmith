@@ -13,6 +13,11 @@ const EditorPane = () => {
 
   return (
     <Flex
+      borderRight={
+        ideViewMode === EditorViewMode.SplitScreen
+          ? "1px solid var(--ads-v2-color-border)"
+          : ""
+      }
       className="ide-editor-left-pane"
       flexDirection={
         ideViewMode === EditorViewMode.SplitScreen ? "column" : "row"
