@@ -525,6 +525,26 @@ export const getAllPaths = (
   }
   return result;
 };
+export const getAllPathsBasedOnDiffPaths = (
+  records: any,
+  diff: DataTreeDiff[],
+  previousResult: Record<string, true> = {},
+): Record<string, true> => {
+  const newResult = { ...previousResult };
+  diff.forEach((curr) => {
+    const { event, payload } = curr;
+    if (event === DataTreeDiffEvent.DELETE) {
+      delete newResult[payload.propertyPath];
+    }
+    if (event === DataTreeDiffEvent.NEW) {
+      const newDataSegments = get(records, payload.propertyPath);
+      // directly mutates on the result so we don't have to merge it back to the result
+      getAllPaths(newDataSegments, payload.propertyPath, newResult);
+    }
+  });
+
+  return newResult;
+};
 export const trimDependantChangePaths = (
   changePaths: Set<string>,
   dependencyMap: DependencyMap,
