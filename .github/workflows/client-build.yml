@@ -165,6 +165,7 @@ jobs:
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
             REACT_APP_VERSION_EDITION="Community" \
+            APPSMITH_CLOUD_HOSTING=${{ secrets.APPSMITH_CLOUD_HOSTING }} \
             yarn build
 
       # Saving the cache to use it in subsequent runs

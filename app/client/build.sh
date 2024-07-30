@@ -19,7 +19,7 @@ export REACT_APP_CLIENT_LOG_LEVEL=ERROR
 # Disable CRA built-in ESLint checks since we have our own config and a separate step for this
 export DISABLE_ESLINT_PLUGIN=true
 echo "debug client build setting $REACT_APP_CLOUD_HOSTING $APPSMITH_CLOUD_HOSTING"
-if [ "$REACT_APP_CLOUD_HOSTING" == "true" ]; then
+if [ "$APPSMITH_CLOUD_HOSTING" == "true" ]; then
     echo "Building profiled build"
     craco --max-old-space-size=7168 build --profile --config craco.build.config.js --verbose
 else
