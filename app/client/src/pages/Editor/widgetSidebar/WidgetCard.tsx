@@ -128,10 +128,13 @@ function WidgetCard(props: CardProps) {
         widgetName: props.details.displayName,
       });
     }
+
     setDraggingNewWidget &&
       setDraggingNewWidget(true, {
         ...props.details,
-        widgetId: generateReactKey(),
+        widgetId: generateReactKey({
+          prefix: props.details.type === "ZONE_WIDGET" ? "zone-" : "component-",
+        }),
       });
   };
 
