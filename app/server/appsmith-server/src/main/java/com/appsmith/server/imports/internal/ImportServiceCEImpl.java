@@ -497,7 +497,6 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                 .then(importableArtifactMono)
                 .flatMap(importableArtifact -> updateImportableEntities(
                         contextBasedImportService, importableArtifact, mappedImportableResourcesDTO, importingMetaDTO))
-                .flatMap(importableArtifact -> updateImportableArtifact(contextBasedImportService, importableArtifact))
                 .onErrorResume(throwable -> {
                     String errorMessage = ImportExportUtils.getErrorMessage(throwable);
                     log.error("Error importing {}. Error: {}", artifactContextString, errorMessage, throwable);
@@ -505,12 +504,17 @@ public class ImportServiceCEImpl implements ImportServiceCE {
                             new AppsmithException(AppsmithError.GENERIC_JSON_IMPORT_ERROR, workspaceId, errorMessage));
                 })
                 // execute dry run for datasource
-                .flatMap(importableArtifact -> dryOperationRepository
-                        .executeAllDbOps(mappedImportableResourcesDTO)
-                        .thenReturn(importableArtifact))
+                .flatMap(importableArtifact -> {
+                    mappedImportableResourcesDTO.setUpdateApplication((Application) importableArtifact);
+                    return dryOperationRepository
+                            .executeAllDbOps(mappedImportableResourcesDTO)
+                            .thenReturn(importableArtifact);
+                })
                 .as(transactionalOperator::transactional);
 
         final Mono<? extends Artifact> resultMono = importMono
+                // update layout for the pages
+                .flatMap(importableArtifact -> updateImportableArtifact(contextBasedImportService, importableArtifact))
                 .flatMap(importableArtifact -> sendImportedContextAnalyticsEvent(
                         contextBasedImportService, importableArtifact, AnalyticsEvents.IMPORT))
                 .zipWith(currUserMono)

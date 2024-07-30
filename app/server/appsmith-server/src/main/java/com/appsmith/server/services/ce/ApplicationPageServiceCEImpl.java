@@ -1322,6 +1322,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * @return updated application with modified name if duplicate key exception is thrown
      */
     public Mono<Application> createOrUpdateSuffixedApplication(Application application, String name, int suffix) {
+        return createOrUpdateSuffixedApplication(application, name, suffix, false);
+    }
+
+    @Override
+    public Mono<Application> createOrUpdateSuffixedApplication(
+            Application application, String name, int suffix, boolean isDryOps) {
         final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
         application.setName(actualName);
 
@@ -1343,6 +1349,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     // We can't use create or createApplication method here as we are expecting update operation
                     // if the
                     // _id is available with application object
+                    if (isDryOps) {
+                        application.updateForBulkWriteOperation();
+                        return Mono.just(application);
+                    }
                     return applicationService.save(application);
                 });
             }

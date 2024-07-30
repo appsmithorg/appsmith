@@ -79,6 +79,10 @@ public class DryOperationRepository {
         return applicationRepository.updateById(id, application, AclPermission.MANAGE_APPLICATIONS);
     }
 
+    private Mono<Application> saveApplication(Application application) {
+        return applicationRepository.save(application);
+    }
+
     public Mono<Void> executeAllDbOps(MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
         Flux<List<Datasource>> datasourceFLux = Flux.fromIterable(mappedImportableResourcesDTO
@@ -124,23 +128,9 @@ public class DryOperationRepository {
                     }
                 });
 
-        Flux<List<Application>> applicationFlux = Flux.fromIterable(mappedImportableResourcesDTO
-                        .getApplicationDryRunQueries()
-                        .keySet())
-                .flatMap(key -> {
-                    List<Application> applicationList = mappedImportableResourcesDTO
-                            .getApplicationDryRunQueries()
-                            .get(key);
-                    if (key.equals(DBOpsType.SAVE.name())) {
-                        return Flux.fromIterable(applicationList)
-                                .flatMap(this::updateApplication)
-                                .collectList();
-                    } else {
-                        return Flux.fromIterable(applicationList)
-                                .flatMap(this::updateApplication)
-                                .collectList();
-                    }
-                });
+        Flux<List<Application>> applicationFlux = saveApplication(mappedImportableResourcesDTO.getUpdateApplication())
+                .map(List::of)
+                .flux();
 
         return Flux.merge(datasourceFLux, datasourceStorageFLux, customJSLibFlux, themeFlux, applicationFlux)
                 .then();

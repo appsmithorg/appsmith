@@ -70,6 +70,9 @@ public interface ApplicationPageServiceCE {
 
     Mono<Application> createOrUpdateSuffixedApplication(Application application, String name, int suffix);
 
+    Mono<Application> createOrUpdateSuffixedApplication(
+            Application application, String name, int suffix, boolean isDryOps);
+
     int getEvaluationVersion();
 
     Mono<List<NewPage>> getPagesBasedOnApplicationMode(
