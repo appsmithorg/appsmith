@@ -30,7 +30,7 @@ function IDE() {
       <EditorWrapperContainer>
         <div
           className={classNames({
-            [`transition-transform transform duration-400 flex ${tailwindLayers.entityExplorer}`]:
+            [`transition-transform transform duration-400 flex h-full ${tailwindLayers.entityExplorer}`]:
               true,
             relative: !isCombinedPreviewMode,
             "-translate-x-full fixed": isCombinedPreviewMode,
@@ -42,7 +42,7 @@ function IDE() {
         <MainPane id="app-body" />
         <div
           className={classNames({
-            [`transition-transform transform duration-400 ${tailwindLayers.propertyPane}`]:
+            [`transition-transform transform duration-400 h-full ${tailwindLayers.propertyPane}`]:
               true,
             relative: !isCombinedPreviewMode,
             "translate-x-full fixed right-0": isCombinedPreviewMode,
