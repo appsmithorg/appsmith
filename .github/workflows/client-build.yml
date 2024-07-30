@@ -227,6 +227,7 @@ jobs:
           reponame: ${{ github.event.repository.name }}
           gituser: ${{ secrets.CACHE_GIT_USER }}
           gituseremail: ${{ secrets.CACHE_GIT_EMAIL }}
+        # git lfs update --force in the script below overrides appsmith git hooks with git lfs hooks since appsmith hooks are not required during workflow runs
         run: |
           pwd
           mkdir cacherepo
