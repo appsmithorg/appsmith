@@ -239,7 +239,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                         .getUnpublishedCustomJSLibs()
                                         .addAll(new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
                                 if (mappedImportableResourcesDTO.getActionResultDTO() == null) {
-                                    return applicationService.update(application.getId(), application);
+                                    return Mono.just(application);
                                 }
                                 return newActionImportableService
                                         .updateImportedEntities(
@@ -249,18 +249,20 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                         .thenReturn(application);
                             });
                 })
-                // execute dry run ops
-                .flatMap(importableArtifact -> dryOperationRepository
-                        .executeAllDbOps(mappedImportableResourcesDTO)
-                        .thenReturn(importableArtifact))
                 .flatMap(application -> {
-                    Map<String, Object> fieldNameValueMap = Map.of(
-                            FieldName.UNPUBLISHED_JS_LIBS_IDENTIFIER_IN_APPLICATION_CLASS,
-                            application.getUnpublishedCustomJSLibs());
-                    return applicationService
-                            .update(applicationId, fieldNameValueMap, branchName)
-                            .then(Mono.just(application));
+                    application
+                            .getUnpublishedCustomJSLibs()
+                            .addAll(new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
+                    return Mono.just(application);
                 })
+                // execute dry run ops
+                .flatMap(importableArtifact -> {
+                    mappedImportableResourcesDTO.setUpdateApplication((Application) importableArtifact);
+                    return dryOperationRepository
+                            .executeAllDbOps(mappedImportableResourcesDTO)
+                            .thenReturn(importableArtifact);
+                })
+
                 // Update the refactored names of the actions and action collections in the DSL bindings
                 .flatMap(application -> {
                     // Partial export can have no pages

@@ -454,6 +454,8 @@ public class ApplicationImportServiceCEImpl
                 .elapsed()
                 .map(tuples -> {
                     log.debug("time to create or update application object: {}", tuples.getT1());
+                    tuples.getT2().setLastDeployedAt(null);
+                    ((Application) importableArtifact).setLastDeployedAt(null);
                     AppsmithBeanUtils.copyNestedNonNullProperties(tuples.getT2(), importableArtifact);
                     return (Application) importableArtifact;
                 })
