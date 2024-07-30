@@ -186,6 +186,7 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
               }}
               onFocus={onInputFocus}
               placeholder={"Name"}
+              // @ts-expect-error fix this the next time the file is edited
               value={pair.label}
             />
             <StyledBox />

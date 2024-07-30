@@ -2945,6 +2945,7 @@ public class CommonGitServiceCETest {
                     themeSettings.setFontFamily("#000000");
                     themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
                     themeSettings.setIconStyle(Application.ThemeSetting.IconStyle.OUTLINED);
+                    themeSettings.setAppMaxWidth(Application.ThemeSetting.AppMaxWidth.LARGE);
                     branchedApplication.getUnpublishedApplicationDetail().setThemeSetting(themeSettings);
                     return Mono.just(branchedApplication);
                 })
@@ -2974,6 +2975,7 @@ public class CommonGitServiceCETest {
                     assertThat(themes.getFontFamily()).isEqualTo("#000000");
                     assertThat(themes.getSizing()).isEqualTo(1);
                     assertThat(themes.getIconStyle()).isEqualTo(Application.ThemeSetting.IconStyle.OUTLINED);
+                    assertThat(themes.getAppMaxWidth()).isEqualTo(Application.ThemeSetting.AppMaxWidth.LARGE);
                 })
                 .verifyComplete();
     }

@@ -7,6 +7,7 @@ import {
 } from "actions/datasourceActions";
 import type { AppState } from "@appsmith/reducers";
 import PlusLogo from "assets/images/Plus-logo.svg";
+import GraphQLLogo from "assets/images/Graphql-logo.svg";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { PluginPackageName, PluginType } from "entities/Action";
@@ -256,6 +257,7 @@ function NewApiScreen(props: Props) {
                 />
                 <p className="textBtn">REST API</p>
               </CardContentWrapper>
+              {/*@ts-expect-error Fix this the next time the file is edited*/}
               {isCreating && <Spinner className="cta" size={25} />}
             </ApiCard>
             <ApiCard
@@ -266,7 +268,7 @@ function NewApiScreen(props: Props) {
                 <img
                   alt="New"
                   className="curlImage t--plusImage content-icon"
-                  src={PlusLogo}
+                  src={GraphQLLogo}
                 />
                 <p className="textBtn">GraphQL API</p>
               </CardContentWrapper>

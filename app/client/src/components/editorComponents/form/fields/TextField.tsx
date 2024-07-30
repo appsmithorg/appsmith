@@ -17,6 +17,7 @@ class TextField extends React.Component<
         component={Input}
         type={this.props.type || "text"}
         {...this.props}
+        // @ts-expect-error fix this the next time the file is edited
         isDisabled={this.props.isDisabled}
         noValidate
       />
