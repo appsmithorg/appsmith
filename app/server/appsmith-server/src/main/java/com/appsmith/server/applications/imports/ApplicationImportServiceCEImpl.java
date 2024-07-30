@@ -446,8 +446,7 @@ public class ApplicationImportServiceCEImpl
                             Application application = objects.getT1();
                             Application parentApplication = objects.getT2();
                             application.setPolicies(parentApplication.getPolicies());
-                            return applicationPageService.createOrUpdateSuffixedApplication(
-                                    application, application.getName(), 0, true);
+                            return Mono.just(application);
                         });
             }
         }
