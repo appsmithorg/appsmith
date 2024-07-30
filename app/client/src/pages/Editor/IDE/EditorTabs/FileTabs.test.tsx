@@ -19,7 +19,7 @@ describe("FileTabs", () => {
   const activeEntity = {
     entity: FocusEntity.API,
     id: "File 1",
-    appState: EditorState.EDITOR,
+    appState: EditorState.DATA,
     params: {},
   };
 

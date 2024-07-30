@@ -21,6 +21,7 @@ export interface IDESidebarButton
   extends Omit<SidebarButtonProps, "onClick" | "selected"> {
   state: EditorState;
   urlSuffix: string;
+  count?: number;
 }
 
 interface IDESidebarProps {
@@ -39,6 +40,7 @@ function IDESidebar(props: IDESidebarProps) {
       <div>
         {topButtons.map((button) => (
           <SidebarButton
+            count={button.count}
             icon={button.icon}
             key={button.state}
             onClick={onClick}
@@ -52,6 +54,7 @@ function IDESidebar(props: IDESidebarProps) {
       <div>
         {bottomButtons.map((button) => (
           <SidebarButton
+            count={button.count}
             icon={button.icon}
             key={button.state}
             onClick={onClick}
