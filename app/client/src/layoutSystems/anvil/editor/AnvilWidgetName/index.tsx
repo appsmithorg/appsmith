@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useSelector } from "react-redux";
 
 import { FloatingPortal } from "@floating-ui/react";
@@ -48,6 +48,8 @@ export function AnvilWidgetName(props: {
     showError,
   );
 
+  console.log("####", nameComponentState, showError, styleProps);
+
   const { setDraggingState } = useWidgetDragResize();
   const { selectWidget } = useWidgetSelection();
 
@@ -62,7 +64,13 @@ export function AnvilWidgetName(props: {
       }
       setDraggingState(generateDragState());
     },
-    [nameComponentState, setDraggingState, selectWidget, generateDragState],
+    [
+      widgetId,
+      nameComponentState,
+      setDraggingState,
+      selectWidget,
+      generateDragState,
+    ],
   );
 
   /** Setup Floating UI logic */
@@ -81,7 +89,7 @@ export function AnvilWidgetName(props: {
     "widgets-editor",
   ) as HTMLDivElement | null;
 
-  let cleanup = () => {};
+  const cleanup = useRef(() => {});
   useEffect(() => {
     if (
       widgetElement &&
@@ -90,7 +98,7 @@ export function AnvilWidgetName(props: {
       // Makes sure we add listeners only if the widget is selected or focused
       nameComponentState !== "none"
     ) {
-      cleanup = handleWidgetUpdate(
+      cleanup.current = handleWidgetUpdate(
         widgetElement,
         widgetNameComponent,
         widgetsEditorElement,
@@ -98,9 +106,14 @@ export function AnvilWidgetName(props: {
       );
     }
     return () => {
-      cleanup();
+      cleanup.current();
     };
-  }, [nameComponentState, widgetElement, widgetNameComponent]);
+  }, [
+    nameComponentState,
+    widgetElement,
+    widgetNameComponent,
+    widgetsEditorElement,
+  ]);
 
   /** EO Floating UI Logic */
 
