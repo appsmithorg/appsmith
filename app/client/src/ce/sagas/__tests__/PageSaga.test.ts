@@ -3,15 +3,20 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { testSaga } from "redux-saga-test-plan";
 import { setupPageSaga, setupPublishedPageSaga } from "../PageSagas";
 import mockResponse from "./mockConsolidatedApiResponse.json";
-import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
-import { fetchPageAction, fetchPublishedPageAction } from "actions/pageActions";
+import type { FetchPageResponse } from "api/PageApi";
+import {
+  fetchPageAction,
+  fetchPublishedPageAction,
+  type SetupPageActionPayload,
+  type SetupPublishedPageActionPayload,
+} from "actions/pageActions";
 
 describe("ce/PageSaga", () => {
   it("should put setupPageSaga with pageWithMigratedDsl", () => {
-    const action: ReduxAction<FetchPageRequest> = {
+    const action: ReduxAction<SetupPageActionPayload> = {
       type: ReduxActionTypes.SETUP_PAGE_INIT,
       payload: {
-        pageId: "pageId",
+        id: "pageId",
         pageWithMigratedDsl: mockResponse.data
           .pageWithMigratedDsl as FetchPageResponse,
       },
@@ -21,7 +26,7 @@ describe("ce/PageSaga", () => {
       .next()
       .put(
         fetchPageAction(
-          action.payload.pageId,
+          action.payload.id,
           action.payload.isFirstLoad,
           action.payload.pageWithMigratedDsl,
         ),
@@ -35,12 +40,7 @@ describe("ce/PageSaga", () => {
   });
 
   it("should put setupPublishedPageSaga with pageWithMigratedDsl", () => {
-    const action: ReduxAction<{
-      pageId: string;
-      bustCache: boolean;
-      firstLoad: boolean;
-      pageWithMigratedDsl?: FetchPageResponse;
-    }> = {
+    const action: ReduxAction<SetupPublishedPageActionPayload> = {
       type: ReduxActionTypes.SETUP_PAGE_INIT,
       payload: {
         pageId: "pageId",
