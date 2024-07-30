@@ -247,6 +247,12 @@ export const handlers = {
       },
     };
   },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: ApiPaneReduxState) => {
+    return {
+      ...state,
+      isSaving: {},
+    };
+  },
 };
 
 const apiPaneReducer = createReducer(initialState, handlers);

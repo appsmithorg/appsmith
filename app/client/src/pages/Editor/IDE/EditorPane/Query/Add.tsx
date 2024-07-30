@@ -50,7 +50,7 @@ const AddQuery = ({ containerProps, innerContainerProps }: AddProps) => {
           onCloseClick={closeAddQuery}
           titleMessage={EDITOR_PANE_TEXTS.query_create_tab_title}
         />
-        <SearchInput autofocus onChange={setSearchTerm} value={searchTerm} />
+        <SearchInput autoFocus onChange={setSearchTerm} value={searchTerm} />
         {localGroups.length > 0 ? <GroupedList groups={localGroups} /> : null}
         {localGroups.length === 0 && searchTerm !== "" ? (
           <EmptySearchResult

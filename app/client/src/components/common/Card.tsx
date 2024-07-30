@@ -350,6 +350,7 @@ function Card({
           hasReadPermission={hasReadPermission}
           isMobile={isMobile}
         >
+          {/*@ts-expect-error fix this the next time the file is edited*/}
           <CircleAppIcon name={icon} size={Size.large} />
           <AppNameWrapper
             className={isFetching ? Classes.SKELETON : ""}

@@ -6,7 +6,7 @@ export const defaultsConfig = {
   labelPosition: "top",
   inputType: "TEXT",
   widgetName: "Input",
-  version: 2,
+  version: 1,
   label: "Label",
   showStepArrows: false,
   responsiveBehavior: ResponsiveBehavior.Fill,
