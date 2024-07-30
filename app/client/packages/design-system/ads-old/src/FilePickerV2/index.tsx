@@ -7,7 +7,7 @@ import Button, { Category, IconPositions, Size } from "../Button";
 import type { IconName } from "../Icon";
 import Icon, { IconSize } from "../Icon";
 import Text, { TextType } from "../Text";
-import { Toaster } from "../Toast";
+import { toast } from "design-system";
 import TooltipComponent from "../Tooltip";
 import {
   createMessage,
@@ -16,7 +16,6 @@ import {
 } from "../constants/messages";
 import { Classes } from "../constants/classes";
 import { importSvg } from "../utils/icon-loadables";
-import { Variant } from "../constants/variants";
 
 const UploadSuccessIcon = importSvg(
   async () => import("../assets/icons/ads/upload_success.svg"),
@@ -351,9 +350,8 @@ function FilePickerComponent(props: FilePickerProps) {
       /* set form data and send api request */
       fileUploader && fileUploader(file, setProgress, onUpload);
     } else {
-      Toaster.show({
-        text: createMessage(ERROR_FILE_TOO_LARGE, "250 KB"),
-        variant: Variant.warning,
+      toast.show(createMessage(ERROR_FILE_TOO_LARGE, "250 KB"), {
+        kind: "warning",
       });
     }
   }
