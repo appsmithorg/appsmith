@@ -1,0 +1,36 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as NumberInputStories from "./NumberInput.stories";
+
+<Meta of={NumberInputStories} />
+
+# Number Input
+
+The number input allows users to enter a numeric value, increase or decrease it using a two-segment control (+ / -).
+
+<Canvas of={NumberInputStories.NumberInputStory} />
+
+## Anatomy
+
+1. **Label**: Clearly identifies the purpose of the input field and informs the user about the expected content. It is mandatory unless there is an approved accessibility exemption.
+2. **Numeric value**: The value that is entered or modified by the user in the field, either through direct input or using the subtract or add controls.
+3. **Field**: The designated area where users can input or modify data.
+4. **Subtract icon**: An icon or control that allows the user to decrease or subtract the value in the field.
+5. **Add icon**: An icon or control that enables the user to increase or add the value in the field.
+
+## Usage
+
+- The number input allows users to enter a numeric value.
+- It provides a three-segment control that allows users to incrementally increase or decrease the value already present, or type in any value.
+- Number inputs are specifically designed for specifying numeric values and are similar to text inputs in functionality.
+- It offers a convenient way to adjust small values, reducing input efforts for users.
+
+### When to use
+
+1. When the user needs to input a numeric value.
+2. When adjusting small values with a few clicks is sufficient.
+3. When users want to change values relative to their current state and don't require exact values.
+
+### When not to use
+
+1. For continuous variables, it is best to avoid number inputs. If the user has to specify the exact value change within a broad range, consider redesigning the form so that the user can enter the full number instead.

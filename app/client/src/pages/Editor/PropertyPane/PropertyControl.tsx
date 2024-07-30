@@ -932,7 +932,7 @@ const PropertyControl = memo((props: Props) => {
                   onClick={() => {
                     onEditSave();
                   }}
-                  size="small"
+                  size="sm"
                   startIcon="check-line"
                 />
               </div>
@@ -948,7 +948,7 @@ const PropertyControl = memo((props: Props) => {
                   onClick={() => {
                     resetEditing();
                   }}
-                  size="small"
+                  size="sm"
                   startIcon="close-x"
                 />
               </div>
@@ -1033,7 +1033,7 @@ const PropertyControl = memo((props: Props) => {
                         },
                       );
                     }}
-                    size="small"
+                    size="sm"
                     startIcon="pencil-line"
                   />
                 )}
@@ -1065,7 +1065,7 @@ const PropertyControl = memo((props: Props) => {
                         },
                       );
                     }}
-                    size="small"
+                    size="sm"
                     startIcon="trash"
                   />
                 )}

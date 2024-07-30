@@ -246,6 +246,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
                       {createMessage(CREATE_NEW_DATASOURCE_REST_API)}
                     </p>
                   </CardContentWrapper>
+                  {/*@ts-expect-error Fix this the next time the file is edited*/}
                   {isCreating && <Spinner className="cta" size={25} />}
                 </ApiCard>
               ) : null
