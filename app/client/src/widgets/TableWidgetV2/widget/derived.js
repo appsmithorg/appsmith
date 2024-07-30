@@ -336,7 +336,7 @@ export default {
     If there are select columns, 
     transform the specific columns data to show the label instead of the value for sorting 
     */
-    let processedTableDataWithLabelInseadOfValue;
+    let processedTableDataWithLabelInsteadOfValue;
     if (selectColumnKeysWithSortByLabel.length) {
       const transformedValueToLabelTableData = processedTableData.map((row) => {
         const newRow = { ...row };
@@ -353,7 +353,7 @@ export default {
 
         return newRow;
       });
-      processedTableDataWithLabelInseadOfValue =
+      processedTableDataWithLabelInsteadOfValue =
         transformedValueToLabelTableData;
     }
 
@@ -393,7 +393,7 @@ export default {
 
       const transformedTableDataForSorting =
         selectColumnKeysWithSortByLabel.length
-          ? processedTableDataWithLabelInseadOfValue
+          ? processedTableDataWithLabelInsteadOfValue
           : processedTableData;
 
       sortedTableData = transformedTableDataForSorting.sort((a, b) => {
