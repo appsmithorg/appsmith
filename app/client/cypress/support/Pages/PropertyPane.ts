@@ -692,6 +692,8 @@ export class PropertyPane {
     cy.get(".t--widget-propertypane-toggle > .t--widget-name")
       .first()
       .click({ force: true });
+    cy.get(".bp3-panel-stack-view")
+      .should('exist'); 
   }
   
 }
