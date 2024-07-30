@@ -161,7 +161,6 @@ jobs:
           else
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
           fi
-          echo "script updated"
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             APPSMITH_CLOUD_HOSTING=${{ secrets.APPSMITH_CLOUD_HOSTING }} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
