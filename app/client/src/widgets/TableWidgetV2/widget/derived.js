@@ -322,11 +322,9 @@ export default {
     and if the columns are sorting by label instead of default value 
     */
     const selectColumnKeysWithSortByLabel = [];
-    Object.keys(primaryColumns).forEach((id) => {
-      const column = primaryColumns[id];
+    Object.entries(primaryColumns).forEach(([id, column]) => {
       const isColumnSortedByLabel =
-        column &&
-        column.columnType === "select" &&
+        column?.columnType === "select" &&
         column?.sortBy === "label" &&
         column?.selectOptions?.length;
       if (isColumnSortedByLabel) {
