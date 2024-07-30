@@ -1,5 +1,5 @@
-import type { InlineLabelProps } from "@design-system/headless";
 import type { WidgetProps } from "widgets/BaseWidget";
+import type { POSITION } from "@design-system/widgets";
 
 export interface SwitchWidgetProps extends WidgetProps {
   label: string;
@@ -8,5 +8,5 @@ export interface SwitchWidgetProps extends WidgetProps {
   isDisabled?: boolean;
   onChange?: string;
   isRequired?: boolean;
-  labelPosition?: InlineLabelProps["labelPosition"];
+  labelPosition?: keyof typeof POSITION;
 }

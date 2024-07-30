@@ -11,10 +11,15 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useDispatch } from "react-redux";
 import { softRefreshActions } from "actions/pluginActionActions";
 import { START_SWITCH_ENVIRONMENT } from "@appsmith/constants/messages";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 
 export default function BottomBar({ viewMode }: { viewMode: boolean }) {
   const appId = useSelector(getCurrentApplicationId) || "";
   const dispatch = useDispatch();
+  // We check if the current application is an Anvil application.
+  // If it is an Anvil application, we remove the Git features from the bottomBar
+  // as they donot yet work correctly with Anvil.
+  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
   const onChangeEnv = () => {
     dispatch(softRefreshActions());
@@ -31,7 +36,7 @@ export default function BottomBar({ viewMode }: { viewMode: boolean }) {
             viewMode={viewMode}
           />
         )}
-        {!viewMode && <QuickGitActions />}
+        {!viewMode && !isAnvilEnabled && <QuickGitActions />}
       </Wrapper>
       {!viewMode && (
         <Wrapper>

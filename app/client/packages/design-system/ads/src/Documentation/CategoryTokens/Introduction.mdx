@@ -1,0 +1,66 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="ADS/Docs/Category Tokens/Introduction" name="Introduction" />
+
+# Category tokens
+
+Category tokens are required to be utilized throughout the platform, depending on the category to which the component belongs.
+
+<br />
+
+#### Naming convention:
+
+_`atom-category-component-kind-surface-state-presenational_attribute`_
+
+<table>
+  <tr>
+    <td>Atom</td>
+    <td>Type of token (color/spacing/typography)</td>
+  </tr>
+  <tr>
+    <td>Category</td>
+    <td>
+      Indicates which category the token belongs to (action, response, control,
+      content)
+    </td>
+  </tr>
+  <tr>
+    <td>Component</td>
+    <td>
+      Indicates which component the token belongs to (button, input, select
+      etc).This is optional if the token is not component specific. For example,
+      Avatar component has a different token for background color and border
+      color. So, the token will be
+      ```--ads-v2-colors-content-avatar-surface-default-bg``` and
+      ```--ads-v2-colors-content-avatar-surface-default-border```. This is
+      because the component has a different background and border color than
+      it's category.
+    </td>
+  </tr>
+  <tr>
+    <td>Kind</td>
+    <td>
+      Indicates the kind of the component (primary, secondary, tertiary etc)
+    </td>
+  </tr>
+  <tr>
+    <td>Surface</td>
+    <td>
+      Indicates the part of the component the token is being applied to
+      (surface, label, icon etc)
+    </td>
+  </tr>
+  <tr>
+    <td>State</td>
+    <td>Indicates the state of the component (default, hover, active etc)</td>
+  </tr>
+  <tr>
+    <td>PresentationalAttribute</td>
+    <td>
+      Indicates the presenational attribute of the component (background,
+      foreground, border etc).
+    </td>
+  </tr>
+</table>
+**Example:** \ ![--ads-v2-colors-action-primary-surface-default-bg](./docs/categoryTokenStructure.png)
+<br />

@@ -1,10 +1,9 @@
 package com.appsmith.server.dtos;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.NewAction;
 import lombok.Data;
 
 import java.util.List;
@@ -16,10 +15,7 @@ public class BuildingBlockResponseDTO {
     List<DslExecutableDTO> onPageLoadActions;
 
     // New actions created in the current flow
-    List<NewAction> newActionList;
-
-    // New actionCollection created in the current flow
-    List<ActionCollection> actionCollectionList;
+    List<ActionDTO> newActionList;
 
     // All datasource in the workspace
     List<Datasource> datasourceList;

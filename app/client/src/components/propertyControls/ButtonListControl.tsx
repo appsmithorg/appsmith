@@ -195,7 +195,7 @@ class ButtonListControl extends BaseControl<
         itemType: isSeparator ? "SEPARATOR" : "BUTTON",
         isSeparator,
         isVisible: true,
-        buttonVariant: "filled",
+        variant: "filled",
       },
     };
 

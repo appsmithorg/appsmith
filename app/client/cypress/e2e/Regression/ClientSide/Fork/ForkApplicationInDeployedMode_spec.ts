@@ -20,7 +20,7 @@ describe(
       cy.url().then((url) => {
         const forkableAppUrl = url;
         cy.LogOut();
-        cy.LogintoApp(
+        cy.LoginFromAPI(
           Cypress.env("TESTUSERNAME1"),
           Cypress.env("TESTPASSWORD1"),
         );

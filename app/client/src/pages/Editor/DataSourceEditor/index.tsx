@@ -771,6 +771,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     const {
       datasource,
       datasourceId,
+      featureFlags,
       formConfig,
       formData,
       formName,
@@ -817,6 +818,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           applicationId={this.props.applicationId}
           currentEnvironment={this.getEnvironmentId()}
           datasourceId={datasourceId}
+          featureFlags={featureFlags}
           formConfig={formConfig}
           formData={formData}
           formName={DATASOURCE_DB_FORM}

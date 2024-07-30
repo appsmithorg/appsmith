@@ -17,6 +17,7 @@ export interface PaginationProps {
   columns: ReactTableColumnProps[];
   serverSidePaginationEnabled: boolean;
   isVisiblePagination?: boolean;
+  excludeFromTabOrder?: boolean;
 }
 
 export const Pagination = (props: PaginationProps) => {
@@ -29,6 +30,7 @@ export const Pagination = (props: PaginationProps) => {
         {props.tableData?.length} Records
       </Text>
       <IconButton
+        excludeFromTabOrder={props.excludeFromTabOrder}
         icon="chevron-left"
         isDisabled={props.currentPageIndex === 0}
         onPress={() => {
@@ -45,6 +47,7 @@ export const Pagination = (props: PaginationProps) => {
       </Text>
       <PageNumberInput
         disabled={props.pageCount === 1}
+        excludeFromTabOrder={props.excludeFromTabOrder}
         pageCount={props.pageCount}
         pageNo={props.pageNo + 1}
         updatePageNo={props.updatePageNo}
@@ -53,6 +56,7 @@ export const Pagination = (props: PaginationProps) => {
         of {props.pageCount}
       </Text>
       <IconButton
+        excludeFromTabOrder={props.excludeFromTabOrder}
         icon="chevron-right"
         isDisabled={props.currentPageIndex === props.pageCount - 1}
         onPress={() => {

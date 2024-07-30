@@ -13,7 +13,7 @@ const plugins = [];
 
 plugins.push(
   new WorkboxPlugin.InjectManifest({
-    swSrc: "./src/serviceWorker.js",
+    swSrc: "./src/serviceWorker.ts",
     mode: "development",
     swDest: "./pageService.js",
     maximumFileSizeToCacheInBytes: 11 * 1024 * 1024,

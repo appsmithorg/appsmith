@@ -23,8 +23,6 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<NewPage> findById(String pageId, AclPermission aclPermission);
 
-    Mono<NewPage> findById(String pageId, Optional<AclPermission> aclPermission);
-
     Mono<PageDTO> findPageById(String pageId, AclPermission aclPermission, Boolean view);
 
     Flux<PageDTO> findByApplicationId(String applicationId, AclPermission permission, Boolean view);
@@ -73,7 +71,7 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<Boolean> archiveByIds(Collection<String> idList);
 
-    Mono<NewPage> archiveWithoutPermissionById(String id);
+    Mono<NewPage> archiveByIdWithoutPermission(String id);
 
     Flux<NewPage> saveAll(List<NewPage> pages);
 
@@ -90,8 +88,6 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
-
-    Flux<NewPage> findPageSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission);
 
     Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission);
 

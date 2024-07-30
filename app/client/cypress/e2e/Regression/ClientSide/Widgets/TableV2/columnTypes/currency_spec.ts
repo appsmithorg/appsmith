@@ -23,7 +23,7 @@ describe("Currency column", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
 
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
     _.propPane.EnterJSContext("Table data", tableData);
-    cy.makeColumnEditable("amount");
+    _.table.toggleColumnEditableViaColSettingsPane("amount", "v2", true, true);
   });
 
   it("1. should test that currency column is available", () => {

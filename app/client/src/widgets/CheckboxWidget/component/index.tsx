@@ -13,6 +13,7 @@ interface StyledCheckboxContainerProps {
   noContainerPadding?: boolean;
   labelPosition?: LabelPosition;
   minHeight?: number;
+  $isFullWidth?: boolean;
 }
 
 const DEFAULT_BORDER_RADIUS = "0";
@@ -24,7 +25,7 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     display: flex;
     height: 100%;
     justify-content: start;
-    width: 100%;
+    width: ${({ $isFullWidth }) => ($isFullWidth ? "100%" : "auto")};
 
     ${({ minHeight }) => `
     ${minHeight ? `min-height: ${minHeight}px;` : ""}`};
@@ -79,6 +80,9 @@ export const StyledCheckbox = styled(Checkbox)`
 `;
 
 class CheckboxComponent extends React.Component<CheckboxComponentProps> {
+  static readonly defaultProps = {
+    isFullWidth: true,
+  };
   render() {
     /**
      * When the label position is left align checkbox to the right
@@ -99,6 +103,7 @@ class CheckboxComponent extends React.Component<CheckboxComponentProps> {
 
     return (
       <CheckboxContainer
+        $isFullWidth={this.props.isFullWidth}
         isValid={isValid}
         minHeight={this.props.minHeight}
         noContainerPadding={this.props.noContainerPadding}
@@ -158,6 +163,7 @@ export interface CheckboxComponentProps extends ComponentProps {
   labelStyle?: string;
   isLabelInline?: boolean;
   minHeight?: number;
+  isFullWidth?: boolean;
 }
 
 export default CheckboxComponent;

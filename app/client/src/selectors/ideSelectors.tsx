@@ -60,3 +60,6 @@ export const getQueryTabs = createSelector(
 
 export const getShowCreateNewModal = (state: AppState) =>
   state.ui.ide.showCreateModal;
+
+export const getIdeCanvasSideBySideHoverState = (state: AppState) =>
+  state.ui.ide.ideCanvasSideBySideHover;

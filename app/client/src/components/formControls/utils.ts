@@ -255,6 +255,8 @@ export const caculateIsHidden = (
       case "VIEW_MODE":
         // This can be used to decide which form controls to show in view mode or edit mode depending on the value.
         return viewMode === value;
+      case "DEFINED_AND_NOT_EQUALS":
+        return !!valueAtPath && valueAtPath !== value;
       default:
         return true;
     }

@@ -8,7 +8,7 @@
   "apiEditorIcon": ".t--nav-link-api-editor",
   "integrationActiveTab": "button[id$='ACTIVE']",
   "popover": "//div[contains(@class,'t--entity page')]//*[last()]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
-  "editName": "span:contains('Edit name')",
+  "editName": "span:contains('Rename')",
   "clonePage": "span:contains('Clone')",
   "deletePage": "span:contains('Delete')",
   "deletePageConfirm": "span:contains('Are you sure?')",

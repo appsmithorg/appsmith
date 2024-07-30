@@ -571,3 +571,8 @@ export const noOfItemsToDisplay = 4;
 
 // 12px for the (noOfItemsToDisplay+ 1) item to let the user know there are more items to scroll
 export const extraSpace = 12;
+
+export enum TableSelectColumnOptionKeys {
+  LABEL = "label",
+  VALUE = "value",
+}

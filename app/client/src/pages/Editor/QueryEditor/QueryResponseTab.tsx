@@ -62,10 +62,12 @@ interface Props {
   onRunClick: () => void;
   currentActionConfig: Action;
   runErrorMessage?: string;
+  actionName: string;
 }
 
 const QueryResponseTab = (props: Props) => {
   const {
+    actionName,
     actionSource,
     currentActionConfig,
     isRunning,
@@ -270,7 +272,7 @@ const QueryResponseTab = (props: Props) => {
                 value={selectedControl}
               />
               <BindDataButton
-                actionName={currentActionConfig.name}
+                actionName={actionName || currentActionConfig.name}
                 hasResponse={!!actionResponse}
                 suggestedWidgets={actionResponse?.suggestedWidgets}
               />

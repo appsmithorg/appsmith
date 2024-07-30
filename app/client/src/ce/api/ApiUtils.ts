@@ -28,6 +28,7 @@ import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiC
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { UNUSED_ENV_ID } from "constants/EnvironmentContants";
+import { ID_EXTRACTION_REGEX } from "@appsmith/constants/routes/appRoutes";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -49,8 +50,8 @@ export const BLOCKED_ROUTES_REGEX = new RegExp(
 );
 
 export const ENV_ENABLED_ROUTES = [
-  "v1/datasources/[a-z0-9]+/structure",
-  "/v1/datasources/[a-z0-9]+/trigger",
+  `v1/datasources/${ID_EXTRACTION_REGEX}/structure`,
+  `/v1/datasources/${ID_EXTRACTION_REGEX}/trigger`,
   "v1/actions/execute",
   "v1/saas",
 ];

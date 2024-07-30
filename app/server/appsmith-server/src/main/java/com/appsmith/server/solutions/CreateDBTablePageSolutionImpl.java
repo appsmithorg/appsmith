@@ -6,6 +6,7 @@ import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.AnalyticsService;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEImpl
         implements CreateDBTablePageSolution {
+
     public CreateDBTablePageSolutionImpl(
             DatasourceService datasourceService,
             DatasourceStorageService datasourceStorageService,
@@ -37,7 +39,8 @@ public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEIm
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             DatasourceStructureSolution datasourceStructureSolution,
-            EnvironmentPermission environmentPermission) {
+            EnvironmentPermission environmentPermission,
+            JsonSchemaMigration jsonSchemaMigration) {
         super(
                 datasourceService,
                 datasourceStorageService,
@@ -55,6 +58,7 @@ public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEIm
                 applicationPermission,
                 pagePermission,
                 datasourceStructureSolution,
-                environmentPermission);
+                environmentPermission,
+                jsonSchemaMigration);
     }
 }

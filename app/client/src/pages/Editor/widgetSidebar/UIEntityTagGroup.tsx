@@ -77,7 +77,7 @@ const UIEntityTagGroup = (props: Props) => {
 
   return (
     <Collapsible
-      className={`pb-2 widget-tag-collapisble widget-tag-collapisble-${props.tag
+      className={`pb-2 widget-tag-collapsible widget-tag-collapsible-${props.tag
         .toLowerCase()
         .replace(/ /g, "-")}`}
       isOpen

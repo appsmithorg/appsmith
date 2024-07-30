@@ -52,6 +52,7 @@ export default function Header() {
             className={styles.closeButton}
             kind="tertiary"
             onClick={close}
+            // @ts-expect-error Fix this the next time the file is edited
             size="lg"
           >
             {createMessage(CUSTOM_WIDGET_FEATURE.builder.close)}

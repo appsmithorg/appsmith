@@ -1,7 +1,8 @@
 import { createFocusManager } from "@react-aria/focus";
-import type { ListState } from "@react-stately/list";
 import { useCallback, type RefObject, useMemo } from "react";
+import type { ListState } from "@react-stately/list";
 import type { DOMAttributes, FocusableElement } from "@react-types/shared";
+import type { ORIENTATION } from "../../../shared/orientation";
 
 import type { InlineButtonsProps } from "./types";
 import {
@@ -10,11 +11,9 @@ import {
   useValueEffect,
 } from "@react-aria/utils";
 
-type Orientation = "vertical" | "horizontal";
-
 export interface InlineButtonsAria {
   inlineButtonsProps: DOMAttributes;
-  orientation: Orientation;
+  orientation: keyof typeof ORIENTATION;
 }
 
 export function useInlineButtons<T>(
@@ -49,10 +48,10 @@ export function useInlineButtons<T>(
   };
 
   const [orientation, setOrientation] =
-    useValueEffect<Orientation>("horizontal");
+    useValueEffect<keyof typeof ORIENTATION>("horizontal");
 
   const updateOverflow = useCallback(() => {
-    const computeOrientation = (): Orientation => {
+    const computeOrientation = (): keyof typeof ORIENTATION => {
       if (ref.current) {
         const listItems = Array.from(ref.current.children) as HTMLLIElement[];
         const containerSize = ref.current.getBoundingClientRect().width;

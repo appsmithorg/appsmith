@@ -1,15 +1,11 @@
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
-import {
-  dataSources,
-  apiPage,
-  assertHelper,
-} from "../../../../support/Objects/ObjectsCore";
+import { apiPage, assertHelper } from "../../../../support/Objects/ObjectsCore";
 
 describe("Test curl import flow", { tags: ["@tag.Datasource"] }, function () {
   it("1. Test curl import flow for POST action with JSON body", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
       localStorage.setItem("ApiPaneV2", "ApiPaneV2");
-      dataSources.FillCurlNImport(
+      apiPage.FillCurlNImport(
         'curl -d \'{"name":"morpheus","job":"leader"}\' -H Content-Type:application/json -X POST ' +
           datasourceFormData["echoApiUrl"],
         {
@@ -32,7 +28,7 @@ describe("Test curl import flow", { tags: ["@tag.Datasource"] }, function () {
 
   it("2. Test curl import flow for POST action with multipart form data", function () {
     cy.fixture("datasources").then((datasourceFormData) => {
-      dataSources.FillCurlNImport(
+      apiPage.FillCurlNImport(
         `curl --request POST ${datasourceFormData["multipartAPI"]} -F 'randomKey=randomValue' --form 'randomKey2=\"randomValue2\"'`,
       );
       cy.get("@postExecute").then((response) => {

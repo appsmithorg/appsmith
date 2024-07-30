@@ -28,6 +28,7 @@ describe(
 
       cy.get("@dsName").then((dsName) => {
         EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
+        propPane.ToggleJSMode("sourcedata", false);
 
         oneClickBinding.ChooseAndAssertForm(`${dsName}`, dsName, "netflix", {
           label: "name",

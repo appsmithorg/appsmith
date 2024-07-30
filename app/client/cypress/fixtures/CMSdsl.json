@@ -1409,26 +1409,5 @@
         "width": 506
       }
     ]
-  },
-  "layoutOnLoadActions": [
-    [
-      {
-        "id": "619ca92fd3208212f819cfdb",
-        "name": "get_data",
-        "pluginType": "API",
-        "jsonPathKeys": [],
-        "timeoutInMillisecond": 10000
-      }
-    ],
-    [
-      {
-        "id": "619cbfd3d3208212f819d04c",
-        "name": "send_mail",
-        "pluginType": "API",
-        "jsonPathKeys": ["content.text", "subject.text", "to_input.text"],
-        "timeoutInMillisecond": 10000
-      }
-    ]
-  ],
-  "new": false
+  }
 }

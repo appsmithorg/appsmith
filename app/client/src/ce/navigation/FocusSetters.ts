@@ -1,7 +1,6 @@
 import history, { NavigationMethod } from "utils/history";
 import {
   builderURL,
-  curlImportPageURL,
   datasourcesEditorIdURL,
   jsCollectionIdURL,
 } from "@appsmith/RouteBuilder";
@@ -34,10 +33,6 @@ export function setSelectedQuery(entityInfo?: FocusEntityInfo) {
         type = PluginType.SAAS;
       } else if (queryId) {
         type = PluginType.DB;
-      } else if (key === "curl") {
-        history.replace(curlImportPageURL({}), {
-          invokedBy: NavigationMethod.ContextSwitching,
-        });
       }
 
       const url = getQueryEntityItemUrl(

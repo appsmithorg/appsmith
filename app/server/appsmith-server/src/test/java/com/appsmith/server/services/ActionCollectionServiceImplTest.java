@@ -48,7 +48,6 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -484,7 +483,7 @@ public class ActionCollectionServiceImplTest {
 
     @Test
     public void testDeleteUnpublishedActionCollection_withInvalidId_throwsError() {
-        Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<Optional<AclPermission>>any()))
+        Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.empty());
 
         final Mono<ActionCollectionDTO> actionCollectionMono =
@@ -514,7 +513,7 @@ public class ActionCollectionServiceImplTest {
 
         Instant deletedAt = Instant.now();
 
-        Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<Optional<AclPermission>>any()))
+        Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(actionCollection));
 
         Mockito.when(newActionService.findByCollectionIdAndViewMode(
@@ -556,7 +555,7 @@ public class ActionCollectionServiceImplTest {
         unpublishedCollection.setDefaultResources(setDefaultResources(unpublishedCollection));
         Instant deletedAt = Instant.now();
 
-        Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<Optional<AclPermission>>any()))
+        Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(actionCollection));
 
         ActionDTO actionDTO =
@@ -607,7 +606,7 @@ public class ActionCollectionServiceImplTest {
                 .getUnpublishedCollection()
                 .setDefaultResources(setDefaultResources(actionCollection.getUnpublishedCollection()));
 
-        Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<Optional<AclPermission>>any()))
+        Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(actionCollection));
 
         ActionDTO actionDTO =
@@ -655,7 +654,7 @@ public class ActionCollectionServiceImplTest {
                 .getUnpublishedCollection()
                 .setDefaultResources(setDefaultResources(actionCollection.getUnpublishedCollection()));
 
-        Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<Optional<AclPermission>>any()))
+        Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(actionCollection));
 
         ActionDTO actionDTO =

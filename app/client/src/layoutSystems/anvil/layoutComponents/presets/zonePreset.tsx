@@ -12,10 +12,6 @@ export const zonePreset = (): LayoutProps[] => {
       isPermanent: true,
       layout: [],
       layoutId: generateReactKey(),
-      layoutStyle: {
-        border: "none",
-        height: "100%",
-      },
       layoutType: LayoutComponentTypes.ZONE,
     },
   ];

@@ -1,0 +1,2621 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 4896,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 380,
+    "containerStyle": "none",
+    "snapRows": 124,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 89,
+    "minHeight": 1292,
+    "layout": [
+      {
+        "layoutId": "zf1rn0cr3v",
+        "layoutType": "ALIGNED_LAYOUT_COLUMN",
+        "layout": [
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "9abrngspd3",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "qv54rjvvcx",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "vx5iajr0ve",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "jzd7n15ucx",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "k9309c4ixu",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "plz6slrb6y",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          }
+        ],
+        "layoutStyle": {
+          "border": "none",
+          "height": "100%",
+          "padding": "spacing-4",
+          "gap": "spacing-4"
+        },
+        "isDropTarget": true,
+        "isPermanent": true,
+        "childTemplate": {
+          "insertChild": true,
+          "isDropTarget": false,
+          "isPermanent": false,
+          "layout": [],
+          "layoutId": "",
+          "layoutType": "WIDGET_ROW",
+          "maxChildLimit": 1
+        }
+      }
+    ],
+    "dynamicTriggerPathList": [],
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section1",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone1",
+            "flexGrow": 12,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1Copy",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 1,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 2,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "otl5rsmc30",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1CopyCopy",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 1,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 2,
+                    "variant": "filled",
+                    "color": "accent"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 3,
+                    "itemType": "SEPARATOR"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "3kevph8xi6",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1CopyCopyCopy",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 0,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 1,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "7lhkogze3k",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1Copy1",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "5x8bdxomm8",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1Copy1Copy",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "6u3s0t9g6d",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1Copy1Copy1",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "n7odorndrf",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1Copy1CopyCopy",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "fgmlw0tihn",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1Copy1CopyCopyCopy",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "5nfmt137n6",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1Copy5",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "bg9d861hhu",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "1rabgav09u",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": false,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons2",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Lorem Ipsum has been the industry's standard",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Lorem Ipsum has been the industry's standard",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "jwslxy07cd",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "i7alruyb9v",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons2Copy",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Lorem Ipsum has been the industry's standard",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Lorem Ipsum has been the industry's standard",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "jwslxy07cd",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "sty2ub5c0o",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons2CopyCopy",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Lorem Ipsum has been the industry's standard",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Lorem Ipsum has been the industry's standard",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "jwslxy07cd",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "y8437le59b",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1CopyCopyCopy1",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete with Long Label that can't fit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "optwmskt0n",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "tl8a9q2d79",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "cy162bshl1",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "tl8a9q2d79",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "9abrngspd3",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "0woemwtxri",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "bg9d861hhu",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "isu9ek49kg",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "otl5rsmc30",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "np9gu54emr",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "3kevph8xi6",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "v6p8rfvksu",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "optwmskt0n",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "1koonllgkl",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "7lhkogze3k",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "fnytx2muug",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "1rabgav09u",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "m8kz38y46c",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "5x8bdxomm8",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "6u3s0t9g6d",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "6bbybqef8c",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "n7odorndrf",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "fgmlw0tihn",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "5nfmt137n6",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "zw2wiirkaj",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "i7alruyb9v",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "sty2ub5c0o",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "y8437le59b",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "v78wjiyyes",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "ezg8o7364f",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "9abrngspd3",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 1,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "tl8a9q2d79",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "jamgxmi2j7",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "tl8a9q2d79": 12
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section2",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1Copy2",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "lczecg5mul",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "yu8oaa5xti",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "cy162bshl1",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "yu8oaa5xti",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "vx5iajr0ve",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "r58hw7ejbu",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "lczecg5mul",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "viptufxyi1",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone4",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1Copy3",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "1y9nu4ob6j",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "hvwilybsp7",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "cy162bshl1",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "hvwilybsp7",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "vx5iajr0ve",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "mq3gnco6bp",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "1y9nu4ob6j",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "ip1ul9aknx",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "ezg8o7364f",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "vx5iajr0ve",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 2,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "yu8oaa5xti",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "hvwilybsp7",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "wsnlo97fu3",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "yu8oaa5xti": 6,
+          "hvwilybsp7": 6
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section3",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone3",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1Copy4",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "p8633r05t5",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "swyznzpetm",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "cy162bshl1",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "swyznzpetm",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "k9309c4ixu",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "gbht4kvvqr",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "p8633r05t5",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "wuu11zhs1h",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone5",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1Copy4Copy",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "na3yjtvjxb",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "h83j88vreu",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "cy162bshl1",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "h83j88vreu",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "k9309c4ixu",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "ticpynke4t",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "na3yjtvjxb",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "4sdkxq2ng7",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone5Copy",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "InlineButtons1Copy4CopyCopy",
+                "isCanvas": false,
+                "displayName": "Inline Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_INLINE_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button1",
+                    "index": 0,
+                    "variant": "outlined",
+                    "color": "negative"
+                  },
+                  "button2": {
+                    "label": "Separator",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "id": "button2",
+                    "isSeparator": true,
+                    "index": 1,
+                    "itemType": "SEPARATOR"
+                  },
+                  "button3": {
+                    "label": "Cancel",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "variant": "outlined",
+                    "color": "accent"
+                  },
+                  "button4": {
+                    "label": "Save Changes",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "variant": "filled",
+                    "color": "accent"
+                  }
+                },
+                "isDisabled": false,
+                "key": "dp75vl2xpc",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "0rrineuy2d",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "2q0ylu01lh",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "cy162bshl1",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "2q0ylu01lh",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "k9309c4ixu",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "7zly8d13a4",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "0rrineuy2d",
+                        "widgetType": "WDS_INLINE_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "5edov0rtpx",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "ezg8o7364f",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "k9309c4ixu",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 3,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "swyznzpetm",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "h83j88vreu",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "2q0ylu01lh",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "4400smhtxa",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "swyznzpetm": 4,
+          "h83j88vreu": 4,
+          "2q0ylu01lh": 4
+        }
+      }
+    ]
+  }
+}

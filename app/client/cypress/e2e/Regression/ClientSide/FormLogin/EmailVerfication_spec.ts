@@ -58,7 +58,6 @@ describe("Email verification", () => {
     cy.wait("@getEnvVariables");
     cy.get(adminsSettings.authenticationTab).click();
     cy.get(adminsSettings.formloginButton).click();
-    //cy.pause();
     // Assert verification is disabled
     cy.get(adminsSettings.enableEmailVerificationInput).should("be.disabled");
     // Assert callout

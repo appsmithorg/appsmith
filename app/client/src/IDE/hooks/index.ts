@@ -1,0 +1,1 @@
+export { useIsInSideBySideEditor } from "./useIsInSideBySideEditor";

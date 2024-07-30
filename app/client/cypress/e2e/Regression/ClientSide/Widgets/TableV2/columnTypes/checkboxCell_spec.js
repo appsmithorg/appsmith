@@ -34,6 +34,8 @@ describe(
   () => {
     before(() => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TABLE);
+      // turn on filtering for the table - it is disabled by default in this PR(#34593)
+      _.agHelper.GetNClick(".t--property-control-allowfiltering input");
       _.propPane.EnterJSContext("Table data", tableData);
       cy.editColumn("completed");
       cy.changeColumnType("Checkbox");
@@ -62,6 +64,25 @@ describe(
       cy.moveToStyleTab();
       // Check horizontal alignment
       cy.get("[data-value='CENTER']").first().click();
+
+      function verifyJustifyContent(selector) {
+        return cy
+          .get(selector + " div")
+          .should("have.css", "justify-content", "center");
+      }
+
+      function verifyWidthAuto($el) {
+        // Ensure the width is 'auto' by checking it doesn't have an explicit value
+        expect($el[0].style.width).to.be.empty;
+      }
+      cy.getTableV2DataSelector("0", "4")
+        .then((selector) => {
+          verifyJustifyContent(selector);
+          return cy.get(`${selector} div`).children().first();
+        })
+        .then(($el) => {
+          verifyWidthAuto($el);
+        });
 
       cy.getTableV2DataSelector("0", "4").then((selector) => {
         cy.get(selector + " div").should(

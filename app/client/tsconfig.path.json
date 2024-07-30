@@ -1,6 +1,5 @@
 {
   "compilerOptions": {
-    "baseUrl": "src",
     "paths": {
       "@appsmith/*": ["ee/*"],
       "test/*": ["../test/*"]

@@ -126,6 +126,12 @@ const themeReducer = createImmerReducer(initialState, {
   [ReduxActionTypes.START_CANVAS_SELECTION]: (state: AppThemingState) => {
     state.stack = [];
   },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: AppThemingState) => {
+    return {
+      ...state,
+      isSaving: false,
+    };
+  },
 });
 
 export default themeReducer;

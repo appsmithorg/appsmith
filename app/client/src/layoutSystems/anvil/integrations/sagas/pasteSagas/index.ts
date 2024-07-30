@@ -57,6 +57,9 @@ export function* pasteWidgetSagas() {
     }: {
       widgets: CopiedWidgetData[];
     } = yield getCopiedWidgets();
+
+    if (!copiedWidgets.length) return;
+
     const modalWidgets = copiedWidgets.filter(
       (widget) => widget.hierarchy === widgetHierarchy.WDS_MODAL_WIDGET,
     );
@@ -64,8 +67,6 @@ export function* pasteWidgetSagas() {
       (widget) => widget.hierarchy !== widgetHierarchy.WDS_MODAL_WIDGET,
     );
     const originalWidgets: CopiedWidgetData[] = [...nonModalWidgets];
-
-    if (!originalWidgets.length) return;
 
     const selectedWidget: FlattenedWidgetProps =
       yield getSelectedWidgetWhenPasting();

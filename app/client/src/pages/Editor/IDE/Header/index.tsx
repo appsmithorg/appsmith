@@ -2,7 +2,6 @@ import React, { useCallback, useState } from "react";
 import {
   Flex,
   Tooltip,
-  Text,
   Divider,
   Modal,
   ModalContent,
@@ -13,6 +12,7 @@ import {
   Tab,
   TabPanel,
   Button,
+  Link,
 } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { EditInteractionKind, SavingState } from "design-system-old";
@@ -29,7 +29,6 @@ import {
   HEADER_TITLES,
 } from "@appsmith/constants/messages";
 import EditorName from "pages/Editor/EditorName";
-import { GetNavigationMenuData } from "pages/Editor/EditorName/NavigationMenuData";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -76,6 +75,8 @@ import { EditorState } from "@appsmith/entities/IDE/constants";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { IDEHeader, IDEHeaderTitle } from "IDE";
+import { APPLICATIONS_URL } from "constants/routes";
+import { useNavigationMenuData } from "../../EditorName/useNavigationMenuData";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -166,7 +167,7 @@ const Header = () => {
     dispatch(updateApplication(id, data));
   };
 
-  const handlePublish = () => {
+  const handlePublish = useCallback(() => {
     if (applicationId) {
       dispatch(publishApplication(applicationId));
 
@@ -201,23 +202,18 @@ const Header = () => {
         templateTitle: currentApplication?.forkedFromTemplateTitle,
       });
     }
-  };
+  }, [applicationId, currentApplication, dispatch]);
 
-  const handleClickDeploy = useCallback(
-    (fromDeploy?: boolean) => {
-      if (isGitConnected) {
-        dispatch(showConnectGitModal());
-        AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
-          source: fromDeploy
-            ? "Deploy button"
-            : "Application name menu (top left)",
-        });
-      } else {
-        handlePublish();
-      }
-    },
-    [dispatch, handlePublish],
-  );
+  const handleClickDeploy = useCallback(() => {
+    if (isGitConnected) {
+      dispatch(showConnectGitModal());
+      AnalyticsUtil.logEvent("GS_DEPLOY_GIT_CLICK", {
+        source: "Deploy button",
+      });
+    } else {
+      handlePublish();
+    }
+  }, [dispatch, handlePublish, isGitConnected]);
 
   return (
     <>
@@ -230,12 +226,10 @@ const Header = () => {
           <Flex alignItems={"center"}>
             {currentWorkspace.name && (
               <>
-                <Text
-                  color={"var(--ads-v2-colors-content-label-inactive-fg)"}
-                  kind="body-m"
-                >
-                  {currentWorkspace.name + " / "}
-                </Text>
+                <Link className="mr-1.5" to={APPLICATIONS_URL}>
+                  {currentWorkspace.name}
+                </Link>
+                {"/"}
                 <EditorName
                   applicationId={applicationId}
                   className="t--application-name editable-application-name max-w-48"
@@ -246,7 +240,7 @@ const Header = () => {
                   editInteractionKind={EditInteractionKind.SINGLE}
                   editorName="Application"
                   fill
-                  getNavigationMenu={GetNavigationMenuData}
+                  getNavigationMenu={useNavigationMenuData}
                   isError={isErroredSavingName}
                   isNewEditor={
                     applicationList.filter((el) => el.id === applicationId)
@@ -343,7 +337,7 @@ const Header = () => {
                 isDisabled={isProtectedMode}
                 isLoading={isPublishing}
                 kind="tertiary"
-                onClick={() => handleClickDeploy(true)}
+                onClick={handleClickDeploy}
                 size="md"
                 startIcon={"rocket"}
               >

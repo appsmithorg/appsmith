@@ -3,10 +3,11 @@ import React, { useEffect, useRef } from "react";
 interface DataAttrWrapperProps {
   children: React.ReactNode;
   attr: string;
+  target?: string;
 }
 
 export const DataAttrWrapper = (props: DataAttrWrapperProps) => {
-  const { attr, children } = props;
+  const { attr, children, target } = props;
 
   // Adding any type here because WDS components has different types for ref
   // some are HTMLElement and some are objects only ( For e.g - CheckboxRef )
@@ -19,7 +20,11 @@ export const DataAttrWrapper = (props: DataAttrWrapperProps) => {
         Boolean(ref.current.setAttribute) &&
         typeof ref.current.setAttribute === "function"
       ) {
-        ref.current.setAttribute(attr, "");
+        if (Boolean(target)) {
+          ref.current.querySelector(target).setAttribute(attr, "");
+        } else {
+          ref.current.setAttribute(attr, "");
+        }
 
         return;
       }

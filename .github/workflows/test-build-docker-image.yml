@@ -227,20 +227,22 @@ jobs:
 
       # This step triggers an external workflow for automated analysis of Cypress test runs.
       - name: Invoke Automated analysis workflow
+        if: ( always() && github.ref == 'refs/heads/release' && github.run_attempt <= 2)
         run: |
           curl --location --request POST ${{secrets.CYPRESS_WORKFLOW_API}}    \
           --header 'x-appsmith-key: ${{ secrets.CYPRESS_WORKFLOW_KEY }}'      \
           --header 'Content-Type: application/json' \
-          --data-raw '{ "workflow_id" : ${{ github.run_id }} , 
-                        "commit_id" : "${{ github.sha }}" , 
-                        "repo" : "${{  github.event.repository.full_name }}" , 
-                        "task" : "${{  github.job }}" ,   
-                        "workflow_type" : "${{ github.event_name }}",  
-                        "workflow_name" : "${{ github.workflow }}", 
-                        "job_id" : "",     
-                        "job_data": { 
-                            "ci_test_result_sample_data" : "sample_data" 
-                         }  
+          --data-raw '{ "workflow_id" : ${{ github.run_id }} ,
+                        "commit_id" : "${{ github.sha }}" ,
+                        "repo" : "${{  github.event.repository.full_name }}" ,
+                        "task" : "${{  github.job }}" ,
+                        "workflow_type" : "${{ github.event_name }}",
+                        "workflow_name" : "TBD",
+                        "job_id" : "",
+                        "attempt" : "${{ github.run_attempt }}",
+                        "job_data": {
+                            "ci_test_result_sample_data" : "sample_data"
+                         }
            }'
 
       # Force save the CI failed spec list into a cache

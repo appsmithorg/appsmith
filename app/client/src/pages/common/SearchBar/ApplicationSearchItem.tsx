@@ -41,6 +41,7 @@ const ApplicationSearchItem = (props: Props) => {
           <CircleAppIcon
             className="!mr-1"
             color="var(--ads-v2-color-fg)"
+            // @ts-expect-error Fix this the next time the file is edited
             name={
               application?.icon ||
               (getApplicationIcon(application.id) as AppIconName)

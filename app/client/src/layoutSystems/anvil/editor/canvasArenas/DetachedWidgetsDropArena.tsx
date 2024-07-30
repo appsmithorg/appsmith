@@ -46,7 +46,10 @@ export const DetachedWidgetsDropArena = (props: {
     });
   };
   return props.anvilGlobalDragStates.activateOverlayWidgetDrop ? (
-    <DetachedWidgetsDropArenaWrapper onMouseUp={onMouseUp}>
+    <DetachedWidgetsDropArenaWrapper
+      data-testid="t--anvil-detached-widgets-drop-arena"
+      onMouseUp={onMouseUp}
+    >
       <Popover isOpen modal>
         <PopoverModalContent
           contentClassName={styles.detachedWidgetsDropOverlayContent}

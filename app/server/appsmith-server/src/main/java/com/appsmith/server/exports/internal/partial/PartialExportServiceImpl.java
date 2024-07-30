@@ -8,6 +8,7 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.AnalyticsService;
@@ -31,7 +32,8 @@ public class PartialExportServiceImpl extends PartialExportServiceCEImpl impleme
             ExportableService<NewAction> newActionExportableService,
             ExportableService<ActionCollection> actionCollectionExportableService,
             SessionUserService sessionUserService,
-            AnalyticsService analyticsService) {
+            AnalyticsService analyticsService,
+            JsonSchemaVersions jsonSchemaVersions) {
         super(
                 applicationService,
                 applicationPermission,
@@ -44,6 +46,7 @@ public class PartialExportServiceImpl extends PartialExportServiceCEImpl impleme
                 newActionExportableService,
                 actionCollectionExportableService,
                 sessionUserService,
-                analyticsService);
+                analyticsService,
+                jsonSchemaVersions);
     }
 }

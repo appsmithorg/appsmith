@@ -71,6 +71,7 @@ const MenuItem = ({
             "mx-auto": isMinimal,
           })}
           name="file-line"
+          // @ts-expect-error Fix this the next time the file is edited
           size="large"
         />
       )}

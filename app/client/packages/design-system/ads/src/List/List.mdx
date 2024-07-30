@@ -1,0 +1,106 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as ListStories from "./List.stories";
+
+<Meta of={ListStories} />
+
+# List
+
+List is a set of interactive actions or choices. It consists of items displayed in a uniform single-column layout, allowing space for icons, labels and text.
+
+## Anatomy
+
+![ListItem anatomy](./docs/list-item-anatomy.png)
+
+1. Container.
+2. The Start icon represents a visual indicator related to the action item.
+3. "Label" is the label for the action item.
+4. The End icon could show more options or relevant actions connected to the list.
+
+## Overview
+
+Lists offer a wide range of practical applications:
+
+- In page sidebars, they effectively present individual actions, manage local navigation.
+- Lists facilitate organizational clarity through section dividers, headers for categorization, and dividers for each individual item.
+- Lists dynamically adjust to the size of their parent container, ensuring a consistent single-column layout across various screen dimensions.
+
+## Usage Guidelines
+
+**Navigation Bars**: Utilize Lists in navigation bars to provide users with quick access to common actions, such as profile settings, notifications, or account-related functions.
+
+**List** can encompass a variety of layouts, including variations like "horizontal," "vertical," "stacked," and "grid," each tailored to the specific user interface and design preferences. These variations offer flexibility in presenting interactive actions or choices to users in a visually pleasing and efficient manner.
+
+## List vs Menu
+
+- **List:** No additional user interaction required; actions are directly accessible and visible.
+- **Menu Component:** Requires a triggering action to display the menu, revealing a list of options or actions, which provides a more organized approach for presenting complex sets of choices.
+
+**Action List**:
+A List typically doesn't have any dependencies on user actions. It's a straightforward list of actions that are presented to the user, usually as icons or labels, without requiring any additional interactions. Users can click or tap directly on the action they want to perform.
+
+**Menu Component**:
+A Menu Component often depends on a specific user action to trigger its appearance. This could be a click, hover, or tap action. When the user performs the triggering action, the menu opens, revealing a list of options or actions, often in a hierarchical structure. The menu closes when the user selects an option, clicks outside the menu, or performs a designated close action.
+
+## Grouping and Sorting
+
+Group related actions together, and consider using dividers or headers to visually separate different groups. Provide sorting options if the list is extensive.
+
+## State
+
+![ListItem states](./docs/list-item-state.png)
+
+## Examples
+
+![ListItem examples](./docs/list-item-example.png)
+
+## Interaction
+
+![ListItem interaction](./docs/list-item-interaction.png)
+
+## Spacing
+
+![ListItem spacing](./docs/list-item-spacing.png)
+
+## Sizing
+
+### Sizing Variants
+
+#### Medium
+
+The medium variant is designed for constrained spaces, such as sidebars or mobile screens.
+![ListItem spacing](./docs/list-item-medium.png)
+
+#### Large
+
+The large variant maximizes item visibility and provides ample space for detailed descriptions. It's ideal for expansive layouts like dashboards.
+![ListItem spacing](./docs/list-item-large.png)
+
+## Description
+
+Description on the Right
+![ListItem spacing](./docs/list-item-description-right.png)
+
+**When to Use:**
+
+- **Limited Horizontal Space:** If you have a limited amount of horizontal space available for each item, placing the description on the right can be more space-efficient.
+- **Emphasis on Titles:** If the titles of the items are more important than their descriptions, placing descriptions on the right allows the titles to be more prominent and visible.
+
+**Considerations:**
+
+- **Text Length:** Ensure that the descriptions are concise enough to fit comfortably beside the titles without creating a cluttered appearance.
+- **Visual Balance:** Maintain visual balance by using appropriate spacing between the title, description, and any other components
+
+## Description on the Bottom
+
+**When to Use:**
+
+- **Rich Descriptions:** If the descriptions are detailed and provide crucial information that users need to make decisions, placing them at the bottom allows for more space to present this information.
+- **Engagement and Exploration:** If you want users to engage more deeply with the content and read the descriptions, placing them at the bottom encourages users to scroll down and explore each item.
+- **Visual Appeal:** If you want to create a visually engaging layout with a clear separation between titles and descriptions, placing descriptions at the bottom can achieve this.
+
+**Considerations:**
+
+- **Vertical Space:** Be mindful of the vertical space available, especially if the list is expected to be long. Scrolling through multiple items with descriptions at the bottom might require more user effort.
+
+In essence, the decision between placing descriptions on the right or at the bottom depends on the content's nature, the available space, and the desired user behavior.

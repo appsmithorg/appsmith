@@ -1,6 +1,8 @@
 package com.appsmith.server.migrations;
 
-import lombok.Getter;
+import com.appsmith.external.annotations.FeatureFlagged;
+import com.appsmith.external.enums.FeatureFlagEnum;
+import org.springframework.stereotype.Component;
 
 /**
  * This class represents the JSON schema versions those are supported for the current instance. Whenever we run the
@@ -10,8 +12,16 @@ import lombok.Getter;
  * Having said that during import server will have to check the compatibility for both client
  * (widget dsl) and server-side resources, so that imported application will be in sane state after import is successful
  */
-@Getter
-public class JsonSchemaVersions {
-    public static final Integer serverVersion = 7;
-    public static final Integer clientVersion = 1;
+@Component
+public class JsonSchemaVersions extends JsonSchemaVersionsFallback {
+
+    /**
+     * Only tenant level flags would work over here.
+     * @return an Integer which is server version
+     */
+    @Override
+    @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_git_autocommit_feature_enabled)
+    public Integer getServerVersion() {
+        return super.getServerVersion() + 1;
+    }
 }

@@ -13,7 +13,9 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.solutions.PermissionGroupPermission;
+import io.micrometer.observation.ObservationRegistry;
 import net.minidev.json.JSONObject;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -24,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.appsmith.external.constants.spans.UserSpan.CHECK_SUPER_USER_SPAN;
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
@@ -39,22 +42,27 @@ public class UserUtilsCE {
     private final PermissionGroupRepository permissionGroupRepository;
 
     private final PermissionGroupPermission permissionGroupPermission;
+    private final ObservationRegistry observationRegistry;
 
     public UserUtilsCE(
             ConfigRepository configRepository,
             PermissionGroupRepository permissionGroupRepository,
             CacheableRepositoryHelper cacheableRepositoryHelper,
-            PermissionGroupPermission permissionGroupPermission) {
+            PermissionGroupPermission permissionGroupPermission,
+            ObservationRegistry observationRegistry) {
         this.configRepository = configRepository;
         this.permissionGroupRepository = permissionGroupRepository;
         this.permissionGroupPermission = permissionGroupPermission;
+        this.observationRegistry = observationRegistry;
     }
 
     public Mono<Boolean> isSuperUser(User user) {
         return configRepository
                 .findByNameAsUser(INSTANCE_CONFIG, user, AclPermission.MANAGE_INSTANCE_CONFIGURATION)
                 .map(config -> Boolean.TRUE)
-                .switchIfEmpty(Mono.just(Boolean.FALSE));
+                .switchIfEmpty(Mono.just(Boolean.FALSE))
+                .name(CHECK_SUPER_USER_SPAN)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     public Mono<Boolean> isCurrentUserSuperUser() {

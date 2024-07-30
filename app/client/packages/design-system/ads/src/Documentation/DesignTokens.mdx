@@ -1,0 +1,185 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="ADS/Docs/Design Tokens" />
+
+# Design tokens in ADS
+
+Design tokens enable us to encapsulate our design choices in order to ensure:
+
+- Consistency of styles across the design system
+- Remove ambiguity in terms of how to style a UI element.
+
+There are several layers of abstraction at which tokens can be constructed. This document is a proposal to bring alignment between design and engg. teams, in order to meet the above two goals.
+
+Not using the same tokens lead to un-intended consequences of style inconsistencies and mis-communication amongst the team. So, it is essential for us to agree at what level we’d communicate our design choices.
+
+## Token types
+
+| Token Type               | Example                                                                             | Description                                                                                                                                                                                                                                                   | Remarks                                                                                                                                                                                                                                                                |
+| ------------------------ | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Perceptual / core tokens | Gray-500, Orange-600                                                                | Tokens at this level refer to a style property in their primitive state. Using tokens at this level removes burden in remembering the hex value of the color and one could easily refer them with their names.                                                | If one were to change the underlying styles or theme the application - this is where the change needs to happen. For designers and engineers consuming ADS2.0, do not use tokens at this level.                                                                        |
+| Semantic tokens          | primary-bg-color, text-muted                                                        | These tokens are more meaningful than the core tokens as they are associated with the brand or other semantics. One more layer of abstraction that enables users to easily identify if this is a primary color and not worry about what is the primary shade. | The minimum level at which tokens have to be used in order for people to understand the system. Engineers might come across these tokens in the appsmith repository. If you feel like the usage might be better served with a category token, feel free to replace it. |
+| Component tokens         | color/ui/control/switch/track/default/bg, color/ui/content/avatar/surface/active/bg | Component level tokens are highly component-specific, providing a means to uniquely style a component in case if the component cannot follow category styles.                                                                                                 | Minimizing the use of component-level tokens is advisable whenever feasible. The only situation in which they may be created and employed is when the component cannot utilize a category token due to compelling design constraints.                                  |
+| Category tokens          | color/ui/action/primary/surface/default/bg, color/ui/control/field/default/bg       | These tokens apply to a category of components rather than individual components. (More info. below)                                                                                                                                                          | Requires some interpretation to understand how an atomic component falls under a category. Easier to apply across a range of components. Easier to relate to. Scales well with new components. Engineers building snowflakes should endeavor to use these tokens.      |
+
+> 💡 The values of the category tokens are derived from semantic tokens and which are in turn derived from core tokens. Every level derives values from the previous level.
+
+## Category tokens
+
+This is a top-down lens which seeks to question what constitutes a UI and categorise them.
+
+![One way to categorise the elements in a UI.](./docs/categorize-elements-in-ui.png)
+One way to categorise the elements in a UI.
+
+At a broad level, we can reason that a UI consists of the following categories:
+
+- Content
+- Control
+- Action
+- Response
+
+The idea is to define tokens at this level and ensure that the users of the system are clear in terms of which UI components belong to which categories.
+
+This exercise is needed for atoms and not molecules in a system. Molecules or higher-order components are typically composed of atoms from various categories.
+
+![Parts of a Modal](./docs/parts-of-a-modal.png)
+
+Eg: A Modal could have text, input field, an information block and a call-to-action button. It contains components from all the categories above.
+
+### How does this help with our goals?
+
+🎯 **Remove ambiguity** By ensuring that we work close to the UI level, it is **easy to identify** the token to use in order to style an element.
+
+![Modal - Remove Ambiguity](./docs/modal-remove-ambiguity)
+
+🎯 **Consistency of style across components**
+
+> 👉 All component atoms **belonging to a category** should use the same style tokens to ensure that they are styled consistently, **unless** this leads to a bad visual design choice.
+
+For example:
+
+- The border of an input field should match the border of a checkbox, as they both belong to the category of input controls.
+- The border of a secondary button does not have to match the border of an input field, as they belong to different categories.
+
+This generic structure should allow designers and engineers to understand which token to apply, without a lot of interpretation. This method will also scale well in cases when people have to create snowflakes by providing them an easy reference.
+
+> 🧵 Category tokens are simpler to use. Learn how to use them in your work below.
+
+In the cases that this doesn't work - we have semantic tokens that provide more stylistic control for one to achieve in their design projects.
+
+# How to style using design tokens
+
+> This section is illustrative only. The correct category tokens will be updated shortly.
+
+Every UI element comprises of structural surfaces that are styled using presentational attributes to make it unique.
+
+**eg:** An input field consists of the following structural properties: label, value, placeholder, helper, icon.
+
+[//]: # "TODO: Get labelled screenshot from Vasanth- https://www.notion.so/appsmith/How-to-style-using-design-tokens-fcc35bf74ce14083962704be5b3939cd?pvs=4#3c74a11be196461982175e8ed823fe55"
+
+![Parts of an input](./docs/labelled-input.png)
+
+Structural elements do not always comprise text.
+
+![Parts of a switch](./docs/parts-of-a-switch.png)
+
+<figcaption>
+  The knob and track are structural elements of a Switch that lend it a
+  distinctive look.
+</figcaption>
+
+There are various presentation attributes we could use to style these surfaces. A text label can be styled with typographic styles (font style, font weight, font size, font color), while a button could have a shadow and border styles applied to it.
+
+The following are the presentational attributes available to us, in ADS:
+
+- fg (foreground)
+- bg (background)
+- border (border color)
+
+You will find tokens defined in the following format in Figma.
+(Note: The exact name in Figma would be **color/ui/content/surface/default/bg.** This is due to how the tokens were defined in JSON for exporting to Token studio. We will correct this once we figure out how to do this well. In any case, if you search for a token — you will see it show up properly in Figma’s property pane.)
+
+[//]: # "TODO: How to embed this page so the preview shows?"
+
+## How to style?
+
+> This section is illustrative only. The correct category tokens will be updated shortly.
+
+**If you have to style a snowflake / new component**
+
+- Identify the category this component belongs to (input, action, response, or content)
+- Identify it’s structural surfaces
+- For each state of the component (default, hover, active, disabled etc.)
+  - For every structural surface — apply the corresponding presentation token to the surface, **_as needed_**.
+
+That’s it. You’ve styled the component!
+
+Let us illustrate the above process with an example of styling a switch.
+
+Category: Input control
+
+**Structural surfaces:** track, knob, label
+
+- Category tokens available for input controls:
+
+  | State   | Surface | Presentation attribute | Token name                            |
+  | ------- | ------- | ---------------------- | ------------------------------------- |
+  | default | label   | fg                     | color/ui/control/label/default/fg     |
+  |         | bg      | field                  | color/ui/control/field/default/bg     |
+  |         | border  | field                  | color/ui/control/field/default/border |
+  |         |         |                        |
+  | hover   | label   | fg                     | color/ui/control/label/hover/fg       |
+  |         | bg      | field                  | color/ui/control/field/hover/bg       |
+  |         | border  | field                  | color/ui/control/field/hover/border   |
+  |         |         |                        |
+  | active  | label   | fg                     | color/ui/control/label/hover/fg       |
+  |         | bg      | field                  | color/ui/control/field/hover/bg       |
+  |         | border  | field                  | color/ui/control/field/hover/border   |
+  |         |         |                        |
+
+Styling the default state of the switch:
+
+![Styling Switch - Default state](./docs/styling-switch-default-state.png)
+
+| Structural surface | Presentation Token applied               |
+| ------------------ | ---------------------------------------- |
+| label              | color/ui/control/label/default/fg        |
+| track              | color/ui/control/switch/track/default/bg |
+| knob               | color/ui/control/knob/default/bg         |
+
+[//]: # "TODO: Separate active state from checked state and rewrite this bit"
+
+![Styling Switch - Checked State](./docs/styling-switch-checked-state.png)
+
+| Structural surface | Presentation Token applied               |
+| ------------------ | ---------------------------------------- |
+| label              | no change                                |
+| track              | color/ui/control/switch/track/checked/bg |
+| knob               | no change                                |
+
+How does this logic apply for styling an input field which belongs to the same category as that of a switch?
+![styling-label-active-state](./docs/styling-label-active-state.png)
+
+<figcaption>
+  ✨ The same tokens apply for both the switch and the input field, albeit for
+  different surfaces. This ensures consistency and yet makes each of these
+  components feel distinct.
+</figcaption>
+
+> 👉 It is the discretion of the designer to identify which surfaces have to be styled in a particular state. Blindly applying the tokens to all the surfaces will lead to poor design.
+
+### How to style content?
+
+> ℹ️ WIP
+
+A product’s UI comprises of headings, body, captions in the content category.
+
+The following tokens have been defined for the headings category
+
+> ☝️ For every ui-category **type** token.. there is a color token associated with it. For example, the `Page Heading` type will necessarily use the gray-800 color token. This is the color you should be using. However, in code all of these values will be available as one if the correct type is passed to `Text`.
+
+To make things even simpler for designers, we now have a Text component defined in Figma. Simply drag the component to Figma’s canvas and enter your text.
+
+### What to do if I cannot find the right category token?
+
+Use semantic tokens to style your structural surface. Semantic tokens are more versatile and therefore give you a little more control than category tokens. If you cannot even find a semantic token for your need, you can go down to using core tokens. When you are doing so, please let @design-system-pod know so that we may identify the gap and improve the system.

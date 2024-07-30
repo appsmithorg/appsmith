@@ -150,6 +150,7 @@ class WDSMenuButtonWidget extends BaseWidget<
 
   getWidgetView() {
     const {
+      disableWidgetInteraction,
       isDisabled,
       label,
       triggerButtonColor,
@@ -167,6 +168,7 @@ class WDSMenuButtonWidget extends BaseWidget<
       <MenuTrigger>
         <Button
           color={triggerButtonColor}
+          excludeFromTabOrder={disableWidgetInteraction}
           icon={triggerButtonIconName}
           iconPosition={triggerButtonIconAlign}
           isDisabled={isDisabled}

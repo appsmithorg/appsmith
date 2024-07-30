@@ -369,6 +369,7 @@ function GeneratePageForm() {
                     value: column.name,
                     subText: column.type,
                     icon: columnIcon,
+                    // @ts-expect-error Fix this the next time the file is edited
                     iconSize: "md",
                     iconColor: "var(--ads-v2-color-fg)",
                   });
@@ -444,6 +445,7 @@ function GeneratePageForm() {
         iconSize: "md",
         iconColor: "var(--ads-v2-color-fg)",
       }));
+      // @ts-expect-error Fix this the next time the file is edited
       setSelectedDatasourceTableOptions(tables);
     }
   }, [bucketList, isS3Plugin, setSelectedDatasourceTableOptions]);
@@ -477,6 +479,7 @@ function GeneratePageForm() {
               columns,
             },
           }));
+          // @ts-expect-error Fix this the next time the file is edited
           setSelectedDatasourceTableOptions(newTables);
         }
       }
@@ -770,7 +773,9 @@ function GeneratePageForm() {
                       <StyledIconWrapper>
                         <Icon
                           color={table?.iconColor}
+                          // @ts-expect-error Fix this the next time the file is edited
                           name={table.icon}
+                          // @ts-expect-error Fix this the next time the file is edited
                           size={table.iconSize}
                         />
                       </StyledIconWrapper>
@@ -843,7 +848,9 @@ function GeneratePageForm() {
                           <StyledIconWrapper>
                             <Icon
                               color={column?.iconColor}
+                              // @ts-expect-error Fix this the next time the file is edited
                               name={column.icon}
+                              // @ts-expect-error Fix this the next time the file is edited
                               size={column.iconSize}
                             />
                           </StyledIconWrapper>

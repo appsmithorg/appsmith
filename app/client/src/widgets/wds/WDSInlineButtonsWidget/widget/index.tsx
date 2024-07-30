@@ -81,6 +81,7 @@ class WDSInlineButtonsWidget extends BaseWidget<
     return (
       <InlineButtonsComponent
         buttonsList={this.props.buttonsList}
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         onButtonClick={this.onButtonClick}
       />
     );

@@ -6,7 +6,7 @@
   "entityExplorer": ".t--entity-explorer",
   "popover": "//div[contains(@class,'t--entity page')]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
   "datsourceEntityPopover": "//div[contains(@class,'t--entity datasource')]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",
-  "editName": ".single-select >div:contains('Edit name')",
+  "editName": ".single-select >div:contains('Rename')",
   "deletePage": ".single-select >div:contains('Delete')",
   "refreshStructure": ".single-select >div:contains('Refresh')",
   "datasourceStructure": ".t--entity.datasourceStructure",

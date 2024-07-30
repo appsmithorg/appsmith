@@ -1,0 +1,2846 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 4896,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 380,
+    "containerStyle": "none",
+    "snapRows": 124,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 89,
+    "minHeight": 1292,
+    "layout": [
+      {
+        "layoutId": "w1uzh1www2",
+        "layoutType": "ALIGNED_LAYOUT_COLUMN",
+        "layout": [
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "6cjx3vrmlr",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "bdzj4e2iay",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "djv3t3rf0r",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "xk1plonypl",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "zc3lsxvt8q",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "puaq8fuk82",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "iem3hko8nv",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "zdohqnjycx",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          }
+        ],
+        "layoutStyle": {
+          "border": "none",
+          "height": "100%",
+          "padding": "spacing-4",
+          "gap": "spacing-4"
+        },
+        "isDropTarget": true,
+        "isPermanent": true,
+        "childTemplate": {
+          "insertChild": true,
+          "isDropTarget": false,
+          "isPermanent": false,
+          "layout": [],
+          "layoutId": "",
+          "layoutType": "WIDGET_ROW",
+          "maxChildLimit": 1
+        }
+      }
+    ],
+    "dynamicTriggerPathList": [],
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section1",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone1",
+            "flexGrow": 12,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "guirmbwfzk",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup2",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "fwecbzj257",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup3",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "hkzwucrof2",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup4",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": true,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "kq1lpmjwk4",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup4Copy",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelTooltip": "Tooltip",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": true,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "az79jne2kz",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup4CopyCopy",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "labelTooltip": "Tooltip",
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium with but long label that can't fit at all and it will need a very big space to fill it and we can't afford that right now. But surely in future",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "g48m8iewfh",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup5",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "8jq2lqtnf7",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": false,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup6",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": true,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "wvj31gdsix",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup6Copy",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": true,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "ghejw9p91s",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": false,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1Copy",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "2u7l4yy3me",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1CopyCopy",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "qxr21udarr",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1CopyCopy1",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "p9ph4mba84",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1CopyCopy2",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "372ampmu4f",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "0loxlhnhb7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "q4mmtpnhi7",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "0loxlhnhb7",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "6cjx3vrmlr",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "kb23breox6",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "guirmbwfzk",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "fwecbzj257",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "mqgb5mwhqj",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "hkzwucrof2",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "43ljpytgz3",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "kq1lpmjwk4",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "az79jne2kz",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "g48m8iewfh",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "svh6o1nmp9",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "8jq2lqtnf7",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "wvj31gdsix",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "ghejw9p91s",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "52ggtbuue1",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "2u7l4yy3me",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "qxr21udarr",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "p9ph4mba84",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "372ampmu4f",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "vvhrapeyzw",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "76kdpy4p17",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "6cjx3vrmlr",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 1,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "0loxlhnhb7",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "o893r5a4zi",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "0loxlhnhb7": 12
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section2",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1CopyCopy3",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "ajmr3kyp22",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "kgte2wtlux",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "q4mmtpnhi7",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "kgte2wtlux",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "djv3t3rf0r",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "pfmoono2fn",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "ajmr3kyp22",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "vjhg0me4h8",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1CopyCopy3Copy",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "7w0c4qxi0p",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "xiwwz6d8iq",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "q4mmtpnhi7",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "xiwwz6d8iq",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "djv3t3rf0r",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "uhfha5z2xj",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "7w0c4qxi0p",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "pon2yhus38",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "76kdpy4p17",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "djv3t3rf0r",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 2,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "kgte2wtlux",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "xiwwz6d8iq",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "3cm51cep2g",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "kgte2wtlux": 6,
+          "xiwwz6d8iq": 6
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section3",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy1",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1CopyCopy3Copy1",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "w090rtsgbp",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "skzypqyco7",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "q4mmtpnhi7",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "skzypqyco7",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "zc3lsxvt8q",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "wdkmh6y0gi",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "w090rtsgbp",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "fa81s3dord",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy2",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1CopyCopy3Copy2",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "6rqomxmdac",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "e3a7k46jus",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "q4mmtpnhi7",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "e3a7k46jus",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "zc3lsxvt8q",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "eqyf7ls18b",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "6rqomxmdac",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "8fngfu6m6m",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy3",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1CopyCopy3Copy3",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "1q3wbaeivx",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "xdgxxt2ghi",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "q4mmtpnhi7",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "xdgxxt2ghi",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "zc3lsxvt8q",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "qxqiycwjn8",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "1q3wbaeivx",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "7g5m03t1py",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "76kdpy4p17",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "zc3lsxvt8q",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 3,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "skzypqyco7",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "e3a7k46jus",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "xdgxxt2ghi",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "3sctg2izng",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "skzypqyco7": 4,
+          "e3a7k46jus": 4,
+          "xdgxxt2ghi": 4
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section4",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy4",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1CopyCopy3Copy4",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "n7yb63dz70",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "4yip4cahbe",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "q4mmtpnhi7",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "4yip4cahbe",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "iem3hko8nv",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "7bbt041sow",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "n7yb63dz70",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "o2h2b1yeol",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy5",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1CopyCopy3Copy5",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "gbvjxkfa5v",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "k828j0b4dy",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "q4mmtpnhi7",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "k828j0b4dy",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "iem3hko8nv",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "j4qnam6h7v",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "gbvjxkfa5v",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "aqk7130pdu",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy6",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1CopyCopy3Copy6",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "ex9xmhyc5o",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "34hmalhmxy",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "q4mmtpnhi7",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "34hmalhmxy",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "iem3hko8nv",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "oosk4svfn4",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "ex9xmhyc5o",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "vi1a7j3e2f",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy7",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "RadioGroup1CopyCopy3Copy7",
+                "displayName": "Radio Group",
+                "searchTags": [
+                  "choice"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_RADIO_GROUP_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "defaultOptionValue": "L",
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "options": [
+                  {
+                    "label": "Small",
+                    "value": "S"
+                  },
+                  {
+                    "label": "Medium",
+                    "value": "M"
+                  },
+                  {
+                    "label": "Large",
+                    "value": "L"
+                  }
+                ],
+                "isDisabled": false,
+                "key": "nndjszrrjv",
+                "isRequired": false,
+                "orientation": "vertical",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "AUTO_HEIGHT",
+                "widgetId": "1l77kxp9gk",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "label": "Size",
+                "version": 1,
+                "parentId": "botuulur73",
+                "tags": [
+                  "Toggles"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "isInline": true,
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "q4mmtpnhi7",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "botuulur73",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "iem3hko8nv",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "cyum302bia",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "1l77kxp9gk",
+                        "widgetType": "WDS_RADIO_GROUP_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "nihs6glabs",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "76kdpy4p17",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "iem3hko8nv",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 4,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "4yip4cahbe",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "k828j0b4dy",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "34hmalhmxy",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "botuulur73",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "p7eukv7487",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "4yip4cahbe": 3,
+          "k828j0b4dy": 3,
+          "34hmalhmxy": 3,
+          "botuulur73": 3
+        }
+      }
+    ]
+  }
+}

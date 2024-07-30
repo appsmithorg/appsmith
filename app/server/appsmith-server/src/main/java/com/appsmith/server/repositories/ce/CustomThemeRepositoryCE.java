@@ -9,11 +9,11 @@ import reactor.core.publisher.Mono;
 public interface CustomThemeRepositoryCE extends AppsmithRepository<Theme> {
     Flux<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission);
 
-    Flux<Theme> getSystemThemes();
+    Flux<Theme> getSystemThemes(AclPermission permission);
 
-    Mono<Theme> getSystemThemeByName(String themeName);
+    Mono<Theme> getSystemThemeByName(String themeName, AclPermission permission);
 
-    Mono<Boolean> archiveByApplicationId(String applicationId);
+    Mono<Boolean> archiveByApplicationId(String applicationId, AclPermission permission);
 
-    Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId);
+    Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId, AclPermission permission);
 }

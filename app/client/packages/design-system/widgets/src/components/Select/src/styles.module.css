@@ -1,7 +1,6 @@
 .formField {
   display: flex;
   flex-direction: column;
-  gap: var(--inner-spacing-3);
   width: 100%;
 }
 
@@ -53,10 +52,12 @@
 }
 
 .errorText {
+  margin-block-start: var(--inner-spacing-3);
   color: var(--color-fg-negative);
 }
 
 .description {
+  margin-block-start: var(--inner-spacing-3);
   color: var(--color-fg-neutral);
 }
 

@@ -40,10 +40,9 @@ describe(
           false,
         );
         homePage.LogOutviaAPI();
-        homePage.LogintoApp(
+        cy.LoginFromAPI(
           Cypress.env("TESTUSERNAME1"),
           Cypress.env("TESTPASSWORD1"),
-          "App Viewer",
         );
         homePage.OpenWorkspaceOptions(newWorkspaceName);
         agHelper.AssertContains(

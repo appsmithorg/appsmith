@@ -4,10 +4,24 @@ import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelector
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { createSelector } from "reselect";
 
 export const getIsAnvilLayoutEnabled = (state: AppState) => {
   return selectFeatureFlagCheck(state, FEATURE_FLAG.release_anvil_enabled);
 };
+
+/**
+ * A selector to verify if the current application is an Anvil application.
+ * This is done by getting the layout system type of the current application (getLayoutSystemType)
+ * and comparing with the expected value for ANVIL layout system
+ * returns boolean
+ */
+export const getIsAnvilEnabledInCurrentApplication = createSelector(
+  getLayoutSystemType,
+  (layoutSystemType: LayoutSystemTypes) => {
+    return layoutSystemType === LayoutSystemTypes.ANVIL;
+  },
+);
 
 export const getIsAnvilLayout = (state: AppState) => {
   const layoutSystemType = getLayoutSystemType(state);

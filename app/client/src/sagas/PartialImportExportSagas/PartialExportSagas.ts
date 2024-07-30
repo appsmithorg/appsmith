@@ -26,6 +26,8 @@ import {
   createMessage,
   ERROR_IN_EXPORTING_APP,
 } from "@appsmith/constants/messages";
+import type { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export interface PartialExportParams {
   jsObjects: string[];
@@ -95,6 +97,7 @@ export function* partialExportWidgetSaga(widgetIds: string[]) {
   const canvasWidgets: {
     [widgetId: string]: FlattenedWidgetProps;
   } = yield select(getWidgets);
+  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
   const selectedWidgets = widgetIds.map((each) => canvasWidgets[each]);
 
   if (!selectedWidgets || !selectedWidgets.length) return;
@@ -114,6 +117,7 @@ export function* partialExportWidgetSaga(widgetIds: string[]) {
     canvasId ? canvasWidgets[canvasId] : undefined,
   );
   const widgetsDSL = {
+    layoutSystemType, // We pass the layout system type, so that we can check if the widgets are compatible when importing
     widgets: widgetListsToStore,
     flexLayers,
   };

@@ -30,8 +30,19 @@ export interface ToolbarButtonsProps<T>
       | keyof StyleProps
     >,
     Pick<ButtonProps, "variant" | "color"> {
+  /** Size of buttons
+   * @default medium
+   */
   size?: Omit<keyof typeof SIZES, "large">;
+  /** Alignment of buttons inside the container
+   * @default start
+   */
   alignment?: keyof typeof TOOLBAR_BUTTONS_ALIGNMENTS;
+  /**
+   * Whether to exclude the element from the sequential tab order. If true, the element will not be focusable via the keyboard by tabbing. This should be avoided except in rare scenarios where an alternative means of accessing the element or its functionality via the keyboard is available.
+   * @default false
+   */
+  excludeFromTabOrder?: boolean;
 }
 
 export interface ToolbarButtonsItem

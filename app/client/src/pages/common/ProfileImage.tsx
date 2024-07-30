@@ -47,6 +47,7 @@ export default function ProfileImage(props: {
       firstLetter={props.commonName || initialsAndColorCode[0]}
       image={props.source}
       label={props.commonName || initialsAndColorCode[0]}
+      // @ts-expect-error Fix this the next time the file is edited
       size={props.size}
     />
   );

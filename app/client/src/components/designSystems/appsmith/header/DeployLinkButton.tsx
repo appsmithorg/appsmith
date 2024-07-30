@@ -13,6 +13,7 @@ import {
 import { Button } from "design-system";
 import { KBEditorMenuItem } from "@appsmith/pages/Editor/KnowledgeBase/KBEditorMenuItem";
 import { useHasConnectToGitPermission } from "pages/Editor/gitSync/hooks/gitPermissionHooks";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 
 interface Props {
   trigger: ReactNode;
@@ -23,6 +24,10 @@ export const DeployLinkButton = (props: Props) => {
   const dispatch = useDispatch();
   const isGitConnected = useSelector(getIsGitConnected);
   const isConnectToGitPermitted = useHasConnectToGitPermission();
+  // We check if the current application is an Anvil application.
+  // If it is an Anvil application, we remove the Git features from the deploy button
+  // as they donot yet work correctly with Anvil.
+  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
 
   const goToGitConnectionPopup = () => {
     AnalyticsUtil.logEvent("GS_CONNECT_GIT_CLICK", {
@@ -48,7 +53,7 @@ export const DeployLinkButton = (props: Props) => {
         />
       </MenuTrigger>
       <MenuContent>
-        {!isGitConnected && isConnectToGitPermitted && (
+        {!isGitConnected && isConnectToGitPermitted && !isAnvilEnabled && (
           <MenuItem
             className="t--connect-to-git-btn"
             onClick={goToGitConnectionPopup}

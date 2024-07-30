@@ -12,7 +12,7 @@ export default meta;
 
 type Story = StoryObj<typeof Switch>;
 
-const states = ["", "data-hovered", "data-focused", "data-disabled"];
+const states = ["", "data-hovered", "data-focus-visible", "data-disabled"];
 
 export const LightMode: Story = {
   render: () => (

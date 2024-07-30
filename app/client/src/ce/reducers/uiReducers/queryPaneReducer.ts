@@ -208,6 +208,12 @@ export const handlers = {
       },
     };
   },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: QueryPaneReduxState) => {
+    return {
+      ...state,
+      isSaving: {},
+    };
+  },
 };
 
 const queryPaneReducer = createReducer(initialState, handlers);

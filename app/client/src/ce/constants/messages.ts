@@ -210,6 +210,8 @@ export const PARTNER_PROGRAM_CALLOUT_LINK = () =>
   `Learn about Appsmith Partner Program`;
 export const NEW_APPLICATION = () => `New application`;
 export const APPLICATIONS = () => `Applications`;
+export const FIXED_APPLICATIONS = () => `Classic Applications`;
+export const ANVIL_APPLICATIONS = () => `New Applications`;
 
 export const USER_PROFILE_PICTURE_UPLOAD_FAILED = () =>
   "Unable to upload display picture.";
@@ -268,6 +270,10 @@ export const NO_APPS_FOUND = () =>
   `Whale! Whale! This name doesn't ring a bell!`;
 export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
   `There are no applications in this workspace.`;
+export const NEW_APPLICATION_CARD_LIST_ZERO_STATE = () =>
+  `There are no new applications in this workspace.`;
+export const CLASSIC_APPLICATION_CARD_LIST_ZERO_STATE = () =>
+  `There are no classic applications in this workspace.`;
 export const TRY_GUIDED_TOUR = () => `Try guided tour`;
 export const JOIN_OUR_DISCORD = () => `Join our discord`;
 export const WHATS_NEW = () => `What's new?`;
@@ -402,6 +408,10 @@ export const ERROR_WIDGET_CUT_NO_WIDGET_SELECTED = () =>
   `Please select a widget to cut`;
 export const ERROR_WIDGET_CUT_NOT_ALLOWED = () =>
   `This selected widget cannot be cut.`;
+export const ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT = () =>
+  `Apps made with Anvil α are not compatible with widgets from the classic layout system`;
+export const ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT = () =>
+  `Apps using the classic layout system are not compatible with Anvil α widgets`;
 export const SELECT_ALL_WIDGETS_MSG = () =>
   `All widgets in this page including modals have been selected`;
 export const ERROR_ADD_WIDGET_FROM_QUERY = () => `Failed to add widget`;
@@ -646,6 +656,8 @@ export const ERROR_IMPORTING_APPLICATION_TO_WORKSPACE = () =>
 export const IMPORT_APPLICATION_MODAL_TITLE = () => "Import application";
 export const IMPORT_APPLICATION_MODAL_LABEL = () =>
   "Where would you like to import your application from?";
+export const IMPORT_FROM_GIT_DISABLED_IN_ANVIL = () =>
+  "Importing from Git repositories is not yet supported in Anvil α";
 export const IMPORT_APP_FROM_FILE_TITLE = () => "Import from file";
 export const UPLOADING_JSON = () => "Uploading JSON file";
 export const UPLOADING_APPLICATION = () => "Uploading application";
@@ -1066,12 +1078,6 @@ export const HOW_TO_ADD_DEPLOY_KEY = () =>
 export const CONSENT_ADDED_DEPLOY_KEY = () =>
   "I've added the deploy key and gave it write access";
 export const PREVIOUS_STEP = () => "Previous step";
-export const GIT_CONNECT_SUCCESS_TITLE = () =>
-  "Successfully connected to your Git remote repository";
-export const GIT_CONNECT_SUCCESS_MESSAGE = () =>
-  "Now you can start collaborating with your team members by committing, merging and deploying your app";
-export const START_USING_GIT = () => "Start using Git";
-export const OPEN_GIT_SETTINGS = () => "Open Git settings";
 export const GIT_AUTHOR = () => "Git author";
 export const DISCONNECT_GIT = () => "Disconnect Git";
 export const DISCONNECT_GIT_MESSAGE = () =>
@@ -1114,16 +1120,6 @@ export const DEFAULT_BRANCH_DESC = () =>
 export const BRANCH_PROTECTION = () => "Branch protection";
 export const BRANCH_PROTECTION_DESC = () =>
   "Protected branches enable you to enforce Git workflows. Changes to the app are not allowed in the protected branches.";
-export const BRANCH_PROTECTION_RULES_AS_FOLLOWS = () =>
-  "Branch protection rules follow as,";
-export const BRANCH_PROTECTION_RULE_1 = () =>
-  "Commit and merge are not allowed.";
-export const BRANCH_PROTECTION_RULE_2 = () =>
-  "Users can’t create or edit queries, widgets, and JS Objects.";
-export const BRANCH_PROTECTION_RULE_3 = () =>
-  "You can still pull the latest changes and create new branches to edit the app.";
-export const BRANCH_PROTECTION_CHANGE_RULE = () =>
-  "You can remove protection on your default branch in Git settings.";
 export const GO_TO_SETTINGS = () => "Go to settings";
 export const NOW_PROTECT_BRANCH = () =>
   "You can now protect your default branch.";
@@ -1141,8 +1137,24 @@ export const BRANCH_PROTECTION_CALLOUT_UNPROTECT = () => "Unprotect branch";
 export const BRANCH_PROTECTION_CALLOUT_UNPROTECT_LOADING = () =>
   "Unprotecting branch ...";
 export const BRANCH_PROTECTION_PROTECTED = () => "Protected";
-
 // Git Branch Protection end
+
+// Git Connection Success
+export const GIT_CONNECT_SUCCESS_TITLE = () => "Successfully connected to Git";
+export const GIT_CONNECT_SUCCESS_MESSAGE = () =>
+  "Now you can start collaborating with your team members by committing, merging and deploying your app";
+export const GIT_CONNECT_SUCCESS_ACTION_CONTINUE = () =>
+  "Continue to edit application";
+export const GIT_CONNECT_SUCCESS_ACTION_SETTINGS = () => "Protect your branch";
+export const GIT_CONNECT_SUCCESS_PROTECTION_MSG = () =>
+  "We recommend protecting your default branch to have a seamless collaboration.";
+export const GIT_CONNECT_SUCCESS_REPO_NAME = () => "Repository name";
+export const GIT_CONNECT_SUCCESS_DEFAULT_BRANCH = () => "Default branch";
+export const GIT_CONNECT_SUCCESS_DEFAULT_BRANCH_TOOLTIP = () =>
+  "This is the base branch of the app. Users launching the app from the dashboard will see the deployed version from this branch.";
+export const GIT_CONNECT_SUCCESS_PROTECTION_DOC_CTA = () =>
+  "Learn more about branch protection";
+// Git Connection Success end
 
 export const GENERAL = () => "General";
 export const BRANCH = () => "Branch";
@@ -1712,7 +1724,7 @@ export const END_DESCRIPTION = () =>
   "Inspect properties of queries, components, etc.";
 export const END_BUTTON_TEXT = () => "Start building an app";
 
-export const CONTEXT_EDIT_NAME = () => "Edit name";
+export const CONTEXT_RENAME = () => "Rename";
 export const CONTEXT_SHOW_BINDING = () => "Show bindings";
 export const CONTEXT_MOVE = () => "Move to page";
 export const CONTEXT_COPY = () => "Copy to page";
@@ -2300,9 +2312,17 @@ export const EDITOR_PANE_TEXTS = {
   query_create_tab_title: () => "Create new query from",
   widgets_create_tab_title: () => "Drag & drop UI elements",
   js_create_tab_title: () => "Create JS object from",
-  queries_create_from_existing: () => "From existing datasource",
-  queries_create_new: () => "New API",
+  js_create_modules: () => "JS modules (Beta)",
+  queries_create_from_existing: () => "Datasources",
+  queries_create_new: () => "Quick actions",
+  queries_create_modules: () => "Query modules (Beta)",
   loading_building_blocks: () => "Loading building blocks",
+  empty_search_result: (type: string) => `No ${type} match your search`,
+  search_objects: {
+    jsObject: () => "JS object",
+    queries: () => "queries",
+    datasources: () => "datasources",
+  },
 };
 
 export const PARTIAL_IMPORT_EXPORT = {

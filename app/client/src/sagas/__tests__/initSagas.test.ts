@@ -10,6 +10,7 @@ import type { AppEnginePayload } from "entities/Engine";
 import { testSaga } from "redux-saga-test-plan";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import mockResponse from "./mockConsolidatedApiResponse.json";
+import { startRootSpan } from "UITelemetry/generateTraces";
 
 jest.mock("../../api/Api", () => ({
   __esModule: true,
@@ -50,33 +51,40 @@ describe("tests the sagas in initSagas", () => {
       stopPerformanceTracking: jest.fn(),
     };
 
+    const mockRootSpan = startRootSpan("startAppEngine");
+
     (AppEngineFactory.create as jest.Mock).mockReturnValue(engine);
 
     testSaga(startAppEngine, action)
       .next()
-      .call(engine.setupEngine, action.payload)
+      .call(engine.setupEngine, action.payload, mockRootSpan)
       .next()
       .call(getInitResponses, { ...action.payload })
       .next(mockResponse.data)
       .put({ type: ReduxActionTypes.LINT_SETUP })
       .next()
-      .call(engine.loadAppData, action.payload, mockResponse.data)
+      .call(engine.loadAppData, action.payload, mockResponse.data, mockRootSpan)
       .next({
         applicationId: action.payload.applicationId,
         toLoadPageId: action.payload.pageId,
       })
-      .call(engine.loadAppURL, action.payload.pageId, action.payload.pageId)
+      .call(engine.loadAppURL, {
+        pageId: action.payload.pageId,
+        pageIdInUrl: action.payload.pageId,
+        rootSpan: mockRootSpan,
+      })
       .next()
       .call(
         engine.loadAppEntities,
         action.payload.pageId,
         action.payload.applicationId,
         mockResponse.data,
+        mockRootSpan,
       )
       .next()
-      .call(engine.loadGit, action.payload.applicationId)
+      .call(engine.loadGit, action.payload.applicationId, mockRootSpan)
       .next()
-      .call(engine.completeChore)
+      .call(engine.completeChore, mockRootSpan)
       .next()
       .put(generateAutoHeightLayoutTreeAction(true, false))
       .next()

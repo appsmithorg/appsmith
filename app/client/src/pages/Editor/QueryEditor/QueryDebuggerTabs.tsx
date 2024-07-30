@@ -204,6 +204,7 @@ function QueryDebuggerTabs({
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <QueryResponseTab
+          actionName={actionName}
           actionSource={actionSource}
           currentActionConfig={currentActionConfig}
           isRunning={isRunning}

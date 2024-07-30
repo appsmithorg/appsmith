@@ -7,7 +7,7 @@ import type {
   ProductAlertState,
 } from "reducers/uiReducers/usersReducer";
 import { setMessageConfig } from "@appsmith/sagas/userSagas";
-import type { CalloutLinkProps } from "design-system/build/Callout/Callout.types";
+import type { CalloutLinkProps } from "design-system";
 import moment from "moment/moment";
 import {
   createMessage,

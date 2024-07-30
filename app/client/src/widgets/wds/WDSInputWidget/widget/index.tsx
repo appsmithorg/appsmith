@@ -15,6 +15,8 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 
 class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
+  static type = "WDS_INPUT_WIDGET";
+
   static getConfig() {
     return config.metaConfig;
   }
@@ -226,6 +228,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         autoFocus={this.props.autoFocus}
         defaultValue={this.props.defaultText}
         errorMessage={errorMessage}
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={inputType}
@@ -250,8 +253,6 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
       />
     );
   }
-
-  static type = "WDS_INPUT_WIDGET";
 }
 
 export { WDSInputWidget };

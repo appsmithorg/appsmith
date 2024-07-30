@@ -81,6 +81,11 @@ module.exports = async (on, config) => {
       return launchOptions;
     }
 
+    if (browser.name === "chromium") {
+      launchOptions.args.push("--window-size=1400,1100");
+      return launchOptions;
+    }
+
     if (browser.name === "electron") {
       // && browser.isHeadless) {
       launchOptions.preferences.fullscreen = true;
@@ -174,7 +179,7 @@ module.exports = async (on, config) => {
     },
 
     /*
-    Change video source for for camera & code scanner 
+    Change video source for for camera & code scanner
     */
     changeVideoSource(videoSource) {
       console.log("TASK - Changing video source to", videoSource);

@@ -225,6 +225,9 @@ export const getRenderMode = (state: AppState) => {
     : RenderModes.PAGE;
 };
 
+export const getIsViewMode = (state: AppState) =>
+  state.entities.app.mode === APP_MODE.PUBLISHED;
+
 export const getViewModePageList = createSelector(
   getPageList,
   getCurrentPageId,

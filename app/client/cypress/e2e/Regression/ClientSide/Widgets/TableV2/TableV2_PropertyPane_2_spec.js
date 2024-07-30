@@ -114,8 +114,12 @@ describe(
     it("4. It provides currentRow and currentIndex properties in min validation field", function () {
       agHelper.AddDsl("tableV2NewDslWithPagination");
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("orderAmount");
-      cy.editColumn("orderAmount");
+      table.toggleColumnEditableViaColSettingsPane(
+        "orderAmount",
+        "v2",
+        true,
+        false,
+      );
 
       propPane.UpdatePropertyFieldValue("Computed value", "{{currentIndex}}");
       cy.changeColumnType("Number");
@@ -240,13 +244,22 @@ describe(
       );
       cy.changeColumnType("Plain text");
       cy.backFromPropertyPanel();
-      cy.makeColumnEditable("orderAmount");
+      table.toggleColumnEditableViaColSettingsPane(
+        "orderAmount",
+        "v2",
+        false,
+        true,
+      );
     });
 
     it("5. Verify default prompt message for min field", function () {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("orderAmount");
-      cy.editColumn("orderAmount");
+      table.toggleColumnEditableViaColSettingsPane(
+        "orderAmount",
+        "v2",
+        true,
+        false,
+      );
       cy.changeColumnType("Number");
       propPane.UpdatePropertyFieldValue("Min", "test");
       cy.get(".t--property-control-min .t--no-binding-prompt > span").should(
@@ -255,7 +268,12 @@ describe(
       );
       cy.changeColumnType("Plain text");
       cy.backFromPropertyPanel();
-      cy.makeColumnEditable("orderAmount");
+      table.toggleColumnEditableViaColSettingsPane(
+        "orderAmount",
+        "v2",
+        false,
+        true,
+      );
     });
   },
 );

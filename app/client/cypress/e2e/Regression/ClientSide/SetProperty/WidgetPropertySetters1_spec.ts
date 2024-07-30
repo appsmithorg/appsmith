@@ -123,7 +123,7 @@ Object.values(setterMethodsToTest).forEach(
   ) => {
     describe(
       `${index + 1}. ${name} method test`,
-      { tags: ["@tag.Widget"] },
+      { tags: ["@tag.Widget", "@tag.JS"] },
       () => {
         beforeEach("Adding new pag & DragDrop widget", () => {
           PageList.AddNewPage();

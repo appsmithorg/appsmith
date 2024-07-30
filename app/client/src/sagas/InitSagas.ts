@@ -85,6 +85,11 @@ import type { Datasource } from "entities/Datasource";
 import type { Plugin, PluginFormPayload } from "api/PluginApi";
 import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
 import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
+import {
+  endSpan,
+  startNestedSpan,
+  startRootSpan,
+} from "UITelemetry/generateTraces";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -284,32 +289,56 @@ export function* getInitResponses({
 }
 
 export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
+  const rootSpan = startRootSpan("startAppEngine", {
+    mode: action.payload.mode,
+    pageId: action.payload.pageId,
+    applicationId: action.payload.applicationId,
+    branch: action.payload.branch,
+  });
+
   try {
     const engine: AppEngine = AppEngineFactory.create(
       action.payload.mode,
       action.payload.mode,
     );
     engine.startPerformanceTracking();
-    yield call(engine.setupEngine, action.payload);
+    yield call(engine.setupEngine, action.payload, rootSpan);
+
+    const getInitResponsesSpan = startNestedSpan(
+      "getInitResponsesSpan",
+      rootSpan,
+    );
+
     const allResponses: InitConsolidatedApi = yield call(getInitResponses, {
       ...action.payload,
     });
+
+    endSpan(getInitResponsesSpan);
+
     yield put({ type: ReduxActionTypes.LINT_SETUP });
+
     const { applicationId, toLoadPageId } = yield call(
       engine.loadAppData,
       action.payload,
       allResponses,
+      rootSpan,
     );
-    yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
+
+    yield call(engine.loadAppURL, {
+      pageId: toLoadPageId,
+      pageIdInUrl: action.payload.pageId,
+      rootSpan,
+    });
 
     yield call(
       engine.loadAppEntities,
       toLoadPageId,
       applicationId,
       allResponses,
+      rootSpan,
     );
-    yield call(engine.loadGit, applicationId);
-    yield call(engine.completeChore);
+    yield call(engine.loadGit, applicationId, rootSpan);
+    yield call(engine.completeChore, rootSpan);
     yield put(generateAutoHeightLayoutTreeAction(true, false));
     engine.stopPerformanceTracking();
   } catch (e) {
@@ -317,6 +346,8 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     if (e instanceof AppEngineApiError) return;
     Sentry.captureException(e);
     yield put(safeCrashAppRequest());
+  } finally {
+    endSpan(rootSpan);
   }
 }
 

@@ -287,6 +287,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> validateAction(NewAction newAction) {
+        return validateAction(newAction, false);
+    }
+
+    @Override
+    public Mono<NewAction> validateAction(NewAction newAction, boolean isDryOps) {
         this.setGitSyncIdInNewAction(newAction);
 
         ActionDTO action = newAction.getUnpublishedAction();
@@ -370,15 +375,23 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 } else {
                     // TODO: check if datasource should be fetched with edit during action create or update.
                     // Data source already exists. Find the same.
-                    datasourceMono = datasourceService
-                            .findById(action.getDatasource().getId())
-                            .switchIfEmpty(Mono.defer(() -> {
-                                action.setIsValid(false);
-                                invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(
-                                        FieldName.DATASOURCE,
-                                        action.getDatasource().getId()));
-                                return Mono.just(action.getDatasource());
-                            }))
+
+                    if (isDryOps) {
+                        datasourceMono = Mono.just(action.getDatasource());
+                    } else {
+                        datasourceMono = datasourceService
+                                .findById(action.getDatasource().getId())
+                                .switchIfEmpty(Mono.defer(() -> {
+                                    if (!isDryOps) {
+                                        action.setIsValid(false);
+                                        invalids.add(AppsmithError.NO_RESOURCE_FOUND.getMessage(
+                                                FieldName.DATASOURCE,
+                                                action.getDatasource().getId()));
+                                    }
+                                    return Mono.just(action.getDatasource());
+                                }));
+                    }
+                    datasourceMono = datasourceMono
                             .map(datasource -> {
                                 // datasource is found. Update the action.
                                 newAction.setWorkspaceId(datasource.getWorkspaceId());
@@ -441,7 +454,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<Void> bulkValidateAndInsertActionInRepository(List<NewAction> newActionList) {
         return Flux.fromIterable(newActionList)
-                .flatMap(this::validateAction)
+                .flatMap(newAction -> validateAction(newAction, true))
                 .collectList()
                 .flatMap(repository::bulkInsert);
     }
@@ -449,7 +462,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<Void> bulkValidateAndUpdateActionInRepository(List<NewAction> newActionList) {
         return Flux.fromIterable(newActionList)
-                .flatMap(this::validateAction)
+                .flatMap(newAction -> validateAction(newAction, true))
                 .collectList()
                 .flatMap(repository::bulkUpdate);
     }
@@ -579,7 +592,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 action != null ? action.getId() : null,
                 id);
 
-        return updateUnpublishedActionWithoutAnalytics(id, action, Optional.of(actionPermission.getEditPermission()))
+        return updateUnpublishedActionWithoutAnalytics(id, action, actionPermission.getEditPermission())
                 .zipWhen(zippedActions -> {
                     ActionDTO updatedActionDTO = zippedActions.getT1();
                     if (updatedActionDTO.getDatasource() != null
@@ -626,7 +639,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
      */
     @Override
     public Mono<Tuple2<ActionDTO, NewAction>> updateUnpublishedActionWithoutAnalytics(
-            String id, ActionDTO action, Optional<AclPermission> permission) {
+            String id, ActionDTO action, AclPermission permission) {
         log.debug(
                 "Updating unpublished action without analytics with action id: {} ",
                 action != null ? action.getId() : null);
@@ -848,12 +861,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
-        return deleteUnpublishedActionWithOptionalPermission(id, Optional.of(actionPermission.getDeletePermission()));
+        return deleteUnpublishedAction(id, actionPermission.getDeletePermission());
     }
 
     @Override
-    public Mono<ActionDTO> deleteUnpublishedActionWithOptionalPermission(
-            String id, Optional<AclPermission> newActionDeletePermission) {
+    public Mono<ActionDTO> deleteUnpublishedAction(String id, AclPermission newActionDeletePermission) {
         Mono<NewAction> actionMono = repository
                 .findById(id, newActionDeletePermission)
                 .switchIfEmpty(
@@ -1530,7 +1542,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 Datasource updatedDatasource =
                         policySolution.addPoliciesToExistingObject(datasourcePolicyMap, datasource);
 
-                return datasourceService.save(updatedDatasource);
+                return datasourceService.save(updatedDatasource, false);
             });
         });
     }

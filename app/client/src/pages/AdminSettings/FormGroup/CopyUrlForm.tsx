@@ -7,6 +7,8 @@ import { Icon, Input, Text, toast, Tooltip } from "design-system";
 export const BodyContainer = styled.div`
   width: 100%;
   padding: 0 0 16px;
+  .ads-v2-input__input-section-input,
+  .ads-v2-input__input-section-icon[data-has-onclick="true"],
   .ads-v2-input__input-section-icon[data-has-onclick="true"] * {
     cursor: pointer !important;
   }
@@ -66,6 +68,7 @@ function CopyUrlForm(props: {
         endIcon="duplicate"
         endIconProps={{
           className: "copy-icon",
+          // @ts-expect-error Fix this the next time the file is edited
           "data-testid": `${fieldName}-copy-icon`,
           onClick: handleCopy,
         }}

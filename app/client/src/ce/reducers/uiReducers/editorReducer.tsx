@@ -52,6 +52,11 @@ export const handlers = {
       pageWidgetId: undefined,
       pageActions: undefined,
       layoutOnLoadActionErrors: undefined,
+      loadingStates: {
+        ...state.loadingStates,
+        saving: false,
+        savingEntity: false,
+      },
     };
   },
   [ReduxActionTypes.RESET_EDITOR_SUCCESS]: (state: EditorReduxState) => {

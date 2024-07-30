@@ -1,7 +1,6 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.services.AnalyticsService;
@@ -27,7 +26,6 @@ public class UserSignupImpl extends UserSignupCEImpl implements UserSignup {
             ConfigService configService,
             AnalyticsService analyticsService,
             EnvManager envManager,
-            CommonConfig commonConfig,
             UserUtils userUtils,
             NetworkUtils networkUtils,
             EmailService emailService,
@@ -41,7 +39,6 @@ public class UserSignupImpl extends UserSignupCEImpl implements UserSignup {
                 configService,
                 analyticsService,
                 envManager,
-                commonConfig,
                 userUtils,
                 networkUtils,
                 emailService,

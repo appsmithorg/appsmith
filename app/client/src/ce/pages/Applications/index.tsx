@@ -8,9 +8,14 @@ import {
 } from "@appsmith/actions/workspaceActions";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import {
+  ANVIL_APPLICATIONS,
+  APPLICATIONS,
+  CLASSIC_APPLICATION_CARD_LIST_ZERO_STATE,
   CREATE_A_NEW_WORKSPACE,
   createMessage,
+  FIXED_APPLICATIONS,
   INVITE_USERS_PLACEHOLDER,
+  NEW_APPLICATION_CARD_LIST_ZERO_STATE,
   NO_APPS_FOUND,
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
@@ -45,6 +50,7 @@ import {
   Option,
   Select,
   Tooltip,
+  Tag,
 } from "design-system";
 import {
   AppIconCollection,
@@ -128,6 +134,8 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -252,6 +260,21 @@ const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
     height: 34px !important;
   }
 `;
+
+// Tags for some reason take all available space.
+// We're changing the max width to fit the contents as Tags are supposed to be
+const TitleTag = styled(Tag)`
+  max-width: fit-content;
+`;
+
+// A static component that is a tag signifying Anvil applications
+// This will be passed down to the ApplicationCardsList component
+// in the titleTag prop.
+const AnvilTitleTag = (
+  <TitleTag isClosable={false} onClose={() => {}}>
+    Anvil α
+  </TitleTag>
+);
 
 export function LeftPaneSection(props: {
   heading: string;
@@ -501,6 +524,9 @@ export function ApplicationsSection(props: any) {
   const isDeletingWorkspace = useSelector(getIsDeletingWorkspace);
   const { isFetchingPackages } = usePackage();
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
+  // This checks if the Anvil feature flag is enabled and shows different sections in the workspace
+  // for Anvil and Classic applications
+  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
   const urlParams = new URLSearchParams(location.search);
@@ -738,6 +764,21 @@ export function ApplicationsSection(props: any) {
       }
     };
 
+    // The following filters the applications into classic and Anvil applications
+    // So, that they can be listed in different card lists depending on whether Anvil is enabled
+    const anvilApplications: ApplicationPayload[] = [];
+    const nonAnvilApplications: ApplicationPayload[] = [];
+    applications.forEach((application: ApplicationPayload) => {
+      if (
+        application.applicationDetail?.appPositioning?.type ===
+        LayoutSystemTypes.ANVIL
+      ) {
+        anvilApplications.push(application);
+      } else {
+        nonAnvilApplications.push(application);
+      }
+    });
+
     workspacesListComponent = (
       <React.Fragment key={activeWorkspace.id}>
         <WorkspaceSection className="t--workspace-section" isMobile={isMobile}>
@@ -825,10 +866,39 @@ export function ApplicationsSection(props: any) {
             <ResourceListLoader isMobile={isMobile} resources={applications} />
           ) : (
             <>
+              {isAnvilEnabled && ( // Anvil Applications list
+                <ApplicationCardList
+                  applications={anvilApplications}
+                  canInviteToWorkspace={canInviteToWorkspace}
+                  deleteApplication={deleteApplication}
+                  emptyStateMessage={createMessage(
+                    NEW_APPLICATION_CARD_LIST_ZERO_STATE,
+                  )}
+                  enableImportExport={enableImportExport}
+                  hasCreateNewApplicationPermission={
+                    hasCreateNewApplicationPermission
+                  }
+                  hasManageWorkspacePermissions={hasManageWorkspacePermissions}
+                  isMobile={isMobile}
+                  onClickAddNewButton={onClickAddNewAppButton}
+                  title={createMessage(ANVIL_APPLICATIONS)}
+                  titleTag={AnvilTitleTag}
+                  updateApplicationDispatch={updateApplicationDispatch}
+                  workspaceId={activeWorkspace.id}
+                />
+              )}
               <ApplicationCardList
-                applications={applications}
+                applications={nonAnvilApplications}
                 canInviteToWorkspace={canInviteToWorkspace}
                 deleteApplication={deleteApplication}
+                emptyStateMessage={
+                  // We let the original message includded in the ApplicationCardList component
+                  // show if Anvil is not enabled. If Anvil is enabled, we need to pass the message
+                  // to make them appropriate to the context.
+                  isAnvilEnabled
+                    ? createMessage(CLASSIC_APPLICATION_CARD_LIST_ZERO_STATE)
+                    : undefined
+                }
                 enableImportExport={enableImportExport}
                 hasCreateNewApplicationPermission={
                   hasCreateNewApplicationPermission
@@ -836,6 +906,12 @@ export function ApplicationsSection(props: any) {
                 hasManageWorkspacePermissions={hasManageWorkspacePermissions}
                 isMobile={isMobile}
                 onClickAddNewButton={onClickAddNewAppButton}
+                title={
+                  // The title is different based on whether Anvil is enabled or not
+                  createMessage(
+                    isAnvilEnabled ? FIXED_APPLICATIONS : APPLICATIONS,
+                  )
+                }
                 updateApplicationDispatch={updateApplicationDispatch}
                 workspaceId={activeWorkspace.id}
               />

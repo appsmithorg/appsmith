@@ -29,7 +29,6 @@ import org.eclipse.jgit.diff.DiffEntry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +43,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -93,7 +91,6 @@ import static org.mockito.ArgumentMatchers.any;
  *      In order to retrieve the updated JSON, one could simply copy the serialized files from the test case itself.
  */
 @Slf4j
-@ExtendWith(SpringExtension.class)
 @AutoConfigureDataMongo
 @SpringBootTest
 @DirtiesContext

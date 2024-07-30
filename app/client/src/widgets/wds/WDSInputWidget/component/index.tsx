@@ -95,6 +95,7 @@ function InputComponent(props: InputComponentProps) {
       contextualHelp={props.tooltip}
       defaultValue={props.defaultValue}
       errorMessage={props.validationStatus === "invalid" ? errorMessage : ""}
+      excludeFromTabOrder={props.excludeFromTabOrder}
       isDisabled={props.isDisabled}
       isReadOnly={props.isReadOnly}
       isRequired={props.isRequired}

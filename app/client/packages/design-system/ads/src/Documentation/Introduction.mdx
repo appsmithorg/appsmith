@@ -1,0 +1,80 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="ADS/Docs/Introduction" />
+
+# Welcome to Appsmith Design system (ADS) 2.0
+
+![ADS 2.0 Banner](./docs/ads-banner.png)
+
+This site contains examples and documentation of all of the building blocks used to build the Appsmith platform. This re-write of Appsmith design system is significantly different from the previous iteration and requires you to understand a few basic concepts in order to maximise your productivity as a designer/engineer consuming ADS 2.0.
+
+### Experience goals
+
+- Ease of use: We want to minimise the interpretation that requires for a person in terms of how to style their UI, using strong defaults.
+- Flexibility of design: We provide flexibility through a robust set of tokens in case the components do not meet your needs
+
+## How to access ADS 2.0
+
+### For Designers
+
+Designers can access the components and tokens from ADS2.0 through Figma’s asset library panel.
+
+[//]: # "TODO: Add link to below via youtube and mdx-embed"
+[//]: # "![How to access ADS 2.0 for designers tutorial](./docs/how-to-access-ads-for-designers.mp4)"
+
+Toggle the ADS2.0 components and Icon libraries from the Figma asset library panel, as shown above. You will see all the components and icons show up here. Drag the desired component you want to use to your Figma canvas.
+
+![Libraries available in Figma](./docs/libraries-in-figma.png)
+
+Ensure that you have the old library, referred to as Appsmith Design system, toggled off! This library will be deprecated soon.
+
+### For Engineers
+
+The component library is available on [npm](https://www.npmjs.com/package/@appsmithorg/design-system) and the source code on [github](https://www.github.com/appsmithorg/design-system).
+
+To make changes to the library, refer to the [README](https://github.com/appsmithorg/design-system/blob/release/packages/design-system/README.md).
+
+To use a specific component, refer to the docs for the component in the [storybook](https://design-system.appsmith.com/) here.
+
+[//]: # "TODO: Link category tokens story here"
+
+To use tokens created by ads in your own components, refer to [the story in the storybook.]()
+
+Design files you receive will almost certainly be using components or compositions of components alone. If you find that you are having to build a component from scratch, please confer with your designer if there’s an alternative using established components, or ask someone from the design-system team if you can develop the new component within the design-system repository, before proceeding to build the custom component. We are all responsible for ensuring the experience we deliver is consistent and as solid as a rock 🪨
+
+## How to use ADS?
+
+Everything you design/code should be:
+
+- a component from ADS 2.0, or,
+- composed of components from ADS 2.0.
+
+You have the provision to style your design using the tokens from ADS2.0 if the above two cases do not meet your need.
+
+Every component and its comprising parts in ADS2.0 has been styled using design tokens in order to ensure consistency and to achieve cohesiveness across the components.
+
+### Learn more about Design tokens: [Design tokens in ADS](https://design-system.appsmith.com/?path=/docs/design-tokens--documentation)
+
+> ☝️ **Remember this operating principle**
+> Use components from ADS2.0. If they do not meet your need and you have a unique use-case to design for, use tokens. Anything else is not accepted as it would break the consistency of the designs within the product.
+
+### Adding a new component or variation to ADS
+
+1. A case needs to be made for the new component, and consensus needs to be achieved on its requirement. Stakeholders: pod proposing the component and design-system pod.
+2. The design is prepared by the pod that is requesting the component or variation.
+3. The design will pass a review by the design-system pod, from both design and engineering pov.
+4. Handoff will happen on [the zeplin board](https://app.zeplin.io/project/63f7601064ab77243cf1eca1)
+5. Component guidelines will start to be worked on by the designers.
+6. Development will be taken up. This can be done by either engineering from requesting pod or from design-system pod, based on bandwidth and urgency.
+7. Once a PR is ready and approved, an alpha release will be generated for that branch. This alpha version needs to be used in a PR in the appsmith repository. All ci tests need to pass on this branch. This branch should be added to the description of the component branch using the `Depends on` keywords.
+8. The component is now ready to be picked up by the design-system QA.
+9. Once QA has confirmed all is okay, the pod may optionally conduct a round of QA where the component is used in the feature branch.
+10. We can now merge the component PR into release. A minor update to the design-system package will be released. Make sure that any feature branches in other repositories do not contain the alpha version in a non-feature branch, because this may cause unexpected failures.
+
+Phew! That's a lot of steps. Fortunately, as our platform becomes more stable, this is a process we will need lesser of.
+
+### ADS 2.0 Community File
+
+If you are outside of Appsmith, you can use the file published on [Figma community](https://www.figma.com/community/file/1342421531272282596/appsmith-design-system-2-0?searchSessionId=lt3wjj53-ewzttpn8z2a)
+
+**Note:** This file is not actively maintained and will not get regular updates.

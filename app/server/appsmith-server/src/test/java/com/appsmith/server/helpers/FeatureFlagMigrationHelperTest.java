@@ -8,12 +8,10 @@ import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.services.CacheableFeatureFlagHelper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -31,7 +29,6 @@ import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
 @SpringBootTest
-@ExtendWith(SpringExtension.class)
 class FeatureFlagMigrationHelperTest {
 
     @MockBean

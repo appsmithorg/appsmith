@@ -32,7 +32,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import Container from "./Container";
-import type { CalloutProps } from "design-system/build/Callout/Callout.types";
+import type { CalloutProps } from "design-system";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};

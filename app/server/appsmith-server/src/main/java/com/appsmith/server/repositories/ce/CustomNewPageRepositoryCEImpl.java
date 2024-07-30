@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
+import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -171,23 +172,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return queryBuilder()
                 .criteria(q)
                 .permission(permission)
-                .fields("id")
-                .one()
-                .map(NewPage::getId);
-    }
-
-    @Override
-    public Flux<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
-        return queryBuilder()
-                .criteria(Bridge.in(NewPage.Fields.applicationId, applicationIds))
-                .fields(
-                        NewPage.Fields.unpublishedPage_slug,
-                        NewPage.Fields.unpublishedPage_customSlug,
-                        NewPage.Fields.publishedPage_slug,
-                        NewPage.Fields.publishedPage_customSlug,
-                        NewPage.Fields.applicationId)
-                .permission(aclPermission)
-                .all();
+                .one(IdOnly.class)
+                .map(IdOnly::id);
     }
 
     @Override

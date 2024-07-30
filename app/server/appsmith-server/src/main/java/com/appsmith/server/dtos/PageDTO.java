@@ -43,7 +43,7 @@ public class PageDTO {
     @JsonView({Views.Public.class, Views.Export.class, Git.class})
     String slug;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     String customSlug;
 
     @Transient
@@ -65,7 +65,7 @@ public class PageDTO {
     @JsonView(Views.Public.class)
     Instant deletedAt = null;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     Boolean isHidden;
 
     @Transient
