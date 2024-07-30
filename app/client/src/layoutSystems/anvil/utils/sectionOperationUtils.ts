@@ -167,7 +167,7 @@ export function* addNewZonesToSection(
   do {
     const sectionWidget: FlattenedWidgetProps = updatedWidgets[sectionWidgetId];
     const newWidget: any = {
-      newWidgetId: generateReactKey(),
+      newWidgetId: generateReactKey({ prefix: "zone-" }),
       parentId: sectionWidget.widgetId,
       type: anvilWidgets.ZONE_WIDGET,
     };

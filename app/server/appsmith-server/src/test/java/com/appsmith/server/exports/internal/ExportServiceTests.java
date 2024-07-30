@@ -779,6 +779,11 @@ public class ExportServiceTests {
                                     .getThemeSetting()
                                     .getIconStyle())
                             .isEqualTo(Application.ThemeSetting.IconStyle.OUTLINED);
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getAppMaxWidth())
+                            .isEqualTo(Application.ThemeSetting.AppMaxWidth.LARGE);
 
                     assertThat(exportedApp.getPolicies()).isNull();
                     assertThat(exportedApp.getUserPermissions()).isNull();
@@ -990,6 +995,7 @@ public class ExportServiceTests {
         themeSettings.setFontFamily("#000000");
         themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
         themeSettings.setIconStyle(Application.ThemeSetting.IconStyle.OUTLINED);
+        themeSettings.setAppMaxWidth(Application.ThemeSetting.AppMaxWidth.LARGE);
         return themeSettings;
     }
 

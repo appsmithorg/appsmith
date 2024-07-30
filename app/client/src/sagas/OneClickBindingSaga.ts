@@ -48,7 +48,7 @@ import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { fetchActions, runAction } from "actions/pluginActionActions";
-import { Toaster, Variant } from "design-system-old";
+import { toast } from "design-system";
 import WidgetFactory from "WidgetProvider/factory";
 
 export function* createActionsForOneClickBindingSaga(
@@ -375,10 +375,9 @@ function* BindWidgetToDatasource(
       formType: otherFields?.formType,
     });
   } catch (e: any) {
-    Toaster.show({
-      text: e.message,
+    toast.show(e.message, {
       hideProgressBar: false,
-      variant: Variant.danger,
+      kind: "error",
     });
 
     yield put({
@@ -386,14 +385,16 @@ function* BindWidgetToDatasource(
     });
   }
 
-  Toaster.show({
-    text: `Successfully created action${
+  toast.show(
+    `Successfully created action${
       newActions.length > 1 ? "s" : ""
     }: ${newActions.join(", ")}`,
-    hideProgressBar: true,
-    variant: Variant.success,
-    duration: 3000,
-  });
+    {
+      hideProgressBar: true,
+      kind: "success",
+      autoClose: 3000,
+    },
+  );
 }
 
 export default function* oneClickBindingSaga() {

@@ -1,15 +1,16 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { useSelector } from "react-redux";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import { PageView, PageViewWrapper } from "./AppPage.styled";
 import { APP_MODE } from "entities/App";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+
+import { PageView, PageViewWrapper } from "./AppPage.styled";
+import { useCanvasWidthAutoResize } from "../../hooks/useCanvasWidthAutoResize";
 
 interface AppPageProps {
   appName?: string;
@@ -20,35 +21,39 @@ interface AppPageProps {
 }
 
 export function AppPage(props: AppPageProps) {
+  const { appName, canvasWidth, pageId, pageName, widgetsStructure } = props;
+
   const appMode = useSelector(getAppMode);
   const isPublished = appMode === APP_MODE.PUBLISHED;
   const isAnvilLayout = useSelector(getIsAnvilLayout);
   const { hasSidebarPinned, sidebarWidth } = useAppViewerSidebarProperties();
 
   const width: string = useMemo(() => {
-    return isAnvilLayout ? "100%" : `${props.canvasWidth}px`;
-  }, [isAnvilLayout, props.canvasWidth]);
+    return isAnvilLayout ? "100%" : `${canvasWidth}px`;
+  }, [isAnvilLayout, canvasWidth]);
 
-  useDynamicAppLayout();
+  const pageViewWrapperRef = useRef<HTMLDivElement>(null);
+  useCanvasWidthAutoResize({ ref: pageViewWrapperRef, sidebarWidth });
 
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGE_LOAD", {
-      pageName: props.pageName,
-      pageId: props.pageId,
-      appName: props.appName,
+      pageName: pageName,
+      pageId: pageId,
+      appName: appName,
       mode: "VIEW",
     });
-  }, [props.pageId, props.pageName]);
+  }, [appName, pageId, pageName]);
 
   return (
     <PageViewWrapper
       hasPinnedSidebar={hasSidebarPinned}
       isPublished={isPublished}
+      ref={pageViewWrapperRef}
       sidebarWidth={sidebarWidth}
     >
       <PageView data-testid="t--app-viewer-page" width={width}>
-        {props.widgetsStructure.widgetId &&
-          renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
+        {widgetsStructure.widgetId &&
+          renderAppsmithCanvas(widgetsStructure as WidgetProps)}
       </PageView>
     </PageViewWrapper>
   );
