@@ -13,10 +13,7 @@ import {
   getGlobalGitConfig,
   getIsFetchingGlobalGitConfig,
 } from "selectors/gitSyncSelectors";
-import {
-  fetchGlobalGitConfigInit,
-  updateGlobalGitConfigInit,
-} from "actions/gitSyncActions";
+import { updateGlobalGitConfigInit } from "actions/gitSyncActions";
 import { emailValidator } from "design-system-old";
 
 export default function GitConfig() {
@@ -59,11 +56,6 @@ export default function GitConfig() {
       toast.show("Please enter valid user details");
     }
   };
-
-  useEffect(() => {
-    // onMount Fetch Global config
-    dispatch(fetchGlobalGitConfigInit());
-  }, []);
 
   return (
     <Wrapper>

@@ -727,6 +727,12 @@ export const handlers = {
       currentPluginIdForCreateNewApp: undefined,
     };
   },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      isSavingNavigationSetting: false,
+    };
+  },
 };
 
 const applicationsReducer = createReducer(initialState, handlers);

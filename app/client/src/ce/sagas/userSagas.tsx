@@ -84,7 +84,7 @@ import {
   USER_PROFILE_PICTURE_UPLOAD_FAILED,
   UPDATE_USER_DETAILS_FAILED,
 } from "@appsmith/constants/messages";
-import { createMessage } from "design-system-old/build/constants/messages";
+import { createMessage } from "design-system-old";
 import type {
   ProductAlert,
   ProductAlertConfig,
