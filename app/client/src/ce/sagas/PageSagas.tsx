@@ -16,6 +16,8 @@ import type {
   FetchPublishedPageActionPayload,
   GenerateTemplatePageActionPayload,
   SetPageOrderActionPayload,
+  SetupPageActionPayload,
+  SetupPublishedPageActionPayload,
   UpdatePageActionPayload,
 } from "actions/pageActions";
 import {
@@ -1353,9 +1355,13 @@ export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
   }
 }
 
-export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
+export function* setupPageSaga(action: ReduxAction<SetupPageActionPayload>) {
   try {
-    const { isFirstLoad = false, pageId, pageWithMigratedDsl } = action.payload;
+    const {
+      id: pageId,
+      isFirstLoad = false,
+      pageWithMigratedDsl,
+    } = action.payload;
 
     /*
       Added the first line for isPageSwitching redux state to be true when page is being fetched to fix scroll position issue.
@@ -1376,12 +1382,7 @@ export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
 }
 
 export function* setupPublishedPageSaga(
-  action: ReduxAction<{
-    pageId: string;
-    bustCache: boolean;
-    firstLoad: boolean;
-    pageWithMigratedDsl?: FetchPageResponse;
-  }>,
+  action: ReduxAction<SetupPublishedPageActionPayload>,
 ) {
   try {
     const { bustCache, firstLoad, pageId, pageWithMigratedDsl } =

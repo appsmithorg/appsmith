@@ -613,12 +613,19 @@ export const setupPageAction = (
   },
 });
 
+export interface SetupPublishedPageActionPayload {
+  pageId: string;
+  bustCache: boolean;
+  firstLoad: boolean;
+  pageWithMigratedDsl?: FetchPageResponse;
+}
+
 export const setupPublishedPage = (
   pageId: string,
   bustCache = false,
   firstLoad = false,
   pageWithMigratedDsl?: FetchPageResponse,
-) => ({
+): ReduxAction<SetupPublishedPageActionPayload> => ({
   type: ReduxActionTypes.SETUP_PUBLISHED_PAGE_INIT,
   payload: {
     pageId,
