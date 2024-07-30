@@ -37,7 +37,7 @@ export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
 };
 
 export interface ExplorerURLParams {
-  pageId: string;
+  basePageId: string;
 }
 
 export interface ExplorerFileEntity {
