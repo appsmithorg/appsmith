@@ -43,14 +43,17 @@ export const getIDETestState = ({
     pages,
     isGeneratingTemplatePage: false,
     applicationId: "655716e035e2c9432e4bd94b",
+    baseApplicationId: "655716e035e2c9432e4bd94b",
     currentPageId: pages[0]?.pageId,
+    currentBasePageId: pages[0]?.basePageId,
     defaultPageId: pages[0]?.pageId,
+    defaultBasePageId: pages[0]?.basePageId,
     loading: {},
   };
 
   let ideTabs: ParentEntityIDETabs = {};
-  if (pageList.currentPageId) {
-    ideTabs = { [pageList.currentPageId]: tabs };
+  if (pageList.currentBasePageId) {
+    ideTabs = { [pageList.currentBasePageId]: tabs };
   }
 
   const actionData = actions.map((a) => ({ isLoading: false, config: a }));

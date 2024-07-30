@@ -10,7 +10,10 @@ import {
 } from "actions/gitSyncActions";
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
-import { fetchAllPageEntityCompletion, setupPage } from "actions/pageActions";
+import {
+  fetchAllPageEntityCompletion,
+  setupPageAction,
+} from "actions/pageActions";
 import {
   executePageLoadActions,
   fetchActions,
@@ -30,7 +33,6 @@ import {
   reportSWStatus,
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
-import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import history from "utils/history";
@@ -66,6 +68,7 @@ import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { Span } from "@opentelemetry/api";
 import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
 
@@ -134,7 +137,7 @@ export default class AppEditorEngine extends AppEngine {
       unpublishedActions,
     } = allResponses;
     const initActionsCalls = [
-      setupPage(toLoadPageId, true, pageWithMigratedDsl),
+      setupPageAction(toLoadPageId, true, pageWithMigratedDsl),
       fetchActions({ applicationId, unpublishedActions }, []),
       fetchJSCollections({ applicationId, unpublishedActionCollections }),
       fetchSelectedAppThemeAction(applicationId, currentTheme),

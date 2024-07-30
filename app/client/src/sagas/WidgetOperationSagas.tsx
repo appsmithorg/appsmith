@@ -52,7 +52,7 @@ import {
 } from "redux-saga/effects";
 import {
   getCanvasWidth,
-  getCurrentPageId,
+  getCurrentBasePageId,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
@@ -1605,10 +1605,10 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
     );
     yield call(updateAndSaveAnvilLayout, updatedWidgets);
 
-    const pageId: string = yield select(getCurrentPageId);
+    const basePageId: string = yield select(getCurrentBasePageId);
 
     if (copiedWidgetGroups && copiedWidgetGroups.length > 0) {
-      history.push(builderURL({ pageId }));
+      history.push(builderURL({ basePageId }));
     }
 
     yield put({

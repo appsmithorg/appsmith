@@ -9,6 +9,7 @@ export interface Variable {
 }
 export interface JSCollection {
   id: string;
+  baseId: string;
   applicationId: string;
   workspaceId: string;
   name: string;

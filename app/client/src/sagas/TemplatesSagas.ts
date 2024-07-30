@@ -12,7 +12,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
+import { findDefaultPage } from "@appsmith/sagas/ApplicationSagas";
 import { fetchPageDSLSaga } from "@appsmith/sagas/PageSagas";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
@@ -47,7 +47,7 @@ import {
 } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
 import { failFastApiCalls } from "./InitSagas";
-import { getAllPageIds } from "./selectors";
+import { getAllPageIdentities } from "./selectors";
 
 const isAirgappedInstance = isAirgapped();
 
@@ -84,11 +84,11 @@ function* importTemplateToWorkspaceSaga(
     );
     const isValid: boolean = yield validateResponse(response);
     if (isValid) {
+      const defaultPage = findDefaultPage(response.data.application.pages);
       const application: ApplicationPayload = {
         ...response.data.application,
-        defaultPageId: getDefaultPageId(
-          response.data.application.pages,
-        ) as string,
+        defaultPageId: defaultPage?.id,
+        defaultBasePageId: defaultPage?.baseId,
       };
       yield put({
         type: ReduxActionTypes.IMPORT_TEMPLATE_TO_WORKSPACE_SUCCESS,
@@ -106,7 +106,7 @@ function* importTemplateToWorkspaceSaga(
         );
       } else {
         const pageURL = builderURL({
-          pageId: application.defaultPageId,
+          basePageId: application.defaultBasePageId,
         });
         history.push(pageURL);
       }
@@ -267,7 +267,9 @@ function* apiCallForForkTemplateToApplicaion(
     : undefined;
   const applicationId: string = yield select(getCurrentApplicationId);
   const workspaceId: string = yield select(getCurrentWorkspaceId);
-  const prevPageIds: string[] = yield select(getAllPageIds);
+  const prevPages: { pageId: string; basePageId: string }[] =
+    yield select(getAllPageIdentities);
+  const prevPageIds = prevPages.map((page) => page.pageId);
   const response: ImportTemplateResponse = yield call(
     TemplatesAPI.importTemplateToApplication,
     action.payload.templateId,
@@ -285,10 +287,12 @@ function* apiCallForForkTemplateToApplicaion(
   const isValid: boolean = yield validateResponse(response);
   if (isValid) {
     yield call(postPageAdditionSaga, applicationId);
-    const pages: string[] = yield select(getAllPageIds);
-    const templatePageIds: string[] = pages.filter(
-      (pageId) => !prevPageIds.includes(pageId),
-    );
+    const pages: { pageId: string; basePageId: string }[] =
+      yield select(getAllPageIdentities);
+    const templatePageIds: string[] = pages
+      .filter((page) => !prevPageIds.includes(page.pageId))
+      .map((page) => page.pageId);
+
     const pageDSLs: unknown = yield all(
       templatePageIds.map((pageId: string) => {
         return call(fetchPageDSLSaga, pageId);
@@ -310,13 +314,13 @@ function* apiCallForForkTemplateToApplicaion(
           application: response.data.application,
           unConfiguredDatasourceList: response.data.unConfiguredDatasourceList,
           workspaceId,
-          pageId: pages[0],
+          pageId: pages[0].pageId,
         }),
       );
     }
     history.push(
       builderURL({
-        pageId: pages[0],
+        basePageId: pages[0].basePageId,
       }),
     );
     yield take(ReduxActionTypes.UPDATE_CANVAS_STRUCTURE);
@@ -377,17 +381,17 @@ function* forkTemplateToApplicationViaOnboardingFlowSaga(
         {
           applicationSlug: application.slug,
           applicationVersion: application.applicationVersion,
-          applicationId: application.id,
+          baseApplicationId: application.baseId,
         },
         application.pages.map((page) => ({
           pageSlug: page.slug,
           customSlug: page.customSlug,
-          pageId: page.id,
+          basePageId: page.baseId,
         })),
       );
       history.push(
         builderURL({
-          pageId: application.pages[0].id,
+          basePageId: application.pages[0].id,
         }),
       );
 

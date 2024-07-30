@@ -38,8 +38,8 @@ export const redirectUserAfterSignup = (
           urlObject = new URL(redirectUrl);
         } catch (e) {}
         const match = matchPath<{
-          pageId: string;
-          applicationId: string;
+          basePageId: string;
+          baseApplicationId: string;
         }>(urlObject?.pathname ?? redirectUrl, {
           path: [
             BUILDER_PATH,
@@ -50,16 +50,28 @@ export const redirectUserAfterSignup = (
           strict: false,
           exact: false,
         });
-        const { applicationId, pageId } = match?.params || {};
-        if (applicationId || pageId) {
+        const { baseApplicationId, basePageId } = match?.params || {};
+        /** ! Dev Note:
+         *  setCurrentApplicationIdForCreateNewApp & firstTimeUserOnboardingInit
+         *  in the following block support only applicationId
+         *  but since baseId and id are same for applications created outside git context
+         *  and since these redux actions are only called during onboarding,
+         *  passing baseApplicationId as applicationId should be fine
+         * **/
+        if (baseApplicationId || basePageId) {
           if (isEnabledForCreateNew) {
             dispatch(
-              setCurrentApplicationIdForCreateNewApp(applicationId as string),
+              setCurrentApplicationIdForCreateNewApp(
+                baseApplicationId as string,
+              ),
             );
             history.replace(APPLICATIONS_URL);
           } else {
             dispatch(
-              firstTimeUserOnboardingInit(applicationId, pageId as string),
+              firstTimeUserOnboardingInit(
+                baseApplicationId,
+                basePageId as string,
+              ),
             );
           }
         } else {

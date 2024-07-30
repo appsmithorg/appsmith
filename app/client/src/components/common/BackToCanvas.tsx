@@ -14,10 +14,10 @@ const BackToCanvasLink = styled(Link)`
 `;
 
 interface BackToCanvasProps {
-  pageId: string;
+  basePageId: string;
 }
 
-function BackToCanvas({ pageId }: BackToCanvasProps) {
+function BackToCanvas({ basePageId }: BackToCanvasProps) {
   const { isOpened: isWalkthroughOpened, popFeature } =
     useContext(WalkthroughContext) || {};
 
@@ -32,7 +32,7 @@ function BackToCanvas({ pageId }: BackToCanvasProps) {
       id="back-to-canvas"
       kind="secondary"
       onClick={() => {
-        history.push(builderURL({ pageId }));
+        history.push(builderURL({ basePageId }));
 
         handleCloseWalkthrough();
       }}

@@ -71,6 +71,10 @@ import {
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import {
+  getBasePageIdToPageIdMap,
+  getPageIdToBasePageIdMap,
+} from "selectors/pageListSelectors";
 
 const StyledContainer = styled.div<{ category: SearchCategory; query: string }>`
   max-height: 530px;
@@ -171,6 +175,8 @@ function GlobalSearch() {
     [dispatch],
   );
   const params = useParams<ExplorerURLParams>();
+  const pageIdToBasePageIdMap = useSelector(getPageIdToBasePageIdMap);
+  const basePageIdToPageIdMap = useSelector(getBasePageIdToPageIdMap);
 
   const toggleShow = () => {
     if (modalOpen) {
@@ -209,9 +215,9 @@ function GlobalSearch() {
   const datasourcesList = useMemo(() => {
     return reducerDatasources.map((datasource) => ({
       ...datasource,
-      pageId: params?.pageId,
+      pageId: basePageIdToPageIdMap[params?.basePageId],
     }));
-  }, [params?.pageId, reducerDatasources]);
+  }, [basePageIdToPageIdMap, params?.basePageId, reducerDatasources]);
 
   const filteredDatasources = useMemo(() => {
     if (!query) return datasourcesList;
@@ -354,7 +360,7 @@ function GlobalSearch() {
     navigateToWidget(
       activeItem.widgetId,
       activeItem.type,
-      activeItem.pageId,
+      pageIdToBasePageIdMap[activeItem.pageId],
       NavigationMethod.Omnibar,
       lastSelectedWidgetId === activeItem.widgetId,
       false,
@@ -365,21 +371,28 @@ function GlobalSearch() {
 
   const handleActionClick = (item: SearchItem) => {
     const { config } = item;
-    const { id, pageId, pluginId, pluginType } = config;
+    const { baseId: baseActionId, pageId, pluginId, pluginType } = config;
     const actionConfig = getActionConfig(pluginType);
     const plugin = plugins.find((plugin) => plugin?.id === pluginId);
-    const url = actionConfig?.getURL(pageId, id, pluginType, plugin);
+    const basePageId = pageIdToBasePageIdMap[pageId];
+    const url = actionConfig?.getURL(
+      basePageId,
+      baseActionId,
+      pluginType,
+      plugin,
+    );
     toggleShow();
     url && history.push(url, { invokedBy: NavigationMethod.Omnibar });
   };
 
   const handleJSCollectionClick = (item: SearchItem) => {
     const { config } = item;
-    const { id, pageId } = config;
+    const { baseId: baseCollectionId, pageId } = config;
+    const basePageId = pageIdToBasePageIdMap[pageId];
     history.push(
       jsCollectionIdURL({
-        pageId,
-        collectionId: id,
+        basePageId,
+        baseCollectionId,
       }),
       { invokedBy: NavigationMethod.Omnibar },
     );
@@ -388,9 +401,10 @@ function GlobalSearch() {
 
   const handleDatasourceClick = (item: SearchItem) => {
     toggleShow();
+    const basePageId = pageIdToBasePageIdMap[item.pageId];
     history.push(
       datasourcesEditorIdURL({
-        pageId: item.pageId,
+        basePageId: basePageId,
         datasourceId: item.id,
         params: getQueryParams(),
       }),
@@ -402,7 +416,7 @@ function GlobalSearch() {
     toggleShow();
     history.push(
       builderURL({
-        pageId: item.pageId,
+        basePageId: item.basePageId,
       }),
       { invokedBy: NavigationMethod.Omnibar },
     );

@@ -60,20 +60,20 @@ const getMatchPaths = memoize((type: IDEType): string[] => {
 });
 
 export interface MatchEntityFromPath {
-  applicationId?: string;
+  baseApplicationId?: string;
   customSlug?: string;
   applicationSlug?: string;
   packageId?: string;
   moduleId?: string;
   workflowId?: string;
   pageSlug?: string;
-  apiId?: string;
+  baseApiId?: string;
   datasourceId?: string;
   pluginPackageName?: string;
-  queryId?: string;
+  baseQueryId?: string;
   appId?: string;
-  pageId?: string;
-  collectionId?: string;
+  basePageId?: string;
+  baseCollectionId?: string;
   widgetIds?: string;
   selectedTab?: string;
   moduleType?: string;
@@ -120,14 +120,14 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       params: {},
     };
   }
-  if (match.params.apiId) {
+  if (match.params.baseApiId) {
     if (match.params.pluginPackageName) {
       if (match.url.endsWith(ADD_PATH)) {
         return getQueryAddPathObj(match);
       }
       return {
         entity: FocusEntity.QUERY,
-        id: match.params.apiId,
+        id: match.params.baseApiId,
         appState: EditorState.EDITOR,
         params: match.params,
       };
@@ -137,7 +137,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     }
     return {
       entity: FocusEntity.QUERY,
-      id: match.params.apiId,
+      id: match.params.baseApiId,
       appState: EditorState.EDITOR,
       params: match.params,
     };
@@ -175,13 +175,13 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       params: match.params,
     };
   }
-  if (match.params.queryId) {
-    if (match.params.queryId == "add" || match.url.endsWith(ADD_PATH)) {
+  if (match.params.baseQueryId) {
+    if (match.params.baseQueryId == "add" || match.url.endsWith(ADD_PATH)) {
       return getQueryAddPathObj(match);
     }
     return {
       entity: FocusEntity.QUERY,
-      id: match.params.queryId,
+      id: match.params.baseQueryId,
       appState: EditorState.EDITOR,
       params: match.params,
     };
@@ -210,13 +210,16 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
       };
     }
   }
-  if (match.params.collectionId) {
-    if (match.params.collectionId == "add" || match.url.endsWith(ADD_PATH)) {
+  if (match.params.baseCollectionId) {
+    if (
+      match.params.baseCollectionId == "add" ||
+      match.url.endsWith(ADD_PATH)
+    ) {
       return getJSAddPathObj(match);
     }
     return {
       entity: FocusEntity.JS_OBJECT,
-      id: match.params.collectionId,
+      id: match.params.baseCollectionId,
       appState: EditorState.EDITOR,
       params: match.params,
     };

@@ -62,11 +62,13 @@ describe("Private embed in-app ramp", { tags: ["@tag.Settings"] }, () => {
       featureFlagIntercept({
         license_private_embeds_enabled: false,
       });
+      _.agHelper.WaitUntilEleAppear("[data-testid=t--canvas-artboard]");
       _.inviteModal.OpenShareModal();
       checkRampTextInShareModal();
       featureFlagIntercept({
         license_private_embeds_enabled: true,
       });
+      _.agHelper.WaitUntilEleAppear("[data-testid=t--canvas-artboard]");
       _.inviteModal.OpenShareModal();
       _.agHelper.AssertElementAbsence(
         _.inviteModal.locators._privateEmbedRampAppSettings,

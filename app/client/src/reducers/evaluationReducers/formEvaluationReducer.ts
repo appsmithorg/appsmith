@@ -1,8 +1,8 @@
 import { createReducer } from "utils/ReducerUtils";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { FetchPageRequest } from "api/PageApi";
 import type { FormConfigType } from "components/formControls/BaseControl";
+import type { FetchPageActionPayload } from "actions/pageActions";
 
 // Type for the object that will store the dynamic values for each component
 export interface DynamicValues {
@@ -65,7 +65,7 @@ const formEvaluation = createReducer(initialState, {
   ): FormEvaluationState => action.payload,
   [ReduxActionTypes.FETCH_PAGE_INIT]: (
     state: FormEvaluationState,
-    action: ReduxAction<FetchPageRequest>,
+    action: ReduxAction<FetchPageActionPayload>,
   ) => {
     // Init the state on first page load
     if (!!action.payload && action.payload.isFirstLoad) return initialState;

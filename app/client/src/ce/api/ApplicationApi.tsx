@@ -29,12 +29,13 @@ export type PublishApplicationResponse = ApiResponse;
 
 export interface ApplicationPagePayload {
   id: string;
+  baseId: string;
   name: string;
   isDefault: boolean;
   slug: string;
   isHidden?: boolean;
   customSlug?: string;
-  userPermissions?: string;
+  userPermissions?: string[];
 }
 
 export type GitApplicationMetadata =
@@ -52,6 +53,7 @@ export type GitApplicationMetadata =
 
 export interface ApplicationResponsePayload {
   id: string;
+  baseId: string;
   name: string;
   workspaceId: string;
   evaluationVersion?: EvaluationVersion;
@@ -95,7 +97,7 @@ export interface CreateApplicationRequest {
 }
 
 export interface SetDefaultPageRequest {
-  id: string;
+  pageId: string;
   applicationId: string;
 }
 
@@ -226,7 +228,7 @@ export interface UpdateApplicationResponse {
 export interface PageDefaultMeta {
   id: string;
   isDefault: boolean;
-  defaultPageId: string;
+  baseId: string;
   default: boolean;
 }
 
@@ -287,7 +289,7 @@ export class ApplicationApi extends Api {
   static changeAppViewAccessPath = (applicationId: string) =>
     `/${applicationId}/changeAccess`;
   static setDefaultPagePath = (request: SetDefaultPageRequest) =>
-    `${ApplicationApi.baseURL}/${request.applicationId}/page/${request.id}/makeDefault`;
+    `${ApplicationApi.baseURL}/${request.applicationId}/page/${request.pageId}/makeDefault`;
   static async publishApplication(
     publishApplicationRequest: PublishApplicationRequest,
   ): Promise<AxiosPromise<PublishApplicationResponse>> {

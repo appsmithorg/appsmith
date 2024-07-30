@@ -9,7 +9,7 @@ import {
 } from "sagas/WidgetOperationUtils";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getWidgets } from "sagas/selectors";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { generateReactKey } from "utils/generators";
@@ -45,7 +45,7 @@ jest.mock("selectors/layoutSystemSelectors", () => ({
   getLayoutSystemType: jest.fn(),
 }));
 describe("pasteSagas", () => {
-  const pageId = "0123456789abcdef00000000";
+  const basePageId = "0123456789abcdef00000000";
 
   beforeAll(() => {
     registerLayoutComponents();
@@ -101,7 +101,7 @@ describe("pasteSagas", () => {
     const { effects } = await expectSaga(pasteWidgetSagas as any)
       .provide([
         [select(getWidgets), allWidgets],
-        [select(getCurrentPageId), pageId],
+        [select(getCurrentBasePageId), basePageId],
       ])
       .run();
     // check the effects
@@ -203,7 +203,7 @@ describe("pasteSagas", () => {
     const { effects } = await expectSaga(pasteWidgetSagas as any)
       .provide([
         [select(getWidgets), allWidgets],
-        [select(getCurrentPageId), pageId],
+        [select(getCurrentBasePageId), basePageId],
       ])
       .run();
     // Check the effects

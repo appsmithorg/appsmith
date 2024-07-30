@@ -4,14 +4,14 @@ import { testSaga } from "redux-saga-test-plan";
 import { setupPageSaga, setupPublishedPageSaga } from "../PageSagas";
 import mockResponse from "./mockConsolidatedApiResponse.json";
 import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
-import { fetchPage, fetchPublishedPage } from "actions/pageActions";
+import { fetchPageAction, fetchPublishedPageAction } from "actions/pageActions";
 
 describe("ce/PageSaga", () => {
   it("should put setupPageSaga with pageWithMigratedDsl", () => {
     const action: ReduxAction<FetchPageRequest> = {
       type: ReduxActionTypes.SETUP_PAGE_INIT,
       payload: {
-        id: "pageId",
+        pageId: "pageId",
         pageWithMigratedDsl: mockResponse.data
           .pageWithMigratedDsl as FetchPageResponse,
       },
@@ -20,8 +20,8 @@ describe("ce/PageSaga", () => {
     testSaga(setupPageSaga, action)
       .next()
       .put(
-        fetchPage(
-          action.payload.id,
+        fetchPageAction(
+          action.payload.pageId,
           action.payload.isFirstLoad,
           action.payload.pageWithMigratedDsl,
         ),
@@ -54,7 +54,7 @@ describe("ce/PageSaga", () => {
     testSaga(setupPublishedPageSaga, action)
       .next()
       .put(
-        fetchPublishedPage(
+        fetchPublishedPageAction(
           action.payload.pageId,
           action.payload.bustCache,
           action.payload.firstLoad,

@@ -68,6 +68,7 @@ import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import type { AppColorCode } from "constants/DefaultTheme";
 import {
   getCurrentApplicationId,
+  getCurrentBasePageId,
   getCurrentPageId,
   getIsEditorInitialized,
 } from "selectors/editorSelectors";
@@ -92,7 +93,7 @@ import type { Datasource } from "entities/Datasource";
 import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
 import PageApi from "api/PageApi";
-import { identity, isEmpty, merge, pickBy } from "lodash";
+import { isEmpty, merge } from "lodash";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import {
   getPageList,
@@ -100,6 +101,7 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import { getConfigInitialValues } from "components/formControls/utils";
 import DatasourcesApi from "api/DatasourcesApi";
+import type { SetDefaultPageActionPayload } from "actions/pageActions";
 import { resetApplicationWidgets } from "actions/pageActions";
 import { setCanvasCardsState } from "actions/editorActions";
 import { toast } from "design-system";
@@ -123,17 +125,10 @@ import {
 import equal from "fast-deep-equal";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
-export const getDefaultPageId = (
-  pages?: ApplicationPagePayload[],
-): string | undefined => {
-  let defaultPage: ApplicationPagePayload | undefined = undefined;
-  if (pages) {
-    defaultPage = pages.find((page) => page.isDefault);
-    if (!defaultPage) {
-      defaultPage = pages[0];
-    }
-  }
-  return defaultPage ? defaultPage.id : undefined;
+
+export const findDefaultPage = (pages: ApplicationPagePayload[] = []) => {
+  const defaultPage = pages.find((page) => page.isDefault) ?? pages[0];
+  return defaultPage;
 };
 
 export let windowReference: Window | null = null;
@@ -154,10 +149,11 @@ export function* publishApplicationSaga(
       });
 
       const applicationId: string = yield select(getCurrentApplicationId);
+      const currentBasePageId: string = yield select(getCurrentBasePageId);
       const currentPageId: string = yield select(getCurrentPageId);
 
       const appicationViewPageUrl = viewerURL({
-        pageId: currentPageId,
+        basePageId: currentBasePageId,
       });
 
       yield put(
@@ -208,9 +204,11 @@ export function* fetchAllApplicationsOfWorkspaceSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const applications = response.data.map((application) => {
+        const defaultPage = findDefaultPage(application.pages);
         return {
           ...application,
-          defaultPageId: getDefaultPageId(application.pages),
+          defaultPageId: defaultPage?.id,
+          defaultBasePageId: defaultPage?.baseId,
         };
       });
       yield put({
@@ -241,15 +239,20 @@ export function* fetchAppAndPagesSaga(
 ) {
   try {
     const { pages, ...payload } = action.payload;
-    const params = pickBy(payload, identity);
-    if (params.pageId && params.applicationId) {
-      delete params.applicationId;
+    const request = {
+      applicationId: payload.applicationId,
+      pageId: payload.pageId,
+      mode: payload.mode,
+    };
+    if (request.pageId && request.applicationId) {
+      delete request.applicationId;
     }
     const response: FetchApplicationResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
       pages,
-      () => call(PageApi.fetchAppAndPages, params),
+      () => call(PageApi.fetchAppAndPages, request),
     );
+
     const isValidResponse: boolean = yield call(validateResponse, response);
     if (isValidResponse) {
       const prevPagesState: Page[] = yield select(getPageList);
@@ -271,6 +274,7 @@ export function* fetchAppAndPagesSaga(
           pages: response.data.pages.map((page) => ({
             pageName: page.name,
             pageId: page.id,
+            basePageId: page.baseId,
             isDefault: page.isDefault,
             isHidden: !!page.isHidden,
             slug: page.slug,
@@ -280,6 +284,7 @@ export function* fetchAppAndPagesSaga(
               : pagePermissionsMap[page.id],
           })),
           applicationId: response.data.application?.id,
+          baseApplicationId: response.data.application?.baseId,
         },
       });
 
@@ -328,12 +333,15 @@ export function* handleFetchApplicationError(error: any) {
 }
 
 export function* setDefaultApplicationPageSaga(
-  action: ReduxAction<SetDefaultPageRequest>,
+  action: ReduxAction<SetDefaultPageActionPayload>,
 ) {
   try {
     const defaultPageId: string = yield select(selectDefaultPageId);
     if (defaultPageId !== action.payload.id) {
-      const request: SetDefaultPageRequest = action.payload;
+      const request: SetDefaultPageRequest = {
+        ...action.payload,
+        pageId: action.payload.id,
+      };
       const response: ApiResponse = yield call(
         ApplicationApi.setDefaultApplicationPage,
         request,
@@ -341,7 +349,10 @@ export function* setDefaultApplicationPageSaga(
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         yield put(
-          setDefaultApplicationPageSuccess(request.id, request.applicationId),
+          setDefaultApplicationPageSuccess(
+            request.pageId,
+            request.applicationId,
+          ),
         );
       }
     }
@@ -564,9 +575,11 @@ export function* createApplicationSaga(
       );
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
+        const defaultPage = findDefaultPage(response.data.pages);
         const application: ApplicationPayload = {
           ...response.data,
-          defaultPageId: getDefaultPageId(response.data.pages) as string,
+          defaultPageId: defaultPage?.id,
+          defaultBasePageId: defaultPage?.baseId,
         };
         AnalyticsUtil.logEvent("CREATE_APP", {
           appName: application.name,
@@ -601,13 +614,10 @@ export function* createApplicationSaga(
             payload: application.id,
           });
         }
-        // Show cta's in empty canvas for the first page
-        yield put(
-          setCanvasCardsState(getDefaultPageId(response.data.pages) ?? ""),
-        );
+        yield put(setCanvasCardsState(defaultPage?.id ?? ""));
         history.push(
           builderURL({
-            pageId: application.defaultPageId as string,
+            basePageId: defaultPage?.baseId,
           }),
         );
 
@@ -645,10 +655,11 @@ export function* forkApplicationSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(resetCurrentApplication());
+      const defaultPage = findDefaultPage(response.data.application.pages);
       const application: ApplicationPayload = {
         ...response.data.application,
-        // @ts-expect-error: response is of type unknown
-        defaultPageId: getDefaultPageId(response.data.application.pages),
+        defaultPageId: defaultPage?.id,
+        defaultBasePageId: defaultPage?.baseId,
       };
       yield put({
         type: ReduxActionTypes.FORK_APPLICATION_SUCCESS,
@@ -666,18 +677,16 @@ export function* forkApplicationSaga(
       });
 
       const pageURL = builderURL({
-        pageId: application.defaultPageId as string,
+        basePageId: defaultPage?.baseId,
         params: { branch: null },
       });
 
       if (action.payload.editMode) {
-        const appId = application.id;
-        const pageId = application.defaultPageId;
         yield put({
           type: ReduxActionTypes.FETCH_APPLICATION_INIT,
           payload: {
-            applicationId: appId,
-            pageId,
+            applicationId: application.id,
+            pageId: defaultPage?.id,
           },
         });
       }
@@ -773,11 +782,9 @@ export function* importApplicationSaga(
           // @ts-expect-error: pages is of type any
           // TODO: Update route params here
           const { application } = response.data;
-          const defaultPage = pages.filter(
-            (eachPage: any) => !!eachPage.isDefault,
-          );
+          const defaultPage = findDefaultPage(pages);
           const pageURL = builderURL({
-            pageId: defaultPage[0].id,
+            basePageId: defaultPage?.baseId,
           });
           if (isApplicationUrl) {
             const appId = application.id;

@@ -105,10 +105,10 @@ const MoreDropdownButton = ({
         const pageURL =
           appMode === APP_MODE.PUBLISHED
             ? viewerURL({
-                pageId: page.pageId,
+                basePageId: page.basePageId,
               })
             : builderURL({
-                pageId: page.pageId,
+                basePageId: page.basePageId,
               });
 
         return (
