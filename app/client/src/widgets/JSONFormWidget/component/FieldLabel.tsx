@@ -37,14 +37,14 @@ export type FieldLabelProps = PropsWithChildren<
     label: string;
     tooltip?: string;
     alignField?: AlignField;
-    labelPosition?:LabelPosition;
+    labelPosition?: LabelPosition;
   }
 >;
 
 interface StyledLabelTextWrapperProps {
   direction: FieldLabelProps["direction"];
-  labelPosition?:LabelPosition;
-  alignField?:AlignWidget;
+  labelPosition?: LabelPosition;
+  alignField?: AlignWidget;
 }
 
 interface StyledLabelProps {
@@ -68,7 +68,6 @@ const StyledLabel = styled.label<StyledLabelProps>`
   flex-direction: ${({ direction }) => direction};
 `;
 
-
 const StyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
   align-items: center;
   display: flex;
@@ -80,7 +79,6 @@ const StyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
   }
 `;
 
-
 const InlineStyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
   align-items: center;
   display: flex;
@@ -90,12 +88,17 @@ const InlineStyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
   & .${TOOLTIP_CLASSNAME} {
     line-height: 0;
   }
-  ${({ labelPosition, alignField }) =>
-    labelPosition === LabelPosition.Left &&  alignField === AlignWidgetTypes.LEFT
-      && "width: 100%;" }
-  ${({ labelPosition, alignField }) =>
-    alignField === AlignWidgetTypes.RIGHT &&  (labelPosition === LabelPosition.Right || labelPosition === LabelPosition.Left)
-      &&  "margin-left: auto;"}
+  ${({ labelPosition }) =>
+    labelPosition === LabelPosition.Auto && "width: auto;"}
+  ${({ alignField, labelPosition }) =>
+    labelPosition === LabelPosition.Left &&
+    alignField === AlignWidgetTypes.LEFT &&
+    "width: 100%;"}
+  ${({ alignField, labelPosition }) =>
+    alignField === AlignWidgetTypes.RIGHT &&
+    (labelPosition === LabelPosition.Right ||
+      labelPosition === LabelPosition.Left) &&
+    "margin-left: auto;"}
 `;
 
 const StyledRequiredMarker = styled.div`
@@ -139,11 +142,11 @@ function FieldLabel({
   direction = "column",
   isRequiredField = false,
   label,
+  labelPosition = LabelPosition.Left,
   labelStyle,
   labelTextColor = "",
   labelTextSize,
   tooltip,
-  labelPosition = LabelPosition.Left
 }: FieldLabelProps) {
   const labelStyleProps = useMemo(() => {
     // labelStyles contains styles as comma separated values eg. "BOLD,UNDERLINE"
@@ -160,62 +163,73 @@ function FieldLabel({
   }, [labelStyle, labelTextColor, labelTextSize]);
 
   /**
-   * If field and label are to be displayed horizontally then we consider based on the labelposition 
+   * If field and label are to be displayed horizontally then we consider based on the labelposition
    * prop else we always want to have label then field in case of vertical alignment (direction === "column")
    */
 
-  if (direction !== "row")
-    {
-  return (
-       <StyledLabel direction={direction}>
-      <StyledLabelTextWrapper direction={direction}>
-        <StyledLabelText isRequiredField={isRequiredField} {...labelStyleProps}>
-          {label}
-        </StyledLabelText>
-        {isRequiredField && <StyledRequiredMarker>*</StyledRequiredMarker>}
-        {tooltip && (
-          <StyledTooltip
-            className={TOOLTIP_CLASSNAME}
-            content={tooltip}
-            hoverOpenDelay={200}
-            position="top"
-          >
-            <ToolTipIcon color={Colors.SILVER_CHALICE} height={14} width={14}>
-              <HelpIcon className="t--input-widget-tooltip" />
-            </ToolTipIcon>
-          </StyledTooltip>
-        )}
-      </StyledLabelTextWrapper>
-      {children}
-    </StyledLabel>
-  );
-  }
-  else {
+  if (direction !== "row") {
     return (
-    <StyledLabel direction={direction}>
-        {labelPosition === LabelPosition.Right && children}
-      <InlineStyledLabelTextWrapper direction={direction} alignField={alignField} labelPosition={labelPosition} data-testid="inlinelabel">
-        <StyledLabelText isRequiredField={isRequiredField} {...labelStyleProps}>
-          {label}
-        </StyledLabelText>
-        {isRequiredField && <StyledRequiredMarker>*</StyledRequiredMarker>}
-        {tooltip && (
-          <StyledTooltip
-            className={TOOLTIP_CLASSNAME}
-            content={tooltip}
-            hoverOpenDelay={200}
-            position="top"
+      <StyledLabel direction={direction}>
+        <StyledLabelTextWrapper direction={direction}>
+          <StyledLabelText
+            isRequiredField={isRequiredField}
+            {...labelStyleProps}
           >
-            <ToolTipIcon color={Colors.SILVER_CHALICE} height={14} width={14}>
-              <HelpIcon className="t--input-widget-tooltip" />
-            </ToolTipIcon>
-          </StyledTooltip>
-        )}
-      </InlineStyledLabelTextWrapper>
-      {labelPosition === LabelPosition.Left && children}
-    </StyledLabel>
+            {label}
+          </StyledLabelText>
+          {isRequiredField && <StyledRequiredMarker>*</StyledRequiredMarker>}
+          {tooltip && (
+            <StyledTooltip
+              className={TOOLTIP_CLASSNAME}
+              content={tooltip}
+              hoverOpenDelay={200}
+              position="top"
+            >
+              <ToolTipIcon color={Colors.SILVER_CHALICE} height={14} width={14}>
+                <HelpIcon className="t--input-widget-tooltip" />
+              </ToolTipIcon>
+            </StyledTooltip>
+          )}
+        </StyledLabelTextWrapper>
+        {children}
+      </StyledLabel>
+    );
+  } else {
+    return (
+      <StyledLabel direction={direction}>
+        {labelPosition === LabelPosition.Right && children}
+        <InlineStyledLabelTextWrapper
+          alignField={alignField}
+          data-testid="inlinelabel"
+          direction={direction}
+          labelPosition={labelPosition}
+        >
+          <StyledLabelText
+            isRequiredField={isRequiredField}
+            {...labelStyleProps}
+          >
+            {label}
+          </StyledLabelText>
+          {isRequiredField && <StyledRequiredMarker>*</StyledRequiredMarker>}
+          {tooltip && (
+            <StyledTooltip
+              className={TOOLTIP_CLASSNAME}
+              content={tooltip}
+              hoverOpenDelay={200}
+              position="top"
+            >
+              <ToolTipIcon color={Colors.SILVER_CHALICE} height={14} width={14}>
+                <HelpIcon className="t--input-widget-tooltip" />
+              </ToolTipIcon>
+            </StyledTooltip>
+          )}
+        </InlineStyledLabelTextWrapper>
+        {(labelPosition === LabelPosition.Left ||
+          labelPosition === LabelPosition.Auto) &&
+          children}
+      </StyledLabel>
     );
   }
-  }
+}
 
 export default FieldLabel;
