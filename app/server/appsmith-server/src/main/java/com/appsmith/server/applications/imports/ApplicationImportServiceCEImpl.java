@@ -427,6 +427,8 @@ public class ApplicationImportServiceCEImpl
                             // This function sets the initial deployed version to the same as the
                             // edit mode one.
                             setPublishedApplicationProperties(newApplication);
+                            newApplication.setLastDeployedAt(null);
+                            existingApplication.setLastDeployedAt(null);
                             setPropertiesToExistingApplication(newApplication, existingApplication);
                             return existingApplication;
                         })
