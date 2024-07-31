@@ -26,7 +26,7 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Flux<ActionCollection> saveAll(List<ActionCollection> collections);
 
-    Mono<ActionCollection> findByIdAndBranchName(String id, String branchName);
+    Mono<ActionCollection> findByBaseIdAndBranchName(String id, String branchName);
 
     Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(
             MultiValueMap<String, String> params, Boolean viewMode);
@@ -51,8 +51,6 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Mono<ActionCollectionDTO> deleteWithoutPermissionUnpublishedActionCollection(String id);
 
-    Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id, String branchName);
-
     Mono<ActionCollectionDTO> generateActionCollectionByViewMode(ActionCollection actionCollection, Boolean viewMode);
 
     Mono<ActionCollection> findById(String id, AclPermission aclPermission);
@@ -71,18 +69,17 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Mono<ActionCollection> archiveById(String id);
 
-    Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
-            String branchName, String defaultCollectionId, AclPermission permission);
+    Mono<ActionCollection> findByBranchNameAndBaseCollectionId(
+            String branchName, String baseCollectionId, AclPermission permission);
 
     Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(String applicationId, AclPermission permission);
-
-    void populateDefaultResources(
-            ActionCollection actionCollection, ActionCollection branchedActionCollection, String branchName);
 
     Flux<ActionCollection> findAllActionCollectionsByContextIdAndContextTypeAndViewMode(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean viewMode);
 
     Mono<ActionCollectionDTO> validateAndSaveCollection(ActionCollection actionCollection);
+
+    Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String branchedApplicationId);
 
     Mono<ActionCollectionViewDTO> generateActionCollectionViewDTO(ActionCollection actionCollection);
 

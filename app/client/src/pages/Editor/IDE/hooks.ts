@@ -11,7 +11,6 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useDispatch, useSelector } from "react-redux";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import history, { NavigationMethod } from "utils/history";
 import {
   builderURL,
@@ -35,6 +34,7 @@ import { createEditorFocusInfoKey } from "@appsmith/navigation/FocusStrategy/App
 import { FocusElement } from "navigation/FocusElements";
 import { closeJSActionTab } from "actions/jsActionActions";
 import { closeQueryActionTab } from "actions/pluginActionActions";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getCurrentEntityInfo } from "../utils";
 import useWindowDimensions from "../../../utils/hooks/useWindowDimensions";
 
@@ -104,7 +104,7 @@ export const useEditorPaneWidth = (): string => {
 export const useSegmentNavigation = (): {
   onSegmentChange: (value: string) => void;
 } => {
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
 
   /**
    * Callback to handle the segment change
@@ -116,17 +116,17 @@ export const useSegmentNavigation = (): {
   const onSegmentChange = (value: string) => {
     switch (value) {
       case EditorEntityTab.QUERIES:
-        history.push(queryListURL({ pageId }), {
+        history.push(queryListURL({ basePageId }), {
           invokedBy: NavigationMethod.SegmentControl,
         });
         break;
       case EditorEntityTab.JS:
-        history.push(jsCollectionListURL({ pageId }), {
+        history.push(jsCollectionListURL({ basePageId }), {
           invokedBy: NavigationMethod.SegmentControl,
         });
         break;
       case EditorEntityTab.UI:
-        history.push(widgetListURL({ pageId }), {
+        history.push(widgetListURL({ basePageId }), {
           invokedBy: NavigationMethod.SegmentControl,
         });
         break;
@@ -136,14 +136,12 @@ export const useSegmentNavigation = (): {
   return { onSegmentChange };
 };
 
-export const useGetPageFocusUrl = (pageId: string): string => {
-  const [focusPageUrl, setFocusPageUrl] = useState(
-    builderURL({ pageId: pageId }),
-  );
+export const useGetPageFocusUrl = (basePageId: string): string => {
+  const [focusPageUrl, setFocusPageUrl] = useState(builderURL({ basePageId }));
 
   const branch = useSelector(getCurrentGitBranch);
   const editorStateFocusInfo = useSelector((appState) =>
-    getCurrentFocusInfo(appState, createEditorFocusInfoKey(pageId, branch)),
+    getCurrentFocusInfo(appState, createEditorFocusInfoKey(basePageId, branch)),
   );
 
   useEffect(() => {
@@ -151,7 +149,7 @@ export const useGetPageFocusUrl = (pageId: string): string => {
       const lastSelectedEntity =
         editorStateFocusInfo.state[FocusElement.SelectedEntity];
 
-      setFocusPageUrl(builderURL({ pageId, suffix: lastSelectedEntity }));
+      setFocusPageUrl(builderURL({ basePageId, suffix: lastSelectedEntity }));
     }
   }, [editorStateFocusInfo, branch]);
 
@@ -202,7 +200,7 @@ export const useIDETabClickHandlers = () => {
   const { closeAddQuery, openAddQuery } = useQueryAdd();
   const { segment, segmentMode } = useCurrentEditorState();
   const tabsConfig = TabSelectors[segment];
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
 
   const addClickHandler = useCallback(() => {
     if (segment === EditorEntityTab.JS) openAddJS();
@@ -211,12 +209,12 @@ export const useIDETabClickHandlers = () => {
 
   const tabClickHandler = useCallback(
     (item: EntityItem) => {
-      const navigateToUrl = tabsConfig.itemUrlSelector(item, pageId);
+      const navigateToUrl = tabsConfig.itemUrlSelector(item, basePageId);
       history.push(navigateToUrl, {
         invokedBy: NavigationMethod.EditorTabs,
       });
     },
-    [segment, pageId],
+    [segment, basePageId],
   );
 
   const closeClickHandler = useCallback(
@@ -226,11 +224,11 @@ export const useIDETabClickHandlers = () => {
         return segment === EditorEntityTab.JS ? closeAddJS() : closeAddQuery();
       }
       if (segment === EditorEntityTab.JS)
-        dispatch(closeJSActionTab({ id: actionId, parentId: pageId }));
+        dispatch(closeJSActionTab({ id: actionId, parentId: basePageId }));
       if (segment === EditorEntityTab.QUERIES)
-        dispatch(closeQueryActionTab({ id: actionId, parentId: pageId }));
+        dispatch(closeQueryActionTab({ id: actionId, parentId: basePageId }));
     },
-    [segment, pageId, dispatch],
+    [segment, basePageId, dispatch],
   );
 
   return { addClickHandler, tabClickHandler, closeClickHandler };

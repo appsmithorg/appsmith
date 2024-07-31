@@ -204,13 +204,15 @@ export function EditorJSONtoForm(props: Props) {
     notification,
   } = useContext(QueryEditorContext);
 
-  const params = useParams<{ apiId?: string; queryId?: string }>();
+  const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
   // fetch the error count from the store.
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
   const currentActionConfig: Action | undefined = actions.find(
-    (action) => action.id === params.apiId || action.id === params.queryId,
+    (action) =>
+      action.baseId === params.baseApiId ||
+      action.baseId === params.baseQueryId,
   );
 
   const pluginRequireDatasource = doesPluginRequireDatasource(plugin);

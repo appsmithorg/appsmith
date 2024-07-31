@@ -13,10 +13,17 @@ const EditorPane = () => {
 
   return (
     <Flex
+      borderRight={
+        ideViewMode === EditorViewMode.SplitScreen
+          ? "1px solid var(--ads-v2-color-border)"
+          : ""
+      }
       className="ide-editor-left-pane"
       flexDirection={
         ideViewMode === EditorViewMode.SplitScreen ? "column" : "row"
       }
+      // @ts-expect-error Fix this the next time the file is edited
+      gap="spacing-2"
       height="100%"
       overflow="hidden"
       width={width}

@@ -145,10 +145,9 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
                     Mono<Map<String, ActionCollection>> actionCollectionsInBranchesMono;
                     if (artifact.getGitArtifactMetadata() != null) {
-                        final String defaultArtifactId =
-                                artifact.getGitArtifactMetadata().getDefaultArtifactId();
                         actionCollectionsInBranchesMono = artifactBasedImportableService
-                                .getExistingResourcesInOtherBranchesFlux(defaultArtifactId, artifact.getId())
+                                .getExistingResourcesInOtherBranchesFlux(
+                                        importingMetaDTO.getBranchedArtifactIds(), artifact.getId())
                                 .filter(actionCollection -> actionCollection.getGitSyncId() != null)
                                 .collectMap(ActionCollection::getGitSyncId);
                     } else {
@@ -197,7 +196,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                                 actionCollection);
                                     }
 
-                                    Context defaultContext = populateIdReferencesAndReturnDefaultContext(
+                                    Context baseContext = populateIdReferencesAndReturnBaseContext(
                                             importingMetaDTO,
                                             mappedImportableResourcesDTO,
                                             artifact,
@@ -229,7 +228,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                 .put(idFromJsonFile, existingActionCollection);
                                     } else {
                                         artifactBasedImportableService.createNewResource(
-                                                importingMetaDTO, actionCollection, defaultContext);
+                                                importingMetaDTO, actionCollection, baseContext);
 
                                         populateDomainMappedReferences(mappedImportableResourcesDTO, actionCollection);
 
@@ -259,7 +258,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                 });
     }
 
-    private Context populateIdReferencesAndReturnDefaultContext(
+    private Context populateIdReferencesAndReturnBaseContext(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Artifact artifact,
@@ -276,14 +275,14 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         Context parentContext = null;
 
         // If contextId is missing in the actionCollectionDTO create a fallback contextId
-        final String fallbackDefaultContextId = unpublishedCollection.calculateContextId();
+        final String fallbackBaseContextId = unpublishedCollection.calculateContextId();
 
         if (unpublishedCollection.getName() != null) {
             unpublishedCollection.setPluginId(
                     mappedImportableResourcesDTO.getPluginMap().get(unpublishedCollection.getPluginId()));
 
             parentContext = artifactBasedImportableService.updateContextInResource(
-                    unpublishedCollection, mappedImportableResourcesDTO.getContextMap(), fallbackDefaultContextId);
+                    unpublishedCollection, mappedImportableResourcesDTO.getContextMap(), fallbackBaseContextId);
         }
 
         if (publishedCollection != null && publishedCollection.getName() != null) {
@@ -291,15 +290,17 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                     mappedImportableResourcesDTO.getPluginMap().get(publishedCollection.getPluginId()));
 
             Context publishedCollectionContext = artifactBasedImportableService.updateContextInResource(
-                    publishedCollection, mappedImportableResourcesDTO.getContextMap(), fallbackDefaultContextId);
+                    publishedCollection, mappedImportableResourcesDTO.getContextMap(), fallbackBaseContextId);
             parentContext = parentContext == null ? publishedCollectionContext : parentContext;
         }
 
         actionCollection.makePristine();
         actionCollection.setWorkspaceId(workspaceId);
 
-        artifactBasedImportableService.populateDefaultResources(
-                importingMetaDTO, mappedImportableResourcesDTO, artifact, branchedActionCollection, actionCollection);
+        artifactBasedImportableService.updateArtifactId(actionCollection, artifact);
+
+        artifactBasedImportableService.populateBaseId(
+                importingMetaDTO, artifact, branchedActionCollection, actionCollection);
         return parentContext;
     }
 
@@ -345,7 +346,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         populateDomainMappedReferences(mappedImportableResourcesDTO, existingActionCollection);
 
         // Update branchName
-        existingActionCollection.getDefaultResources().setBranchName(importingMetaDTO.getBranchName());
+        existingActionCollection.setBranchName(importingMetaDTO.getBranchName());
         // Recover the deleted state present in DB from imported actionCollection
         existingActionCollection
                 .getUnpublishedCollection()

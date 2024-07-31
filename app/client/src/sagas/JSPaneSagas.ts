@@ -102,6 +102,7 @@ import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { setIdeEditorViewMode } from "actions/ideActions";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import { updateJSCollectionAPICall } from "@appsmith/sagas/ApiCallerSagas";
+import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -186,11 +187,12 @@ export function* generateDefaultJSObject({
 function* handleJSCollectionCreatedSaga(
   actionPayload: ReduxAction<JSCollection>,
 ) {
-  const { id, pageId } = actionPayload.payload;
+  const { baseId: baseCollectionId, pageId } = actionPayload.payload;
+  const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
   history.push(
     jsCollectionIdURL({
-      pageId,
-      collectionId: id,
+      basePageId,
+      baseCollectionId,
       params: {
         editName: true,
       },
@@ -385,10 +387,14 @@ function* handleJSObjectNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
+    const basePageId: string = yield select(
+      convertToBasePageIdSelector,
+      actionObj.pageId,
+    );
     history.push(
       jsCollectionIdURL({
-        pageId: actionObj.pageId,
-        collectionId: actionId,
+        basePageId,
+        baseCollectionId: actionObj.baseId,
         params,
       }),
     );

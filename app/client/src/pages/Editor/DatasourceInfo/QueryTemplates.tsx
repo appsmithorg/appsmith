@@ -4,6 +4,7 @@ import { createActionRequest } from "actions/pluginActionActions";
 import type { AppState } from "@appsmith/reducers";
 import {
   getCurrentApplicationId,
+  getCurrentBasePageId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import type { QueryAction } from "entities/Action";
@@ -62,7 +63,8 @@ export function QueryTemplates(props: QueryTemplatesProps) {
     useContext(WalkthroughContext) || {};
   const applicationId = useSelector(getCurrentApplicationId);
   const actions = useSelector((state: AppState) => state.entities.actions);
-  const currentPageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
+  const pageId = useSelector(getCurrentPageId);
   const dataSource: Datasource | undefined = useSelector((state: AppState) =>
     getDatasource(state, props.datasourceId),
   );
@@ -90,7 +92,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
 
       dispatch(
         createActionRequest({
-          pageId: currentPageId,
+          pageId,
           pluginId: dataSource?.pluginId,
           datasource: {
             id: props.datasourceId,
@@ -114,7 +116,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
 
       history.push(
         integrationEditorURL({
-          pageId: currentPageId,
+          basePageId,
           selectedTab: INTEGRATION_TABS.ACTIVE,
         }),
       );
@@ -122,7 +124,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
     [
       dispatch,
       actions,
-      currentPageId,
+      basePageId,
       applicationId,
       props.datasourceId,
       dataSource,
@@ -183,7 +185,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
     [
       dispatch,
       actions,
-      currentPageId,
+      basePageId,
       applicationId,
       props.datasourceId,
       dataSource,

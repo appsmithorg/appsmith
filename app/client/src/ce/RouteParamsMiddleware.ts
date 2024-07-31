@@ -22,13 +22,13 @@ export const handler = (action: ReduxAction<any>) => {
       const application: ApplicationPayload = action.payload;
       const { pages } = application;
       appParams = {
-        applicationId: application.id,
+        baseApplicationId: application.baseId,
         applicationSlug: application.slug,
         applicationVersion: application.applicationVersion,
       };
       pageParams = pages.map((page) => ({
         pageSlug: page.slug,
-        pageId: page.id,
+        basePageId: page.baseId,
         customSlug: page.customSlug,
       }));
       break;
@@ -38,13 +38,13 @@ export const handler = (action: ReduxAction<any>) => {
       const application: ApplicationPayload = action.payload.application;
       const { pages } = application;
       appParams = {
-        applicationId: application.id,
+        baseApplicationId: application.baseId,
         applicationSlug: application.slug,
         applicationVersion: application.applicationVersion,
       };
       pageParams = pages.map((page) => ({
         pageSlug: page.slug,
-        pageId: page.id,
+        basePageId: page.baseId,
         customSlug: page.customSlug,
       }));
       break;
@@ -52,7 +52,7 @@ export const handler = (action: ReduxAction<any>) => {
     case ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE: {
       const application = action.payload;
       appParams = {
-        applicationId: application.id,
+        baseApplicationId: application.baseId,
         applicationSlug: application.slug,
         applicationVersion: application.applicationVersion,
       };
@@ -62,7 +62,7 @@ export const handler = (action: ReduxAction<any>) => {
       const pages: Page[] = action.payload.pages;
       pageParams = pages.map((page) => ({
         pageSlug: page.slug,
-        pageId: page.pageId,
+        basePageId: page.basePageId,
         customSlug: page.customSlug,
       }));
       break;
@@ -72,7 +72,7 @@ export const handler = (action: ReduxAction<any>) => {
       pageParams = [
         {
           pageSlug: page.slug,
-          pageId: page.id,
+          basePageId: page.baseId,
           customSlug: page.customSlug,
         },
       ];
@@ -83,7 +83,7 @@ export const handler = (action: ReduxAction<any>) => {
       pageParams = [
         {
           pageSlug: page.slug,
-          pageId: page.pageId,
+          basePageId: page.basePageId,
           customSlug: page.customSlug,
         },
       ];
@@ -94,7 +94,7 @@ export const handler = (action: ReduxAction<any>) => {
       urlBuilder.updateURLParams(null, [
         {
           pageSlug: page.slug,
-          pageId: page.id,
+          basePageId: page.baseId,
           customSlug: page.customSlug,
         },
       ]);
@@ -103,16 +103,16 @@ export const handler = (action: ReduxAction<any>) => {
     case ReduxActionTypes.UPDATE_APPLICATION_SUCCESS:
       const application = action.payload;
       appParams = {
-        applicationId: application.id,
+        baseApplicationId: application.baseid,
         applicationSlug: application.slug,
         applicationVersion: application.applicationVersion,
       };
       break;
     case ReduxActionTypes.CLONE_PAGE_SUCCESS:
-      const { pageId, pageSlug } = action.payload;
+      const { basePageId, pageSlug } = action.payload;
       pageParams = [
         {
-          pageId,
+          basePageId,
           pageSlug,
         },
       ];

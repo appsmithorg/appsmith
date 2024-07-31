@@ -18,13 +18,11 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import type { AppState } from "@appsmith/reducers";
-import {
-  getCurrentApplication,
-  getPagePermissions,
-} from "selectors/editorSelectors";
+import { getPagePermissions } from "selectors/editorSelectors";
 import { get } from "lodash";
 import { useEditorType } from "@appsmith/hooks";
 import history from "utils/history";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 interface FetchPreviewData {
   datasourceId: string;

@@ -19,6 +19,7 @@ export interface Property {
 
 export type ActionCreateUpdateResponse = ApiResponse & {
   id: string;
+  baseId: string;
   jsonPathKeys: Record<string, string>;
   datasource: {
     id?: string;

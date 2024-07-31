@@ -10,7 +10,7 @@ interface QueryEditorContextContextProps {
   moreActionsMenu?: React.ReactNode;
   onCreateDatasourceClick?: () => void;
   onEntityNotFoundBackClick?: () => void;
-  changeQueryPage?: (queryId: string) => void;
+  changeQueryPage?: (baseQueryId: string) => void;
   actionRightPaneBackLink?: React.ReactNode;
   saveActionName?: (
     params: SaveActionNameParams,

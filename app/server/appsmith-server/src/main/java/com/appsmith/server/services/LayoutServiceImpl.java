@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.ce.LayoutServiceCEImpl;
 import com.appsmith.server.solutions.PagePermission;
@@ -11,8 +10,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class LayoutServiceImpl extends LayoutServiceCEImpl implements LayoutService {
 
-    public LayoutServiceImpl(
-            NewPageService newPageService, ResponseUtils responseUtils, PagePermission pagePermission) {
-        super(newPageService, responseUtils, pagePermission);
+    public LayoutServiceImpl(NewPageService newPageService, PagePermission pagePermission) {
+        super(newPageService, pagePermission);
     }
 }

@@ -100,6 +100,7 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   getCurrentApplicationId,
+  getCurrentBasePageId,
   getCurrentPageId,
   getIsSavingEntity,
   getLayoutOnLoadActions,
@@ -153,7 +154,7 @@ import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers"
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { handleStoreOperations } from "./StoreActionSaga";
-import { fetchPage } from "actions/pageActions";
+import { fetchPageAction } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
 import { softRefreshDatasourceStructure } from "actions/datasourceActions";
 import {
@@ -690,15 +691,15 @@ function* runActionShortcutSaga() {
   });
 
   if (!match || !match.params) return;
-  const { apiId, pageId, queryId } = match.params;
-  const actionId = apiId || queryId;
+  const { baseApiId, basePageId, baseQueryId } = match.params;
+  const actionId = baseApiId || baseQueryId;
   if (actionId) {
-    const trackerId = apiId
+    const trackerId = baseApiId
       ? PerformanceTransactionName.RUN_API_SHORTCUT
       : PerformanceTransactionName.RUN_QUERY_SHORTCUT;
     PerformanceTracker.startTracking(trackerId, {
       actionId,
-      pageId,
+      basePageId,
     });
     AnalyticsUtil.logEvent(trackerId as EventName, {
       actionId,
@@ -1320,6 +1321,7 @@ function* executePluginActionSaga(
   parentSpan?: OtlpSpan,
 ) {
   const actionId = pluginAction.id;
+  const baseActionId = pluginAction.baseId;
   const pluginActionNameToDisplay = getPluginActionNameToDisplay(pluginAction);
 
   setAttributesToSpan(parentSpan, {
@@ -1407,6 +1409,7 @@ function* executePluginActionSaga(
     yield put(
       executePluginActionSuccess({
         id: actionId,
+        baseId: baseActionId,
         response: payload,
         isActionCreatedInApp: getIsActionCreatedInApp(pluginAction),
       }),
@@ -1473,6 +1476,7 @@ function* executePluginActionSaga(
     yield put(
       executePluginActionSuccess({
         id: actionId,
+        baseId: baseActionId,
         response: EMPTY_RESPONSE,
         isActionCreatedInApp: getIsActionCreatedInApp(pluginAction),
       }),
@@ -1587,7 +1591,7 @@ function* softRefreshActionsSaga() {
   const pageId: string = yield select(getCurrentPageId);
   const applicationId: string = yield select(getCurrentApplicationId);
   // Fetch the page data before refreshing the actions.
-  yield put(fetchPage(pageId));
+  yield put(fetchPageAction(pageId));
   //wait for the page to be fetched.
   yield take([
     ReduxActionErrorTypes.FETCH_PAGE_ERROR,
@@ -1617,10 +1621,11 @@ function* softRefreshActionsSaga() {
   const isQueryPane = matchQueryBuilderPath(window.location.pathname);
   //This is reuired only when the query editor is open.
   if (isQueryPane) {
+    const basePageId: string = yield select(getCurrentBasePageId);
     yield put(
       changeQuery({
-        id: isQueryPane.params.queryId,
-        pageId,
+        baseQueryId: isQueryPane.params.baseQueryId,
+        basePageId,
         applicationId,
       }),
     );

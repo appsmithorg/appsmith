@@ -20,14 +20,21 @@ import {
 } from "@opentelemetry/exporter-metrics-otlp-http";
 import type { Context, TextMapSetter } from "@opentelemetry/api";
 import { metrics } from "@opentelemetry/api";
+import { registerInstrumentations } from "@opentelemetry/instrumentation";
+import { PageLoadInstrumentation } from "./PageLoadInstrumentation";
 
 enum CompressionAlgorithm {
   NONE = "none",
   GZIP = "gzip",
 }
 const { newRelic } = getAppsmithConfigs();
-const { applicationId, otlpEndpoint, otlpLicenseKey, otlpServiceName } =
-  newRelic;
+const {
+  applicationId,
+  browserAgentEndpoint,
+  otlpEndpoint,
+  otlpLicenseKey,
+  otlpServiceName,
+} = newRelic;
 
 const tracerProvider = new WebTracerProvider({
   resource: new Resource({
@@ -39,6 +46,7 @@ const tracerProvider = new WebTracerProvider({
 
 const nrTracesExporter = new OTLPTraceExporter({
   url: `${otlpEndpoint}/v1/traces`,
+  compression: CompressionAlgorithm.GZIP,
   headers: {
     "api-key": otlpLicenseKey,
   },
@@ -111,3 +119,13 @@ const meterProvider = new MeterProvider({
 
 // Register the MeterProvider globally
 metrics.setGlobalMeterProvider(meterProvider);
+
+registerInstrumentations({
+  tracerProvider,
+  meterProvider,
+  instrumentations: [
+    new PageLoadInstrumentation({
+      ignoreResourceUrls: [browserAgentEndpoint, otlpEndpoint],
+    }),
+  ],
+});

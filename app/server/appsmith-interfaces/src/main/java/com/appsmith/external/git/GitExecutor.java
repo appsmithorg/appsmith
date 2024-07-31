@@ -153,6 +153,9 @@ public interface GitExecutor {
             String branchName,
             boolean isFetchAll);
 
+    Mono<String> fetchRemote(
+            Path repoSuffix, String publicKey, String privateKey, boolean isRepoPath, String... branchNames);
+
     /**
      *
      * @param repoSuffix suffixedPath used to generate the base repo path this includes orgId, defaultAppId, repoName

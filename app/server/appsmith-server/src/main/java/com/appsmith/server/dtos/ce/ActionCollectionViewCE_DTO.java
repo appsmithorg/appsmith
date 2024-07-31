@@ -1,7 +1,6 @@
 package com.appsmith.server.dtos.ce;
 
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,5 +21,4 @@ public class ActionCollectionViewCE_DTO {
     List<JSValue> variables;
     List<ActionDTO> actions;
     String body;
-    DefaultResources defaultResources;
 }

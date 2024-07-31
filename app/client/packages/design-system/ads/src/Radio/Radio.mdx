@@ -1,0 +1,39 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as RadioGroupStories from "./RadioGroup.stories";
+
+<Meta of={RadioGroupStories} />
+
+# Radio
+
+A radio input is used to allow users to select only one option from a group of choices. It is typically displayed as a part of a radio group, where only one option can be selected at a time.
+
+<Canvas of={RadioGroupStories.RadioGroupStory} />
+
+## Anatomy
+
+![Radio anatomy](./docs/radio-anatomy.png)
+
+## Spacing
+
+![Radio spacing](./docs/radio-spacing.png)
+
+## Usage
+
+- Use a radio group with a "None" option for an unselected state.
+- Always set a default option in the radio group.
+
+### When not to use
+
+• Use checkboxes when users need to select multiple options.
+
+### Copy
+
+**Group labels**
+
+- While not mandatory in our component, it is good practice to use headings to provide context or clarity for a set of radio buttons.
+- Avoid redundant group labels for radio buttons if they are already part of a larger group of components with a group label. (Example?)
+
+**Radio button labels**
+
+- Ensure clear and concise labels for radio buttons, of not more than a few words.

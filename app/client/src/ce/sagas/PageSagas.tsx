@@ -11,13 +11,24 @@ import {
 import type {
   ClonePageActionPayload,
   CreatePageActionPayload,
+  DeletePageActionPayload,
+  FetchPageActionPayload,
+  FetchPublishedPageActionPayload,
+  GenerateTemplatePageActionPayload,
+  SetPageOrderActionPayload,
+  SetupPageActionPayload,
+  SetupPublishedPageActionPayload,
+  UpdatePageActionPayload,
 } from "actions/pageActions";
-import { createPage, fetchPublishedPage } from "actions/pageActions";
+import {
+  createPageAction,
+  fetchPageAction,
+  fetchPublishedPageAction,
+} from "actions/pageActions";
 import {
   clonePageSuccess,
   deletePageSuccess,
   fetchAllPageEntityCompletion,
-  fetchPage,
   fetchPageSuccess,
   fetchPublishedPageSuccess,
   generateTemplateError,
@@ -34,21 +45,15 @@ import {
   updateWidgetNameSuccess,
 } from "actions/pageActions";
 import type {
-  ClonePageRequest,
-  CreatePageRequest,
-  DeletePageRequest,
   FetchPageRequest,
   FetchPageResponse,
   FetchPageResponseData,
-  FetchPublishedPageRequest,
   GenerateTemplatePageRequest,
   PageLayout,
   PageLayoutsRequest,
   SavePageRequest,
   SavePageResponse,
   SavePageResponseData,
-  SetPageOrderRequest,
-  UpdatePageRequest,
   UpdatePageResponse,
   UpdateWidgetNameRequest,
   UpdateWidgetNameResponse,
@@ -63,7 +68,8 @@ import history from "utils/history";
 import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
 import {
-  getAllPageIds,
+  getAllPageIdentities,
+  getDefaultBasePageId,
   getDefaultPageId,
   getEditorConfigs,
   getWidgets,
@@ -144,6 +150,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSele
 import { ActionExecutionContext } from "entities/Action";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -162,7 +169,7 @@ export const getWidgetName = (state: AppState, widgetId: string) =>
 export function* refreshTheApp() {
   try {
     const currentPageId: string = yield select(getCurrentPageId);
-    const defaultPageId: string = yield select(getDefaultPageId);
+    const defaultBasePageId: string = yield select(getDefaultBasePageId);
     const pagesList: Page[] = yield select(getPageList);
     const gitBranch: string = yield select(getCurrentGitBranch);
 
@@ -174,7 +181,7 @@ export function* refreshTheApp() {
     } else {
       location.assign(
         builderURL({
-          pageId: defaultPageId,
+          basePageId: defaultBasePageId,
           branch: gitBranch,
         }),
       );
@@ -284,17 +291,19 @@ export function* handleFetchedPage({
 export const getLastUpdateTime = (pageResponse: FetchPageResponse): number =>
   pageResponse.data.lastUpdatedTime;
 
-export function* fetchPageSaga(
-  pageRequestAction: ReduxAction<FetchPageRequest>,
-) {
+export function* fetchPageSaga(action: ReduxAction<FetchPageActionPayload>) {
   try {
-    const { id, isFirstLoad, pageWithMigratedDsl } = pageRequestAction.payload;
+    const {
+      id: pageId,
+      isFirstLoad = false,
+      pageWithMigratedDsl,
+    } = action.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
-      { pageId: id },
+      { pageId },
     );
 
-    const params: FetchPageRequest = { id, migrateDSL: true };
+    const params: FetchPageRequest = { pageId, migrateDSL: true };
     const fetchPageResponse: FetchPageResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
       pageWithMigratedDsl,
@@ -303,7 +312,7 @@ export function* fetchPageSaga(
 
     yield handleFetchedPage({
       fetchPageResponse,
-      pageId: id,
+      pageId,
       isFirstLoad,
     });
 
@@ -328,16 +337,11 @@ export function* fetchPageSaga(
 }
 
 export function* fetchPublishedPageSaga(
-  pageRequestAction: ReduxAction<{
-    pageId: string;
-    bustCache: boolean;
-    firstLoad: boolean;
-    pageWithMigratedDsl?: FetchPageResponse;
-  }>,
+  action: ReduxAction<FetchPublishedPageActionPayload>,
 ) {
   try {
     const { bustCache, firstLoad, pageId, pageWithMigratedDsl } =
-      pageRequestAction.payload;
+      action.payload;
     PerformanceTracker.startAsyncTracking(
       PerformanceTransactionName.FETCH_PAGE_API,
       {
@@ -345,15 +349,11 @@ export function* fetchPublishedPageSaga(
         published: true,
       },
     );
-    const request: FetchPublishedPageRequest = {
-      pageId,
-      bustCache,
-    };
-
+    const params = { pageId, bustCache };
     const response: FetchPageResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
       pageWithMigratedDsl,
-      () => call(PageApi.fetchPublishedPage, request),
+      () => call(PageApi.fetchPublishedPage, params),
     );
 
     const isValidResponse: boolean = yield validateResponse(response);
@@ -415,10 +415,14 @@ export function* fetchPublishedPageSaga(
 
 export function* fetchAllPublishedPagesSaga() {
   try {
-    const pageIds: string[] = yield select(getAllPageIds);
+    const pageIdentities: { pageId: string; basePageId: string }[] =
+      yield select(getAllPageIdentities);
     yield all(
-      pageIds.map((pageId: string) => {
-        return call(PageApi.fetchPublishedPage, { pageId, bustCache: true });
+      pageIdentities.map((pageIdentity) => {
+        return call(PageApi.fetchPublishedPage, {
+          pageId: pageIdentity.pageId,
+          bustCache: true,
+        });
       }),
     );
   } catch (error) {
@@ -642,7 +646,7 @@ export function* saveLayoutSaga(action: ReduxAction<{ isRetry?: boolean }>) {
 }
 
 export function* createNewPageFromEntity(
-  createPageAction: ReduxAction<CreatePageActionPayload>,
+  action: ReduxAction<CreatePageActionPayload>,
 ) {
   try {
     const layoutSystemType: LayoutSystemTypes =
@@ -666,7 +670,7 @@ export function* createNewPageFromEntity(
       },
     ];
 
-    const { applicationId, name } = createPageAction?.payload || {};
+    const { applicationId, name } = action?.payload || {};
 
     const workspaceId: string = yield select(getCurrentWorkspaceId);
     const instanceId: string | undefined = yield select(getInstanceId);
@@ -676,7 +680,7 @@ export function* createNewPageFromEntity(
     // At the end we call the `createPage` saga that actually calls the API to
     // create a page
     yield put(
-      createPage(
+      createPageAction(
         applicationId,
         name,
         defaultPageLayouts,
@@ -694,9 +698,7 @@ export function* createNewPageFromEntity(
   }
 }
 
-export function* createPageSaga(
-  createPageAction: ReduxAction<CreatePageActionPayload>,
-) {
+export function* createPageSaga(action: ReduxAction<CreatePageActionPayload>) {
   try {
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
@@ -707,14 +709,15 @@ export function* createPageSaga(
       mainCanvasProps.width,
     );
 
-    const request: CreatePageRequest = createPageAction.payload;
-    const response: FetchPageResponse = yield call(PageApi.createPage, request);
+    const params = { ...action.payload };
+    const response: FetchPageResponse = yield call(PageApi.createPage, params);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
         type: ReduxActionTypes.CREATE_PAGE_SUCCESS,
         payload: {
           pageId: response.data.id,
+          basePageId: response.data.baseId,
           pageName: response.data.name,
           layoutId: response.data.layouts[0].id,
           slug: response.data.slug,
@@ -740,7 +743,7 @@ export function* createPageSaga(
       // route to generate template for new page created
       history.push(
         builderURL({
-          pageId: response.data.id,
+          basePageId: response.data.baseId,
         }),
       );
     }
@@ -754,16 +757,13 @@ export function* createPageSaga(
   }
 }
 
-export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
+export function* updatePageSaga(action: ReduxAction<UpdatePageActionPayload>) {
+  const params = { ...action.payload, pageId: action.payload.id };
   try {
-    const request: UpdatePageRequest = action.payload;
-
-    // to be done in backend
-    request.customSlug = request.customSlug?.replaceAll(" ", "-");
-
+    params.customSlug = params.customSlug?.replaceAll(" ", "-");
     const response: ApiResponse<UpdatePageResponse> = yield call(
       PageApi.updatePage,
-      request,
+      params,
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
@@ -772,23 +772,25 @@ export function* updatePageSaga(action: ReduxAction<UpdatePageRequest>) {
   } catch (error) {
     yield put(
       updatePageError({
-        request: action.payload,
+        request: params,
         error,
       }),
     );
   }
 }
 
-export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
+export function* deletePageSaga(action: ReduxAction<DeletePageActionPayload>) {
   try {
-    const request: DeletePageRequest = action.payload;
-    const defaultPageId: string = yield select(
-      (state: AppState) => state.entities.pageList.defaultPageId,
-    );
-    if (defaultPageId === request.id) {
+    const { id: pageId } = action.payload;
+    const defaultPageId: string = yield select(getDefaultPageId);
+    const defaultBasePageId: string = yield select(getDefaultBasePageId);
+    const currentPageId: string = yield select(getCurrentPageId);
+
+    if (defaultPageId === pageId) {
       throw Error("Cannot delete the home page.");
     } else {
-      const response: ApiResponse = yield call(PageApi.deletePage, request);
+      const params = { pageId: pageId };
+      const response: ApiResponse = yield call(PageApi.deletePage, params);
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         yield put(deletePageSuccess());
@@ -797,18 +799,15 @@ export function* deletePageSaga(action: ReduxAction<DeletePageRequest>) {
       yield put({
         type: ReduxActionTypes.FETCH_PAGE_DSL_SUCCESS,
         payload: {
-          pageId: request.id,
+          pageId,
           dsl: undefined,
         },
       });
       // Update route params here
-      const currentPageId: string = yield select(
-        (state: AppState) => state.entities.pageList.currentPageId,
-      );
-      if (currentPageId === action.payload.id)
+      if (currentPageId === pageId)
         history.push(
           builderURL({
-            pageId: defaultPageId,
+            basePageId: defaultBasePageId,
           }),
         );
     }
@@ -827,17 +826,22 @@ export function* clonePageSaga(
   clonePageAction: ReduxAction<ClonePageActionPayload>,
 ) {
   try {
-    const request: ClonePageRequest = clonePageAction.payload;
+    const request = {
+      pageId: clonePageAction.payload.id,
+    };
+
     const response: FetchPageResponse = yield call(PageApi.clonePage, request);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put(
-        clonePageSuccess(
-          response.data.id,
-          response.data.name,
-          response.data.layouts[0].id,
-          response.data.slug,
-        ),
+        clonePageSuccess({
+          pageId: response.data.id,
+          basePageId: response.data.baseId,
+          pageName: response.data.name,
+          layoutId: response.data.layouts[0].id,
+          slug: response.data.slug,
+          isDefault: false,
+        }),
       );
       // Add this to the page DSLs for entity explorer
       // We're not sending the `dslTransformer` to the `extractCurrentDSL` function
@@ -888,7 +892,7 @@ export function* clonePageSaga(
       if (!clonePageAction.payload.blockNavigation) {
         history.push(
           builderURL({
-            pageId: response.data.id,
+            basePageId: response.data.baseId,
           }),
         );
       }
@@ -1101,7 +1105,7 @@ export function* fetchPageDSLSaga(
       layoutSystemType,
       mainCanvasProps.width,
     );
-    const params: FetchPageRequest = { id: pageId, migrateDSL: true };
+    const params: FetchPageRequest = { pageId, migrateDSL: true };
     const fetchPageResponse: FetchPageResponse = yield call(
       getFromServerWhenNoPrefetchedResult,
       pageDSL,
@@ -1185,14 +1189,15 @@ export function* populatePageDSLsSaga(action?: {
   }
 }
 
-/**
- * saga to update the page order
- *
- * @param action
- */
-export function* setPageOrderSaga(action: ReduxAction<SetPageOrderRequest>) {
+export function* setPageOrderSaga(
+  action: ReduxAction<SetPageOrderActionPayload>,
+) {
   try {
-    const request: SetPageOrderRequest = action.payload;
+    const request = {
+      applicationId: action.payload.applicationId,
+      pageId: action.payload.pageId,
+      order: action.payload.order,
+    };
     const response: ApiResponse = yield call(PageApi.setPageOrder, request);
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
@@ -1215,7 +1220,7 @@ export function* setPageOrderSaga(action: ReduxAction<SetPageOrderRequest>) {
 }
 
 export function* generateTemplatePageSaga(
-  action: ReduxAction<GenerateTemplatePageRequest>,
+  action: ReduxAction<GenerateTemplatePageActionPayload>,
 ) {
   try {
     const request: GenerateTemplatePageRequest = action.payload;
@@ -1247,7 +1252,7 @@ export function* generateTemplatePageSaga(
         isFirstLoad: true,
       });
 
-      yield put(fetchPage(pageId));
+      yield put(fetchPageAction(pageId));
 
       // trigger evaluation after completion of page success & fetch actions for page + fetch jsobject for page
 
@@ -1276,10 +1281,13 @@ export function* generateTemplatePageSaga(
           executePageLoadActions(ActionExecutionContext.GENERATE_CRUD_PAGE),
         ]),
       );
-
+      const basePageId: string = yield select(
+        convertToBasePageIdSelector,
+        pageId,
+      );
       history.replace(
         builderURL({
-          pageId,
+          basePageId,
         }),
       );
       // TODO : Add it to onSuccessCallback
@@ -1335,15 +1343,19 @@ export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
   }
 }
 
-export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
+export function* setupPageSaga(action: ReduxAction<SetupPageActionPayload>) {
   try {
-    const { id, isFirstLoad, pageWithMigratedDsl } = action.payload;
+    const {
+      id: pageId,
+      isFirstLoad = false,
+      pageWithMigratedDsl,
+    } = action.payload;
 
     /*
       Added the first line for isPageSwitching redux state to be true when page is being fetched to fix scroll position issue.
       Added the second line for sync call instead of async (due to first line) as it was leading to issue with on page load actions trigger.
     */
-    yield put(fetchPage(id, isFirstLoad, pageWithMigratedDsl));
+    yield put(fetchPageAction(pageId, isFirstLoad, pageWithMigratedDsl));
     yield take(ReduxActionTypes.FETCH_PAGE_SUCCESS);
 
     yield put({
@@ -1358,12 +1370,7 @@ export function* setupPageSaga(action: ReduxAction<FetchPageRequest>) {
 }
 
 export function* setupPublishedPageSaga(
-  action: ReduxAction<{
-    pageId: string;
-    bustCache: boolean;
-    firstLoad: boolean;
-    pageWithMigratedDsl?: FetchPageResponse;
-  }>,
+  action: ReduxAction<SetupPublishedPageActionPayload>,
 ) {
   try {
     const { bustCache, firstLoad, pageId, pageWithMigratedDsl } =
@@ -1374,7 +1381,12 @@ export function* setupPublishedPageSaga(
       Added the second line for sync call instead of async (due to first line) as it was leading to issue with on page load actions trigger.
     */
     yield put(
-      fetchPublishedPage(pageId, bustCache, firstLoad, pageWithMigratedDsl),
+      fetchPublishedPageAction(
+        pageId,
+        bustCache,
+        firstLoad,
+        pageWithMigratedDsl,
+      ),
     );
     yield take(ReduxActionTypes.FETCH_PUBLISHED_PAGE_SUCCESS);
 

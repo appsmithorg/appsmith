@@ -27,6 +27,11 @@ const EditorPaneExplorer = () => {
   const ideViewMode = useSelector(getIDEViewMode);
   return (
     <Flex
+      borderRight={
+        ideViewMode === EditorViewMode.SplitScreen
+          ? ""
+          : "1px solid var(--ads-v2-color-border)"
+      }
       className="relative ide-editor-left-pane__content"
       flexDirection="column"
       overflow="hidden"

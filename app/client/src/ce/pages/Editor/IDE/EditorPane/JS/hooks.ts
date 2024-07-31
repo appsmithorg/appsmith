@@ -80,13 +80,13 @@ export const useJSEditorRoutes = (path: string): UseRoutes => {
       exact: true,
       key: "AddJS",
       component: AddJS,
-      path: [`${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
+      path: [`${path}${ADD_PATH}`, `${path}/:baseCollectionId${ADD_PATH}`],
     },
     {
       exact: true,
       key: "JSEditor",
       component: JSEditor,
-      path: [path + "/:collectionId"],
+      path: [path + "/:baseCollectionId"],
     },
     {
       key: "JSEmpty",

@@ -17,7 +17,6 @@ import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.WidgetSpecificUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.onload.internal.OnLoadExecutablesUtil;
@@ -59,7 +58,6 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     private final SessionUserService sessionUserService;
     private final NewPageService newPageService;
     private final AnalyticsService analyticsService;
-    private final ResponseUtils responseUtils;
     private final PagePermission pagePermission;
     private final ApplicationService applicationService;
 
@@ -226,28 +224,15 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
     }
 
     @Override
-    public Mono<LayoutDTO> updateLayout(
-            String defaultPageId, String defaultApplicationId, String layoutId, Layout layout, String branchName) {
-        if (!StringUtils.hasLength(branchName)) {
-            return updateLayout(defaultPageId, defaultApplicationId, layoutId, layout);
-        }
-        return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                .flatMap(branchedPage ->
-                        updateLayout(branchedPage.getId(), branchedPage.getApplicationId(), layoutId, layout))
-                .map(responseUtils::updateLayoutDTOWithDefaultResources);
-    }
-
-    @Override
     public Mono<Integer> updateMultipleLayouts(
-            String defaultApplicationId, String branchName, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO) {
+            String baseApplicationId, UpdateMultiplePageLayoutDTO updateMultiplePageLayoutDTO) {
         List<Mono<LayoutDTO>> monoList = new ArrayList<>();
         for (UpdateMultiplePageLayoutDTO.UpdatePageLayoutDTO pageLayout :
                 updateMultiplePageLayoutDTO.getPageLayouts()) {
             final Layout layout = new Layout();
             layout.setDsl(pageLayout.getLayout().dsl());
-            Mono<LayoutDTO> updatedLayoutMono = this.updateLayout(
-                    pageLayout.getPageId(), defaultApplicationId, pageLayout.getLayoutId(), layout, branchName);
+            Mono<LayoutDTO> updatedLayoutMono =
+                    this.updateLayout(pageLayout.getPageId(), baseApplicationId, pageLayout.getLayoutId(), layout);
             monoList.add(updatedLayoutMono);
         }
         return Flux.merge(monoList).then(Mono.just(monoList.size()));

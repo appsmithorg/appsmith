@@ -10,11 +10,11 @@ import type {
 import { call, select } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
 import { generateReactKey } from "utils/generators";
-import { addNewChildToDSL } from "../integrations/sagas/anvilDraggingSagas";
 import type BaseLayoutComponent from "../layoutComponents/BaseLayoutComponent";
 import LayoutFactory from "../layoutComponents/LayoutFactory";
 import { defaultHighlightRenderInfo } from "../utils/constants";
 import { anvilWidgets } from "widgets/anvil/constants";
+import { getUpdatedListOfWidgetsAfterAddingNewWidget } from "../integrations/sagas/anvilWidgetAdditionSagas";
 
 /**
  * Function to get the highlight information for the last column of a Section Widget
@@ -167,13 +167,13 @@ export function* addNewZonesToSection(
   do {
     const sectionWidget: FlattenedWidgetProps = updatedWidgets[sectionWidgetId];
     const newWidget: any = {
-      newWidgetId: generateReactKey(),
+      newWidgetId: generateReactKey({ prefix: "zone-" }),
       parentId: sectionWidget.widgetId,
       type: anvilWidgets.ZONE_WIDGET,
     };
     const highlight = getSectionLastColumnHighlight(sectionWidget);
     updatedWidgets = yield call(
-      addNewChildToDSL,
+      getUpdatedListOfWidgetsAfterAddingNewWidget,
       highlight,
       newWidget,
       false,
