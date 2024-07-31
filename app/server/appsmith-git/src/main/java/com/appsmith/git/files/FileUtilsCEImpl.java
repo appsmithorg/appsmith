@@ -266,7 +266,7 @@ public class FileUtilsCEImpl implements FileInterface {
                     if (!DSLTransformerHelper.hasChildren(jsonObject)
                             && !DSLTransformerHelper.isTabsWidget(jsonObject)) {
                         // Save the widget as a directory or Save the widget as a file
-                        childPath = childPath.replace(widgetName, CommonConstants.EMPTY_STRING);
+                        childPath = childPath.replaceAll(widgetName + "$", CommonConstants.EMPTY_STRING);
                     }
                     Path path = Paths.get(
                             String.valueOf(pageSpecificDirectory.resolve(CommonConstants.WIDGETS)), childPath);
