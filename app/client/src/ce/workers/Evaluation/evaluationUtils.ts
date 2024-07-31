@@ -530,7 +530,7 @@ export const getAllPathsBasedOnDiffPaths = (
   diff: DataTreeDiff[],
   previousResult: Record<string, true> = {},
 ): Record<string, true> => {
-  const newResult = { ...previousResult };
+  const newResult = previousResult;
   diff.forEach((curr) => {
     const { event, payload } = curr;
     if (event === DataTreeDiffEvent.DELETE) {
