@@ -13161,7 +13161,7 @@ __metadata:
     "@types/express": ^4.17.14
     "@types/jest": ^29.2.3
     astravel: ^0.6.1
-    axios: ^1.6.0
+    axios: ^1.7.2
     esbuild: ^0.19.4
     escodegen: ^2.0.0
     express: ^4.19.2
@@ -13303,7 +13303,7 @@ __metadata:
     assert-never: ^1.2.1
     astring: ^1.7.5
     async-mutex: ^0.5.0
-    axios: ^1.6.0
+    axios: ^1.7.2
     babel-plugin-lodash: ^3.3.4
     babel-plugin-module-resolver: ^4.1.0
     chalk: ^4.1.1
@@ -13965,7 +13965,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"axios@npm:^1.6.0, axios@npm:^1.6.1":
+"axios@npm:^1.6.1, axios@npm:^1.7.2":
   version: 1.7.2
   resolution: "axios@npm:1.7.2"
   dependencies:
