@@ -437,7 +437,8 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         applicationId: string;
         pageId: string;
         layoutId: string;
-      }
+      } // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     | undefined = yield select(getEditorConfigs) as any;
 
   if (!editorConfigs) return;
@@ -598,6 +599,8 @@ export function getLayoutSavePayload(
   widgets: {
     [widgetId: string]: FlattenedWidgetProps;
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfigs: any,
 ) {
   const nestedDSL = nestDSL(widgets, Object.keys(widgets)[0]);
@@ -961,6 +964,8 @@ export function* updateWidgetNameSaga(
 
     // If we're trying to update the name of a tab in the TABS_WIDGET
     if (tabsObj !== undefined) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tabs: any = Object.values(tabsObj);
       // Get all canvas widgets
       const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -978,6 +983,8 @@ export function* updateWidgetNameSaga(
       const parent = { ...widgets[parentId] };
       // Update the tabs property of the parent tabs widget
       const tabToChange = tabs.find(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (each: any) => each.widgetId === action.payload.id,
       );
       const updatedTab = {
@@ -1164,6 +1171,8 @@ export function* populatePageDSLsSaga(action?: {
           return call(fetchPageDSLSaga, pageId);
         }
         const { data } = pagesWithMigratedDsl;
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const v1PageDSL = data?.find?.((v: any) => v?.id === pageId);
         return call(fetchPageDSLSaga, pageId, {
           ...pagesWithMigratedDsl,
@@ -1226,6 +1235,8 @@ export function* generateTemplatePageSaga(
     const request: GenerateTemplatePageRequest = action.payload;
     // if pageId is available in request, it will just update that page else it will generate new page.
     const response: ApiResponse<{
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       page: any;
       successImageUrl: string;
       successMessage: string;

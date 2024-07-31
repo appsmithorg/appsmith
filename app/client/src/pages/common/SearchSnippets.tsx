@@ -14,6 +14,8 @@ interface Props {
   entityId?: string;
   entityType: ENTITY_TYPE;
   // TODO: be more precise with the function type
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClick: any;
   showIconOnly?: boolean;
 }

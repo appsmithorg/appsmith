@@ -154,6 +154,8 @@ export const getAutocompleteProperties = (props: JSONFormWidgetProps) => {
 const getUpdatedSchemaFor = (
   schema: Schema,
   propertyName: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
 ) => {
   const keys = Object.keys(schema);

@@ -191,6 +191,8 @@ export function* updateDataTreeHandler(
 
   log.debug({ jsUpdates: jsUpdates });
   log.debug({ dataTree: updatedDataTree });
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logs?.forEach((evalLog: any) => log.debug(evalLog));
 
   yield call(
@@ -309,6 +311,8 @@ export function* evaluateTreeSaga(
 
 export function* evaluateActionBindings(
   bindings: string[],
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   executionParams: Record<string, any> | string = {},
 ) {
   const span = startRootSpan("evaluateActionBindings");
@@ -332,6 +336,8 @@ export function* evaluateAndExecuteDynamicTrigger(
   dynamicTrigger: string,
   eventType: EventType,
   triggerMeta: TriggerMeta,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callbackData?: Array<any>,
   globalContext?: Record<string, unknown>,
 ) {
@@ -351,6 +357,8 @@ export function* evaluateAndExecuteDynamicTrigger(
       triggerMeta,
     },
   );
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { errors = [] } = response as any;
 
   const transformedErrors: EvaluationError[] = yield call(
@@ -469,11 +477,9 @@ export function* executeJSFunction(
   return { result, isDirty };
 }
 
-export function* validateProperty(
-  property: string,
-  value: any,
-  props: WidgetProps,
-) {
+export // TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function* validateProperty(property: string, value: any, props: WidgetProps) {
   const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
     yield select(getUnevaluatedDataTree);
   const configTree = unEvalAndConfigTree.configTree;
@@ -515,6 +521,8 @@ export const defaultAffectedJSObjects: AffectedJSObjects = {
 };
 export function evalQueueBuffer() {
   let canTake = false;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let collectedPostEvalActions: any = [];
   let collectedAffectedJSObjects: AffectedJSObjects = defaultAffectedJSObjects;
 
@@ -652,6 +660,8 @@ function* evalAndLintingHandler(
   endSpan(span);
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* evaluationChangeListenerSaga(): any {
   const firstEvalActionChannel = yield actionChannel(FIRST_EVAL_REDUX_ACTIONS);
   // Explicitly shutdown old worker if present
@@ -700,6 +710,8 @@ function* evaluationChangeListenerSaga(): any {
       isAllAffected: true,
     },
   });
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const evtActionChannel: ActionPattern<Action<any>> = yield actionChannel(
     EVAL_AND_LINT_REDUX_ACTIONS,
     evalQueueBuffer(),
@@ -722,6 +734,8 @@ function* evaluationChangeListenerSaga(): any {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* evaluateActionSelectorFieldSaga(action: any) {
   const { id, type, value } = action.payload;
   try {
@@ -732,6 +746,8 @@ export function* evaluateActionSelectorFieldSaga(action: any) {
       expression: value,
     });
     const lintErrors = (workerResponse.errors || []).filter(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (error: any) => error.errorType !== PropertyEvaluationErrorType.LINT,
     );
     if (workerResponse.result) {

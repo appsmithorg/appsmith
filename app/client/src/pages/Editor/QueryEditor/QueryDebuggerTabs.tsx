@@ -62,6 +62,8 @@ function QueryDebuggerTabs({
   runErrorMessage,
   showSchema,
 }: QueryDebuggerTabsProps) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let output: Record<string, any>[] | null = null;
   const dispatch = useDispatch();
 
@@ -162,6 +164,8 @@ function QueryDebuggerTabs({
         ];
       }
     } else {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       output = actionResponse.body as any;
     }
   }

@@ -103,6 +103,8 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
     isCurrentWidgetActiveInPropertyPane(props.widgetId),
   );
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const togglePropertyEditor = memoize((e: any) => {
     if (isSnipingMode) {
       dispatch(

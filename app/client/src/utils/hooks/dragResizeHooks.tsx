@@ -92,7 +92,11 @@ export const useCanvasSnapRowsUpdateHook = () => {
 export interface SetDraggingStateActionPayload {
   isDragging: boolean;
   dragGroupActualParent?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   draggingGroupCenter?: Record<string, any>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   startPoints?: any;
   draggedOn?: string;
 }
@@ -102,6 +106,8 @@ export const useWidgetDragResize = () => {
   // TODO(abhinav/Satish): Performance bottleneck
   return {
     setDraggingNewWidget: useCallback(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (isDragging: boolean, newWidgetProps: any) => {
         if (isDragging) {
           document.body.classList.add("dragging");

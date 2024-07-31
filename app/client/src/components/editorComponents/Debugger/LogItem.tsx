@@ -216,7 +216,11 @@ interface LogItemProps {
   severity: Severity;
   text: string;
   category: LOG_CATEGORY;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logData?: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state?: Record<string, any>;
   id?: string;
   source?: SourceEntity;
@@ -363,6 +367,8 @@ function LogItem(props: LogItemProps) {
           )}
           {props.logData &&
             props.logData.length > 0 &&
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             props.logData.map((logDatum: any) => {
               if (typeof logDatum === "object") {
                 return (

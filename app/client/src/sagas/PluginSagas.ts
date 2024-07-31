@@ -117,9 +117,13 @@ function* fetchPluginFormConfigsSaga(action?: {
         getFromServerWhenNoPrefetchedResult,
         // Set the data if it exists in the prefetched data
         // This is to avoid making a call to the server for the data
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         pluginFormConfigs?.data?.[id as any]
           ? {
               ...pluginFormConfigs,
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               data: pluginFormConfigs?.data?.[id as any],
             }
           : undefined,
@@ -142,6 +146,8 @@ function* fetchPluginFormConfigsSaga(action?: {
     if (jsPlugin) {
       pluginIdFormsToFetch.add(jsPlugin.id);
     }
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const formConfigs: Record<string, any[]> = {};
     const editorConfigs: FormEditorConfigs = {};
     const settingConfigs: FormSettingsConfigs = {};

@@ -362,6 +362,8 @@ function ReconnectDatasourceModal() {
   useEffect(() => {
     if (applications && queryIsImport && queryDatasourceId) {
       if (queryAppId) {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const app = applications.find((app: any) => app.id === queryAppId);
         if (app) {
           dispatch(
@@ -417,6 +419,8 @@ function ReconnectDatasourceModal() {
     }
   }, [isModalOpen, isDatasourceTesting, isDatasourceUpdating]);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleClose = (e: any) => {
     // Some magic code to handle the scenario where the reconnect modal and google sheets
     // file picker are both open.
@@ -496,6 +500,8 @@ function ReconnectDatasourceModal() {
     if (!queryIsImport) {
       // @ts-expect-error: importedApplication is of type unknown
       const defaultPage = importedApplication?.pages?.find(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (page: any) => page.isDefault,
       );
       if (defaultPage) {

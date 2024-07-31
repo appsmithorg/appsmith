@@ -7,7 +7,7 @@ Before raising a pull request, ensure you have raised a corresponding issue and 
 
 ### Good First Issues
 
-Looking for issues to contribute to? Check out our [Good First Issues](https://github.com/appsmithorg/appsmith/issues?page=3&q=is%3Aopen+is%3Aissue+label%3A%22Good+First+Issue%22) – a great starting point for your contribution journey with Appsmith! Tag @contributor-support to have an issue assigned to you. If you choose to work on issues outside this list, please collaborate closely with us. Failure to inform and get the issue assigned beforehand may result in your contribution being rejected, leading to wasted effort for both parties.
+Looking for issues to contribute to? Check out our [Inviting Contribution Issues](https://github.com/appsmithorg/appsmith/issues?q=is:open+is:issue+label:%22Inviting+Contribution%22+) – a great starting point for your contribution journey with Appsmith! Tag @contributor-support to have an issue assigned to you. If you choose to work on issues outside this list, please collaborate closely with us. Failure to inform and get the issue assigned beforehand may result in your contribution being rejected, leading to wasted effort for both parties.
 
 #### What not to do:
 1. Work on issues without informing the maintainer. Please get them assigned to yourself first. Comment on the issue if you are interested. 

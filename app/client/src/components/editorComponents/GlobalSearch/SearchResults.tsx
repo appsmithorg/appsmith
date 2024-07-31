@@ -366,6 +366,8 @@ const ActionOperation = styled.div<{ isActive: boolean }>`
   }
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ActionOperationItem({ isActiveItem, item }: any) {
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;

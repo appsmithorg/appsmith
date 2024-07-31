@@ -10,6 +10,8 @@ describe("paste destination utils tests", () => {
   });
   it("should correctly identify the parent hierarchy for a copied widget when no widget is selected", () => {
     const { allWidgets, copiedWidgets } = generateMockDataWithSectionAndZone();
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const selectedWidget: any = allWidgets[MAIN_CONTAINER_WIDGET_ID];
     const generator = getDestinedParent(
       allWidgets,

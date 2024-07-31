@@ -44,6 +44,6 @@
     "@design-system/widgets": "workspace:^",
     "@design-system/widgets-old": "workspace:^",
     "appsmith-icons": "workspace:^",
-    "colorjs.io": "^0.4.3"
+    "colorjs.io": "^0.5.2"
   }
 }

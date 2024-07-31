@@ -30,6 +30,8 @@ import store from "store";
 import { PluginType } from "entities/Action";
 import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const useFilteredLogs = (query: string, filter?: any) => {
   let logs = useSelector((state: AppState) => state.ui.debugger.logs);
 
@@ -94,6 +96,8 @@ export const usePagination = (data: Log[], itemsPerPage = 50) => {
 };
 
 export const useSelectedEntity = () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any = useParams();
   const action = useSelector((state: AppState) => {
     if (onApiEditor() || onQueryEditor()) {

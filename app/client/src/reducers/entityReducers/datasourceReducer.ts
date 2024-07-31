@@ -25,6 +25,8 @@ export interface DatasourceDataState {
   fetchingDatasourceStructure: Record<string, boolean>;
   structure: Record<string, DatasourceStructure>;
   isFetchingMockDataSource: false;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mockDatasourceList: any[];
   executingDatasourceQuery: boolean;
   isReconnectingModalOpen: boolean; // reconnect datasource modal for import application
@@ -80,6 +82,8 @@ const datasourceReducer = createReducer(initialState, {
   },
   [ReduxActionTypes.FETCH_MOCK_DATASOURCES_SUCCESS]: (
     state: DatasourceDataState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => {
     const mockDatasourceList = action.payload as MockDatasource[];
@@ -237,6 +241,8 @@ const datasourceReducer = createReducer(initialState, {
       id?: string;
       environmentId: string;
       messages?: Array<string>;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       error?: any;
     }>,
   ): DatasourceDataState => {
@@ -488,6 +494,8 @@ const datasourceReducer = createReducer(initialState, {
       id?: string;
       environmentId: string;
       messages?: Array<string>;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       error?: any;
     }>,
   ): DatasourceDataState => {

@@ -197,6 +197,8 @@ export function getFormName(plugin: Plugin): string {
   return DATASOURCE_DB_FORM;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getFormDiffPaths(initialValues: any, currentValues: any) {
   const difference = diff(initialValues, currentValues);
   const diffPaths: string[] = [];

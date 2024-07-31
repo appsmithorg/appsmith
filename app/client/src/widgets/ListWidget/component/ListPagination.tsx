@@ -422,6 +422,8 @@ const PaginationWrapper = styled.ul`
   opacity: "1";
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ServerSideListPagination(props: any) {
   return (
     <PaginationWrapper

@@ -19,6 +19,8 @@ type CardProps = PropsWithChildren<{
   isFetching: boolean;
   isMobile?: boolean;
   moreActionItems: ModifiedMenuItemProps[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   primaryAction: (e: any) => void;
   setShowOverlay: (show: boolean) => void;
   showGitBadge: boolean;

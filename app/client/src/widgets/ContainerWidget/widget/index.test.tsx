@@ -25,6 +25,8 @@ describe("ContainerWidget tests", () => {
 
   const pushState = jest.spyOn(window.history, "pushState");
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pushState.mockImplementation((state: any, title: any, url: any) => {
     window.document.title = title;
     window.location.pathname = url;
@@ -32,6 +34,8 @@ describe("ContainerWidget tests", () => {
   it("Container widget should not invoke dragging and selection features in View mode", async () => {
     const containerId = generateReactKey();
     const canvasId = generateReactKey();
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const children: any = buildChildren([
       {
         type: "CHECKBOX_WIDGET",
@@ -54,6 +58,8 @@ describe("ContainerWidget tests", () => {
         widgetId: canvasId,
       },
     ]);
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const containerChildren: any = buildChildren([
       {
         type: "CONTAINER_WIDGET",
@@ -62,6 +68,8 @@ describe("ContainerWidget tests", () => {
         parentId: "0",
       },
     ]);
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dsl: any = widgetCanvasFactory.build({
       children: containerChildren,
     });

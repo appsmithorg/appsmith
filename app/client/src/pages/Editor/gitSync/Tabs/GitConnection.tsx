@@ -115,11 +115,15 @@ function GitConnection({ isImport }: Props) {
   const useGlobalProfile = useSelector(getUseGlobalProfile);
   const globalGitConfig = useSelector(getGlobalGitConfig);
   const localGitConfig = useSelector(getLocalGitConfig);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { tempRemoteUrl = "" } = useSelector(getTempRemoteUrl) || ({} as any);
   const currentApp = useSelector(getCurrentApplication);
   const isFetchingGlobalGitConfig = useSelector(getIsFetchingGlobalGitConfig);
   const isFetchingLocalGitConfig = useSelector(getIsFetchingLocalGitConfig);
   const { remoteUrl: remoteUrlInStore = "" } =
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     useSelector(getCurrentAppGitMetaData) || ({} as any);
   const RepoUrlDocumentUrl = isImport
     ? GIT_DOC_URLs.import

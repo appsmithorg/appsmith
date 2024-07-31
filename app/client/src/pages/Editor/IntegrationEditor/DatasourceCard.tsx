@@ -215,6 +215,8 @@ function DatasourceCard(props: DatasourceCardProps) {
     }
   }, [isDeletingDatasource]);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentFormConfig: Array<any> =
     datasourceFormConfigs[datasource?.pluginId ?? ""];
   const QUERY = queriesWithThisDatasource > 1 ? "queries" : "query";
@@ -331,6 +333,8 @@ function DatasourceCard(props: DatasourceCardProps) {
                   className={"t--generate-template"}
                   isDisabled={!canGeneratePage}
                   kind="secondary"
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onClick={(e: any) => {
                     e.stopPropagation();
                     e.preventDefault();

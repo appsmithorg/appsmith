@@ -26,6 +26,8 @@ interface ExtraData {
   isViewMode: boolean;
 }
 type Modifier = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   error: any,
   metaData: ErrorMetaData & ExtraData,
 ) => Partial<{
@@ -66,6 +68,8 @@ class ErrorModifier {
     this.dataTree = dataTree;
   }
   run(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     error: any,
     metaData: ErrorMetaData,
     modifiers: Modifier[],
@@ -195,6 +199,8 @@ function isActionInvokedInDataField(error: EvaluationError) {
 const UNDEFINED_TYPE_ERROR_REGEX =
   /Cannot read properties of undefined \(reading '([^\s]+)'/;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function convertAllDataTypesToString(e: any) {
   // Functions do not get converted properly with JSON.stringify
   // So using String fot functions

@@ -59,7 +59,11 @@ interface ReduxDispatchProps {
   runAction: (actionId: string) => void;
   deleteAction: (id: string, name: string) => void;
   initFormEvaluation: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     editorConfig: any,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     settingConfig: any,
     formId: string,
   ) => void;
@@ -84,13 +88,19 @@ interface ReduxStateProps {
   runErrorMessage: Record<string, string>;
   pluginId: string | undefined;
   pluginIds: Array<string> | undefined;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   responses: any;
   isCreating: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfig: any;
   uiComponent: UIComponentTypes;
   applicationId: string;
   actionId: string;
   baseActionId: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actionObjectDiff?: any;
   isSaas: boolean;
   datasourceId?: string;
@@ -101,6 +111,8 @@ interface ReduxStateProps {
 type StateAndRouteProps = RouteComponentProps<QueryEditorRouteParams>;
 type OwnProps = StateAndRouteProps & {
   isEditorInitialized: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   settingsConfig: any;
 };
 type Props = ReduxDispatchProps & ReduxStateProps & OwnProps;
@@ -271,6 +283,8 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
     pluginId = action.pluginId;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let editorConfig: any;
 
   if (editorConfigs && pluginId) {
@@ -328,12 +342,18 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
   deleteAction: (id: string, name: string) =>
     dispatch(deleteAction({ id, name })),
   runAction: (actionId: string) => dispatch(runAction(actionId)),
   initFormEvaluation: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     editorConfig: any,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     settingsConfig: any,
     formId: string,
   ) => {

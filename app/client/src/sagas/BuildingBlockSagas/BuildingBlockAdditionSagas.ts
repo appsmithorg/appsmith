@@ -455,6 +455,8 @@ export function* pasteBuildingBlockWidgetsSaga(
       canvasId: string | undefined;
       gridProps: GridProps | undefined;
       newPastingPositionMap: SpaceMap | undefined;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       reflowedMovementMap: any;
     } = yield call(
       getNewPositions,
@@ -660,6 +662,8 @@ export function* pasteBuildingBlockWidgetsSaga(
                   !flexLayers ||
                   flexLayers.length <= 0)
               ) {
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const metaProps: Record<string, any> =
                   yield select(getWidgetsMeta);
                 if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
@@ -724,6 +728,8 @@ export function* pasteBuildingBlockWidgetsSaga(
           ...newFlexLayers,
         ],
       };
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       reflowedWidgets = updateWidgetPositions(
         reflowedWidgets,
@@ -782,6 +788,8 @@ function handleSelfWidgetReferencesDuringBuildingBlockPaste(
         if (widget.tabsObj) {
           const tabs = Object.values(widget.tabsObj);
           if (Array.isArray(tabs)) {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             widget.tabsObj = tabs.reduce((obj: any, tab: any) => {
               tab.widgetId = widgetIdMap[tab.widgetId];
               obj[tab.id] = tab;

@@ -55,6 +55,8 @@ class PerformanceTracker {
 
   static startTracking = (
     eventName: PerformanceTransactionName,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?: any,
     skipLog = false,
     tags: Array<PerfTag> = [],
@@ -129,6 +131,8 @@ class PerformanceTracker {
 
   static stopTracking = (
     eventName?: PerformanceTransactionName,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?: any,
   ) => {
     if (appsmithConfigs.sentry.enabled) {
@@ -181,6 +185,8 @@ class PerformanceTracker {
 
   static startAsyncTracking = (
     eventName: PerformanceTransactionName,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?: any,
     uniqueId?: string,
     parentEventId?: string,
@@ -220,6 +226,8 @@ class PerformanceTracker {
 
   static stopAsyncTracking(
     eventName: PerformanceTransactionName,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data?: any,
     uniqueId?: string,
   ) {

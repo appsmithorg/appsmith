@@ -3044,7 +3044,7 @@ __metadata:
     appsmith-icons: "workspace:^"
     babel-loader: 9.1.2
     chromatic: ^11.3.0
-    colorjs.io: ^0.4.3
+    colorjs.io: ^0.5.2
     react-docgen-typescript: ^2.2.2
     storybook: ^8.2.6
     vite: ^5.2.9
@@ -3117,7 +3117,7 @@ __metadata:
     "@tabler/icons-react": ^3.10.0
     "@types/fs-extra": ^11.0.4
     clsx: ^2.0.0
-    colorjs.io: ^0.4.3
+    colorjs.io: ^0.5.2
     eslint-plugin-storybook: ^0.6.10
     lodash: "*"
     react-aria-components: ^1.2.1
@@ -8616,7 +8616,7 @@ __metadata:
     rollup-plugin-peer-deps-external: ^2.2.4
     rollup-plugin-typescript2: ^0.32.0
     ts-jest: 29.1.0
-    typescript: 5.4
+    typescript: ^5.5.4
     unescape-js: ^1.1.4
   languageName: unknown
   linkType: soft
@@ -8637,7 +8637,7 @@ __metadata:
     rollup-plugin-peer-deps-external: ^2.2.4
     rollup-plugin-typescript2: ^0.32.0
     ts-jest: ^29.1.0
-    typescript: 5.4
+    typescript: ^5.5.4
   languageName: unknown
   linkType: soft
 
@@ -13176,7 +13176,7 @@ __metadata:
     supertest: ^6.3.3
     ts-jest: 29.1.0
     tsc-alias: ^1.8.2
-    typescript: 5.4
+    typescript: ^5.5.4
   languageName: unknown
   linkType: soft
 
@@ -13496,7 +13496,7 @@ __metadata:
     ts-loader: ^9.4.1
     ts-node: ^10.9.1
     tslib: ^2.3.1
-    typescript: 5.4
+    typescript: ^5.5.4
     unescape-js: ^1.1.4
     url-search-params-polyfill: ^8.0.0
     uuid: ^9.0.0
@@ -15748,10 +15748,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"colorjs.io@npm:^0.4.3":
-  version: 0.4.3
-  resolution: "colorjs.io@npm:0.4.3"
-  checksum: 5f597a6889219fcfa2171c5da326759c9c747546b847b41db64a474f941b623b5a4346bad30fbe61f4861ca6187bdbc5f389475be4ba3f570c6e30ee29f18e5c
+"colorjs.io@npm:^0.5.2":
+  version: 0.5.2
+  resolution: "colorjs.io@npm:0.5.2"
+  checksum: f4ad8a0ead4e7eb74612a5fed9ae999201116b215b2eac70660c1f643e21980922741641209bdbd010723923762e8e80bd499250acf7505605309f01b76f53fa
   languageName: node
   linkType: hard
 
@@ -34624,23 +34624,23 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:5.4":
-  version: 5.4.5
-  resolution: "typescript@npm:5.4.5"
+"typescript@npm:^5.5.4":
+  version: 5.5.4
+  resolution: "typescript@npm:5.5.4"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 53c879c6fa1e3bcb194b274d4501ba1985894b2c2692fa079db03c5a5a7140587a1e04e1ba03184605d35f439b40192d9e138eb3279ca8eee313c081c8bcd9b0
+  checksum: b309040f3a1cd91c68a5a58af6b9fdd4e849b8c42d837b2c2e73f9a4f96a98c4f1ed398a9aab576ee0a4748f5690cf594e6b99dbe61de7839da748c41e6d6ca8
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@5.4#~builtin<compat/typescript>":
-  version: 5.4.5
-  resolution: "typescript@patch:typescript@npm%3A5.4.5#~builtin<compat/typescript>::version=5.4.5&hash=77c9e2"
+"typescript@patch:typescript@^5.5.4#~builtin<compat/typescript>":
+  version: 5.5.4
+  resolution: "typescript@patch:typescript@npm%3A5.5.4#~builtin<compat/typescript>::version=5.5.4&hash=77c9e2"
   bin:
     tsc: bin/tsc
     tsserver: bin/tsserver
-  checksum: 2373c693f3b328f3b2387c3efafe6d257b057a142f9a79291854b14ff4d5367d3d730810aee981726b677ae0fd8329b23309da3b6aaab8263dbdccf1da07a3ba
+  checksum: fc52962f31a5bcb716d4213bef516885e4f01f30cea797a831205fc9ef12b405a40561c40eae3127ab85ba1548e7df49df2bcdee6b84a94bfbe3a0d7eff16b14
   languageName: node
   linkType: hard
 

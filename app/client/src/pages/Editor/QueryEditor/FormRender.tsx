@@ -26,6 +26,8 @@ import { Spinner } from "design-system";
 import type { QueryAction, SaaSAction } from "entities/Action";
 
 interface Props {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfig?: any;
   uiComponent: UIComponentTypes;
   formEvaluationState: FormEvalOutput;
@@ -83,6 +85,8 @@ const FormRender = (props: Props) => {
           !!formEvaluationState &&
           Object.keys(formEvaluationState).length > 0
         ) {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           return editorConfig.map((config: any, idx: number) => {
             return renderEachConfigV2(formName, config, idx);
           });
@@ -105,6 +109,8 @@ const FormRender = (props: Props) => {
 
   // Render function to render the V2 of form editor type (UQI)
   // Section argument is a nested config object, this function recursively renders the UI based on the config
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const renderEachConfigV2 = (formName: string, section: any, idx: number) => {
     let enabled = true;
     if (!!section) {
@@ -114,6 +120,8 @@ const FormRender = (props: Props) => {
         Array.isArray(section.schema) &&
         section.schema.length > 0
       ) {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         section.schema = section.schema.map((subSection: any) => {
           const conditionalOutput = extractConditionalOutput(
             subSection,
@@ -150,6 +158,8 @@ const FormRender = (props: Props) => {
         section.controlType === "SECTION" &&
         section.hasOwnProperty("children")
       ) {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         return section.children.map((section: any, idx: number) => {
           return renderEachConfigV2(formName, section, idx);
         });
@@ -166,6 +176,8 @@ const FormRender = (props: Props) => {
         log.error(e);
       }
     } else {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return section.map((section: any, idx: number) => {
         renderEachConfigV2(formName, section, idx);
       });
@@ -176,6 +188,8 @@ const FormRender = (props: Props) => {
   // Recursive call to render forms pre UQI
   const renderEachConfig =
     (formName: string) =>
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (section: any): any => {
       return section.children.map(
         (formControlOrSection: ControlProps, idx: number) => {

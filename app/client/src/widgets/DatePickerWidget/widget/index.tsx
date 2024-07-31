@@ -22,7 +22,11 @@ import IconSVG from "../icon.svg";
 function defaultDateValidation(
   value: unknown,
   props: DatePickerWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   moment?: any,
 ): ValidationResponse {
   const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
@@ -66,7 +70,11 @@ function defaultDateValidation(
 function minDateValidation(
   value: unknown,
   props: DatePickerWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   moment?: any,
 ): ValidationResponse {
   const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
@@ -127,7 +135,11 @@ function minDateValidation(
 function maxDateValidation(
   value: unknown,
   props: DatePickerWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _?: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   moment?: any,
 ): ValidationResponse {
   const dateFormat = props.dateFormat || ISO_DATE_FORMAT;
@@ -397,6 +409,8 @@ class DatePickerWidget extends BaseWidget<DatePickerWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedDate: undefined,

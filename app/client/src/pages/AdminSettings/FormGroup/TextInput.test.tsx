@@ -9,6 +9,8 @@ import TextInput from "./TextInput";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { reduxForm } from "redux-form";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 const setting: Setting = {
   id: "SETTING_TEXT_INPUT_ID",
@@ -23,6 +25,8 @@ function renderComponent() {
   function TextInputFieldComponent() {
     return <TextInput setting={setting} />;
   }
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Parent = reduxForm<any, any>({
     validate: () => {
       return {};

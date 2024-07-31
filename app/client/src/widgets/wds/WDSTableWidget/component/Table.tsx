@@ -68,6 +68,8 @@ export interface TableProps {
     pageData: ReactTableRowType<Record<string, unknown>>[],
   ) => void;
   triggerRowSelection: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSearch: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   compactMode?: CompactMode;
@@ -113,6 +115,8 @@ export interface HeaderComponentProps {
   handleAllRowSelectClick: () => void;
   handleReorderColumn: (columnOrder: string[]) => void;
   columnOrder?: string[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   headerGroups: any;
   canFreezeColumn?: boolean;
   editMode: boolean;
@@ -123,12 +127,16 @@ export interface HeaderComponentProps {
   columns: ReactTableColumnProps[];
   width: number;
   subPage: ReactTableRowType<Record<string, unknown>>[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prepareRow: any;
   headerWidth?: number;
   rowSelectionState: 0 | 1 | 2 | null;
   widgetId: string;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const emptyArr: any = [];
 
 export function Table(props: TableProps) {
