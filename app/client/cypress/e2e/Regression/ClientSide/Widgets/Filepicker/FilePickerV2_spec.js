@@ -18,7 +18,7 @@ describe(
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
       cy.get(widgetsPage.filepickerwidgetv2).should("exist");
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{FilePicker1.isDirty}}`,
@@ -44,7 +44,7 @@ describe(
 
     it("3. Check if the uploaded data does not reset when back from query page", () => {
       PageLeftPane.switchSegment(PagePaneSegment.UI);
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{FilePicker1.files[0].name}}`,
@@ -85,7 +85,7 @@ describe(
       // Go back to widgets page
       PageLeftPane.switchSegment(PagePaneSegment.UI);
 
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(".t--property-control-text", `{{FilePicker1.files}}`);
 
       cy.get(widgetsPage.filepickerwidgetv2).click();

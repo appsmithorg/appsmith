@@ -16,7 +16,7 @@ describe(
     });
 
     it("1. should check that validation only appears when editable enabled", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       cy.get(".t--property-pane-section-collapse-validation").should(
         "not.exist",
@@ -30,7 +30,7 @@ describe(
     });
 
     it("2. should check that validation only appears for plain text and number", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       _.propPane.TogglePropertyState("Editable", "On");
       cy.get(".t--property-pane-section-collapse-validation").should("exist");
@@ -53,7 +53,7 @@ describe(
     });
 
     it("3. should check that regex, valid & required appear for plain text column", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       _.propPane.TogglePropertyState("Editable", "On");
       cy.get(".t--property-pane-section-collapse-validation").should("exist");
@@ -63,7 +63,7 @@ describe(
     });
 
     it("4. should check that min, max, regex, valid & required appear for number column", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       _.propPane.TogglePropertyState("Editable", "On");
       cy.get(commonlocators.changeColType).last().click();
@@ -82,7 +82,7 @@ describe(
       { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         it("a. Regex", () => {
-          cy.openPropertyPane("tablewidgetv2");
+          _.propPane.openPropertyPane("tablewidgetv2");
           cy.editColumn("step");
           _.propPane.TogglePropertyState("Editable", "On");
           _.propPane.UpdatePropertyFieldValue("Regex", "^#1$");
@@ -96,7 +96,7 @@ describe(
         });
 
         it("b. Valid", () => {
-          cy.openPropertyPane("tablewidgetv2");
+          _.propPane.openPropertyPane("tablewidgetv2");
           cy.editColumn("step");
           _.propPane.TogglePropertyState("Editable", "On");
           _.propPane.UpdatePropertyFieldValue(
@@ -113,7 +113,7 @@ describe(
         });
 
         it("c. Required", () => {
-          cy.openPropertyPane("tablewidgetv2");
+          _.propPane.openPropertyPane("tablewidgetv2");
           cy.editColumn("step");
           _.propPane.TogglePropertyState("Editable", "On");
           _.propPane.TogglePropertyState("Required", "On");
@@ -135,7 +135,7 @@ describe(
       { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         it("a. Min", () => {
-          cy.openPropertyPane("tablewidgetv2");
+          _.propPane.openPropertyPane("tablewidgetv2");
           cy.editColumn("step");
           _.propPane.TogglePropertyState("Editable", "On");
 
@@ -161,7 +161,7 @@ describe(
         });
 
         it("b. Max", () => {
-          cy.openPropertyPane("tablewidgetv2");
+          _.propPane.openPropertyPane("tablewidgetv2");
           cy.editColumn("step");
           _.propPane.TogglePropertyState("Editable", "On");
 
@@ -189,7 +189,7 @@ describe(
     );
 
     it("7. should check the error message property", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       _.propPane.TogglePropertyState("Editable", "On");
       _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
@@ -211,7 +211,7 @@ describe(
       { tags: ["@tag.Widget", "@tag.Table"] },
       () => {
         it("a. save should only work when there is no error", () => {
-          cy.openPropertyPane("tablewidgetv2");
+          _.propPane.openPropertyPane("tablewidgetv2");
           cy.editColumn("step");
           _.propPane.TogglePropertyState("Editable", "On");
           cy.getAlert("onSubmit", "Saved!!");
@@ -242,7 +242,7 @@ describe(
         });
 
         it("b. discard should only work when there is no error", () => {
-          cy.openPropertyPane("tablewidgetv2");
+          _.propPane.openPropertyPane("tablewidgetv2");
           cy.editColumn("step");
           _.propPane.TogglePropertyState("Editable", "On");
           _.propPane.UpdatePropertyFieldValue(
@@ -277,18 +277,18 @@ describe(
     );
 
     it("should check that save/discard button is disabled when there is a validation error", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       _.propPane.TogglePropertyState("Editable", "On");
       _.propPane.UpdatePropertyFieldValue("Valid", "{{editedValue === '#1'}}");
       cy.editTableCell(0, 0);
       cy.enterTableCellValue(0, 0, "123");
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.get(`[data-colindex="${4}"][data-rowindex="${0}"] button`).should(
         "be.disabled",
       );
       cy.enterTableCellValue(0, 0, "#1");
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.get(`[data-colindex="${4}"][data-rowindex="${0}"] button`).should(
         "not.be.disabled",
       );

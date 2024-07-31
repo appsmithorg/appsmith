@@ -25,7 +25,7 @@ describe(
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
       cy.get(`.t--widget-${widgetName}`).should("exist");
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{PhoneInput1.text}}:{{PhoneInput1.countryCode}}:{{PhoneInput1.dialCode}}`,
@@ -38,7 +38,7 @@ describe(
       cy.get(`.t--widget-${widgetName} input`).type("9999999999");
       cy.get(".t--widget-textwidget").should("contain", "(999) 999-9999:US:+1");
 
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       searchAndSelectOption("Afghanistan (+93)");
       cy.get(`.t--widget-${widgetName} input`).clear();
       cy.wait(500);
@@ -68,7 +68,7 @@ describe(
       cy.get(`.t--widget-${widgetName} input`).type("9999999999");
       cy.get(".t--widget-textwidget").should("contain", "9999999999:US:+1");
 
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       searchAndSelectOption("India (+91)");
       cy.get(`.t--widget-${widgetName} input`).clear();
       cy.wait(500);
@@ -78,12 +78,12 @@ describe(
     });
 
     it("3. Should check that widget input resets on submit", () => {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{PhoneInput1.text}}:{{PhoneInput1.value}}`,
       );
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.getAlert("onSubmit", "Submitted!!");
 
       cy.get(widgetInput).clear();
@@ -101,13 +101,13 @@ describe(
     });
 
     it("4. Check isDirty meta property", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{PhoneInput1.isDirty}}`,
       );
       // Change defaultText
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.updateCodeInput(".t--property-control-defaultvalue", "1");
       cy.closePropertyPane();
       // Check if isDirty is set to false
@@ -120,14 +120,14 @@ describe(
       // Check if isDirty is set to true
       cy.get(".t--widget-textwidget").should("contain", "true");
       // Reset isDirty by changing defaultText
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.updateCodeInput(".t--property-control-defaultvalue", "3");
       // Check if isDirty is set to false
       cy.get(".t--widget-textwidget").should("contain", "false");
     });
 
     it("5. Currency change dropdown should not close unexpectedly", function () {
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
 
       // Select the Currency dropdown option from property pane
       // and enter a value that has space and returns 0 results

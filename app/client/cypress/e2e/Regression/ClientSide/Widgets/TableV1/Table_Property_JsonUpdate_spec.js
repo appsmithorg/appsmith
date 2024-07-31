@@ -85,7 +85,7 @@ describe(
     it("4. Check Selected Row(s) Resets When Table data Changes", function () {
       // Select 1st row
       _.table.SelectTableRow(1);
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       // Empty first row
       cy.testJsontext("tabledata", "[]");
       cy.wait("@updateLayout");

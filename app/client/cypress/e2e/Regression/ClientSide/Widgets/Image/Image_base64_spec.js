@@ -10,7 +10,7 @@ describe(
     });
 
     it("Image Widget Functionality Base64 validation", function () {
-      cy.openPropertyPane("imagewidget");
+      _.propPane.openPropertyPane("imagewidget");
       /**
        * Test for Base64 encoded image
        */

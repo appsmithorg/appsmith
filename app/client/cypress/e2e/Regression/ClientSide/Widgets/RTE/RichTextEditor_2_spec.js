@@ -42,24 +42,24 @@ describe(
 
     beforeEach(() => {
       cy.wait(3000);
-      cy.openPropertyPane("richtexteditorwidget");
+      _.propPane.openPropertyPane("richtexteditorwidget");
     });
 
     it("1. Check if the binding is getting removed from the text and the RTE widget", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{RichTextEditor1.text}}`,
       );
       // Change defaultText of the RTE
-      cy.openPropertyPane("richtexteditorwidget");
+      _.propPane.openPropertyPane("richtexteditorwidget");
       cy.testJsontext("defaultvalue", "Test Content");
 
       //Check if the text widget has the defaultText of RTE
       cy.get(".t--widget-textwidget").should("contain", "Test Content");
 
       //Clear the default text from RTE
-      cy.openPropertyPane("richtexteditorwidget");
+      _.propPane.openPropertyPane("richtexteditorwidget");
       cy.testJsontext("defaultvalue", "");
 
       //Check if text widget and RTE widget does not have any text in it.
@@ -100,7 +100,7 @@ describe(
       setRTEContent("{selectAll}{del}");
 
       // Changing the input type to markdown and again testing the cursor position
-      cy.openPropertyPane("richtexteditorwidget");
+      _.propPane.openPropertyPane("richtexteditorwidget");
       cy.get("span:contains('Markdown')").eq(0).click({ force: true });
       setRTEContent(testString);
       testCursorPoistion(testStringLen, tinyMceId);

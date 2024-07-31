@@ -18,7 +18,7 @@ describe(
     });
 
     it("Container Widget Functionality", function () {
-      cy.openPropertyPane("containerwidget");
+      _.propPane.openPropertyPane("containerwidget");
       /**
        * @param{Text} Random Text
        * @param{ContainerWidget}Mouseover
@@ -80,7 +80,7 @@ describe(
 
     it("Test border width and verity", function () {
       _.deployMode.NavigateBacktoEditor();
-      cy.openPropertyPane("containerwidget");
+      _.propPane.openPropertyPane("containerwidget");
       cy.moveToStyleTab();
       cy.testJsontext("borderwidth", "10");
       cy.get(

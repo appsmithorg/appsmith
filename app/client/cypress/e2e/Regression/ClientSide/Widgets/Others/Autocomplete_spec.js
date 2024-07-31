@@ -14,7 +14,7 @@ describe(
     });
 
     it("Slash command and mustache autocomplete validation for button widget", function () {
-      cy.openPropertyPane("buttonwidget");
+      _.propPane.openPropertyPane("buttonwidget");
       cy.testCodeMirror("/").then(() => {
         cy.get(dynamicInputLocators.hints).should("exist");
         // validates all autocomplete commands on entering / in label field
@@ -80,7 +80,7 @@ describe(
       "Slash command and mustache autocomplete validation for textbox widget",
       { tags: ["@tag.excludeForAirgap"] },
       function () {
-        cy.openPropertyPane("textwidget");
+        _.propPane.openPropertyPane("textwidget");
         cy.EnableAllCodeEditors();
         cy.testCodeMirror("/").then(() => {
           cy.get(dynamicInputLocators.hints).should("exist");
@@ -112,7 +112,7 @@ describe(
       "airgap",
       "Slash command and mustache autocomplete validation for textbox widget for airgap",
       function () {
-        cy.openPropertyPane("textwidget");
+        _.propPane.openPropertyPane("textwidget");
         cy.EnableAllCodeEditors();
         cy.testCodeMirror("/").then(() => {
           cy.get(dynamicInputLocators.hints).should("exist");

@@ -12,7 +12,7 @@ describe(
     });
 
     it("1. Check if CTA is shown when there is no action", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       cy.get(".t--propertypane-connect-cta")
         .scrollIntoView()
         .should("be.visible");

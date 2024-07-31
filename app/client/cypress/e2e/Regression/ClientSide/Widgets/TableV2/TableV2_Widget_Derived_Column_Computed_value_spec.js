@@ -10,7 +10,7 @@ describe(
     });
 
     it("1. Test to add column", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       // Adding new column
       cy.addColumnV2("CustomColumn");
       cy.tableV2ColumnDataValidation("customColumn1"); //To be updated later

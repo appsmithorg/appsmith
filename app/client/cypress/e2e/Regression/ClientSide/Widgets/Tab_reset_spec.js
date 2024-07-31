@@ -29,7 +29,7 @@ describe(
 
       cy.get(widgetsPage.textWidget).contains("Tab 2");
 
-      cy.openPropertyPane("tabswidget");
+      _.propPane.openPropertyPane("tabswidget");
       cy.get(".t--property-control-defaulttab .CodeMirror .CodeMirror-code")
         .first()
         .should("have.text", "Tab 2");

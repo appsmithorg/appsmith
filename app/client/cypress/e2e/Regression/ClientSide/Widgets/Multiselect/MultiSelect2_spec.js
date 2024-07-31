@@ -21,7 +21,7 @@ describe(
     });
 
     it("1. Selects value with invalid default value", () => {
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       _.propPane.ToggleJSMode("sourcedata");
       _.propPane.UpdatePropertyFieldValue(
         "Source Data",
@@ -89,7 +89,7 @@ describe(
         "Option 2",
       );
       // Close the widget
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       // Reopen the widget
       cy.get(formWidgetsPage.multiselectwidgetv2)
         .find(".rc-select-selection-search-input")
@@ -118,7 +118,7 @@ describe(
         .contains("Option 2")
         .click({ force: true });
       // Close the widget
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       // Reopen the widget
       cy.get(formWidgetsPage.multiselectwidgetv2)
         .find(".rc-select-selection-search-input")
@@ -148,7 +148,7 @@ describe(
         .first()
         .should("not.have.text", "Select all");
       // enable select all option from property pane
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       _.agHelper.CheckUncheck(commonlocators.allowSelectAllCheckbox);
 
       // press select all option
@@ -171,10 +171,10 @@ describe(
     });
 
     it("6. Check isDirty meta property", function () {
-      cy.openPropertyPane(_.draggableWidgets.TEXT);
+      _.propPane.openPropertyPane(_.draggableWidgets.TEXT);
       cy.updateCodeInput(PROPERTY_SELECTOR.text, `{{MultiSelect2.isDirty}}`);
       // Init isDirty by changing defaultOptionValue
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       cy.updateCodeInput(
         PROPERTY_SELECTOR.defaultValue,
         '[\n  {\n    "label": "Option 1",\n    "value": "1"\n  }\n]',
@@ -251,7 +251,7 @@ describe(
         const { defaultValue, options, optionsToDeselect, optionsToSelect } =
           testCase;
 
-        cy.openPropertyPane("multiselectwidgetv2");
+        _.propPane.openPropertyPane("multiselectwidgetv2");
         // set options
         _.propPane.UpdatePropertyFieldValue(
           "Source Data",
@@ -285,7 +285,7 @@ describe(
     });
 
     it("7. Verify MultiSelect deselection behavior", function () {
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       // set options
       _.propPane.UpdatePropertyFieldValue(
         "Source Data",
@@ -306,7 +306,7 @@ describe(
       );
       _.deployMode.NavigateBacktoEditor();
       // Dropdown Functionality To Check Visible Widget", function () {
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
       cy.get(publish.multiselectwidgetv2 + " " + ".rc-select-selector").should(

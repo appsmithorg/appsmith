@@ -13,7 +13,7 @@ describe(
     });
 
     it("1. Table widget V2 with with modal popup", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       //update Table name with _
       cy.widgetText(
         "Table_1",
@@ -29,7 +29,7 @@ describe(
     });
 
     it("2. Table widget V2 with button colour change validation", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       // Open column details of "id".
       cy.editColumn("id");
       cy.get(widgetsPage.tableV2Btn).should("not.exist");
@@ -55,7 +55,7 @@ describe(
     });
 
     it("3. Table widget icon type and colour validation", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       // Open column details of "id".
       cy.get(commonlocators.editPropBackButton).click({ force: true });
       cy.editColumn("id");
@@ -75,7 +75,7 @@ describe(
     });
 
     it("4. Table widget v2 column reorder and reload function", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.get(commonlocators.editPropBackButton).click({ force: true });
       cy.hideColumn("email");
       cy.hideColumn("userName");

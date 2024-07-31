@@ -8,7 +8,7 @@ describe(
       _.agHelper.AddDsl("tabsWidgetDsl");
     });
     it("Tab Widget Functionality Test with Modal on change of selected tab", function () {
-      cy.openPropertyPane("tabswidget");
+      _.propPane.openPropertyPane("tabswidget");
       // added duplicate tab names
       cy.tabPopertyUpdate("tab2", "TestUpdated");
       cy.tabPopertyUpdate("tab4", "TestUpdated");

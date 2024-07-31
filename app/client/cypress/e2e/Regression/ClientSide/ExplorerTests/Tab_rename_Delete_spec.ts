@@ -8,6 +8,7 @@ import EditorNavigation, {
   EntityType,
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 describe("Tab widget test", { tags: ["@tag.IDE"] }, function () {
   const tabname = "UpdatedTab";
@@ -53,7 +54,7 @@ describe("Tab widget test", { tags: ["@tag.IDE"] }, function () {
 
     it("Tab Widget Functionality To Unchecked Visible Widget", function() {
 deployMode.NavigateBacktoEditor();
-      cy.openPropertyPane("tabswidget");
+      _.propPane.openPropertyPane("tabswidget");
       cy.closePropertyPane();
       cy.get(Layoutpage.tabWidget)
         .contains("Tab 2")

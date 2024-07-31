@@ -1,3 +1,4 @@
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const widgetName = "audiorecorderwidget";
 
 describe(
@@ -8,7 +9,7 @@ describe(
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
       cy.get(`.t--widget-${widgetName}`).should("exist");
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{AudioRecorder1.isDirty}}`,

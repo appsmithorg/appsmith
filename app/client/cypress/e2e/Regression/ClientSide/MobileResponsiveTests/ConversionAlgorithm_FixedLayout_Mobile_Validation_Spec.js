@@ -1,5 +1,7 @@
 import { agHelper, autoLayout } from "../../../../support/Objects/ObjectsCore";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 let testHeight;
+
 
 describe(
   "Auto conversion algorithm usecases for fixed Layout",
@@ -7,7 +9,7 @@ describe(
   function () {
     it("1. Validate basic conversion algorithm usecases fixed layout usecase Mobile", function () {
       agHelper.AddDsl("conversionFrAutoLayoutDsl");
-      //cy.openPropertyPane("containerwidget");
+      //_.propPane.openPropertyPane("containerwidget");
       cy.get("@getConsolidatedData").then((httpResponse) => {
         const data = httpResponse.response.body.data.pageWithMigratedDsl.data;
         testHeight = data.layouts[0].dsl.bottomRow;

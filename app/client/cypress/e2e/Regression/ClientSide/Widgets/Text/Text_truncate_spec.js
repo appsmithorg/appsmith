@@ -10,7 +10,7 @@ describe(
     });
 
     it("Check default overflow property is No overflow", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.get("[data-value='NONE']")
         .last()
         .should("have.attr", "data-selected", "true");

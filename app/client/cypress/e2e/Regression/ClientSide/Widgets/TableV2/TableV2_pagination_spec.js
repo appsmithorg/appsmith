@@ -10,7 +10,7 @@ describe(
     });
 
     it("1. updates previous and next pagination propeties properly in non server side pagination mode", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
 
       // The text field has two bindings in its text value, as below
       // "{{Table1.previousPageVisited}} {{Table1.nextPageVisited}}"

@@ -6,7 +6,7 @@ describe("Camera Widget", { tags: ["@tag.Widget", "@tag.Image"] }, () => {
   });
 
   beforeEach(() => {
-    cy.openPropertyPane("camerawidget");
+    _.propPane.openPropertyPane("camerawidget");
   });
 
   it("1. Check isDirty, onImageSave, imageBlobURL, imageDataURL", () => {
@@ -17,7 +17,7 @@ describe("Camera Widget", { tags: ["@tag.Widget", "@tag.Image"] }, () => {
 
     cy.testJsontext("onimagecapture", "{{showAlert('captured','success')}}");
 
-    cy.openPropertyPane("textwidget");
+    _.propPane.openPropertyPane("textwidget");
     cy.updateCodeInput(
       ".t--property-control-text",
       `{{Camera1.isDirty}}:{{Camera1.imageDataURL}}:{{Camera1.imageBlobURL}}`,

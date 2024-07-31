@@ -50,7 +50,7 @@ describe(
     });
 
     it("4. should not show alert onclick if button is disabled", function () {
-      cy.openPropertyPane("iconbuttonwidget");
+      _.propPane.openPropertyPane("iconbuttonwidget");
       cy.CheckWidgetProperties(commonlocators.disableCheckbox);
       cy.get(widgetsPage.iconWidgetBtn).click({ force: true });
       cy.get(commonlocators.toastmsg).should("not.exist");

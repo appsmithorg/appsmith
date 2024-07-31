@@ -1,6 +1,7 @@
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import * as _ from "../../../../support/Objects/ObjectsCore";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
 import {
@@ -32,7 +33,7 @@ describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
     //add page within page
     agHelper.AddDsl("PageLoadDsl");
     // Update the text to be asserted later
-    cy.openPropertyPane("textwidget");
+    _.propPane.openPropertyPane("textwidget");
     cy.testCodeMirror("This is Page 2");
     // Publish
     deployMode.DeployApp();

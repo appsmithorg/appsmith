@@ -12,7 +12,7 @@ describe("Modal focus", { tags: ["@tag.Widget", "@tag.Modal"] }, function () {
   function setupModalWithInputWidget() {
     //drag a button to open modal
     cy.dragAndDropToCanvas("buttonwidget", { x: 400, y: 550 });
-    cy.openPropertyPane("buttonwidget");
+    _.propPane.openPropertyPane("buttonwidget");
     cy.get(widgets.toggleOnClick).click();
 
     cy.updateCodeInput(

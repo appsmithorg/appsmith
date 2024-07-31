@@ -33,7 +33,7 @@ describe(
 
       // add checkbox group widget
       cy.dragAndDropToCanvas("checkboxgroupwidget", { x: 300, y: 300 });
-      cy.openPropertyPane("checkboxgroupwidget");
+      _.propPane.openPropertyPane("checkboxgroupwidget");
 
       // bind options to query data
       cy.get(".t--property-control-options")

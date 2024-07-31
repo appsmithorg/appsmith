@@ -116,7 +116,7 @@ describe(
         cy.get(commonlocators.TextInside).first().should("have.text", d.text);
       });
 
-      (cy as any).openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
 
       _.propPane.SelectPropertiesDropDown("label", "test2");
 

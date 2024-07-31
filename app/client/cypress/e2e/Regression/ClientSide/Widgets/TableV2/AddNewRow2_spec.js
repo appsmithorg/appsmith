@@ -9,7 +9,7 @@ describe("Validation flow", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
   });
 
   it("2.1. should test that validation is working for a new row cell", () => {
-    cy.openPropertyPane("tablewidgetv2");
+    _.propPane.openPropertyPane("tablewidgetv2");
     _.propPane.TogglePropertyState("Allow adding a row", "On");
     cy.get(".t--add-new-row").click();
     _.table.toggleColumnEditableViaColSettingsPane("step", "v2", true, false);
@@ -137,7 +137,7 @@ describe("Validation flow", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     cy.get(".error-tooltip .bp3-popover-content").should("not.exist");
     cy.get(`[data-colindex=1][data-rowindex=0] input`).focus();
     cy.get(".error-tooltip .bp3-popover-content").should("have.length", 1);
-    cy.openPropertyPane("tablewidgetv2");
+    _.propPane.openPropertyPane("tablewidgetv2");
     cy.get(".error-tooltip .bp3-popover-content").should("not.exist");
     cy.get(`[data-colindex=0][data-rowindex=0] input`).focus();
     cy.get(".error-tooltip .bp3-popover-content").should("have.length", 1);

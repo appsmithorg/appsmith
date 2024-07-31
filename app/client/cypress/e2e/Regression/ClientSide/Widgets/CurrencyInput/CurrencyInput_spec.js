@@ -18,7 +18,7 @@ describe(
       cy.dragAndDropToCanvas(widgetName, { x: 300, y: 300 });
       cy.get(`.t--widget-${widgetName}`).should("exist");
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{CurrencyInput1.text}}:{{CurrencyInput1.value}}:{{CurrencyInput1.isValid}}:{{typeof CurrencyInput1.text}}:{{typeof CurrencyInput1.value}}:{{CurrencyInput1.countryCode}}:{{CurrencyInput1.currencyCode}}`,
@@ -26,7 +26,7 @@ describe(
     });
 
     it("2. should check for type of value and widget", () => {
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.get(".t--property-control-currency").click();
       cy.get(".t--property-control-currency").type("usd");
       cy.selectDropdownValue(
@@ -39,7 +39,7 @@ describe(
         if (text) {
           cy.get(widgetInput).type(text);
         }
-        cy.openPropertyPane("textwidget");
+        _.propPane.openPropertyPane("textwidget");
         cy.get(".t--widget-textwidget").should("contain", expected);
       }
       [
@@ -52,7 +52,7 @@ describe(
         enterAndTest(d[0], d[1]);
       });
 
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.selectDropdownValue(".t--property-control-decimalsallowed input", "1");
 
       [
@@ -65,7 +65,7 @@ describe(
         enterAndTest(d[0], d[1]);
       });
 
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.selectDropdownValue(".t--property-control-decimalsallowed input", "2");
 
       [
@@ -79,7 +79,7 @@ describe(
       });
       cy.get(".currency-change-dropdown-trigger").should("contain", "$");
 
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.get(".t--property-control-currency").click();
       cy.get(".t--property-control-currency").type("ind");
       cy.selectDropdownValue(
@@ -89,7 +89,7 @@ describe(
       enterAndTest("100.22", "100.22:100.22:true:string:number:IN:INR");
       cy.get(".currency-change-dropdown-trigger").should("contain", "₹");
 
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.get(".t--property-control-allowcurrencychange input")
         .last()
         .click({ force: true });
@@ -104,11 +104,11 @@ describe(
     });
 
     it("3. should accept 0 decimal option", () => {
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.selectDropdownValue(".t--property-control-decimalsallowed input", "0");
       cy.closePropertyPane();
       cy.wait(500);
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.get(".t--property-control-decimalsallowed span span").should(
         "have.text",
         "0",
@@ -116,7 +116,7 @@ describe(
     });
 
     it("4. should check that widget input resets on submit", () => {
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.getAlert("onSubmit", "Submitted!!");
 
       cy.get(widgetInput).clear();
@@ -133,15 +133,15 @@ describe(
         if (text) {
           cy.get(widgetInput).type(text);
         }
-        cy.openPropertyPane("textwidget");
+        _.propPane.openPropertyPane("textwidget");
         cy.get(".t--widget-textwidget").should("contain", expected);
       }
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{CurrencyInput1.text}}:{{CurrencyInput1.value}}`,
       );
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.selectDropdownValue(".t--property-control-decimalsallowed input", "0");
 
       [
@@ -156,7 +156,7 @@ describe(
         enterAndTest(d[0], d[1]);
       });
 
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.selectDropdownValue(".t--property-control-decimalsallowed input", "1");
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
@@ -170,7 +170,7 @@ describe(
         enterAndTest(d[0], d[1]);
       });
 
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.selectDropdownValue(".t--property-control-decimalsallowed input", "2");
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}]
@@ -189,11 +189,11 @@ describe(
       cy.get(widgetInput).clear();
       cy.wait(300);
       cy.get(widgetInput).type("1000.90");
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.get(widgetInput).should("contain.value", "1,000.90");
       cy.get(widgetInput).focus({ force: true });
       cy.get(widgetInput).should("contain.value", "1000.90");
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.get(widgetInput).should("contain.value", "1,000.90");
     });
 
@@ -204,7 +204,7 @@ describe(
         cy.get(widgetInput).should("contain.value", expected);
       }
 
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.selectDropdownValue(".t--property-control-decimalsallowed input", "0");
 
       [
@@ -220,7 +220,7 @@ describe(
         enterAndTest(d[0], d[1]);
       });
 
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.selectDropdownValue(".t--property-control-decimalsallowed input", "1");
       [
         //[input, expected]
@@ -237,7 +237,7 @@ describe(
         enterAndTest(d[0], d[1]);
       });
 
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.selectDropdownValue(".t--property-control-decimalsallowed input", "2");
       [
         //[input, expected]
@@ -261,13 +261,13 @@ describe(
     });
 
     it("7. Check isDirty meta property", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{CurrencyInput1.isDirty}}`,
       );
       // Init isDirty
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.updateCodeInput(".t--property-control-defaultvalue", "1");
       cy.closePropertyPane();
       // Check if initial value of isDirty is false
@@ -278,7 +278,7 @@ describe(
       // Check if isDirty is set to true
       cy.get(".t--widget-textwidget").should("contain", "true");
       // Change defaultText
-      cy.openPropertyPane(widgetName);
+      _.propPane.openPropertyPane(widgetName);
       cy.updateCodeInput(".t--property-control-defaultvalue", "5");
       // Check if isDirty is reset to false
       cy.get(".t--widget-textwidget").should("contain", "false");

@@ -24,7 +24,7 @@ describe(
     });
 
     it("1. Datepicker default date validation with js binding", function () {
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
       cy.get(
         ".t--property-control-defaultdate .ads-v2-input__input-section-input",
       ).clear();
@@ -51,7 +51,7 @@ describe(
     });
 
     it("2. Text widgets binding with datepicker", function () {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{DatePicker1.formattedDate}}");
       cy.closePropertyPane();
       EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
@@ -62,7 +62,7 @@ describe(
     });
 
     it("3. Text widgets binding with datepicker", function () {
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
       cy.selectDateFormat("YYYY-MM-DD");
       cy.assertDateFormat();
       cy.selectDateFormat("YYYY-MM-DD HH:mm");
@@ -77,7 +77,7 @@ describe(
     });
 
     it("4. Datepicker default date validation message", function () {
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
       cy.testJsontext("defaultdate", "24-12-2021");
       cy.evaluateErrorMessage("Value does not match: ISO 8601 date string");
       cy.closePropertyPane();
@@ -86,7 +86,7 @@ describe(
     it("5. Datepicker should not change the display data unless user selects the date", () => {
       _.agHelper.AddDsl("datePickerdsl");
 
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
 
       cy.testJsontext(
         "defaultdate",
@@ -147,13 +147,13 @@ describe(
 
     it("7. Check isDirty meta property", function () {
       _.agHelper.AddDsl("datePickerdsl");
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.updateCodeInput(
         ".t--property-control-text",
         `{{DatePicker1.isDirty}}`,
       );
       // Init isDirty
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
       cy.testJsontextclear("defaultdate");
       cy.get(formWidgetsPage.toggleJsDefaultDate).click();
       cy.get(
@@ -177,7 +177,7 @@ describe(
       // Check if isDirty is set to true
       cy.get(".t--widget-textwidget").first().should("contain", "true");
       // Change defaultDate
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
       cy.testJsontext("defaultdate", "");
       cy.get(formWidgetsPage.toggleJsDefaultDate).click();
       cy.get(
@@ -206,7 +206,7 @@ describe(
     it("onBlur and onFocus should be triggered from the datePicker widget", () => {
       cy.Createpage("New Page");
       cy.dragAndDropToCanvas("datepickerwidget2", { x: 300, y: 600 });
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
 
       cy.get(widgetsPage.toggleOnFocus).click({ force: true });
       cy.testJsontext("onfocus", "{{showAlert('Focused','success')}}");

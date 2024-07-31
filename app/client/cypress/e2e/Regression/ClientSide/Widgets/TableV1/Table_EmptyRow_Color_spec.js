@@ -11,7 +11,7 @@ describe(
 
     it("1. Validate cell background of columns", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       // give general color to all table row
       cy.selectColor("cellbackgroundcolor", -17);
 

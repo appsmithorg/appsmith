@@ -43,7 +43,7 @@ describe(
     });
 
     it("3. Form_Widget Minimize and maximize General Validation", function () {
-      cy.openPropertyPane("formwidget");
+      _.propPane.openPropertyPane("formwidget");
       cy.get(commonlocators.generalChevran).click({ force: true });
       cy.get(commonlocators.generalSection).should("not.be.visible");
       cy.get(commonlocators.generalChevran).click({ force: true });
@@ -66,7 +66,7 @@ describe(
     });
 
     //it("Form Widget Functionality", function() {
-    // cy.openPropertyPane("formwidget");
+    // _.propPane.openPropertyPane("formwidget");
     // /**
     //  * @param{Text} Random Text
     //  * @param{FormWidget}Mouseover
@@ -103,7 +103,7 @@ describe(
     //});
 
     it("4. Form Widget Functionality To Unchecked Visible Widget", function () {
-      cy.openPropertyPane("formwidget");
+      _.propPane.openPropertyPane("formwidget");
       // Uncheck the visble JS
       _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
@@ -113,7 +113,7 @@ describe(
 
       //Check Visible
       // Open property pone
-      cy.openPropertyPane("formwidget");
+      _.propPane.openPropertyPane("formwidget");
       // Check the visible JS
       _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
@@ -123,7 +123,7 @@ describe(
     });
 
     it("5. Toggle JS - Form-Unckeck Visible field Validation", function () {
-      cy.openPropertyPane("formwidget");
+      _.propPane.openPropertyPane("formwidget");
       //Uncheck the disabled checkbox using JS and validate
       cy.get(widgetsPage.toggleVisible).click({ force: true });
       cy.wait(1000);
@@ -133,7 +133,7 @@ describe(
       _.deployMode.NavigateBacktoEditor();
 
       //check visible:
-      cy.openPropertyPane("formwidget");
+      _.propPane.openPropertyPane("formwidget");
       //Check the disabled checkbox using JS and Validate
       cy.testJsontext("visible", "true");
       _.deployMode.DeployApp();
@@ -142,7 +142,7 @@ describe(
     });
 
     it("6. Form-Copy Verification", function () {
-      cy.openPropertyPane("formwidget");
+      _.propPane.openPropertyPane("formwidget");
       //Copy Form and verify all properties
       cy.copyWidget("formwidget", widgetsPage.formWidget);
       _.deployMode.DeployApp();
@@ -151,7 +151,7 @@ describe(
     /*
   it("Form-Delete Verification", function() {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-    cy.openPropertyPane("formwidget");
+    _.propPane.openPropertyPane("formwidget");
     // Delete the Form widget
     cy.get("body").type("{del}", { force: true });
     cy.wait("@updateLayout").should(

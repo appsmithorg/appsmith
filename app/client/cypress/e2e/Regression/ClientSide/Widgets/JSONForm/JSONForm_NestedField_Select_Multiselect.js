@@ -7,6 +7,8 @@ const commonlocators = require("../../../../../locators/commonlocators.json");
 const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSchema.json");
 const fieldPrefix = ".t--jsonformfield";
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
+
 let agHelper = ObjectsRegistry.AggregateHelper;
 let locators = ObjectsRegistry.CommonLocators;
 let propPane = ObjectsRegistry.PropertyPane;
@@ -35,7 +37,7 @@ describe(
         ],
       };
       cy.addDsl(dslWithoutSchema);
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       cy.openFieldConfiguration("object");
@@ -43,7 +45,7 @@ describe(
       cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Select$/);
 
       cy.closePropertyPane();
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("array");
       cy.openFieldConfiguration("__array_item__", false);
       cy.openFieldConfiguration("select", false);
@@ -96,7 +98,7 @@ describe(
         ],
       };
       cy.addDsl(dslWithoutSchema);
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(schema), true);
 
       cy.openFieldConfiguration("object");
@@ -104,7 +106,7 @@ describe(
       cy.selectDropdownValue(commonlocators.jsonFormFieldType, /^Multiselect$/);
 
       cy.closePropertyPane();
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       cy.openFieldConfiguration("array");
       cy.openFieldConfiguration("__array_item__", false);
       cy.openFieldConfiguration("multiselect", false);

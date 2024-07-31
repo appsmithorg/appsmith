@@ -19,7 +19,7 @@ describe(
     });
 
     it("Radio widget check selection with value property as integer", function () {
-      cy.openPropertyPane("radiogroupwidget");
+      _.propPane.openPropertyPane("radiogroupwidget");
 
       //Check radio with value=1 is selected
       checkSelectedRadioValue(formWidgetsPage.radioWidget, "1");
@@ -45,7 +45,7 @@ describe(
     });
 
     it("Radio widget check selection with value property as string", function () {
-      cy.openPropertyPane("radiogroupwidget");
+      _.propPane.openPropertyPane("radiogroupwidget");
 
       cy.updateCodeInput(
         ".t--property-control-options",
@@ -96,7 +96,7 @@ describe(
        */
 
       //Base-line scenario
-      cy.openPropertyPane("radiogroupwidget");
+      _.propPane.openPropertyPane("radiogroupwidget");
 
       cy.updateCodeInput(
         ".t--property-control-options",
@@ -204,7 +204,7 @@ describe(
        */
 
       //Base-line scenario
-      cy.openPropertyPane("radiogroupwidget");
+      _.propPane.openPropertyPane("radiogroupwidget");
 
       cy.updateCodeInput(
         ".t--property-control-options",

@@ -9,7 +9,7 @@ describe(
   function () {
     it("1. Validate change with height width for widgets", function () {
       _.agHelper.AddDsl("autoLayoutContainerWidgetDsl");
-      //cy.openPropertyPane("containerwidget");
+      //_.propPane.openPropertyPane("containerwidget");
       EditorNavigation.SelectEntityByName("Container1", EntityType.Widget);
       cy.get(".t--widget-containerwidget")
         .first()

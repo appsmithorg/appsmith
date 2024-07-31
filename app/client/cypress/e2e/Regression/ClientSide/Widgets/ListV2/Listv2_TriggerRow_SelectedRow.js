@@ -46,7 +46,7 @@ describe(
     });
 
     it("1. Setup necessary data and widgets", () => {
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
 
       cy.wait("@updateLayout");
 

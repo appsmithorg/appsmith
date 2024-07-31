@@ -138,7 +138,7 @@ describe(
           .should("have.length", 2),
       );
 
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
       _.agHelper.CheckUncheck(commonlocators.serverSidePaginationCheckbox);
 
       // Page number resets

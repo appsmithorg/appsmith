@@ -13,7 +13,7 @@ describe(
 
     // Note: commenting it out because Drag/Drop feature is not stable on cypress.
     // it("Checks if default values are not persisted in cache after delete", function() {
-    //   cy.openPropertyPane("inputwidgetv2");
+    //   _.propPane.openPropertyPane("inputwidgetv2");
     //   cy.get(widgetsPage.defaultInput)
     //     .type(this.dataSet.command)
     //     .type(this.dataSet.defaultdata);
@@ -32,7 +32,7 @@ describe(
     // });
 
     it("1. Input Widget Functionality", function () {
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       /**
        * @param{Text} Random Text
        * @param{InputWidget}Mouseover
@@ -47,7 +47,7 @@ describe(
       cy.get(widgetsPage.inputWidget + " " + "input")
         .invoke("attr", "value")
         .should("contain", this.dataSet.para);
-      //cy.openPropertyPane("inputwidgetv2");
+      //_.propPane.openPropertyPane("inputwidgetv2");
       _.propPane.UpdatePropertyFieldValue(
         "Default value",
         this.dataSet.defaultdata,
@@ -81,7 +81,7 @@ describe(
     });
 
     it("3. isSpellCheck: true", function () {
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       _.agHelper.CheckUncheck(commonlocators.spellCheck + " " + "input");
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input")
@@ -90,7 +90,7 @@ describe(
       _.deployMode.NavigateBacktoEditor();
 
       //isSpellCheck: false
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       _.agHelper.CheckUncheck(commonlocators.spellCheck + " " + "input", false);
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input")
@@ -100,28 +100,28 @@ describe(
     });
 
     it("4. Input Widget Functionality To Check Disabled Widget", function () {
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       _.agHelper.CheckUncheck(commonlocators.Disablejs + " " + "input");
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input").should("be.disabled");
       _.deployMode.NavigateBacktoEditor();
 
       //Input Widget Functionality To Check Enabled Widget
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       _.agHelper.CheckUncheck(commonlocators.Disablejs + " " + "input", false);
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input").should("be.enabled");
       _.deployMode.NavigateBacktoEditor();
     });
     it("5. Input Functionality To Unchecked Visible Widget", function () {
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input").should("not.exist");
       _.deployMode.NavigateBacktoEditor();
 
       //Input Functionality To Check Visible Widget
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
       cy.get(publish.inputWidget + " " + "input").should("be.visible");
@@ -129,7 +129,7 @@ describe(
     });
 
     it("6. Input Functionality To check number input type with custom regex", function () {
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       cy.selectDropdownValue(widgetsPage.datatype, "Number");
       cy.testJsontext("regex", "^s*(?=.*[1-9])d*(?:.d{1,2})?s*$");
       cy.get(widgetsPage.innertext).click().clear().type("1.255");
@@ -144,14 +144,14 @@ describe(
       //Input label wrapper do not show if lable and tooltip is empty
       cy.get("[data-testid='label-container']").should("not.exist");
 
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       // enter label in property pan
       cy.get(widgetsPage.inputTextControl).type("Label1");
       // test if label shows up with correct text
       cy.get(".t--input-widget-label").contains("Label1");
 
       //Input tooltip renders if tooltip prop is not empty
-      cy.openPropertyPane("inputwidgetv2");
+      _.propPane.openPropertyPane("inputwidgetv2");
       // enter tooltip in property pan
       cy.get(widgetsPage.inputTooltipControl).type("Helpfull text for input");
       // tooltip help icon shows

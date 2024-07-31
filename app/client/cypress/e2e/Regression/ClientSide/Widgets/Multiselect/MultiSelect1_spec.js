@@ -14,7 +14,7 @@ describe(
     it("1. Add new multiselect widget", () => {
       _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.MULTISELECT);
       //should check that empty value is allowed in options", () => {
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       _.propPane.ToggleJSMode("sourcedata");
       cy.updateCodeInput(
         ".t--property-control-sourcedata",
@@ -49,7 +49,7 @@ describe(
     });
 
     it("2. should check that more that one empty value is not allowed in options", () => {
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       cy.updateCodeInput(
         ".t--property-control-sourcedata",
         `[
@@ -73,7 +73,7 @@ describe(
     });
 
     it("3. should check that Objects can be added to multiselect Widget default value", () => {
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       cy.updateCodeInput(
         ".t--property-control-sourcedata",
         `[
@@ -114,7 +114,7 @@ describe(
     });
 
     it("4. should display the right label", () => {
-      cy.openPropertyPane("multiselectwidgetv2");
+      _.propPane.openPropertyPane("multiselectwidgetv2");
       cy.updateCodeInput(
         ".t--property-control-sourcedata",
         `[

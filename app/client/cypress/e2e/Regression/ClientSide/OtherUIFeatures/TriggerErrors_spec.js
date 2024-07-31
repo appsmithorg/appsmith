@@ -5,7 +5,7 @@ describe("Trigger errors in the debugger", function () {
     _.agHelper.AddDsl("debuggerTableDsl");
   });
   it("1. Trigger errors need to be shown in the errors tab", function () {
-    cy.openPropertyPane("tablewidget");
+    _.propPane.openPropertyPane("tablewidget");
     cy.testJsontext("tabledata", `[{"name": 1}, {"name": 2}]`);
     cy.focused().blur();
     cy.get(".t--property-control-onrowselected").find(".t--js-toggle").click();

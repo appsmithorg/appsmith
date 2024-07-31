@@ -21,7 +21,7 @@ describe(
     });
 
     it("1. should test that custom column has alias property", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       _.propPane.UpdatePropertyFieldValue("Table data", JSON.stringify(data));
       cy.wait("@updateLayout");
       cy.wait(1000);
@@ -37,9 +37,9 @@ describe(
 
     it("2. should test that custom alias is used in the selectedRow", () => {
       cy.dragAndDropToCanvas("textwidget", { x: 200, y: 100 });
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.selectedRow}}");
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("customColumn1");
       _.propPane.UpdatePropertyFieldValue("Property Name", "columnAlias");
       cy.get(".t--widget-textwidget .bp3-ui-text").should(
@@ -54,9 +54,9 @@ describe(
     });
 
     it("3. should test that custom alias is used in the triggeredRow", () => {
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       _.propPane.UpdatePropertyFieldValue("Text", "{{Table1.triggeredRow}}");
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.backFromPropertyPanel();
       cy.get(widgetsPage.addColumn).scrollIntoView();
       cy.get(widgetsPage.addColumn).click({ force: true });

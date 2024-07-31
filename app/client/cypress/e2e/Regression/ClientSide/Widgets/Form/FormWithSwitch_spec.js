@@ -15,7 +15,7 @@ describe(
     });
     it("Switch Widget Functionality check with success message", function () {
       //Open switch widget
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       // Change name of switch widget
       cy.widgetText(
         "Toggler",

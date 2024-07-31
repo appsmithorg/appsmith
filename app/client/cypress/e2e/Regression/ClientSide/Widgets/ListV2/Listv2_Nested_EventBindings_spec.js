@@ -1,6 +1,6 @@
 const nestedListDSL = require("../../../../../fixtures/Listv2/nestedList.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const toggleJSButton = (name) => `.t--property-control-${name} .t--js-toggle`;
 const widgetSelector = (name) => `[data-widgetname-cy="${name}"]`;
 
@@ -12,7 +12,7 @@ describe(
       cy.addDsl(nestedListDSL);
       cy.wait(4000);
       // Open the property pane of button in the inner list widget
-      cy.openPropertyPane("buttonwidget");
+      _.propPane.openPropertyPane("buttonwidget");
 
       // Enable JS mode for onClick
       cy.get(toggleJSButton("onclick")).click({ force: true });

@@ -9,7 +9,7 @@ describe(
     });
 
     it("1.On change of tab selection Navigate to a URL", function () {
-      cy.openPropertyPane("tabswidget");
+      _.propPane.openPropertyPane("tabswidget");
       _.propPane.SelectPlatformFunction("onTabSelected", "Navigate to");
       cy.wait(1000);
       _.agHelper.GetNClick(_.propPane._navigateToType("URL"));

@@ -25,7 +25,7 @@ describe(
 
     it("2. Test to validate text allignment", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       // Change the text align to center
       cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
       // Verify the center text alignment
@@ -41,7 +41,7 @@ describe(
     });
 
     it("3. Test to validate column heading allignment", function () {
-      // cy.openPropertyPane("tablewidget");
+      // _.propPane.openPropertyPane("tablewidget");
       // Change the text align to center
       cy.xpath(widgetsPage.textCenterAlign).first().click({ force: true });
       // Verify the column headings are center aligned
@@ -84,7 +84,7 @@ describe(
     });
 
     it("5. Test to validate vertical allignment", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       // Select the top vertical alignment
       cy.get(widgetsPage.verticalTop).click({ force: true });
       // verify vertical alignment is top
@@ -140,7 +140,7 @@ describe(
 
     it("8. Test to validate open new tab icon shows when URL type data validate link text ", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
 
       // go back to 1st
       cy.get(commonlocators.editPropBackButton).click({ force: true });
@@ -176,7 +176,7 @@ describe(
     });
 
     it("10. Edit Row height and test table for changes", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       cy.get(widgetsPage.rowHeight).last().click({ force: true });
       cy.get(".t--dropdown-option").contains("Short").click({ force: true });
       cy.wait(2000);

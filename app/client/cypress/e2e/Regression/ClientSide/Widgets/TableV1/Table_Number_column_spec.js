@@ -10,7 +10,7 @@ describe(
     });
 
     it("Check number key in table data convert table binding and header properly", function () {
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
 
       // numeric table data
       const tableData = [

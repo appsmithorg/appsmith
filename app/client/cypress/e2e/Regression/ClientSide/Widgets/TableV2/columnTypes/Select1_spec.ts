@@ -17,7 +17,7 @@ describe(
     });
 
     it("1. should check that select column is available in the column dropdown options", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
 
       cy.get(commonlocators.changeColType).last().click();
@@ -155,7 +155,7 @@ describe(
 
     it("5. should check that on option select is working", () => {
       featureFlagIntercept({ release_table_cell_label_value_enabled: true });
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       cy.get(".t--property-control-onoptionchange .t--js-toggle").click();
       cy.updateCodeInput(
@@ -361,7 +361,7 @@ describe(
       cy.get(".t--run-query").click();
       cy.wait("@postExecute");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       cy.get(".t--property-control-serversidefiltering input").click();
       cy.updateCodeInput(

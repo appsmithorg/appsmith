@@ -9,7 +9,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   });
 
   it("1. Validate input widget resets OnSubmit", () => {
-    cy.openPropertyPane(widgetName);
+    _.propPane.openPropertyPane(widgetName);
     cy.getAlert("onSubmit", "Submitted!!");
     cy.get(widgetInput).clear({ force: true });
     cy.wait(300);
@@ -48,7 +48,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   });
 
   it("3. Validate DataType - NUMBER can be entered into Input widget", () => {
-    cy.openPropertyPane(widgetName);
+    _.propPane.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype input", "Number");
 
     cy.get(".t--property-control-required label").last().click({ force: true });
@@ -95,7 +95,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   });
 
   it("4. Validate DataType - PASSWORD can be entered into Input widget", () => {
-    cy.openPropertyPane(widgetName);
+    _.propPane.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype input", "Password");
     [
       {
@@ -130,7 +130,7 @@ describe("Input widget V2 - ", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
   });
 
   it("5. Validate DataType - EMAIL can be entered into Input widget", () => {
-    cy.openPropertyPane(widgetName);
+    _.propPane.openPropertyPane(widgetName);
     cy.selectDropdownValue(".t--property-control-datatype input", "Email");
 
     cy.get(".t--property-control-required label").last().click({ force: true });

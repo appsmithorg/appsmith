@@ -21,7 +21,7 @@ describe(
     it("2 => Check if the default scanner layout is ALWAYS_ON", () => {
       // Drop a text widget to test the code scanner value binding
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.moveToContentTab();
       cy.updateCodeInput(
         ".t--property-control-text",
@@ -47,7 +47,7 @@ describe(
               { tags: ["@tag.Widget", "@tag.Scanner"] },
               () => {
                 it("3.1.1.1 => Disabled icon should be visible", () => {
-                  cy.openPropertyPane(widgetName);
+                  _.propPane.openPropertyPane(widgetName);
                   cy.moveToContentTab();
 
                   // Disable and publish
@@ -75,7 +75,7 @@ describe(
               { tags: ["@tag.Widget", "@tag.Scanner"] },
               () => {
                 it("3.1.2.1 => Disabled icon should not be visible", () => {
-                  cy.openPropertyPane(widgetName);
+                  _.propPane.openPropertyPane(widgetName);
                   cy.moveToContentTab();
 
                   // Enable and publish
@@ -108,7 +108,7 @@ describe(
           { tags: ["@tag.Widget", "@tag.Scanner"] },
           () => {
             it("3.2.1 => Widget should be invisible on the canvas", () => {
-              cy.openPropertyPane(widgetName);
+              _.propPane.openPropertyPane(widgetName);
               cy.moveToContentTab();
 
               // Visibilty OFF and publish
@@ -123,7 +123,7 @@ describe(
             });
 
             it("3.2.2 => Widget should be visible on the canvas", () => {
-              cy.openPropertyPane(widgetName);
+              _.propPane.openPropertyPane(widgetName);
               cy.moveToContentTab();
 
               // Visibilty ON and publish
@@ -146,7 +146,7 @@ describe(
       { tags: ["@tag.Widget", "@tag.Scanner"] },
       () => {
         it("4.1 => Check if scanner layout can be changed from Always On to Click to Scan", () => {
-          cy.openPropertyPane(widgetName);
+          _.propPane.openPropertyPane(widgetName);
           cy.moveToContentTab();
 
           // Select scanner layout as CLICK_TO_SCAN
@@ -188,7 +188,7 @@ describe(
           { tags: ["@tag.Widget", "@tag.Scanner"] },
           () => {
             it("4.2.1 => Button on the canvas should be disabled", () => {
-              cy.openPropertyPane(widgetName);
+              _.propPane.openPropertyPane(widgetName);
               cy.moveToContentTab();
 
               // Disable and publish
@@ -205,7 +205,7 @@ describe(
             });
 
             it("4.2.2 => Button on the canvas should be enabled again", () => {
-              cy.openPropertyPane(widgetName);
+              _.propPane.openPropertyPane(widgetName);
               cy.moveToContentTab();
 
               // Enable and publish
@@ -228,7 +228,7 @@ describe(
           { tags: ["@tag.Widget", "@tag.Scanner"] },
           () => {
             it("4.3.1 => Button on the canvas should be invisible", () => {
-              cy.openPropertyPane(widgetName);
+              _.propPane.openPropertyPane(widgetName);
               cy.moveToContentTab();
 
               // Visibilty OFF and publish
@@ -245,7 +245,7 @@ describe(
             });
 
             it("4.3.2 => Button on the canvas should be visible again", () => {
-              cy.openPropertyPane(widgetName);
+              _.propPane.openPropertyPane(widgetName);
               cy.moveToContentTab();
 
               // Visibilty ON and publish

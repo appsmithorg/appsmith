@@ -29,7 +29,7 @@ describe("Preview mode functionality", { tags: ["@tag.IDE"] }, function () {
 
   it("2. Check invisible widget should not show in proview mode and should show in edit mode", function () {
     _.agHelper.GetNClick(_.locators._previewModeToggle("preview"));
-    cy.openPropertyPane("buttonwidget");
+    _.propPane.openPropertyPane("buttonwidget");
     cy.UncheckWidgetProperties(commonlocators.visibleCheckbox);
 
     // button should not show in preview mode

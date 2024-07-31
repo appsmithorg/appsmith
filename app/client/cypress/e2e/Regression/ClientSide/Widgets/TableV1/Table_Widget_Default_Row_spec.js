@@ -13,7 +13,7 @@ describe(
 
     it("Verify default table row Data", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       cy.wait(2000);
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
 

@@ -15,7 +15,7 @@ describe(
       _.agHelper.AddDsl("datepicker_switchDsl");
     });
     it("Switch Widget Functionality check with success message", function () {
-      cy.openPropertyPane("switchwidget");
+      _.propPane.openPropertyPane("switchwidget");
       cy.widgetText(
         "Toggler",
         formWidgetsPage.switchWidget,

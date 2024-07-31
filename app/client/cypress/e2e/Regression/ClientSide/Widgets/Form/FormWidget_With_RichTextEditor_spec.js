@@ -11,7 +11,7 @@ describe(
     });
 
     beforeEach(() => {
-      cy.openPropertyPane("richtexteditorwidget");
+      _.propPane.openPropertyPane("richtexteditorwidget");
     });
 
     it("RichTextEditor required functionality", function () {

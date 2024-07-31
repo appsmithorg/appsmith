@@ -98,7 +98,7 @@ describe(
 
       cy.wait(1000);
 
-      cy.openPropertyPane("listwidgetv2");
+      _.propPane.openPropertyPane("listwidgetv2");
 
       testJsontextClear("items");
 

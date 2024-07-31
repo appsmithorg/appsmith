@@ -14,7 +14,7 @@ describe(
     });
 
     it("1. Datepicker default date validation with js binding and default date", function () {
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
       cy.get(".t--property-control-defaultdate input").clear();
       cy.get(formWidgetsPage.toggleJsDefaultDate).click();
       cy.EnableAllCodeEditors();
@@ -26,7 +26,7 @@ describe(
 
     it("2. Datepicker default time picker validation by Time precision", function () {
       // default value in property pane
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
       cy.get(
         ".t--property-control-timeprecision .rc-select-selection-item",
       ).should("have.text", "Minute");
@@ -45,7 +45,7 @@ describe(
 
     it("3. Hide Time picker from Datepicker", function () {
       // default value in property pane
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
       cy.get(".t--property-control-timeprecision .rc-select-selection-item")
         .last()
         .click({ force: true });
@@ -66,7 +66,7 @@ describe(
 
     it("4. set second field in time picker for Datepicker", function () {
       // default value in property pane
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
 
       cy.get(".t--property-control-timeprecision .rc-select-selection-item")
         .last()
@@ -99,7 +99,7 @@ describe(
     });
 
     it("6. Text widgets binding with datepicker", function () {
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
       cy.selectDateFormat("DD/MM/YYYY");
       cy.assertDateFormat();
       cy.closePropertyPane();
@@ -107,7 +107,7 @@ describe(
     });
 
     it("7. Datepicker default date validation with js binding and default date with moment object", function () {
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
       //cy.testJsontext("defaultdate", "");
       cy.clearPropertyValue(0);
       cy.get(formWidgetsPage.toggleJsDefaultDate).click().wait(1000); //disable

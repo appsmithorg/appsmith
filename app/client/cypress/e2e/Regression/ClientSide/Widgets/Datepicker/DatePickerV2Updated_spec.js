@@ -18,7 +18,7 @@ describe(
     });
 
     it("1. Datepicker tooltip renders if tooltip prop is not empty", () => {
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
       // enter tooltip in property pan
       cy.get(widgetsPage.inputTooltipControl).type(
         "Helpful text for tooltip !",
@@ -34,7 +34,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Datepicker"] },
   () => {
     it("should should bring up a required error state when value is cleared ", () => {
-      cy.openPropertyPane("datepickerwidget2");
+      _.propPane.openPropertyPane("datepickerwidget2");
       cy.wait(1000);
       //set the required condition to true in the property pane
       cy.get(".t--property-control-required label")

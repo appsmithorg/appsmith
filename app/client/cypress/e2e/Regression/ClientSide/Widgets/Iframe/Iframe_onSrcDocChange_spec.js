@@ -3,6 +3,7 @@ const { ObjectsRegistry } = require("../../../../../support/Objects/Registry");
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 const homePage = ObjectsRegistry.HomePage;
 const agHelper = ObjectsRegistry.AggregateHelper;
@@ -34,7 +35,7 @@ describe(
       cy.wait(2000);
       PageList.ShowList();
       PageList.VerifyIsCurrentPage("Page1");
-      cy.openPropertyPane("iframewidget");
+      _.propPane.openPropertyPane("iframewidget");
       cy.testJsontext("srcdoc", "<h1>Hello World!</h1>");
       cy.wait(2000);
       PageList.VerifyIsCurrentPage("Page2");

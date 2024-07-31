@@ -12,7 +12,7 @@ describe(
     });
 
     it("1. Table Widget V2 Functionality", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
 
       /**
        * @param{Text} Random Text
@@ -37,7 +37,7 @@ describe(
     });
 
     it("3. Table Widget V2 Functionality To Show a Base64 Image", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("image");
       cy.changeColumnType("Image");
       _.table.SelectTableRow(1, 0, true, "v2");
@@ -51,7 +51,7 @@ describe(
 
     it("4. Table Widget V2 Functionality To Check if Table is Sortable", function () {
       cy.get(commonlocators.editPropBackButton).click();
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       // Confirm if isSortable is true
       cy.get(commonlocators.isSortable).should("be.checked");
       // Publish App
@@ -84,7 +84,7 @@ describe(
       // Back to edit page
       _.deployMode.NavigateBacktoEditor();
 
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       // Disable isSortable
       // Confirm if isSortable is false
       _.agHelper.CheckUncheck(commonlocators.isSortable, false);
@@ -118,7 +118,7 @@ describe(
     });
 
     it("5. Verify that table filter dropdown only includes filterable columns", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.wait(500);
       _.propPane.UpdatePropertyFieldValue(
         "Table data",
@@ -191,7 +191,7 @@ describe(
     });
 
     it("6. Verify that table filter is retained when the tableData scehma doesn't change", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       _.propPane.UpdatePropertyFieldValue(
         "Table data",
         `{{[{number: "1", work: "test"}, {number: "2", work: "celebrate!"}]}}`,
@@ -236,7 +236,7 @@ describe(
 
     it("7. should check that adding cyclic dependency in the table doesn't crash the app", () => {
       //_.deployMode.NavigateBacktoEditor();
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
 
       cy.updateCodeInput(
         ".t--property-control-defaultselectedrow",

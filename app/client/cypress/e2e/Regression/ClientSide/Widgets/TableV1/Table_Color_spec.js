@@ -11,7 +11,7 @@ describe(
 
     it("1. Test to validate text color and text background", function () {
       // Open property pane
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
       //cy.moveToStyleTab();
       // Click on text color input field
       cy.selectColor("textcolor");
@@ -47,7 +47,7 @@ describe(
         "rgb(219, 234, 254)",
       );
       _.deployMode.NavigateBacktoEditor();
-      cy.openPropertyPane("tablewidget");
+      _.propPane.openPropertyPane("tablewidget");
 
       // Change the cell background color and enter purple in input field
       cy.get(

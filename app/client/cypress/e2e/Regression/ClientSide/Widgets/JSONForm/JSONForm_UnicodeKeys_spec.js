@@ -2,6 +2,7 @@ const dslWithoutSchema = require("../../../../../fixtures/jsonFormDslWithoutSche
 const jsonFormUnicodeDSLWithoutSourceData = require("../../../../../fixtures/jsonFormUnicodeDSLWithoutSourceData.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import { ObjectsRegistry } from "../../../../../support/Objects/Registry";
+import * as _ from "../../../../../support/Objects/ObjectsCore";
 const agHelper = ObjectsRegistry.AggregateHelper;
 const locators = ObjectsRegistry.CommonLocators;
 const propPane = ObjectsRegistry.PropertyPane;
@@ -35,7 +36,7 @@ describe(
         ],
       };
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
 
       cy.closePropertyPane();
@@ -97,7 +98,7 @@ describe(
         ],
       };
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext(
         "Source data",
         JSON.stringify(modifiedSourceData),
@@ -176,7 +177,7 @@ describe(
         ],
       };
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
       propPane.EnterJSContext("Source data", JSON.stringify(sourceData), true);
 
       cy.closePropertyPane();
@@ -208,7 +209,7 @@ describe(
       };
 
       // Bind formData to Text1 widget text property
-      cy.openPropertyPane("textwidget");
+      _.propPane.openPropertyPane("textwidget");
       cy.testJsontext("text", "{{JSON.stringify(JSONForm1.formData)}}");
       cy.closePropertyPane();
 
@@ -218,7 +219,7 @@ describe(
         cy.wrap(formData).should("deep.equal", expectedInitialFormData);
       });
 
-      cy.openPropertyPane("jsonformwidget");
+      _.propPane.openPropertyPane("jsonformwidget");
 
       // नाम field
       cy.openFieldConfiguration("xn__l2bm1c");

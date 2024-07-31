@@ -17,7 +17,7 @@ describe(
     });
 
     it("should check that empty value is allowed in options", () => {
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       _.propPane.ToggleJSMode("sourcedata");
       cy.updateCodeInput(
         ".t--property-control-sourcedata",
@@ -52,7 +52,7 @@ describe(
     });
 
     it("should check that more than one empty value is not allowed in options", () => {
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       cy.updateCodeInput(
         ".t--property-control-sourcedata",
         `[
@@ -76,7 +76,7 @@ describe(
     });
 
     it("should check that Objects can be added to Select Widget default value", () => {
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       cy.updateCodeInput(
         ".t--property-control-sourcedata",
         `[{
@@ -101,7 +101,7 @@ describe(
     });
 
     it("should check that special strings are parsed as string in default value", () => {
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       cy.updateCodeInput(
         ".t--property-control-sourcedata",
         `[{
@@ -123,14 +123,14 @@ describe(
       ).should("not.exist");
       cy.get(formWidgetsPage.dropdownDefaultButton).should("contain", "Blue");
 
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       cy.updateCodeInput(".t--property-control-defaultselectedvalue", "120");
       cy.get(
         ".t--property-control-defaultselectedvalue .t--codemirror-has-error",
       ).should("not.exist");
       cy.get(formWidgetsPage.dropdownDefaultButton).should("contain", "Red");
 
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       cy.updateCodeInput(
         ".t--property-control-defaultselectedvalue",
         "{{ 100 }}",
@@ -140,7 +140,7 @@ describe(
       ).should("not.exist");
       cy.get(formWidgetsPage.dropdownDefaultButton).should("contain", "Green");
 
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       cy.updateCodeInput(
         ".t--property-control-defaultselectedvalue",
         "{{ null }}",
@@ -151,7 +151,7 @@ describe(
     });
 
     it("Dropdown Functionality To Check disabled Widget", function () {
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       // Disable the visible JS
       _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
@@ -161,7 +161,7 @@ describe(
     });
 
     it("Dropdown Functionality To UnCheck disabled Widget", function () {
-      cy.openPropertyPane("selectwidget");
+      _.propPane.openPropertyPane("selectwidget");
       // Check the visible JS
       _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();

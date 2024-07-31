@@ -3,7 +3,7 @@ import * as _ from "../../../../support/Objects/ObjectsCore";
 describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
   it("1. Bug 18191: Unable to delete checkbox child when it is inside list widget #18191", () => {
     _.agHelper.AddDsl("Bugs/CheckboxGroupInListWidgetDsl");
-    cy.openPropertyPane("checkboxgroupwidget");
+    _.propPane.openPropertyPane("checkboxgroupwidget");
     //check number of options
     cy.get(
       `.t--property-control-options > div:nth-child(2) > div[orientation="HORIZONTAL"]`,

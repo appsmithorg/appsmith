@@ -12,7 +12,7 @@ describe(
     });
 
     it("3.1. should test that discard button is undoing the add new feature", () => {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       _.propPane.TogglePropertyState("Allow adding a row", "On");
       cy.get(".tableWrap .new-row").should("not.exist");
       cy.get(".t--add-new-row").click();

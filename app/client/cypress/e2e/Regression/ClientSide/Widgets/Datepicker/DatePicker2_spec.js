@@ -14,7 +14,7 @@ describe(
     });
 
     beforeEach(() => {
-      cy.openPropertyPane("datepickerwidget");
+      _.propPane.openPropertyPane("datepickerwidget");
     });
 
     // ADS changes to date input property causes this test to fail

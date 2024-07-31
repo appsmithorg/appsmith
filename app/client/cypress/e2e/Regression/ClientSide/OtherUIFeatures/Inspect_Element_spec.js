@@ -5,7 +5,7 @@ describe("Inspect Entity", function () {
     _.agHelper.AddDsl("debuggerDependencyDsl");
   });
   it("1. Check whether depedencies and references are shown correctly", function () {
-    cy.openPropertyPane("inputwidgetv2");
+    _.propPane.openPropertyPane("inputwidgetv2");
     cy.testJsontext("defaultvalue", "{{Button1.text}}");
     _.agHelper.GetNClick(".t--debugger-count");
     cy.contains(".ads-v2-tabs__list-tab", "Inspect entity").click();

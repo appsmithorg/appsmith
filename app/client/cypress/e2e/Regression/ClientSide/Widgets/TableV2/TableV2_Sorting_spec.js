@@ -10,7 +10,7 @@ describe(
     });
 
     it("verifies that table sorting works for a custom column with computed value even when it is renamed", function () {
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.addColumnV2("customColumn1");
       cy.editColumn("customColumn1");
       cy.updateComputedValueV2(testdata.currentIndex);
@@ -35,7 +35,7 @@ describe(
       });
 
       // Rename customColumn1 to customColumn2
-      cy.openPropertyPane("tablewidgetv2");
+      _.propPane.openPropertyPane("tablewidgetv2");
       cy.editColumn("customColumn1");
       cy.get(".t--property-pane-title").click({ force: true });
       cy.get(".t--property-pane-title")
