@@ -32,6 +32,7 @@ import {
 import { useConvertToModuleOptions } from "@appsmith/pages/Editor/Explorer/hooks";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import { PluginType } from "entities/Action";
+import { convertToBaseParentEntityIdSelector } from "selectors/pageListSelectors";
 
 interface EntityContextMenuProps {
   id: string;
@@ -45,6 +46,9 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   // Import the context
   const context = useContext(FilesContext);
   const { menuItems, parentEntityId } = context;
+  const baseParentEntityId = useSelector((state) =>
+    convertToBaseParentEntityIdSelector(state, parentEntityId),
+  );
 
   const { canDeleteAction, canManageAction } = props;
   const dispatch = useDispatch();
@@ -170,7 +174,7 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
         onSelect: () => {
           confirmDelete
             ? deleteActionFromPage(props.id, props.name, () => {
-                history.push(builderURL({ pageId: parentEntityId }));
+                history.push(builderURL({ basePageId: baseParentEntityId }));
                 setConfirmDelete(false);
               })
             : setConfirmDelete(true);

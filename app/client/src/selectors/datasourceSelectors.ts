@@ -34,3 +34,6 @@ export const getFirstDatasourceId = (state: AppState) => {
     return list[0].id;
   }
 };
+
+export const getLoadingTokenForDatasourceId = (state: AppState) =>
+  state.entities.datasources.loadingTokenForDatasourceId;

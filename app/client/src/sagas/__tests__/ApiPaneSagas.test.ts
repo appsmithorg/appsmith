@@ -67,8 +67,8 @@ describe("handleDatasourceCreatedSaga", () => {
   });
 
   it("should pass parentEntityId to apiEditorIdURL and redirect to correct url when in app", async () => {
-    const applicationId = "app-id";
-    const pageId = "669e868199b66f0d2176fc1d";
+    const baseApplicationId = "app-id";
+    const basePageId = "669e868199b66f0d2176fc1d";
     const store = testStore({
       entities: {
         ...({} as any),
@@ -78,10 +78,10 @@ describe("handleDatasourceCreatedSaga", () => {
         ...({} as any),
         datasourcePane: {
           actionRouteInfo: {
-            apiId: "api-id",
-            applicationId,
+            baseApiId: "api-id",
+            baseApplicationId,
             datasourceId: "ds-id",
-            parentEntityId: pageId,
+            baseParentEntityId: basePageId,
           },
         },
       },
@@ -91,14 +91,14 @@ describe("handleDatasourceCreatedSaga", () => {
     const spy = jest.spyOn(history, "push").mockImplementation(jest.fn());
     const channel = stdChannel();
     const appParams = {
-      applicationId,
+      baseApplicationId,
       applicationSlug: "app-slug",
       ApplicationVersion: "1",
     };
 
     const pageParams = [
       {
-        pageId,
+        basePageId,
         pageSlug: "page-slug",
       },
     ];
@@ -132,7 +132,7 @@ describe("handleDatasourceCreatedSaga", () => {
     await new Promise((resolve) => setTimeout(resolve, 3000));
 
     expect(history.push).toHaveBeenCalledWith(
-      `/app/app-slug/page-slug-${pageId}/edit/api/api-id`,
+      `/app/app-slug/page-slug-${basePageId}/edit/api/api-id`,
     );
 
     spy.mockReset();

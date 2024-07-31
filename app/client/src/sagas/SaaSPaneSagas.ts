@@ -17,7 +17,7 @@ import {
   saasEditorApiIdURL,
   saasEditorDatasourceIdURL,
 } from "@appsmith/RouteBuilder";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { getQueryParams } from "utils/URLUtils";
 import { getIsGeneratePageInitiator } from "utils/GenerateCrudUtil";
@@ -29,6 +29,7 @@ import {
   getCurrentApplicationIdForCreateNewApp,
 } from "@appsmith/selectors/applicationSelectors";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
 function* handleDatasourceCreatedSaga(
   actionPayload: CreateDatasourceSuccessAction,
@@ -47,9 +48,9 @@ function* handleDatasourceCreatedSaga(
     getApplicationByIdFromWorkspaces,
     currentApplicationIdForCreateNewApp || "",
   );
-  const pageId: string = !!currentApplicationIdForCreateNewApp
-    ? application?.defaultPageId
-    : yield select(getCurrentPageId);
+  const basePageId: string = !!currentApplicationIdForCreateNewApp
+    ? application?.defaultBasePageId
+    : yield select(getCurrentBasePageId);
 
   yield put(initialize(DATASOURCE_SAAS_FORM, omit(payload, "name")));
 
@@ -74,7 +75,7 @@ function* handleDatasourceCreatedSaga(
   ) {
     history.push(
       generateTemplateFormURL({
-        pageId,
+        basePageId,
         params: {
           datasourceId: updatedDatasource.id,
         },
@@ -86,7 +87,7 @@ function* handleDatasourceCreatedSaga(
   ) {
     history.push(
       saasEditorDatasourceIdURL({
-        pageId,
+        basePageId,
         pluginPackageName: plugin.packageName,
         datasourceId: payload.id,
         params: {
@@ -100,16 +101,17 @@ function* handleDatasourceCreatedSaga(
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
-  const { id, pageId, pluginId } = actionPayload.payload;
+  const { baseId: baseActionId, pageId, pluginId } = actionPayload.payload;
   const plugin: Plugin | undefined = yield select(getPlugin, pluginId);
 
   if (!plugin) return;
   if (plugin.type !== "SAAS") return;
+  const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
   history.push(
     saasEditorApiIdURL({
-      pageId,
+      basePageId,
       pluginPackageName: plugin.packageName,
-      apiId: id,
+      baseApiId: baseActionId,
       params: {
         editName: "true",
         from: "datasources",

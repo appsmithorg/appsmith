@@ -180,7 +180,7 @@ function PageNavLink({
   const selectedTheme = useSelector(getSelectedAppTheme);
   const pathname = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
-    { pageId: page.pageId },
+    { basePageId: page.basePageId },
   );
 
   return (
@@ -190,7 +190,7 @@ function PageNavLink({
         borderColor: selectedTheme.properties.colors.primaryColor,
       }}
       className="flex flex-col px-4 py-2 no-underline border-transparent border-r-3 hover:no-underline"
-      key={page.pageId}
+      key={page.basePageId}
       navColorStyle={navColorStyle}
       onClick={closeMenu}
       primaryColor={primaryColor}

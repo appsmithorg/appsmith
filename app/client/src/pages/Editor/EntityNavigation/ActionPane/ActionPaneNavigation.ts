@@ -13,6 +13,7 @@ import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import history from "utils/history";
 import { NAVIGATION_DELAY } from "../costants";
 import { setFocusableInputField } from "actions/editorContextActions";
+import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
 export default class ActionPaneNavigation extends PaneNavigation {
   action!: Action;
@@ -53,17 +54,28 @@ export default class ActionPaneNavigation extends PaneNavigation {
   }
 
   *navigateToUrl() {
-    const { id, pageId, pluginId, pluginType } = this.action;
+    const {
+      baseId: baseActionId,
+      id: actionId,
+      pageId,
+      pluginId,
+      pluginType,
+    } = this.action;
     const applicationId: string = yield select(getCurrentApplicationId);
     const plugin: Plugin | undefined = yield select(getPlugin, pluginId);
     const actionConfig = getActionConfig(pluginType);
+    const basePageId: string = yield select(
+      convertToBasePageIdSelector,
+      pageId,
+    );
     const url =
-      applicationId && actionConfig?.getURL(pageId, id, pluginType, plugin);
+      applicationId &&
+      actionConfig?.getURL(basePageId, baseActionId, pluginType, plugin);
     if (!url) return;
     history.push(url);
     yield delay(NAVIGATION_DELAY);
     // Reset context switching field for the id, to allow scrolling to the error field
-    yield put(setFocusableInputField(id));
+    yield put(setFocusableInputField(actionId));
   }
 
   *scrollToView(propertyPath: string) {

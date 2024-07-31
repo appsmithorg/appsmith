@@ -15,6 +15,7 @@ import type {
 import { all, call, put, select, take } from "redux-saga/effects";
 import {
   getCanvasWidth,
+  getCurrentBasePageId,
   getCurrentPageId,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
@@ -80,10 +81,7 @@ import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { race } from "redux-saga/effects";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
-import {
-  getCurrentApplicationId,
-  getJSCollectionById,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
 import {
@@ -97,6 +95,7 @@ import { postPageAdditionSaga } from "../TemplatesSagas";
 import { addChildSaga } from "../WidgetAdditionSagas";
 import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
 import { getDragDetails, getWidgetByName } from "../selectors";
+import { getJSCollection } from "@appsmith/selectors/entitiesSelector";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -146,13 +145,10 @@ function* runNewlyCreatedJSActions(
   // Run each action sequentially. We have a max of 2-3 actions per building block.
   // If we run this in parallel, we will have a racing condition when multiple building blocks are drag and dropped quickly.
   for (const jsAction of jsActions) {
-    const actionCollection: JSCollection = yield select(getJSCollectionById, {
-      match: {
-        params: {
-          collectionId: jsAction.collectionId,
-        },
-      },
-    });
+    const actionCollection: JSCollection = yield select(
+      getJSCollection,
+      jsAction.collectionId,
+    );
 
     for (const action of actionCollection.actions) {
       yield put({
@@ -752,10 +748,10 @@ export function* pasteBuildingBlockWidgetsSaga(
     );
     yield call(updateAndSaveAnvilLayout, updatedWidgets);
 
-    const pageId: string = yield select(getCurrentPageId);
+    const basePageId: string = yield select(getCurrentBasePageId);
 
     if (copiedWidgetGroups && copiedWidgetGroups.length > 0) {
-      history.push(builderURL({ pageId }));
+      history.push(builderURL({ basePageId }));
     }
 
     yield put({

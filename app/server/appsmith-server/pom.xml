@@ -148,7 +148,7 @@
 
         <dependency>
             <groupId>io.mongock</groupId>
-            <artifactId>mongodb-springdata-v4-driver</artifactId>
+            <artifactId>mongodb-reactive-driver</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

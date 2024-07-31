@@ -780,6 +780,7 @@ export interface ApplicationsReduxState {
 
 export interface Application {
   id: string;
+  baseId: string;
   name: string;
   workspaceId: string;
   isPublic: boolean;
