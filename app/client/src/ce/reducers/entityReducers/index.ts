@@ -17,6 +17,7 @@ import canvasLevelsReducer from "reducers/entityReducers/autoHeightReducers/canv
 import layoutElementPositionsReducer from "layoutSystems/anvil/integrations/reducers/layoutElementPositionsReducer";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "..";
+import queryParamsReducer from "reducers/entityReducers/queryParamsReducer";
 
 export const entityReducerObject = {
   canvasWidgets: canvasWidgetsReducer,
@@ -37,4 +38,5 @@ export const entityReducerObject = {
   moduleInstanceEntities: (state: AppState, action: ReduxAction<any>) => {
     return {};
   },
+  queryParams: queryParamsReducer,
 };

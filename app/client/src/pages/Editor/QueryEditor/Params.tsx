@@ -1,45 +1,34 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Button,
-  Flex,
   Popover,
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
   Text,
 } from "design-system";
-import styled from "styled-components";
-import EditableText, {
-  EditInteractionKind,
-} from "components/editorComponents/EditableText";
+import SectionField from "@appsmith/components/InputsForm/Fields/SectionField";
+import Form from "@appsmith/components/InputsForm/Form";
+import { generateUniqueId } from "@appsmith/components/InputsForm/Fields/helper";
+import { useDispatch, useSelector } from "react-redux";
+import { updateQueryParams } from "actions/QueryParamsActions";
+import { useActiveActionBaseId } from "@appsmith/pages/Editor/Explorer/hooks";
+import { getQueryParams } from "selectors/QueryParamsSelector";
 
 function Params() {
-  const [params, setParams] = useState(["param1"]);
-
-  const handleOnTextChange = React.useCallback(
-    (value: string, index: number) => {
-      setParams(
-        params.map((p, i) => {
-          if (i === index) {
-            return value;
-          }
-          return p;
-        }),
-      );
+  const dispatch = useDispatch();
+  const activeActionBaseId = useActiveActionBaseId();
+  const handleUpdate = React.useCallback(
+    (value) => {
+      if (activeActionBaseId) {
+        dispatch(updateQueryParams(activeActionBaseId, value));
+      }
     },
-    [params],
+    [activeActionBaseId, dispatch],
   );
-
-  const handleDeleteClick = React.useCallback(
-    (index: number) => {
-      setParams(params.filter((p, i) => i !== index));
-    },
-    [params],
+  const params = useSelector((state) =>
+    getQueryParams(state, activeActionBaseId),
   );
-
-  const handleAddNewClick = React.useCallback(() => {
-    setParams([...params, `param${params.length + 1}`]);
-  }, [params]);
 
   return (
     <Popover>
@@ -57,86 +46,28 @@ function Params() {
               style={{ fontSize: "11px" }}
             >{`{{ this.params.paramName }}`}</Text>
           </Text>
-          <Flex flexDirection="column" p="spaces-2" width={"100%"}>
-            {params.map((p, i) => (
-              <EditableParam
-                index={i}
-                key={i}
-                onDeleteClick={handleDeleteClick}
-                onTextChange={handleOnTextChange}
-                value={p}
-              />
-            ))}
-          </Flex>
-          <Button
-            data-testid="t--add-param-btn"
-            kind="secondary"
-            onClick={handleAddNewClick}
-            size="md"
-            startIcon="plus"
+          <Form
+            blockCompletions={[]}
+            dataTreePathPrefix="inputs"
+            defaultValues={
+              params || {
+                inputsForm: [
+                  {
+                    id: generateUniqueId([]),
+                    sectionName: "",
+                    children: [],
+                  },
+                ],
+              }
+            }
+            evaluatedValues={{}}
+            onUpdateForm={handleUpdate}
           >
-            Add Param
-          </Button>
+            <SectionField name="inputsForm" />
+          </Form>
         </PopoverBody>
       </PopoverContent>
     </Popover>
-  );
-}
-
-const Container = styled(Flex)`
-  & > div {
-    width: calc(100% - 34px) !important;
-  }
-  & > div > div {
-    width: 100%;
-    justify-content: space-between;
-  }
-`;
-
-function EditableParam(props: {
-  value: string;
-  index: number;
-  onTextChange: (value: string, index: number) => void;
-  onDeleteClick: (index: number) => void;
-}) {
-  const { index, onDeleteClick, onTextChange } = props;
-  const [showingActions, setShowActions] = React.useState<boolean>(false);
-  const handleOnTextChange = React.useCallback(
-    (value) => {
-      onTextChange(value, index);
-    },
-    [index, onTextChange],
-  );
-  const handleDeleteClick = React.useCallback(() => {
-    onDeleteClick(index);
-  }, [onDeleteClick, index]);
-  const hideActions = () => setShowActions(false);
-  const showActions = () => setShowActions(true);
-  return (
-    <div onMouseEnter={showActions} onMouseLeave={hideActions}>
-      <Container alignItems="center" justifyContent="space-between">
-        <EditableText
-          defaultValue={props.value}
-          editInteractionKind={EditInteractionKind.SINGLE}
-          hideEditIcon={!showingActions}
-          isEditingDefault
-          onTextChanged={handleOnTextChange}
-          placeholder=""
-          type="text"
-        />
-        {showingActions ? (
-          <Button
-            data-testid="t--delete-input-btn"
-            kind="tertiary"
-            onClick={handleDeleteClick}
-            startIcon="trash"
-            tabIndex={-1}
-          />
-        ) : (
-          <div style={{ width: "34px" }} />
-        )}
-      </Container>
-    </div>
   );
 }
 
