@@ -56,6 +56,11 @@ import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { SelectComponentProps } from "../component";
+import {
+  createMessage,
+  FIELD_REQUIRED_ERROR,
+} from "@appsmith/constants/messages";
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {
@@ -834,8 +839,13 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
 
   getWidgetView() {
     const options = isArray(this.props.options) ? this.props.options : [];
-    const isInvalid =
-      "isValid" in this.props && !this.props.isValid && !!this.props.isDirty;
+    const isDefaultValueRequired: boolean =
+      this.props.isRequired &&
+      this.props.selectedOptionValue === "" &&
+      this.props.defaultOptionValue === "";
+    const isInvalid: boolean =
+      isDefaultValueRequired ||
+      ("isValid" in this.props && !this.props.isValid && !!this.props.isDirty);
     const dropDownWidth =
       (MinimumPopupWidthInPercentage / 100) *
       (this.props.mainCanvasWidth ?? layoutConfigurations.MOBILE.maxWidth);
@@ -843,6 +853,11 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     const selectedIndex = findIndex(this.props.options, {
       value: this.props.selectedOptionValue,
     });
+    const conditionalProps: Partial<SelectComponentProps> = {};
+    conditionalProps.errorMessage = this.props.errorMessage;
+    if (isDefaultValueRequired) {
+      conditionalProps.errorMessage = createMessage(FIELD_REQUIRED_ERROR);
+    }
     const { componentHeight, componentWidth } = this.props;
     return (
       <SelectComponent
@@ -881,6 +896,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
         value={this.props.selectedOptionValue}
         widgetId={this.props.widgetId}
         width={componentWidth}
+        showError={this.props.isWidgetSelected}
+        {...conditionalProps}
       />
     );
   }
