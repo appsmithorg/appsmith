@@ -15,10 +15,9 @@ import {
 } from "@appsmith/constants/messages";
 import Table from "pages/Editor/QueryEditor/Table";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
-import { useParams } from "react-router";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   getCurrentApplicationId,
+  getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { GENERATE_PAGE_MODE } from "../GeneratePage/components/GeneratePageForm/GeneratePageForm";
@@ -98,7 +97,7 @@ const DatasourceViewModeSchema = (props: Props) => {
   });
 
   const applicationId: string = useSelector(getCurrentApplicationId);
-  const { pageId: currentPageId } = useParams<ExplorerURLParams>();
+  const pageId = useSelector(getCurrentPageId);
 
   const [previewData, setPreviewData] = useState([]);
   // this error is for when there's an issue with the datasource structure
@@ -208,9 +207,7 @@ const DatasourceViewModeSchema = (props: Props) => {
       const payload = {
         applicationId: applicationId || "",
         pageId:
-          currentMode.current === GENERATE_PAGE_MODE.NEW
-            ? ""
-            : currentPageId || "",
+          currentMode.current === GENERATE_PAGE_MODE.NEW ? "" : pageId || "",
         columns: [],
         searchColumn: "",
         tableName: tableName,

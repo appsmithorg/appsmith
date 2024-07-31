@@ -322,6 +322,9 @@ const mapStateToProps = (
       options = dynamicFetchedValues.data;
     }
   } catch (e) {
+    // Printing error to console
+    // eslint-disable-next-line no-console
+    console.error(e);
   } finally {
     return { isLoading, options, formValues };
   }

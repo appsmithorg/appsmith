@@ -16,9 +16,9 @@ export const useWidgetSelection = () => {
         type: SelectionRequestType,
         payload?: string[],
         invokedBy?: NavigationMethod,
-        pageId?: string,
+        basePageId?: string,
       ) => {
-        dispatch(selectWidgetInitAction(type, payload, invokedBy, pageId));
+        dispatch(selectWidgetInitAction(type, payload, invokedBy, basePageId));
       },
       [dispatch],
     ),

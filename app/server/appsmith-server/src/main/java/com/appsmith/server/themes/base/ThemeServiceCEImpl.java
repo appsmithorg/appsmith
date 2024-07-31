@@ -69,7 +69,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     @Override
     public Mono<Theme> getApplicationTheme(String applicationId, ApplicationMode applicationMode, String branchName) {
         return applicationService
-                .findByBranchNameAndDefaultApplicationId(
+                .findByBranchNameAndBaseApplicationId(
                         branchName, applicationId, applicationPermission.getReadPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
@@ -89,10 +89,38 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     }
 
     @Override
+    public Mono<Theme> getApplicationTheme(String branchedApplicationId, ApplicationMode applicationMode) {
+        return applicationService
+                .findById(branchedApplicationId, applicationPermission.getReadPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)))
+                .flatMap(application -> {
+                    String themeId = application.getEditModeThemeId();
+                    if (applicationMode == ApplicationMode.PUBLISHED) {
+                        themeId = application.getPublishedModeThemeId();
+                    }
+                    if (StringUtils.hasLength(themeId)) {
+                        return repository
+                                .findById(themeId, READ_THEMES)
+                                .switchIfEmpty(repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES));
+                    } else { // theme id is not present, return default theme
+                        return repository.getSystemThemeByName(Theme.DEFAULT_THEME_NAME, READ_THEMES);
+                    }
+                });
+    }
+
+    @Override
     public Flux<Theme> getApplicationThemes(String applicationId, String branchName) {
         return applicationService
-                .findByBranchNameAndDefaultApplicationId(
+                .findByBranchNameAndBaseApplicationId(
                         branchName, applicationId, applicationPermission.getReadPermission())
+                .flatMapMany(application -> repository.getApplicationThemes(application.getId(), READ_THEMES));
+    }
+
+    @Override
+    public Flux<Theme> getApplicationThemes(String branchedApplicationId) {
+        return applicationService
+                .findById(branchedApplicationId, applicationPermission.getReadPermission())
                 .flatMapMany(application -> repository.getApplicationThemes(application.getId(), READ_THEMES));
     }
 
@@ -102,26 +130,24 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     }
 
     @Override
-    public Mono<Theme> updateTheme(String applicationId, String branchName, Theme resource) {
+    public Mono<Theme> updateTheme(String branchedApplicationId, Theme resource) {
         return applicationService
-                .findByBranchNameAndDefaultApplicationId(
-                        branchName, applicationId, applicationPermission.getEditPermission())
+                .findById(branchedApplicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
                     // makes sure user has permission to edit application and an application exists by this
                     // applicationId
-                    // check if this application has already a customized them
+                    // check if this application has already a customized theme
                     return saveThemeForApplication(
                             application.getEditModeThemeId(), resource, application, ApplicationMode.EDIT);
                 });
     }
 
     @Override
-    public Mono<Theme> changeCurrentTheme(String newThemeId, String applicationId, String branchName) {
+    public Mono<Theme> changeCurrentTheme(String newThemeId, String branchedApplicationId) {
         return applicationService
-                .findByBranchNameAndDefaultApplicationId(
-                        branchName, applicationId, applicationPermission.getEditPermission())
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+                .findById(branchedApplicationId, applicationPermission.getEditPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId)))
                 .flatMap(application -> repository
                         .findById(application.getEditModeThemeId(), READ_THEMES)
                         .defaultIfEmpty(new Theme())
@@ -322,7 +348,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     public Mono<Theme> persistCurrentTheme(String applicationId, String branchName, Theme resource) {
 
         return applicationService
-                .findByBranchNameAndDefaultApplicationId(
+                .findByBranchNameAndBaseApplicationId(
                         branchName, applicationId, applicationPermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))

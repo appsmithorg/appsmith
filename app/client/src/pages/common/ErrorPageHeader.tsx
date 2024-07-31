@@ -15,10 +15,10 @@ import { getSafeCrash } from "selectors/errorSelectors";
 import { Indices } from "constants/Layers";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { getCurrentApplication } from "selectors/editorSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 const StyledPageHeader = styled(StyledHeader)`
   box-shadow: none;

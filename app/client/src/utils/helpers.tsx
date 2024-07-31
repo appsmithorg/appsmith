@@ -524,7 +524,7 @@ export const removeFalsyEntries = (arr: any[]): any[] => {
  * ['Pawan', 'Goku'] -> false
  * { name: "Pawan"} -> false
  */
-export const isString = (str: any) => {
+export const isString = (str: any): str is string => {
   return typeof str === "string" || str instanceof String;
 };
 

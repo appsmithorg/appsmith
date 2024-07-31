@@ -351,6 +351,7 @@ function GitConnection({ isImport }: Props) {
 
   return (
     <>
+      {/* @ts-expect-error Figure out how to pass string to constant className */}
       <ModalBody className={Classes.GIT_SYNC_MODAL}>
         <Container
           data-testid="t--git-connection-container"

@@ -98,9 +98,11 @@ function* restoreApplicationFromSnapshotSaga() {
         payload: {
           pages: response.data.pages.map((page: PageDefaultMeta) => ({
             pageId: page.id,
+            basePageId: page.baseId,
             isDefault: page.isDefault,
           })),
           applicationId,
+          baseApplicationId: response.data.baseId,
         },
       });
     }

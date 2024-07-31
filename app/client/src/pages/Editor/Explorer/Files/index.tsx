@@ -5,7 +5,7 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
+import { useActiveActionBaseId } from "@appsmith/pages/Editor/Explorer/hooks";
 import { Entity, EntityClassNames } from "../Entity/index";
 import {
   createMessage,
@@ -69,15 +69,15 @@ function Files() {
     openMenu(true);
   }, [dispatch, openMenu]);
 
-  const activeActionId = useActiveAction();
+  const activeActionBaseId = useActiveActionBaseId();
 
   useEffect(() => {
-    if (!activeActionId) return;
-    document.getElementById(`entity-${activeActionId}`)?.scrollIntoView({
+    if (!activeActionBaseId) return;
+    document.getElementById(`entity-${activeActionBaseId}`)?.scrollIntoView({
       block: "nearest",
       inline: "nearest",
     });
-  }, [activeActionId]);
+  }, [activeActionBaseId]);
 
   const onFilesToggle = useCallback(
     (isOpen: boolean) => {
@@ -105,7 +105,7 @@ function Files() {
           return (
             <ExplorerModuleInstanceEntity
               id={entity.id}
-              isActive={entity.id === activeActionId}
+              isActive={entity.id === activeActionBaseId}
               key={entity.id}
               searchKeyword={""}
               step={2}
@@ -114,8 +114,8 @@ function Files() {
         } else if (type === "JS") {
           return (
             <ExplorerJSCollectionEntity
-              id={entity.id}
-              isActive={entity.id === activeActionId}
+              baseCollectionId={entity.id}
+              isActive={entity.id === activeActionBaseId}
               key={entity.id}
               parentEntityId={parentEntityId}
               parentEntityType={parentEntityType}
@@ -127,8 +127,8 @@ function Files() {
         } else {
           return (
             <ExplorerActionEntity
-              id={entity.id}
-              isActive={entity.id === activeActionId}
+              baseId={entity.id}
+              isActive={entity.id === activeActionBaseId}
               key={entity.id}
               parentEntityId={parentEntityId}
               parentEntityType={parentEntityType}
@@ -139,7 +139,7 @@ function Files() {
           );
         }
       }),
-    [files, activeActionId, parentEntityId],
+    [files, activeActionBaseId, parentEntityId],
   );
 
   const handleClick = useCallback(

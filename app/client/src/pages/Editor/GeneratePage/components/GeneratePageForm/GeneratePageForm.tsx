@@ -13,8 +13,7 @@ import {
 import type { Datasource } from "entities/Datasource";
 import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
-import { useParams, useLocation } from "react-router";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
+import { useLocation } from "react-router";
 import { INTEGRATION_TABS } from "constants/routes";
 import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
@@ -54,7 +53,11 @@ import {
 } from "../constants";
 import { Bold, Label, SelectWrapper } from "./styles";
 import type { GeneratePagePayload } from "./types";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentBasePageId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 
 import {
   datasourcesEditorIdURL,
@@ -217,7 +220,8 @@ function GeneratePageForm() {
   const dispatch = useDispatch();
   const querySearch = useLocation().search;
 
-  const { pageId: currentPageId } = useParams<ExplorerURLParams>();
+  const basePageId = useSelector(getCurrentBasePageId);
+  const pageId = useSelector(getCurrentPageId);
 
   const pluginImages = useSelector(getPluginImages);
 
@@ -552,7 +556,7 @@ function GeneratePageForm() {
     AnalyticsUtil.logEvent("GEN_CRUD_PAGE_CREATE_NEW_DATASOURCE");
     history.push(
       integrationEditorURL({
-        pageId: currentPageId,
+        basePageId,
         selectedTab: INTEGRATION_TABS.NEW,
         params: { isGeneratePageMode: "generate-page" },
       }),
@@ -575,9 +579,7 @@ function GeneratePageForm() {
     const payload = {
       applicationId: applicationId || "",
       pageId:
-        currentMode.current === GENERATE_PAGE_MODE.NEW
-          ? ""
-          : currentPageId || "",
+        currentMode.current === GENERATE_PAGE_MODE.NEW ? "" : pageId || "",
       columns: data.columns || [],
       searchColumn: data.searchColumn,
       tableName: data.tableName,
@@ -604,7 +606,7 @@ function GeneratePageForm() {
       datasourceId: selectedDatasource.id,
     });
     const redirectURL = datasourcesEditorIdURL({
-      pageId: currentPageId,
+      basePageId,
       datasourceId: selectedDatasource.id as string,
       params: { isGeneratePageMode: "generate-page" },
     });

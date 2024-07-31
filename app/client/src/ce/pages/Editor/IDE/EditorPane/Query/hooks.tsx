@@ -118,7 +118,7 @@ export const useQueryEditorRoutes = (path: string): UseRoutes => {
       key: "AddQuery",
       exact: true,
       component: AddQuery,
-      path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
+      path: [`${path}${ADD_PATH}`, `${path}/:baseQueryId${ADD_PATH}`],
     },
     {
       key: "SAASEditor",
@@ -134,7 +134,7 @@ export const useQueryEditorRoutes = (path: string): UseRoutes => {
       key: "QueryEditor",
       component: QueryEditor,
       exact: true,
-      path: [path + "/:queryId"],
+      path: [path + "/:baseQueryId"],
     },
     {
       key: "QueryEmpty",

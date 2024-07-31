@@ -266,11 +266,11 @@ export const useEntityEditState = (entityId: string) => {
   );
 };
 
-export function useActiveAction() {
+export function useActiveActionBaseId() {
   const location = useLocation();
   const path = basePathForActiveAction;
 
-  const baseMatch = matchPath<{ apiId: string }>(location.pathname, {
+  const baseMatch = matchPath<{ baseApiId: string }>(location.pathname, {
     path,
     strict: false,
     exact: false,
@@ -278,29 +278,29 @@ export function useActiveAction() {
 
   const basePath = baseMatch?.path || "";
 
-  const apiMatch = matchPath<{ apiId: string }>(location.pathname, {
+  const apiMatch = matchPath<{ baseApiId: string }>(location.pathname, {
     path: `${basePath}${API_EDITOR_ID_PATH}`,
   });
-  if (apiMatch?.params?.apiId) {
-    return apiMatch.params.apiId;
+  if (apiMatch?.params?.baseApiId) {
+    return apiMatch.params.baseApiId;
   }
-  const queryMatch = matchPath<{ queryId: string }>(location.pathname, {
+  const queryMatch = matchPath<{ baseQueryId: string }>(location.pathname, {
     path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
-  if (queryMatch?.params?.queryId) {
-    return queryMatch.params.queryId;
+  if (queryMatch?.params?.baseQueryId) {
+    return queryMatch.params.baseQueryId;
   }
-  const jsMatch = matchPath<{ collectionId: string }>(location.pathname, {
+  const jsMatch = matchPath<{ baseCollectionId: string }>(location.pathname, {
     path: `${basePath}${JS_COLLECTION_ID_PATH}`,
   });
-  if (jsMatch?.params?.collectionId) {
-    return jsMatch.params.collectionId;
+  if (jsMatch?.params?.baseCollectionId) {
+    return jsMatch.params.baseCollectionId;
   }
-  const saasMatch = matchPath<{ apiId: string }>(location.pathname, {
+  const saasMatch = matchPath<{ baseApiId: string }>(location.pathname, {
     path: `${basePath}${SAAS_EDITOR_API_ID_PATH}`,
   });
-  if (saasMatch?.params?.apiId) {
-    return saasMatch.params.apiId;
+  if (saasMatch?.params?.baseApiId) {
+    return saasMatch.params.baseApiId;
   }
 }
 

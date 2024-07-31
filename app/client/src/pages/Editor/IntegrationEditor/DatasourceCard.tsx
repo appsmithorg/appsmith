@@ -34,7 +34,7 @@ import {
 } from "@appsmith/constants/messages";
 import { isDatasourceAuthorizedForQueryCreation } from "utils/editorContextUtils";
 import {
-  getCurrentPageId,
+  getCurrentBasePageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
@@ -152,7 +152,7 @@ function DatasourceCard(props: DatasourceCardProps) {
   const { datasource, plugin } = props;
   const envSupportedDs = !DB_NOT_SUPPORTED.includes(plugin.type);
 
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
 
   const datasourceFormConfigs = useSelector(
     (state: AppState) => state.entities.plugins.formConfigs,
@@ -226,7 +226,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     if (plugin && plugin.type === PluginType.SAAS) {
       history.push(
         saasEditorDatasourceIdURL({
-          pageId,
+          basePageId,
           pluginPackageName: plugin.packageName,
           datasourceId: datasource.id,
           params: {
@@ -238,7 +238,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     } else {
       history.push(
         datasourcesEditorIdURL({
-          pageId,
+          basePageId,
           datasourceId: datasource.id,
           params: {
             from: "datasources",
@@ -263,7 +263,7 @@ function DatasourceCard(props: DatasourceCardProps) {
     AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
     history.push(
       generateTemplateFormURL({
-        pageId,
+        basePageId,
         params: {
           datasourceId: datasource.id,
           new_page: true,

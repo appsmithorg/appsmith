@@ -49,7 +49,10 @@ import {
 import { getDynamicBindingsChangesSaga } from "utils/DynamicBindingUtils";
 import { validateResponse } from "./ErrorSagas";
 import { transformRestAction } from "transformers/RestActionTransformer";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentBasePageId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type {
   Action,
@@ -147,6 +150,7 @@ import {
 } from "actions/ideActions";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -340,7 +344,8 @@ export function* createActionSaga(
         text: `Action created`,
         source: {
           type: ENTITY_TYPE.ACTION,
-          id: response.data.id,
+          // since resources are recognized by their baseId in console
+          id: response.data.baseId,
           // @ts-expect-error: name does not exists on type ActionCreateUpdateResponse
           name: response.data.name,
         },
@@ -607,7 +612,7 @@ export function* deleteActionSaga(
     const isApi = action.pluginType === PluginType.API;
     const isQuery = action.pluginType === PluginType.DB;
     const isSaas = action.pluginType === PluginType.SAAS;
-    const pageId: string = yield select(getCurrentPageId);
+    const basePageId: string = yield select(getCurrentBasePageId);
 
     const response: ApiResponse<Action> = yield ActionAPI.deleteAction(id);
     const isValidResponse: boolean = yield validateResponse(response);
@@ -645,7 +650,7 @@ export function* deleteActionSaga(
       } else {
         history.push(
           integrationEditorURL({
-            pageId,
+            basePageId,
             selectedTab: INTEGRATION_TABS.NEW,
           }),
         );
@@ -666,7 +671,7 @@ export function* deleteActionSaga(
     });
 
     yield put(deleteActionSuccess({ id }));
-    yield put(closeQueryActionTabSuccess({ id, parentId: pageId }));
+    yield put(closeQueryActionTabSuccess({ id, parentId: basePageId }));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
@@ -777,6 +782,7 @@ function* copyActionSaga(
     copyAction.source = ActionCreationSourceTypeEnum.COPY_ACTION;
 
     delete copyAction.id;
+    delete copyAction.baseId;
     const response: ApiResponse<ActionCreateUpdateResponse> =
       yield ActionAPI.createAction(copyAction);
     const datasources: Datasource[] = yield select(getDatasources);
@@ -847,7 +853,7 @@ export function* refactorActionName(
     { actionId: id },
   );
 
-  const params: FetchPageRequest = { id: pageId, migrateDSL: true };
+  const params: FetchPageRequest = { pageId, migrateDSL: true };
   const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   // check if page request is successful
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
@@ -903,14 +909,14 @@ function* bindDataOnCanvasSaga(
   action: ReduxAction<{
     queryId: string;
     applicationId: string;
-    pageId: string;
+    basePageId: string;
   }>,
 ) {
-  const { pageId, queryId } = action.payload;
+  const { basePageId, queryId } = action.payload;
   yield put(setSnipingModeAction({ isActive: true, bindTo: queryId }));
   history.push(
     builderURL({
-      pageId,
+      basePageId,
     }),
   );
 }
@@ -1029,24 +1035,29 @@ function* toggleActionExecuteOnLoadSaga(
 }
 
 function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
-  const { id, pageId, pluginId, pluginType } = actionPayload.payload;
+  const {
+    baseId: baseActionId,
+    pageId,
+    pluginId,
+    pluginType,
+  } = actionPayload.payload;
   const isApi = pluginType === PluginType.API;
   const isQuery = pluginType === PluginType.DB;
   const isSaas = pluginType === PluginType.SAAS;
-
+  const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
   if (isApi) {
     history.push(
       apiEditorIdURL({
-        pageId: pageId,
-        apiId: id,
+        basePageId,
+        baseApiId: baseActionId,
       }),
     );
   }
   if (isQuery) {
     history.push(
       queryEditorIdURL({
-        pageId: pageId,
-        queryId: id,
+        basePageId,
+        baseQueryId: baseActionId,
       }),
     );
   }
@@ -1057,9 +1068,9 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
     );
     history.push(
       saasEditorApiIdURL({
-        pageId: pageId,
+        basePageId,
         pluginPackageName: plugin.packageName,
-        apiId: id,
+        baseApiId: baseActionId,
       }),
     );
   }
@@ -1067,12 +1078,13 @@ function* handleMoveOrCopySaga(actionPayload: ReduxAction<Action>) {
 
 function* executeCommandSaga(actionPayload: ReduxAction<SlashCommandPayload>) {
   const pageId: string = yield select(getCurrentPageId);
+  const basePageId: string = yield select(getCurrentBasePageId);
   const callback = get(actionPayload, "payload.callback");
   switch (actionPayload.payload.actionType) {
     case SlashCommand.NEW_INTEGRATION:
       history.push(
         integrationEditorURL({
-          pageId,
+          basePageId,
           selectedTab: INTEGRATION_TABS.NEW,
         }),
       );

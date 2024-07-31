@@ -46,7 +46,7 @@ export const SearchItemContainer = styled.div<{
       : "default"};
   display: flex;
   align-items: center;
-  padding: ${(props) => props.theme.spaces[4]}px};
+  padding: ${(props) => props.theme.spaces[4] + "px"};
   transition: 0.3s background-color ease;
   border-radius: var(--ads-v2-border-radius);
   background-color: ${(props) =>

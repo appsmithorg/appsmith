@@ -26,8 +26,8 @@ import * as Sentry from "@sentry/react";
 import { resetRecentEntities } from "actions/globalSearchActions";
 
 import {
-  initAppViewer,
-  initEditor,
+  initAppViewerAction,
+  initEditorAction,
   resetEditorSuccess,
 } from "actions/initActions";
 import {
@@ -204,12 +204,12 @@ function* executeActionDuringUserDetailsInitialisation(
 
 export function* getInitResponses({
   applicationId,
+  basePageId,
   mode,
-  pageId,
   shouldInitialiseUserDetails,
 }: {
   applicationId?: string;
-  pageId?: string;
+  basePageId?: string;
   branch?: string;
   mode?: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
@@ -217,7 +217,7 @@ export function* getInitResponses({
   const params = pickBy(
     {
       applicationId,
-      defaultPageId: pageId,
+      defaultPageId: basePageId,
     },
     identity,
   );
@@ -255,13 +255,12 @@ export function* getInitResponses({
       ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
       shouldInitialiseUserDetails,
     );
-
     Sentry.captureMessage(
       `consolidated api failure for ${JSON.stringify(
         params,
       )} errored message response ${e}`,
     );
-    throw new PageNotFoundError(`Cannot find page with id: ${pageId}`);
+    throw new PageNotFoundError(`Cannot find page with base id: ${basePageId}`);
   }
 
   const { featureFlags, productAlert, tenantConfig, userProfile, ...rest } =
@@ -291,7 +290,7 @@ export function* getInitResponses({
 export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
   const rootSpan = startRootSpan("startAppEngine", {
     mode: action.payload.mode,
-    pageId: action.payload.pageId,
+    pageId: action.payload.basePageId,
     applicationId: action.payload.applicationId,
     branch: action.payload.branch,
   });
@@ -316,8 +315,7 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     endSpan(getInitResponsesSpan);
 
     yield put({ type: ReduxActionTypes.LINT_SETUP });
-
-    const { applicationId, toLoadPageId } = yield call(
+    const { applicationId, toLoadBasePageId, toLoadPageId } = yield call(
       engine.loadAppData,
       action.payload,
       allResponses,
@@ -325,8 +323,8 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     );
 
     yield call(engine.loadAppURL, {
-      pageId: toLoadPageId,
-      pageIdInUrl: action.payload.pageId,
+      basePageId: toLoadBasePageId,
+      basePageIdInUrl: action.payload.basePageId,
       rootSpan,
     });
 
@@ -433,14 +431,14 @@ function* eagerPageInitSaga() {
     const matchedEditorParams = matchEditorPath(url);
     if (matchedEditorParams) {
       const {
-        params: { applicationId, pageId },
+        params: { baseApplicationId, basePageId },
       } = matchedEditorParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-      if (pageId) {
+      if (basePageId) {
         yield put(
-          initEditor({
-            pageId,
-            applicationId,
+          initEditorAction({
+            basePageId,
+            baseApplicationId,
             branch,
             mode: APP_MODE.EDIT,
             shouldInitialiseUserDetails: true,
@@ -453,15 +451,15 @@ function* eagerPageInitSaga() {
     const matchedViewerParams = matchViewerPath(url);
     if (matchedViewerParams) {
       const {
-        params: { applicationId, pageId },
+        params: { baseApplicationId, basePageId },
       } = matchedViewerParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-      if (applicationId || pageId) {
+      if (baseApplicationId || basePageId) {
         yield put(
-          initAppViewer({
-            applicationId,
+          initAppViewerAction({
+            baseApplicationId,
             branch,
-            pageId,
+            basePageId,
             mode: APP_MODE.PUBLISHED,
             shouldInitialiseUserDetails: true,
           }),

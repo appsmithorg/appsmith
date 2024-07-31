@@ -145,17 +145,17 @@ const CreateNewAppsOption = ({
       {
         applicationSlug: applicationObject.slug,
         applicationVersion: applicationObject.applicationVersion,
-        applicationId: applicationObject.id,
+        baseApplicationId: applicationObject.baseId,
       },
       applicationObject.pages.map((page) => ({
         pageSlug: page.slug,
         customSlug: page.customSlug,
-        pageId: page.id,
+        basePageId: page.baseId,
       })),
     );
     history.push(
       builderURL({
-        pageId: applicationObject.pages[0].id,
+        basePageId: applicationObject.pages[0].baseId,
       }),
     );
 
@@ -178,12 +178,12 @@ const CreateNewAppsOption = ({
         {
           applicationSlug: application.slug,
           applicationVersion: application.applicationVersion,
-          applicationId: application.id,
+          baseApplicationId: application.baseId,
         },
         application.pages.map((page) => ({
           pageSlug: page.slug,
           customSlug: page.customSlug,
-          pageId: page.id,
+          basePageId: page.baseId,
         })),
       );
 

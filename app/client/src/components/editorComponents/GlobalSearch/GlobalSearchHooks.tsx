@@ -168,10 +168,10 @@ export const useFilteredAndSortedFileOperations = ({
     .filter((ds) => ds.title.toLowerCase().includes(query.toLowerCase()));
 
   // Add genetic datasource creation
-  const onRedirect = (pageId: string) => {
+  const onRedirect = (basePageId: string) => {
     history.push(
       integrationEditorURL({
-        pageId,
+        basePageId,
         selectedTab: INTEGRATION_TABS.NEW,
         generateEditorPath: true,
       }),

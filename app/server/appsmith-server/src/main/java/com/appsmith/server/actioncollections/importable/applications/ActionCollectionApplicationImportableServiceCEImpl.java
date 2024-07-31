@@ -1,9 +1,7 @@
 package com.appsmith.server.actioncollections.importable.applications;
 
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Artifact;
@@ -14,7 +12,6 @@ import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImportableServiceCE;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +31,6 @@ public class ActionCollectionApplicationImportableServiceCEImpl
         implements ArtifactBasedImportableServiceCE<ActionCollection, Application> {
 
     private final ActionCollectionRepository repository;
-    private final DefaultResourcesService<ActionCollection> defaultResourcesService;
-    private final DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService;
     private final ActionCollectionService actionCollectionService;
 
     @Override
@@ -63,19 +58,24 @@ public class ActionCollectionApplicationImportableServiceCEImpl
 
     @Override
     public Flux<ActionCollection> getExistingResourcesInOtherBranchesFlux(
-            String defaultArtifactId, String currentArtifactId) {
+            List<String> branchedArtifactIds, String currentArtifactId) {
         return repository
-                .findByDefaultApplicationId(defaultArtifactId, null)
+                .findAllByApplicationIds(branchedArtifactIds, null)
                 .filter(actionCollection -> !Objects.equals(actionCollection.getApplicationId(), currentArtifactId));
     }
 
     @Override
+    public void updateArtifactId(ActionCollection resource, Artifact artifact) {
+        resource.setApplicationId(artifact.getId());
+    }
+
+    @Override
     public Context updateContextInResource(
-            Object dtoObject, Map<String, ? extends Context> contextMap, String fallbackDefaultContextId) {
+            Object dtoObject, Map<String, ? extends Context> contextMap, String fallbackBaseContextId) {
         ActionCollectionDTO collectionDTO = (ActionCollectionDTO) dtoObject;
 
         if (StringUtils.isEmpty(collectionDTO.getPageId())) {
-            collectionDTO.setPageId(fallbackDefaultContextId);
+            collectionDTO.setPageId(fallbackBaseContextId);
         }
 
         NewPage parentPage = (NewPage) contextMap.get(collectionDTO.getPageId());
@@ -84,66 +84,25 @@ public class ActionCollectionApplicationImportableServiceCEImpl
             return null;
         }
         collectionDTO.setPageId(parentPage.getId());
-
-        // Update defaultResources in actionCollectionDTO
-        DefaultResources defaultResources = new DefaultResources();
-        defaultResources.setPageId(parentPage.getDefaultResources().getPageId());
-        collectionDTO.setDefaultResources(defaultResources);
-
         return parentPage;
     }
 
     @Override
-    public void populateDefaultResources(
-            ImportingMetaDTO importingMetaDTO,
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            Artifact artifact,
-            ActionCollection branchedActionCollection,
-            ActionCollection actionCollection) {
-        actionCollection.setApplicationId(artifact.getId());
-
-        if (artifact.getGitArtifactMetadata() != null) {
-            if (branchedActionCollection != null) {
-                defaultResourcesService.setFromOtherBranch(
-                        actionCollection, branchedActionCollection, importingMetaDTO.getBranchName());
-                dtoDefaultResourcesService.setFromOtherBranch(
-                        actionCollection.getUnpublishedCollection(),
-                        branchedActionCollection.getUnpublishedCollection(),
-                        importingMetaDTO.getBranchName());
-            } else {
-                // This is the first action collection  we are saving with given gitSyncId
-                // in this instance
-                DefaultResources defaultResources = new DefaultResources();
-                defaultResources.setApplicationId(
-                        artifact.getGitArtifactMetadata().getDefaultArtifactId());
-                defaultResources.setCollectionId(actionCollection.getId());
-                defaultResources.setBranchName(importingMetaDTO.getBranchName());
-                actionCollection.setDefaultResources(defaultResources);
-            }
-        } else {
-            DefaultResources defaultResources = new DefaultResources();
-            defaultResources.setApplicationId(artifact.getId());
-            defaultResources.setCollectionId(actionCollection.getId());
-            actionCollection.setDefaultResources(defaultResources);
-        }
-    }
-
-    @Override
     public void createNewResource(
-            ImportingMetaDTO importingMetaDTO, ActionCollection actionCollection, Context defaultContext) {
-        if (!importingMetaDTO.getPermissionProvider().canCreateAction((NewPage) defaultContext)) {
+            ImportingMetaDTO importingMetaDTO, ActionCollection actionCollection, Context baseContext) {
+        if (!importingMetaDTO.getPermissionProvider().canCreateAction((NewPage) baseContext)) {
             throw new AppsmithException(
-                    AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, ((NewPage) defaultContext).getId());
+                    AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, ((NewPage) baseContext).getId());
         }
 
         // this will generate the id and other auto generated fields e.g. createdAt
         actionCollection.updateForBulkWriteOperation();
-        actionCollectionService.generateAndSetPolicies((NewPage) defaultContext, actionCollection);
+        actionCollectionService.generateAndSetPolicies((NewPage) baseContext, actionCollection);
 
-        // create or update default resources for the action
-        // values already set to defaultResources are kept unchanged
-        DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(
-                actionCollection, importingMetaDTO.getBranchName());
+        // create or update base id for the action
+        // values already set to base id are kept unchanged
+        actionCollection.setBaseId(actionCollection.getBaseIdOrFallback());
+        actionCollection.setBranchName(importingMetaDTO.getBranchName());
 
         // generate gitSyncId if it's not present
         if (actionCollection.getGitSyncId() == null) {

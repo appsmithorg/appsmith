@@ -534,7 +534,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   } = props;
   const dispatch = useDispatch();
 
-  const params = useParams<{ apiId?: string; queryId?: string }>();
+  const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
 
   // passing lodash's equality function to ensure that this selector does not cause a rerender multiple times.
   // it checks each value to make sure none has changed before recomputing the actions.
@@ -544,7 +544,8 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   );
 
   const currentActionConfig: Action | undefined = actions.find(
-    (action) => action.id === params.apiId || action.id === params.queryId,
+    (action) =>
+      action.baseId === params.baseApiId || action.id === params.baseQueryId,
   );
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isChangePermitted = getHasManageActionPermission(

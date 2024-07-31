@@ -94,6 +94,7 @@ import {
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
+import { convertToPageIdSelector } from "selectors/pageListSelectors";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -174,15 +175,18 @@ interface State {
   navigation(): void;
 }
 
-type SaasEditorWrappperProps = RouteProps & {
+interface SaasEditorWrappperProps {
   hiddenHeader?: boolean; // for reconnect modal
   isInsideReconnectModal?: boolean; // for reconnect modal
   currentEnvironment: string;
   isOnboardingFlow?: boolean;
-};
-interface RouteProps {
   datasourceId: string;
   pageId: string;
+  pluginPackageName: string;
+}
+interface RouteProps {
+  datasourceId: string;
+  basePageId: string;
   pluginPackageName: string;
 }
 
@@ -722,6 +726,17 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 }
 
 const mapStateToProps = (state: AppState, props: any) => {
+  // This is only present during onboarding flow
+  const currentApplicationIdForCreateNewApp =
+    getCurrentApplicationIdForCreateNewApp(state);
+  const applicationId = !!currentApplicationIdForCreateNewApp
+    ? currentApplicationIdForCreateNewApp
+    : getCurrentApplicationId(state);
+
+  const basePageId = props.match?.params?.basePageId;
+  const pageIdFromUrl = convertToPageIdSelector(state, basePageId);
+  const pageId = props.pageId || pageIdFromUrl;
+
   const datasourceId = props.datasourceId || props.match?.params?.datasourceId;
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
@@ -809,10 +824,6 @@ const mapStateToProps = (state: AppState, props: any) => {
         )
       : false;
 
-  // This is only present during onboarding flow
-  const currentApplicationIdForCreateNewApp =
-    getCurrentApplicationIdForCreateNewApp(state);
-
   // should plugin be able to preview data
   const isPluginAllowedToPreviewData =
     !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
@@ -829,7 +840,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     formConfig,
     viewMode: viewMode ?? !props.isInsideReconnectModal,
     isNewDatasource: datasourcePane.newDatasource === TEMP_DATASOURCE_ID,
-    pageId: props.pageId || props.match?.params?.pageId,
+    pageId,
     plugin: plugin,
     pluginImage: getPluginImages(state)[pluginId],
     pluginPackageName:
@@ -839,9 +850,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     pluginId: pluginId,
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
-    applicationId: !!currentApplicationIdForCreateNewApp
-      ? currentApplicationIdForCreateNewApp
-      : getCurrentApplicationId(state),
+    applicationId,
     canManageDatasource,
     canDeleteDatasource,
     datasourceName: datasource?.name ?? "",

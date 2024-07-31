@@ -11,6 +11,7 @@ import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.notifications.EmailSender;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
@@ -84,6 +85,9 @@ public class EnvManagerTest {
 
     @MockBean
     private ObjectMapper objectMapper;
+
+    @MockBean
+    private AssetService assetService;
 
     @MockBean
     private EmailService emailService;
