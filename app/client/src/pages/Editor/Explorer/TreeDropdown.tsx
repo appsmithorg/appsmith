@@ -35,6 +35,8 @@ type Setter = (value: TreeDropdownOption, defaultVal?: string) => void;
 interface TreeDropdownProps {
   optionTree: TreeDropdownOption[];
   selectedValue: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getDefaults?: (value: any) => any;
   defaultText: string;
   onSelect: Setter;
@@ -168,7 +170,9 @@ export default function TreeDropdown(props: TreeDropdownProps) {
         onClick={
           option.children
             ? noop
-            : (e: any) => {
+            : // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              (e: any) => {
                 handleSelect(option);
                 e.stopPropagation();
               }
@@ -177,6 +181,8 @@ export default function TreeDropdown(props: TreeDropdownProps) {
           minimal: true,
           interactionKind: PopoverInteractionKind.CLICK,
           position: PopoverPosition.RIGHT,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           targetProps: { onClick: (e: any) => e.stopPropagation() },
         }}
         text={option.label}
@@ -228,6 +234,8 @@ export default function TreeDropdown(props: TreeDropdownProps) {
       }}
       position={props.position || PopoverPosition.RIGHT_TOP}
       targetProps={{
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onClick: (e: any) => {
           setIsOpen(true);
           e.stopPropagation();

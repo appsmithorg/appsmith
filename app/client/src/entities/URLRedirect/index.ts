@@ -5,8 +5,11 @@ export default abstract class URLRedirect {
   constructor(mode: APP_MODE) {
     this._mode = mode;
   }
+  // TODO: Fix this the next time the file is edited
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   abstract generateRedirectURL(
     basePageId: string,
     basePageIdInUrl?: string,
   ): any;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 }

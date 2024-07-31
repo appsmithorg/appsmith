@@ -1,7 +1,11 @@
 import type { CallbackHandlerEventType } from "./CallbackHandlerEventType";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CallbackHandlerBaseEvents = Record<CallbackHandlerEventType, any[]>;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CallbackHandlersCallback = (...args: any) => void;
 
 abstract class BaseCallbackHandler {
@@ -42,6 +46,8 @@ abstract class BaseCallbackHandler {
     const callbacks = this.events.get(type) || [];
     this.events.set(
       type,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       callbacks.filter((fn: any) => fn !== callback),
     );
     return this;

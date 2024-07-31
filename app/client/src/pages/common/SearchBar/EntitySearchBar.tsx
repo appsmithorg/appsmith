@@ -52,6 +52,8 @@ const HeaderSection = styled.div`
   }
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function EntitySearchBar(props: any) {
   const isMobile = useIsMobileDevice();
   const dispatch = useDispatch();

@@ -19,7 +19,11 @@ export interface WorkspaceReduxState {
     isFetchingEntities: boolean;
     isDeletingWorkspace: boolean;
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workspaceRoles: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   searchEntities: any;
 }
 
@@ -125,6 +129,8 @@ export const handlers = {
   },
   [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_SUCCESS]: (
     state: WorkspaceReduxState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<any>,
   ) => {
     return {

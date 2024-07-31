@@ -52,6 +52,8 @@ function logLatestEvalPropertyErrors(
     const entity = dataTree[entityName];
     const entityConfig = configTree[entityName];
     if (!entity || !entityConfig || !isDynamicEntity(entity)) continue;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const logBlackList = (entityConfig as any)?.logBlackList;
     if (logBlackList && propertyPath in logBlackList) continue;
     const allEvalErrors: EvaluationError[] = get(

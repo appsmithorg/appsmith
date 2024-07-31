@@ -43,11 +43,15 @@ const Row = styled.div`
 `;
 
 interface TemplateMenuProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTemplate: (template: any) => void;
   pluginId: string;
 }
 
 interface ReduxProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   allPluginTemplates: Record<string, any>;
 }
 

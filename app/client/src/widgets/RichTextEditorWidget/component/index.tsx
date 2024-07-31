@@ -347,6 +347,8 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
     "insertfile undo redo | blocks | bold italic underline backcolor forecolor | lineheight | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image | removeformat | table | print preview media | emoticons | code | help";
 
   const handleEditorChange = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (newValue: string, editor: any) => {
       // avoid updating value, when there is no actual change.
       if (newValue !== editorValue) {

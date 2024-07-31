@@ -67,6 +67,8 @@ function GoogleSheetSchema(props: Props) {
     [],
   );
   const [sheetOptions, setSheetOptions] = useState<DropdownOptions>([]);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [sheetData, setSheetData] = useState<any>([]);
   const [selectedSpreadsheet, setSelectedSpreadsheet] =
     useState<DropdownOption>({});

@@ -221,6 +221,8 @@ const mapStateToProps = (state: AppState) => ({
   pages: getPageList(state),
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => {
   return {
     initEditor: (payload: InitEditorActionPayload) =>

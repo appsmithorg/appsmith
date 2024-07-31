@@ -63,6 +63,8 @@ import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
 
 declare global {
   interface Window {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     grecaptcha: any;
   }
 }
@@ -157,7 +159,8 @@ export function SignUp(props: SignUpFormProps) {
         window.grecaptcha
           .execute(googleRecaptchaSiteKey.apiKey, {
             action: "submit",
-          })
+          }) // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .then(function (token: any) {
             if (formElement) {
               signupURL.searchParams.append("recaptchaToken", token);

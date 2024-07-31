@@ -84,11 +84,15 @@ enum ActionEntityPublicProperties {
 }
 
 const getActionBindings = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   entity: any,
   entityProperties: EntityProperty[],
   entityType: string,
   entityName: string,
 ) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const config = (entityDefinitions.ACTION as any)(entity as any);
 
   entityProperties = Object.keys(config || {})
@@ -165,6 +169,8 @@ export const getEntityPropertiesMap: Record<
   string,
   (
     entity: DataTreeEntityObject,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     entityProperties: any,
     entityType: string,
     entityName: string,

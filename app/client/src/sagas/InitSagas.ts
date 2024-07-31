@@ -165,6 +165,8 @@ export function* reportSWStatus() {
   const mode: APP_MODE = yield select(getAppMode);
   const startTime = Date.now();
   if ("serviceWorker" in navigator) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: { success: any; failed: any } = yield race({
       success: navigator.serviceWorker.ready.then((reg) => ({
         reg,
@@ -213,6 +215,8 @@ export function* getInitResponses({
   branch?: string;
   mode?: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): any {
   const params = pickBy(
     {
@@ -243,6 +247,8 @@ export function* getInitResponses({
       // its only invalid when there is a axios related error
       throw new Error("Error occured " + axiosConnectionAbortedCode);
     }
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     // when the user is an anonymous user we embed the url with the attempted route
     // this is taken care in ce code repo but not on ee

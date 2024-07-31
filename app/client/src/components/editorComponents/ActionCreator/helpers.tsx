@@ -149,6 +149,8 @@ export function getFieldFromValue(
 }
 
 function getActionEntityFields(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fields: any[],
   getParentValue: (changeValue: string) => string,
   value: string,
@@ -258,6 +260,8 @@ function getActionEntityFields(
 }
 
 function getJSFunctionExecutionFields(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fields: any[],
   getParentValue: (changeValue: string) => string,
   value: string,
@@ -298,6 +302,8 @@ function getJSFunctionExecutionFields(
 }
 
 function getFieldsForSelectedAction(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fields: any[],
   getParentValue: (changeValue: string) => string,
   value: string,
@@ -399,6 +405,8 @@ export function getApiQueriesAndJSActionOptionsWithChildren(
   plugins: Plugin[],
   actions: ActionDataState,
   jsActions: Array<JSCollectionData>,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
   handleClose: () => void,
   queryModuleInstances: ModuleInstanceDataState,
@@ -424,12 +432,16 @@ export function getApiQueriesAndJSActionOptionsWithChildren(
 function getApiAndQueryOptions(
   plugins: Plugin[],
   actions: ActionDataState,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
   handleClose: () => void,
   queryModuleInstances: ModuleInstanceDataState,
   modules: Record<string, Module>,
 ) {
   const pluginImages = getPluginImagesFromPlugins(plugins);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pluginGroups: any = keyBy(plugins, "id");
 
   const createQueryObject: TreeDropdownOption = {
@@ -482,6 +494,8 @@ function getApiAndQueryOptions(
         type: queryOptions.value,
         icon: getActionConfig(api.config.pluginType)?.getIcon(
           api.config,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           pluginGroups[(api as any).config.datasource.pluginId],
           api.config.pluginType === PluginType.API,
         ),
@@ -496,6 +510,8 @@ function getApiAndQueryOptions(
         type: queryOptions.value,
         icon: getActionConfig(query.config.pluginType)?.getIcon(
           query.config,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           pluginGroups[(query as any).config.datasource.pluginId],
         ),
       } as TreeDropdownOption);
@@ -516,6 +532,8 @@ function getApiAndQueryOptions(
 export function getJSOptions(
   pageId: string,
   jsActions: Array<JSCollectionData>,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
   jsModuleInstances: ReturnType<typeof getJSModuleInstancesData>,
 ) {
@@ -564,6 +582,8 @@ export function getJSOptions(
 
           jsAction.config.actions.forEach((js: JSAction) => {
             const jsArguments = js.actionConfiguration?.jsArguments;
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const argValue: Array<any> = [];
 
             if (jsArguments && jsArguments.length) {
@@ -610,6 +630,8 @@ export function getJSOptions(
 
           jsModuleInstance.config.actions.forEach((js: JSAction) => {
             const jsArguments = js.actionConfiguration?.jsArguments;
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const argValue: Array<any> = [];
 
             if (jsArguments && jsArguments.length) {

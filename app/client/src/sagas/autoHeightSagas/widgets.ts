@@ -604,6 +604,8 @@ export function* updateWidgetAutoHeightSaga(
           const widget = widgetsToUpdate[updatingWidget];
           const enhancedUpdates = widget.map((eachUpdate) => {
             if (dimensions.includes(eachUpdate.propertyPath)) {
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               eachUpdate.propertyPath = (dimensionMap as any)[
                 eachUpdate.propertyPath
               ];

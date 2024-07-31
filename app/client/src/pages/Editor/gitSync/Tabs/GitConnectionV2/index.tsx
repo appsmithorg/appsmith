@@ -103,6 +103,8 @@ interface GitConnectionV2Props {
 }
 
 function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [errorData, setErrorData] = useState<any>();
   const isImportingViaGit = useSelector(getIsImportingApplicationViaGit);
   const dispatch = useDispatch();
@@ -175,6 +177,8 @@ function GitConnectionV2({ isImport = false }: GitConnectionV2Props) {
                   gitProfile,
                 },
                 {
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onErrorCallback: (error: any, response?: any) => {
                     // AE-GIT-4033 is repo not empty error
                     if (response?.responseMeta?.error?.code === "AE-GIT-4033") {

@@ -62,6 +62,8 @@ describe("WidgetOperationSaga - ", () => {
       });
 
       value.next(); // start
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       value.next(widget as any); // yield select
       value.next({
         ...widget,
@@ -70,9 +72,13 @@ describe("WidgetOperationSaga - ", () => {
             key: "isVisible",
           },
         ],
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
       value.next({
         test: widget,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any); // yield select
       value.next(); //yield put
       expect(updateAndSaveLayoutMock).toHaveBeenCalledWith({
@@ -97,15 +103,21 @@ describe("WidgetOperationSaga - ", () => {
         },
       });
       value.next(); // start
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       value.next(widget1 as any); // yield select
       value.next({
         ...widget1,
         dynamicPropertyPathList: [],
         dynamicBindingPathList: [],
         isVisible: 1,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any);
       value.next({
         test: widget1,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } as any); // yield select
       value.next(); //yield put
       expect(updateAndSaveLayoutMock).toHaveBeenCalledWith({
@@ -121,14 +133,20 @@ describe("WidgetOperationSaga - ", () => {
 
 describe("Should test handleUpdateWidgetDynamicProperty ", () => {
   it("should update dynamicBindingPathList on js toggle and return the widget with dynamicBindingPath", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const value = handleUpdateWidgetDynamicProperty(widget as any, {
       isDynamic: true,
       propertyPath: "isVisible",
     });
     value.next(); // start
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value.next(widget as any); // yield select
     value.next({
       test: widget,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any); // yield select
     value.return({
       test: {
@@ -139,6 +157,8 @@ describe("Should test handleUpdateWidgetDynamicProperty ", () => {
           },
         ],
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
     expect(value.next().done).toEqual(true);
   });
@@ -159,6 +179,8 @@ describe("Should test batchUpdateWidgetDynamicPropertySaga ", () => {
       },
     });
     value.next(); // start
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value.next(widget as any); // yield select
     value.next({
       ...widget,
@@ -167,9 +189,13 @@ describe("Should test batchUpdateWidgetDynamicPropertySaga ", () => {
           key: "isVisible",
         },
       ],
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
     value.next({
       test: widget,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any); // yield select
     value.next(); //yield put
     expect(updateAndSaveLayoutMock).toHaveBeenCalledWith({
@@ -197,15 +223,21 @@ describe("Should test batchUpdateWidgetDynamicPropertySaga ", () => {
       },
     });
     value.next(); // start
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value.next(widget1 as any); // yield select
     value.next({
       ...widget1,
       dynamicPropertyPathList: [],
       dynamicBindingPathList: [],
       isVisible: 1,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any);
     value.next({
       test: widget1,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any); // yield select
     value.next(); //yield put
     expect(updateAndSaveLayoutMock).toHaveBeenCalledWith({

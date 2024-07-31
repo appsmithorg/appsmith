@@ -166,6 +166,8 @@ export interface FetchUsersApplicationsWorkspacesResponse extends ApiResponse {
     workspaceApplications: Array<WorkspaceApplicationObject>;
     user: string;
     newReleasesCount?: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     releaseItems?: Array<Record<string, any>>;
   };
 }
@@ -175,6 +177,8 @@ export interface FetchApplicationsOfWorkspaceResponse extends ApiResponse {
 export interface FetchReleaseItemsResponse extends ApiResponse {
   data: {
     newReleasesCount: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     releaseItems: Array<Record<string, any>>;
   };
 }
@@ -308,6 +312,8 @@ export class ApplicationApi extends Api {
 
   static async fetchAllApplicationsOfWorkspace(
     workspaceId: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): Promise<any> {
     return Api.get(ApplicationApi.baseURL + "/home?workspaceId=" + workspaceId);
   }

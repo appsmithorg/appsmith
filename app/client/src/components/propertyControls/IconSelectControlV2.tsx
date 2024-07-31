@@ -126,6 +126,8 @@ export interface IconSelectControlState {
 const NONE = "(none)";
 const EMPTY = "";
 type IconType = Required<IconProps>["name"] | typeof NONE | typeof EMPTY;
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ICON_NAMES = Object.keys(ICONS) as any as IconType[];
 const icons = new Set(ICON_NAMES);
 
@@ -175,6 +177,8 @@ class IconSelectControlV2 extends BaseControl<
   // debouncedSetState is used to fix the following bug:
   // https://github.com/appsmithorg/appsmith/pull/10460#issuecomment-1022895174
   private debouncedSetState = _.debounce(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (obj: any, callback?: () => void) => {
       this.setState((prevState: IconSelectControlState) => {
         return {
@@ -474,6 +478,8 @@ class IconSelectControlV2 extends BaseControl<
 
   static canDisplayValueInUI(
     config: IconSelectControlV2Props,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ): boolean {
     if (icons.has(value)) return true;

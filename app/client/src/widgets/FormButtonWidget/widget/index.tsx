@@ -47,6 +47,8 @@ class FormButtonWidget extends ButtonWidget {
       replacement: "BUTTON_WIDGET",
       needsMeta: true,
       tags: [WIDGET_TAGS.BUTTONS],
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any; // TODO (Sangeeth): Type error
   }
 
@@ -60,6 +62,8 @@ class FormButtonWidget extends ButtonWidget {
       recaptchaType: RecaptchaTypes.V3,
       version: 1,
       animateLoading: true,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any; // TODO (Sangeeth): Type error
   }
 

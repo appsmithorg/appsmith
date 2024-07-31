@@ -33,6 +33,8 @@ interface NewActionButtonProps {
   isLoading?: boolean;
   eventFrom?: string; // this is to track from where the new action is being generated
   pluginType?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   style?: any;
   isNewQuerySecondaryButton?: boolean;
 }

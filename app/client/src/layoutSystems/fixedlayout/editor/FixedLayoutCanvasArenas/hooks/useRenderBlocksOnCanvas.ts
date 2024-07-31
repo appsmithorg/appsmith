@@ -52,6 +52,8 @@ export const useRenderBlocksOnCanvas = (
       scrollParent &&
       isCurrentDraggedCanvas
     ) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
       const topOffset = getAbsolutePixels(stickyCanvasRef.current.style.top);
       const leftOffset = getAbsolutePixels(stickyCanvasRef.current.style.left);
@@ -131,6 +133,8 @@ export const useRenderBlocksOnCanvas = (
       canvasIsDragging &&
       stickyCanvasRef.current
     ) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
       canvasCtx.save();
       canvasCtx.clearRect(

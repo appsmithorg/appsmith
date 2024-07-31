@@ -31,15 +31,27 @@ export interface AppEnginePayload {
 }
 
 export interface IAppEngine {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setupEngine(payload: AppEnginePayload, rootSpan: Span): any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadAppData(payload: AppEnginePayload, rootSpan: Span): any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadAppURL(pageId: string, pageIdInUrl?: string): any;
   loadAppEntities(
     toLoadPageId: string,
     applicationId: string,
     rootSpan: Span,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   loadGit(applicationId: string): any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   completeChore(): any;
 }
 
@@ -57,6 +69,8 @@ export default abstract class AppEngine {
   }
   private _urlRedirect: URLRedirect | null;
 
+  // TODO: Fix this the next time the file is edited
+  /* eslint-disable @typescript-eslint/no-explicit-any */
   abstract loadAppEntities(
     toLoadPageId: string,
     applicationId: string,
@@ -67,6 +81,7 @@ export default abstract class AppEngine {
   abstract startPerformanceTracking(): any;
   abstract stopPerformanceTracking(): any;
   abstract completeChore(rootSpan: Span): any;
+  /* eslint-enable @typescript-eslint/no-explicit-any */
 
   *loadAppData(
     payload: AppEnginePayload,
@@ -118,6 +133,8 @@ export default abstract class AppEngine {
     return { toLoadPageId, toLoadBasePageId, applicationId: application.id };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   *setupEngine(payload: AppEnginePayload, rootSpan: Span): any {
     const setupEngineSpan = startNestedSpan("AppEngine.setupEngine", rootSpan);
 

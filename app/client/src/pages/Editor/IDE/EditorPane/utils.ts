@@ -10,6 +10,8 @@ const FUSE_OPTIONS = {
   keys: ["title"],
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fuzzySearchInObjectItems = <T extends any[]>(
   searchStr: string,
   files: T,

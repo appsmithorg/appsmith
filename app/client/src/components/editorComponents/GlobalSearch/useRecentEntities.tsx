@@ -15,6 +15,8 @@ import { useMemo } from "react";
 
 const recentEntitiesSelector = (state: AppState) =>
   state.ui.globalSearch.recentEntities || [];
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const emptyArr: any = [];
 const useResentEntities = (): Array<
   DataTreeEntityObject & {

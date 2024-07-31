@@ -30,6 +30,8 @@ describe("PostMessageSaga", () => {
 
   describe("executePostMessage function", () => {
     it("calls window.parent with message and target origin", () => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dispatched: any[] = [];
 
       const postMessage = jest.spyOn(window.parent, "postMessage");

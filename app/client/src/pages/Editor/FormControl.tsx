@@ -68,8 +68,12 @@ function FormControl(props: FormControlProps) {
     shallowEqual,
   );
   const dsId =
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ((formValues as Action)?.datasource as any)?.id ||
     (formValues as Datasource)?.id;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pluginTemplates: Record<string, any> = useSelector((state: AppState) =>
     getPluginTemplates(state),
   );

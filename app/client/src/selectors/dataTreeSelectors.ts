@@ -152,6 +152,8 @@ export const getIsWidgetLoading = createSelector(
 export const getDataTree = (state: AppState): DataTree =>
   state.evaluations.tree;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getConfigTree = (): any => {
   return ConfigTreeActions.getConfigTree();
 };

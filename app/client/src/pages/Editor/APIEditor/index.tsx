@@ -44,7 +44,11 @@ import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function getPageName(pages: any, basePageId: string) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const page = pages.find((page: any) => page.basePageId === basePageId);
   return page ? page.pageName : "";
 }
