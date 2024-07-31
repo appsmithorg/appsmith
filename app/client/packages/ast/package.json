@@ -28,7 +28,7 @@
     "rollup-plugin-generate-package-json": "^3.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-typescript2": "^0.32.0",
-    "typescript": "5.4",
+    "typescript": "^5.5.4",
     "unescape-js": "^1.1.4"
   },
   "devDependencies": {
