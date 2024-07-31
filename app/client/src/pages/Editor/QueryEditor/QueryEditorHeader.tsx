@@ -20,7 +20,7 @@ import type { Plugin } from "api/PluginApi";
 import type { Datasource } from "entities/Datasource";
 import type { AppState } from "@appsmith/reducers";
 import { SQL_DATASOURCES } from "constants/QueryEditorConstants";
-import DatasourceSelector from "./DatasourceSelector";
+import Params from "./Params";
 
 const NameWrapper = styled.div`
   display: flex;
@@ -52,14 +52,7 @@ interface Props {
 }
 
 const QueryEditorHeader = (props: Props) => {
-  const {
-    dataSources,
-    formName,
-    isRunning,
-    onCreateDatasourceClick,
-    onRunClick,
-    plugin,
-  } = props;
+  const { isRunning, onRunClick } = props;
   const { moreActionsMenu, saveActionName } = useContext(QueryEditorContext);
 
   const activeActionBaseId = useActiveActionBaseId();
@@ -111,13 +104,7 @@ const QueryEditorHeader = (props: Props) => {
       </NameWrapper>
       <ActionsWrapper>
         {moreActionsMenu}
-        <DatasourceSelector
-          currentActionConfig={currentActionConfig}
-          dataSources={dataSources}
-          formName={formName}
-          onCreateDatasourceClick={onCreateDatasourceClick}
-          plugin={plugin}
-        />
+        <Params />
         <Button
           className="t--run-query"
           data-guided-tour-iid="run-query"
