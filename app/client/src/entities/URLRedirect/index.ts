@@ -5,5 +5,8 @@ export default abstract class URLRedirect {
   constructor(mode: APP_MODE) {
     this._mode = mode;
   }
-  abstract generateRedirectURL(pageId: string, pageIdInUrl?: string): any;
+  abstract generateRedirectURL(
+    basePageId: string,
+    basePageIdInUrl?: string,
+  ): any;
 }

@@ -31,7 +31,10 @@ import {
   getPageNameByPageId,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentBasePageId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import type { JSCollectionCreateUpdateResponse } from "@appsmith/api/JSActionAPI";
 import JSActionAPI from "@appsmith/api/JSActionAPI";
 import {
@@ -75,6 +78,7 @@ import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 import { getAllActionTestPayloads } from "utils/storage";
+import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -198,11 +202,12 @@ export function* copyJSCollectionSaga(
 export function* handleMoveOrCopySaga(
   actionPayload: ReduxAction<JSCollection>,
 ) {
-  const { id, pageId } = actionPayload.payload;
+  const { baseId: baseCollectionId, pageId } = actionPayload.payload;
+  const basePageId: string = yield select(convertToBasePageIdSelector, pageId);
   history.push(
     jsCollectionIdURL({
-      pageId: pageId,
-      collectionId: id,
+      basePageId,
+      baseCollectionId: baseCollectionId,
     }),
   );
 }
@@ -299,7 +304,7 @@ export function* deleteJSCollectionSaga(
   try {
     const id = actionPayload.payload.id;
     const currentUrl = window.location.pathname;
-    const pageId: string = yield select(getCurrentPageId);
+    const basePageId: string = yield select(getCurrentBasePageId);
     const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
     const ideType = getIDETypeByUrl(currentUrl);
@@ -313,7 +318,7 @@ export function* deleteJSCollectionSaga(
       if (ideType === IDE_TYPE.App) {
         yield call(handleJSEntityRedirect, id);
       } else {
-        history.push(builderURL({ pageId }));
+        history.push(builderURL({ basePageId }));
       }
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
@@ -327,11 +332,11 @@ export function* deleteJSCollectionSaga(
         },
       });
       yield put(deleteJSCollectionSuccess({ id }));
-      yield put(closeJsActionTabSuccess({ id, parentId: pageId }));
+      yield put(closeJsActionTabSuccess({ id, parentId: basePageId }));
 
       const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
-      if (pageId) {
+      if (basePageId) {
         yield put(
           updateAndSaveLayout(widgets, {
             shouldReplay: false,
@@ -388,7 +393,7 @@ export function* refactorJSObjectName(
   oldName: string,
   newName: string,
 ) {
-  const params: FetchPageRequest = { id: pageId, migrateDSL: true };
+  const params: FetchPageRequest = { pageId, migrateDSL: true };
   const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   // check if page request is successful
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);

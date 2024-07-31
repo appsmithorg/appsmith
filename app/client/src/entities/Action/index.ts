@@ -161,8 +161,10 @@ export interface StoredDatasource {
 
 export interface BaseAction {
   id: string;
+  baseId: string;
   name: string;
   workspaceId: string;
+  applicationId: string;
   pageId: string;
   collectionId?: string;
   pluginId: string;
@@ -233,6 +235,7 @@ export interface QueryAction extends BaseAction {
 
 export interface ActionViewMode {
   id: string;
+  baseId: string;
   name: string;
   pageId: string;
   jsonPathKeys: string[];

@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 import { removeSpecialChars } from "utils/helpers";
 import type { AppState } from "@appsmith/reducers";
 import {
-  getJSCollection,
+  getJsCollectionByBaseId,
   getPlugin,
 } from "@appsmith/selectors/entitiesSelector";
 import {
@@ -45,10 +45,13 @@ export interface JSObjectNameEditorProps {
 }
 
 export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
-  const params = useParams<{ collectionId?: string; queryId?: string }>();
+  const params = useParams<{
+    baseCollectionId?: string;
+    baseQueryId?: string;
+  }>();
 
   const currentJSObjectConfig = useSelector((state: AppState) =>
-    getJSCollection(state, params.collectionId || ""),
+    getJsCollectionByBaseId(state, params.baseCollectionId || ""),
   );
 
   const currentPlugin = useSelector((state: AppState) =>

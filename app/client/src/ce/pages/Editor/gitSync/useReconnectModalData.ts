@@ -5,6 +5,8 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { EditorNames } from "@appsmith/hooks";
+import { getApplicationByIdFromWorkspaces } from "@appsmith/selectors/applicationSelectors";
+import { useSelector } from "react-redux";
 
 interface UseReconnectModalDataProps {
   pageId: string | null;
@@ -12,10 +14,16 @@ interface UseReconnectModalDataProps {
 }
 
 function useReconnectModalData({ appId, pageId }: UseReconnectModalDataProps) {
+  const application = useSelector((state) =>
+    getApplicationByIdFromWorkspaces(state, appId ?? ""),
+  );
+  const basePageId = application?.pages?.find(
+    (page) => page.id === pageId,
+  )?.baseId;
   const editorURL =
-    pageId &&
+    basePageId &&
     builderURL({
-      pageId,
+      basePageId,
     });
 
   return {

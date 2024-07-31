@@ -27,9 +27,11 @@ export const initialState: any = {
     pageList: {
       applicationId: 1,
       currentPageId: "0123456789abcdef00000000",
+      currentBasePageId: "0123456789abcdef00000123",
       pages: [
         {
           pageId: "0123456789abcdef00000000",
+          basePageId: "0123456789abcdef00000123",
           slug: "pageSlug",
         },
       ],
@@ -67,6 +69,7 @@ export const initialState: any = {
     applications: {
       currentApplication: {
         id: "605c435a91dea93f0eaf91b8",
+        baseId: "605c435a91dea93f0eaf9123",
         name: "My Application",
         slug: "my-application",
         workspaceId: "",
@@ -126,6 +129,7 @@ export const fetchApplicationMockResponse = {
   data: {
     application: {
       id: "605c435a91dea93f0eaf91b8",
+      baseId: "605c435a91dea93f0eaf9123",
       name: "My Application",
       slug: "my-application",
       workspaceId: "",
@@ -139,12 +143,14 @@ export const fetchApplicationMockResponse = {
     pages: [
       {
         id: "605c435a91dea93f0eaf91ba",
+        baseId: "605c435a91dea93f0eaf9123",
         name: "Page1",
         isDefault: true,
         slug: "page-1",
       },
       {
         id: "605c435a91dea93f0eaf91bc",
+        baseId: "605c435a91dea93f0eaf9123",
         name: "Page2",
         isDefault: false,
         slug: "page-2",
@@ -162,7 +168,7 @@ describe("App viewer fork button", () => {
           <PrimaryCTA
             navColorStyle="solid"
             primaryColor="red"
-            url={"/app/test-3/page1-63cccd44463c535b9fbc297c/edit"}
+            url={"/app/test-3/page1-605c435a91dea93f0eaf9123/edit"}
           />
         </ThemeProvider>
       </Provider>,
@@ -178,7 +184,7 @@ describe("App viewer fork button", () => {
           <PrimaryCTA
             navColorStyle="solid"
             primaryColor="red"
-            url={"/app/test-3/page1-63cccd44463c535b9fbc297c/edit"}
+            url={"/app/test-3/page1-605c435a91dea93f0eaf9123/edit"}
           />
         </ThemeProvider>
       </Provider>,

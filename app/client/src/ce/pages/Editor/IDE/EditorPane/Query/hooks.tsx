@@ -127,7 +127,7 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
         key: "AddQuery",
         exact: true,
         component: AddQuery,
-        path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
+        path: [`${path}${ADD_PATH}`, `${path}/:baseQueryId${ADD_PATH}`],
       },
       {
         key: "SAASEditor",
@@ -143,7 +143,7 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
         key: "QueryEditor",
         component: QueryEditor,
         exact: true,
-        path: [path + "/:queryId"],
+        path: [path + "/:baseQueryId"],
       },
       {
         key: "QueryEmpty",
@@ -158,7 +158,7 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
       key: "ListQuery",
       exact: false,
       component: ListQuery,
-      path: [path, `${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
+      path: [path, `${path}${ADD_PATH}`, `${path}/:baseQueryId${ADD_PATH}`],
     },
   ];
 };

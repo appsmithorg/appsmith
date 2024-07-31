@@ -58,13 +58,13 @@ describe("Entity Explorer tests", () => {
   beforeEach(() => {
     urlBuilder.updateURLParams(
       {
-        applicationId: "appId",
+        baseApplicationId: "appId",
         applicationSlug: "appSlug",
         applicationVersion: 2,
       },
       [
         {
-          pageId: "pageId",
+          basePageId: "pageId",
           pageSlug: "pageSlug",
         },
       ],

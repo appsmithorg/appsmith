@@ -9,7 +9,7 @@ import java.util.Set;
 
 public interface RefactoringServiceCE {
 
-    Mono<LayoutDTO> refactorEntityName(RefactorEntityNameDTO refactorEntityNameDTO, String branchName);
+    Mono<LayoutDTO> refactorEntityName(RefactorEntityNameDTO refactorEntityNameDTO);
 
     Mono<Boolean> isNameAllowed(String contextId, CreatorContextType contextType, String layoutId, String newName);
 

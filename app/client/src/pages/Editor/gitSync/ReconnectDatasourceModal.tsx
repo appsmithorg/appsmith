@@ -43,7 +43,7 @@ import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
-import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
+import { findDefaultPage } from "@appsmith/sagas/ApplicationSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getOAuthAccessToken,
@@ -75,6 +75,7 @@ import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import useReconnectModalData from "@appsmith/pages/Editor/gitSync/useReconnectModalData";
 import { resetImportData } from "@appsmith/actions/workspaceActions";
+import { getLoadingTokenForDatasourceId } from "selectors/datasourceSelectors";
 
 const Section = styled.div`
   display: flex;
@@ -261,6 +262,9 @@ function ReconnectDatasourceModal() {
   const pluginsArray = useSelector(getDatasourcePlugins);
   const plugins = keyBy(pluginsArray, "id");
   const isLoading = useSelector(getIsListing);
+  const loadingTokenForDatasourceId = useSelector(
+    getLoadingTokenForDatasourceId,
+  );
   const isDatasourceTesting = useSelector(getIsDatasourceTesting);
   const isDatasourceUpdating = useSelector(getDatasourceLoading);
 
@@ -367,11 +371,11 @@ function ReconnectDatasourceModal() {
             }),
           );
           dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
-          const defaultPageId = getDefaultPageId(app.pages);
+          const defaultPage = findDefaultPage(app.pages);
           if (pageIdForImport) {
             setPageId(pageIdForImport);
-          } else if (defaultPageId) {
-            setPageId(defaultPageId);
+          } else if (defaultPage) {
+            setPageId(defaultPage?.id);
           }
           if (!datasources.length) {
             dispatch({
@@ -562,7 +566,10 @@ function ReconnectDatasourceModal() {
   });
 
   const shouldShowDBForm =
-    isConfigFetched && !isLoading && !checkIfDatasourceIsConfigured(datasource);
+    isConfigFetched &&
+    !isLoading &&
+    !checkIfDatasourceIsConfigured(datasource) &&
+    datasources.findIndex((ds) => ds.id === loadingTokenForDatasourceId) === -1;
 
   const onSkipBtnClick = () => {
     AnalyticsUtil.logEvent("RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK");

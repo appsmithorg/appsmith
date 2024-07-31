@@ -42,8 +42,8 @@ import {
 } from "sagas/ActionExecution/geolocationSaga";
 import { postMessageSaga } from "sagas/ActionExecution/PostMessageSaga";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
-import { getActionById } from "selectors/editorSelectors";
 import type { AppState } from "@appsmith/reducers";
+import { getAction } from "@appsmith/selectors/entitiesSelector";
 
 export interface TriggerMeta {
   source?: TriggerSource;
@@ -71,15 +71,8 @@ export function* executeActionTriggers(
       break;
     case "CLEAR_PLUGIN_ACTION":
       yield put(clearActionResponse(trigger.payload.actionId));
-      const action: ReturnType<typeof getActionById> = yield select(
-        (state: AppState) =>
-          getActionById(state, {
-            match: {
-              params: {
-                apiId: trigger.payload.actionId,
-              },
-            },
-          }),
+      const action: ReturnType<typeof getAction> = yield select(
+        (state: AppState) => getAction(state, trigger.payload.actionId),
       );
       if (action) {
         yield put(

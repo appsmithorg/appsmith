@@ -86,13 +86,13 @@ export const useJSSegmentRoutes = (path: string): UseRoutes => {
         exact: true,
         key: "AddJS",
         component: AddJS,
-        path: [`${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
+        path: [`${path}${ADD_PATH}`, `${path}/:baseCollectionId${ADD_PATH}`],
       },
       {
         exact: true,
         key: "JSEditor",
         component: JSEditor,
-        path: [path + "/:collectionId"],
+        path: [path + "/:baseCollectionId"],
       },
       {
         key: "JSEmpty",
@@ -107,7 +107,11 @@ export const useJSSegmentRoutes = (path: string): UseRoutes => {
       exact: false,
       key: "ListJS",
       component: ListJS,
-      path: [path, `${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
+      path: [
+        path,
+        `${path}${ADD_PATH}`,
+        `${path}/:baseCollectionId${ADD_PATH}`,
+      ],
     },
   ];
 };

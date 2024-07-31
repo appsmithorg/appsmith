@@ -75,7 +75,7 @@ interface DispatchFunctions {
 }
 
 type RouteProps = RouteComponentProps<{
-  pageId: string;
+  basePageId: string;
   pluginPackageName: string;
 }>;
 
@@ -89,13 +89,13 @@ class ListView extends React.Component<Props> {
     const {
       location,
       match: {
-        params: { pageId },
+        params: { basePageId },
       },
     } = this.props;
     const params: string = location.search;
     let pgId = new URLSearchParams(params).get("importTo");
     if (!pgId) {
-      pgId = pageId;
+      pgId = basePageId;
     }
     if (pgId) {
       this.props.createAction({
@@ -163,7 +163,7 @@ class ListView extends React.Component<Props> {
     const {
       history,
       match: {
-        params: { pageId },
+        params: { basePageId },
       },
     } = this.props;
     return (
@@ -173,7 +173,7 @@ class ListView extends React.Component<Props> {
           onBackButton={() =>
             history.push(
               integrationEditorURL({
-                pageId,
+                basePageId,
                 selectedTab: INTEGRATION_TABS.ACTIVE,
               }),
             )

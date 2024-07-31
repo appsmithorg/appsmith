@@ -14,6 +14,7 @@ import type { Action } from "entities/Action";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getActionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import { extractConditionalOutput } from "components/formControls/utils";
+import { getActionByBaseId } from "@appsmith/selectors/entitiesSelector";
 
 export interface GetFormData {
   initialValues: Record<string, unknown>;
@@ -43,9 +44,12 @@ export const getDynamicFetchedValues = (
   state: AppState,
   config: any,
 ): DynamicValues => {
+  const baseActionId = getActionIdFromURL();
+  const action = getActionByBaseId(state, baseActionId as string);
+  const actionId = action?.id ?? "";
   const conditionalOutput = extractConditionalOutput(
     config,
-    state.evaluations.triggers[getActionIdFromURL() as string],
+    state.evaluations.triggers[actionId],
   );
   return !!conditionalOutput.fetchDynamicValues
     ? conditionalOutput.fetchDynamicValues

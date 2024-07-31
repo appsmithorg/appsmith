@@ -19,7 +19,6 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { Button, Divider, Text } from "design-system";
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentApplication } from "selectors/editorSelectors";
 import {
   getAutocommitEnabledSelector,
   getGitMetadataLoadingSelector,
@@ -32,6 +31,7 @@ import {
   useHasConnectToGitPermission,
   useHasManageAutoCommitPermission,
 } from "../../hooks/gitPermissionHooks";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 const Container = styled.div`
   padding-top: 16px;

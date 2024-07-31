@@ -7,9 +7,13 @@ import type { AppState } from "@appsmith/reducers";
 import { getWidget } from "sagas/selectors";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
+  getCurrentBasePageId,
 } from "selectors/editorSelectors";
-import { getAction, getPlugins } from "@appsmith/selectors/entitiesSelector";
+import {
+  getAction,
+  getActionByBaseId,
+  getPlugins,
+} from "@appsmith/selectors/entitiesSelector";
 import { onApiEditor, onCanvas, onQueryEditor } from "../helpers";
 import { getLastSelectedWidget } from "selectors/ui";
 import { getConfigTree, getDataTree } from "selectors/dataTreeSelectors";
@@ -93,9 +97,9 @@ export const useSelectedEntity = () => {
   const params: any = useParams();
   const action = useSelector((state: AppState) => {
     if (onApiEditor() || onQueryEditor()) {
-      const id = params.apiId || params.queryId;
+      const baseId = params.baseApiId || params.baseQueryId;
 
-      return getAction(state, id);
+      return getActionByBaseId(state, baseId);
     }
 
     return null;
@@ -128,7 +132,7 @@ export const useSelectedEntity = () => {
 };
 
 export const useEntityLink = () => {
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
   const plugins = useSelector(getPlugins);
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -136,21 +140,23 @@ export const useEntityLink = () => {
 
   const navigateToEntity = useCallback(
     (name) => {
-      const dataTree = getDataTree(store.getState());
+      const appState = store.getState();
+      const dataTree = getDataTree(appState);
       const configTree = getConfigTree();
       const entity = dataTree[name];
       const entityConfig = configTree[name];
-      if (!pageId) return;
+      if (!basePageId) return;
       if (isWidget(entity)) {
         const widgetEntity = entity as WidgetEntity;
         navigateToWidget(
           widgetEntity.widgetId,
           entity.type,
-          pageId || "",
+          basePageId || "",
           NavigationMethod.Debugger,
         );
       } else if (isAction(entity)) {
         const actionConfig = getActionConfig(entityConfig.pluginType);
+        const action = getAction(appState, entity.actionId);
         let plugin;
         if (entityConfig?.pluginType === PluginType.SAAS) {
           plugin = plugins.find(
@@ -160,8 +166,8 @@ export const useEntityLink = () => {
         const url =
           applicationId &&
           actionConfig?.getURL(
-            pageId,
-            entity.actionId,
+            basePageId,
+            action?.baseId || "",
             entityConfig.pluginType,
             plugin,
           );
@@ -170,15 +176,16 @@ export const useEntityLink = () => {
           history.push(url);
         }
       } else if (isJSAction(entity)) {
+        const action = getAction(appState, entity.actionId);
         history.push(
           jsCollectionIdURL({
-            pageId,
-            collectionId: entity.actionId,
+            basePageId,
+            baseCollectionId: action?.baseId || "",
           }),
         );
       }
     },
-    [pageId],
+    [basePageId],
   );
 
   return {

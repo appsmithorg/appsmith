@@ -69,6 +69,7 @@ const collectionData: JSCollectionData = {
   isLoading: false,
   config: {
     id: "12",
+    baseId: "b12",
     applicationId: "app1",
     workspaceId: "w1234",
     name: "asas",

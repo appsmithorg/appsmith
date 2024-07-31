@@ -21,22 +21,12 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
     Flux<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission aclPermission);
 
-    Flux<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-            String name,
-            List<String> pageIds,
-            boolean viewMode,
-            String branchName,
-            AclPermission aclPermission,
-            Sort sort);
-
     Flux<ActionCollection> findByPageId(String pageId, AclPermission permission);
 
     Flux<ActionCollection> findByPageId(String pageId);
 
-    Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
-            String branchName, String defaultCollectionId, AclPermission permission);
-
-    Flux<ActionCollection> findByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
+    Mono<ActionCollection> findByBranchNameAndBaseCollectionId(
+            String branchName, String baseCollectionId, AclPermission permission);
 
     Flux<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission);
 
