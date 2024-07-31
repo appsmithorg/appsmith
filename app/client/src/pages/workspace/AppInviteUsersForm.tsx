@@ -50,7 +50,7 @@ function AppInviteUsersForm(props: any) {
     changeAppViewAccess,
     currentApplicationDetails,
     currentUser,
-    defaultPageId,
+    defaultBasePageId,
     fetchCurrentWorkspace,
     isChangingViewAccess,
     isFetchingApplication,
@@ -96,10 +96,10 @@ function AppInviteUsersForm(props: any) {
 
   const appViewEndPoint = React.useMemo(() => {
     const url = viewerURL({
-      pageId: defaultPageId,
+      basePageId: defaultBasePageId,
     });
     return window.location.origin.toString() + url;
-  }, [defaultPageId]);
+  }, [defaultBasePageId]);
 
   useEffect(() => {
     if (currentUser?.name !== ANONYMOUS_USERNAME) {
@@ -178,7 +178,7 @@ export default connect(
     return {
       currentUser: getCurrentUser(state),
       currentApplicationDetails: state.ui.applications.currentApplication,
-      defaultPageId: state.entities.pageList.defaultPageId,
+      defaultPageId: state.entities.pageList.defaultBasePageId,
       isFetchingApplication: state.ui.applications.isFetchingApplication,
       isChangingViewAccess: state.ui.applications.isChangingViewAccess,
     };

@@ -195,7 +195,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                     .setAuthentication(updatableConnection.getAuthenticationDTO(
                             datasourceStorage.getDatasourceConfiguration().getAuthentication()));
             datasourceStorageMono = datasourceStorageService.updateDatasourceStorage(
-                    datasourceStorage, datasourceStorage.getEnvironmentId(), Boolean.FALSE);
+                    datasourceStorage, datasourceStorage.getEnvironmentId(), Boolean.FALSE, false);
         }
         return datasourceStorageMono.thenReturn(connection);
     }

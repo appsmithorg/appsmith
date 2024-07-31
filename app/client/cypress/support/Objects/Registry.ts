@@ -28,9 +28,10 @@ import { AssertHelper } from "../Pages/AssertHelper";
 import { Tabs } from "../Pages/Tabs";
 import { GsheetHelper } from "../Pages/GSheetHelper";
 import { CommunityTemplates } from "../Pages/CommunityTemplates";
-import { AnvilLayout } from "../Pages/AnvilLayout";
+import { AnvilLayout } from "../Pages/Anvil/AnvilLayout";
 import PartialImportExport from "../Pages/PartialImportExport";
 import { WDSWidgets } from "../Pages/WDSWidgets";
+import { AnvilSnapshot } from "../Pages/Anvil/AnvilSnapshot";
 
 export class ObjectsRegistry {
   private static aggregateHelper__: AggregateHelper;
@@ -263,6 +264,14 @@ export class ObjectsRegistry {
       ObjectsRegistry.wdsWidgets__ = new WDSWidgets();
     }
     return ObjectsRegistry.wdsWidgets__;
+  }
+
+  private static anvilSnapshot__: AnvilSnapshot;
+  static get AnvilSnapshot(): AnvilSnapshot {
+    if (ObjectsRegistry.anvilSnapshot__ === undefined) {
+      ObjectsRegistry.anvilSnapshot__ = new AnvilSnapshot();
+    }
+    return ObjectsRegistry.anvilSnapshot__;
   }
 
   private static dataManager__: DataManager;

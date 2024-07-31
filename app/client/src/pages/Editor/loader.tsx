@@ -2,8 +2,8 @@ import React from "react";
 import PageLoadingBar from "pages/common/PageLoadingBar";
 import { retryPromise } from "utils/AppsmithUtils";
 import { connect } from "react-redux";
-import type { InitializeEditorPayload } from "actions/initActions";
-import { initEditor } from "actions/initActions";
+import type { InitEditorActionPayload } from "actions/initActions";
+import { initEditorAction } from "actions/initActions";
 import { getSearchQuery } from "../../utils/helpers";
 import { GIT_BRANCH_QUERY_KEY } from "../../constants/routes";
 import { APP_MODE } from "../../entities/App";
@@ -11,9 +11,9 @@ import type { RouteComponentProps } from "react-router";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 type Props = {
-  initEditor: (payload: InitializeEditorPayload) => void;
+  initEditor: (payload: InitEditorActionPayload) => void;
   clearCache: () => void;
-} & RouteComponentProps<{ pageId: string }>;
+} & RouteComponentProps<{ basePageId: string }>;
 
 class EditorLoader extends React.PureComponent<Props, { Page: any }> {
   constructor(props: any) {
@@ -32,10 +32,10 @@ class EditorLoader extends React.PureComponent<Props, { Page: any }> {
     } = this.props;
     const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
 
-    const { pageId } = params;
-    if (pageId) {
+    const { basePageId } = params;
+    if (basePageId) {
       initEditor({
-        pageId,
+        basePageId,
         branch,
         mode: APP_MODE.EDIT,
       });
@@ -63,8 +63,8 @@ class EditorLoader extends React.PureComponent<Props, { Page: any }> {
 
 const mapDispatchToProps = (dispatch: any) => {
   return {
-    initEditor: (payload: InitializeEditorPayload) =>
-      dispatch(initEditor(payload)),
+    initEditor: (payload: InitEditorActionPayload) =>
+      dispatch(initEditorAction(payload)),
     clearCache: () => {
       dispatch({ type: ReduxActionTypes.CLEAR_CACHE });
     },

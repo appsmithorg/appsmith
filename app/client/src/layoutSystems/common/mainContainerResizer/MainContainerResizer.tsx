@@ -4,9 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationLayout } from "selectors/editorSelectors";
 import { setAutoCanvasResizing } from "actions/autoLayoutActions";
 import styled from "styled-components";
-import { AUTOLAYOUT_RESIZER_WIDTH_BUFFER } from "utils/hooks/useDynamicAppLayout";
 import { importSvg } from "design-system-old";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import { AUTOLAYOUT_RESIZER_WIDTH_BUFFER } from "./constants";
 
 const CanvasResizerIcon = importSvg(
   async () => import("assets/icons/ads/app-icons/canvas-resizer.svg"),
@@ -60,17 +60,17 @@ export function MainContainerResizer({
   enableMainCanvasResizer,
   isPageInitiated,
   isPreview,
+  navigationHeight,
 }: {
   isPageInitiated: boolean;
-  shouldHaveTopMargin: boolean;
   isPreview: boolean;
   currentPageId: string;
   enableMainCanvasResizer: boolean;
+  navigationHeight?: number;
 }) {
   const appLayout = useSelector(getCurrentApplicationLayout);
   const ref = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
-  const topHeaderHeight = "48px";
   useEffect(() => {
     const ele: HTMLElement | null = document.getElementById(CANVAS_VIEWPORT);
 
@@ -170,8 +170,8 @@ export function MainContainerResizer({
       }}
       ref={ref}
       style={{
-        top: isPreview ? topHeaderHeight : "0",
-        height: isPreview ? `calc(100% - ${topHeaderHeight})` : "100%",
+        top: isPreview ? navigationHeight : "0",
+        height: isPreview ? `calc(100% - ${navigationHeight})` : "100%",
       }}
     >
       <div className="canvas-resizer-icon">

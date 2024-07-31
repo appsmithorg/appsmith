@@ -2,10 +2,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { call, select } from "redux-saga/effects";
 import type { APP_MODE } from "entities/App";
-import {
-  getCurrentApplication,
-  getCurrentPageId,
-} from "selectors/editorSelectors";
+import { getCurrentPageId } from "selectors/editorSelectors";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
@@ -14,6 +11,7 @@ import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import { getWidget } from "sagas/selectors";
 import { getUserSource } from "@appsmith/utils/AnalyticsUtil";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 export interface UserAndAppDetails {
   pageId: string;

@@ -15,10 +15,9 @@ import {
 } from "@appsmith/constants/messages";
 import Table from "pages/Editor/QueryEditor/Table";
 import { generateTemplateToUpdatePage } from "actions/pageActions";
-import { useParams } from "react-router";
-import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   getCurrentApplicationId,
+  getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { GENERATE_PAGE_MODE } from "../GeneratePage/components/GeneratePageForm/GeneratePageForm";
@@ -52,6 +51,7 @@ import { useEditorType } from "@appsmith/hooks";
 import history from "utils/history";
 import { getIsGeneratingTemplatePage } from "selectors/pageListSelectors";
 import { setDatasourcePreviewSelectedTableName } from "actions/datasourceActions";
+import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integrations/selectors";
 
 interface Props {
   datasource: Datasource;
@@ -77,6 +77,10 @@ const DatasourceViewModeSchema = (props: Props) => {
   );
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const isAnvilEnabled = useSelector(getIsAnvilEnabledInCurrentApplication);
+  const releaseDragDropBuildingBlocks = useFeatureFlag(
+    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
+  );
 
   const editorType = useEditorType(history.location.pathname);
 
@@ -93,7 +97,7 @@ const DatasourceViewModeSchema = (props: Props) => {
   });
 
   const applicationId: string = useSelector(getCurrentApplicationId);
-  const { pageId: currentPageId } = useParams<ExplorerURLParams>();
+  const pageId = useSelector(getCurrentPageId);
 
   const [previewData, setPreviewData] = useState([]);
   // this error is for when there's an issue with the datasource structure
@@ -139,7 +143,7 @@ const DatasourceViewModeSchema = (props: Props) => {
       setPreviewDataError(true);
       dispatch(setDatasourcePreviewSelectedTableName(""));
     }
-  }, [datasourceStructure, isDatasourceStructureLoading]);
+  }, [datasourceStructure, isDatasourceStructureLoading, dispatch]);
 
   // this fetches the preview data when the table name changes
   useEffect(() => {
@@ -203,9 +207,7 @@ const DatasourceViewModeSchema = (props: Props) => {
       const payload = {
         applicationId: applicationId || "",
         pageId:
-          currentMode.current === GENERATE_PAGE_MODE.NEW
-            ? ""
-            : currentPageId || "",
+          currentMode.current === GENERATE_PAGE_MODE.NEW ? "" : pageId || "",
         columns: [],
         searchColumn: "",
         tableName: tableName,
@@ -230,13 +232,17 @@ const DatasourceViewModeSchema = (props: Props) => {
   // if there was a failure in the fetching of the data
   // if tableName from schema is availble
   // if the user has permissions
+  // if drag and drop building blocks are not enabled
+  // Also, if Anvil is enabled, we donot allow page generation. As Anvil doesn't work well with this feature yet.
   const showGeneratePageBtn =
+    !releaseDragDropBuildingBlocks &&
     !isDatasourceStructureLoading &&
     !isLoading &&
     !failedFetchingPreviewData &&
     tableName &&
     canCreateDatasourceActions &&
-    canCreatePages;
+    canCreatePages &&
+    !isAnvilEnabled;
 
   return (
     <ViewModeSchemaContainer>

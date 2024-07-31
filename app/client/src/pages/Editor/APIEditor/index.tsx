@@ -17,7 +17,7 @@ import {
   getIsEditorInitialized,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import { getAction } from "@appsmith/selectors/entitiesSelector";
+import { getActionByBaseId } from "@appsmith/selectors/entitiesSelector";
 import type { APIEditorRouteParams } from "constants/routes";
 import {
   getHasCreateActionPermission,
@@ -44,22 +44,22 @@ import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
-function getPageName(pages: any, pageId: string) {
-  const page = pages.find((page: any) => page.pageId === pageId);
+function getPageName(pages: any, basePageId: string) {
+  const page = pages.find((page: any) => page.basePageId === basePageId);
   return page ? page.pageName : "";
 }
 
 function ApiEditorWrapper(props: ApiEditorWrapperProps) {
-  const { apiId = "", pageId } = props.match.params;
+  const { baseApiId = "", basePageId } = props.match.params;
   const dispatch = useDispatch();
   const isEditorInitialized = useSelector(getIsEditorInitialized);
-  const action = useSelector((state) => getAction(state, apiId));
+  const action = useSelector((state) => getActionByBaseId(state, baseApiId));
   const apiName = action?.name || "";
   const pluginId = get(action, "pluginId", "");
   const datasourceId = action?.datasource.id || "";
   const plugins = useSelector(getPlugins);
   const pages = useSelector(getPageList);
-  const pageName = getPageName(pages, pageId);
+  const pageName = getPageName(pages, basePageId);
   const settingsConfig = useSelector((state) =>
     getPluginSettingConfigs(state, pluginId),
   );
@@ -106,12 +106,12 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     return (
       <>
         <MoreActionsMenu
+          basePageId={basePageId}
           className="t--more-action-menu"
           id={action?.id || ""}
           isChangePermitted={isChangePermitted}
           isDeletePermitted={isDeletePermitted}
           name={action?.name || ""}
-          pageId={pageId}
           prefixAdditionalMenus={
             editorMode === EditorViewMode.SplitScreen && (
               <ConvertToModuleInstanceCTA {...convertToModuleProps} />
@@ -128,7 +128,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     action?.name,
     isChangePermitted,
     isDeletePermitted,
-    pageId,
+    basePageId,
     isCreatePermitted,
     editorMode,
   ]);
@@ -139,34 +139,42 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       PerformanceTracker.startTracking(
         PerformanceTransactionName.RUN_API_CLICK,
         {
-          apiId,
+          apiId: action?.id,
         },
       );
       AnalyticsUtil.logEvent("RUN_API_CLICK", {
         apiName,
-        apiID: apiId,
+        apiID: action?.id,
         pageName: pageName,
         datasourceId,
         pluginName: pluginName,
         isMock: false, // as mock db exists only for postgres and mongo plugins
       });
-      dispatch(runAction(apiId, paginationField));
+      dispatch(runAction(action?.id ?? "", paginationField));
     },
-    [apiId, apiName, pageName, getPageName, plugins, pluginId, datasourceId],
+    [
+      action?.id,
+      apiName,
+      pageName,
+      getPageName,
+      plugins,
+      pluginId,
+      datasourceId,
+    ],
   );
 
   const actionRightPaneBackLink = useMemo(() => {
-    return <BackToCanvas pageId={pageId} />;
-  }, [pageId]);
+    return <BackToCanvas basePageId={basePageId} />;
+  }, [basePageId]);
 
   const handleDeleteClick = useCallback(() => {
     AnalyticsUtil.logEvent("DELETE_API_CLICK", {
       apiName,
-      apiID: apiId,
+      apiID: action?.id,
       pageName,
     });
-    dispatch(deleteAction({ id: apiId, name: apiName }));
-  }, [getPageName, pages, pageId, apiName]);
+    dispatch(deleteAction({ id: action?.id ?? "", name: apiName }));
+  }, [getPageName, pages, basePageId, apiName]);
 
   const notification = useMemo(() => {
     if (!isConverting) return null;

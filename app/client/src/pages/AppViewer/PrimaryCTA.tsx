@@ -7,8 +7,7 @@ import {
   isPermitted,
 } from "@appsmith/utils/permissionHelpers";
 import {
-  getCurrentApplication,
-  getCurrentPageId,
+  getCurrentBasePageId,
   previewModeSelector,
 } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
@@ -30,6 +29,7 @@ import { getApplicationNameTextColor } from "./utils";
 import { ButtonVariantTypes } from "components/constants";
 import { setPreviewModeInitAction } from "actions/editorActions";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 /**
  * ---------------------------------------------------------------------------------------------------
@@ -61,7 +61,7 @@ function PrimaryCTA(props: Props) {
     url,
   } = props;
   const currentUser = useSelector(getCurrentUser);
-  const currentPageID = useSelector(getCurrentPageId);
+  const currentBasePageId = useSelector(getCurrentBasePageId);
   const selectedTheme = useSelector(getSelectedAppTheme);
   const currentApplication = useSelector(getCurrentApplication);
   const history = useHistory();
@@ -116,7 +116,7 @@ function PrimaryCTA(props: Props) {
   }, [currentApplication?.forkingEnabled, currentUser?.username]);
 
   const appViewerURL = useHref(viewerURL, {
-    pageId: currentPageID,
+    basePageId: currentBasePageId,
     params: {
       fork: "true",
       branch: null,

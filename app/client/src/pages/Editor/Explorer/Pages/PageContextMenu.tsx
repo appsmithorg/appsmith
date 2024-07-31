@@ -5,14 +5,14 @@ import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
   clonePageInit,
-  deletePage,
+  deletePageAction,
   setPageAsDefault,
-  updatePage,
+  updatePageAction,
 } from "actions/pageActions";
 import styled from "styled-components";
 import { Icon } from "design-system";
 import {
-  CONTEXT_EDIT_NAME,
+  CONTEXT_RENAME,
   CONTEXT_CLONE,
   CONTEXT_SET_AS_HOME_PAGE,
   CONTEXT_DELETE,
@@ -62,7 +62,7 @@ export function PageContextMenu(props: {
    * @return void
    */
   const deletePageCallback = useCallback((): void => {
-    dispatch(deletePage(props.pageId));
+    dispatch(deletePageAction(props.pageId));
     AnalyticsUtil.logEvent("DELETE_PAGE", {
       pageName: props.name,
     });
@@ -105,7 +105,7 @@ export function PageContextMenu(props: {
   const setHiddenField = useCallback(
     () =>
       dispatch(
-        updatePage({
+        updatePageAction({
           id: props.pageId,
           name: props.name,
           isHidden: !props.isHidden,
@@ -156,7 +156,7 @@ export function PageContextMenu(props: {
     canManagePages && {
       value: "rename",
       onSelect: editPageName,
-      label: createMessage(CONTEXT_EDIT_NAME),
+      label: createMessage(CONTEXT_RENAME),
     },
     canCreatePages &&
       canManagePages && {

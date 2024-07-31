@@ -19,7 +19,7 @@ describe("GlobalSearch", function () {
   });
 
   beforeEach(() => {
-    cy.startRoutesForDatasource();
+    _.dataSources.StartDataSourceRoutes();
   });
 
   it("1. Shows And Hides Using Keyboard Shortcuts", () => {

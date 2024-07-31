@@ -11,14 +11,13 @@ public interface ContextBasedJsLibServiceCE<T extends BaseDomain> {
 
     /**
      * Retrieves all the global JS libs associated with this context
-     * @param contextId
-     * @param branchName
+     *
+     * @param branchedContextId
      * @param isViewMode
      * @return
      */
     Mono<Set<CustomJSLibContextDTO>> getAllVisibleJSLibContextDTOFromContext(
-            @NotNull String contextId, String branchName, Boolean isViewMode);
+            @NotNull String branchedContextId, Boolean isViewMode);
 
-    Mono<Integer> updateJsLibsInContext(
-            String contextId, String branchName, Set<CustomJSLibContextDTO> customJSLibContextDTOS);
+    Mono<Integer> updateJsLibsInContext(String branchedContextId, Set<CustomJSLibContextDTO> customJSLibContextDTOS);
 }

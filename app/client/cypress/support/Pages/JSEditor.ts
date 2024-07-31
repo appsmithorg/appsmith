@@ -105,14 +105,14 @@ export class JSEditor {
     this.agHelper.ClickOutside(); //to enable click of below!
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.JS);
-    cy.get(this._newJSobj).eq(0).click({ force: true });
+    PageLeftPane.switchToAddNew();
 
     this.agHelper.RemoveUIElement(
       "Tooltip",
       Cypress.env("MESSAGES").ADD_QUERY_JS_TOOLTIP(),
     );
     //Checking JS object was created successfully
-    this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
+    this.assertHelper.AssertNetworkStatus("@createNewJSCollection", 201);
     this.agHelper.AssertElementVisibility(this._jsObjTxt);
     // Assert that the name of the JS Object is focused when newly created
     this.agHelper.PressEnter();
@@ -224,7 +224,7 @@ export class JSEditor {
   public RenameJSObjFromExplorer(entityName: string, renameVal: string) {
     this.ee.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: entityName,
-      action: "Edit name",
+      action: "Rename",
     });
     cy.xpath(this.locator._entityNameEditing(entityName)).type(
       renameVal + "{enter}",

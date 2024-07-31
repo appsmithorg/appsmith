@@ -15,6 +15,7 @@ import type {
 import { all, call, put, select, take } from "redux-saga/effects";
 import {
   getCanvasWidth,
+  getCurrentBasePageId,
   getCurrentPageId,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
@@ -47,6 +48,7 @@ import {
   getBoundaryWidgetsFromCopiedGroups,
   getNextWidgetName,
   getReflowedPositions,
+  handleIfParentIsListWidgetWhilePasting,
   handleSpecificCasesWhilePasting,
 } from "../WidgetOperationUtils";
 
@@ -55,10 +57,10 @@ import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUt
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import {
   getNewPositions,
-  handleImageWidgetWhenPasting,
+  handleWidgetDynamicBindingPathList,
+  handleWidgetDynamicPropertyPathList,
+  handleWidgetDynamicTriggerPathList,
   handleJSONFormPropertiesListedInDynamicBindingPath,
-  handleJSONFormWidgetWhenPasting,
-  handleTextWidgetWhenPasting,
 } from "../PasteWidgetUtils";
 
 import ApplicationApi, {
@@ -68,29 +70,32 @@ import ApplicationApi, {
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { WidgetAddChild } from "actions/pageActions";
 import { runAction } from "actions/pluginActionActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Template } from "api/TemplatesApi";
+import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { race } from "redux-saga/effects";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
-import {
-  getCurrentApplicationId,
-  getJSCollectionById,
-} from "selectors/editorSelectors";
+import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
-import { saveBuildingBlockWidgetsToStore } from ".";
+import {
+  addNewlyAddedActionsToRedux,
+  saveBuildingBlockWidgetsToStore,
+  updateWidgetsNameInNewQueries,
+} from ".";
 import { addWidgetAndMoveWidgetsSaga } from "../CanvasSagas/DraggingCanvasSagas";
 import { validateResponse } from "../ErrorSagas";
 import { postPageAdditionSaga } from "../TemplatesSagas";
 import { addChildSaga } from "../WidgetAdditionSagas";
 import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
 import { getDragDetails, getWidgetByName } from "../selectors";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { getJSCollection } from "@appsmith/selectors/entitiesSelector";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -140,13 +145,10 @@ function* runNewlyCreatedJSActions(
   // Run each action sequentially. We have a max of 2-3 actions per building block.
   // If we run this in parallel, we will have a racing condition when multiple building blocks are drag and dropped quickly.
   for (const jsAction of jsActions) {
-    const actionCollection: JSCollection = yield select(getJSCollectionById, {
-      match: {
-        params: {
-          collectionId: jsAction.collectionId,
-        },
-      },
-    });
+    const actionCollection: JSCollection = yield select(
+      getJSCollection,
+      jsAction.collectionId,
+    );
 
     for (const action of actionCollection.actions) {
       yield put({
@@ -224,6 +226,7 @@ export function* loadBuildingBlocksIntoApplication(
           left: leftColumn,
         },
         buildingBlockWidget.widgetId,
+        response.data.newActionList,
       );
 
       const timeTakenToDropWidgetsInSeconds =
@@ -283,6 +286,7 @@ export function* loadBuildingBlocksIntoApplication(
       }
     }
   } catch (error) {
+    log.error("Error loading building blocks into application", error);
     yield put({
       type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
       payload: {
@@ -379,7 +383,10 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
   );
   yield call(
     loadBuildingBlocksIntoApplication,
-    actionPayload.payload.newWidget,
+    {
+      ...actionPayload.payload.newWidget,
+      widgetId: actionPayload.payload.canvasId,
+    },
     skeletonWidget.widgetId,
   );
 }
@@ -400,6 +407,7 @@ export function* pasteBuildingBlockWidgetsSaga(
     left: number;
   },
   pastingIntoWidgetId: string,
+  newActions: Action[] = [],
 ) {
   const {
     flexLayers,
@@ -419,8 +427,6 @@ export function* pasteBuildingBlockWidgetsSaga(
   const mainCanvasWidth: number = yield select(getCanvasWidth);
 
   try {
-    const isThereACollision = false;
-
     if (
       // to avoid invoking old way of copied widgets implementaion
       !Array.isArray(copiedWidgetGroups) ||
@@ -457,6 +463,7 @@ export function* pasteBuildingBlockWidgetsSaga(
       topMostWidget.topRow,
       leftMostWidget.leftColumn,
       { gridPosition },
+      pastingIntoWidgetId,
     );
     for (const widgetGroup of copiedWidgetGroups) {
       //This is required when you cut the widget as CanvasWidgetState doesn't have the widget anymore
@@ -506,7 +513,7 @@ export function* pasteBuildingBlockWidgetsSaga(
             nextAvailableRow,
             newPastingPositionMap,
             true,
-            isThereACollision,
+            false,
             false,
           );
 
@@ -546,6 +553,13 @@ export function* pasteBuildingBlockWidgetsSaga(
                     widget.children[index] = widgetIdMap[childWidgetId];
                   }
                 },
+              );
+            }
+            if (oldWidgetName !== newWidgetName) {
+              newActions = updateWidgetsNameInNewQueries(
+                oldWidgetName,
+                newWidgetName,
+                newActions,
               );
             }
 
@@ -687,6 +701,8 @@ export function* pasteBuildingBlockWidgetsSaga(
       ),
     );
 
+    yield addNewlyAddedActionsToRedux(newActions);
+
     //calculate the new positions of the reflowed widgets
     let reflowedWidgets = getReflowedPositions(
       widgets,
@@ -732,10 +748,10 @@ export function* pasteBuildingBlockWidgetsSaga(
     );
     yield call(updateAndSaveAnvilLayout, updatedWidgets);
 
-    const pageId: string = yield select(getCurrentPageId);
+    const basePageId: string = yield select(getCurrentBasePageId);
 
     if (copiedWidgetGroups && copiedWidgetGroups.length > 0) {
-      history.push(builderURL({ pageId }));
+      history.push(builderURL({ basePageId }));
     }
 
     yield put({
@@ -825,24 +841,24 @@ function handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
   widgetNameMap: Record<string, string>,
   newWidgetList: FlattenedWidgetProps[],
 ) {
-  switch (widget?.type) {
-    case "JSON_FORM_WIDGET":
-      handleJSONFormWidgetWhenPasting(widgetNameMap, widget);
-      break;
-    case "TEXT_WIDGET":
-      handleTextWidgetWhenPasting(widgetNameMap, widget);
-      break;
-    case "IMAGE_WIDGET":
-      handleImageWidgetWhenPasting(widgetNameMap, widget);
-      break;
-    default:
-      widgets = handleSpecificCasesWhilePasting(
-        widget,
-        widgets,
-        widgetNameMap,
-        newWidgetList,
-      );
-      break;
+  if (["LIST_WIDGET", "LIST_WIDGET_V2", "MODAL_WIDGET"].includes(widget.type)) {
+    widgets = handleSpecificCasesWhilePasting(
+      widget,
+      widgets,
+      widgetNameMap,
+      newWidgetList,
+    );
   }
+  if (widget.dynamicTriggerPathList) {
+    handleWidgetDynamicTriggerPathList(widgetNameMap, widget);
+  }
+  if (widget.dynamicBindingPathList) {
+    handleWidgetDynamicBindingPathList(widgetNameMap, widget);
+  }
+  if (widget.dynamicPropertyPathList) {
+    handleWidgetDynamicPropertyPathList(widgetNameMap, widget);
+  }
+  widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
+
   return widgets;
 }

@@ -7,6 +7,7 @@ import { klona } from "klona";
 
 import FormContext from "../FormContext";
 import type { FieldType } from "../constants";
+import { startAndEndSpanForFn } from "UITelemetry/generateTraces";
 
 export interface UseRegisterFieldValidityProps {
   isValid: boolean;
@@ -34,10 +35,14 @@ function useRegisterFieldValidity({
     setTimeout(() => {
       try {
         isValid
-          ? clearErrors(fieldName)
-          : setError(fieldName, {
-              type: fieldType,
-              message: "Invalid field",
+          ? startAndEndSpanForFn("JSONFormWidget.clearErrors", {}, () => {
+              clearErrors(fieldName);
+            })
+          : startAndEndSpanForFn("JSONFormWidget.setError", {}, () => {
+              setError(fieldName, {
+                type: fieldType,
+                message: "Invalid field",
+              });
             });
       } catch (e) {
         Sentry.captureException(e);

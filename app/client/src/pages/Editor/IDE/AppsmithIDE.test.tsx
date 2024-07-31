@@ -22,10 +22,12 @@ import { UpdatedEditor } from "test/testMockedWidgets";
 import { act, fireEvent, render } from "test/testUtils";
 import { generateReactKey } from "utils/generators";
 import { getAbsolutePixels } from "utils/helpers";
-import * as useDynamicAppLayoutHook from "utils/hooks/useDynamicAppLayout";
+import * as useCanvasWidthAutoResize from "pages/hooks";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import GlobalHotKeys from "../GlobalHotKeys";
 import * as uiSelectors from "selectors/ui";
+
+const pageId = "0123456789abcdef00000000";
 
 const renderNestedComponent = () => {
   const initialState = store.getState() as unknown as Partial<AppState>;
@@ -79,7 +81,7 @@ const renderNestedComponent = () => {
 
   return render(
     <MemoryRouter
-      initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+      initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
     >
       <MockApplication>
         <GlobalHotKeys>
@@ -104,7 +106,7 @@ describe("Drag and Drop widgets into Main container", () => {
     .spyOn(utilities, "computeMainContainerWidget")
     .mockImplementation((widget) => widget as any);
   jest
-    .spyOn(useDynamicAppLayoutHook, "useDynamicAppLayout")
+    .spyOn(useCanvasWidthAutoResize, "useCanvasWidthAutoResize")
     .mockImplementation(() => true);
 
   const pushState = jest.spyOn(window.history, "pushState");
@@ -155,7 +157,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -258,7 +260,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -366,7 +368,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
   //   const component = render(
   //     <MemoryRouter
-  //       initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+  //       initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
   //     >
   //       <MockApplication>
   //         <GlobalHotKeys>
@@ -475,7 +477,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -582,7 +584,7 @@ describe("Drag and Drop widgets into Main container", () => {
       .mockImplementation(mockGetPagePermissions);
     const component = render(
       <MemoryRouter
-        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>
@@ -683,7 +685,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
     const component = render(
       <MemoryRouter
-        initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+        initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
       >
         <MockApplication>
           <GlobalHotKeys>

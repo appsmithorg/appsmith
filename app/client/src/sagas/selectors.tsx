@@ -124,6 +124,9 @@ export const getEditorConfigs = (
 export const getDefaultPageId = (state: AppState): string =>
   state.entities.pageList.defaultPageId;
 
+export const getDefaultBasePageId = (state: AppState): string =>
+  state.entities.pageList.defaultBasePageId;
+
 export const getExistingWidgetNames = createSelector(
   getWidgets,
   (widgets: { [widgetId: string]: FlattenedWidgetProps }) => {
@@ -182,8 +185,11 @@ export const getWidgetByName = (
   );
 };
 
-export const getAllPageIds = (state: AppState) => {
-  return state.entities.pageList.pages.map((page) => page.pageId);
+export const getAllPageIdentities = (state: AppState) => {
+  return state.entities.pageList.pages.map((page) => ({
+    pageId: page.pageId,
+    basePageId: page.basePageId,
+  }));
 };
 
 export const getPluginIdOfPackageName = (

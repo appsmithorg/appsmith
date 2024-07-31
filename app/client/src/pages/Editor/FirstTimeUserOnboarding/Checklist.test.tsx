@@ -55,13 +55,13 @@ describe("Checklist", () => {
     urlBuilder.updateURLParams(
       {
         applicationSlug: initialState.ui.applications.currentApplication.slug,
-        applicationId: initialState.entities.pageList.applicationId,
+        baseApplicationId: initialState.entities.pageList.baseApplicationId,
         applicationVersion: 2,
       },
       [
         {
           pageSlug: initialState.entities.pageList.pages[0].slug,
-          pageId: initialState.entities.pageList.currentPageId,
+          basePageId: initialState.entities.pageList.currentBasePageId,
         },
       ],
     );
@@ -92,7 +92,7 @@ describe("Checklist", () => {
     fireEvent.click(datasourceButton[0]);
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
-        pageId: initialState.entities.pageList.currentPageId,
+        basePageId: initialState.entities.pageList.currentBasePageId,
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
@@ -122,7 +122,7 @@ describe("Checklist", () => {
     fireEvent.click(actionButton[0]);
     expect(history).toHaveBeenCalledWith(
       integrationEditorURL({
-        pageId: initialState.entities.pageList.currentPageId,
+        basePageId: initialState.entities.pageList.currentBasePageId,
         selectedTab: INTEGRATION_TABS.ACTIVE,
       }),
     );
@@ -135,7 +135,9 @@ describe("Checklist", () => {
     const widgetButton = screen.queryAllByTestId("checklist-widget");
     fireEvent.click(widgetButton[0]);
     expect(history).toHaveBeenCalledWith(
-      builderURL({ pageId: initialState.entities.pageList.currentPageId }),
+      builderURL({
+        basePageId: initialState.entities.pageList.currentBasePageId,
+      }),
     );
     expect(dispatch).toHaveBeenCalledWith({
       type: ReduxActionTypes.TOGGLE_ONBOARDING_WIDGET_SELECTION,
@@ -158,7 +160,7 @@ describe("Checklist", () => {
       bindDataOnCanvas({
         queryId: store.getState().entities.actions[0].config.id,
         applicationId: store.getState().entities.pageList.applicationId,
-        pageId: store.getState().entities.pageList.currentPageId,
+        basePageId: store.getState().entities.pageList.currentBasePageId,
       }),
     );
   });

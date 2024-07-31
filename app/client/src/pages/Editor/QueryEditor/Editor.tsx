@@ -21,7 +21,7 @@ import type { Datasource } from "entities/Datasource";
 import {
   getPluginIdsOfPackageNames,
   getPlugins,
-  getAction,
+  getActionByBaseId,
   getActionResponses,
   getDatasourceByPluginId,
   getDBAndRemoteDatasources,
@@ -90,6 +90,7 @@ interface ReduxStateProps {
   uiComponent: UIComponentTypes;
   applicationId: string;
   actionId: string;
+  baseActionId: string;
   actionObjectDiff?: any;
   isSaas: boolean;
   datasourceId?: string;
@@ -112,11 +113,11 @@ class QueryEditor extends React.Component<Props> {
     super(props);
     // Call the first evaluations when the page loads
     // call evaluations only for queries and not google sheets (which uses apiId)
-    if (this.props.match.params.queryId) {
+    if (this.props.match.params.baseQueryId) {
       this.props.initFormEvaluation(
         this.props.editorConfig,
         this.props.settingsConfig,
-        this.props.match.params.queryId,
+        this.props.match.params.baseQueryId,
       );
     }
   }
@@ -125,7 +126,7 @@ class QueryEditor extends React.Component<Props> {
     // if the current action is non existent, do not dispatch change query page action
     // this action should only be dispatched when switching from an existent action.
     if (!this.props.pluginId) return;
-    this.context?.changeQueryPage?.(this.props.actionId);
+    this.context?.changeQueryPage?.(this.props.baseActionId);
 
     // fixes missing where key issue by populating the action with a where object when the component is mounted.
     if (this.props.isSaas) {
@@ -182,10 +183,10 @@ class QueryEditor extends React.Component<Props> {
     // URL or selecting new query from the query pane
     // reusing same logic for changing query panes for switching query editor datasources, since the operations are similar.
     if (
-      prevProps.actionId !== this.props.actionId ||
+      prevProps.baseActionId !== this.props.baseActionId ||
       prevProps.pluginId !== this.props.pluginId
     ) {
-      this.context?.changeQueryPage?.(this.props.actionId);
+      this.context?.changeQueryPage?.(this.props.baseActionId);
     }
   }
 
@@ -250,14 +251,18 @@ class QueryEditor extends React.Component<Props> {
 }
 
 const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
-  const { apiId, queryId } = props.match.params;
-  const actionId = queryId || apiId || "";
+  const { baseApiId, baseQueryId } = props.match.params;
+  const baseActionId = baseQueryId || baseApiId || "";
   const { runErrorMessage } = state.ui.queryPane;
   const { plugins } = state.entities;
 
   const { editorConfigs } = plugins;
 
-  const action = getAction(state, actionId) as QueryAction | SaaSAction;
+  const action = getActionByBaseId(state, baseActionId) as
+    | QueryAction
+    | SaaSAction;
+  const actionId = action?.id;
+
   const formData = getFormValues(QUERY_EDITOR_FORM_NAME)(state) as
     | QueryAction
     | SaaSAction;
@@ -299,19 +304,20 @@ const mapStateToProps = (state: AppState, props: OwnProps): ReduxStateProps => {
 
   return {
     actionId,
+    baseActionId,
     currentEnvironmentId: currentEnvDetails?.id || "",
     currentEnvironmentName: currentEnvDetails?.name || "",
     pluginId,
     plugins: allPlugins,
     runErrorMessage,
     pluginIds: getPluginIdsOfPackageNames(state, PLUGIN_PACKAGE_DBS),
-    dataSources: !!apiId
+    dataSources: !!baseApiId
       ? getDatasourceByPluginId(state, action?.pluginId)
       : getDBAndRemoteDatasources(state),
     responses: getActionResponses(state),
     isRunning: state.ui.queryPane.isRunning[actionId],
     isDeleting: state.ui.queryPane.isDeleting[actionId],
-    isSaas: !!apiId,
+    isSaas: !!baseApiId,
     formData,
     editorConfig,
     isCreating: state.ui.apiPane.isCreating,

@@ -79,28 +79,28 @@ export const getDynamicBindings = (
   entity?: DataTreeEntity,
 ): { stringSegments: string[]; jsSnippets: string[] } => {
   // Protect against bad string parse
-  if (!dynamicString || !_.isString(dynamicString)) {
+  if (!isString(dynamicString)) {
     return { stringSegments: [], jsSnippets: [] };
   }
   const sanitisedString = dynamicString.trim();
-  let stringSegments, paths: any;
+
   if (entity && isJSAction(entity)) {
-    stringSegments = [sanitisedString];
-    paths = [sanitisedString];
-  } else {
-    // Get the {{binding}} bound values
-    stringSegments = getDynamicStringSegments(sanitisedString);
-    // Get the "binding" path values
-    paths = stringSegments.map((segment) => {
-      const length = segment.length;
-      const matches = isDynamicValue(segment);
-      if (matches) {
-        return segment.substring(2, length - 2);
-      }
-      return "";
-    });
+    return { stringSegments: [sanitisedString], jsSnippets: [sanitisedString] };
   }
-  return { stringSegments: stringSegments, jsSnippets: paths };
+
+  // Get the {{binding}} bound values
+  const stringSegments = getDynamicStringSegments(sanitisedString);
+  // Get the "binding" path values
+  const jsSnippets = stringSegments.map((segment) => {
+    const length = segment.length;
+    const matches = isDynamicValue(segment);
+    if (matches) {
+      return segment.substring(2, length - 2);
+    }
+    return "";
+  });
+
+  return { stringSegments, jsSnippets };
 };
 
 export const combineDynamicBindings = (

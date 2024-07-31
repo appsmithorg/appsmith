@@ -31,6 +31,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
+  getCurrentBasePageId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import type { DatasourceGroupByPluginCategory } from "@appsmith/selectors/entitiesSelector";
@@ -133,6 +134,7 @@ import OAuthApi from "api/OAuthApi";
 import type { AppState } from "@appsmith/reducers";
 import {
   getApplicationByIdFromWorkspaces,
+  getCurrentApplication,
   getCurrentApplicationIdForCreateNewApp,
   getWorkspaceIdForImport,
 } from "@appsmith/selectors/applicationSelectors";
@@ -174,6 +176,7 @@ import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants"
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 import { executeGoogleApi } from "./loadGoogleApi";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import { getCurrentModuleId } from "@appsmith/selectors/modulesSelector";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -288,9 +291,9 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       getApplicationByIdFromWorkspaces,
       currentApplicationIdForCreateNewApp || "",
     );
-    const pageId: string = !!currentApplicationIdForCreateNewApp
-      ? application?.defaultPageId
-      : yield select(getCurrentPageId);
+    const basePageId: string = !!currentApplicationIdForCreateNewApp
+      ? application?.defaultBasePageId
+      : yield select(getCurrentBasePageId);
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.addMockDbToDatasources(
         name,
@@ -319,7 +322,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
       if (isGeneratePageInitiator) {
         history.push(
           generateTemplateFormURL({
-            pageId,
+            basePageId,
             params: {
               datasourceId: response.data.id,
             },
@@ -334,7 +337,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
         const plugin: Plugin = yield select(getPlugin, response.data.pluginId);
         if (plugin && plugin.type === PluginType.SAAS) {
           url = saasEditorDatasourceIdURL({
-            pageId,
+            basePageId,
             pluginPackageName: plugin.packageName,
             datasourceId: response.data.id,
             params: {
@@ -343,7 +346,7 @@ export function* addMockDbToDatasources(actionPayload: addMockDb) {
           });
         } else {
           url = datasourcesEditorIdURL({
-            pageId,
+            basePageId,
             datasourceId: response.data.id,
             params: omit(getQueryParams(), "viewMode"),
           });
@@ -428,8 +431,8 @@ export function* deleteDatasourceSaga(
 
     if (isValidResponse) {
       const currentUrl = `${window.location.pathname}`;
-      yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
       yield call(handleDatasourceDeleteRedirect, id);
+      yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
 
       toast.show(createMessage(DATASOURCE_DELETE, response.data.name), {
         kind: "success",
@@ -731,6 +734,10 @@ function* getOAuthAccessTokenSaga(
     toast.show(OAUTH_AUTHORIZATION_APPSMITH_ERROR, {
       kind: "error",
     });
+    yield put({
+      type: ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN_ERROR,
+      payload: { datasourceId: datasourceId },
+    });
     return;
   }
   try {
@@ -781,8 +788,16 @@ function* getOAuthAccessTokenSaga(
       }
       // Remove the token because it is supposed to be short lived
       localStorage.removeItem(APPSMITH_TOKEN_STORAGE_KEY);
+      yield put({
+        type: ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN_SUCCESS,
+        payload: { datasourceId: datasourceId },
+      });
     }
   } catch (e) {
+    yield put({
+      type: ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN_ERROR,
+      payload: { datasourceId: datasourceId },
+    });
     toast.show(OAUTH_AUTHORIZATION_FAILED, {
       kind: "error",
     });
@@ -1062,12 +1077,8 @@ function* createDatasourceFromFormSaga(
 ) {
   try {
     const workspaceId: string = yield select(getCurrentWorkspaceId);
-    const actionRouteInfo: Partial<{
-      apiId: string;
-      datasourceId: string;
-      pageId: string;
-      applicationId: string;
-    }> = yield select(getDatasourceActionRouteInfo);
+    const actionRouteInfo: ReturnType<typeof getDatasourceActionRouteInfo> =
+      yield select(getDatasourceActionRouteInfo);
     yield call(
       checkAndGetPluginFormConfigsSaga,
       actionPayload.payload.pluginId,
@@ -1148,7 +1159,11 @@ function* createDatasourceFromFormSaga(
         payload: response.data,
       });
       yield put(
-        createDatasourceSuccess(response.data, true, !!actionRouteInfo.apiId),
+        createDatasourceSuccess(
+          response.data,
+          true,
+          !!actionRouteInfo.baseApiId,
+        ),
       );
 
       // Set datasource page to view mode
@@ -1186,7 +1201,7 @@ function* createDatasourceFromFormSaga(
 
       // for all datasources, except for REST and GraphQL, need to delete temp datasource data
       // as soon as possible, for REST and GraphQL it is getting deleted in APIPaneSagas.ts
-      if (!actionRouteInfo.apiId) {
+      if (!actionRouteInfo.baseApiId) {
         yield put(removeTempDatasource());
       }
 
@@ -1214,7 +1229,6 @@ function* changeDatasourceSaga(
   const currentApplicationIdForCreateNewApp: string | undefined = yield select(
     getCurrentApplicationIdForCreateNewApp,
   );
-  const pageId: string = yield select(getCurrentPageId);
   let data;
   if (isEmpty(draft)) {
     data = datasource;
@@ -1233,9 +1247,10 @@ function* changeDatasourceSaga(
   // on create new app onboarding flow, it shouldn't redirect either
   if (shouldNotRedirect || currentApplicationIdForCreateNewApp) return;
   // this redirects to the same route, so checking first.
+  const basePageId: string = yield select(getCurrentBasePageId);
   const datasourcePath = trimQueryString(
     datasourcesEditorIdURL({
-      pageId,
+      basePageId,
       datasourceId: datasource.id,
       generateEditorPath: true,
     }),
@@ -1244,7 +1259,7 @@ function* changeDatasourceSaga(
   if (history.location.pathname !== datasourcePath)
     history.push(
       datasourcesEditorIdURL({
-        pageId,
+        basePageId,
         datasourceId: datasource.id,
         params: getQueryParams(),
         generateEditorPath: true,
@@ -1303,8 +1318,10 @@ function* updateDraftsSaga(form: string) {
 
 function* storeAsDatasourceSaga() {
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
-  const applicationId: string = yield select(getCurrentApplicationId);
-  const pageId: string | undefined = yield select(getCurrentPageId);
+  // const applicationId: string = yield select(getCurrentApplicationId);
+  const application: ApplicationPayload = yield select(getCurrentApplication);
+  const basePageId: string | undefined = yield select(getCurrentBasePageId);
+  const moduleId: string | undefined = yield select(getCurrentModuleId);
   let datasource = get(values, "datasource");
   datasource = omit(datasource, ["name"]);
   const originalHeaders = get(values, "actionConfiguration.headers", []);
@@ -1360,9 +1377,9 @@ function* storeAsDatasourceSaga() {
   yield put({
     type: ReduxActionTypes.STORE_AS_DATASOURCE_UPDATE,
     payload: {
-      pageId,
-      applicationId,
-      apiId: values.id,
+      baseApplicationId: application?.baseId,
+      baseApiId: values.baseId,
+      baseParentEntityId: basePageId || moduleId,
       datasourceId: createdDatasource.id,
     },
   });
@@ -1375,7 +1392,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   const actionRouteInfo = get(state, "ui.datasourcePane.actionRouteInfo");
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap =
     yield select(getGenerateCRUDEnabledPluginMap);
-  const pageId: string = yield select(getCurrentPageId);
+  const basePageId: string = yield select(getCurrentBasePageId);
   const updatedDatasource = action.payload;
 
   const { queryParams = {} } = action;
@@ -1391,7 +1408,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   ) {
     history.push(
       generateTemplateFormURL({
-        pageId,
+        basePageId,
         params: {
           datasourceId: updatedDatasource.id,
         },
@@ -1404,8 +1421,8 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   ) {
     history.push(
       apiEditorIdURL({
-        pageId: actionRouteInfo.pageId!,
-        apiId: actionRouteInfo.apiId!,
+        baseParentEntityId: actionRouteInfo.baseParentEntityId || "",
+        baseApiId: actionRouteInfo.baseApiId!,
       }),
     );
   }

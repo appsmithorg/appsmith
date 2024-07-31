@@ -71,7 +71,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { DEBUGGER_TAB_KEYS } from "../../../components/editorComponents/Debugger/helpers";
-
+import RunHistory from "@appsmith/components/RunHistory";
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
   contextMenu: React.ReactNode;
@@ -81,6 +81,7 @@ interface JSFormProps {
   backLink?: React.ReactNode;
   hideContextMenuOnEditor?: boolean;
   hideEditIconOnEditor?: boolean;
+  notification?: React.ReactNode;
 }
 
 type Props = JSFormProps;
@@ -105,12 +106,18 @@ const SecondaryWrapper = styled.div`
   }
 `;
 
+const StyledNotificationWrapper = styled.div`
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-3)
+    var(--ads-v2-spaces-7);
+`;
+
 function JSEditorForm({
   backLink,
   contextMenu,
   hideContextMenuOnEditor = false,
   hideEditIconOnEditor = false,
   jsCollectionData,
+  notification,
   onUpdateSettings,
   saveJSObjectName,
   showSettings = true,
@@ -356,8 +363,13 @@ function JSEditorForm({
               />
             </ActionButtons>
           </StyledFormRow>
+          {notification && (
+            <StyledNotificationWrapper>
+              {notification}
+            </StyledNotificationWrapper>
+          )}
           <Wrapper>
-            <div className="flex flex-1">
+            <div className="flex flex-1 w-full">
               <SecondaryWrapper>
                 <TabbedViewContainer isExecuting={isExecutingCurrentJSAction}>
                   <Tabs
@@ -441,6 +453,7 @@ function JSEditorForm({
                   }}
                   theme={theme}
                 />
+                <RunHistory />
               </SecondaryWrapper>
             </div>
           </Wrapper>

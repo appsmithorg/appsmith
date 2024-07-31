@@ -100,6 +100,7 @@ import {
 } from "constants/AppsmithActionConstants/ActionConstants";
 import {
   getCurrentApplicationId,
+  getCurrentBasePageId,
   getCurrentPageId,
   getIsSavingEntity,
   getLayoutOnLoadActions,
@@ -120,7 +121,6 @@ import {
   API_EDITOR_BASE_PATH,
   API_EDITOR_ID_PATH,
   API_EDITOR_PATH_WITH_SELECTED_PAGE_ID,
-  CURL_IMPORT_PAGE_PATH,
   INTEGRATION_EDITOR_PATH,
   matchQueryBuilderPath,
   QUERIES_EDITOR_BASE_PATH,
@@ -140,10 +140,6 @@ import {
 import { shouldBeDefined, trimQueryString } from "utils/helpers";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
-import { getFormNames, getFormValues } from "redux-form";
-import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
-import { submitCurlImportForm } from "actions/importActions";
-import type { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
 import { matchBasePath } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   findDatatype,
@@ -158,7 +154,7 @@ import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers"
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
 import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
 import { handleStoreOperations } from "./StoreActionSaga";
-import { fetchPage } from "actions/pageActions";
+import { fetchPageAction } from "actions/pageActions";
 import type { Datasource } from "entities/Datasource";
 import { softRefreshDatasourceStructure } from "actions/datasourceActions";
 import {
@@ -540,10 +536,11 @@ export default function* executePluginActionTriggerSaga(
     },
     actionId,
   );
-  span &&
-    setAttributesToSpan(span, {
-      actionId: actionId,
-    });
+
+  setAttributesToSpan(span, {
+    actionId: actionId,
+  });
+
   const action = shouldBeDefined<Action>(
     yield select(getAction, actionId),
     `Action not found for id - ${actionId}`,
@@ -688,45 +685,26 @@ function* runActionShortcutSaga() {
       trimQueryString(`${path}${API_EDITOR_PATH_WITH_SELECTED_PAGE_ID}`),
       trimQueryString(`${path}${INTEGRATION_EDITOR_PATH}`),
       trimQueryString(`${path}${SAAS_EDITOR_API_ID_PATH}`),
-      `${path}${CURL_IMPORT_PAGE_PATH}`,
     ],
     exact: true,
     strict: false,
   });
 
-  // get the current form name
-  const currentFormNames: string[] = yield select(getFormNames());
-
   if (!match || !match.params) return;
-  const { apiId, pageId, queryId } = match.params;
-  const actionId = apiId || queryId;
+  const { baseApiId, basePageId, baseQueryId } = match.params;
+  const actionId = baseApiId || baseQueryId;
   if (actionId) {
-    const trackerId = apiId
+    const trackerId = baseApiId
       ? PerformanceTransactionName.RUN_API_SHORTCUT
       : PerformanceTransactionName.RUN_QUERY_SHORTCUT;
     PerformanceTracker.startTracking(trackerId, {
       actionId,
-      pageId,
+      basePageId,
     });
     AnalyticsUtil.logEvent(trackerId as EventName, {
       actionId,
     });
     yield put(runAction(actionId));
-  } else if (
-    !!currentFormNames &&
-    currentFormNames.includes(CURL_IMPORT_FORM) &&
-    !actionId
-  ) {
-    // if the current form names include the curl form and there are no actionIds i.e. its not an api or query
-    // get the form values and call the submit curl import form function with its data
-    const formValues: curlImportFormValues = yield select(
-      getFormValues(CURL_IMPORT_FORM),
-    );
-
-    // if the user has not edited the curl input field, assign an empty string to it, so it doesnt throw an error.
-    if (!formValues?.curl) formValues["curl"] = "";
-
-    yield put(submitCurlImportForm(formValues));
   } else {
     return;
   }
@@ -1286,7 +1264,7 @@ function* executePageLoadActionsSaga(
       getLayoutOnLoadIssues,
     );
     const actionCount = flatten(pageActions).length;
-    span && setAttributesToSpan(span, { numActions: actionCount });
+    setAttributesToSpan(span, { numActions: actionCount });
     // when cyclical depedency issue is there,
     // none of the page load actions would be executed
     PerformanceTracker.startAsyncTracking(
@@ -1328,6 +1306,7 @@ interface ExecutePluginActionResponse {
   payload: ActionResponse;
   isError: boolean;
 }
+
 /*
  * This saga handles the complete plugin action execution flow. It will respond with a
  * payload and isError property which indicates if the response is of an error type.
@@ -1342,12 +1321,14 @@ function* executePluginActionSaga(
   parentSpan?: OtlpSpan,
 ) {
   const actionId = pluginAction.id;
+  const baseActionId = pluginAction.baseId;
   const pluginActionNameToDisplay = getPluginActionNameToDisplay(pluginAction);
-  parentSpan &&
-    setAttributesToSpan(parentSpan, {
-      actionId,
-      pluginName: pluginActionNameToDisplay,
-    });
+
+  setAttributesToSpan(parentSpan, {
+    actionId,
+    pluginName: pluginActionNameToDisplay,
+  });
+
   if (pluginAction.confirmBeforeExecute) {
     const modalPayload = {
       name: pluginActionNameToDisplay,
@@ -1428,6 +1409,7 @@ function* executePluginActionSaga(
     yield put(
       executePluginActionSuccess({
         id: actionId,
+        baseId: baseActionId,
         response: payload,
         isActionCreatedInApp: getIsActionCreatedInApp(pluginAction),
       }),
@@ -1494,6 +1476,7 @@ function* executePluginActionSaga(
     yield put(
       executePluginActionSuccess({
         id: actionId,
+        baseId: baseActionId,
         response: EMPTY_RESPONSE,
         isActionCreatedInApp: getIsActionCreatedInApp(pluginAction),
       }),
@@ -1608,7 +1591,7 @@ function* softRefreshActionsSaga() {
   const pageId: string = yield select(getCurrentPageId);
   const applicationId: string = yield select(getCurrentApplicationId);
   // Fetch the page data before refreshing the actions.
-  yield put(fetchPage(pageId));
+  yield put(fetchPageAction(pageId));
   //wait for the page to be fetched.
   yield take([
     ReduxActionErrorTypes.FETCH_PAGE_ERROR,
@@ -1638,10 +1621,11 @@ function* softRefreshActionsSaga() {
   const isQueryPane = matchQueryBuilderPath(window.location.pathname);
   //This is reuired only when the query editor is open.
   if (isQueryPane) {
+    const basePageId: string = yield select(getCurrentBasePageId);
     yield put(
       changeQuery({
-        id: isQueryPane.params.queryId,
-        pageId,
+        baseQueryId: isQueryPane.params.baseQueryId,
+        basePageId,
         applicationId,
       }),
     );
@@ -1662,7 +1646,9 @@ function* handleUpdateActionData(
     EVAL_WORKER_ACTIONS.UPDATE_ACTION_DATA,
     actionDataPayload,
   );
-  endSpan(parentSpan);
+  if (parentSpan) {
+    endSpan(parentSpan);
+  }
 }
 
 export function* watchPluginActionExecutionSagas() {

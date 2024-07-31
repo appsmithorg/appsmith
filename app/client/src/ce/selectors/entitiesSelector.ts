@@ -542,7 +542,8 @@ export const getQueryName = (state: AppState, actionId: string): string => {
   return action?.config.name ?? "";
 };
 
-export const getCurrentPageId = (state: AppState) =>
+// * This is only for internal use to avoid cyclic dependency issue
+const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
 
 export const getDatasourcePlugins = createSelector(getPlugins, (plugins) => {
@@ -735,6 +736,17 @@ export const getAction = (
   return action ? action.config : undefined;
 };
 
+export const getActionByBaseId = (
+  state: AppState,
+  baseActionId: string,
+): Action | undefined => {
+  const action = find(
+    state.entities.actions,
+    (a) => a.config.baseId === baseActionId,
+  );
+  return action ? action.config : undefined;
+};
+
 export const getActionData = (
   state: AppState,
   actionId: string,
@@ -743,10 +755,21 @@ export const getActionData = (
   return action ? action.data : undefined;
 };
 
-export const getJSCollection = (state: AppState, actionId: string) => {
+export const getJSCollection = (state: AppState, collectionId: string) => {
   const jsaction = find(
     state.entities.jsActions,
-    (a) => a.config.id === actionId,
+    (a) => a.config.id === collectionId,
+  );
+  return jsaction && jsaction.config;
+};
+
+export const getJsCollectionByBaseId = (
+  state: AppState,
+  baseCollectionId: string,
+) => {
+  const jsaction = find(
+    state.entities.jsActions,
+    (a) => a.config.baseId === baseCollectionId,
   );
   return jsaction && jsaction.config;
 };
@@ -1519,7 +1542,7 @@ export const getQuerySegmentItems = createSelector(
       return {
         icon: ActionUrlIcon(iconUrl),
         title: action.config.name,
-        key: action.config.id,
+        key: action.config.baseId,
         type: action.config.pluginType,
         group,
       };
@@ -1533,7 +1556,7 @@ export const getJSSegmentItems = createSelector(
     const items: EntityItem[] = jsActions.map((js) => ({
       icon: JsFileIconV2(),
       title: js.config.name,
-      key: js.config.id,
+      key: js.config.baseId,
       type: PluginType.JS,
     }));
     return items;

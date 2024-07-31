@@ -61,6 +61,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { ApiEditorContext } from "./ApiEditorContext";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
+import RunHistory from "@appsmith/components/RunHistory";
 
 const Form = styled.form`
   position: relative;
@@ -321,6 +322,10 @@ const StyledTabPanel = styled(TabPanel)`
   padding: 0 var(--ads-v2-spaces-7);
 `;
 
+const StyledNotificationWrapper = styled.div`
+  padding-top: var(--ads-v2-spaces-5);
+`;
+
 function ImportedKeyValue(props: {
   datas: { key: string; value: string; isInvalid?: boolean }[];
   keyValueName: string;
@@ -529,7 +534,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   } = props;
   const dispatch = useDispatch();
 
-  const params = useParams<{ apiId?: string; queryId?: string }>();
+  const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
 
   // passing lodash's equality function to ensure that this selector does not cause a rerender multiple times.
   // it checks each value to make sure none has changed before recomputing the actions.
@@ -539,7 +544,8 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   );
 
   const currentActionConfig: Action | undefined = actions.find(
-    (action) => action.id === params.apiId || action.id === params.queryId,
+    (action) =>
+      action.baseId === params.baseApiId || action.id === params.baseQueryId,
   );
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isChangePermitted = getHasManageActionPermission(
@@ -607,7 +613,11 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
               </Button>
             </ActionButtons>
           </FormRow>
-          {notification}
+          {notification && (
+            <StyledNotificationWrapper>
+              {notification}
+            </StyledNotificationWrapper>
+          )}
           <FormRow className="api-info-row">
             <div>
               {/* eslint-disable-next-line */}
@@ -746,6 +756,7 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
                 responseDisplayFormat={responseDisplayFormat}
                 theme={theme}
               />
+              <RunHistory />
             </SecondaryWrapper>
           </div>
           <ActionRightPane

@@ -23,7 +23,7 @@ interface ApiRightPaneProps {
   actionRightPaneBackLink: React.ReactNode;
   applicationId?: string;
   currentActionDatasourceId: string;
-  currentPageId?: string;
+  currentBasePageId?: string;
   datasourceId: string;
   datasources: any;
   hasResponse: boolean;
@@ -290,7 +290,7 @@ function ApiRightPane(props: ApiRightPaneProps) {
                                 e.stopPropagation();
                                 history.push(
                                   datasourcesEditorIdURL({
-                                    pageId: props.currentPageId,
+                                    basePageId: props.currentBasePageId,
                                     datasourceId: d.id,
                                     params: getQueryParams(),
                                   }),

@@ -5,11 +5,16 @@ import { uniqueId } from "lodash";
 import log from "loglevel";
 import type { TMessage } from "./MessageUtil";
 import { MessageType, sendMessage } from "./MessageUtil";
-import type { OtlpSpan } from "UITelemetry/generateTraces";
-import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import type { OtlpSpan, SpanAttributes } from "UITelemetry/generateTraces";
+import {
+  endSpan,
+  setAttributesToSpan,
+  startRootSpan,
+} from "UITelemetry/generateTraces";
 import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
 import {
   convertWebworkerSpansToRegularSpans,
+  filterSpanData,
   newWebWorkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
 
@@ -156,33 +161,35 @@ export class GracefulWorkerService {
     startTime,
     webworkerTelemetry,
   }: {
-    webworkerTelemetry: Record<string, WebworkerSpanData>;
+    webworkerTelemetry:
+      | Record<string, WebworkerSpanData | SpanAttributes>
+      | undefined;
     rootSpan: OtlpSpan | undefined;
     method: string;
     startTime: number;
     endTime: number;
   }) {
-    const webworkerTelemetryResponse = webworkerTelemetry as Record<
-      string,
-      WebworkerSpanData
-    >;
-
-    if (webworkerTelemetryResponse) {
-      const { transferDataToMainThread } = webworkerTelemetryResponse;
-      if (transferDataToMainThread) {
-        transferDataToMainThread.endTime = Date.now();
-      }
-      /// Add the completeWebworkerComputation span to the root span
-      webworkerTelemetryResponse["completeWebworkerComputation"] = {
-        startTime,
-        endTime,
-        attributes: {},
-        spanName: "completeWebworkerComputation",
-      };
+    if (!webworkerTelemetry) {
+      return;
     }
+
+    const { transferDataToMainThread } = webworkerTelemetry;
+    if (transferDataToMainThread) {
+      transferDataToMainThread.endTime = Date.now();
+    }
+    /// Add the completeWebworkerComputation span to the root span
+    webworkerTelemetry["completeWebworkerComputation"] = {
+      startTime,
+      endTime,
+      attributes: {},
+      spanName: "completeWebworkerComputation",
+    };
     //we are attaching the child spans to the root span over here
     rootSpan &&
-      convertWebworkerSpansToRegularSpans(rootSpan, webworkerTelemetryResponse);
+      convertWebworkerSpansToRegularSpans(
+        rootSpan,
+        filterSpanData(webworkerTelemetry),
+      );
 
     //genereate separate completeWebworkerComputationRoot root span
     // this span does not contain any child spans, it just captures the webworker computation alone
@@ -218,11 +225,15 @@ export class GracefulWorkerService {
     let timeTaken;
     const rootSpan = startRootSpan(method);
 
-    const webworkerTelemetryData: Record<string, WebworkerSpanData> = {
+    const webworkerTelemetryData: Record<
+      string,
+      WebworkerSpanData | SpanAttributes
+    > = {
       transferDataToWorkerThread: newWebWorkerSpanData(
         "transferDataToWorkerThread",
         {},
       ),
+      __spanAttributes: {},
     };
 
     const body = {
@@ -230,6 +241,11 @@ export class GracefulWorkerService {
       data,
       webworkerTelemetry: webworkerTelemetryData,
     };
+
+    let webworkerTelemetryResponse: Record<
+      string,
+      WebworkerSpanData | SpanAttributes
+    > = {};
 
     try {
       sendMessage.call(this._Worker, {
@@ -241,9 +257,10 @@ export class GracefulWorkerService {
       // The `this._broker` method is listening to events and will pass response to us over this channel.
       const response = yield take(ch);
       const { data, endTime, startTime } = response;
-      const { webworkerTelemetry } = data;
+      webworkerTelemetryResponse = data.webworkerTelemetry;
+
       this.addChildSpansToRootSpan({
-        webworkerTelemetry,
+        webworkerTelemetry: webworkerTelemetryResponse,
         rootSpan,
         method,
         startTime,
@@ -268,6 +285,17 @@ export class GracefulWorkerService {
         log.debug(` Worker ${method} took ${timeTaken}ms`);
         log.debug(` Transfer ${method} took ${transferTime}ms`);
       }
+
+      if (
+        webworkerTelemetryResponse &&
+        webworkerTelemetryResponse.__spanAttributes
+      ) {
+        setAttributesToSpan(
+          rootSpan,
+          webworkerTelemetryResponse.__spanAttributes as SpanAttributes,
+        );
+      }
+
       endSpan(rootSpan);
       // Cleanup
       ch.close();

@@ -502,7 +502,7 @@ public enum AppsmithError {
     DATASOURCE_HAS_ACTIONS(
             409,
             AppsmithErrorCode.DATASOURCE_HAS_ACTIONS.getCode(),
-            "Cannot delete datasource since it has {0} action(s) using it.",
+            "Cannot delete datasource since it has {0} {1} using it.",
             AppsmithErrorAction.DEFAULT,
             "Datasource cannot be deleted",
             ErrorType.BAD_REQUEST,
@@ -645,7 +645,7 @@ public enum AppsmithError {
             ErrorType.CONFIGURATION_ERROR,
             null),
     CLOUD_SERVICES_ERROR(
-            500,
+            400,
             AppsmithErrorCode.CLOUD_SERVICES_ERROR.getCode(),
             "Received error from cloud services {0}",
             AppsmithErrorAction.DEFAULT,
@@ -855,7 +855,7 @@ public enum AppsmithError {
     GIT_FILE_IN_USE(
             500,
             AppsmithErrorCode.GIT_FILE_IN_USE.getCode(),
-            "We were unable to place a lock on the file system to perform #commandName command. This error can occur when another operation is in progress. Please try again later.",
+            "We were unable to place a lock on the file system to perform {0} command. This error can occur when another command {1}, which is in progress. Please try again later.",
             AppsmithErrorAction.DEFAULT,
             "Git repo is locked",
             ErrorType.GIT_ACTION_EXECUTION_ERROR,

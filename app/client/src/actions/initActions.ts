@@ -8,41 +8,41 @@ export const initCurrentPage = () => {
   };
 };
 
-export interface InitializeEditorPayload {
-  applicationId?: string;
-  pageId?: string;
+export interface InitEditorActionPayload {
+  baseApplicationId?: string;
+  basePageId?: string;
   branch?: string;
   mode: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
 }
 
-export const initEditor = (
-  payload: InitializeEditorPayload,
-): ReduxAction<InitializeEditorPayload> => ({
+export const initEditorAction = (
+  payload: InitEditorActionPayload,
+): ReduxAction<InitEditorActionPayload> => ({
   type: ReduxActionTypes.INITIALIZE_EDITOR,
   payload,
 });
 
 export interface InitAppViewerPayload {
   branch: string;
-  applicationId?: string;
-  pageId: string;
+  baseApplicationId?: string;
+  basePageId: string;
   mode: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
 }
 
-export const initAppViewer = ({
-  applicationId,
+export const initAppViewerAction = ({
+  baseApplicationId,
+  basePageId,
   branch,
   mode,
-  pageId,
   shouldInitialiseUserDetails,
 }: InitAppViewerPayload) => ({
   type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
   payload: {
     branch: branch,
-    applicationId,
-    pageId,
+    baseApplicationId,
+    basePageId,
     mode,
     shouldInitialiseUserDetails,
   },

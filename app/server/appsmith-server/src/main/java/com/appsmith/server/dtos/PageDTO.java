@@ -1,6 +1,5 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
@@ -17,6 +16,7 @@ import org.springframework.data.annotation.Transient;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -30,6 +30,10 @@ public class PageDTO {
     @JsonView({Views.Public.class})
     private String id;
 
+    @Transient
+    @JsonView({Views.Public.class})
+    private String baseId;
+
     @JsonView({Views.Public.class, Views.Export.class, Git.class})
     String name;
 
@@ -42,7 +46,7 @@ public class PageDTO {
     @JsonView({Views.Public.class, Views.Export.class, Git.class})
     String slug;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     String customSlug;
 
     @Transient
@@ -64,20 +68,22 @@ public class PageDTO {
     @JsonView(Views.Public.class)
     Instant deletedAt = null;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     Boolean isHidden;
 
     @Transient
     @JsonView(Views.Public.class)
     Long lastUpdatedTime;
 
-    // This field will be used to store the default/root pageId and applicationId for actions generated for git
-    // connected applications and will be used to connect actions across the branches
     @Transient
+    @JsonView({Views.Internal.class})
+    String branchName;
+
     @JsonView(Views.Public.class)
-    DefaultResources defaultResources;
+    Map<String, List<String>> dependencyMap;
 
     public void sanitiseToExportDBObject() {
+        this.setDependencyMap(null);
         this.getLayouts().forEach(Layout::sanitiseToExportDBObject);
     }
 }

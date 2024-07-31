@@ -44,6 +44,7 @@ jest.mock("constants/routes", () => {
 });
 
 describe("Canvas Hot Keys", () => {
+  const pageId = "0123456789abcdef00000000";
   beforeAll(() => {
     runSagaMiddleware();
   });
@@ -114,7 +115,7 @@ describe("Canvas Hot Keys", () => {
 
       const component = render(
         <MemoryRouter
-          initialEntries={["/app/applicationSlug/pageSlug-page_id/edit"]}
+          initialEntries={[`/app/applicationSlug/pageSlug-${pageId}/edit`]}
         >
           <MockApplication>
             <GlobalHotKeys

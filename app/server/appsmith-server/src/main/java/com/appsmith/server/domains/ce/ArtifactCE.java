@@ -10,6 +10,10 @@ public interface ArtifactCE {
 
     String getId();
 
+    default String getBaseId() {
+        return getId();
+    }
+
     String getName();
 
     String getWorkspaceId();

@@ -19,6 +19,7 @@ import { assign } from "lodash";
 export interface DatasourceDataState {
   list: Datasource[];
   loading: boolean;
+  loadingTokenForDatasourceId: string | null;
   isTesting: boolean;
   isListing: boolean; // fetching unconfigured datasource list
   fetchingDatasourceStructure: Record<string, boolean>;
@@ -46,6 +47,7 @@ export interface DatasourceDataState {
 const initialState: DatasourceDataState = {
   list: [],
   loading: false,
+  loadingTokenForDatasourceId: null,
   isTesting: false,
   isListing: false,
   fetchingDatasourceStructure: {},
@@ -345,6 +347,31 @@ const datasourceReducer = createReducer(initialState, {
       ],
     };
   },
+  [ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN]: (
+    state: DatasourceDataState,
+    action: ReduxAction<{ datasourceId: string }>,
+  ) => {
+    return {
+      ...state,
+      loadingTokenForDatasourceId: action.payload.datasourceId,
+    };
+  },
+  [ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN_SUCCESS]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      loadingTokenForDatasourceId: null,
+    };
+  },
+  [ReduxActionTypes.GET_OAUTH_ACCESS_TOKEN_ERROR]: (
+    state: DatasourceDataState,
+  ) => {
+    return {
+      ...state,
+      loadingTokenForDatasourceId: null,
+    };
+  },
   [ReduxActionTypes.UPDATE_DATASOURCE_STORAGE_SUCCESS]: (
     state: DatasourceDataState,
     action: ReduxAction<DatasourceStorage>,
@@ -428,16 +455,6 @@ const datasourceReducer = createReducer(initialState, {
         }
       });
     });
-
-    return {
-      ...state,
-      loading: false,
-      list: state.list.map((datasource) => {
-        if (datasource.id === action.payload.id) return action.payload;
-
-        return datasource;
-      }),
-    };
   },
   [ReduxActionErrorTypes.CREATE_DATASOURCE_ERROR]: (
     state: DatasourceDataState,

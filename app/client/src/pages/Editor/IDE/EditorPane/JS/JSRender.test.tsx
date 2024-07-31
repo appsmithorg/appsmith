@@ -16,6 +16,8 @@ import { JSObjectFactory } from "test/factories/Actions/JSObject";
 const FeatureFlags = {
   rollout_side_by_side_enabled: true,
 };
+
+const basePageId = "0123456789abcdef00000000";
 describe("IDE Render: JS", () => {
   localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   describe("JS Blank State", () => {
@@ -25,7 +27,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects",
+          url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects`,
           featureFlags: FeatureFlags,
         },
       );
@@ -49,7 +51,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects",
+          url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -74,7 +76,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/add",
+          url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects/add`,
           featureFlags: FeatureFlags,
         },
       );
@@ -98,7 +100,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/add",
+          url: `/app/applicationSlug/pageSlug-${basePageId}/edit/jsObjects/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -119,14 +121,16 @@ describe("IDE Render: JS", () => {
   describe("JS Edit Render", () => {
     it("Renders JS routes in Full screen", () => {
       const page = PageFactory.build();
-      const JS = JSObjectFactory.build({ id: "js_id", pageId: page.pageId });
+      const js1 = JSObjectFactory.build({
+        pageId: page.pageId,
+      });
 
       const state = getIDETestState({
         pages: [page],
-        js: [JS],
+        js: [js1],
         tabs: {
           [EditorEntityTab.QUERIES]: [],
-          [EditorEntityTab.JS]: ["js_id"],
+          [EditorEntityTab.JS]: [js1.baseId],
         },
       });
 
@@ -135,7 +139,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id",
+          url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js1.baseId}`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -149,7 +153,7 @@ describe("IDE Render: JS", () => {
       ).toBe(true);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-JSObject1").classList.contains("active"),
+        getByTestId("t--ide-tab-jsobject1").classList.contains("active"),
       ).toBe(true);
       // Check if the form is rendered
       expect(container.querySelector(".js-editor-tab")).not.toBeNull();
@@ -159,15 +163,14 @@ describe("IDE Render: JS", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByRole("button", {
-        name: createMessage(EDITOR_PANE_TEXTS.js_add_button),
-      });
+      getByTestId("t--add-item");
     });
 
     it("Renders JS routes in Split Screen", async () => {
       const page = PageFactory.build();
       const js2 = JSObjectFactory.build({
         id: "js_id2",
+        baseId: "js_base_id2",
         pageId: page.pageId,
       });
       const state = getIDETestState({
@@ -175,7 +178,7 @@ describe("IDE Render: JS", () => {
         pages: [page],
         tabs: {
           [EditorEntityTab.QUERIES]: [],
-          [EditorEntityTab.JS]: ["js_id2"],
+          [EditorEntityTab.JS]: [js2.baseId],
         },
         ideView: EditorViewMode.SplitScreen,
       });
@@ -185,7 +188,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id2",
+          url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js2.baseId}`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -199,7 +202,7 @@ describe("IDE Render: JS", () => {
       expect(getAllByText("JSObject2").length).toBe(2);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-JSObject2").classList.contains("active"),
+        getByTestId("t--ide-tab-jsobject2").classList.contains("active"),
       ).toBe(true);
 
       // Check if the form is rendered
@@ -215,16 +218,17 @@ describe("IDE Render: JS", () => {
 
     it("Renders JS add routes in Full Screen", () => {
       const page = PageFactory.build();
-      const JS3 = JSObjectFactory.build({
+      const js3 = JSObjectFactory.build({
         id: "js_id3",
+        baseId: "js_base_id3",
         pageId: page.pageId,
       });
       const state = getIDETestState({
-        js: [JS3],
+        js: [js3],
         pages: [page],
         tabs: {
           [EditorEntityTab.QUERIES]: [],
-          [EditorEntityTab.JS]: ["js_id3"],
+          [EditorEntityTab.JS]: [js3.baseId],
         },
       });
 
@@ -233,7 +237,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id3/add",
+          url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js3.baseId}/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -243,7 +247,7 @@ describe("IDE Render: JS", () => {
       expect(getAllByText("JSObject3").length).toEqual(2);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-JSObject3").classList.contains("active"),
+        getByTestId("t--ide-tab-jsobject3").classList.contains("active"),
       ).toBe(false);
       // Check js object is not rendered. Instead new tab should render
       expect(container.querySelector(".js-editor-tab")).toBeNull();
@@ -255,13 +259,17 @@ describe("IDE Render: JS", () => {
 
     it("Renders JS add routes in Split Screen", () => {
       const page = PageFactory.build();
-      const js3 = JSObjectFactory.build({ id: "js_id4", pageId: page.pageId });
+      const js4 = JSObjectFactory.build({
+        id: "js_id4",
+        baseId: "js_base_id4",
+        pageId: page.pageId,
+      });
       const state = getIDETestState({
-        js: [js3],
+        js: [js4],
         pages: [page],
         tabs: {
           [EditorEntityTab.QUERIES]: [],
-          [EditorEntityTab.JS]: ["js_id4"],
+          [EditorEntityTab.JS]: [js4.baseId],
         },
         ideView: EditorViewMode.SplitScreen,
       });
@@ -271,7 +279,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id4/add",
+          url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${js4.baseId}/add`,
           initialState: state,
           featureFlags: FeatureFlags,
         },
@@ -281,7 +289,7 @@ describe("IDE Render: JS", () => {
       expect(getAllByText("JSObject4").length).toEqual(1);
       // Tabs active state
       expect(
-        getByTestId("t--ide-tab-JSObject4").classList.contains("active"),
+        getByTestId("t--ide-tab-jsobject4").classList.contains("active"),
       ).toBe(false);
 
       // Check if the form is not rendered
@@ -294,6 +302,7 @@ describe("IDE Render: JS", () => {
       const page = PageFactory.build();
       const Main_JS = JSObjectFactory.build({
         id: "js_id",
+        baseId: "js_base_id",
         name: "Main",
         pageId: page.pageId,
       });
@@ -301,6 +310,7 @@ describe("IDE Render: JS", () => {
 
       const Normal_JS = JSObjectFactory.build({
         id: "js_id2",
+        baseId: "js_base_id2",
         name: "Normal",
         pageId: page.pageId,
       });
@@ -310,7 +320,7 @@ describe("IDE Render: JS", () => {
         js: [Main_JS, Normal_JS],
         tabs: {
           [EditorEntityTab.QUERIES]: [],
-          [EditorEntityTab.JS]: ["js_id"],
+          [EditorEntityTab.JS]: [Main_JS.baseId],
         },
       });
 
@@ -319,7 +329,7 @@ describe("IDE Render: JS", () => {
           <IDE />
         </Route>,
         {
-          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id",
+          url: `/app/applicationSlug/pageSlug-${page.basePageId}/edit/jsObjects/${Main_JS.baseId}`,
           initialState: state,
           featureFlags: FeatureFlags,
         },

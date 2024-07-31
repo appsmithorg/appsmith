@@ -31,7 +31,10 @@ import type {
   Stylesheet,
 } from "entities/AppTheming";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
+import {
+  isAutoHeightEnabledForWidget,
+  DefaultAutocompleteDefinitions,
+} from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
   AnvilConfig,
@@ -65,6 +68,7 @@ import {
   ONSUBMIT_NOT_CONFIGURED_MESSAGE,
 } from "../constants/messages";
 import { createMessage } from "@appsmith/constants/messages";
+import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,
@@ -152,7 +156,7 @@ class JSONFormWidget extends BaseWidget<
       name: "JSON Form",
       iconSVG: IconSVG,
       thumbnailSVG: ThumbnailSVG,
-      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.LAYOUT],
+      tags: [WIDGET_TAGS.LAYOUT],
       needsMeta: true,
     };
   }
@@ -461,6 +465,7 @@ class JSONFormWidget extends BaseWidget<
         sourceData: generateTypeDef(widget.sourceData),
         fieldState: generateTypeDef(widget.fieldState),
         isValid: "bool",
+        isVisible: DefaultAutocompleteDefinitions.isVisible,
       };
 
       return definitions;
@@ -647,6 +652,7 @@ class JSONFormWidget extends BaseWidget<
     schema: Schema,
     afterUpdateAction?: ExecuteTriggerPayload,
   ) => {
+    const span = startRootSpan("JSONFormWidget.parseAndSaveFieldState");
     const fieldState = generateFieldState(schema, metaInternalFieldState);
     const action = klona(afterUpdateAction);
 
@@ -660,6 +666,7 @@ class JSONFormWidget extends BaseWidget<
         actionPayload,
       );
     }
+    endSpan(span);
   };
 
   onSubmit = (event: React.MouseEvent<HTMLElement, MouseEvent>) => {

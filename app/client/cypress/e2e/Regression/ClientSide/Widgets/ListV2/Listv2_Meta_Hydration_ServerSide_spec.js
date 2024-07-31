@@ -104,7 +104,7 @@ describe(
 
       cy.testJsontext("items", "{{Api1.data}}");
 
-      cy.togglebar(commonlocators.serverSidePaginationCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.serverSidePaginationCheckbox);
 
       cy.get(toggleJSButton("onpagechange")).click({ force: true });
       cy.testJsontext("onpagechange", "{{Api1.run()}}");

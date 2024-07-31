@@ -17,6 +17,7 @@ import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
 import { getJSUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
+import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
 
 export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);
@@ -85,17 +86,17 @@ export const useJSSegmentRoutes = (path: string): UseRoutes => {
         exact: true,
         key: "AddJS",
         component: AddJS,
-        path: [`${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
+        path: [`${path}${ADD_PATH}`, `${path}/:baseCollectionId${ADD_PATH}`],
       },
       {
         exact: true,
         key: "JSEditor",
         component: JSEditor,
-        path: [path + "/:collectionId"],
+        path: [path + "/:baseCollectionId"],
       },
       {
         key: "JSEmpty",
-        component: ListJS,
+        component: JSBlankState,
         exact: true,
         path: [path],
       },
@@ -106,7 +107,11 @@ export const useJSSegmentRoutes = (path: string): UseRoutes => {
       exact: false,
       key: "ListJS",
       component: ListJS,
-      path: [path, `${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
+      path: [
+        path,
+        `${path}${ADD_PATH}`,
+        `${path}/:baseCollectionId${ADD_PATH}`,
+      ],
     },
   ];
 };

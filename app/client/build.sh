@@ -18,6 +18,13 @@ export REACT_APP_SENTRY_RELEASE=$GIT_SHA
 export REACT_APP_CLIENT_LOG_LEVEL=ERROR
 # Disable CRA built-in ESLint checks since we have our own config and a separate step for this
 export DISABLE_ESLINT_PLUGIN=true
-craco --max-old-space-size=7168 build --config craco.build.config.js
+echo "debug client build setting $APPSMITH_CLOUD_HOSTING"
+if [ "$APPSMITH_CLOUD_HOSTING" == "true" ]; then
+    echo "Building profiled build"
+    craco --max-old-space-size=7168 build --profile --config craco.build.config.js --verbose
+else
+    craco --max-old-space-size=7168 build --config craco.build.config.js
+fi
+
 
 echo "build finished"

@@ -30,7 +30,7 @@ export interface ActionGroupConfig {
   key: string;
   getURL: (
     parentEntityId: string,
-    id: string,
+    baseId: string,
     pluginType: PluginType,
     plugin?: Plugin,
   ) => string;
@@ -39,22 +39,22 @@ export interface ActionGroupConfig {
 
 export interface ResolveActionURLProps {
   plugin?: Plugin;
-  parentEntityId: string;
+  baseParentEntityId: string;
   pluginType: PluginType;
-  id: string;
+  baseId: string;
 }
 
 export const resolveActionURL = ({
-  id,
-  parentEntityId,
+  baseId,
+  baseParentEntityId,
   pluginType,
 }: ResolveActionURLProps) => {
   if (pluginType === PluginType.SAAS) {
     return saasEditorApiIdURL({
-      parentEntityId,
+      baseParentEntityId,
       // It is safe to assume at this date, that only Google Sheets uses and will use PluginType.SAAS
       pluginPackageName: PluginPackageName.GOOGLE_SHEETS,
-      apiId: id,
+      baseApiId: baseId,
     });
   } else if (
     pluginType === PluginType.DB ||
@@ -63,11 +63,11 @@ export const resolveActionURL = ({
     pluginType === PluginType.INTERNAL
   ) {
     return queryEditorIdURL({
-      parentEntityId,
-      queryId: id,
+      baseParentEntityId,
+      baseQueryId: baseId,
     });
   } else {
-    return apiEditorIdURL({ parentEntityId, apiId: id });
+    return apiEditorIdURL({ baseParentEntityId, baseApiId: baseId });
   }
 };
 
@@ -88,12 +88,17 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
     icon: dbQueryIcon,
     key: generateReactKey(),
     getURL: (
-      parentEntityId: string,
-      id: string,
+      baseParentEntityId: string,
+      baseId: string,
       pluginType: PluginType,
       plugin?: Plugin,
     ) => {
-      return resolveActionURL({ pluginType, plugin, id, parentEntityId });
+      return resolveActionURL({
+        pluginType,
+        plugin,
+        baseId,
+        baseParentEntityId,
+      });
     },
     getIcon: (action: any, plugin: Plugin, remoteIcon?: boolean) => {
       const isGraphql = isGraphqlPlugin(plugin);

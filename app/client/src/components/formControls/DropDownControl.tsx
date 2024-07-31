@@ -185,6 +185,20 @@ function renderDropdown(
     }
   };
 
+  const clearAllOptions = () => {
+    if (!isNil(selectedValue)) {
+      if (props.isMultiSelect) {
+        if (Array.isArray(selectedValue)) {
+          selectedValue = [];
+          props.input?.onChange([]);
+        }
+      } else {
+        selectedValue = "";
+        props.input?.onChange("");
+      }
+    }
+  };
+
   if (props.options.length > 0) {
     if (props.isMultiSelect) {
       const tempSelectedValues: string[] = [];
@@ -233,11 +247,13 @@ function renderDropdown(
 
   return (
     <Select
+      allowClear={props.isMultiSelect && !isEmpty(selectedValue)}
       data-testid={`t--dropdown-${props?.configProperty}`}
       defaultValue={props.initialValue}
       isDisabled={props.disabled}
       isLoading={props.isLoading}
       isMultiSelect={props?.isMultiSelect}
+      onClear={clearAllOptions}
       onDeselect={onRemoveOptions}
       onSelect={(value) => onSelectOptions(value)}
       placeholder={props?.placeholderText}
@@ -306,6 +322,9 @@ const mapStateToProps = (
       options = dynamicFetchedValues.data;
     }
   } catch (e) {
+    // Printing error to console
+    // eslint-disable-next-line no-console
+    console.error(e);
   } finally {
     return { isLoading, options, formValues };
   }

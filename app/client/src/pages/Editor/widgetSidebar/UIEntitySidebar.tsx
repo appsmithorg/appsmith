@@ -3,6 +3,8 @@ import {
   WIDGET_PANEL_EMPTY_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
 import type {
   WidgetCardsGroupedByTags,
@@ -13,7 +15,7 @@ import { Flex, SearchInput, Text } from "design-system";
 import Fuse from "fuse.js";
 import { debounce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { groupWidgetCardsByTags } from "../utils";
 import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
@@ -30,7 +32,16 @@ function UIEntitySidebar({
     useState<WidgetCardsGroupedByTags>(groupedCards);
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [isEmpty, setIsEmpty] = useState(false);
+  const [areSearchResultsEmpty, setAreSearchResultsEmpty] = useState(false);
+  const isDragDropBuildingBlocksEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
+  );
+  const hideSuggestedWidgets = useMemo(
+    () =>
+      (isSearching && !areSearchResultsEmpty) ||
+      isDragDropBuildingBlocksEnabled,
+    [isSearching, areSearchResultsEmpty, isDragDropBuildingBlocksEnabled],
+  );
 
   const searchWildcards = useMemo(
     () =>
@@ -72,11 +83,11 @@ function UIEntitySidebar({
           searchResult.length > 0 ? searchResult : searchWildcards,
         ),
       );
-      setIsEmpty(searchResult.length === 0);
+      setAreSearchResultsEmpty(searchResult.length === 0);
     } else {
       setFilteredCards(groupedCards);
       setIsSearching(false);
-      setIsEmpty(false);
+      setAreSearchResultsEmpty(false);
     }
   };
 
@@ -101,6 +112,7 @@ function UIEntitySidebar({
     >
       <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
+          // @ts-expect-error fix this the next time the file is edited
           autoComplete="off"
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
@@ -114,7 +126,7 @@ function UIEntitySidebar({
         data-testid="t--widget-sidebar-scrollable-wrapper"
         pt="spaces-2"
       >
-        {isEmpty && (
+        {areSearchResultsEmpty && (
           <Text
             color="#6A7585"
             kind="body-m"
@@ -126,18 +138,12 @@ function UIEntitySidebar({
           </Text>
         )}
         <div>
-          {Object.keys(filteredCards).map((tag) => {
-            const cardsForThisTag = filteredCards[tag as WidgetTags];
-
+          {Object.entries(filteredCards).map(([tag, cardsForThisTag]) => {
             if (!cardsForThisTag?.length && !entityLoading[tag as WidgetTags]) {
               return null;
             }
 
-            if (
-              isSearching &&
-              tag === WIDGET_TAGS.SUGGESTED_WIDGETS &&
-              !isEmpty
-            ) {
+            if (tag === WIDGET_TAGS.SUGGESTED_WIDGETS && hideSuggestedWidgets) {
               return null;
             }
 

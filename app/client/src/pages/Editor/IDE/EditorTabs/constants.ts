@@ -17,7 +17,7 @@ export const TabSelectors: Record<
   {
     tabsSelector: (state: AppState) => EntityItem[];
     listSelector: (state: AppState) => EntityItem[];
-    itemUrlSelector: (item: EntityItem, pageId: string) => string;
+    itemUrlSelector: (item: EntityItem, basePageId: string) => string;
   }
 > = {
   [EditorEntityTab.JS]: {

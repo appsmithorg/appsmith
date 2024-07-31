@@ -22,6 +22,8 @@ const mainCanvasReducer = createImmerReducer(initialState, {
     state: MainCanvasReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
   ) => {
+    if (state.initialized) return;
+
     const mainCanvas =
       action.payload.widgets &&
       action.payload.widgets[MAIN_CONTAINER_WIDGET_ID];

@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 
 import {
@@ -22,13 +22,13 @@ import {
   getSelectedAppTheme,
 } from "selectors/appThemingSelectors";
 import { getCanvasWidgetsStructure } from "@appsmith/selectors/entitiesSelector";
-import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import Canvas from "pages/Editor/Canvas";
 import type { AppState } from "@appsmith/reducers";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
 import { useMainContainerResizer } from "layoutSystems/common/mainContainerResizer/useMainContainerResizer";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { useCanvasWidthAutoResize } from "../../../hooks";
 
 interface MainCanvasWrapperProps {
   isPreviewMode: boolean;
@@ -107,7 +107,7 @@ const Wrapper = styled.section<{
  * @prop currentPageId, current page id in string
  * @returns
  */
-function MainContainerWrapper(props: MainCanvasWrapperProps) {
+export function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
   const dispatch = useDispatch();
   const {
@@ -128,19 +128,19 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const isAppThemeChanging = useSelector(getAppThemeIsChanging);
   const showCanvasTopSection = useSelector(showCanvasTopSectionSelector);
   const showAnonymousDataPopup = useSelector(getIsAnonymousDataPopupVisible);
-  const isLayoutingInitialized = useDynamicAppLayout();
-  const isPageInitializing = isFetchingPage || !isLayoutingInitialized;
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const isCanvasInitialized = useCanvasWidthAutoResize({ ref: wrapperRef });
+  const isPageInitializing = isFetchingPage || !isCanvasInitialized;
   const { canShowResizer, enableMainContainerResizer } =
     useMainContainerResizer();
   const isAnvilLayout = useSelector(getIsAnvilLayout);
-
-  const headerHeight = "40px";
 
   useEffect(() => {
     return () => {
       dispatch(forceOpenWidgetPanel(false));
     };
-  }, []);
+  }, [dispatch]);
 
   const fontFamily = `${selectedTheme.properties.fontFamily.appFont}, sans-serif`;
   const isAutoCanvasResizing = useSelector(
@@ -205,8 +205,9 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         }
         isPreviewingNavigation={isPreviewingNavigation}
         navigationHeight={navigationHeight}
+        ref={wrapperRef}
         style={{
-          height: isPreviewMode ? `calc(100% - ${headerHeight})` : "auto",
+          height: isPreviewMode ? `calc(100% - ${navigationHeight})` : "auto",
           fontFamily: fontFamily,
           pointerEvents: isAutoCanvasResizing ? "none" : "auto",
         }}
@@ -229,10 +230,8 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         enableMainCanvasResizer={enableMainContainerResizer && canShowResizer}
         isPageInitiated={!isPageInitializing && !!widgetsStructure}
         isPreview={isPreviewMode || isProtectedMode}
-        shouldHaveTopMargin={shouldHaveTopMargin}
+        navigationHeight={navigationHeight}
       />
     </>
   );
 }
-
-export default MainContainerWrapper;

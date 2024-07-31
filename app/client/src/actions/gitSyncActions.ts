@@ -6,7 +6,10 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { ConnectToGitPayload } from "api/GitSyncAPI";
+import type {
+  ConnectToGitPayload,
+  GitAutocommitProgressResponse,
+} from "api/GitSyncAPI";
 import type { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 import {
@@ -480,6 +483,7 @@ export const setShowBranchPopupAction = (show: boolean) => {
   };
 };
 
+// START autocommit
 export const toggleAutocommitEnabledInit = () => ({
   type: ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT,
 });
@@ -489,13 +493,59 @@ export const setIsAutocommitModalOpen = (isAutocommitModalOpen: boolean) => ({
   payload: { isAutocommitModalOpen },
 });
 
-export const startAutocommitProgressPolling = () => ({
-  type: ReduxActionTypes.GIT_AUTOCOMMIT_INITIATE_PROGRESS_POLLING,
+export const triggerAutocommitInitAction = () => ({
+  type: ReduxActionTypes.GIT_AUTOCOMMIT_TRIGGER_INIT,
 });
 
-export const stopAutocommitProgressPolling = () => ({
+export const triggerAutocommitSuccessAction = () => ({
+  type: ReduxActionTypes.GIT_AUTOCOMMIT_TRIGGER_SUCCESS,
+});
+
+export interface TriggerAutocommitErrorActionPayload {
+  error: any;
+  show: boolean;
+}
+
+export const triggerAutocommitErrorAction = (
+  payload: TriggerAutocommitErrorActionPayload,
+) => ({
+  type: ReduxActionErrorTypes.GIT_AUTOCOMMIT_TRIGGER_ERROR,
+  payload,
+});
+
+export const startAutocommitProgressPollingAction = () => ({
+  type: ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING,
+});
+
+export const stopAutocommitProgressPollingAction = () => ({
   type: ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING,
 });
+
+export type SetAutocommitActionPayload = GitAutocommitProgressResponse;
+
+export const setAutocommitProgressAction = (
+  payload: SetAutocommitActionPayload,
+) => ({
+  type: ReduxActionTypes.GIT_SET_AUTOCOMMIT_PROGRESS,
+  payload,
+});
+
+export const resetAutocommitProgressAction = () => ({
+  type: ReduxActionTypes.GIT_RESET_AUTOCOMMIT_PROGRESS,
+});
+
+export interface AutocommitProgressErrorActionPayload {
+  error: any;
+  show: boolean;
+}
+
+export const autoCommitProgressErrorAction = (
+  payload: AutocommitProgressErrorActionPayload,
+) => ({
+  type: ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR,
+  payload,
+});
+// END autocommit
 
 export const getGitMetadataInitAction = () => ({
   type: ReduxActionTypes.GIT_GET_METADATA_INIT,

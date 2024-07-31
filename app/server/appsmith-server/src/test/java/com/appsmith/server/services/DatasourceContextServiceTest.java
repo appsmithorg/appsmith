@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.constants.PluginConstants;
+import com.appsmith.external.helpers.EncryptionHelper;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnection;
 import com.appsmith.external.helpers.restApiUtils.connections.APIConnectionFactory;
 import com.appsmith.external.helpers.restApiUtils.connections.BearerTokenAuthentication;
@@ -17,7 +18,6 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.UpdatableConnection;
 import com.appsmith.external.plugins.PluginExecutor;
-import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
@@ -41,14 +41,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.security.test.context.support.WithUserDetails;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -68,13 +66,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.spy;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 public class DatasourceContextServiceTest {
-
-    @Autowired
-    EncryptionService encryptionService;
 
     @Autowired
     WorkspaceRepository workspaceRepository;
@@ -287,7 +281,7 @@ public class DatasourceContextServiceTest {
                     DBAuth encryptedAuthentication = (DBAuth) savedDatasourceStorageDTO
                             .getDatasourceConfiguration()
                             .getAuthentication();
-                    assertEquals(password, encryptionService.decryptString(encryptedAuthentication.getPassword()));
+                    assertEquals(password, EncryptionHelper.decrypt(encryptedAuthentication.getPassword()));
                 })
                 .verifyComplete();
     }

@@ -102,6 +102,8 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
+import { convertToPageIdSelector } from "selectors/pageListSelectors";
+import { getApplicationByIdFromWorkspaces } from "@appsmith/selectors/applicationSelectors";
 
 interface ReduxStateProps {
   canDeleteDatasource: boolean;
@@ -116,6 +118,7 @@ interface ReduxStateProps {
   isDeleting: boolean;
   isNewDatasource: boolean;
   isPluginAuthorized: boolean;
+  basePageId: string;
   pageId: string;
   pluginImage: string;
   pluginId: string;
@@ -153,7 +156,7 @@ type Props = ReduxStateProps &
   DatasourcePaneFunctions &
   RouteComponentProps<{
     datasourceId: string;
-    pageId: string;
+    basePageId: string;
   }>;
 
 export const DSEditorWrapper = styled.div`
@@ -771,6 +774,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
     const {
       datasource,
       datasourceId,
+      featureFlags,
       formConfig,
       formData,
       formName,
@@ -817,6 +821,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
           applicationId={this.props.applicationId}
           currentEnvironment={this.getEnvironmentId()}
           datasourceId={datasourceId}
+          featureFlags={featureFlags}
           formConfig={formConfig}
           formData={formData}
           formName={DATASOURCE_DB_FORM}
@@ -888,6 +893,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   render() {
     const {
+      basePageId,
       canDeleteDatasource,
       canManageDatasource,
       datasource,
@@ -934,7 +940,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       }
       history.push(
         saasEditorDatasourceIdURL({
-          pageId,
+          basePageId,
           pluginPackageName,
           datasourceId,
         }),
@@ -1056,6 +1062,15 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 }
 
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
+  const applicationId = props.applicationId ?? getCurrentApplicationId(state);
+  const application = getApplicationByIdFromWorkspaces(state, applicationId);
+
+  const basePageIdFromUrl = props?.match?.params?.basePageId;
+  const pageIdFromUrl = convertToPageIdSelector(state, basePageIdFromUrl);
+  const pageId = props.pageId || pageIdFromUrl;
+  const basePageId =
+    application?.pages?.find((page) => page.id === pageId)?.baseId ?? "";
+
   const datasourceId = props.datasourceId ?? props.match?.params?.datasourceId;
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
@@ -1144,13 +1159,14 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource,
     isPluginAllowedToPreviewData,
-    pageId: props.pageId ?? props.match?.params?.pageId,
+    pageId,
+    basePageId,
     viewMode,
     pluginType: plugin?.type ?? "",
     pluginName: plugin?.name ?? "",
     pluginDatasourceForm,
     pluginPackageName,
-    applicationId: props.applicationId ?? getCurrentApplicationId(state),
+    applicationId,
     applicationSlug,
     pageSlug,
     isDatasourceBeingSaved: datasources.isDatasourceBeingSaved,

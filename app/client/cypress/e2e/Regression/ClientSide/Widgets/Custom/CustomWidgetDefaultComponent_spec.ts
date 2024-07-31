@@ -6,14 +6,13 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
-import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Custom widget Tests",
-  { tags: ["@tag.Widget", "@tag.Custom"] },
+  { tags: ["@tag.Widget", "@tag.excludeForAirgap"] },
   function () {
     before(() => {
       entityExplorer.DragDropWidgetNVerify("customwidget", 550, 100);

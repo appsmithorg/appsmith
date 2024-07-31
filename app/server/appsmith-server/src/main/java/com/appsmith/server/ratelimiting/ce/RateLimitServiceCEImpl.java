@@ -2,13 +2,12 @@ package com.appsmith.server.ratelimiting.ce;
 
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.ratelimiting.RateLimitConfig;
 import io.github.bucket4j.distributed.BucketProxy;
 import lombok.extern.slf4j.Slf4j;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Duration;
 import java.util.Map;
@@ -19,7 +18,6 @@ import static java.lang.Boolean.TRUE;
 @Slf4j
 public class RateLimitServiceCEImpl implements RateLimitServiceCE {
 
-    private final Scheduler scheduler = Schedulers.boundedElastic();
     private final Map<String, BucketProxy> apiBuckets;
     private final RateLimitConfig rateLimitConfig;
     // this number of tokens can later be customised per API in the configuration.
@@ -58,7 +56,7 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
                 })
                 // Since we are interacting with redis, we want to make sure that the operation is done on a separate
                 // thread pool
-                .subscribeOn(scheduler);
+                .subscribeOn(LoadShifter.elasticScheduler);
     }
 
     @Override
@@ -75,7 +73,7 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
                 .then()
                 // Since we are interacting with redis, we want to make sure that the operation is done on a separate
                 // thread pool
-                .subscribeOn(scheduler);
+                .subscribeOn(LoadShifter.elasticScheduler);
     }
 
     /* **************************************************************************************************** */
@@ -112,7 +110,7 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
                 })
                 // Since we are interacting with redis, we want to make sure that the operation is done on a separate
                 // thread pool
-                .subscribeOn(scheduler);
+                .subscribeOn(LoadShifter.elasticScheduler);
     }
 
     /*
@@ -139,7 +137,7 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
                 })
                 // Since we are interacting with redis, we want to make sure that the operation is done on a separate
                 // thread pool
-                .subscribeOn(scheduler);
+                .subscribeOn(LoadShifter.elasticScheduler);
     }
 
     private Mono<Boolean> sanitizeInput(String apiIdentifier, String userIdentifier) {
@@ -156,6 +154,6 @@ public class RateLimitServiceCEImpl implements RateLimitServiceCE {
 
                     return Mono.just(true);
                 })
-                .subscribeOn(scheduler);
+                .subscribeOn(LoadShifter.elasticScheduler);
     }
 }

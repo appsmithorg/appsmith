@@ -4,7 +4,7 @@ import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
+  getCurrentBasePageId,
   getIsPageSaving,
   getIsPublishingApplication,
   getPageSavingError,
@@ -46,6 +46,7 @@ import RealtimeAppEditors from "./RealtimeAppEditors";
 import { EditorSaveIndicator } from "./EditorSaveIndicator";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchUsersForWorkspace } from "@appsmith/actions/workspaceActions";
+import { useNavigationMenuData } from "./EditorName/useNavigationMenuData";
 
 import {
   getIsGitConnected,
@@ -75,7 +76,6 @@ import { Omnibar } from "./commons/Omnibar";
 import { EditorShareButton } from "./EditorShareButton";
 import { HelperBarInHeader } from "./HelpBarInHeader";
 import { AppsmithLink } from "./AppsmithLink";
-import { GetNavigationMenuData } from "./EditorName/NavigationMenuData";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -93,13 +93,13 @@ export function EditorHeader() {
   const applicationId = useSelector(getCurrentApplicationId);
   const currentApplication = useSelector(getCurrentApplication);
   const isPublishing = useSelector(getIsPublishingApplication);
-  const pageId = useSelector(getCurrentPageId) as string;
+  const basePageId = useSelector(getCurrentBasePageId) as string;
   const featureFlags = useSelector(selectFeatureFlags);
   const isSaving = useSelector(getIsPageSaving);
   const pageSaveError = useSelector(getPageSavingError);
   const isProtectedMode = useSelector(protectedModeSelector);
 
-  const deployLink = useHref(viewerURL, { pageId });
+  const deployLink = useHref(viewerURL, { basePageId });
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
@@ -208,7 +208,7 @@ export function EditorHeader() {
                 editInteractionKind={EditInteractionKind.SINGLE}
                 editorName="Application"
                 fill
-                getNavigationMenu={GetNavigationMenuData}
+                getNavigationMenu={useNavigationMenuData}
                 isError={isErroredSavingName}
                 isNewEditor={
                   applicationList.filter((el) => el.id === applicationId)

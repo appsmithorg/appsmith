@@ -150,5 +150,7 @@ public interface ArtifactBasedImportServiceCE<
      */
     Map<String, String> getArtifactSpecificConstantsMap();
 
-    Mono<Set<String>> getDatasourceIdSetConsumedInArtifact(String defaultArtifactId);
+    Mono<Set<String>> getDatasourceIdSetConsumedInArtifact(String baseArtifactId);
+
+    Flux<String> getBranchedArtifactIdsByBranchedArtifactId(String branchedArtifactId);
 }
