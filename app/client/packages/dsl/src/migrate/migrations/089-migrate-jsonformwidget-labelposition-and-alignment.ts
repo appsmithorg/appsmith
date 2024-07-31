@@ -6,7 +6,6 @@ export const migrateJsonFormWidgetLabelPositonAndAlignment = (
 ) => {
   return traverseDSLAndMigrate(currentDSL, (widget: WidgetProps) => {
     if (widget.type == "JSON_FORM_WIDGET") {
-      // console.log(`widget{{{{{{{{{{}}}}}}}}}}`,widget)
       const jsonFormWidgetProps = widget;
       Object.keys(jsonFormWidgetProps.schema).forEach((key) => {
         const field = jsonFormWidgetProps.schema[key];
@@ -37,7 +36,7 @@ export const migrateJsonFormWidgetLabelPositonAndAlignment = (
               childField.alignWidget = "LEFT";
               field.children[childKey] = {
                 ...childField,
-                labelPosition: "Auto",
+                labelPosition: "left",
               };
             }
           });
