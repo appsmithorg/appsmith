@@ -16,46 +16,52 @@ export const ScreenModeToggle = () => {
   const dispatch = useDispatch();
   const ideViewMode = useSelector(getIDEViewMode);
 
-  const toggleEditorMode = useCallback(() => {
-    const newMode =
-      ideViewMode === EditorViewMode.SplitScreen
-        ? EditorViewMode.FullScreen
-        : EditorViewMode.SplitScreen;
-
+  const switchToFullScreen = useCallback(() => {
     AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
-      to: newMode,
+      to: EditorViewMode.FullScreen,
     });
-    dispatch(setIdeEditorViewMode(newMode));
-  }, [ideViewMode, dispatch]);
+    dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen));
+  }, [dispatch]);
+
+  const switchToSplitScreen = useCallback(() => {
+    AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
+      to: EditorViewMode.SplitScreen,
+    });
+    dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+  }, [dispatch]);
+
+  if (ideViewMode === EditorViewMode.SplitScreen) {
+    return (
+      <Tooltip
+        content={createMessage(MAXIMIZE_BUTTON_TOOLTIP)}
+        key={createMessage(MAXIMIZE_BUTTON_TOOLTIP)}
+      >
+        <Button
+          className="ml-auto !min-w-[24px]"
+          data-testid={"t--ide-maximize"}
+          id={"editor-mode-maximize"}
+          isIconButton
+          kind="tertiary"
+          onClick={switchToFullScreen}
+          startIcon={"maximize-v3"}
+        />
+      </Tooltip>
+    );
+  }
 
   return (
     <Tooltip
-      content={
-        ideViewMode === EditorViewMode.SplitScreen
-          ? createMessage(MAXIMIZE_BUTTON_TOOLTIP)
-          : createMessage(MINIMIZE_BUTTON_TOOLTIP)
-      }
+      content={createMessage(MINIMIZE_BUTTON_TOOLTIP)}
+      key={createMessage(MINIMIZE_BUTTON_TOOLTIP)}
     >
       <Button
         className="ml-auto !min-w-[24px]"
-        data-testid={
-          ideViewMode === EditorViewMode.SplitScreen
-            ? "t--ide-maximize"
-            : "t--ide-minimize"
-        }
-        id={
-          ideViewMode === EditorViewMode.SplitScreen
-            ? "editor-mode-maximize"
-            : "editor-mode-minimize"
-        }
+        data-testid={"t--ide-minimize"}
+        id={"editor-mode-minimize"}
         isIconButton
         kind="tertiary"
-        onClick={toggleEditorMode}
-        startIcon={
-          ideViewMode === EditorViewMode.SplitScreen
-            ? "maximize-v3"
-            : "minimize-v3"
-        }
+        onClick={switchToSplitScreen}
+        startIcon={"minimize-v3"}
       />
     </Tooltip>
   );

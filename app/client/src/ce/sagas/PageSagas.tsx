@@ -63,7 +63,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, delay, put, select, take } from "redux-saga/effects";
+import { all, call, put, select, take } from "redux-saga/effects";
 import history from "utils/history";
 import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
@@ -79,7 +79,6 @@ import type { ApiResponse } from "api/ApiResponses";
 import {
   combinedPreviewModeSelector,
   getCurrentApplicationId,
-  getCurrentBasePageId,
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
@@ -701,6 +700,7 @@ export function* createNewPageFromEntity(
     });
   }
 }
+
 export function* createPageSaga(action: ReduxAction<CreatePageActionPayload>) {
   try {
     const layoutSystemType: LayoutSystemTypes =
@@ -1344,24 +1344,12 @@ export function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
 }
 
 export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
-  const currentBasePageId: string = yield select(getCurrentBasePageId);
   const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
   if (action.payload) {
     // we animate out elements and then move to the canvas
     yield put(setPreviewModeAction(action.payload));
-    history.push(
-      builderURL({
-        basePageId: currentBasePageId,
-      }),
-    );
   } else if (isPreviewMode) {
     // check if already in edit mode, then only do this
-
-    // when switching back to edit mode
-    // we go back to the previous route e.g query, api etc.
-    history.goBack();
-    // small delay to wait for the content to render and then animate
-    yield delay(10);
     yield put(setPreviewModeAction(action.payload));
   }
 }

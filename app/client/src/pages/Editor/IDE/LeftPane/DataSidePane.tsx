@@ -34,10 +34,6 @@ import { EmptyState } from "../EditorPane/components/EmptyState";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 
-const PaneContainer = styled.div`
-  width: 300px;
-`;
-
 const PaneBody = styled.div`
   padding: var(--ads-v2-spaces-3) 0;
   height: calc(100vh - 120px);
@@ -101,7 +97,12 @@ const DataSidePane = (props: DataSidePaneProps) => {
     );
 
   return (
-    <PaneContainer>
+    <Flex
+      borderRight="1px solid var(--ads-v2-color-border)"
+      flexDirection="column"
+      height="100%"
+      width="300px"
+    >
       <PaneHeader
         rightIcon={
           canCreateDatasource && datasources.length !== 0 ? (
@@ -157,7 +158,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
           ))}
         </Flex>
       </PaneBody>
-    </PaneContainer>
+    </Flex>
   );
 };
 
