@@ -79,7 +79,6 @@ import type { ApiResponse } from "api/ApiResponses";
 import {
   combinedPreviewModeSelector,
   getCurrentApplicationId,
-  getCurrentBasePageId,
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
@@ -1334,7 +1333,6 @@ export function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
 }
 
 export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
-  const currentPageId: string = yield select(getCurrentPageId);
   const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
   if (action.payload) {
     // we animate out elements and then move to the canvas
