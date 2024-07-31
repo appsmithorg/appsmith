@@ -80,7 +80,7 @@ describe(
 
     it("2. check background of the edit action column", function () {
       cy.openPropertyPane("tablewidgetv2");
-      cy.makeColumnEditable("id");
+      _.table.toggleColumnEditableViaColSettingsPane("id", "v2", true, true);
       cy.readTableV2dataValidateCSS(
         0,
         5,

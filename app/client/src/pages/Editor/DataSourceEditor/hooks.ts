@@ -123,6 +123,10 @@ export const useShowPageGenerationOnHeader = (
 
   const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
 
+  const releaseDragDropBuildingBlocks = useFeatureFlag(
+    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
+  );
+
   const isPluginAllowedToPreviewData =
     DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
     (plugin?.name === PluginName.MONGO &&
@@ -151,5 +155,9 @@ export const useShowPageGenerationOnHeader = (
     !isPluginAllowedToPreviewData &&
     !!generateCRUDSupportedPlugin[(datasource as Datasource).pluginId];
 
-  return supportTemplateGeneration && canGeneratePage;
+  return (
+    !releaseDragDropBuildingBlocks && // only show generate page button if dragging of building blocks is not enabled (product decision)
+    supportTemplateGeneration &&
+    canGeneratePage
+  );
 };

@@ -39,7 +39,6 @@ export const useAnvilWidgetStyles = (
   // Effect hook to set a data attribute for testing purposes
   useEffect(() => {
     if (ref.current) {
-      ref.current.setAttribute(AnvilDataAttributes.WIDGET_NAME, widgetName);
       ref.current.setAttribute(
         AnvilDataAttributes.IS_SELECTED_WIDGET,
         isSelected ? "true" : "false",

@@ -57,6 +57,7 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
     private final ExportableService<ActionCollection> actionCollectionExportableService;
     private final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
+    private final JsonSchemaVersions jsonSchemaVersions;
 
     @Override
     public Mono<ApplicationJson> getPartialExportResources(
@@ -77,8 +78,8 @@ public class PartialExportServiceCEImpl implements PartialExportServiceCE {
         exportingMetaDTO.setExportWithConfiguration(false);
 
         // Set json schema version which will be used to check the compatibility while importing the JSON
-        applicationJson.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
-        applicationJson.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
+        applicationJson.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
+        applicationJson.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
 
         AclPermission permission = applicationPermission.getExportPermission(false, false);
         Mono<String> branchedPageIdMono =

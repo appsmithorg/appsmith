@@ -5,4 +5,5 @@ export const metaConfig = {
   tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.DISPLAY],
   needsMeta: true,
   needsHeightForContent: true,
+  searchTags: ["table", "data", "display", "spreadsheet"],
 };

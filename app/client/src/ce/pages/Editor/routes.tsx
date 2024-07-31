@@ -8,7 +8,6 @@ import GeneratePage from "pages/Editor/GeneratePage";
 import {
   API_EDITOR_ID_PATH,
   BUILDER_CHECKLIST_PATH,
-  CURL_IMPORT_PAGE_PATH,
   GENERATE_TEMPLATE_FORM_PATH,
   INTEGRATION_EDITOR_PATH,
   JS_COLLECTION_ID_PATH,
@@ -21,7 +20,6 @@ import * as Sentry from "@sentry/react";
 import { SaaSEditorRoutes } from "pages/Editor/SaaSEditor/routes";
 import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
 import { DatasourceEditorRoutes } from "pages/routes";
-import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
@@ -65,12 +63,6 @@ function EditorRoutes() {
         component={JSEditor}
         exact
         path={`${path}${JS_COLLECTION_ID_PATH}`}
-      />
-
-      <SentryRoute
-        component={CurlImportEditor}
-        exact
-        path={`${path}${CURL_IMPORT_PAGE_PATH}`}
       />
       {SaaSEditorRoutes.map(({ component, path: childPath }) => (
         <SentryRoute

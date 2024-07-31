@@ -139,7 +139,6 @@ export function* fetchDynamicValuesSaga(
       formId,
       datasourceId,
       pluginId,
-      key,
     );
   }
 
@@ -159,7 +158,6 @@ function* fetchDynamicValueSaga(
   actionId: string,
   datasourceId: string,
   pluginId: string,
-  configProperty: string,
 ) {
   try {
     const { config, evaluatedConfig } =
@@ -247,9 +245,7 @@ function* fetchDynamicValueSaga(
       url,
       {
         actionId,
-        configProperty,
         datasourceId,
-        pluginId,
         ...evaluatedParams,
       },
     );

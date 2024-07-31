@@ -158,13 +158,14 @@ const Container = (props: Props) => {
         <SearchInput
           className="datasourceStructure-search"
           endIcon="close"
-          onChange={(value) => handleOnChange(value)}
+          onChange={(value: string) => handleOnChange(value)}
           placeholder={createMessage(
             DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
             props.datasourceName,
           )}
           size={"sm"}
           startIcon="search"
+          //@ts-expect-error Fix this the next time the file is edited
           type="text"
         />
       </DatasourceStructureSearchContainer>

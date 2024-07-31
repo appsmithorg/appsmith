@@ -28,14 +28,14 @@ const addEndTimeForWebWorkerSpanData = (span: WebworkerSpanData) => {
   span.endTime = Date.now();
 };
 
-export const profileFn = (
+export const profileFn = <T>(
   spanName: string,
   attributes: SpanAttributes = {},
   allSpans: Record<string, WebworkerSpanData | SpanAttributes>,
-  fn: (...args: any[]) => any,
+  fn: () => T,
 ) => {
   const span = newWebWorkerSpanData(spanName, attributes);
-  const res = fn();
+  const res: T = fn();
   addEndTimeForWebWorkerSpanData(span);
   allSpans[spanName] = span;
   return res;

@@ -304,6 +304,67 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
                 .then(Mono.just(pageId));
     }
 
+    @Override
+    public Mono<List<Set<DslExecutableDTO>>> getOnPageLoadActions(
+            String creatorId,
+            String layoutId,
+            Layout layout,
+            Integer evaluatedVersion,
+            CreatorContextType creatorType) {
+        JSONObject dsl = layout.getDsl();
+        if (dsl == null) {
+            // There is no DSL here. No need to process anything. Return as is.
+            return Mono.just(new ArrayList<>());
+        }
+
+        Set<String> widgetNames = new HashSet<>();
+        Map<String, Set<String>> widgetDynamicBindingsMap = new HashMap<>();
+        Set<String> escapedWidgetNames = new HashSet<>();
+        try {
+            dsl = extractAllWidgetNamesAndDynamicBindingsFromDSL(
+                    dsl, widgetNames, widgetDynamicBindingsMap, creatorId, layoutId, escapedWidgetNames, creatorType);
+        } catch (Throwable t) {
+            return sendUpdateLayoutAnalyticsEvent(creatorId, layoutId, dsl, false, t, creatorType)
+                    .then(Mono.error(t));
+        }
+
+        layout.setWidgetNames(widgetNames);
+
+        if (!escapedWidgetNames.isEmpty()) {
+            layout.setMongoEscapedWidgetNames(escapedWidgetNames);
+        }
+        Set<ExecutableDependencyEdge> edges = new HashSet<>();
+        Set<String> executablesUsedInDSL = new HashSet<>();
+        List<Executable> flatmapOnLoadExecutables = new ArrayList<>();
+
+        AtomicReference<Boolean> validOnLoadExecutables = new AtomicReference<>(Boolean.TRUE);
+
+        // setting the layoutOnLoadActionActionErrors to empty to remove the existing errors before new DAG calculation.
+        layout.setLayoutOnLoadActionErrors(new ArrayList<>());
+
+        return onLoadExecutablesUtil
+                .findAllOnLoadExecutables(
+                        creatorId,
+                        evaluatedVersion,
+                        widgetNames,
+                        edges,
+                        widgetDynamicBindingsMap,
+                        flatmapOnLoadExecutables,
+                        executablesUsedInDSL,
+                        creatorType)
+                .onErrorResume(AppsmithException.class, error -> {
+                    log.info(error.getMessage());
+                    validOnLoadExecutables.set(FALSE);
+                    layout.setLayoutOnLoadActionErrors(List.of(new ErrorDTO(
+                            error.getAppErrorCode(),
+                            error.getErrorType(),
+                            layoutOnLoadActionErrorToastMessage,
+                            error.getMessage(),
+                            error.getTitle())));
+                    return Mono.just(new ArrayList<>());
+                });
+    }
+
     private JSONObject unEscapeDslKeys(JSONObject dsl, Set<String> escapedWidgetNames) {
 
         String widgetName = (String) dsl.get(FieldName.WIDGET_NAME);

@@ -22,6 +22,8 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
 import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
+import { getModuleInstanceById } from "@appsmith/selectors/moduleInstanceSelectors";
 
 export function* bindDataToWidgetSaga(
   action: ReduxAction<{
@@ -35,6 +37,14 @@ export function* bindDataToWidgetSaga(
       (action: ActionData) => action.config.id === queryId,
     ),
   );
+  const currentModuleInstance: ModuleInstance | undefined = yield select(
+    getModuleInstanceById,
+    queryId,
+  );
+
+  const actionName =
+    currentAction?.config.name || currentModuleInstance?.name || "";
+
   const widgetState: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
   const selectedWidget = widgetState[action.payload.widgetId];
 
@@ -47,22 +57,19 @@ export function* bindDataToWidgetSaga(
   const { widgetId } = action.payload;
 
   let isValidProperty = true;
-
   // Pranav has an Open PR for this file so just returning for now
-  if (!currentAction) return;
-
+  if (!actionName) return;
   const { getSnipingModeUpdates } = WidgetFactory.getWidgetMethods(
     selectedWidget.type,
   );
 
   let updates: Array<PropertyUpdates> = [];
 
-  const oneClickBindingQuery = `{{${currentAction.config.name}.data}}`;
+  const oneClickBindingQuery = `{{${actionName}.data}}`;
 
   const bindingQuery = action.payload.bindingQuery
-    ? `{{${currentAction.config.name}.${action.payload.bindingQuery}}}`
+    ? `{{${actionName}.${action.payload.bindingQuery}}}`
     : oneClickBindingQuery;
-
   let isDynamicPropertyPath = true;
 
   if (bindingQuery === oneClickBindingQuery) {
@@ -72,13 +79,13 @@ export function* bindDataToWidgetSaga(
   if (getSnipingModeUpdates) {
     updates = getSnipingModeUpdates?.({
       data: bindingQuery,
-      run: `{{${currentAction.config.name}.run()}}`,
+      run: `{{${actionName}.run()}}`,
       isDynamicPropertyPath,
     });
 
     AnalyticsUtil.logEvent("WIDGET_SELECTED_VIA_SNIPING_MODE", {
       widgetType: selectedWidget.type,
-      actionName: currentAction.config.name,
+      actionName: actionName,
       apiId: queryId,
       propertyPath: updates?.map((update) => update.propertyPath).toString(),
       propertyValue: updates?.map((update) => update.propertyPath).toString(),

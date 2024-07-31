@@ -501,15 +501,5 @@
         ]
       }
     ]
-  },
-  "layoutOnLoadActions": [
-    [
-      {
-        "id": "5e906ba76e910873a331b648",
-        "name": "UsersApi",
-        "pluginType": "API",
-        "jsonPathKeys": []
-      }
-    ]
-  ]
+  }
 }

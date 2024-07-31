@@ -53,6 +53,13 @@ import FocusRetention from "./FocusRetentionSaga";
 import { widgetURL } from "@appsmith/RouteBuilder";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import type { DraggedWidget } from "../layoutSystems/anvil/utils/anvilTypes";
+import { severTiesFromParents } from "../layoutSystems/anvil/utils/layouts/update/moveUtils";
+import {
+  isZoneWidget,
+  isRedundantZoneWidget,
+} from "../layoutSystems/anvil/utils/layouts/update/zoneUtils";
+import { widgetChildren } from "../layoutSystems/anvil/utils/layouts/widgetUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -268,6 +275,11 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
             widgetId,
             widget.type,
           );
+
+          finalData = handleDeleteRedundantZones(
+            finalData,
+            otherWidgetsToDelete,
+          );
         }
         yield call(updateAndSaveAnvilLayout, finalData);
         yield put(generateAutoHeightLayoutTreeAction(true, true));
@@ -438,6 +450,37 @@ function* deleteAllSelectedWidgetsSaga(
       },
     });
   }
+}
+
+// TODO: Find a way to reuse identical code from anvilDraggingSagas/index.ts
+export function handleDeleteRedundantZones(
+  allWidgets: CanvasWidgetsReduxState,
+  movedWidgets: DraggedWidget[],
+) {
+  let updatedWidgets: CanvasWidgetsReduxState = { ...allWidgets };
+  const parentIds = movedWidgets
+    .map((widget) => widget.parentId)
+    .filter(Boolean) as string[];
+
+  for (const parentId of parentIds) {
+    const zone = updatedWidgets[parentId];
+
+    if (!zone || !isZoneWidget(zone) || !zone.parentId) continue;
+
+    const parentSection = updatedWidgets[zone.parentId];
+
+    if (!parentSection || !isRedundantZoneWidget(zone, parentSection)) continue;
+
+    updatedWidgets = severTiesFromParents(updatedWidgets, [zone.widgetId]);
+    delete updatedWidgets[zone.widgetId];
+
+    if (widgetChildren(parentSection).length === 1) {
+      updatedWidgets = severTiesFromParents(updatedWidgets, [zone.parentId]);
+      delete updatedWidgets[zone.parentId];
+    }
+  }
+
+  return updatedWidgets;
 }
 
 function* postDelete(

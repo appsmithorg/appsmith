@@ -96,7 +96,10 @@ public class FeatureFlagMigrationHelperCEImpl implements FeatureFlagMigrationHel
                     if (CollectionUtils.isNullOrEmpty(features.getFeatures())) {
                         // In case the retrieval of the latest flags from CS encounters an error, the previous flags
                         // will serve as a fallback value.
-                        return cacheableFeatureFlagHelper.updateCachedTenantFeatures(tenantId, existingCachedFeatures);
+                        return cacheableFeatureFlagHelper
+                                .evictCachedTenantFeatures(tenantId)
+                                .then(cacheableFeatureFlagHelper.updateCachedTenantFeatures(
+                                        tenantId, existingCachedFeatures));
                     }
                     return Mono.just(features);
                 });

@@ -577,6 +577,17 @@ export function* updateActionSaga(actionPayload: ReduxAction<{ id: string }>) {
   }
 }
 
+export function* apiCallToSaveAction(action: Action) {
+  const response: ApiResponse<Action> = yield call(updateActionAPICall, action);
+
+  const isValidResponse: boolean = yield validateResponse(response);
+  if (isValidResponse) {
+    yield put(updateActionSuccess({ data: response.data }));
+    checkAndLogErrorsIfCyclicDependency((response.data as Action).errorReports);
+  }
+  return { isValidResponse, response };
+}
+
 export function* deleteActionSaga(
   actionPayload: ReduxAction<{
     id: string;

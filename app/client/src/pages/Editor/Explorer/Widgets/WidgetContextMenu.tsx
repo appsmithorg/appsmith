@@ -83,7 +83,7 @@ export function WidgetContextMenu(props: {
     const option: TreeDropdownOption = {
       value: "rename",
       onSelect: editWidgetName,
-      label: "Edit name",
+      label: "Rename",
     };
     optionTree.push(option);
   }

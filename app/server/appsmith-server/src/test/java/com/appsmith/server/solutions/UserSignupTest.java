@@ -1,7 +1,6 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
@@ -56,9 +55,6 @@ public class UserSignupTest {
     private EnvManager envManager;
 
     @MockBean
-    private CommonConfig commonConfig;
-
-    @MockBean
     private UserUtils userUtils;
 
     @MockBean
@@ -86,7 +82,6 @@ public class UserSignupTest {
                 configService,
                 analyticsService,
                 envManager,
-                commonConfig,
                 userUtils,
                 networkUtils,
                 emailService,

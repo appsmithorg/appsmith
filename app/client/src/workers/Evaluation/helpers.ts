@@ -383,13 +383,13 @@ export const generateOptimisedUpdatesAndSetPrevState = (
   mergeAdditionalUpdates?: any,
 ) => {
   const { error, serialisedUpdates } = generateSerialisedUpdates(
-    dataTreeEvaluator.getPrevState(),
+    dataTreeEvaluator?.getPrevState() || {},
     dataTree,
     constrainedDiffPaths,
     mergeAdditionalUpdates,
   );
 
-  if (error) {
+  if (error && dataTreeEvaluator?.errors) {
     dataTreeEvaluator.errors.push(error);
   }
   dataTreeEvaluator?.setPrevState(dataTree);

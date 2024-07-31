@@ -12,6 +12,7 @@ const _ContextualHelp = (props: ContextualProps) => {
         color="neutral"
         icon="question-mark"
         size="small"
+        slot={null}
         variant="ghost"
       />
     </Tooltip>

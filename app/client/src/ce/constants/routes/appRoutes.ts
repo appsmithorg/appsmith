@@ -13,7 +13,7 @@ const { match } = require("path-to-regexp");
 const MONGO_OBJECT_ID_REGEX = "[0-9a-f]{24}";
 const UUID_REGEX =
   "[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}";
-const ID_EXTRACTION_REGEX = `(${MONGO_OBJECT_ID_REGEX}|${UUID_REGEX})`;
+export const ID_EXTRACTION_REGEX = `(${MONGO_OBJECT_ID_REGEX}|${UUID_REGEX})`;
 
 export const BUILDER_BASE_PATH_DEPRECATED = "/applications";
 export const BUILDER_VIEWER_PATH_PREFIX = "/app/";
@@ -28,8 +28,8 @@ export const getViewerPath = (
 ) => `${BUILDER_VIEWER_PATH_PREFIX}${applicationSlug}/${pageSlug}-${pageId}`;
 export const getViewerCustomPath = (customSlug: string, pageId: string) =>
   `${BUILDER_VIEWER_PATH_PREFIX}${customSlug}-${pageId}`;
-export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId/edit`;
-export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId/pages/:pageId`;
+export const BUILDER_PATH_DEPRECATED = `/applications/:applicationId${ID_EXTRACTION_REGEX}/pages/:pageId${ID_EXTRACTION_REGEX}/edit`;
+export const VIEWER_PATH_DEPRECATED = `/applications/:applicationId${ID_EXTRACTION_REGEX}/pages/:pageId${ID_EXTRACTION_REGEX}`;
 export const VIEWER_PATH_DEPRECATED_REGEX =
   /\/applications\/[^/]+\/pages\/[^/]+/;
 
@@ -62,7 +62,6 @@ export const QUERIES_EDITOR_ID_ADD_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId/
 export const JS_COLLECTION_EDITOR_PATH = `/jsObjects`;
 export const JS_COLLECTION_ID_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId`;
 export const JS_COLLECTION_ID_ADD_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId/add`;
-export const CURL_IMPORT_PAGE_PATH = `/api/curl/curl-import`;
 export const DATA_SOURCES_EDITOR_LIST_PATH = `/datasource`;
 export const DATA_SOURCES_EDITOR_ID_PATH = `/datasource/:datasourceId`;
 export const APP_LIBRARIES_EDITOR_PATH = `/libraries`;

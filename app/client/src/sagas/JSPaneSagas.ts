@@ -217,6 +217,7 @@ function* handleEachUpdateJSCollection(update: JSUpdate) {
                 collectionName: jsAction.name,
                 pageId: data.nameChangedActions[i].pageId || "",
                 moduleId: data.nameChangedActions[i].moduleId,
+                workflowId: data.nameChangedActions[i].workflowId,
                 oldName: data.nameChangedActions[i].oldName,
                 newName: data.nameChangedActions[i].newName,
               },

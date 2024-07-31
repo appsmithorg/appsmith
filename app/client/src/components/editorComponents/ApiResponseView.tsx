@@ -203,6 +203,7 @@ export const NoResponse = (props: NoResponseProps) => (
 function ApiResponseView(props: Props) {
   const {
     actionResponse = EMPTY_RESPONSE,
+    apiName,
     currentActionConfig,
     disabled,
     isRunning,
@@ -335,7 +336,7 @@ function ApiResponseView(props: Props) {
       panelComponent: (
         <ResponseTabWrapper>
           <ApiResponseMeta
-            actionName={currentActionConfig?.name}
+            actionName={apiName || currentActionConfig?.name}
             actionResponse={actionResponse}
           />
           {Array.isArray(messages) && messages.length > 0 && (

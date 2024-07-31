@@ -11,9 +11,11 @@
   }
 
   &[data-focus-visible] {
-    border-radius: var(--border-radius-elevation-3);
-    outline: 2px solid var(--color-bd-focus);
-    outline-offset: 4px;
+    border-radius: calc(var(--border-radius-elevation-3) / 4);
+    background: var(--color-bg);
+    box-shadow:
+      0 0 0 4px var(--color-bg),
+      0 0 0 6px var(--color-bd-focus);
     text-decoration: none;
   }
 }

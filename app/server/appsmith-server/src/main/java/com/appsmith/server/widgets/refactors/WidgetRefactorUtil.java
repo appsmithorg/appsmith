@@ -2,6 +2,8 @@ package com.appsmith.server.widgets.refactors;
 
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.DslUtils;
 import com.appsmith.server.services.AstService;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -10,7 +12,10 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -24,6 +29,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class WidgetRefactorUtil {
@@ -196,5 +202,15 @@ public class WidgetRefactorUtil {
 
     public JsonNode convertDslStringToJsonNode(JSONObject dsl) {
         return objectMapper.convertValue(dsl, JsonNode.class);
+    }
+
+    public JSONObject convertDslStringToJSONObject(String dsl) {
+        JSONParser jsonParser = new JSONParser();
+        try {
+            return (JSONObject) jsonParser.parse(dsl);
+        } catch (ParseException exception) {
+            log.error("Error parsing the page dsl for page: {}", exception.getMessage());
+            throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR);
+        }
     }
 }

@@ -4,19 +4,16 @@ import com.appsmith.external.helpers.ObservationHelper;
 import io.micrometer.tracing.Span;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Map;
 
 import static com.appsmith.external.constants.MDCConstants.SPAN_ID;
 import static com.appsmith.external.constants.MDCConstants.TRACE_ID;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 class ObservationHelperTest {
 

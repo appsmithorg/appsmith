@@ -36,7 +36,7 @@ function ensureTEDIsRunning() {
           );
           try {
             execSync(
-              "docker run --name ted --rm -d --pull always -p 2022:22 -p 5001:5001 -p 3306:3306 -p 28017:27017 -p 5432:5432 -p 25:25 -p 4200:4200 appsmith/test-event-driver",
+              "docker run --name ted --rm -d --pull always -p 2022:22 -p 5001:5001 -p 3306:3306 -p 28017:27017 -p 5433:5432 -p 25:25 -p 4200:4200 appsmith/test-event-driver",
               { stdio: "inherit" },
             );
             console.log(

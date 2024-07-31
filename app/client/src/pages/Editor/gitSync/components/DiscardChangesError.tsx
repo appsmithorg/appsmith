@@ -2,7 +2,7 @@ import React from "react";
 import type { GitErrorType } from "reducers/uiReducers/gitSyncReducer";
 import styled from "styled-components";
 import { Callout } from "design-system";
-import type { CalloutProps } from "design-system/build/Callout/Callout.types";
+import type { CalloutProps } from "design-system";
 
 const Container = styled.div`
   margin: 8px 0 16px;

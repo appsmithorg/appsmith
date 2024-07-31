@@ -1,10 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.domains.ApplicationMode;
-import com.appsmith.server.dtos.ConsolidatedAPIResponseDTO;
-import reactor.core.publisher.Mono;
+import com.appsmith.server.services.ce_compatible.ConsolidatedAPIServiceCECompatible;
 
-public interface ConsolidatedAPIService {
-    Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
-            String defaultPageId, String applicationId, String branchName, ApplicationMode mode);
-}
+public interface ConsolidatedAPIService extends ConsolidatedAPIServiceCECompatible {}

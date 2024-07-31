@@ -30,7 +30,7 @@ describe(
     });
 
     it("2. Login as Administrator and search for users using search bar", () => {
-      _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(false, true);
       _.homePage.SelectWorkspace(workspaceId);
       _.agHelper.GetNClick(_.homePage._shareWorkspace(workspaceId));
@@ -46,10 +46,9 @@ describe(
     });
 
     it("3. Login as Invited user and validate Viewer role", function () {
-      _.homePage.LogintoApp(
+      cy.LoginFromAPI(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
-        "App Viewer",
       );
       if (CURRENT_REPO === REPO.EE)
         _.adminSettings.EnableGAC(false, true, "home");
@@ -69,7 +68,7 @@ describe(
     });
 
     it("4. Login as Workspace owner and Update the Invited user role to Developer", function () {
-      _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(false, true);
       _.homePage.SelectWorkspace(workspaceId);
       _.homePage.UpdateUserRoleInWorkspace(
@@ -81,10 +80,9 @@ describe(
     });
 
     it("5. Login as Invited user and validate Developer role", function () {
-      _.homePage.LogintoApp(
+      cy.LoginFromAPI(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
-        "Developer",
       );
       if (CURRENT_REPO === REPO.EE)
         _.adminSettings.EnableGAC(false, true, "home");
@@ -113,7 +111,7 @@ describe(
     });
 
     it("6. Login as Workspace owner and Update the Invited user role to Administrator", function () {
-      _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(false, true);
       _.homePage.SelectWorkspace(workspaceId);
       _.homePage.UpdateUserRoleInWorkspace(
@@ -125,10 +123,9 @@ describe(
     });
 
     it("7. Login as Invited user and validate Administrator role", function () {
-      _.homePage.LogintoApp(
+      cy.LoginFromAPI(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
-        "Administrator",
       );
       if (CURRENT_REPO === REPO.EE)
         _.adminSettings.EnableGAC(false, true, "home");
@@ -167,7 +164,7 @@ describe(
     });
 
     it("8. Login as Workspace owner and verify all 3 users are present", function () {
-      _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(false, true);
       _.homePage.SelectWorkspace(workspaceId);
       _.homePage.UpdateUserRoleInWorkspace(
@@ -189,7 +186,7 @@ describe(
     });
 
     it("9. Login as Developer, Verify leave workspace flow", () => {
-      _.homePage.LogintoApp(
+      cy.LoginFromAPI(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
       );
@@ -199,10 +196,9 @@ describe(
     });
 
     it("10. Login as App Viewer, Verify leave workspace flow", () => {
-      _.homePage.LogintoApp(
+      cy.LoginFromAPI(
         Cypress.env("TESTUSERNAME2"),
         Cypress.env("TESTPASSWORD2"),
-        "App Viewer",
       );
       if (CURRENT_REPO === REPO.EE)
         _.adminSettings.EnableGAC(false, true, "home");

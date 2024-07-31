@@ -178,8 +178,6 @@
                         <goals>
                             <goal>apply</goal>
                         </goals>
-                        <!-- This gets triggered automatically when we run the build script -->
-                        <phase>compile</phase>
                     </execution>
                 </executions>
             </plugin>

@@ -59,6 +59,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     private final ActionCollectionService actionCollectionService;
     private final NewActionService newActionService;
     private final ResponseUtils responseUtils;
+    private final JsonSchemaVersions jsonSchemaVersions;
 
     @Override
     public AclPermission getArtifactReadPermission() {
@@ -147,8 +148,8 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
         Application update = new Application();
 
         // Reset migration related fields before commit to detect the updates correctly between the commits
-        update.setClientSchemaVersion(JsonSchemaVersions.clientVersion);
-        update.setServerSchemaVersion(JsonSchemaVersions.serverVersion);
+        update.setClientSchemaVersion(jsonSchemaVersions.getClientVersion());
+        update.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
         update.setIsManualUpdate(false);
 
         return applicationService.update(artifact.getId(), update);
@@ -255,7 +256,7 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
         // Update all the resources to replace defaultResource Ids with the resource Ids as branchName
         // will be deleted
         Flux<NewPage> newPageFlux = Flux.fromIterable(defaultApplication.getPages())
-                .flatMap(page -> newPageService.findById(page.getId(), Optional.empty()))
+                .flatMap(page -> newPageService.findById(page.getId(), null))
                 .map(newPage -> {
                     newPage.setDefaultResources(null);
                     return createDefaultIdsOrUpdateWithGivenResourceIds(newPage, null);

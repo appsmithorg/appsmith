@@ -12,9 +12,6 @@ export const sectionPreset = (): LayoutProps[] => {
       isPermanent: true,
       layout: [],
       layoutId: generateReactKey(),
-      layoutStyle: {
-        border: "none",
-      },
       layoutType: LayoutComponentTypes.SECTION,
       maxChildLimit: 4,
     },

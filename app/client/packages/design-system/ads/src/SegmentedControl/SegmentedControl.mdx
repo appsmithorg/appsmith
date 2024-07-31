@@ -1,0 +1,42 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as SegmentedControlStories from "./SegmentedControl.stories";
+
+<Meta of={SegmentedControlStories} />
+
+# Segmented control
+
+Segmented controls present a range of options, and should be used when the user can execute those options instantaneously. They are akin to a select box that presents a list of options for the user to select from, however they present their options upfront. They are ideal to present a set of options that a user is very familiar with.
+
+The options presented should not be binary. If you have a `yes | no` scenario, use a switch, instead.
+
+<Canvas of={SegmentedControlStories.SegmentedControlStory} />
+
+## Anatomy
+
+![Segmented control anatomy](./docs/segmented-control-anatomy.png)
+
+1. **Segment:** Only one segment can be selected at a time. There should always be one segment selected.
+2. **Content:** Describes the content.
+
+### Content guidelines
+
+- Be concise and specific and limit text labels to one to three words.
+- Text labels should clearly communicate the view users will see and the content contained in the view.
+
+## Spacing
+
+![Segmented control spacing](./docs/segmented-control-spacing.png)
+
+## Usage
+
+- Segmented controls can be used for single choice purposes, such as in the Property Pane where only one segment can be selected for position options.
+- Segmented controls are ideal for large groups of content, unlike toggles which are typically used for binary decisions.
+- Limit the number of segments to around five in a wide interface.
+- It's generally best to keep the size of segments consistent, including icon and title widths, to maintain a balanced appearance.
+
+Avoid using more than five control as provided in the component. Instead, consider using a [select](https://design-system.appsmith.com/?path=/docs/design-system-select--documentation).
+
+### State
+
+The state of the individual segment in the segmented control is only controlled from within the component. You may, however, define the default value to be selected.

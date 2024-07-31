@@ -14,7 +14,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ActionCollectionServiceCE extends CrudService<ActionCollection, String> {
 
@@ -47,10 +46,8 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id);
 
-    Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionWithOptionalPermission(
-            String id,
-            Optional<AclPermission> deleteCollectionPermission,
-            Optional<AclPermission> deleteActionPermission);
+    Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(
+            String id, AclPermission deleteCollectionPermission, AclPermission deleteActionPermission);
 
     Mono<ActionCollectionDTO> deleteWithoutPermissionUnpublishedActionCollection(String id);
 

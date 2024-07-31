@@ -5,6 +5,7 @@ import com.appsmith.external.git.operations.FileOperations;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.server.helpers.ce.CommonGitFileUtilsCE;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
@@ -23,7 +24,14 @@ public class CommonGitFileUtils extends CommonGitFileUtilsCE {
             FileOperations fileOperations,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            Gson gson) {
-        super(applicationGitFileUtils, fileUtils, fileOperations, analyticsService, sessionUserService);
+            Gson gson,
+            JsonSchemaVersions jsonSchemaVersions) {
+        super(
+                applicationGitFileUtils,
+                fileUtils,
+                fileOperations,
+                analyticsService,
+                sessionUserService,
+                jsonSchemaVersions);
     }
 }

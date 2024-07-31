@@ -32,6 +32,7 @@ describe(
       // Select widget
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT, 100, 100);
 
+      propPane.ToggleJSMode("sourcedata", false);
       agHelper.GetNClick(OneClickBindingLocator.datasourceDropdownSelector);
       agHelper.GetNClick(
         OneClickBindingLocator.datasourceQuerySelector("Api1"),

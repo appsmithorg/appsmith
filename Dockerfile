@@ -1,6 +1,8 @@
 ARG BASE
 FROM ${BASE}
 
+ENV IN_DOCKER=1
+
 # Add backend server - Application Layer
 ARG JAR_FILE=./app/server/dist/server-*.jar
 ARG PLUGIN_JARS=./app/server/dist/plugins/*.jar
@@ -18,6 +20,9 @@ RUN <<END
 
   # Ensure all *.sh scripts are executable.
   find . -name node_modules -prune -or -type f -name '*.sh' -print -exec chmod +x '{}' ';'
+
+  # Ensure all custom command-scripts have executable permission
+  chmod +x /opt/bin/*
 END
 
 #Add the jar to the container

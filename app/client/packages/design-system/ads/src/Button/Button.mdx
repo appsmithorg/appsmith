@@ -1,0 +1,113 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as ButtonStories from "./Button.stories";
+
+<Meta of={ButtonStories} />
+
+[//]: # "TODO: when to renderAs button vs a"
+
+# Button
+
+Buttons communicate actions that users can take. They are typically placed throughout your UI, in places like: Dialogs, Forms, Pages, etc.
+
+<Canvas of={ButtonStories.ButtonStory} />
+
+## Anatomy
+
+### Icons
+
+All icons that are available in [Icons](https://design-system.appsmith.com/?path=/docs/design-system-icon--documentation) can be used here.
+Both left and right icons are available - but don't use them both at the same time.
+
+### Copy
+
+Button copy should:
+
+- start with a verb, like ‘Save’, ‘New query’, ‘Generate new page’
+- be one or two words
+- describe the action (if someone only reads the button, they should know what will happen next)
+- connect to the content around it — for example, it might use the same words as the title, and that is okay
+- be in sentence case (only capitalise the first letter of the first word)
+- have no full stop
+
+![Button anatomy](./docs/button-anatomy.png)
+
+## Kind
+
+### Primary
+
+Use primary for displaying the most important action of the screen, such as confirming something or submitting a form, as it’s visually more eye-catching than the secondary button.
+
+<Canvas of={ButtonStories.ButtonPrimaryStory} />
+
+### Secondary
+
+Use secondary for providing alternatives to the primary action.
+
+<Canvas of={ButtonStories.ButtonSecondaryStory} />
+
+### Tertiary
+
+Tertiary buttons are usually used for miscellaneous actions: the action is important, but may not be what the user is looking to do right then.
+
+<Canvas of={ButtonStories.ButtonTertiaryStory} />
+
+## Other variations
+
+### Error
+
+Use error buttons for actions that remove or limit, such as deleting a page or blocking a user. **Don't** use it for actions such as cancel buttons.
+
+<Canvas of={ButtonStories.ButtonErrorStory} />
+
+### Disabled
+
+Buttons are typically disabled when the form the user is on cannot be submitted, or the state the user wants to achieve otherwise cannot be achieved. When a button is disabled, always ensure that it is clear to the user how to enable the button - via making use of error states on offending input forms, providing persistent system information via a callout, or some other method.
+
+<Canvas of={ButtonStories.ButtonDisabledStory} />
+
+### Loading
+
+Buttons are sent into the loading state when the user is unable to take the action on the button because some system resources are being used that blocks the action of the button from executing successfully. Note that when a button is loading, it is also disabled.
+
+<Canvas of={ButtonStories.ButtonLoadingStory} />
+
+## Spacing
+
+![Button spacing](./docs/button-spacing.png)
+
+## Usage
+
+Use buttons when the user's action results in changes to either the back-end or the front-end of the website. Examples of such actions include submitting a form, triggering a pop-up or modal, or revealing a panel on the same page.
+
+[//]: # "TODO: Needs improvement"
+
+| Use a button                                                                                                                                                                                                                                                        | Use a link                                              |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| When a user wants to take an action, such as starting a new process or verifying a decision, they may need to perform certain steps, such as triggering a pop-up or modal window.                                                                                   | To make the text inside paragraphs or lists actionable. |
+| When a user needs to perform tasks like submitting data, opening or closing UI elements, or interacting with system functionalities, they initiate steps to complete the action, such as submitting data, triggering UI elements, or executing specific operations. | For navigation.                                         |
+
+# Icon Buttons
+
+Icon buttons also exist as a kind of buttons. Use these for commonly understood actions as they do not have labels to convey the meaning of an icon.
+
+![iconbutton-usage-on-appsmith](./docs/iconbutton-usage-on-appsmith.png)
+
+Eg: An icon button represented by a trash-bin will remove an input field that was added to a form.
+All parameters that are available to buttons are available to Iconbuttons.
+
+### Usage
+
+- Icon buttons are typically not primary buttons.
+- Icon buttons are typically not grouped with regular buttons.
+
+---
+
+## Resources
+
+1. Our button component accepts all arguments [HTML's button tag](https://developer.mozilla.org/en-US/docs/Web/API/HTMLButtonElement) accepts.
+
+## References
+
+1. https://makeitclear.com/ux-ui-tips-a-guide-to-creating-buttons/
+2. https://marcysutton.com/links-vs-buttons-in-modern-web-applications

@@ -9,4 +9,5 @@ export interface CurrencyInputComponentProps extends BaseInputComponentProps {
   onCurrencyChange: (
     code?: (typeof CurrencyTypeOptions)[number]["currency"],
   ) => void;
+  defaultValue?: number;
 }

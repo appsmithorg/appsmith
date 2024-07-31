@@ -3,7 +3,6 @@ import withMeta from "widgets/MetaHOC";
 import { withLazyRender } from "widgets/withLazyRender";
 import type BaseWidget from "widgets/BaseWidget";
 import withWidgetProps from "widgets/withWidgetProps";
-import * as Sentry from "@sentry/react";
 import { withLayoutSystemWidgetHOC } from "../../layoutSystems/withLayoutSystemWidgetHOC";
 import { flow, identity } from "lodash";
 
@@ -26,8 +25,5 @@ export const withBaseWidgetHOC = (
 
     // Adds/Enhances widget props
     withWidgetProps,
-
-    // Wraps the widget to be profiled via sentry
-    Sentry.withProfiler,
   ])(Widget);
 };

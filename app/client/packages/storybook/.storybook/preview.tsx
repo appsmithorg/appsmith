@@ -61,6 +61,7 @@ const preview = {
     userDensity: {},
     userSizing: {},
   },
+
   parameters: {
     viewport: { viewports: customViewports },
     docs: {
@@ -73,6 +74,8 @@ const preview = {
       ),
     },
   },
+
+  tags: ["autodocs"]
 };
 
 export default preview;

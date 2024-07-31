@@ -1,0 +1,56 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as ToggleButtonStories from "./ToggleButton.stories";
+
+<Meta of={ToggleButtonStories} />
+
+# Toggle Button
+
+A toggle button is a button that when pressed, "selects" the value it represents, and when not pressed, hides it. While a toggle button presents a binary option, it's label describes the "on" state. If a sufficiently succinct description cannot be found, use a switch instead. If you have more than binary options, use a segmented control. Toggle buttons are typically used when the result of the change in state is instantaneous and confined to a small scope.
+In Appsmith, the biggest use of toggle button is to display the state of evaluated javascript in many of the platform's input fields.
+
+<Canvas of={ToggleButtonStories.ToggleButtonStory} />
+
+## Anatomy
+
+![Toggle button anatomy](./docs/toggle-button-anatomy.png)
+
+## Spacing
+
+![Toggle button spacing](./docs/toggle-button-spacing.png)
+
+## Size
+
+- _Small_: Compact design for limited space. Use icons that are simple and easily recognizable.
+- _Medium_: Balanced between space and usability. Use clear icons that maintain clarity when scaled down.
+- _Large_: Prominent for easy interaction. You may use detailed icons for clear representation.
+
+An example of using a large toggle button is in the property pane style for switching between bold, italics, and preview modes within the navbar.
+
+## Usage
+
+Constraint: Our toggle button currently only displays icons. It cannot display text.
+
+**Use a Toggle Button when:**
+
+- You have two options or states that are mutually exclusive.
+- Instant visual feedback is needed to indicate the selected option.
+- The options have equal importance and need to be switched frequently.
+- The scope of the change created by the toggle button is limited to a specific place in the visible UI.
+
+**Use a Switch when:**
+
+- The description for the toggle button would be too long.
+- The scope for the change is much larger and will affect other parts of the application.
+
+**Use a Segmented Control when:**
+
+- You need separate descriptive words to describe the two different states.
+
+**Use a Button when:**
+
+- You have a single action or command to perform.
+- The action does not involve toggling or switching states.
+- Additional customization or functionality is required.
+
+In summary, choose a Toggle Button for mutually exclusive options with instant feedback and equal importance. Choose a General Button for single actions or when customization is needed. Consider the specific context and user needs when deciding which button type to use.

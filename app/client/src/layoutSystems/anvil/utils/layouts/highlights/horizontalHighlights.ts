@@ -473,7 +473,8 @@ export function generateHighlights(
       left: width * index === 0,
       right: width * (index + 1) === layoutDimension.width,
     },
-    ...(isCurrentLayoutEmpty && !hasFillWidget
+    // For consistency, the root highlight should be horizontal and use the usual settings
+    ...(baseHighlight.canvasId !== "0" && isCurrentLayoutEmpty && !hasFillWidget
       ? {
           isVertical: true,
           height: isInitialHighlight

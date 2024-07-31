@@ -111,7 +111,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
   ); */
 
   agHelper.AssertElementEnabledDisabled(
-    gitSyncLocators.mergeBranchDropdownDestination,
+    gitSync._mergeBranchDropdownDestination,
     0,
     false,
   );
@@ -121,7 +121,7 @@ Cypress.Commands.add("merge", (destinationBranch) => {
       interceptions[0]?.response?.statusCode === 200 &&
       interceptions[1]?.response?.statusCode === 200
     ) {
-      cy.get(gitSyncLocators.mergeBranchDropdownDestination).click();
+      cy.get(gitSync._mergeBranchDropdownDestination).click();
       cy.get(commonLocators.dropdownmenu).contains(destinationBranch).click();
       agHelper.AssertElementAbsence(gitSync._checkMergeability, 35000);
       assertHelper.WaitForNetworkCall("mergeStatus");

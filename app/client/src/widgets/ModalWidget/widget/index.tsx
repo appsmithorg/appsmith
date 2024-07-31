@@ -180,6 +180,11 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
                             propertyName: "onClick",
                             propertyValue: `{{closeModal(${parent.widgetName}.name);}}`,
                           },
+                          {
+                            widgetId: iconChild.widgetId,
+                            propertyName: "dynamicTriggerPathList",
+                            propertyValue: [{ key: "onClick" }],
+                          },
                         ];
                       }
                     },
@@ -205,6 +210,11 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
                             widgetId: cancelBtnChild.widgetId,
                             propertyName: "onClick",
                             propertyValue: `{{closeModal(${parent.widgetName}.name);}}`,
+                          },
+                          {
+                            widgetId: cancelBtnChild.widgetId,
+                            propertyName: "dynamicTriggerPathList",
+                            propertyValue: [{ key: "onClick" }],
                           },
                         ];
                       }

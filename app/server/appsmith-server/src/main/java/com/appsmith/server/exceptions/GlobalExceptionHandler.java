@@ -1,9 +1,6 @@
 package com.appsmith.server.exceptions;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.constants.MDCConstants;
-import com.appsmith.external.exceptions.AppsmithErrorAction;
-import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.server.constants.FieldName;
@@ -14,9 +11,6 @@ import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import io.micrometer.core.instrument.util.StringUtils;
-import io.sentry.Sentry;
-import io.sentry.SentryLevel;
-import io.sentry.protocol.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.JGitInternalException;
@@ -35,11 +29,11 @@ import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
 
 import java.io.File;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
+
+import static com.appsmith.server.exceptions.util.SentryLogger.doLog;
 
 /**
  * This class catches all the Exceptions and formats them into a proper ResponseDTO<ErrorDTO> object before
@@ -57,46 +51,6 @@ public class GlobalExceptionHandler {
     private final CommonGitFileUtils commonGitFileUtils;
 
     private final SessionUserService sessionUserService;
-
-    private void doLog(Throwable error) {
-        if (error instanceof BaseException baseException && baseException.isHideStackTraceInLogs()) {
-            log.error(baseException.getClass().getSimpleName() + ": " + baseException.getMessage());
-        } else {
-            log.error("", error);
-        }
-
-        StringWriter stringWriter = new StringWriter();
-        PrintWriter printWriter = new PrintWriter(stringWriter);
-        error.printStackTrace(printWriter);
-        String stringStackTrace = stringWriter.toString();
-
-        Sentry.configureScope(scope -> {
-            /**
-             * Send stack trace as a string message. This is a work around till it is figured out why raw
-             * stack trace is not visible on Sentry dashboard.
-             * */
-            scope.setExtra("Stack Trace", stringStackTrace);
-            scope.setLevel(SentryLevel.ERROR);
-            scope.setTag("source", "appsmith-internal-server");
-        });
-
-        if (error instanceof BaseException) {
-            BaseException baseError = (BaseException) error;
-            if (baseError.getErrorAction() == AppsmithErrorAction.LOG_EXTERNALLY) {
-                Sentry.configureScope(scope -> {
-                    baseError.getContextMap().forEach(scope::setTag);
-                    scope.setExtra("downstreamErrorMessage", baseError.getDownstreamErrorMessage());
-                    scope.setExtra("downstreamErrorCode", baseError.getDownstreamErrorCode());
-                });
-                final User user = new User();
-                user.setEmail(baseError.getContextMap().getOrDefault(MDCConstants.USER_EMAIL, "unknownUser"));
-                Sentry.setUser(user);
-                Sentry.captureException(error);
-            }
-        } else {
-            Sentry.captureException(error);
-        }
-    }
 
     /**
      * This function only catches the AppsmithException type and formats it into ResponseEntity<ErrorDTO> object

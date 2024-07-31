@@ -7,8 +7,8 @@ import clsx from "clsx";
 export const Modal = (props: ModalProps) => {
   const {
     children,
+    dataAttributes = {},
     overlayClassName,
-    size = "medium",
     triggerRef,
     ...rest
   } = props;
@@ -17,7 +17,7 @@ export const Modal = (props: ModalProps) => {
     // don't forget to change the transition-duration CSS as well
     <Popover duration={200} modal triggerRef={triggerRef} {...rest}>
       <PopoverModalContent
-        data-size={size}
+        {...dataAttributes}
         overlayClassName={clsx(styles.overlay, overlayClassName)}
       >
         {children}

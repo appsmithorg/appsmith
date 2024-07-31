@@ -15,6 +15,7 @@ require("cypress-file-upload");
 //require('cy-verify-downloads').addCustomCommand();
 const path = require("path");
 import { v4 as uuidv4 } from "uuid";
+
 const dayjs = require("dayjs");
 const {
   addMatchImageSnapshotCommand,
@@ -183,6 +184,7 @@ Cypress.Commands.add("LogintoApp", (uname, pword) => {
 });
 
 Cypress.Commands.add("LoginFromAPI", (uname, pword) => {
+  homePageTS.LogOutviaAPI();
   let baseURL = Cypress.config().baseUrl;
   baseURL = baseURL.endsWith("/") ? baseURL.slice(0, -1) : baseURL;
 
@@ -370,7 +372,8 @@ Cypress.Commands.add("addDsl", (dsl) => {
     if (RapidMode.config.enabled && RapidMode.config.usesDSL) {
       pageid = RapidMode.config.pageID;
     } else {
-      pageid = url.split("/")[5]?.split("-").pop();
+      pageid = agHelper.extractPageIdFromUrl(url);
+      expect(pageid).to.not.be.null;
     }
 
     //Fetch the layout id
@@ -447,16 +450,6 @@ Cypress.Commands.add("DeleteWorkspaceByApi", () => {
 Cypress.Commands.add("NavigateToJSEditor", () => {
   PageLeftPane.switchSegment(PagePaneSegment.JS);
   PageLeftPane.switchToAddNew();
-  cy.get("span:contains('New JS object')").eq(0).click({ force: true });
-});
-
-Cypress.Commands.add("importCurl", () => {
-  cy.get(ApiEditor.curlImportBtn).click({ force: true });
-  cy.wait("@curlImport").should(
-    "have.nested.property",
-    "response.body.responseMeta.status",
-    201,
-  );
 });
 
 Cypress.Commands.add("selectAction", (option) => {

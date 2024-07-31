@@ -15,6 +15,8 @@ describe(
   function () {
     it("1. Verify Table Filter for 'empty'", function () {
       entityExplorer.DragDropWidgetNVerify("tablewidgetv2", 650, 250);
+      // turn on filtering for the table - it is disabled by default in this PR(#34593)
+      agHelper.GetNClick(".t--property-control-allowfiltering input");
       table.AddSampleTableData();
       propPane.UpdatePropertyFieldValue(
         "Table data",

@@ -8,6 +8,7 @@ import {
   draggableWidgets,
   entityExplorer,
   locators,
+  propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -65,6 +66,7 @@ describe(
 
       EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
 
+      propPane.ToggleJSMode("sourcedata", false);
       oneClickBinding.ChooseAndAssertForm(
         `${datasourceName}`,
         datasourceName,
@@ -76,10 +78,10 @@ describe(
       );
 
       agHelper.GetNClick(OneClickBindingLocator.connectData);
-
       agHelper.AssertClassExists(locators._jsToggle("sourcedata"), "is-active");
 
       EditorNavigation.SelectEntityByName("Select2", EntityType.Widget);
+      propPane.ToggleJSMode("sourcedata", false);
       oneClickBinding.ChooseQuery(`Api1`);
       agHelper.AssertClassExists(locators._jsToggle("sourcedata"), "is-active");
     });

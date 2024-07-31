@@ -1,0 +1,78 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="ADS/Docs/Colors" />
+
+# Colors
+
+Colors in ADS2.0 have been refined to ensure we create interfaces that are accessible and modern.
+
+Color can be applied to:
+
+- Foregrounds: Text, Icons, Links
+- Backgrounds
+- Borders / dividers
+
+### Applying color to a textual content
+
+Use the Text component and the right color gets automatically applied.
+
+If you have to style your text using a typographic token in certain specific cases, use the corresponding color token.
+
+[//]: # "TODO: insert text tokens image >> insert corresponding color tokens image"
+
+> ⚠️ Do not use a different color than the color intended for a specific type.
+
+Important links are styled with the primary color of ADS 2.0 defined by the token, `colors.semantics.primary.text`. Notice that this token does not refer to the actual color but only mentions that this is a semantic token to be used for styling primary text. (This in turn references a primitive token `colors.raw.orange.600`) Using a higher level token makes your design future proof in case the primary color were to change in a new revision of ADS. Your designs would automatically get updated to the new primary color because you are using a token at the right level. This is really important to take note of.
+
+Remember the order of preference:
+
+> 🎏 Component >>> UI category token >> semantic token > primitive token.
+
+Use a component if it exists. If it doesn’t meet your case, style your design using a UI category token. If you cannot find the right token at this level, go down a level and find semantic tokens. In rare cases where you do not find the right token at this level, use a primitive token.
+
+### Applying color to icons
+
+Icons can be accessed using the Icon component in ADS 2.0. Icons by default come with the color defined by the token, `colors.ui.content.icon.color` which in turn refers to `Gray-600`. Do not change this color unless necessary.
+
+> 👉 Always use the highest level token to style your UI. That way your designs are future-proof if the underlying value were to change in a new version of ADS.
+
+[//]: # "TODO: Insert visual from the snapshot modal from mobile responsive project"
+
+Icons do support a color override in cases where you need to style them differently. Use this choice judiciously.
+
+### Applying color to backgrounds
+
+Background color would be needed to apply to page, pane, overlay backgrounds. While most of these use the `semantics.bg.default` token which refers to `colors.raw.white`, there are cases where background color is needed for hover states and selected states - for example, in a menu of items.
+
+| Use-case                            | Token to use                      | Refers to                    | Refers to      |
+| ----------------------------------- | --------------------------------- | ---------------------------- | -------------- |
+| Page/pane/overlay/modal backgrounds | colors.semantics.bg.default       | colors.raw.white             | Gray-0 / White |
+| Menu item :hover                    | colors.UI.content.menu-item.hover | colors.semantics.bg.muted    | Gray-100       |
+| Menu item :active                   | colors.UI.content.menu-ite.active | colors.semantics.bg.emphasis | Gray-200       |
+
+In addition to this, there are other background colors that exist in order to indicate information, warning, success and danger states to the users. Use this according to your needs. These are used for styling callouts, notification banners, debugger errors, warning logs to list a few.
+
+### Applying color to borders & dividers
+
+ADS 2.0 comes with a divider component that helps you segregate content. This uses the color token, `colors.UI.content.border`
+
+There also exist other border tokens, that have been used in components, should the need arise.
+
+[//]: # "TODO: Generate Color Palette block here of just the border colors"
+
+### Styling text on colored backgrounds
+
+Colored backgrounds exist primarily in the system response category in the form of information, success, warning and error variants. The Callout component automatically takes care of assigning the right color to the various textual elements involved.
+
+If you have to manually style this, for example for styling error messages in the debugger UI — use the right token. An error message belongs to the category of system response and therefore the right token to use in this case would be `colors.UI.response.error.text`
+
+## FAQs
+
+\***\*What if the color I need isn’t listed?\*\***
+
+Our tokens should help you in almost all scenarios. However, a design system is never complete and we recognise that there may be edge cases we haven’t factored in.
+
+Here are some recommendations on how to proceed:
+
+- Can you re-work your design to use an existing color token? In most cases colors can be mapped to existing tokens.
+- If this is not possible and if you feel that multiple surfaces need this token, reach out to [#design-system](https://theappsmith.slack.com/archives/C0293DVQACW) to make a case for adding a new color to ADS.

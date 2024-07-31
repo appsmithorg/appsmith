@@ -34,6 +34,9 @@ describe(
       });
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 300, 300);
 
+      // turn on filtering for the table - it is disabled by default in this PR(#34593)
+      agHelper.GetNClick(".t--property-control-allowfiltering input");
+
       // Create SQL data-source
       agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
       agHelper.AssertElementExist(oneClickBindingLocator.otherActionSelector());

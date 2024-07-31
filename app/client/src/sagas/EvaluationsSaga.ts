@@ -113,6 +113,7 @@ import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSele
 import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
+import { transformTriggerEvalErrors } from "@appsmith/sagas/helpers";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -351,10 +352,16 @@ export function* evaluateAndExecuteDynamicTrigger(
     },
   );
   const { errors = [] } = response as any;
-  yield call(dynamicTriggerErrorHandler, errors);
+
+  const transformedErrors: EvaluationError[] = yield call(
+    transformTriggerEvalErrors,
+    errors,
+  );
+
+  yield call(dynamicTriggerErrorHandler, transformedErrors);
   yield fork(logDynamicTriggerExecution, {
     dynamicTrigger,
-    errors,
+    errors: transformedErrors,
     triggerMeta,
   });
   return response;
@@ -646,6 +653,7 @@ function* evalAndLintingHandler(
 }
 
 function* evaluationChangeListenerSaga(): any {
+  const firstEvalActionChannel = yield actionChannel(FIRST_EVAL_REDUX_ACTIONS);
   // Explicitly shutdown old worker if present
   yield all([call(evalWorker.shutdown), call(lintWorker.shutdown)]);
   const [evalWorkerListenerChannel] = yield all([
@@ -669,8 +677,9 @@ function* evaluationChangeListenerSaga(): any {
   yield spawn(handleEvalWorkerRequestSaga, evalWorkerListenerChannel);
 
   const initAction: EvaluationReduxAction<unknown> = yield take(
-    FIRST_EVAL_REDUX_ACTIONS,
+    firstEvalActionChannel,
   );
+  firstEvalActionChannel.close();
 
   // Wait for widget config build to complete before starting evaluation only if the current editor is not a workflow
   const isCurrentEditorWorkflowType = yield select(

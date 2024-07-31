@@ -365,6 +365,7 @@ export default function BranchList(props: {
             <SearchInput
               autoFocus
               className="branch-search t--branch-search-input"
+              // @ts-expect-error Fix this the next time the file is edited
               fill
               onChange={changeSearchText}
               placeholder={createMessage(FIND_OR_CREATE_A_BRANCH)}

@@ -1,10 +1,14 @@
-import * as _ from "../../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  propPane,
+  table,
+} from "../../../../../support/Objects/ObjectsCore";
 const commonlocators = require("../../../../../locators/commonlocators.json");
 
 describe("Basic flow ", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
   before(() => {
-    _.agHelper.RestoreLocalStorageCache();
-    _.agHelper.AddDsl("Table/InlineEditingDSL");
+    agHelper.RestoreLocalStorageCache();
+    agHelper.AddDsl("Table/InlineEditingDSL");
   });
 
   it("1.1. should test that allow Add new row property is present", () => {
@@ -12,20 +16,20 @@ describe("Basic flow ", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     cy.get(".t--property-control-allowaddingarow").should("exist");
     cy.get(".t--property-control-allowaddingarow input").should("exist");
     cy.get(".t--add-new-row").should("not.exist");
-    _.propPane.TogglePropertyState("Allow adding a row", "Off", null);
+    propPane.TogglePropertyState("Allow adding a row", "Off", null);
     cy.get(".t--add-new-row").should("not.exist");
     cy.get(".t--property-control-onsave").should("not.exist");
     cy.get(".t--property-control-ondiscard").should("not.exist");
     cy.get(".t--property-control-defaultvalues").should("not.exist");
     // onSave, onDiscard and default row are showing up only when the allow add new property is enabled
-    _.propPane.TogglePropertyState("Allow adding a row", "On");
+    propPane.TogglePropertyState("Allow adding a row", "On");
     cy.get(".t--add-new-row").should("exist");
     cy.get(".t--property-control-onsave").should("exist");
     cy.get(".t--property-control-ondiscard").should("exist");
     cy.get(".t--property-control-defaultvalues").should("exist");
     cy.get(".t--add-new-row.disabled").should("not.exist");
     //  add new row link is disabled during the inline editing flow
-    cy.makeColumnEditable("step");
+    table.toggleColumnEditableViaColSettingsPane("step");
     cy.editTableCell(0, 0);
     cy.get(".t--add-new-row.disabled").should("exist");
     cy.openPropertyPane("tablewidgetv2");
@@ -98,15 +102,15 @@ describe("Basic flow ", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
     cy.get(`[data-colindex=1][data-rowindex=0] .t--inlined-cell-editor`).should(
       "not.exist",
     );
-    cy.makeColumnEditable("task");
+    table.toggleColumnEditableViaColSettingsPane("task");
     cy.get(`[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor`).should(
       "exist",
     );
     cy.get(`[data-colindex=1][data-rowindex=0] .t--inlined-cell-editor`).should(
       "exist",
     );
-    cy.makeColumnEditable("step");
-    cy.makeColumnEditable("task");
+    table.toggleColumnEditableViaColSettingsPane("step", "v2", false);
+    table.toggleColumnEditableViaColSettingsPane("task", "v2", false);
     cy.get(`[data-colindex=0][data-rowindex=0] .t--inlined-cell-editor`).should(
       "not.exist",
     );
@@ -116,8 +120,8 @@ describe("Basic flow ", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
   });
 
   it("1.5. should test that newRow property holds the entered data", () => {
-    cy.makeColumnEditable("step");
-    cy.makeColumnEditable("task");
+    table.toggleColumnEditableViaColSettingsPane("step");
+    table.toggleColumnEditableViaColSettingsPane("task");
     cy.enterTableCellValue(0, 0, "22");
     cy.enterTableCellValue(1, 0, "21");
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 600 });
@@ -131,7 +135,7 @@ describe("Basic flow ", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
 
   it("1.6. should test that non data (iconBitton, button, menubutton) column cells are not showing up", () => {
     cy.openPropertyPane("tablewidgetv2");
-    cy.editColumn("step");
+    table.toggleColumnEditableViaColSettingsPane("step", "v2", false, false);
     ["Button", "Menu button", "Icon button"].forEach((columnType) => {
       cy.get(commonlocators.changeColType).last().click();
       cy.get(".t--dropdown-option").children().contains(columnType).click();
@@ -151,22 +155,22 @@ describe("Basic flow ", { tags: ["@tag.Widget", "@tag.Table"] }, () => {
       "Allow filtering",
       "Allow adding a row",
     ].forEach((val) => {
-      _.propPane.TogglePropertyState(val, "Off");
+      propPane.TogglePropertyState(val, "Off");
     });
     cy.wait(1000);
 
     //intially enable 2 sections to show pagination and "add new row" button to the header section
-    _.propPane.TogglePropertyState("Show pagination", "On");
-    _.propPane.TogglePropertyState("Allow adding a row", "On");
+    propPane.TogglePropertyState("Show pagination", "On");
+    propPane.TogglePropertyState("Allow adding a row", "On");
 
     //"add new row" button should be present
     cy.get(".t--add-new-row").should("exist");
     //turn off pagination and now the "add new row" button should be the only component left in the header section
-    _.propPane.TogglePropertyState("Show pagination", "Off");
+    propPane.TogglePropertyState("Show pagination", "Off");
     //"add new row" should continue to be present
     cy.get(".t--add-new-row").should("exist");
     //finally turn off allow adding a row then the "add new row" button should be removed from the header section
-    _.propPane.TogglePropertyState("Allow adding a row", "Off");
+    propPane.TogglePropertyState("Allow adding a row", "Off");
     cy.get(".t--add-new-row").should("not.exist");
   });
 });

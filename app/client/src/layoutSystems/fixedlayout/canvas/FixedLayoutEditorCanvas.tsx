@@ -14,6 +14,7 @@ import { FixedCanvasDraggingArena } from "../editor/FixedLayoutCanvasArenas/Fixe
 import { compact, sortBy } from "lodash";
 import { Positioning } from "layoutSystems/common/utils/constants";
 import type { DSLWidget } from "WidgetProvider/constants";
+import { AnalyticsWrapper } from "../../common/AnalyticsWrapper";
 
 export type CanvasProps = DSLWidget;
 /**
@@ -112,7 +113,7 @@ export const FixedLayoutEditorCanvas = (props: BaseWidgetProps) => {
           widgetId={props.widgetId}
           widgetType={props.type}
         />
-        {canvasChildren}
+        <AnalyticsWrapper>{canvasChildren}</AnalyticsWrapper>
       </ContainerComponent>
     </DropTargetComponentWrapper>
   );

@@ -5,6 +5,7 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.solutions.PermissionGroupPermission;
+import io.micrometer.observation.ObservationRegistry;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -13,8 +14,14 @@ public class UserUtils extends UserUtilsCE {
             ConfigRepository configRepository,
             PermissionGroupRepository permissionGroupRepository,
             CacheableRepositoryHelper cacheableRepositoryHelper,
-            PermissionGroupPermission permissionGroupPermission) {
+            PermissionGroupPermission permissionGroupPermission,
+            ObservationRegistry observationRegistry) {
 
-        super(configRepository, permissionGroupRepository, cacheableRepositoryHelper, permissionGroupPermission);
+        super(
+                configRepository,
+                permissionGroupRepository,
+                cacheableRepositoryHelper,
+                permissionGroupPermission,
+                observationRegistry);
     }
 }

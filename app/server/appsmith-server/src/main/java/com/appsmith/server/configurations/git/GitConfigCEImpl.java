@@ -14,7 +14,9 @@ public class GitConfigCEImpl implements GitConfigCE {
 
     @Override
     public Mono<Boolean> getIsAtomicPushAllowed() {
-        return tenantService.getTenantConfiguration().map(tenant -> tenant.getTenantConfiguration()
-                .getIsAtomicPushAllowed());
+        return tenantService
+                .getTenantConfiguration()
+                .map(tenant -> tenant.getTenantConfiguration().getIsAtomicPushAllowed())
+                .switchIfEmpty(Mono.just(false));
     }
 }

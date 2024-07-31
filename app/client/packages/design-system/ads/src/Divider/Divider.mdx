@@ -1,0 +1,29 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as DividerStories from "./Divider.stories";
+
+<Meta of={DividerStories} />
+
+# Divider
+
+A divider is a thin line that groups content in lists and layouts.
+
+<Canvas of={DividerStories.DividerStory} />
+
+## Kind
+
+### Horizontal
+
+<Canvas of={DividerStories.DividerStory} />
+
+### Vertical
+
+<Canvas of={DividerStories.DividerVerticalStory} />
+
+## Usage
+
+- Dividers are a useful tool for organizing content into distinct groups. They can differentiate between types of information or create visual hierarchy.
+- Supports horizontal and vertical scrolling, and grows to the length of the parent.
+- Use dividers sparingly and consider other design elements, such as space, to achieve balance in your design.
+
+> TODO: When should we use dividers and when should we use space?

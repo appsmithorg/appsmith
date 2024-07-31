@@ -149,6 +149,12 @@ export const handlers = {
       }
     });
   },
+  [ReduxActionTypes.APPEND_ACTION_AFTER_BUILDING_BLOCK_DROP]: (
+    draftMetaState: ActionDataState,
+    action: ReduxAction<{ data: Action }>,
+  ) => {
+    return [...draftMetaState, action.payload.data];
+  },
   [ReduxActionTypes.UPDATE_ACTION_PROPERTY]: (
     draftMetaState: ActionDataState,
     action: ReduxAction<UpdateActionPropertyActionPayload>,

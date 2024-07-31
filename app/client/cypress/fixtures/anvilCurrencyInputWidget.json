@@ -1,0 +1,3037 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 4896,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 380,
+    "containerStyle": "none",
+    "snapRows": 124,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 89,
+    "minHeight": 1292,
+    "layout": [
+      {
+        "layoutId": "3ybf3p8kt4",
+        "layoutType": "ALIGNED_LAYOUT_COLUMN",
+        "layout": [
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "3ltb48i0o9",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "pb4obci32i",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "xawdo0ivuo",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "itk4cfgjg0",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "uxg9wn82s6",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "wmnwtel9ak",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "69vksdgf2c",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "r93m8n9z37",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          }
+        ],
+        "layoutStyle": {
+          "border": "none",
+          "height": "100%",
+          "padding": "spacing-4",
+          "gap": "spacing-4"
+        },
+        "isDropTarget": true,
+        "isPermanent": true,
+        "childTemplate": {
+          "insertChild": true,
+          "isDropTarget": false,
+          "isPermanent": false,
+          "layout": [],
+          "layoutId": "",
+          "layoutType": "WIDGET_ROW",
+          "maxChildLimit": 1
+        }
+      }
+    ],
+    "dynamicTriggerPathList": [],
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section1",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone1",
+            "flexGrow": 12,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "xglvmqg38t",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": " 42",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1CopyCopy",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "RUB",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "zi79brwsnd",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": " 42",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1CopyCopyCopyCopy",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "tooltip": "Tooltip",
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "placeholderText": "",
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "y2lpvz3isn",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 2,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1CopyCopyCopyCopyCopy",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "tooltip": "Tooltip",
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "placeholderText": "",
+                "isDisabled": true,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "vfvoam769d",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 2,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy16",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "n4qxeqfxw9",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy17",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "7yanj2mkd5",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy18",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "euhvg9nttj",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy19",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "lguuiisnht",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy20",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": true,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "62p70xg9pp",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "errorMessage": "",
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "regex": "",
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1CopyCopyCopyCopyCopy1",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "tooltip": "Tooltip",
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "placeholderText": "",
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": true,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "54huvm89v4",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 2,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1CopyCopyCopyCopyCopyCopyCopy",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "tooltip": "Tooltip",
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "placeholderText": "",
+                "isDisabled": true,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "gpuj8lbqcz",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": false,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 2,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1CopyCopyCopyCopyCopyCopy",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "tooltip": "Tooltip",
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "placeholderText": "",
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "fsnmlr1l3s",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": false,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 2,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "bsp6d48nrl",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1CopyCopyCopy",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "RUB",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "m5mc312wzv",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 2,
+                "iconAlign": "left",
+                "defaultText": " 42.12",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy16Copy1",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "atxghwqmdy",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy16Copy",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "9lpda8kl3b",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy1",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "lov2mkv1pd",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy1Copy",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "aqsdvyweu1",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "4m8rpibrzz",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "42",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "vfytiot8st",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "4m8rpibrzz",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "3ltb48i0o9",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "6i49f3w8z3",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "bsp6d48nrl",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "gemr3lmrfa",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "m5mc312wzv",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "xglvmqg38t",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "zi79brwsnd",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "ca2qad7zwe",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "62p70xg9pp",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "y2lpvz3isn",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "54huvm89v4",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "mgpbfurwho",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "fsnmlr1l3s",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "vfvoam769d",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "gpuj8lbqcz",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "achdjmhmff",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "lov2mkv1pd",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "aqsdvyweu1",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "blcteqkl63",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "atxghwqmdy",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "9lpda8kl3b",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "3bc1thqtto",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "n4qxeqfxw9",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "7yanj2mkd5",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "euhvg9nttj",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "lguuiisnht",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "cie0ghnc88",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "e13qrheaj7",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "3ltb48i0o9",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 1,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "4m8rpibrzz",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "ovdi7b833y",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "4m8rpibrzz": 12
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section2",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy7",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "ryygcjnmv7",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "uae7v8y2tr",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "0ilnxldfd6",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "uae7v8y2tr",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "69vksdgf2c",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "nxqtddhdkg",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "ryygcjnmv7",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "q48psl6ipy",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone3",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy8",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "fvvnjr872w",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "zv8vqw43a6",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "0ilnxldfd6",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "zv8vqw43a6",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "69vksdgf2c",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "7oyj5ix2vz",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "fvvnjr872w",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "p5o6qlj8re",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone4",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy10",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "farl597xlu",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "ts1rk3h95k",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "0ilnxldfd6",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "ts1rk3h95k",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "69vksdgf2c",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "5gvrax3tt4",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "farl597xlu",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "8g70o4yh8m",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone5",
+            "flexGrow": 3,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy9",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "b8dctkhzhz",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "jpc50s4o59",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "0ilnxldfd6",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "jpc50s4o59",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "69vksdgf2c",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "2nxc0in2se",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "b8dctkhzhz",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "sfgqdxgn2s",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "0xfg1tg18k",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "69vksdgf2c",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 4,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "uae7v8y2tr",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "zv8vqw43a6",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "ts1rk3h95k",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "jpc50s4o59",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "ufbe8brud2",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "uae7v8y2tr": 3,
+          "zv8vqw43a6": 3,
+          "ts1rk3h95k": 3,
+          "jpc50s4o59": 3
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section3",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone6",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy4",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "vn5droxbk3",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "3a3tcsqrsm",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "0ilnxldfd6",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "3a3tcsqrsm",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "uxg9wn82s6",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "u6b0gfossa",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "vn5droxbk3",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "vgntad5smr",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone7",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy6",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "hzr4o0vui6",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "o59xy3il36",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "0ilnxldfd6",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "o59xy3il36",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "uxg9wn82s6",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "mzn7g5a36c",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "hzr4o0vui6",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "srcs9demug",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone8",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy5",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "qttfybrf3c",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "3vrvlv7ibu",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "0ilnxldfd6",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "3vrvlv7ibu",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "uxg9wn82s6",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "qgnouefzhy",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "qttfybrf3c",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "kwavdkip6b",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "0xfg1tg18k",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "uxg9wn82s6",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 3,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "3a3tcsqrsm",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "o59xy3il36",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "3vrvlv7ibu",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "bzykzxvlo5",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "3a3tcsqrsm": 4,
+          "o59xy3il36": 4,
+          "3vrvlv7ibu": 4
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section4",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone9",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy2",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "q5zoopmvhe",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "mhmephc8j0",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "0ilnxldfd6",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "mhmephc8j0",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "xawdo0ivuo",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "rzdzlytt4e",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "q5zoopmvhe",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "yr4vd49ka4",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone10",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "CurrencyInput1Copy3",
+                "displayName": "Currency Input",
+                "searchTags": [
+                  "amount",
+                  "total"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "defaultCurrencyCode": "USD",
+                "parentRowSpace": 10,
+                "autoFocus": false,
+                "type": "WDS_CURRENCY_INPUT_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "isReadOnly": false,
+                "parentColumnSpace": 1,
+                "resetOnSubmit": true,
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "isDisabled": false,
+                "key": "1hw5kapajs",
+                "isRequired": false,
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "dynamicHeight": "FIXED",
+                "widgetId": "su43hgjf8l",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "showStepArrows": false,
+                "isVisible": true,
+                "label": "Current Price",
+                "allowCurrencyChange": false,
+                "version": 1,
+                "parentId": "n6aavkdga9",
+                "tags": [
+                  "Inputs"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "maxDynamicHeight": 9000,
+                "decimals": 0,
+                "iconAlign": "left",
+                "defaultText": "",
+                "minDynamicHeight": 4
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "0ilnxldfd6",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "n6aavkdga9",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "xawdo0ivuo",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "g3ugb62rh8",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "su43hgjf8l",
+                        "widgetType": "WDS_CURRENCY_INPUT_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "1yvwvhbxbh",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "0xfg1tg18k",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "xawdo0ivuo",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 2,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "mhmephc8j0",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "n6aavkdga9",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "eyj8cad9vk",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "mhmephc8j0": 6,
+          "n6aavkdga9": 6
+        }
+      }
+    ]
+  }
+}

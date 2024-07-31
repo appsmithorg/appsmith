@@ -93,7 +93,7 @@ describe("Private embed in-app ramp", { tags: ["@tag.Settings"] }, () => {
       );
       _.inviteModal.CloseModal();
       _.homePage.Signout(false);
-      _.homePage.LogintoApp(
+      cy.LoginFromAPI(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
       );

@@ -174,6 +174,7 @@ import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants"
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 import { executeGoogleApi } from "./loadGoogleApi";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import { getCurrentModuleId } from "@appsmith/selectors/modulesSelector";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -428,8 +429,8 @@ export function* deleteDatasourceSaga(
 
     if (isValidResponse) {
       const currentUrl = `${window.location.pathname}`;
-      yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
       yield call(handleDatasourceDeleteRedirect, id);
+      yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
 
       toast.show(createMessage(DATASOURCE_DELETE, response.data.name), {
         kind: "success",
@@ -1062,12 +1063,8 @@ function* createDatasourceFromFormSaga(
 ) {
   try {
     const workspaceId: string = yield select(getCurrentWorkspaceId);
-    const actionRouteInfo: Partial<{
-      apiId: string;
-      datasourceId: string;
-      pageId: string;
-      applicationId: string;
-    }> = yield select(getDatasourceActionRouteInfo);
+    const actionRouteInfo: ReturnType<typeof getDatasourceActionRouteInfo> =
+      yield select(getDatasourceActionRouteInfo);
     yield call(
       checkAndGetPluginFormConfigsSaga,
       actionPayload.payload.pluginId,
@@ -1305,6 +1302,7 @@ function* storeAsDatasourceSaga() {
   const { values } = yield select(getFormData, API_EDITOR_FORM_NAME);
   const applicationId: string = yield select(getCurrentApplicationId);
   const pageId: string | undefined = yield select(getCurrentPageId);
+  const moduleId: string | undefined = yield select(getCurrentModuleId);
   let datasource = get(values, "datasource");
   datasource = omit(datasource, ["name"]);
   const originalHeaders = get(values, "actionConfiguration.headers", []);
@@ -1360,9 +1358,9 @@ function* storeAsDatasourceSaga() {
   yield put({
     type: ReduxActionTypes.STORE_AS_DATASOURCE_UPDATE,
     payload: {
-      pageId,
       applicationId,
       apiId: values.id,
+      parentEntityId: pageId || moduleId,
       datasourceId: createdDatasource.id,
     },
   });
@@ -1404,7 +1402,7 @@ function* updateDatasourceSuccessSaga(action: UpdateDatasourceSuccessAction) {
   ) {
     history.push(
       apiEditorIdURL({
-        pageId: actionRouteInfo.pageId!,
+        parentEntityId: actionRouteInfo.parentEntityId || "",
         apiId: actionRouteInfo.apiId!,
       }),
     );

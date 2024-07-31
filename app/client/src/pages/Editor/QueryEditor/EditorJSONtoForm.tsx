@@ -139,6 +139,11 @@ export const SegmentedControlContainer = styled.div`
   overflow-x: scroll;
 `;
 
+const StyledNotificationWrapper = styled.div`
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-3)
+    var(--ads-v2-spaces-7);
+`;
+
 interface QueryFormProps {
   onDeleteClick: () => void;
   onRunClick: () => void;
@@ -251,6 +256,7 @@ export function EditorJSONtoForm(props: Props) {
         title: createMessage(DEBUGGER_RESPONSE),
         panelComponent: (
           <QueryResponseTab
+            actionName={actionName}
             actionSource={actionSource}
             currentActionConfig={currentActionConfig}
             isRunning={isRunning}
@@ -307,7 +313,9 @@ export function EditorJSONtoForm(props: Props) {
           onRunClick={onRunClick}
           plugin={plugin}
         />
-        {notification}
+        {notification && (
+          <StyledNotificationWrapper>{notification}</StyledNotificationWrapper>
+        )}
         <Wrapper>
           <div className="flex flex-1 w-full">
             <SecondaryWrapper>

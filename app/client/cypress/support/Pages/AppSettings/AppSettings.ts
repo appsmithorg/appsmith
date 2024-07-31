@@ -123,15 +123,14 @@ export class AppSettings {
     appName = appName.replace(/\s+/g, "-");
     this.agHelper.AssertElementAbsence(this.locators._updateStatus, 10000);
     cy.location("pathname").then((pathname) => {
+      const pageId = this.agHelper.extractPageIdFromUrl(pathname);
       if (customSlug && customSlug.length > 0) {
-        const pageId = pathname.split("/")[2]?.split("-").pop();
         expect(pathname).to.be.equal(
           `/app/${customSlug}-${pageId}${
             editMode ? "/edit" : ""
           }${restOfUrl}`.toLowerCase(),
         );
       } else {
-        const pageId = pathname.split("/")[3]?.split("-").pop();
         expect(pathname).to.be.equal(
           `/app/${appName}/${pageName}-${pageId}${
             editMode ? "/edit" : ""

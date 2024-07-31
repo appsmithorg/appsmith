@@ -45,9 +45,13 @@ class AppThemingApi extends API {
     applicationId: string,
     theme: AppTheme,
   ): Promise<AxiosPromise<ApiResponse<AppTheme[]>>> {
+    const payload = {
+      ...theme,
+      new: undefined,
+    };
     return API.put(
       `${AppThemingApi.baseUrl}/themes/applications/${applicationId}`,
-      theme,
+      payload,
     );
   }
 

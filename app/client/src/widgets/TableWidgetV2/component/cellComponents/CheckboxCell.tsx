@@ -84,6 +84,7 @@ const CheckboxCellComponent = (props: CheckboxCellProps) => {
       borderRadius={borderRadius}
       isChecked={value}
       isDisabled={!!disabledCheckbox || !isCellEditable}
+      isFullWidth={false}
       isLoading={false}
       isRequired={false}
       label=""

@@ -168,6 +168,12 @@ const jsPaneReducer = createReducer(initialState, {
       },
     };
   },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: JsPaneReduxState) => {
+    return {
+      ...state,
+      isSaving: false,
+    };
+  },
 });
 
 export default jsPaneReducer;

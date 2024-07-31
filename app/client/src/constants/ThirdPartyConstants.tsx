@@ -30,7 +30,7 @@ export const PROVISIONING_SETUP_DOC =
 export const DISCORD_URL = "https://discord.gg/rBTTVJp";
 export const ENTERPRISE_PRICING_PAGE = "https://www.appsmith.com/enterprise";
 export const DOCS_BRANCH_PROTECTION_URL =
-  "https://docs.appsmith.com/advanced-concepts/version-control-with-git/working-with-branches#branch-protection";
+  "https://docs.appsmith.com/advanced-concepts/version-control-with-git/reference/git-settings#branch-protection";
 export const DOCS_DEFAULT_BRANCH_URL =
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git/working-with-branches#default-branch";
 export const PACKAGES_OVERVIEW_DOC =

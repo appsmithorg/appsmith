@@ -53,7 +53,6 @@ import {
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { getWidget, getWidgets } from "./selectors";
 import { addBuildingBlockToCanvasSaga } from "./BuildingBlockSagas/BuildingBlockAdditionSagas";
-import { getCurrentlyOpenAnvilDetachedWidgets } from "layoutSystems/anvil/integrations/modalSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -87,13 +86,8 @@ function* getChildWidgetProps(
   ]);
   const themeDefaultConfig =
     WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
-  const widgetSessionValues = getWidgetSessionValues(type, parent);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-  const detachedWidgets: string[] = yield select(
-    getCurrentlyOpenAnvilDetachedWidgets,
-  );
-  const isModalOpen = detachedWidgets && detachedWidgets.length > 0;
 
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
@@ -122,12 +116,6 @@ function* getChildWidgetProps(
     }
   }
 
-  // in case we are creating zone inside zone, we want to use the parent's column space, we want
-  // to make sure the elevateBackground is set to false
-  if (type === "ZONE_WIDGET" && isModalOpen) {
-    props = { ...props, elevatedBackground: false };
-  }
-
   const isAutoLayout = isStack(widgets, parent);
   const isFillWidget =
     restDefaultConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
@@ -142,7 +130,6 @@ function* getChildWidgetProps(
     widgetId: newWidgetId,
     renderMode: RenderModes.CANVAS,
     ...themeDefaultConfig,
-    ...widgetSessionValues,
   };
 
   const { minWidth } = getWidgetMinMaxDimensionsInPixel(
@@ -186,6 +173,26 @@ function* getChildWidgetProps(
   }
 
   widget.widgetId = newWidgetId;
+  // Remove props that don't belong in the DSL and can be accessed using
+  // the widget type's static methods and configurations
+  // Fixes #21825
+  widget.rows = undefined;
+  widget.columns = undefined;
+  widget.name = undefined;
+  widget.iconSVG = undefined;
+  widget.thumbnailSVG = undefined;
+  widget.hideCard = undefined;
+  widget.isDeprecated = undefined;
+  widget.needsMeta = undefined;
+  widget.searchTags = undefined;
+  widget.tags = undefined;
+  widget.displayName = undefined;
+  widget.onCanvasUI = undefined;
+  widget.eagerRender = undefined;
+  widget.needsHeightForContent = undefined;
+  widget.features = undefined;
+  widget.replacement = undefined;
+
   /**
    * un-evaluated childStylesheet used by widgets; so they are to be excluded
    * from the dynamicBindingPathList and they are not included as a part of
@@ -528,52 +535,4 @@ export default function* widgetAdditionSagas() {
     takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILD, addUIEntitySaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD, addNewTabChildSaga),
   ]);
-}
-
-/**
- * retrieves the values from session storage for the widget properties
- * for hydration of the widget when we create widget on drop
- */
-export function getWidgetSessionValues(
-  type: string,
-  parent: FlattenedWidgetProps,
-) {
-  // For WDS_INLINE_BUTTONS_WIDGET, we want to hydation only to work when we add more items to the inline button group.
-  // So we don't want to hydrate the values when we drop the widget on the canvas.
-  if (["WDS_INLINE_BUTTONS_WIDGET"].includes(type)) return;
-
-  let widgetType = type;
-  const configMap = WidgetFactory.widgetConfigMap.get(type);
-
-  const widgetSessionValues: any = {};
-
-  // in case we are dropping WDS_ICON_BUTTON_WIDGET, we want to reuse the values of BUTTON_WIDGET
-  if (type === "WDS_ICON_BUTTON_WIDGET") {
-    widgetType = "WDS_BUTTON_WIDGET";
-  }
-
-  for (const key in configMap) {
-    if (configMap[key] != undefined) {
-      let sessionStorageKey = `${widgetType}.${key}`;
-
-      if (type === "ZONE_WIDGET") {
-        sessionStorageKey = `${widgetType}.${parent.widgetId}.${key}`;
-      }
-
-      let valueFromSession: any = sessionStorage.getItem(sessionStorageKey);
-
-      // parse "true" as true and "false" as false
-      if (valueFromSession === "true") {
-        valueFromSession = true;
-      } else if (valueFromSession === "false") {
-        valueFromSession = false;
-      }
-
-      if (valueFromSession !== undefined && valueFromSession !== null) {
-        widgetSessionValues[key] = valueFromSession;
-      }
-    }
-  }
-
-  return widgetSessionValues;
 }

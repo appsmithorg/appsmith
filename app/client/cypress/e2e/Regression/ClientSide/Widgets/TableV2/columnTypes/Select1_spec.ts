@@ -5,6 +5,7 @@ import {
 
 const commonlocators = require("../../../../../../locators/commonlocators.json");
 import * as _ from "../../../../../../support/Objects/ObjectsCore";
+import { featureFlagIntercept } from "../../../../../../support/Objects/FeatureFlags";
 
 describe(
   "Table widget - Select column type functionality",
@@ -153,6 +154,7 @@ describe(
     });
 
     it("5. should check that on option select is working", () => {
+      featureFlagIntercept({ release_table_cell_label_value_enabled: true });
       cy.openPropertyPane("tablewidgetv2");
       cy.editColumn("step");
       cy.get(".t--property-control-onoptionchange .t--js-toggle").click();
@@ -162,14 +164,33 @@ describe(
       {{showAlert(currentRow.step)}}
     `,
       );
+      cy.updateCodeInput(
+        ".t--property-control-options",
+        `
+      [
+        {
+          "label": "#1label",
+          "value": "#1value"
+        },
+        {
+          "label": "#2label",
+          "value": "#2value"
+        },
+        {
+          "label": "#3label",
+          "value": "#3value"
+        }
+      ]
+    `,
+      );
       cy.editTableSelectCell(0, 0);
-      cy.get(".menu-item-link").contains("#3").click();
+      cy.get(".menu-item-link").contains("#3label").click();
 
-      _.agHelper.ValidateToastMessage("#3");
+      _.agHelper.ValidateToastMessage("#3value");
 
       cy.get(".menu-virtual-list").should("not.exist");
       cy.readTableV2data(0, 0).then((val) => {
-        expect(val).to.equal("#3");
+        expect(val).to.equal("#3label");
       });
       cy.discardTableRow(4, 0);
     });

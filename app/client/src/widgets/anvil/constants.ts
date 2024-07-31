@@ -13,6 +13,7 @@ export enum Elevations {
  * The data attribute that will be used to identify the anvil widget name in the DOM.
  */
 export const AnvilDataAttributes = {
+  MODAL_SIZE: "data-size",
   WIDGET_NAME: "data-widget-name",
   IS_SELECTED_WIDGET: "data-selected",
 };

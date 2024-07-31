@@ -3,17 +3,14 @@ package com.appsmith.server.repositories;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.projections.IdOnly;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
 import java.util.List;
 import java.util.UUID;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class CustomApplicationRepositoryImplTest {
     @Autowired

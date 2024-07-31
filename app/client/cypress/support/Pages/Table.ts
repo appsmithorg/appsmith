@@ -585,6 +585,20 @@ export class Table {
     cy.get(this._defaultColName).type(colId, { force: true });
   }
 
+  public toggleColumnEditableViaColSettingsPane(
+    columnName: string,
+    tableVersion: "v1" | "v2" = "v2",
+    editable = true,
+    goBackToPropertyPane = true,
+  ) {
+    this.EditColumn(columnName, tableVersion);
+    this.propPane.TogglePropertyState(
+      "Editable",
+      editable === true ? "On" : "Off",
+    );
+    goBackToPropertyPane && this.propPane.NavigateBackToPropertyPane();
+  }
+
   public EditColumn(columnName: string, tableVersion: "v1" | "v2") {
     const colSettings =
       tableVersion == "v1"

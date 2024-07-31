@@ -21,7 +21,8 @@ export type ComparisonOperations =
   | "IN"
   | "NOT_IN"
   | "FEATURE_FLAG"
-  | "VIEW_MODE";
+  | "VIEW_MODE"
+  | "DEFINED_AND_NOT_EQUALS";
 
 export enum ComparisonOperationsEnum {
   VIEW_MODE = "VIEW_MODE",

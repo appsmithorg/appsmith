@@ -1,6 +1,7 @@
 import { CURRENT_REPO, REPO } from "../../../fixtures/REPO";
 import {
   agHelper,
+  apiPage,
   dataManager,
   dataSources,
   draggableWidgets,
@@ -56,7 +57,7 @@ if (CURRENT_REPO == REPO.CE) {
           "allowUserKeys": false
       }
     }'`;
-        dataSources.FillCurlNImport(curlCollectionCreate);
+        apiPage.FillCurlNImport(curlCollectionCreate);
         agHelper.ActionContextMenuWithInPane({
           action: "Delete",
           entityType: entityItems.Api,
@@ -137,7 +138,7 @@ if (CURRENT_REPO == REPO.CE) {
       }
     ]'`;
 
-        dataSources.FillCurlNImport(curlDataAdd);
+        apiPage.FillCurlNImport(curlDataAdd);
         agHelper.ActionContextMenuWithInPane({
           action: "Delete",
           entityType: entityItems.Api,
@@ -352,7 +353,7 @@ if (CURRENT_REPO == REPO.CE) {
           dataManager.dsValues[dataManager.defaultEnviorment].arango_port +
           `/_db/_system/_api/collection/${collectionName} --header 'authorization: Basic cm9vdDpBcmFuZ28='`;
         //dataSources.ImportCurlNRun(curlDeleteCol);
-        dataSources.FillCurlNImport(curlDeleteCol);
+        apiPage.FillCurlNImport(curlDeleteCol);
         agHelper.ActionContextMenuWithInPane({
           action: "Delete",
           entityType: entityItems.Api,

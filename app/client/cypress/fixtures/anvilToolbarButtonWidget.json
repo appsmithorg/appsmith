@@ -1,0 +1,3006 @@
+{
+  "dsl": {
+    "widgetName": "MainContainer",
+    "backgroundColor": "none",
+    "rightColumn": 4896,
+    "snapColumns": 64,
+    "detachFromLayout": true,
+    "widgetId": "0",
+    "topRow": 0,
+    "bottomRow": 380,
+    "containerStyle": "none",
+    "snapRows": 124,
+    "parentRowSpace": 1,
+    "type": "CANVAS_WIDGET",
+    "canExtend": true,
+    "version": 89,
+    "minHeight": 1292,
+    "layout": [
+      {
+        "layoutId": "zf1rn0cr3v",
+        "layoutType": "ALIGNED_LAYOUT_COLUMN",
+        "layout": [
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "0k6daan73p",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "7jtvrfnkjp",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "23mqzxtaeg",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "ne32u67xjr",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          },
+          {
+            "insertChild": true,
+            "isDropTarget": false,
+            "isPermanent": false,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "rx1ml9zyjm",
+                "widgetType": "SECTION_WIDGET"
+              }
+            ],
+            "layoutId": "bb8qwclx45",
+            "layoutType": "WIDGET_ROW",
+            "maxChildLimit": 1
+          }
+        ],
+        "layoutStyle": {
+          "border": "none",
+          "height": "100%",
+          "padding": "spacing-4",
+          "gap": "spacing-4"
+        },
+        "isDropTarget": true,
+        "isPermanent": true,
+        "childTemplate": {
+          "insertChild": true,
+          "isDropTarget": false,
+          "isPermanent": false,
+          "layout": [],
+          "layoutId": "",
+          "layoutType": "WIDGET_ROW",
+          "maxChildLimit": 1
+        }
+      }
+    ],
+    "dynamicTriggerPathList": [],
+    "parentColumnSpace": 1,
+    "dynamicBindingPathList": [],
+    "leftColumn": 0,
+    "children": [
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section1",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone1",
+            "flexGrow": 12,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "filled",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "s57w92504b",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1Copy",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "outlined",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "3kwm98802h",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopy",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "ghost",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "wgs2qektmj",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "alignment": "end"
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopyCopyCopy1",
+                "color": "negative",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "filled",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "nxlyxph1kv",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopy4",
+                "color": "negative",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "outlined",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "ewhcmf7cy6",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopyCopy",
+                "color": "neutral",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "filled",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "of2umfqk2f",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopyCopyCopy",
+                "color": "positive",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "filled",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "clo0mrrj17",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopyCopyCopy1Copy",
+                "color": "warning",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "filled",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "5pbvq13r26",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopy2",
+                "color": "neutral",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "outlined",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "kmkfvktqe2",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopy3",
+                "color": "positive",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "outlined",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "hrpwhcozex",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopy1",
+                "color": "warning",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "outlined",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "ytdj4h9lvi",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopy5",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "filled",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "pj7bffutf9",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": false,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopyCopy1",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "ghost",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "03wmuj48m0",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "alignment": "start"
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopyCopy1Copy",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "ghost",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "y5wgy1wc2t",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "alignment": "start"
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopyCopy2",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "ghost",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "6mxljo1wca",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "alignment": "start"
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopyCopy2Copy",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "ghost",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "xjd9pldkhr",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "alignment": "start"
+              },
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopy1CopyCopyCopy2Copy1",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "ghost",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "c8hffrsit9",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "5vj8yv039w",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0,
+                "alignment": "start"
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "ouczoiu54n",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "5vj8yv039w",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "0k6daan73p",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "a2938xjmma",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "s57w92504b",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "of2umfqk2f",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "clo0mrrj17",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "hud6x6wn3b",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "nxlyxph1kv",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "5pbvq13r26",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "acgmdrr74z",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "3kwm98802h",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "kmkfvktqe2",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "hrpwhcozex",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "i9s49tb5pe",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "ewhcmf7cy6",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "ytdj4h9lvi",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "8my7xdd4z3",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "wgs2qektmj",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "79e9qedktt",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "03wmuj48m0",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "y5wgy1wc2t",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "lpny0v3hmx",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "6mxljo1wca",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "xjd9pldkhr",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      },
+                      {
+                        "alignment": "start",
+                        "widgetId": "c8hffrsit9",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  },
+                  {
+                    "insertChild": true,
+                    "layoutId": "adkf2hg4lo",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "pj7bffutf9",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "z4zsxb4pcu",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "4to8pv0cs3",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "0k6daan73p",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 1,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "5vj8yv039w",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "1oah8w5zkn",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "5vj8yv039w": 12
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section2",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopyCopy2",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "ghost",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "ncx8yxpyyd",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "lwsdcf7zu6",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "ouczoiu54n",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "lwsdcf7zu6",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "23mqzxtaeg",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "h0c65iljkr",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "ncx8yxpyyd",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "jgjdzu3x98",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy",
+            "flexGrow": 6,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopyCopy2Copy",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "ghost",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "6hmt60t4z5",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "qzbkf67oe6",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "ouczoiu54n",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "qzbkf67oe6",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "23mqzxtaeg",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "71rwvk94np",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "6hmt60t4z5",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "earxpvi21z",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "4to8pv0cs3",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "23mqzxtaeg",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 2,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "lwsdcf7zu6",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "qzbkf67oe6",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "nkp0b8oajp",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "lwsdcf7zu6": 6,
+          "qzbkf67oe6": 6
+        }
+      },
+      {
+        "needsErrorInfo": false,
+        "boxShadow": "NONE",
+        "mobileBottomRow": 10,
+        "widgetName": "Section3",
+        "isCanvas": true,
+        "displayName": "Section",
+        "searchTags": [
+          "div",
+          "parent",
+          "group"
+        ],
+        "topRow": 0,
+        "bottomRow": 10,
+        "parentRowSpace": 10,
+        "type": "SECTION_WIDGET",
+        "hideCard": true,
+        "mobileRightColumn": 64,
+        "parentColumnSpace": 1,
+        "leftColumn": 0,
+        "dynamicBindingPathList": [],
+        "children": [
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy1",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopyCopy2Copy1",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "ghost",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "xtfqiy6yge",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "irlwzm7xz4",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "ouczoiu54n",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "irlwzm7xz4",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "rx1ml9zyjm",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "qo9t4r9sad",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "xtfqiy6yge",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "3z22an5ihy",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy2",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopyCopy2Copy2",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "ghost",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "u31eu5ilx3",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "a29bcwjh87",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "ouczoiu54n",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "a29bcwjh87",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "rx1ml9zyjm",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "9npirm6fhg",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "u31eu5ilx3",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "ebuxx264nu",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          },
+          {
+            "needsErrorInfo": false,
+            "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+            "mobileBottomRow": 10,
+            "widgetName": "Zone2Copy3",
+            "flexGrow": 4,
+            "isCanvas": true,
+            "displayName": "Zone",
+            "searchTags": [
+              "div",
+              "parent",
+              "group"
+            ],
+            "topRow": 0,
+            "bottomRow": 10,
+            "parentRowSpace": 10,
+            "type": "ZONE_WIDGET",
+            "hideCard": false,
+            "mobileRightColumn": 64,
+            "parentColumnSpace": 1,
+            "leftColumn": 0,
+            "dynamicBindingPathList": [
+              {
+                "key": "borderRadius"
+              },
+              {
+                "key": "boxShadow"
+              }
+            ],
+            "children": [
+              {
+                "needsErrorInfo": false,
+                "mobileBottomRow": 10,
+                "widgetName": "ToolbarButtons1CopyCopyCopyCopyCopyCopy2Copy3",
+                "color": "accent",
+                "isCanvas": false,
+                "displayName": "Toolbar Buttons",
+                "searchTags": [
+                  "click",
+                  "submit"
+                ],
+                "topRow": 0,
+                "bottomRow": 10,
+                "parentRowSpace": 10,
+                "type": "WDS_TOOLBAR_BUTTONS_WIDGET",
+                "hideCard": false,
+                "mobileRightColumn": 64,
+                "animateLoading": true,
+                "parentColumnSpace": 1,
+                "dynamicTriggerPathList": [],
+                "leftColumn": 0,
+                "dynamicBindingPathList": [],
+                "buttonsList": {
+                  "button1": {
+                    "label": "Add",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button1",
+                    "index": 0,
+                    "icon": "plus",
+                    "iconPosition": "start"
+                  },
+                  "button2": {
+                    "label": "Edit",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button2",
+                    "index": 1,
+                    "icon": "pencil",
+                    "iconPosition": "start"
+                  },
+                  "button3": {
+                    "label": "Copy",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button3",
+                    "index": 2,
+                    "icon": "copy",
+                    "iconPosition": "start"
+                  },
+                  "button4": {
+                    "label": "Delete",
+                    "isVisible": true,
+                    "isDisabled": false,
+                    "widgetId": "",
+                    "id": "button4",
+                    "index": 3,
+                    "icon": "trash",
+                    "iconPosition": "start"
+                  }
+                },
+                "variant": "ghost",
+                "isDisabled": false,
+                "key": "fufwh8gqrd",
+                "orientation": "horizontal",
+                "isDeprecated": false,
+                "rightColumn": 64,
+                "widgetId": "6er0xri0kj",
+                "onCanvasUI": {
+                  "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
+                  "focusBGCSSVar": "--on-canvas-ui-widget-focus",
+                  "selectionColorCSSVar": "--on-canvas-ui-widget-focus",
+                  "focusColorCSSVar": "--on-canvas-ui-widget-selection",
+                  "disableParentSelection": false
+                },
+                "isVisible": true,
+                "version": 1,
+                "parentId": "cnc65d1qzn",
+                "tags": [
+                  "Buttons"
+                ],
+                "renderMode": "CANVAS",
+                "isLoading": false,
+                "mobileTopRow": 0,
+                "responsiveBehavior": "fill",
+                "mobileLeftColumn": 0
+              }
+            ],
+            "elevatedBackground": true,
+            "flexVerticalAlignment": "stretch",
+            "key": "ouczoiu54n",
+            "isDeprecated": false,
+            "rightColumn": 64,
+            "detachFromLayout": false,
+            "widgetId": "cnc65d1qzn",
+            "onCanvasUI": {
+              "selectionBGCSSVar": "--on-canvas-ui-zone-selection",
+              "focusBGCSSVar": "--on-canvas-ui-zone-focus",
+              "selectionColorCSSVar": "--on-canvas-ui-zone-focus",
+              "focusColorCSSVar": "--on-canvas-ui-zone-selection",
+              "disableParentSelection": false
+            },
+            "isVisible": true,
+            "version": 1,
+            "parentId": "rx1ml9zyjm",
+            "tags": [
+              "Layout"
+            ],
+            "renderMode": "CANVAS",
+            "isLoading": false,
+            "mobileTopRow": 0,
+            "layout": [
+              {
+                "isContainer": true,
+                "isDropTarget": true,
+                "isPermanent": true,
+                "layout": [
+                  {
+                    "insertChild": true,
+                    "layoutId": "sie3wq5u4w",
+                    "layoutType": "ALIGNED_WIDGET_ROW",
+                    "layout": [
+                      {
+                        "alignment": "start",
+                        "widgetId": "6er0xri0kj",
+                        "widgetType": "WDS_TOOLBAR_BUTTONS_WIDGET"
+                      }
+                    ],
+                    "allowedWidgetTypes": [
+                      "SMALL_WIDGETS"
+                    ],
+                    "maxChildLimit": 0
+                  }
+                ],
+                "layoutId": "w76qbccnx2",
+                "layoutStyle": {
+                  "border": "none",
+                  "height": "100%"
+                },
+                "layoutType": "ZONE"
+              }
+            ],
+            "responsiveBehavior": "fill",
+            "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+            "mobileLeftColumn": 0
+          }
+        ],
+        "elevatedBackground": false,
+        "key": "4to8pv0cs3",
+        "isDeprecated": false,
+        "rightColumn": 64,
+        "detachFromLayout": false,
+        "widgetId": "rx1ml9zyjm",
+        "onCanvasUI": {
+          "selectionBGCSSVar": "--on-canvas-ui-section-selection",
+          "focusBGCSSVar": "--on-canvas-ui-section-focus",
+          "selectionColorCSSVar": "--on-canvas-ui-section-focus",
+          "focusColorCSSVar": "--on-canvas-ui-section-selection",
+          "disableParentSelection": true
+        },
+        "zoneCount": 3,
+        "isVisible": true,
+        "version": 1,
+        "parentId": "0",
+        "tags": [
+          "Layout"
+        ],
+        "renderMode": "CANVAS",
+        "isLoading": false,
+        "mobileTopRow": 0,
+        "layout": [
+          {
+            "isContainer": true,
+            "isDropTarget": true,
+            "isPermanent": true,
+            "layout": [
+              {
+                "alignment": "start",
+                "widgetId": "irlwzm7xz4",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "a29bcwjh87",
+                "widgetType": "ZONE_WIDGET"
+              },
+              {
+                "alignment": "start",
+                "widgetId": "cnc65d1qzn",
+                "widgetType": "ZONE_WIDGET"
+              }
+            ],
+            "layoutId": "ridnsyhpgn",
+            "layoutStyle": {
+              "border": "none"
+            },
+            "layoutType": "SECTION",
+            "maxChildLimit": 4
+          }
+        ],
+        "responsiveBehavior": "fill",
+        "mobileLeftColumn": 0,
+        "spaceDistributed": {
+          "irlwzm7xz4": 4,
+          "a29bcwjh87": 4,
+          "cnc65d1qzn": 4
+        }
+      }
+    ]
+  }
+}

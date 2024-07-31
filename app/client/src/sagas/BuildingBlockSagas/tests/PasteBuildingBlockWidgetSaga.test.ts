@@ -1,3 +1,6 @@
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
+import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import { cloneDeep } from "lodash";
 import type {
   AllEffect,
   CallEffect,
@@ -5,24 +8,21 @@ import type {
   SelectEffect,
 } from "redux-saga/effects";
 import { call, select } from "redux-saga/effects";
-import { pasteBuildingBlockWidgetsSaga } from "../BuildingBlockAdditionSagas";
-import { getCopiedWidgets } from "utils/storage";
-import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
+import { getNewPositions } from "sagas/PasteWidgetUtils";
+import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
 import { getWidgets } from "sagas/selectors";
 import {
   getCanvasWidth,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
-import { getNewPositions } from "sagas/PasteWidgetUtils";
-import { executeWidgetBlueprintBeforeOperations } from "sagas/WidgetBlueprintSagas";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { cloneDeep } from "lodash";
+import { getCopiedWidgets } from "utils/storage";
+import { pasteBuildingBlockWidgetsSaga } from "../BuildingBlockAdditionSagas";
 import {
   copiedWidgets,
   leftMostWidget,
   topMostWidget,
 } from "../pasteWidgetAddition.fixture";
-import type { NewPastePositionVariables } from "sagas/WidgetOperationUtils";
+import { newlyCreatedActions } from "./fixtures";
 
 // Mock data for testing
 const gridPosition = { top: 50, left: 500 };
@@ -30,16 +30,17 @@ const parentWidgetId = "parentWidgetId";
 
 const totalWidth = 31;
 const flexLayers: FlexLayer[] = [];
-type GeneratorType = Generator<
-  | CallEffect<NewPastePositionVariables>
-  | SelectEffect
+
+type ValueType =
   | Promise<any>
+  | SelectEffect
+  | CallEffect<any>
   | CallEffect<void>
   | AllEffect<any>
-  | PutEffect<any>,
-  void,
-  unknown
->;
+  | PutEffect<any>
+  | any;
+
+type GeneratorType = Generator<ValueType, void, unknown>;
 
 describe("pasteBuildingBlockWidgetsSaga", () => {
   const copiedWidgetsResponse = { widgets: copiedWidgets, flexLayers };
@@ -47,6 +48,7 @@ describe("pasteBuildingBlockWidgetsSaga", () => {
     const generator: GeneratorType = pasteBuildingBlockWidgetsSaga(
       gridPosition,
       parentWidgetId,
+      newlyCreatedActions,
     );
 
     // Step 1: call getCopiedWidgets()

@@ -7,14 +7,11 @@ import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 public interface AppsmithRepository<T extends BaseDomain> {
 
     Mono<T> findById(String id, AclPermission permission);
-
-    Mono<T> findById(String id, Optional<AclPermission> permission);
 
     Mono<T> updateById(String id, T resource, AclPermission permission);
 

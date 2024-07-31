@@ -13,7 +13,7 @@ export class DataManager {
       mongo_databaseName: "mongo_prod",
 
       postgres_host: "host.docker.internal",
-      postgres_port: 5432,
+      postgres_port: 5433,
       postgres_databaseName: "fakeapi",
       postgres_username: "docker",
       postgres_password: "docker",
@@ -118,7 +118,7 @@ export class DataManager {
       mongo_databaseName: "mongo_staging",
 
       postgres_host: "host.docker.internal",
-      postgres_port: 5432,
+      postgres_port: 5433,
       postgres_databaseName: "stagingdb",
       postgres_username: "dockerstaging",
       postgres_password: "dockerstaging",

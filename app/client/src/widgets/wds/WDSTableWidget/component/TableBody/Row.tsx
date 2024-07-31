@@ -1,10 +1,11 @@
+import { Checkbox } from "@design-system/widgets";
 import type { CSSProperties, Key } from "react";
 import React, { useContext } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
+import { CellCheckboxWrapper } from "../TableStyledWrappers";
 import { TableBodyContext } from "./context";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
-import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 
 interface RowType {
@@ -12,6 +13,7 @@ interface RowType {
   index: number;
   row: ReactTableRowType<Record<string, unknown>>;
   style?: ListChildComponentProps["style"];
+  excludeFromTabOrder?: boolean;
 }
 
 export function Row(props: RowType) {
@@ -43,9 +45,13 @@ export function Row(props: RowType) {
     props.index;
 
   const onClickRow = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    triggerRowSelected();
+  };
+
+  const triggerRowSelected = () => {
     props.row.toggleRowSelected();
     selectTableRow?.(props.row);
-    e.stopPropagation();
   };
 
   return (
@@ -60,7 +66,20 @@ export function Row(props: RowType) {
       key={key}
       onClick={onClickRow}
     >
-      {multiRowSelection && renderBodyCheckBoxCell(isRowSelected)}
+      {multiRowSelection && (
+        <CellCheckboxWrapper
+          className="td t--table-multiselect"
+          data-sticky-td="true"
+          isCellVisible
+          role="cell"
+        >
+          <Checkbox
+            excludeFromTabOrder={props.excludeFromTabOrder}
+            isSelected={!!isRowSelected}
+            onChange={triggerRowSelected}
+          />
+        </CellCheckboxWrapper>
+      )}
       {props.row.cells.map((cell, cellIndex) => {
         const cellProperties = cell.getCellProps();
 
@@ -108,6 +127,7 @@ export function Row(props: RowType) {
 export const EmptyRows = (props: {
   style?: CSSProperties;
   rowCount: number;
+  excludeFromTabOrder?: boolean;
 }) => {
   const {
     accentColor,
@@ -131,6 +151,7 @@ export const EmptyRows = (props: {
         borderRadius,
         props.style,
         prepareRow,
+        false,
       )}
     </>
   );

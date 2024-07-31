@@ -22,11 +22,12 @@ export class HomePage {
   private _renameWorkspaceContainer = ".editable-text-container";
   private _renameWorkspaceParent = ".t--workspace-rename-input";
   private _renameWorkspaceInput = this._renameWorkspaceParent + " input";
+  /* I'm not sure if asserting the copy of our app is a good idea. This seems like extra complexity when making changes to the copy */
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
   private _workspaceNoApps = (workspaceName: string) =>
     this._workspaceList(workspaceName) +
-    ":contains('There are no applications in this workspace')";
+    ":contains('applications in this workspace')";
   private _workspaceShareUsersIcon = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ") .ads-v2-avatar";
   _shareWorkspace = (workspaceName: string) =>
@@ -753,6 +754,7 @@ export class HomePage {
     }
     this.agHelper.ClickButton("Fork");
     this.assertHelper.AssertNetworkStatus("getWorkspace");
+    this.agHelper.WaitUntilEleDisappear(this._forkModal);
   }
 
   public DeleteApplication(appliName: string) {

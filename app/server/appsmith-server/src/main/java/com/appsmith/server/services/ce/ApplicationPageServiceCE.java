@@ -11,7 +11,6 @@ import com.appsmith.server.dtos.PageDTO;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface ApplicationPageServiceCE {
 
@@ -50,12 +49,12 @@ public interface ApplicationPageServiceCE {
 
     Mono<PageDTO> deleteUnpublishedPageByBranchAndDefaultPageId(String defaultPageId, String branchName);
 
-    Mono<PageDTO> deleteUnpublishedPageWithOptionalPermission(
+    Mono<PageDTO> deleteUnpublishedPage(
             String id,
-            Optional<AclPermission> deletePagePermission,
-            Optional<AclPermission> readApplicationPermission,
-            Optional<AclPermission> deleteCollectionPermission,
-            Optional<AclPermission> deleteActionPermission);
+            AclPermission deletePagePermission,
+            AclPermission readApplicationPermission,
+            AclPermission deleteCollectionPermission,
+            AclPermission deleteActionPermission);
 
     Mono<PageDTO> deleteUnpublishedPage(String id);
 

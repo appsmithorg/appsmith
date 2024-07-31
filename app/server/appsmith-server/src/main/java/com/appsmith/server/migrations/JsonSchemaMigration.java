@@ -16,17 +16,31 @@ import reactor.core.publisher.Mono;
 @RequiredArgsConstructor
 public class JsonSchemaMigration {
 
-    private static boolean isCompatible(ApplicationJson applicationJson) {
-        return (applicationJson.getClientSchemaVersion() <= JsonSchemaVersions.clientVersion)
-                && (applicationJson.getServerSchemaVersion() <= JsonSchemaVersions.serverVersion);
+    private final JsonSchemaVersions jsonSchemaVersions;
+
+    private boolean isCompatible(ApplicationJson applicationJson) {
+        return (applicationJson.getClientSchemaVersion() <= jsonSchemaVersions.getClientVersion())
+                && (applicationJson.getServerSchemaVersion() <= jsonSchemaVersions.getServerVersion());
     }
 
-    private static void setSchemaVersions(ApplicationJson applicationJson) {
+    /**
+     * This is a temporary check which is being placed for the compatibility of server versions in scenarios
+     * where user is moving a json from an instance which has
+     * release_autocommit_feature_enabled true to an instance which has the flag as false. In that case the server
+     * version number of json would be 8 and in new instance it would be not compatible.
+     * @param applicationJson
+     * @return
+     */
+    private boolean isAutocommitVersionBump(ApplicationJson applicationJson) {
+        return jsonSchemaVersions.getServerVersion() == 7 && applicationJson.getServerSchemaVersion() == 8;
+    }
+
+    private void setSchemaVersions(ApplicationJson applicationJson) {
         applicationJson.setServerSchemaVersion(getCorrectSchemaVersion(applicationJson.getServerSchemaVersion()));
         applicationJson.setClientSchemaVersion(getCorrectSchemaVersion(applicationJson.getClientSchemaVersion()));
     }
 
-    private static Integer getCorrectSchemaVersion(Integer schemaVersion) {
+    private Integer getCorrectSchemaVersion(Integer schemaVersion) {
         return schemaVersion == null ? 0 : schemaVersion;
     }
 
@@ -52,6 +66,10 @@ public class JsonSchemaMigration {
                         return migrateServerSchema(applicationJson);
                     }
 
+                    if (isAutocommitVersionBump(applicationJson)) {
+                        return migrateServerSchema(applicationJson);
+                    }
+
                     return null;
                 })
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON)));
@@ -64,7 +82,7 @@ public class JsonSchemaMigration {
      * @return transformed artifact exchange json
      */
     @Deprecated
-    public static ArtifactExchangeJson migrateArtifactToLatestSchema(ArtifactExchangeJson artifactExchangeJson) {
+    public ArtifactExchangeJson migrateArtifactToLatestSchema(ArtifactExchangeJson artifactExchangeJson) {
 
         if (!ArtifactType.APPLICATION.equals(artifactExchangeJson.getArtifactJsonType())) {
             return artifactExchangeJson;
@@ -73,7 +91,9 @@ public class JsonSchemaMigration {
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
         setSchemaVersions(applicationJson);
         if (!isCompatible(applicationJson)) {
-            throw new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON);
+            if (!isAutocommitVersionBump(applicationJson)) {
+                throw new AppsmithException(AppsmithError.INCOMPATIBLE_IMPORTED_JSON);
+            }
         }
         return migrateServerSchema(applicationJson);
     }
@@ -83,8 +103,8 @@ public class JsonSchemaMigration {
      * @param applicationJson : applicationJson which needs to be transformed
      * @return : transformed applicationJson
      */
-    private static ApplicationJson migrateServerSchema(ApplicationJson applicationJson) {
-        if (JsonSchemaVersions.serverVersion.equals(applicationJson.getServerSchemaVersion())) {
+    private ApplicationJson migrateServerSchema(ApplicationJson applicationJson) {
+        if (jsonSchemaVersions.getServerVersion().equals(applicationJson.getServerSchemaVersion())) {
             // No need to run server side migration
             return applicationJson;
         }
@@ -127,6 +147,12 @@ public class JsonSchemaMigration {
             default:
                 // Unable to detect the serverSchema
         }
+
+        if (applicationJson.getServerSchemaVersion().equals(jsonSchemaVersions.getServerVersion())) {
+            return applicationJson;
+        }
+
+        applicationJson.setServerSchemaVersion(jsonSchemaVersions.getServerVersion());
         return applicationJson;
     }
 }

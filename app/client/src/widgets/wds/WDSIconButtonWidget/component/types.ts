@@ -1,15 +1,9 @@
-import type { IconButtonProps, IconProps } from "@design-system/widgets";
+import type { IconButtonProps } from "@design-system/widgets";
 
-export interface IconButtonComponentProps {
+export interface IconButtonComponentProps extends IconButtonProps {
   tooltip?: string;
   visuallyDisabled?: boolean;
   isLoading: boolean;
-  iconName?: IconProps["name"];
+  iconName?: IconButtonProps["icon"];
   isDisabled?: boolean;
-  variant?: IconButtonProps["variant"];
-  color?: IconButtonProps["color"];
-  onPress?: IconButtonProps["onPress"];
-  minWidth?: number;
-  maxWidth?: number;
-  minHeight?: number;
 }

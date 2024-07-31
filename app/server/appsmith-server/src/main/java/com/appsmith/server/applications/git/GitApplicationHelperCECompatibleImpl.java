@@ -6,6 +6,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Service;
 public class GitApplicationHelperCECompatibleImpl extends GitApplicationHelperCEImpl
         implements GitArtifactHelperCECompatible<Application> {
     public GitApplicationHelperCECompatibleImpl(
-            CommonGitFileUtils gitFileUtils,
+            CommonGitFileUtils commonGitFileUtils,
             GitPrivateRepoHelper gitPrivateRepoHelper,
             ApplicationService applicationService,
             ApplicationPageService applicationPageService,
@@ -27,9 +28,10 @@ public class GitApplicationHelperCECompatibleImpl extends GitApplicationHelperCE
             NewPageService newPageService,
             ActionCollectionService actionCollectionService,
             NewActionService newActionService,
-            ResponseUtils responseUtils) {
+            ResponseUtils responseUtils,
+            JsonSchemaVersions jsonSchemaVersions) {
         super(
-                gitFileUtils,
+                commonGitFileUtils,
                 gitPrivateRepoHelper,
                 applicationService,
                 applicationPageService,
@@ -37,6 +39,7 @@ public class GitApplicationHelperCECompatibleImpl extends GitApplicationHelperCE
                 newPageService,
                 actionCollectionService,
                 newActionService,
-                responseUtils);
+                responseUtils,
+                jsonSchemaVersions);
     }
 }

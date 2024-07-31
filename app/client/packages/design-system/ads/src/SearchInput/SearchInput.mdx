@@ -1,0 +1,37 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as SearchInputStories from "./SearchInput.stories";
+
+<Meta of={SearchInputStories} />
+
+Overview
+
+Anatomy
+
+# Design Documentation: Search Input
+
+## Overview
+
+A search component allows users to search for specific content within a website or application, typically consisting of a text input field. It should be prominently displayed and provide feedback to users when a search query returns no results.
+
+## Anatomy
+
+![Screenshot 2023-07-10 at 10.52.35 AM.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/f342ca47-bd9f-421e-91c6-9d11133cd10c/Screenshot_2023-07-10_at_10.52.35_AM.png)
+
+### States
+
+Default, Hover, Active, Entered-and-in-focus, entered-no-focus
+
+![Screenshot 2023-07-10 at 10.55.19 AM.png](https://s3-us-west-2.amazonaws.com/secure.notion-static.com/3c351d97-6db9-4c1d-a05d-54489ead0cf4/Screenshot_2023-07-10_at_10.55.19_AM.png)
+
+## Usage Guidelines
+
+- The search input component should be prominently displayed on the page, preferably in the header, navigation bar, under select component
+- The text input field should have a placeholder text that indicates the type of content that can be searched, such as "Search datasources" or "Search queries".
+- The search input component should provide feedback to users when a search query returns no results. This feedback can be in the form of a message or an animation.
+
+The search feature fills the screen for a thorough experience. Suggestions from previous searches can be displayed below the text field. Users can search by typing a query or choosing from suggestions.
+
+Pressing Return submits the query and results appear below the bar.
+
+To exit and hide suggestions, tap the Up arrow. _(To check if this is right)_

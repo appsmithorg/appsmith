@@ -36,7 +36,6 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,7 +44,6 @@ import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -63,7 +61,6 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.constants.CommonConstants.EVALUATION_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ExtendWith(SpringExtension.class)
 @SpringBootTest
 @Slf4j
 @DirtiesContext
@@ -122,7 +119,6 @@ public class LayoutServiceTest {
     @BeforeEach
     public void setup() {
         User currentUser = sessionUserService.getCurrentUser().block();
-        purgeAllPages();
         User apiUser = userService.findByEmail("api_user").block();
         Workspace toCreate = new Workspace();
         toCreate.setName("LayoutServiceTest");
@@ -132,6 +128,7 @@ public class LayoutServiceTest {
 
         Workspace workspace =
                 workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
+        assertThat(workspace).isNotNull();
         workspaceId = workspace.getId();
         Set<String> afterCreatingWorkspace =
                 cacheableRepositoryHelper.getPermissionGroupsOfUser(currentUser).block();
@@ -140,6 +137,7 @@ public class LayoutServiceTest {
         log.info("Workspace ID: {}", workspaceId);
         log.info("Workspace Role Ids: {}", workspace.getDefaultPermissionGroups());
         log.info("Policy for created Workspace: {}", workspace.getPolicies());
+        assertThat(currentUser).isNotNull();
         log.info("Current User ID: {}", currentUser.getId());
 
         datasource = new Datasource();
@@ -149,78 +147,18 @@ public class LayoutServiceTest {
                 pluginRepository.findByPackageName("installed-plugin").block();
         installedJsPlugin =
                 pluginRepository.findByPackageName("installed-js-plugin").block();
+        assertThat(installedPlugin).isNotNull();
         datasource.setPluginId(installedPlugin.getId());
     }
 
     @AfterEach
     public void cleanup() {
-        List<Application> deletedApplications = applicationService
+        applicationService
                 .findByWorkspaceId(workspaceId, applicationPermission.getDeletePermission())
                 .flatMap(remainingApplication -> applicationPageService.deleteApplication(remainingApplication.getId()))
                 .collectList()
                 .block();
-        Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
-    }
-
-    private void purgeAllPages() {
-        newPageService.deleteAll();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void createLayoutWithNullPageId() {
-        Layout layout = new Layout();
-        Mono<Layout> layoutMono = layoutService.createLayout(null, layout);
-        StepVerifier.create(layoutMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID)))
-                .verify();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void createLayoutWithInvalidPageID() {
-        Layout layout = new Layout();
-        String pageId = "Some random ID which can never be a page's ID";
-        Mono<Layout> layoutMono = layoutService.createLayout(pageId, layout);
-        StepVerifier.create(layoutMono)
-                .expectErrorMatches(throwable -> throwable instanceof AppsmithException
-                        && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.PAGE_ID)))
-                .verify();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void createValidLayout() {
-        PageDTO testPage = new PageDTO();
-        testPage.setName("createLayoutPageName");
-
-        Application application = new Application();
-        application.setName("createValidLayout-Test-Application");
-        Mono<Application> applicationMono = applicationPageService.createApplication(application, workspaceId);
-
-        Mono<PageDTO> pageMono = applicationMono
-                .switchIfEmpty(Mono.error(new Exception("No application found")))
-                .map(app -> {
-                    testPage.setApplicationId(app.getId());
-                    return testPage;
-                })
-                .flatMap(applicationPageService::createPage);
-
-        Layout testLayout = new Layout();
-        JSONObject obj = new JSONObject();
-        obj.put("key1", "value1");
-        testLayout.setDsl(obj);
-
-        Mono<Layout> layoutMono = pageMono.flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
-
-        StepVerifier.create(layoutMono)
-                .assertNext(layout -> {
-                    assertThat(layout).isNotNull();
-                    assertThat(layout.getId()).isNotNull();
-                    assertThat(layout.getDsl()).isEqualTo(obj);
-                })
-                .verifyComplete();
+        workspaceService.archiveById(workspaceId).block();
     }
 
     private Mono<PageDTO> createPage(Application app, PageDTO page) {
@@ -253,11 +191,11 @@ public class LayoutServiceTest {
         app.setName("newApplication-updateLayoutInvalidPageId-Test");
         PageDTO page = createPage(app, testPage).block();
 
-        Layout startLayout =
-                layoutService.createLayout(page.getId(), testLayout).block();
+        assertThat(page).isNotNull();
+        final String layoutId = page.getLayouts().get(0).getId();
 
         Mono<LayoutDTO> updatedLayoutMono = updateLayoutService.updateLayout(
-                "random-impossible-id-page", page.getApplicationId(), startLayout.getId(), updateLayout);
+                "random-impossible-id-page", page.getApplicationId(), layoutId, updateLayout);
 
         StepVerifier.create(updatedLayoutMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -265,7 +203,7 @@ public class LayoutServiceTest {
                                 .getMessage()
                                 .equals(AppsmithError.ACL_NO_RESOURCE_FOUND.getMessage(
                                         FieldName.PAGE_ID + " or " + FieldName.LAYOUT_ID,
-                                        "random-impossible-id-page" + ", " + startLayout.getId())))
+                                        "random-impossible-id-page" + ", " + layoutId)))
                 .verify();
     }
 
@@ -289,11 +227,11 @@ public class LayoutServiceTest {
         app.setName("newApplication-updateLayoutInvalidPageId-Test");
         PageDTO page = createPage(app, testPage).block();
 
-        Layout startLayout =
-                layoutService.createLayout(page.getId(), testLayout).block();
+        assertThat(page).isNotNull();
+        final String layoutId = page.getLayouts().get(0).getId();
 
-        Mono<LayoutDTO> updatedLayoutMono = updateLayoutService.updateLayout(
-                page.getId(), "random-impossible-id-app", startLayout.getId(), updateLayout);
+        Mono<LayoutDTO> updatedLayoutMono =
+                updateLayoutService.updateLayout(page.getId(), "random-impossible-id-app", layoutId, updateLayout);
 
         StepVerifier.create(updatedLayoutMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -307,16 +245,6 @@ public class LayoutServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void updateLayoutValidPageId() {
-        Layout testLayout = new Layout();
-        JSONObject obj = new JSONObject();
-        obj.put("key", "value");
-        testLayout.setDsl(obj);
-
-        Layout updateLayout = new Layout();
-        JSONObject obj1 = new JSONObject();
-        obj1.put("key1", "value-updated");
-        updateLayout.setDsl(obj);
-
         PageDTO testPage = new PageDTO();
         testPage.setName("LayoutServiceTest updateLayoutValidPageId");
 
@@ -325,28 +253,46 @@ public class LayoutServiceTest {
 
         Mono<PageDTO> pageMono = createPage(app, testPage).cache();
 
-        Mono<Layout> startLayoutMono = pageMono.flatMap(page -> layoutService.createLayout(page.getId(), testLayout));
-
-        Mono<LayoutDTO> updatedLayoutMono = Mono.zip(pageMono, startLayoutMono).flatMap(tuple -> {
-            PageDTO page = tuple.getT1();
-            Layout startLayout = tuple.getT2();
-            startLayout.setDsl(obj1);
+        Mono<LayoutDTO> updatedLayoutMono = pageMono.flatMap(page -> {
+            Layout firstLayout = new Layout();
+            firstLayout.setDsl(new JSONObject(Map.of("key", "value")));
             return updateLayoutService.updateLayout(
-                    page.getId(), page.getApplicationId(), startLayout.getId(), startLayout);
+                    page.getId(),
+                    page.getApplicationId(),
+                    page.getLayouts().get(0).getId(),
+                    firstLayout);
         });
 
         StepVerifier.create(updatedLayoutMono)
                 .assertNext(layout -> {
                     assertThat(layout).isNotNull();
                     assertThat(layout.getId()).isNotNull();
-                    assertThat(layout.getDsl()).isEqualTo(obj1);
+                    assertThat(layout.getDsl()).containsExactlyEntriesOf(Map.of("key", "value"));
+                })
+                .verifyComplete();
+
+        Mono<LayoutDTO> updatedLayoutMono2 = pageMono.flatMap(page -> {
+            Layout secondLayout = new Layout();
+            secondLayout.setDsl(new JSONObject(Map.of("key-new", "value-new")));
+            return updateLayoutService.updateLayout(
+                    page.getId(),
+                    page.getApplicationId(),
+                    page.getLayouts().get(0).getId(),
+                    secondLayout);
+        });
+
+        StepVerifier.create(updatedLayoutMono2)
+                .assertNext(layout -> {
+                    assertThat(layout).isNotNull();
+                    assertThat(layout.getId()).isNotNull();
+                    assertThat(layout.getDsl()).containsExactlyEntriesOf(Map.of("key-new", "value-new"));
                 })
                 .verifyComplete();
     }
 
     private Mono<LayoutDTO> createComplexAppForExecuteOnLoad(Mono<PageDTO> pageMono) {
 
-        Mono<LayoutDTO> testMono = pageMono.flatMap(page1 -> {
+        return pageMono.flatMap(page1 -> {
                     List<Mono<ActionDTO>> monos = new ArrayList<>();
 
                     // Create a GET API Action
@@ -562,17 +508,8 @@ public class LayoutServiceTest {
 
                     return Mono.zip(monos, objects -> page1);
                 })
-                .zipWhen(page1 -> {
-                    Layout layout = new Layout();
-
-                    JSONObject obj = new JSONObject(Map.of("key", "value"));
-                    layout.setDsl(obj);
-
-                    return layoutService.createLayout(page1.getId(), layout);
-                })
-                .flatMap(tuple2 -> {
-                    final PageDTO page1 = tuple2.getT1();
-                    final Layout layout = tuple2.getT2();
+                .flatMap(page1 -> {
+                    final Layout layout = page1.getLayouts().get(0);
 
                     Layout newLayout = new Layout();
 
@@ -586,14 +523,17 @@ public class LayoutServiceTest {
                             "dynamicGet",
                             "some dynamic {{\"anIgnoredAction.data:\" + aGetAction.data}}",
                             "dynamicPost",
-                            "some dynamic {{\n" + "(function(ignoredAction1){\n"
-                                    + "\tlet a = ignoredAction1.data\n"
-                                    + "\tlet ignoredAction2 = { data: \"nothing\" }\n"
-                                    + "\tlet b = ignoredAction2.data\n"
-                                    + "\tlet c = \"ignoredAction3.data\"\n"
-                                    + "\t// ignoredAction4.data\n"
-                                    + "\treturn aPostAction.data\n"
-                                    + "})(anotherPostAction.data)}}",
+                            """
+                                some dynamic {{
+                                (function(ignoredAction1){
+                                \tlet a = ignoredAction1.data
+                                \tlet ignoredAction2 = { data: "nothing" }
+                                \tlet b = ignoredAction2.data
+                                \tlet c = "ignoredAction3.data"
+                                \t// ignoredAction4.data
+                                \treturn aPostAction.data
+                                })(anotherPostAction.data)}}
+                                """,
                             "dynamicPostWithAutoExec",
                             "some dynamic {{aPostActionWithAutoExec.data}}",
                             "dynamicDelete",
@@ -631,13 +571,11 @@ public class LayoutServiceTest {
                     return updateLayoutService.updateLayout(
                             page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
                 });
-
-        return testMono;
     }
 
     private Mono<LayoutDTO> createAppWithAllTypesOfReferencesForExecuteOnLoad(Mono<PageDTO> pageMono) {
 
-        Mono<LayoutDTO> testMono = pageMono.flatMap(page1 -> {
+        return pageMono.flatMap(page1 -> {
                     List<Mono<ActionDTO>> monos = new ArrayList<>();
 
                     // Create a GET API Action for : aGetAction.data
@@ -796,17 +734,8 @@ public class LayoutServiceTest {
 
                     return Mono.zip(monos, objects -> page1);
                 })
-                .zipWhen(page1 -> {
-                    Layout layout = new Layout();
-
-                    JSONObject obj = new JSONObject(Map.of("key", "value"));
-                    layout.setDsl(obj);
-
-                    return layoutService.createLayout(page1.getId(), layout);
-                })
-                .flatMap(tuple2 -> {
-                    final PageDTO page1 = tuple2.getT1();
-                    final Layout layout = tuple2.getT2();
+                .flatMap(page1 -> {
+                    final Layout layout = page1.getLayouts().get(0);
 
                     Layout newLayout = new Layout();
 
@@ -840,8 +769,6 @@ public class LayoutServiceTest {
                     return updateLayoutService.updateLayout(
                             page1.getId(), page1.getApplicationId(), layout.getId(), newLayout);
                 });
-
-        return testMono;
     }
 
     @Test
@@ -954,12 +881,10 @@ public class LayoutServiceTest {
                 })
                 .verifyComplete();
 
-        Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
-            return newActionService
-                    .findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
-                    .zipWith(newActionService.findByUnpublishedNameAndPageId(
-                            "hiddenAction3", page.getId(), AclPermission.MANAGE_ACTIONS));
-        });
+        Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> newActionService
+                .findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
+                .zipWith(newActionService.findByUnpublishedNameAndPageId(
+                        "hiddenAction3", page.getId(), AclPermission.MANAGE_ACTIONS)));
 
         StepVerifier.create(actionDTOMono)
                 .assertNext(tuple -> {
@@ -1001,13 +926,16 @@ public class LayoutServiceTest {
                         List.of("\"anIgnoredAction.data:\" + aGetAction.data"), EVALUATION_VERSION))
                 .thenReturn(Flux.just(Tuples.of(
                         "\"anIgnoredAction.data:\" + aGetAction.data", new HashSet<>(Set.of("aGetAction.data")))));
-        String bindingValue = "\n(function(ignoredAction1){\n" + "\tlet a = ignoredAction1.data\n"
-                + "\tlet ignoredAction2 = { data: \"nothing\" }\n"
-                + "\tlet b = ignoredAction2.data\n"
-                + "\tlet c = \"ignoredAction3.data\"\n"
-                + "\t// ignoredAction4.data\n"
-                + "\treturn aPostAction.data\n"
-                + "})(anotherPostAction.data)";
+        String bindingValue = "\n"
+                + """
+            (function(ignoredAction1){
+            \tlet a = ignoredAction1.data
+            \tlet ignoredAction2 = { data: "nothing" }
+            \tlet b = ignoredAction2.data
+            \tlet c = "ignoredAction3.data"
+            \t// ignoredAction4.data
+            \treturn aPostAction.data
+            })(anotherPostAction.data)""";
         Mockito.when(astService.getPossibleReferencesFromDynamicBinding(List.of(bindingValue), EVALUATION_VERSION))
                 .thenReturn(Flux.just(
                         Tuples.of(bindingValue, new HashSet<>(Set.of("aPostAction.data", "anotherPostAction.data")))));
@@ -1117,12 +1045,10 @@ public class LayoutServiceTest {
                 })
                 .verifyComplete();
 
-        Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
-            return newActionService
-                    .findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
-                    .zipWith(newActionService.findByUnpublishedNameAndPageId(
-                            "ignoredAction1", page.getId(), AclPermission.MANAGE_ACTIONS));
-        });
+        Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> newActionService
+                .findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
+                .zipWith(newActionService.findByUnpublishedNameAndPageId(
+                        "ignoredAction1", page.getId(), AclPermission.MANAGE_ACTIONS)));
 
         StepVerifier.create(actionDTOMono)
                 .assertNext(tuple -> {
@@ -1217,12 +1143,10 @@ public class LayoutServiceTest {
                 })
                 .verifyComplete();
 
-        Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> {
-            return newActionService
-                    .findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
-                    .zipWith(newActionService.findByUnpublishedNameAndPageId(
-                            "ignoredAction1", page.getId(), AclPermission.MANAGE_ACTIONS));
-        });
+        Mono<Tuple2<ActionDTO, ActionDTO>> actionDTOMono = pageMono.flatMap(page -> newActionService
+                .findByUnpublishedNameAndPageId("aGetAction", page.getId(), AclPermission.MANAGE_ACTIONS)
+                .zipWith(newActionService.findByUnpublishedNameAndPageId(
+                        "ignoredAction1", page.getId(), AclPermission.MANAGE_ACTIONS)));
 
         StepVerifier.create(actionDTOMono)
                 .assertNext(tuple -> {
@@ -1245,34 +1169,22 @@ public class LayoutServiceTest {
         app.setName("newApplication-testIncorrectDynamicBinding-Test");
 
         PageDTO page = createPage(app, testPage).block();
+        assertThat(page).isNotNull();
         String pageId = page.getId();
         final AtomicReference<String> layoutId = new AtomicReference<>();
 
         Mono<LayoutDTO> testMono = Mono.just(page)
                 .flatMap(page1 -> {
-                    List<Mono<ActionDTO>> monos = new ArrayList<>();
-
                     ActionDTO action = new ActionDTO();
                     action.setName("aGetAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(layoutActionService.createSingleAction(action, Boolean.FALSE));
-
-                    return Mono.zip(monos, objects -> page1);
+                    return layoutActionService.createSingleAction(action, false).thenReturn(page1);
                 })
-                .zipWhen(page1 -> {
-                    Layout layout = new Layout();
-
-                    JSONObject obj = new JSONObject(Map.of("key", "value"));
-                    layout.setDsl(obj);
-
-                    return layoutService.createLayout(page1.getId(), layout);
-                })
-                .flatMap(tuple2 -> {
-                    final PageDTO page1 = tuple2.getT1();
-                    final Layout layout = tuple2.getT2();
+                .flatMap(page1 -> {
+                    final Layout layout = page1.getLayouts().get(0);
                     layoutId.set(layout.getId());
 
                     Layout newLayout = new Layout();
@@ -1334,33 +1246,18 @@ public class LayoutServiceTest {
         Application app = new Application();
         app.setName("newApplication-testIncorrectMustacheExpressionInBinding-Test");
 
-        PageDTO page = createPage(app, testPage).block();
-
-        Mono<LayoutDTO> testMono = Mono.just(page)
+        Mono<LayoutDTO> testMono = createPage(app, testPage)
                 .flatMap(page1 -> {
-                    List<Mono<ActionDTO>> monos = new ArrayList<>();
-
                     ActionDTO action = new ActionDTO();
                     action.setName("aGetAction");
                     action.setActionConfiguration(new ActionConfiguration());
                     action.getActionConfiguration().setHttpMethod(HttpMethod.GET);
                     action.setPageId(page1.getId());
                     action.setDatasource(datasource);
-                    monos.add(layoutActionService.createSingleAction(action, Boolean.FALSE));
-
-                    return Mono.zip(monos, objects -> page1);
+                    return layoutActionService.createSingleAction(action, false).thenReturn(page1);
                 })
-                .zipWhen(page1 -> {
-                    Layout layout = new Layout();
-
-                    JSONObject obj = new JSONObject(Map.of("key", "value"));
-                    layout.setDsl(obj);
-
-                    return layoutService.createLayout(page1.getId(), layout);
-                })
-                .flatMap(tuple2 -> {
-                    final PageDTO page1 = tuple2.getT1();
-                    final Layout layout = tuple2.getT2();
+                .flatMap(page1 -> {
+                    final Layout layout = page1.getLayouts().get(0);
 
                     Layout newLayout = new Layout();
 
@@ -1392,6 +1289,6 @@ public class LayoutServiceTest {
 
     @AfterEach
     public void purgePages() {
-        newPageService.deleteAll();
+        newPageService.deleteAll().block();
     }
 }
