@@ -36,7 +36,7 @@ export const migrateJsonFormWidgetLabelPositonAndAlignment = (
               childField.alignWidget = "LEFT";
               field.children[childKey] = {
                 ...childField,
-                labelPosition: "left",
+                labelPosition: "Left",
               };
             }
           });
