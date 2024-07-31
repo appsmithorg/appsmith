@@ -3,7 +3,7 @@ import EditableText, {
 } from "components/editorComponents/EditableText";
 import { Colors } from "constants/Colors";
 
-import React, { forwardRef, useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import { isEllipsisActive, removeSpecialChars } from "utils/helpers";
 
@@ -45,8 +45,8 @@ const Wrapper = styled.div`
 
 const EditableWrapper = styled.div`
   overflow: hidden;
-  margin: 0 ${(props) => props.theme.spaces[1]}px;
-  padding: ${(props) => props.theme.spaces[3] + 1}px 0;
+  margin: 0 ${({ theme }) => theme.spaces[1]}px;
+  padding: ${({ theme }) => theme.spaces[3] + 1}px 0;
   line-height: 13px;
 `;
 
@@ -78,120 +78,127 @@ export const replace = (
 };
 
 export interface EntityNameProps {
-  name: string;
-  isEditing?: boolean;
-  onChange?: (name: string) => void;
-  updateEntityName: (name: string) => void;
-  entityId: string;
-  searchKeyword?: string;
   className?: string;
   enterEditMode: () => void;
+  entityId: string;
   exitEditMode: () => void;
-  nameTransformFn?: (input: string, limit?: number) => string;
   isBeta?: boolean;
+  isEditing?: boolean;
+  name: string;
+  nameTransformFn?: (input: string, limit?: number) => string;
+  onChange?: (name: string) => void;
+  onClick: (e: React.MouseEvent) => void;
+  searchKeyword?: string;
+  updateEntityName: (name: string) => void;
 }
-export const EntityName = React.memo(
-  forwardRef((props: EntityNameProps, ref: React.Ref<HTMLDivElement>) => {
-    const { name, searchKeyword, updateEntityName } = props;
-    const [updatedName, setUpdatedName] = useState(name);
+export const EntityName = React.memo((props: EntityNameProps) => {
+  const {
+    className,
+    enterEditMode,
+    entityId,
+    exitEditMode,
+    isEditing,
+    name,
+    nameTransformFn,
+    onClick,
+    searchKeyword,
+    updateEntityName,
+  } = props;
 
-    const handleUpdateName = ({ name }: { name: string }) =>
-      updateEntityName(name);
+  const [updatedName, setUpdatedName] = useState(name);
 
-    useEffect(() => {
-      setUpdatedName(name);
-    }, [name, setUpdatedName]);
+  const handleUpdateName = ({ name }: { name: string }) =>
+    updateEntityName(name);
 
-    // Check to show tooltip on hover
-    const nameWrapperRef = useRef<HTMLDivElement | null>(null);
-    const [showTooltip, setShowTooltip] = useState(false);
-    useEffect(() => {
-      setShowTooltip(!!isEllipsisActive(nameWrapperRef.current));
-    }, [updatedName, name]);
+  useEffect(() => {
+    setUpdatedName(name);
+  }, [name, setUpdatedName]);
 
-    const searchHighlightedName = useMemo(() => {
-      if (searchKeyword) {
-        const regex = new RegExp(searchKeyword, "gi");
-        const delimited = updatedName.replace(regex, function (str) {
-          return (
-            searchTokenizationDelimiter + str + searchTokenizationDelimiter
-          );
-        });
+  // Check to show tooltip on hover
+  const nameWrapperRef = useRef<HTMLDivElement | null>(null);
+  const [showTooltip, setShowTooltip] = useState(false);
+  useEffect(() => {
+    setShowTooltip(!!isEllipsisActive(nameWrapperRef.current));
+  }, [updatedName, name]);
 
-        const final = replace(
-          delimited,
-          searchTokenizationDelimiter,
-          searchHighlightSpanClassName,
-        );
-        return final;
-      }
-      return updatedName;
-    }, [searchKeyword, updatedName]);
+  const searchHighlightedName = useMemo(() => {
+    if (searchKeyword) {
+      const regex = new RegExp(searchKeyword, "gi");
+      const delimited = updatedName.replace(regex, function (str) {
+        return searchTokenizationDelimiter + str + searchTokenizationDelimiter;
+      });
 
-    const saveStatus = useSelector((state) =>
-      getSavingStatusForActionName(state, props.entityId || ""),
-    );
-
-    if (!props.isEditing)
-      return (
-        <Container ref={ref}>
-          <Tooltip
-            content={updatedName}
-            isDisabled={!showTooltip}
-            mouseEnterDelay={TOOLTIP_HOVER_ON_DELAY_IN_S}
-            placement="topLeft"
-            showArrow={false}
-            {...(!showTooltip ? { visible: false } : {})}
-          >
-            <Wrapper
-              className={`${
-                props.className ? props.className : ""
-              } ContextMenu`}
-              onDoubleClick={props.enterEditMode}
-              ref={nameWrapperRef}
-            >
-              {searchHighlightedName}
-            </Wrapper>
-          </Tooltip>
-        </Container>
+      const final = replace(
+        delimited,
+        searchTokenizationDelimiter,
+        searchHighlightSpanClassName,
       );
+      return final;
+    }
+    return updatedName;
+  }, [searchKeyword, updatedName]);
 
+  const saveStatus = useSelector((state) =>
+    getSavingStatusForActionName(state, entityId || ""),
+  );
+
+  if (!isEditing)
     return (
-      <NameEditorComponent
-        dispatchAction={handleUpdateName}
-        id={props.entityId}
-        idUndefinedErrorMessage={ACTION_ID_NOT_FOUND_IN_URL}
-        name={updatedName}
-        saveStatus={saveStatus}
-        suffixErrorMessage={ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR}
-      >
-        {({
-          handleNameChange,
-          isInvalidNameForEntity,
-        }: {
-          handleNameChange: (value: string) => void;
-          isInvalidNameForEntity: (value: string) => string | boolean;
-        }) => (
-          <EditableWrapper>
-            <EditableText
-              className={`${props.className} editing`}
-              defaultValue={updatedName}
-              editInteractionKind={EditInteractionKind.SINGLE}
-              isEditingDefault
-              isInvalid={isInvalidNameForEntity}
-              minimal
-              onBlur={props.exitEditMode}
-              onTextChanged={handleNameChange}
-              placeholder="Name"
-              type="text"
-              valueTransform={props.nameTransformFn || removeSpecialChars}
-            />
-          </EditableWrapper>
-        )}
-      </NameEditorComponent>
+      <Container onClick={onClick}>
+        <Tooltip
+          content={updatedName}
+          isDisabled={!showTooltip}
+          mouseEnterDelay={TOOLTIP_HOVER_ON_DELAY_IN_S}
+          placement="topLeft"
+          showArrow={false}
+          {...(!showTooltip ? { visible: false } : {})}
+        >
+          <Wrapper
+            className={`${className ? className : ""} ContextMenu`}
+            onDoubleClick={enterEditMode}
+            ref={nameWrapperRef}
+          >
+            {searchHighlightedName}
+          </Wrapper>
+        </Tooltip>
+      </Container>
     );
-  }),
-);
+
+  return (
+    <NameEditorComponent
+      dispatchAction={handleUpdateName}
+      id={entityId}
+      idUndefinedErrorMessage={ACTION_ID_NOT_FOUND_IN_URL}
+      name={updatedName}
+      saveStatus={saveStatus}
+      suffixErrorMessage={ENTITY_EXPLORER_ACTION_NAME_CONFLICT_ERROR}
+    >
+      {({
+        handleNameChange,
+        isInvalidNameForEntity,
+      }: {
+        handleNameChange: (value: string) => void;
+        isInvalidNameForEntity: (value: string) => string | boolean;
+      }) => (
+        <EditableWrapper>
+          <EditableText
+            className={`${className} editing`}
+            defaultValue={updatedName}
+            editInteractionKind={EditInteractionKind.SINGLE}
+            isEditingDefault
+            isInvalid={isInvalidNameForEntity}
+            minimal
+            onBlur={exitEditMode}
+            onTextChanged={handleNameChange}
+            placeholder="Name"
+            type="text"
+            valueTransform={nameTransformFn || removeSpecialChars}
+          />
+        </EditableWrapper>
+      )}
+    </NameEditorComponent>
+  );
+});
 
 EntityName.displayName = "EntityName";
 

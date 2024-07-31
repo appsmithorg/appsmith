@@ -64,7 +64,7 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
 
   return (
     <Entity
-      addButtonHelptext={createMessage(ADD_WIDGET_TOOLTIP)}
+      addButtonHelpText={createMessage(ADD_WIDGET_TOOLTIP)}
       canEditEntityName={canManagePages}
       className={`group widgets ${props.addWidgetsFn ? "current" : ""}`}
       disabled={!widgets && !!props.searchKeyword}
