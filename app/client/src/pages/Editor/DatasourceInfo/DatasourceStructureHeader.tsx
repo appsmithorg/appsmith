@@ -72,6 +72,8 @@ export default function DatasourceStructureHeader(props: Props) {
         className="datasourceStructure-refresh"
         isIconButton
         kind="tertiary"
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onClick={(event: any) => dispatchRefresh(event)}
         size="md"
         startIcon="refresh"

@@ -5,6 +5,8 @@ import { collabSetAppEditors } from "actions/appCollabActions";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { handleVersionUpdate } from "./versionUpdatePrompt";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function* handleAppLevelSocketEvents(event: any) {
   switch (event.type) {
     // Collab V2 - Realtime Editing

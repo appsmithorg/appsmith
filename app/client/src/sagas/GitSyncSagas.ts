@@ -265,6 +265,8 @@ function* connectToGitSaga(action: ConnectToGitReduxAction) {
       }
       /* commit effect END */
     }
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     if (action.onErrorCallback) {
       action.onErrorCallback(error as Error, response);
@@ -834,6 +836,8 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
             showReconnectDatasourceModal({
               // @ts-expect-error: Type mismatch
               application: response?.data?.application,
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               unConfiguredDatasourceList: (response as any)?.data
                 .unConfiguredDatasourceList,
               workspaceId: workspaceIdForImport,
@@ -949,6 +953,8 @@ export function* generateSSHKeyPairSaga(action: GenerateSSHKeyPairReduxAction) {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* deleteBranch({ payload }: ReduxAction<any>) {
   yield put(deletingBranch(payload));
   const { branchToDelete } = payload;
@@ -996,6 +1002,8 @@ function* discardChanges({
       // adding delay to show toast animation before reloading
       yield delay(500);
       const basePageId: string =
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         response.data?.pages?.find((page: any) => page.isDefault)?.baseId || "";
       const branch = response.data.gitApplicationMetadata.branchName;
       window.open(builderURL({ basePageId, branch }), "_self");
@@ -1177,6 +1185,8 @@ function isAutocommitHappening(
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* pollAutocommitProgressSaga(): any {
   const applicationId: string = yield select(getCurrentApplicationId);
   const baseApplicationId: string = yield select(getCurrentBaseApplicationId);
@@ -1263,6 +1273,8 @@ function* triggerAutocommitSaga() {
 
 const gitRequestBlockingActions: Record<
   (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (...args: any[]) => any
 > = {
   [ReduxActionTypes.COMMIT_TO_GIT_REPO_INIT]: commitToGitRepoSaga,
@@ -1289,6 +1301,8 @@ const gitRequestBlockingActions: Record<
 
 const gitRequestNonBlockingActions: Record<
   (typeof ReduxActionTypes)[keyof typeof ReduxActionTypes],
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (...args: any[]) => any
 > = {
   ...gitExtendedSagas,

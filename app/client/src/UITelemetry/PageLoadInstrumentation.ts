@@ -295,6 +295,8 @@ export class PageLoadInstrumentation extends InstrumentationBase {
         encodedBodySize,
         entryType,
         fetchStart,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         firstInterimResponseStart: (entry as any).firstInterimResponseStart,
         initiatorType,
         nextHopProtocol,
@@ -308,6 +310,8 @@ export class PageLoadInstrumentation extends InstrumentationBase {
         transferSize,
         url,
         workerStart,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         renderBlockingStatus: (entry as any).renderBlockingStatus,
       },
       entry.startTime,

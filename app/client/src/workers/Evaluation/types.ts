@@ -19,10 +19,14 @@ import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
 import type { SpanAttributes } from "UITelemetry/generateTraces";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type EvalWorkerSyncRequest<T = any> = WorkerRequest<
   T,
   EVAL_WORKER_SYNC_ACTION
 >;
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type EvalWorkerASyncRequest<T = any> = WorkerRequest<
   T,
   EVAL_WORKER_ASYNC_ACTION
@@ -41,6 +45,8 @@ export interface EvalTreeRequestData {
   forceEvaluation: boolean;
   metaWidgets: MetaWidgetsReduxState;
   appMode?: APP_MODE;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   widgetsMeta: Record<string, any>;
   shouldRespondWithLogs?: boolean;
   affectedJSObjects: AffectedJSObjects;

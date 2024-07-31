@@ -43,7 +43,11 @@ export const Space = styled.div`
   height: 40px;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const validate = (values: any) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errors: any = {};
 
   if (!values.proficiency) {

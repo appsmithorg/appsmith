@@ -15,7 +15,11 @@ type Props = {
   clearCache: () => void;
 } & RouteComponentProps<{ basePageId: string; baseApplicationId?: string }>;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 class AppViewerLoader extends React.PureComponent<Props, { Page: any }> {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(props: any) {
     super(props);
 
@@ -62,6 +66,8 @@ class AppViewerLoader extends React.PureComponent<Props, { Page: any }> {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => {
   return {
     initAppViewer: (payload: InitAppViewerPayload) =>

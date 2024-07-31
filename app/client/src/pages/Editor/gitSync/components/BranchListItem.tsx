@@ -30,7 +30,8 @@ export function BranchListItem({
   isProtected,
   onClick,
   selected,
-  shouldScrollIntoView,
+  shouldScrollIntoView, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const itemRef = React.useRef<HTMLDivElement>(null);
   const [hover] = useHover(itemRef);

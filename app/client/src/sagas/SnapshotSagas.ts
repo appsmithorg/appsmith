@@ -69,6 +69,8 @@ export function* fetchSnapshotSaga() {
 
 //Saga to restore application snapshot
 function* restoreApplicationFromSnapshotSaga() {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let response: ApiResponse<any> | undefined;
   let appId = "";
   try {
@@ -121,6 +123,8 @@ function* restoreApplicationFromSnapshotSaga() {
         setLayoutConversionStateAction(CONVERSION_STATES.COMPLETED_SUCCESS),
       );
     }
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     let error: Error = e;
     if (error) {

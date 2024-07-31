@@ -308,6 +308,8 @@ export function* fetchAppAndPagesSaga(
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* handleFetchApplicationError(error: any) {
   const currentUser: User = yield select(getCurrentUser);
   if (
@@ -526,7 +528,11 @@ export function* createApplicationSaga(
     icon: IconNames;
     color: AppColorCode;
     workspaceId: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolve: any;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     reject: any;
   }>,
 ) {

@@ -205,8 +205,14 @@ export async function generateHashFromString(str: unknown) {
 }
 
 export function* getFromServerWhenNoPrefetchedResult(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   prefetchedResult?: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   apiEffect?: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   if (prefetchedResult) {
     if (prefetchedResult?.responseMeta?.error) {

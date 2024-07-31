@@ -46,6 +46,8 @@ class UsagePulse {
           (page) => page.basePageId === basePageId,
         )?.pageId;
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const response: any = await PageApi.fetchAppAndPages({
           pageId,
           mode: APP_MODE.PUBLISHED,

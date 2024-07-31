@@ -44,6 +44,8 @@ const Canvas = styled.canvas`
 
 const drawMousePointer = (
   idx: number,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ctx: any,
   x: number,
   y: number,
@@ -73,6 +75,8 @@ const drawMousePointer = (
 
 // This maps the `socketId` to pointerEventData for all concurrent users.
 interface PointerDataType {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [s: string]: any;
 }
 
@@ -81,6 +85,8 @@ function CanvasMultiPointerArena({ pageId }: { pageId: string }) {
   const animationStepIdRef = useRef<number>(0);
   const isWebsocketConnected = useSelector(getIsPageLevelSocketConnected);
   const currentGitBranch = useSelector(getCurrentGitBranch);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let selectionCanvas: any;
 
   // Setup for painting on canvas

@@ -207,6 +207,8 @@ export function* createDefaultActionPayload({
     datasource?.id,
   );
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const defaultActionConfig: any = getDefaultTemplateActionConfig(
     plugin,
     queryDefaultTableName,
@@ -249,8 +251,12 @@ export function* getPluginActionDefaultValues(pluginId: string) {
   if (!pluginId) {
     return;
   }
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const editorConfig: any[] = yield select(getEditorConfig, pluginId);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const settingConfig: any[] = yield select(getSettingConfig, pluginId);
 
   let initialValues: Record<string, unknown> = yield call(
@@ -274,6 +280,8 @@ export function* getPluginActionDefaultValues(pluginId: string) {
  */
 export function* createActionRequestSaga(
   actionPayload: ReduxAction<
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Partial<Action> & { eventData: any; pluginId: string }
   >,
 ) {
@@ -315,6 +323,8 @@ export function* createActionRequestSaga(
 
 export function* createActionSaga(
   actionPayload: ReduxAction<
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Partial<Action> & { eventData: any; pluginId: string }
   >,
 ) {
@@ -977,6 +987,8 @@ export function* setActionPropertySaga(
     ),
   );
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const effects: Record<string, any> = {};
   // Value change effect
   effects[propertyName] = value;

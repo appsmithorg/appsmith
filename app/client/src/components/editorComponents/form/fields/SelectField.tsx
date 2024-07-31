@@ -13,6 +13,8 @@ const renderComponent = (
   return <DropdownWrapper {...componentProps} />;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
 interface SelectFieldProps {
@@ -20,6 +22,8 @@ interface SelectFieldProps {
   isMultiSelect?: boolean;
   name: string;
   placeholder: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSelect?: (val: any, option: any) => void;
   options: Partial<SelectOptionProps>[];
   selected?: Partial<SelectOptionProps> | Partial<SelectOptionProps>[];

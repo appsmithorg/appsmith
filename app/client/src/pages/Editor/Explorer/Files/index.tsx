@@ -90,6 +90,8 @@ function Files() {
 
   const fileEntities = useMemo(
     () =>
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       files.map(({ entity, type }: any) => {
         if (type === "group") {
           return (
@@ -143,6 +145,8 @@ function Files() {
   );
 
   const handleClick = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (item: any) => {
       if (item.kind === SEARCH_ITEM_TYPES.sectionTitle) return;
       if (item.action) {

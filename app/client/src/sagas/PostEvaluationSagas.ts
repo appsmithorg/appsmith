@@ -63,6 +63,8 @@ export function* logJSVarCreatedEvent(
   });
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* dynamicTriggerErrorHandler(errors: any[]) {
   if (errors.length > 0) {
     for (const error of errors) {
@@ -233,6 +235,8 @@ export function* updateTernDefinitions(
 export function* handleJSFunctionExecutionErrorLog(
   action: JSAction,
   collection: JSCollection,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errors: any[],
 ) {
   const { id: collectionId, name: collectionName } = collection;

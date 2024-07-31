@@ -97,6 +97,8 @@ export const ManageUsersContainer = styled.div`
   padding: 12px 0;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function WorkspaceInviteUsers(props: any) {
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const userRef = React.createRef<HTMLDivElement>();
