@@ -1,3 +1,4 @@
+import type { AnimatedGridUnit } from "../types";
 import { resolveAreasVisibility } from "./resolveAreasVisibility";
 
 describe("resolveAreasVisibility", () => {
@@ -6,8 +7,8 @@ describe("resolveAreasVisibility", () => {
       "single row",
       {
         areas: [["sidebar", "left", "code", "canvas", "right"]],
-        columns: ["50px", "0fr", "1fr", "1fr", "0fr"],
-        rows: ["1fr"],
+        columns: ["50px", "0fr", "1fr", "1fr", "0fr"] as AnimatedGridUnit[],
+        rows: ["1fr"] as AnimatedGridUnit[],
         result: {
           sidebar: true,
           left: false,
@@ -24,8 +25,8 @@ describe("resolveAreasVisibility", () => {
           ["header", "header", "header", "header", "header"],
           ["sidebar", "left", "code", "canvas", "right"],
         ],
-        columns: ["50px", "0fr", "1fr", "1fr", "0fr"],
-        rows: ["0px", "1fr"],
+        columns: ["50px", "0fr", "1fr", "1fr", "0fr"] as AnimatedGridUnit[],
+        rows: ["0px", "1fr"] as AnimatedGridUnit[],
         result: {
           header: false,
           sidebar: true,
@@ -43,8 +44,8 @@ describe("resolveAreasVisibility", () => {
           ["header", "header", "header", "header", "header"],
           ["sidebar", "left", "code", "canvas", "right"],
         ],
-        columns: ["50px", "0fr", "1fr", "1fr", "0fr"],
-        rows: ["100px", "1fr"],
+        columns: ["50px", "0fr", "1fr", "1fr", "0fr"] as AnimatedGridUnit[],
+        rows: ["100px", "1fr"] as AnimatedGridUnit[],
         result: {
           header: true,
           sidebar: true,
@@ -63,8 +64,8 @@ describe("resolveAreasVisibility", () => {
           ["header", "header", "header", "header", "header"],
           ["sidebar", "left", "code", "canvas", "right"],
         ],
-        columns: ["0px", "0fr", "0fr", "1fr", "0fr"],
-        rows: ["100px", "1fr"],
+        columns: ["0px", "0fr", "0fr", "1fr", "0fr"] as AnimatedGridUnit[],
+        rows: ["100px", "1fr"] as AnimatedGridUnit[],
         result: {
           header: true,
           sidebar: false,
@@ -83,8 +84,8 @@ describe("resolveAreasVisibility", () => {
           ["header", "header", "header", "header", "header"],
           ["sidebar", "left", "code", "canvas", "right"],
         ],
-        columns: ["0px", "0fr", "0fr", "1fr", "0fr"],
-        rows: ["100px", "0"],
+        columns: ["0px", "0fr", "0fr", "1fr", "0fr"] as AnimatedGridUnit[],
+        rows: ["100px", "0"] as AnimatedGridUnit[],
         result: {
           header: true,
           sidebar: false,
@@ -103,8 +104,8 @@ describe("resolveAreasVisibility", () => {
           ["header", "header", "header", "header", "header"],
           ["sidebar", "left", "code", "canvas", "right"],
         ],
-        columns: [],
-        rows: [],
+        columns: [] as AnimatedGridUnit[],
+        rows: [] as AnimatedGridUnit[],
         result: {
           header: false,
           sidebar: false,

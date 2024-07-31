@@ -20,7 +20,7 @@ const Editor = () => {
   }
   return (
     <Flex
-      className="relative"
+      className="relative transition-all duration-150"
       flex={1}
       flexDirection="column"
       height="100%"
