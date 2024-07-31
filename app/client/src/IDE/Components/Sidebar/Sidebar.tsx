@@ -24,7 +24,6 @@ export interface IDESidebarButton
 }
 
 interface IDESidebarProps {
-  id?: string;
   topButtons: IDESidebarButton[];
   bottomButtons: IDESidebarButton[];
   editorState: EditorState;
@@ -35,7 +34,7 @@ function IDESidebar(props: IDESidebarProps) {
   const { bottomButtons, editorState, onClick, topButtons } = props;
 
   return (
-    <Container className="t--sidebar" id={props.id}>
+    <Container className="t--sidebar">
       <div>
         {topButtons.map((button) => (
           <SidebarButton
