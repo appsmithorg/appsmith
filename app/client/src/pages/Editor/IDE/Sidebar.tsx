@@ -65,6 +65,7 @@ function Sidebar() {
     <IDESidebar
       bottomButtons={BottomButtons}
       editorState={appState}
+      id={"t--app-sidebar"}
       onClick={onClick}
       topButtons={topButtons}
     />
