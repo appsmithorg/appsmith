@@ -61,6 +61,7 @@ export type TextViewProps = ViewProps & {
   additionalAutoComplete?: AdditionalDynamicDataTree;
   toolTip?: string;
   dataTreePath?: string | undefined;
+  isValueChanged?: (value: string) => boolean;
 };
 
 export type TabViewProps = Omit<ViewProps, "get" | "set"> & SwitcherProps;
