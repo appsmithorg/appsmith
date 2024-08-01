@@ -262,7 +262,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         if (params.getFirst(FieldName.PAGE_ID) != null) {
             pageId = params.getFirst(FieldName.PAGE_ID);
         }
-        return repository.findByPageIdAndViewMode(pageId, viewMode, actionPermission.getReadPermission());
+        return repository.findAllNonComposedByPageIdAndViewMode(pageId, viewMode, actionPermission.getReadPermission());
     }
 
     @Override

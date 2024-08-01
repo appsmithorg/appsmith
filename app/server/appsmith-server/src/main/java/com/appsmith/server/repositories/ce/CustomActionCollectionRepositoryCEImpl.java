@@ -138,6 +138,13 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     public Flux<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
+        final BridgeQuery<ActionCollection> query = getActionCollectionsByPageIdAndViewModeQuery(pageId, viewMode);
+
+        return queryBuilder().criteria(query).permission(permission).all();
+    }
+
+    protected BridgeQuery<ActionCollection> getActionCollectionsByPageIdAndViewModeQuery(
+            String pageId, boolean viewMode) {
         final BridgeQuery<ActionCollection> query = Bridge.query();
 
         if (Boolean.TRUE.equals(viewMode)) {
@@ -153,7 +160,12 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             // would exist. To handle this, only fetch non-deleted actions
             query.isNull(ActionCollection.Fields.unpublishedCollection_deletedAt);
         }
+        return query;
+    }
 
-        return queryBuilder().criteria(query).permission(permission).all();
+    @Override
+    public Flux<ActionCollection> findAllNonComposedByPageIdAndViewMode(
+            String pageId, boolean viewMode, AclPermission permission) {
+        return this.findByPageIdAndViewMode(pageId, viewMode, permission);
     }
 }
