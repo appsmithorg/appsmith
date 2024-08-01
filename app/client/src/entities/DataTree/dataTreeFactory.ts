@@ -1,4 +1,7 @@
-import { generateDataTreeAction } from "@appsmith/entities/DataTree/dataTreeAction";
+import {
+  generateDataTreeAction,
+  generateDataTreeQueryParam,
+} from "@appsmith/entities/DataTree/dataTreeAction";
 import { generateDataTreeJSAction } from "@appsmith/entities/DataTree/dataTreeJSAction";
 import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import log from "loglevel";
@@ -37,6 +40,7 @@ export class DataTreeFactory {
     moduleInputs,
     moduleInstanceEntities,
     moduleInstances,
+    params,
     pluginDependencyConfig,
     theme,
     widgets,
@@ -142,6 +146,11 @@ export class DataTreeFactory {
       dataTree[widget.widgetName] = unEvalEntity;
       configTree[widget.widgetName] = configEntity;
     });
+
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    dataTree["params"] = generateDataTreeQueryParam(params);
+
     const endMetaWidgets = performance.now();
     endSpan(metaWidgetsSpan);
     endSpan(rootSpan);

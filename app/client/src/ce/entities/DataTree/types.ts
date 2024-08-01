@@ -19,6 +19,7 @@ import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEn
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
+import type { QueryParamsReducerState } from "../../../reducers/entityReducers/queryParamsReducer";
 
 // TODO: Fix this the next time the file is edited
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -29,6 +30,7 @@ export const ENTITY_TYPE = {
   WIDGET: "WIDGET",
   APPSMITH: "APPSMITH",
   JSACTION: "JSACTION",
+  QUERY_PARAM: "QUERY_PARAM",
 } as const;
 export const JSACTION_TYPE = ENTITY_TYPE.JSACTION;
 export const ACTION_TYPE = ENTITY_TYPE.ACTION;
@@ -212,6 +214,7 @@ export interface DataTreeSeed {
   moduleInstanceEntities: any;
   layoutSystemType: LayoutSystemTypes;
   loadingEntities: LoadingEntitiesState;
+  params: QueryParamsReducerState;
 }
 
 export type DataTreeEntityConfig =

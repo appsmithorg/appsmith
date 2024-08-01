@@ -35,6 +35,7 @@ import {
   getCurrentWorkflowActions,
   getCurrentWorkflowJSActions,
 } from "@appsmith/selectors/workflowSelectors";
+import { getAllQueryParams } from "./QueryParamsSelector";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;
@@ -62,6 +63,7 @@ const getCurrentActionEntities = createSelector(
   getCurrentJSCollections,
   getCurrentModuleJSCollections,
   getCurrentWorkflowJSActions,
+  getAllQueryParams,
   (
     actions,
     moduleActions,
@@ -69,10 +71,12 @@ const getCurrentActionEntities = createSelector(
     jsActions,
     moduleJSActions,
     workflowJsActions,
+    queryParams,
   ) => {
     return {
       actions: [...actions, ...moduleActions, ...workflowActions],
       jsActions: [...jsActions, ...moduleJSActions, ...workflowJsActions],
+      params: queryParams,
     };
   },
 );

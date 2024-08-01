@@ -266,11 +266,9 @@ export const useEntityEditState = (entityId: string) => {
   );
 };
 
-export function useActiveActionBaseId() {
-  const location = useLocation();
+export const getActiveActionBaseId = (pathname: string) => {
   const path = basePathForActiveAction;
-
-  const baseMatch = matchPath<{ baseApiId: string }>(location.pathname, {
+  const baseMatch = matchPath<{ baseApiId: string }>(pathname, {
     path,
     strict: false,
     exact: false,
@@ -278,30 +276,35 @@ export function useActiveActionBaseId() {
 
   const basePath = baseMatch?.path || "";
 
-  const apiMatch = matchPath<{ baseApiId: string }>(location.pathname, {
+  const apiMatch = matchPath<{ baseApiId: string }>(pathname, {
     path: `${basePath}${API_EDITOR_ID_PATH}`,
   });
   if (apiMatch?.params?.baseApiId) {
     return apiMatch.params.baseApiId;
   }
-  const queryMatch = matchPath<{ baseQueryId: string }>(location.pathname, {
+  const queryMatch = matchPath<{ baseQueryId: string }>(pathname, {
     path: `${basePath}${QUERIES_EDITOR_ID_PATH}`,
   });
   if (queryMatch?.params?.baseQueryId) {
     return queryMatch.params.baseQueryId;
   }
-  const jsMatch = matchPath<{ baseCollectionId: string }>(location.pathname, {
+  const jsMatch = matchPath<{ baseCollectionId: string }>(pathname, {
     path: `${basePath}${JS_COLLECTION_ID_PATH}`,
   });
   if (jsMatch?.params?.baseCollectionId) {
     return jsMatch.params.baseCollectionId;
   }
-  const saasMatch = matchPath<{ baseApiId: string }>(location.pathname, {
+  const saasMatch = matchPath<{ baseApiId: string }>(pathname, {
     path: `${basePath}${SAAS_EDITOR_API_ID_PATH}`,
   });
   if (saasMatch?.params?.baseApiId) {
     return saasMatch.params.baseApiId;
   }
+};
+
+export function useActiveActionBaseId() {
+  const location = useLocation();
+  return getActiveActionBaseId(location.pathname);
 }
 
 export const useCloseMenuOnScroll = (

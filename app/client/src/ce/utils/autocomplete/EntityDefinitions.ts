@@ -138,7 +138,8 @@ export const entityDefinitions = {
         ...responseMetaDef,
       },
       run: {
-        "!type": "fn(params?: {}) -> +Promise",
+        "!type": "fn(params: {input1: any, input2: any}) -> +Promise",
+        "!fnParams": "{ input1: 'test', input2: '' }",
         "!url":
           "https://docs.appsmith.com/reference/appsmith-framework/query-object#queryrun",
         "!doc": "Executes the query with the given parameters.",

@@ -76,6 +76,7 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.RUN_ACTION_SUCCESS,
   ReduxActionErrorTypes.RUN_ACTION_ERROR,
   ReduxActionTypes.CLEAR_ACTION_RESPONSE,
+  ReduxActionTypes.UPDATE_QUERY_PARAMS,
   // JS Actions
   ...JS_ACTIONS,
   // App Data

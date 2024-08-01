@@ -9,6 +9,7 @@ import type {
   ActionEntity,
   ActionEntityConfig,
 } from "@appsmith/entities/DataTree/types";
+import type { QueryParamsReducerState } from "../../../reducers/entityReducers/queryParamsReducer";
 
 export const generateDataTreeAction = (
   action: ActionData,
@@ -85,4 +86,18 @@ export const generateDataTreeAction = (
       logBlackList: {},
     },
   };
+};
+
+export const generateDataTreeQueryParam = (params: QueryParamsReducerState) => {
+  const keys = {};
+  if (Object.keys(params).length) {
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
+    Object.values(params)[0].inputsForm[0].children.forEach((param) => {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      keys[param.label] = param.defaultValue;
+    });
+  }
+  return keys;
 };

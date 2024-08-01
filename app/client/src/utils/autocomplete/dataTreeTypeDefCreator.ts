@@ -3,6 +3,7 @@ import type { EntityMap } from "@appsmith/utils/autocomplete/entityDefGeneratorM
 import { entityDefGeneratorMap } from "@appsmith/utils/autocomplete/entityDefGeneratorMap";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import type { Def } from "tern";
+import { type ExtraDef, generateTypeDef } from "./defCreatorUtils";
 
 // Def names are encoded with information about the entity
 // This so that we have more info about them
@@ -35,6 +36,10 @@ export const dataTreeTypeDefCreator = (
         def,
         jsData,
       });
+    } else if (entityName === "params") {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      def["params"] = generateParamsDef(entity, extraDefsToDefine);
     }
   });
 
@@ -44,3 +49,15 @@ export const dataTreeTypeDefCreator = (
 
   return { def, entityInfo: entityMap };
 };
+
+function generateParamsDef(
+  params: Record<string, unknown>,
+  extraDefsToDefine: ExtraDef,
+) {
+  const inputEntityDef: Def = {};
+  Object.entries(params).forEach(([inputName, inputValue]) => {
+    inputEntityDef[inputName] = generateTypeDef(inputValue, extraDefsToDefine);
+  });
+
+  return inputEntityDef;
+}

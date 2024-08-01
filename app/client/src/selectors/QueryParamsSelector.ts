@@ -1,5 +1,8 @@
 import type { AppState } from "@appsmith/reducers";
 
+export const getAllQueryParams = (state: AppState) =>
+  state.entities.queryParams;
+
 export const getQueryParams = (appState: AppState, id: string | undefined) => {
   if (id === undefined) {
     return undefined;
