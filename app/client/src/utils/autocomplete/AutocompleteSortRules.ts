@@ -476,7 +476,7 @@ export class AutocompleteSorter {
         createNoQueriesCTACompletion(
           "No queries to bind. Create a new query",
           queryAddURL({
-            pageId: AutocompleteSorter.currentFieldInfo?.currentPageId,
+            basePageId: AutocompleteSorter.currentFieldInfo?.currentPageId,
           }),
         ),
       );
