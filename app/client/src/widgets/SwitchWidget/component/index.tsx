@@ -30,7 +30,6 @@ const SwitchComponentContainer = styled.div<{
   accentColor: string;
   minHeight?: number;
   width?: string;
-  labelPosition?:LabelPosition
 }>`
   display: flex;
   flex-direction: row;
@@ -126,7 +125,7 @@ function SwitchComponent({
     labelPosition === LabelPosition.Right ? "left" : "right";
 
   return (
-    <SwitchComponentContainer accentColor={accentColor} minHeight={minHeight} labelPosition={labelPosition}>
+    <SwitchComponentContainer accentColor={accentColor} minHeight={minHeight}>
       <StyledSwitch
         $accentColor={accentColor}
         alignIndicator={switchAlignClass}

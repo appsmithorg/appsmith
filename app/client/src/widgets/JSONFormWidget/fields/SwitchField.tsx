@@ -11,7 +11,7 @@ import type {
   FieldComponentBaseProps,
   FieldEventProps,
 } from "../constants";
-import { ActionUpdateDependency, FieldType } from "../constants";
+import { ActionUpdateDependency } from "../constants";
 import SwitchComponent from "widgets/SwitchWidget/component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { Colors } from "constants/Colors";
@@ -23,7 +23,7 @@ type SwitchComponentOwnProps = FieldComponentBaseProps &
     alignWidget: AlignWidget;
     accentColor?: string;
     onChange?: string;
-    labelPosition:LabelPosition
+    labelPosition: LabelPosition;
   };
 
 type SwitchFieldProps = BaseFieldComponentProps<SwitchComponentOwnProps>;
@@ -37,7 +37,7 @@ const COMPONENT_DEFAULT_VALUES: SwitchComponentOwnProps = {
   isVisible: true,
   labelTextSize: BASE_LABEL_TEXT_SIZE,
   label: "",
-  labelPosition:LabelPosition.Left
+  labelPosition: LabelPosition.Left,
 };
 
 const isValid = (value: boolean, schemaItem: SwitchFieldProps["schemaItem"]) =>
@@ -119,18 +119,18 @@ function SwitchField({
   return (
     <Field
       accessor={schemaItem.accessor}
+      alignField={schemaItem.alignWidget}
       defaultValue={passedDefaultValue ?? schemaItem.defaultValue}
       fieldClassName={fieldClassName}
       inlineLabel
       isRequiredField={schemaItem.isRequired}
       label={schemaItem.label}
+      labelPosition={schemaItem.labelPosition}
       labelStyle={schemaItem.labelStyle}
       labelTextColor={schemaItem.labelTextColor}
       labelTextSize={schemaItem.labelTextSize}
       name={name}
       tooltip={schemaItem.tooltip}
-      alignField={schemaItem.alignWidget}
-      labelPosition={schemaItem.labelPosition}
     >
       {fieldComponent}
     </Field>

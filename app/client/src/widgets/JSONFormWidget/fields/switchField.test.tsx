@@ -1,5 +1,5 @@
 import React from "react";
-import '@testing-library/jest-dom'
+import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
 import { useForm, FormProvider } from "react-hook-form";
 import SwitchField from "./SwitchField";
@@ -7,14 +7,64 @@ import { FormContextProvider } from "../FormContext";
 import { ThemeProvider } from "styled-components";
 import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "WidgetProvider/constants";
-
+import { DataType, FieldType } from "../constants";
 
 const mockExecuteAction = jest.fn();
 
-const TestComponent = (props: any) => {
+const DefaultschemaItem = {
+  accessor: "Test Switch",
+  accentColor: "#553DE9",
+  alignWidget: AlignWidgetTypes.LEFT,
+  boxShadow: "none",
+  children: {},
+  dataType: DataType.STRING,
+  defaultValue: "",
+  fieldType: FieldType.SWITCH,
+  identifier: "TEST_IDENTIFIER",
+  isCustomField: false,
+  isDisabled: false,
+  isRequired: false,
+  isVisible: true,
+  label: "Test Switch",
+  labelPosition: LabelPosition.Left,
+  labelStyle: "",
+  labelTextColor: "",
+  labelTextSize: "0.875rem",
+  originalIdentifier: "Test Switch",
+  position: 0,
+  sourceData: "har",
+  tooltip: "",
+};
+
+const schemaItemRight = {
+  accessor: "Test Switch",
+  accentColor: "#553DE9",
+  alignWidget: AlignWidgetTypes.RIGHT,
+  boxShadow: "none",
+  children: {},
+  dataType: DataType.STRING,
+  defaultValue: "",
+  fieldType: FieldType.SWITCH,
+  identifier: "TEST_IDENTIFIER",
+  isCustomField: false,
+  isDisabled: false,
+  isRequired: false,
+  isVisible: true,
+  label: "Test Switch",
+  labelPosition: LabelPosition.Right,
+  labelStyle: "",
+  labelTextColor: "",
+  labelTextSize: "0.875rem",
+  originalIdentifier: "Test Switch",
+  position: 0,
+  sourceData: "har",
+  tooltip: "",
+};
+
+const DefaultTestComponent = () => {
   const methods = useForm({
     defaultValues: {
-      [props.name || "test-switch"]: props.passedDefaultValue || false,
+      name: "test switch",
     },
   });
 
@@ -42,25 +92,51 @@ const TestComponent = (props: any) => {
           <SwitchField
             fieldClassName="test-switch-field"
             name="test-switch"
-            passedDefaultValue={props.passedDefaultValue || false}
-            schemaItem={{
-              accessor: "test-switch",
-              fieldType: "SWITCH",
-              identifier: "test-switch",
-              isCustomField: false,
-              originalIdentifier: "test-switch",
-              position: 0,
-              sourceData: false,
-              isRequired: false,
-              isDisabled: false,
-              labelTextSize: "16px",
-              label: "Test Switch",
-              labelPosition: LabelPosition.Left,
-              alignWidget: AlignWidgetTypes.LEFT,
-              onChange: "testOnChangeAction",
-              ...props.schemaItem,
-            }} propertyPath={props.propertyPath}
-            />
+            passedDefaultValue={false}
+            schemaItem={DefaultschemaItem}
+            propertyPath={"schema.__root_schema__.children"}
+          />
+        </FormProvider>
+      </FormContextProvider>
+    </ThemeProvider>
+  );
+};
+
+const TestComponentRight = () => {
+  const methods = useForm({
+    defaultValues: {
+      name: "test switch",
+    },
+  });
+
+  return (
+    <ThemeProvider
+      theme={{
+        colors: {
+          icon: {
+            normal: "#C5C5C5",
+            hover: "#4B4848",
+            active: "#302D2D",
+          },
+        },
+      }}
+    >
+      <FormContextProvider
+        executeAction={mockExecuteAction}
+        renderMode="CANVAS"
+        setMetaInternalFieldState={jest.fn()}
+        updateFormData={jest.fn()}
+        updateWidgetMetaProperty={jest.fn()}
+        updateWidgetProperty={jest.fn()}
+      >
+        <FormProvider {...methods}>
+          <SwitchField
+            fieldClassName="test-switch-field"
+            name="test-switch"
+            passedDefaultValue={false}
+            schemaItem={schemaItemRight}
+            propertyPath={"schema.__root_schema__.children"}
+          />
         </FormProvider>
       </FormContextProvider>
     </ThemeProvider>
@@ -73,36 +149,37 @@ describe("SwitchField", () => {
   });
 
   it("renders the switch field with default props", () => {
-    render(<TestComponent />);
+    render(<DefaultTestComponent />);
     expect(screen.getByText("Test Switch")).toBeInTheDocument();
   });
 
   it("applies the correct label position and width for the switch widget", () => {
-    render(<TestComponent/>);
+    render(<DefaultTestComponent />);
     const labelElement = screen.getByTestId("inlinelabel");
     expect(labelElement).toHaveStyle("width: 100%");
   });
   it("applies the correct label position", async () => {
-    render(<TestComponent schemaItem={{ labelPosition:LabelPosition.Right }}/>);
+    render(<TestComponentRight />);
     const labelElement = screen.getByTestId("inlinelabel");
     const switchComponent = screen.getByRole("checkbox");
 
-    const switchComponentPosition = switchComponent.compareDocumentPosition(labelElement);
-    expect(switchComponentPosition & Node.DOCUMENT_POSITION_FOLLOWING).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+    const switchComponentPosition =
+      switchComponent.compareDocumentPosition(labelElement);
+    expect(switchComponentPosition & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
   });
   it("applies the correct label position left and alignment right", () => {
-    render(
-      <TestComponent
-        alignWidget={AlignWidgetTypes.RIGHT}
-      />
-    );
+    render(<DefaultTestComponent />);
 
     const switchComponent = screen.getByRole("checkbox");
     const labelElement = screen.getByText("Test Switch");
 
-    const labelElementPosition = labelElement.compareDocumentPosition(switchComponent);
-   
-    expect(labelElementPosition & Node.DOCUMENT_POSITION_FOLLOWING).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
-  });
+    const labelElementPosition =
+      labelElement.compareDocumentPosition(switchComponent);
 
+    expect(labelElementPosition & Node.DOCUMENT_POSITION_FOLLOWING).toBe(
+      Node.DOCUMENT_POSITION_FOLLOWING,
+    );
+  });
 });
