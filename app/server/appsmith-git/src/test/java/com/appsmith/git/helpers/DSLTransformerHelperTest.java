@@ -19,7 +19,7 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DSLTransformHelperTest {
+public class DSLTransformerHelperTest {
 
     private Map<String, JSONObject> jsonMap;
     private Map<String, List<String>> pathMapping;
@@ -295,5 +295,14 @@ public class DSLTransformHelperTest {
                 assertThat(relativePath.endsWith("CurrencyInput1")).isTrue();
             }
         }
+    }
+
+    @Test
+    void testGetPathToWidgetFile_whenChildWidgetIsSubstringOfParent_returnsParentWidgetPath() {
+
+        JSONObject jsonObject = new JSONObject(Map.of("widgetName", "bar"));
+        String pathToWidgetFile = DSLTransformerHelper.getPathToWidgetFile("foobar.bar", jsonObject, "bar");
+
+        org.assertj.core.api.Assertions.assertThat(pathToWidgetFile).isEqualTo("foobar/");
     }
 }
