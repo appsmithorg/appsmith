@@ -61,7 +61,7 @@ describe("SplitButton", () => {
     expect(logSpy).toHaveBeenCalledWith("Right Toggle Clicked!");
   });
 
-  it("should hide left toggle based on props", async () => {
+  it("should hide left and right toggle based on props", async () => {
     const _props = {
       ...props,
       leftToggle: { ...props.leftToggle, disable: true },
