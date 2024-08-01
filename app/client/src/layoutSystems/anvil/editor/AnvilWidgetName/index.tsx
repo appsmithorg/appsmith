@@ -48,8 +48,6 @@ export function AnvilWidgetName(props: {
     showError,
   );
 
-  console.log("####", nameComponentState, showError, styleProps);
-
   const { setDraggingState } = useWidgetDragResize();
   const { selectWidget } = useWidgetSelection();
 
