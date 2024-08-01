@@ -1,4 +1,3 @@
-/** Animation config for area hidden flag. */
 export const SPRING_CONFIG = {
   block: {
     to: [{ display: "block" }, { opacity: 1 }],

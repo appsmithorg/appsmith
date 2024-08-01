@@ -1,11 +1,8 @@
-import type { AnimatedGridUnit } from "../types";
 import { normalizeMeasurement } from "./normalizeMeasurement";
+
 export interface ResolveAreasVisibilityProps {
-  /** Used for CSS grid-template-rows, limited to px & fr. */
-  rows: AnimatedGridUnit[];
-  /** Used for CSS grid-template-columns, limited to px & fr. */
-  columns: AnimatedGridUnit[];
-  /** Used for CSS grid-template-areas. */
+  rows: string[];
+  columns: string[];
   areas: string[][];
 }
 
