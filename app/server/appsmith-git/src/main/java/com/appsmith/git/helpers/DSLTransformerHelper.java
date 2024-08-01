@@ -235,6 +235,8 @@ public class DSLTransformerHelper {
         childPath = childPath.replaceAll(CANVAS_WIDGET, CommonConstants.EMPTY_STRING);
         if (!DSLTransformerHelper.hasChildren(jsonObject) && !DSLTransformerHelper.isTabsWidget(jsonObject)) {
             // Save the widget as a directory or Save the widget as a file
+            // Only consider widgetName at the end of the childPath to reset
+            // For example, "foobar/bar" should convert into "foobar/"
             childPath = childPath.replaceAll(widgetName + "$", CommonConstants.EMPTY_STRING);
         }
 
