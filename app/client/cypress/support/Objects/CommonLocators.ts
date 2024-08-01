@@ -116,9 +116,7 @@ export class CommonLocators {
   _selectedDropdownValue =
     "//button[contains(@class, 'select-button')]/span[@class='bp3-button-text']";
   _actionTextArea = (actionName: string) =>
-    "//label[text()='" +
-    actionName +
-    "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea";
+    `label[for="${actionName}"] + div .CodeMirror textarea, .ads-v2-collapsible__header:has(label[for="${actionName}"]) + div .CodeMirror textarea`;
   _existingDefaultTextInput =
     ".t--property-control-defaulttext .CodeMirror-code";
   _widgetPageIcon = (widgetType: string) =>
