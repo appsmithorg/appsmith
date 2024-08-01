@@ -60,7 +60,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByApplicationIdAndViewMode(
+    public Flux<ActionCollection> findNonComposedByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission aclPermission) {
         BridgeQuery<ActionCollection> bridgeQuery =
                 getBridgeQueryForFindByApplicationIdAndViewMode(applicationId, viewMode);
