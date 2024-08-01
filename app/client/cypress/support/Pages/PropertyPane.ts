@@ -66,6 +66,8 @@ export class PropertyPane {
   _colorInputField = (option: string) =>
     "//h3[text()='" + option + " Color']//parent::div";
   _actionSelectorPopup = ".t--action-selector-popup";
+  _actionCollapsibleHeader = (label: string) =>
+    `.ads-v2-collapsible__header:has(label[for="${label}"])`;
   _actionSelectorFieldByLabel = (label: string) =>
     `.t--action-selector-popup label[for="${label}"] + div .CodeMirror textarea, .t--action-selector-popup .ads-v2-collapsible__header:has(label[for="${label}"]) + div .CodeMirror textarea`;
   _actionSelectorFieldContentByLabel = (label: string) =>
