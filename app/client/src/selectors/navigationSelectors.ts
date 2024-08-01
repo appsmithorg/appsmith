@@ -12,7 +12,10 @@ import {
   getPlugins,
 } from "@appsmith/selectors/entitiesSelector";
 import { getWidgets } from "sagas/selectors";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import {
+  getCurrentBasePageId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { jsCollectionIdURL, widgetURL } from "@appsmith/RouteBuilder";
 import { getDataTree } from "selectors/dataTreeSelectors";
@@ -65,9 +68,12 @@ export const getEntitiesForNavigation = createSelector(
   getJSCollections,
   getWidgets,
   getCurrentPageId,
+  getCurrentBasePageId,
   getDataTree,
   getDatasources,
   getModulesData,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (_: any, entityName: string | undefined) => entityName,
   (
     actions,
@@ -75,6 +81,7 @@ export const getEntitiesForNavigation = createSelector(
     jsActions,
     widgets,
     pageId,
+    basePageId,
     dataTree: DataTree,
     datasources: Datasource[],
     modulesData,
@@ -100,8 +107,8 @@ export const getEntitiesForNavigation = createSelector(
         name: action.config.name,
         type: ENTITY_TYPE.ACTION,
         url: config.getURL(
-          pageId,
-          action.config.id,
+          basePageId,
+          action.config.baseId,
           action.config.pluginType,
           plugin,
         ),
@@ -118,12 +125,15 @@ export const getEntitiesForNavigation = createSelector(
 
     jsActions.forEach((jsAction) => {
       // dataTree for null check
-      const result = getJsChildrenNavData(jsAction, pageId, dataTree);
+      const result = getJsChildrenNavData(jsAction, basePageId, dataTree);
       navigationData[jsAction.config.name] = createNavData({
         id: jsAction.config.id,
         name: jsAction.config.name,
         type: ENTITY_TYPE.JSACTION,
-        url: jsCollectionIdURL({ pageId, collectionId: jsAction.config.id }),
+        url: jsCollectionIdURL({
+          basePageId,
+          baseCollectionId: jsAction.config.baseId,
+        }),
         children: result?.childNavData || {},
       });
     });
@@ -134,13 +144,13 @@ export const getEntitiesForNavigation = createSelector(
         widget.widgetName,
         widget.type,
         dataTree,
-        pageId,
+        basePageId,
       );
       navigationData[widget.widgetName] = createNavData({
         id: widget.widgetId,
         name: widget.widgetName,
         type: ENTITY_TYPE.WIDGET,
-        url: widgetURL({ pageId, selectedWidgets: [widget.widgetId] }),
+        url: widgetURL({ basePageId, selectedWidgets: [widget.widgetId] }),
         children: result?.childNavData || {},
         widgetType: widget.type,
       });
@@ -186,12 +196,9 @@ export const getPathNavigationUrl = createSelector(
         const jsPropertyNavigationData = navigationData.children[propertyPath];
         return jsPropertyNavigationData.url;
       }
-
-      case ACTION_TYPE:
-        {
-          return navigationData.url;
-        }
-        break;
+      case ACTION_TYPE: {
+        return navigationData.url;
+      }
       default:
         return undefined;
     }

@@ -20,9 +20,8 @@ import { useShowPageGenerationOnHeader } from "pages/Editor/DataSourceEditor/hoo
 import React from "react";
 import { useSelector } from "react-redux";
 import {
-  getCurrentApplication,
   getCurrentApplicationId,
-  getCurrentPageId,
+  getCurrentBasePageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 // import { isEnabledForPreviewData } from "utils/editorContextUtils";
@@ -32,6 +31,7 @@ import { getIsAnvilEnabledInCurrentApplication } from "layoutSystems/anvil/integ
 import history from "utils/history";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { EditorNames } from "./";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 export interface HeaderActionProps {
   datasource: Datasource | ApiDatasourceForm | undefined;
@@ -49,7 +49,7 @@ export const useHeaderActions = (
     showReconnectButton = false,
   }: HeaderActionProps,
 ) => {
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   // const releaseDragDropBuildingBlocks = useFeatureFlag(
   //   FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
@@ -103,7 +103,7 @@ export const useHeaderActions = (
       AnalyticsUtil.logEvent("DATASOURCE_CARD_GEN_CRUD_PAGE_ACTION");
       history.push(
         generateTemplateFormURL({
-          pageId,
+          basePageId,
           params: {
             datasourceId: (datasource as Datasource).id,
             new_page: true,
@@ -128,6 +128,8 @@ export const useHeaderActions = (
           className={"t--generate-template"}
           isDisabled={!canGeneratePage}
           kind="secondary"
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onClick={(e: any) => {
             e.stopPropagation();
             e.preventDefault();
@@ -151,11 +153,11 @@ export const useHeaderActions = (
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const useParentEntityInfo = (editorType: string) => {
   const appId = useSelector(getCurrentApplicationId);
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
 
   return {
     editorId: appId || "",
-    parentEntityId: pageId || "",
+    parentEntityId: basePageId || "",
     parentEntityType: ActionParentEntityType.PAGE,
   };
 };

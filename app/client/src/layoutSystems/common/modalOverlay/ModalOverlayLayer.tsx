@@ -114,6 +114,8 @@ export function ModalOverlayLayer(props: BaseWidgetProps) {
     return !!props.isVisible;
   };
   const isOpen = getModalVisibility();
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const closeModal = (e: any) => {
     dispatch({
       type: ReduxActionTypes.CLOSE_MODAL,

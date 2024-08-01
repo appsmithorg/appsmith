@@ -198,6 +198,8 @@ function SingleSelectTreeComponent({
 
   const dropdownRender = useCallback(
     (
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       menu: React.ReactElement<any, string | React.JSXElementConstructor<any>>,
     ) => (
       <>

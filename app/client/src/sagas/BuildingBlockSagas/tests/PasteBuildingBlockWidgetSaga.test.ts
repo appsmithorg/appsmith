@@ -32,12 +32,18 @@ const totalWidth = 31;
 const flexLayers: FlexLayer[] = [];
 
 type ValueType =
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   | Promise<any>
-  | SelectEffect
+  | SelectEffect // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   | CallEffect<any>
-  | CallEffect<void>
-  | AllEffect<any>
-  | PutEffect<any>
+  | CallEffect<void> // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | AllEffect<any> // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | PutEffect<any> // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   | any;
 
 type GeneratorType = Generator<ValueType, void, unknown>;

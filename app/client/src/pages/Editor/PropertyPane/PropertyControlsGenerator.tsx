@@ -99,6 +99,8 @@ const generatePropertyControl = (
 };
 
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
 
   const isCollapseAllExceptDataEnabled: boolean = useFeatureFlag(

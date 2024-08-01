@@ -764,6 +764,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       value: undefined,
@@ -826,6 +828,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isStringOrNumber = (value: any): value is string | number =>
     isString(value) || isNumber(value);
 
@@ -962,8 +966,14 @@ export interface SelectWidgetProps extends WidgetProps {
   onOptionChange?: string;
   onDropdownOpen?: string;
   onDropdownClose?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultOptionValue?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   label?: any;
   isRequired: boolean;
   isFilterable: boolean;

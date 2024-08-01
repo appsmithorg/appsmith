@@ -363,6 +363,8 @@ function* moveWidgetsSaga(
        */
       const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
       const mainCanvasWidth: number = yield select(getCanvasWidth);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       updatedWidgets = updateRelationships(
         draggedBlocksToUpdate.map((block) => block.widgetId),

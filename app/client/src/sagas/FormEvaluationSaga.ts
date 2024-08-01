@@ -50,6 +50,8 @@ export interface FormEvalActionPayload {
 
 function* setFormEvaluationSagaAsync(
   action: ReduxAction<FormEvalActionPayload>,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   try {
     // Get current state from redux
@@ -182,6 +184,8 @@ function* fetchDynamicValueSaga(
       url = evaluatedConfig.url;
 
     // Eval Action is the current action as it is stored in the dataTree
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let evalAction: any;
     // Evaluated params is the object that will hold the evaluated values of the parameters as computed in the dataTree
     let evaluatedParams;
@@ -269,6 +273,8 @@ function* fetchDynamicValueSaga(
 function* formEvaluationChangeListenerSaga() {
   const buffer = buffers.fixed();
   const formEvalChannel: ActionPattern<ReduxAction<FormEvalActionPayload>> =
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     yield actionChannel(FORM_EVALUATION_REDUX_ACTIONS, buffer as any);
   while (true) {
     if (buffer.isEmpty()) {

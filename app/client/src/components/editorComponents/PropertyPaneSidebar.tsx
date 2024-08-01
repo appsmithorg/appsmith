@@ -148,7 +148,7 @@ export const PropertyPaneSidebar = memo((props: Props) => {
         <div
           className={classNames({
             "h-full p-0 overflow-y-auto min-w-72 max-w-104": true,
-            "transition-all duration-100": !resizing,
+            "transition-all duration-400": !resizing,
           })}
           style={{ width: props.width }}
         >

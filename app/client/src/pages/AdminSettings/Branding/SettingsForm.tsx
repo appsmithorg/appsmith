@@ -42,6 +42,8 @@ const StyledText = styled(Text)`
 
 interface SettingsFormProps {
   disabled?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<Inputs, any>;
   formState: FormState<Inputs>;
   handleSubmit: UseFormHandleSubmit<Inputs>;

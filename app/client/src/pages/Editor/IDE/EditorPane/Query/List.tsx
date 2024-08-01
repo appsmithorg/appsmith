@@ -3,14 +3,14 @@ import { Flex, Text } from "design-system";
 import { useSelector } from "react-redux";
 
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
+import { useActiveActionBaseId } from "@appsmith/pages/Editor/Explorer/hooks";
 import {
   getCurrentApplicationId,
+  getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
 import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelectors";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
@@ -28,7 +28,7 @@ const ListQuery = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const pageId = useSelector(getCurrentPageId) as string;
   const files = useSelector(selectQuerySegmentEditorList);
-  const activeActionId = useActiveAction();
+  const activeActionBaseId = useActiveActionBaseId();
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
@@ -84,7 +84,7 @@ const ListQuery = () => {
                 {items.map((file) => {
                   return (
                     <QueryListItem
-                      isActive={file.key === activeActionId}
+                      isActive={file.key === activeActionBaseId}
                       item={file}
                       key={file.key}
                       parentEntityId={pageId}

@@ -3,6 +3,8 @@ jest.mock("../Messenger.ts", () => ({
   ...jest.requireActual("../Messenger.ts"),
   get WorkerMessenger() {
     return {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ping: (...args: any) => {
         pingMock(JSON.stringify(args[0]));
       },

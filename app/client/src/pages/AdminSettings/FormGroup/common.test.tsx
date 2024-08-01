@@ -4,6 +4,8 @@ import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import { FormGroup } from "./Common";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 const setting: Setting = {
   id: "SETTING_ID",

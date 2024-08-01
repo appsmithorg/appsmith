@@ -9,6 +9,8 @@ import { sample } from "lodash";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const required = (value: any) => {
   if (value === undefined || value === null || value === "") {
     return createMessage(FIELD_REQUIRED_ERROR);

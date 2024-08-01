@@ -147,6 +147,8 @@ export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
     ],
   },
   format: formatEmbedSettings,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parse: (value: { value: string; additionalData?: any }) => {
     // Retrieve values from local storage while switching to limit by url option
     const sources = isUndefined(value.additionalData)

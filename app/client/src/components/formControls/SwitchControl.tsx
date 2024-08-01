@@ -23,6 +23,8 @@ const SwitchWrapped = styled.div`
   max-width: 60vw;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class SwitchField extends React.Component<SwitchFieldProps, any> {
   get value() {
     const { input } = this.props;

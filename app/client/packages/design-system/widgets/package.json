@@ -21,7 +21,7 @@
     "@react-types/shared": "^3.23.1",
     "@tabler/icons-react": "^3.10.0",
     "clsx": "^2.0.0",
-    "colorjs.io": "^0.4.3",
+    "colorjs.io": "^0.5.2",
     "lodash": "*",
     "react-aria-components": "^1.2.1"
   },

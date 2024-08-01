@@ -81,12 +81,16 @@ export const getShowHintOptions = (
       return hints;
     },
     extraKeys: {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Up: (cm: CodeMirror.Editor, handle: any) => {
         handle.moveFocus(-1);
         if (currentSelection.isHeader === true) {
           handle.moveFocus(-1);
         }
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Down: (cm: CodeMirror.Editor, handle: any) => {
         handle.moveFocus(1);
         if (currentSelection.isHeader === true) {

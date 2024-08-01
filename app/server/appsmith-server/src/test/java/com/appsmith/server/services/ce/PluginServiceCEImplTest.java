@@ -19,7 +19,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import reactor.core.scheduler.Scheduler;
 
 import java.io.IOException;
 import java.util.LinkedHashMap;
@@ -32,9 +31,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 public class PluginServiceCEImplTest {
-
-    @MockBean
-    Scheduler scheduler;
 
     @MockBean
     Validator validator;

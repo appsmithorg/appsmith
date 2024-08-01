@@ -41,6 +41,8 @@ export interface Completion<
   origin: string;
   type: AutocompleteDataType | string;
   data: T;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   render?: any;
   isHeader?: boolean;
   recencyWeight?: number;
@@ -75,6 +77,8 @@ export interface TernCompletionResult {
 
 interface ArgHints {
   start: CodeMirror.Position;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   type: { args: any[]; rettype: null | string };
   name: string;
   guess: boolean;
@@ -92,9 +96,17 @@ interface RequestQuery {
   end?: CodeMirror.Position;
   guess?: boolean;
   inLiteral?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fullDocs?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lineCharPositions?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   start?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   file?: any;
   includeKeywords?: boolean;
   depth?: number;
@@ -198,6 +210,8 @@ class CodeMirrorTernService {
   docs: TernDocs = Object.create(null);
   cachedArgHints: ArgHints | null = null;
   activeArgHints: HTMLElement | null = null;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   active: any;
   fieldEntityInformation: FieldEntityInformation = {};
   defEntityInformation: Map<string, DataTreeDefEntityInformation> = new Map<
@@ -228,12 +242,16 @@ class CodeMirrorTernService {
       completeSingle: false,
       alignWithWord: false,
       extraKeys: {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Up: (cm: CodeMirror.Editor, handle: any) => {
           handle.moveFocus(-1);
           if (this.active.isHeader === true) {
             handle.moveFocus(-1);
           }
         },
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Down: (cm: CodeMirror.Editor, handle: any) => {
           handle.moveFocus(1);
           if (this.active.isHeader === true) {
@@ -408,6 +426,8 @@ class CodeMirrorTernService {
   }
 
   showDocs(cm: CodeMirror.Editor) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.showContextInfo(cm, "documentation", (data: any) => {
       if (data.url) {
         window.open(data.url, "_blank");
@@ -504,9 +524,13 @@ class CodeMirrorTernService {
   }
 
   requestCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     error: any,
     data: QueryRegistry["completions"]["result"],
     cm: CodeMirror.Editor,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolve: any,
   ) {
     this.cm = cm;
@@ -602,7 +626,11 @@ class CodeMirrorTernService {
       if (isKeyword) {
         codeMirrorCompletion.render = (
           element: HTMLElement,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           self: any,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           data: any,
         ) => {
           element.setAttribute("keyword", data.displayText);
@@ -667,6 +695,8 @@ class CodeMirrorTernService {
     CodeMirror.on(
       obj,
       "select",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (cur: Completion<TernCompletionResult>, node: any) => {
         this.active = cur;
         this.remove(tooltip);
@@ -704,6 +734,8 @@ class CodeMirrorTernService {
   }
 
   async getHint(cm: CodeMirror.Editor) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const hints: Record<string, any> = await new Promise((resolve) => {
       this.request<"completions">(
         cm,
@@ -767,6 +799,8 @@ class CodeMirrorTernService {
     return hints;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   showContextInfo(cm: CodeMirror.Editor, queryName: string, callbackFn?: any) {
     this.request<"type">(cm, { type: queryName }, (error, data) => {
       if (error) return;
@@ -793,6 +827,8 @@ class CodeMirrorTernService {
   request<T extends keyof QueryRegistry>(
     cm: CodeMirror.Editor,
     query: RequestQuery | string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callbackFn: (error: any, data: QueryRegistry[T]["result"]) => void,
     pos?: CodeMirror.Position,
   ) {
@@ -829,6 +865,8 @@ class CodeMirrorTernService {
     return (this.docs[name] = data);
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   buildRequest(doc: TernDoc, query: any, pos?: CodeMirror.Position) {
     const files = [];
     let offsetLines = 0;
@@ -906,6 +944,8 @@ class CodeMirrorTernService {
     change: {
       to: CodeMirror.Position;
       from: CodeMirror.Position;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       text: string | any[];
     },
   ) {
@@ -1210,6 +1250,8 @@ class CodeMirrorTernService {
     x: number,
     y: number,
     content: HTMLElement | string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cm?: any,
     className?: string | null,
   ) {
@@ -1265,6 +1307,8 @@ class CodeMirrorTernService {
     }
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   elt(tagname: string, cls: string | null, ...rest: any[]) {
     const e = document.createElement(tagname);
     if (cls) e.className = cls;
@@ -1326,6 +1370,8 @@ class CodeMirrorTernService {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createCompletionHeader = (name: string): Completion<any> => ({
   text: name,
   displayText: name,

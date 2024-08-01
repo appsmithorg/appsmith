@@ -89,7 +89,7 @@ export function getActionExecutionAnalytics(
  * Function to check if the browser execution is allowed for the action
  * This is just for code splitting, main feature is in EE
  * */
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+// eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
 export function isBrowserExecutionAllowed(..._args: any[]) {
   return true;
 }

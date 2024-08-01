@@ -14,6 +14,8 @@ import type { APPSMITH_INTEGRATIONS } from "./constants";
 import type { Variants } from "./constants";
 import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type GenericFunction = (...args: any[]) => any;
 
 export interface SwitchType {
@@ -40,6 +42,8 @@ export interface ViewProps {
 export type SelectorViewProps = ViewProps & {
   options: TreeDropdownOption[];
   defaultText: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   getDefaults?: (value?: any) => any;
   displayValue?: string;
   selectedLabelModifier?: (
@@ -57,6 +61,7 @@ export type TextViewProps = ViewProps & {
   additionalAutoComplete?: AdditionalDynamicDataTree;
   toolTip?: string;
   dataTreePath?: string | undefined;
+  isValueChanged?: (value: string) => boolean;
 };
 
 export type TabViewProps = Omit<ViewProps, "get" | "set"> & SwitcherProps;
@@ -78,6 +83,8 @@ export interface ActionCreatorProps {
   action: string;
   onValueChange: (newValue: string, isUpdatedViaKeyboard: boolean) => void;
   additionalAutoComplete?: AdditionalDynamicDataTree;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   additionalControlData: Record<string, any>;
   propertyName: string;
   widgetType: string;

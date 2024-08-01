@@ -19,6 +19,8 @@ export interface KeyValueArrayControlProps extends ControlProps {
   label: string;
   maxLen?: number;
   description?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   actionConfig?: any;
   extraData?: ControlData[];
   isRequired?: boolean;
@@ -112,6 +114,8 @@ function KeyValueRow(
 
   useEffect(() => {
     if (typeof props.fields.getAll() === "string") {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const fieldsValue: any[] = JSON.parse(`${props.fields.getAll()}`);
       props.fields.removeAll();
       fieldsValue.forEach((value, index) => {
@@ -178,6 +182,8 @@ function KeyValueRow(
           </div>
         </FlexContainer>
       )}
+      {/* TODO: Fix this the next time the file is edited */}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {props.fields.map((field: any, index: number) => {
         let keyTextFieldName = `${field}.key`;
         let valueTextFieldName = `${field}.value`;

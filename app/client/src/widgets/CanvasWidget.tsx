@@ -54,6 +54,8 @@ class CanvasWidget extends ContainerWidget {
     return {};
   }
   // TODO Find a way to enforce this, (dont let it be set)
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
   }

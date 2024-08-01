@@ -3,6 +3,8 @@ import type { NumberSliderWidgetProps } from "./widget";
 export function minValueValidation(
   min: unknown,
   props: NumberSliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ) {
   if (_.isNil(min) || min === "") {
@@ -62,6 +64,8 @@ export function minValueValidation(
 export function maxValueValidation(
   max: unknown,
   props: NumberSliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ) {
   if (_.isNil(max) || max === "") {
@@ -121,6 +125,8 @@ export function maxValueValidation(
 export function defaultValueValidation(
   value: unknown,
   props: NumberSliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ) {
   if (_.isNil(value) || value === "") {
@@ -194,6 +200,8 @@ export function defaultValueValidation(
 export function stepSizeValidation(
   step: unknown,
   props: NumberSliderWidgetProps,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _: any,
 ) {
   if (_.isNil(step) || step === "") {

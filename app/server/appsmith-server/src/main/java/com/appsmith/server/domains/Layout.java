@@ -125,7 +125,6 @@ public class Layout {
             for (int dslActionIndex = 0; dslActionIndex < layoutOnLoadActions.size(); dslActionIndex++) {
                 TreeSet<DslExecutableDTO> sortedActions = new TreeSet<>(new CompareDslActionDTO());
                 sortedActions.addAll(layoutOnLoadActions.get(dslActionIndex));
-                sortedActions.forEach(DslExecutableDTO::sanitiseForExport);
                 layoutOnLoadActions.set(dslActionIndex, sortedActions);
             }
         }

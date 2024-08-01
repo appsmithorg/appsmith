@@ -13,7 +13,7 @@ public interface ArtifactGitFileUtilsCE<T extends ArtifactGitReference> {
     T createArtifactReferenceObject();
 
     Mono<ArtifactExchangeJson> reconstructArtifactExchangeJsonFromFilesInRepository(
-            String workspaceId, String defaultArtifactId, String repoName, String branchName);
+            String workspaceId, String baseArtifactId, String repoName, String branchName);
 
     void addArtifactReferenceFromExportedJson(
             ArtifactExchangeJson artifactExchangeJson, ArtifactGitReference artifactGitReference);

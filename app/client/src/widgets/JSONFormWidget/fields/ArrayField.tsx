@@ -45,6 +45,8 @@ type ArrayComponentProps = FieldComponentBaseProps & {
   cellBorderRadius?: string;
   cellBoxShadow?: string;
   accentColor?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultValue?: any[];
   isCollapsible: boolean;
 };
@@ -228,6 +230,8 @@ function ArrayField({
       // Manually remove from the values and re-insert to maintain the position of the
       // values
       const newValues = klona(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         values.filter((_val: any, index: number) => index !== removedIndex),
       );
 

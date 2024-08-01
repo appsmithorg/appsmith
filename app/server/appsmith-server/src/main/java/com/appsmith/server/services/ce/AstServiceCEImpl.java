@@ -160,8 +160,8 @@ public class AstServiceCEImpl implements AstServiceCE {
                             })
                             .elapsed()
                             .map(tuple -> {
-                                log.debug("Time elapsed since AST refactor call: {} ms", tuple.getT1());
                                 if (tuple.getT1() > MAX_API_RESPONSE_TIME_IN_MS) {
+                                    log.debug("Time elapsed since AST refactor call: {} ms", tuple.getT1());
                                     log.debug("This call took longer than expected. The binding was: {}", bindingValue);
                                 }
                                 return tuple.getT2();
