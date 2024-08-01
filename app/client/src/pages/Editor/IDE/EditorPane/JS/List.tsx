@@ -3,26 +3,26 @@ import { useSelector } from "react-redux";
 import { Flex, Text } from "design-system";
 import styled from "styled-components";
 
-import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
-import { selectJSSegmentEditorList } from "@appsmith/selectors/appIDESelectors";
-import { useActiveActionBaseId } from "@appsmith/pages/Editor/Explorer/hooks";
+import type { EditorSegmentList } from "ee/selectors/appIDESelectors";
+import { selectJSSegmentEditorList } from "ee/selectors/appIDESelectors";
+import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
-import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
-import { JSListItem } from "@appsmith/pages/Editor/IDE/EditorPane/JS/ListItem";
+import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
+import { JSListItem } from "ee/pages/Editor/IDE/EditorPane/JS/ListItem";
 import { BlankState } from "./BlankState";
 import { AddAndSearchbar } from "../components/AddAndSearchbar";
 import { fuzzySearchInObjectItems } from "../utils";
 import { EmptySearchResult } from "../components/EmptySearchResult";
-import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {

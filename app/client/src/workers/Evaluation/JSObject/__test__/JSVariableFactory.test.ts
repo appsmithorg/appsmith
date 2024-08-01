@@ -1,5 +1,5 @@
 import ExecutionMetaData from "workers/Evaluation/fns/utils/ExecutionMetaData";
-import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity } from "ee/entities/DataTree/types";
 import TriggerEmitter, {
   jsVariableUpdatesHandlerWrapper,
 } from "workers/Evaluation/fns/utils/TriggerEmitter";

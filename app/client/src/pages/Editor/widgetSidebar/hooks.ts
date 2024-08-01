@@ -1,4 +1,4 @@
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { getAllTemplates } from "actions/templateActions";
 import type { WidgetTags } from "constants/WidgetConstants";
 import { useEffect, useMemo, useState } from "react";

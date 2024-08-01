@@ -1,13 +1,10 @@
 import { createImmerReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import type {
-  WorkspaceRole,
-  Workspace,
-} from "@appsmith/constants/workspaceConstants";
+} from "ee/constants/ReduxActionConstants";
+import type { WorkspaceRole, Workspace } from "ee/constants/workspaceConstants";
 
 export interface WorkspaceReduxState {
   list: Workspace[];

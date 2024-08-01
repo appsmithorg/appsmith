@@ -7,13 +7,10 @@ import {
   getDatasources,
   getDatasourcesGroupedByPluginCategory,
   getPlugins,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import history from "utils/history";
-import {
-  datasourcesEditorIdURL,
-  integrationEditorURL,
-} from "@appsmith/RouteBuilder";
-import { getSelectedDatasourceId } from "@appsmith/navigation/FocusSelectors";
+import { datasourcesEditorIdURL, integrationEditorURL } from "ee/RouteBuilder";
+import { getSelectedDatasourceId } from "ee/navigation/FocusSelectors";
 import { get, keyBy } from "lodash";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
 import { useLocation } from "react-router";
@@ -21,17 +18,17 @@ import {
   createMessage,
   DATA_PANE_TITLE,
   DATASOURCE_LIST_BLANK_DESCRIPTION,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import PaneHeader from "./PaneHeader";
-import { useEditorType } from "@appsmith/hooks";
+import { useEditorType } from "ee/hooks";
 import { INTEGRATION_TABS } from "../../../../constants/routes";
-import type { AppState } from "@appsmith/reducers";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import type { AppState } from "ee/reducers";
+import { getCurrentAppWorkspace } from "ee/selectors/selectedWorkspaceSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasCreateDatasourcePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { EmptyState } from "../EditorPane/components/EmptyState";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 
 const PaneBody = styled.div`

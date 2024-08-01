@@ -1,7 +1,4 @@
-import {
-  CUSTOM_WIDGET_FEATURE,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
 import { CUSTOM_WIDGET_ONREADY_DOC_URL } from "pages/Editor/CustomWidgetBuilder/constants";
 
 export default {
@@ -56,7 +53,7 @@ export default {
 }
 
 .button-container {
-	text-align: right;	
+	text-align: right;
 	padding-top: 4px;
 }
 
@@ -96,18 +93,18 @@ export default {
 	const reset = document.getElementById("reset");
 
 	let currentIndex = 0;
-	
+
 	const updateDom = () => {
 		tip.innerHTML = appsmith.model.tips[currentIndex];
 		index.innerHTML = (currentIndex + 1) + " / " + appsmith.model.tips.length;
 		reset.disabled = currentIndex === 0;
 	};
-	
+
 	next.addEventListener("click", () => {
 		currentIndex = (currentIndex + 1) % appsmith.model.tips.length;
 		updateDom();
 	});
-	
+
 	reset.addEventListener("click", () => {
 		currentIndex = 0;
 		updateDom();

@@ -5,11 +5,11 @@ import { extractWidgetIdFromAnvilWidgetDOMId } from "layoutSystems/common/utils/
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { positionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver";
 import log from "loglevel";
-import type { AppState } from "@appsmith/reducers";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { AppState } from "ee/reducers";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { getAppMode } from "@appsmith/selectors/entitiesSelector";
+import { getAppMode } from "ee/selectors/entitiesSelector";
 import type { RefObject } from "react";
 import { getAnvilSpaceDistributionStatus } from "../selectors";
 /**

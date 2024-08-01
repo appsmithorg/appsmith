@@ -1,14 +1,14 @@
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { CurrentUserDetailsRequestPayload } from "constants/userConstants";
 import type {
   TokenPasswordUpdateRequest,
   UpdateUserRequest,
   VerifyTokenRequest,
-} from "@appsmith/api/UserApi";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+} from "ee/api/UserApi";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 import type {
   ProductAlert,
   ProductAlertConfig,

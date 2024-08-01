@@ -1,13 +1,13 @@
 import React from "react";
 import Button from "../../AppViewerButton";
 import { useSelector } from "react-redux";
-import { ALL_APPS, createMessage } from "@appsmith/constants/messages";
+import { ALL_APPS, createMessage } from "ee/constants/messages";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getMenuItemTextColor } from "pages/AppViewer/utils";
 import type { NavigationSetting } from "constants/AppConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { get } from "lodash";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
 import { useHistory } from "react-router";
 import styled from "styled-components";
 import { getCurrentUser } from "selectors/usersSelectors";

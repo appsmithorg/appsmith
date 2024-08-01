@@ -1,7 +1,7 @@
 import { BranchListItem } from "./BranchListItem";
 import { getIsActiveItem } from "../utils";
 import React from "react";
-import { createMessage, LOCAL_BRANCHES } from "@appsmith/constants/messages";
+import { createMessage, LOCAL_BRANCHES } from "ee/constants/messages";
 import { Text } from "design-system";
 
 /**

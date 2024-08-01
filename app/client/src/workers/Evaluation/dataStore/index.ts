@@ -1,4 +1,4 @@
-import { convertPathToString } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { convertPathToString } from "ee/workers/Evaluation/evaluationUtils";
 import type { Diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { get, set, unset } from "lodash";

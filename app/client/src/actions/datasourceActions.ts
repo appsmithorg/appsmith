@@ -1,8 +1,8 @@
 import type {
   ReduxAction,
   ReduxActionWithCallbacks,
-} from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import type { CreateDatasourceConfig } from "api/DatasourcesApi";
 import type {
   AuthenticationStatus,
@@ -17,7 +17,7 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import {
   ActionParentEntityType,
   type ActionParentEntityTypeInterface,
-} from "@appsmith/entities/Engine/actionHelpers";
+} from "ee/entities/Engine/actionHelpers";
 
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,

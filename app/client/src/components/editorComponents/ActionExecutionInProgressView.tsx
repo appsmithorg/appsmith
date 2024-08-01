@@ -3,7 +3,7 @@ import {
   ACTION_EXECUTION_CANCEL,
   ACTION_EXECUTION_MESSAGE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import ActionAPI from "api/ActionAPI";
 import { Button, Spinner, Text } from "design-system";
 import styled from "styled-components";

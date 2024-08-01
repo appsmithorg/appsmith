@@ -17,9 +17,9 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "./CustomizedDropdown/dropdownHelpers";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { PROFILE } from "constants/routes";
-import { ACCOUNT_TOOLTIP, createMessage } from "@appsmith/constants/messages";
+import { ACCOUNT_TOOLTIP, createMessage } from "ee/constants/messages";
 import type { NavigationSetting } from "constants/AppConstants";
 
 type TagProps = CommonComponentProps & {

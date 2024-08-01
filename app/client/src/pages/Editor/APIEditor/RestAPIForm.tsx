@@ -3,26 +3,26 @@ import { connect } from "react-redux";
 import type { InjectedFormProps } from "redux-form";
 import { change, formValueSelector, reduxForm } from "redux-form";
 import styled from "styled-components";
-import { API_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { API_EDITOR_FORM_NAME } from "ee/constants/forms";
 import type { Action } from "entities/Action";
 import PostBodyData from "./PostBodyData";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getApiName } from "selectors/formSelectors";
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import { Classes, Text, TextType } from "design-system-old";
-import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
+import { createMessage, API_PANE_NO_BODY } from "ee/constants/messages";
 import get from "lodash/get";
 import type { Datasource } from "entities/Datasource";
 import {
   getAction,
   getActionData,
   getActionResponses,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import { isEmpty } from "lodash";
 import type { CommonFormProps } from "./CommonEditorForm";
 import CommonEditorForm from "./CommonEditorForm";
 import Pagination from "./Pagination";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import { ApiEditorContext } from "./ApiEditorContext";
 import { actionResponseDisplayDataFormats } from "../utils";
 

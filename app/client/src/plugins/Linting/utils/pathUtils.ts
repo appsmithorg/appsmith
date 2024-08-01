@@ -1,12 +1,12 @@
-import { isWidgetEntity } from "@appsmith/plugins/Linting/lib/entity";
+import { isWidgetEntity } from "ee/plugins/Linting/lib/entity";
 import {
   convertPathToString,
   getEntityNameAndPropertyPath,
   isTrueObject,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import { toPath, union } from "lodash";
-import { isDynamicEntity } from "@appsmith/plugins/Linting/lib/entity/isDynamicEntity";
-import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
+import { isDynamicEntity } from "ee/plugins/Linting/lib/entity/isDynamicEntity";
+import type { IEntity } from "ee/plugins/Linting/lib/entity/types";
 
 export class PathUtils {
   static getReactivePaths(entity: IEntity) {

@@ -1,7 +1,7 @@
 import React, { useCallback, useContext } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createActionRequest } from "actions/pluginActionActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   getCurrentApplicationId,
   getCurrentBasePageId,
@@ -16,8 +16,8 @@ import {
   getAction,
   getDatasource,
   getPlugin,
-} from "@appsmith/selectors/entitiesSelector";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+} from "ee/selectors/entitiesSelector";
+import { integrationEditorURL } from "ee/RouteBuilder";
 import { MenuItem, Tag } from "design-system";
 import type { Plugin } from "api/PluginApi";
 
@@ -25,12 +25,12 @@ import WalkthroughContext from "components/featureWalkthrough/walkthroughContext
 import { setFeatureWalkthroughShown } from "utils/storage";
 import styled from "styled-components";
 import { change, getFormValues } from "redux-form";
-import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
+import { QUERY_EDITOR_FORM_NAME } from "ee/constants/forms";
 import { diff } from "deep-diff";
 import { UndoRedoToastContext, showUndoRedoToast } from "utils/replayHelpers";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { SUGGESTED_TAG, createMessage } from "@appsmith/constants/messages";
+import { SUGGESTED_TAG, createMessage } from "ee/constants/messages";
 import { transformTextToSentenceCase } from "pages/Editor/utils";
 
 interface QueryTemplatesProps {

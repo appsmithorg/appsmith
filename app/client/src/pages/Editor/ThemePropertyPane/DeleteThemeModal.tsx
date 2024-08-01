@@ -4,7 +4,7 @@ import {
   createMessage,
   DELETE_APP_THEME_WARNING,
   DELETE_CONFIRMATION_MODAL_TITLE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   Button,
   Modal,

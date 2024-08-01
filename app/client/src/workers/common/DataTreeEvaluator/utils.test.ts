@@ -1,14 +1,11 @@
-import type {
-  JSActionEntity,
-  WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity, WidgetEntity } from "ee/entities/DataTree/types";
 import { getOnlyAffectedJSObjects, getIsNewWidgetAdded } from "./utils";
 import type { UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import {
   DataTreeDiffEvent,
   getAllPathsBasedOnDiffPaths,
   type DataTreeDiff,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/workers/Evaluation/evaluationUtils";
 import produce from "immer";
 
 describe("getOnlyAffectedJSObjects", () => {

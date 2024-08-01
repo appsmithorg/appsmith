@@ -81,13 +81,13 @@ import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import {
   getSelectedDatasourceId,
   getSelectedEntityUrl,
-} from "@appsmith/navigation/FocusSelectors";
+} from "ee/navigation/FocusSelectors";
 import {
   setSelectedDatasource,
   setSelectedEntityUrl,
   setSelectedJSObject,
   setSelectedQuery,
-} from "@appsmith/navigation/FocusSetters";
+} from "ee/navigation/FocusSetters";
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
 import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";

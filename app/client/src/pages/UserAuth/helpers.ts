@@ -1,8 +1,8 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { SubmissionError } from "redux-form";
 import { useCallback, useEffect, useState } from "react";
 import * as Sentry from "@sentry/react";
-import UserApi from "@appsmith/api/UserApi";
+import UserApi from "ee/api/UserApi";
 import { toast } from "design-system";
 import type { ApiResponse } from "../../api/ApiResponses";
 
