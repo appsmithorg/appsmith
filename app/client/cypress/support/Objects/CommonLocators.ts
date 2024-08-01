@@ -142,7 +142,9 @@ export class CommonLocators {
     fieldName.replace(/ +/g, "").toLowerCase() +
     "')] | //label[text()='" +
     fieldName +
-    "']/following-sibling::div";
+    "']/following-sibling::div | //label[text()='" +
+    fieldName +
+    "']/parent::div/following-sibling::div";
   _existingFieldValueByName = (fieldName: string) =>
     this._existingFieldTextByName(fieldName) +
     "//div[contains(@class,'CodeMirror-code')]";
