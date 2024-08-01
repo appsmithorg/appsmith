@@ -416,6 +416,8 @@ function* fetchJSLibraries(
 }
 
 function* startInstallationRequestChannel() {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const queueInstallChannel: ActionPattern<any> = yield actionChannel([
     ReduxActionTypes.INSTALL_LIBRARY_INIT,
   ]);

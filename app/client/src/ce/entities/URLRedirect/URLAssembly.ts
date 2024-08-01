@@ -18,6 +18,8 @@ export interface URLBuilderParams {
   suffix?: string;
   branch?: string;
   hash?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params?: Record<string, any>;
   basePageId?: string | null;
   persistExistingParams?: boolean;
@@ -86,9 +88,13 @@ const fetchQueryParamsToPersist = (persistExistingParams: boolean) => {
   if (persistExistingParams) {
     params = { ...existingParams };
   } else {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params = { branch, embed } as any;
   }
   // test param to make sure a query param is present in the URL during dev and tests
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   if ((window as any).Cypress) {
     params = { a: "b", ...params };
   }

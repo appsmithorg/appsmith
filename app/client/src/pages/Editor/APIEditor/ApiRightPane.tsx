@@ -25,6 +25,8 @@ interface ApiRightPaneProps {
   currentActionDatasourceId: string;
   currentBasePageId?: string;
   datasourceId: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   datasources: any;
   hasResponse: boolean;
   onClick: (datasource: Datasource) => void;
@@ -169,6 +171,8 @@ const TablistWithPadding = styled.div`
   flex-shrink: 0;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getDatasourceInfo = (datasource: any): string => {
   const info = [];
   const headers = get(datasource, "datasourceConfiguration.headers", []);

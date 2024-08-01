@@ -286,6 +286,8 @@ const PropertyControl = memo((props: Props) => {
   const getWidgetsOwnUpdatesOnPropertyChange = useCallback(
     (
       propertyName: string,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any,
     ): UpdateWidgetPropertyPayload | undefined => {
       let propertiesToUpdate: Array<PropertyUpdates> | undefined;
@@ -388,6 +390,8 @@ const PropertyControl = memo((props: Props) => {
   );
 
   const getOtherWidgetPropertyChanges = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (propertyName: string, propertyValue: any) => {
       let otherWidgetPropertiesToUpdates: UpdateWidgetPropertyPayload[] = [];
 
@@ -456,6 +460,8 @@ const PropertyControl = memo((props: Props) => {
   const getPropertyUpdatesWithAssociatedWidgetUpdates = useCallback(
     (
       propertyName: string,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any,
     ): UpdateWidgetPropertyPayload[] => {
       const selfUpdates: UpdateWidgetPropertyPayload | undefined =
@@ -484,6 +490,8 @@ const PropertyControl = memo((props: Props) => {
 
   const onBatchUpdateWithAssociatedWidgetUpdates = useCallback(
     (
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       updates: { propertyName: string; propertyValue: any }[],
       isUpdatedViaKeyboard?: boolean,
     ) => {
@@ -543,6 +551,8 @@ const PropertyControl = memo((props: Props) => {
   const onPropertyChange = useCallback(
     (
       propertyName: string,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any,
       isUpdatedViaKeyboard?: boolean,
       isDynamicPropertyPath?: boolean,
@@ -600,6 +610,8 @@ const PropertyControl = memo((props: Props) => {
   );
 
   const openPanel = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (panelProps: any) => {
       if (props.panelConfig) {
         dispatch(
@@ -1115,6 +1127,8 @@ const PropertyControl = memo((props: Props) => {
 
 PropertyControl.displayName = "PropertyControl";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (PropertyControl as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };

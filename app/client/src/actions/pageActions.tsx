@@ -321,6 +321,8 @@ export interface WidgetAddChild {
   parentColumnSpace: number;
   newWidgetId: string;
   tabId: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props?: Record<string, any>;
   dynamicBindingPathList?: DynamicPath[];
 }
@@ -384,12 +386,16 @@ export interface WidgetAddChildren {
 export interface WidgetUpdateProperty {
   widgetId: string;
   propertyPath: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any;
 }
 
 export const updateWidget = (
   operation: WidgetOperation,
   widgetId: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   payload: any,
 ): ReduxAction<
   | WidgetAddChild
@@ -430,11 +436,15 @@ export const updateAppStore = (
 };
 
 export interface ReduxActionWithExtraParams<T> extends ReduxAction<T> {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraParams: Record<any, any>;
 }
 
 export interface GenerateCRUDSuccess {
   page: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     layouts: Array<any>;
     id: string;
     baseId: string;
@@ -467,6 +477,8 @@ export interface GenerateTemplatePageActionPayload {
   columns?: string[];
   searchColumn?: string;
   mode?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pluginSpecificParams?: Record<any, any>;
 }
 
@@ -590,6 +602,8 @@ export const resetApplicationWidgets = () => ({
   type: ReduxActionTypes.RESET_APPLICATION_WIDGET_STATE_REQUEST,
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const fetchPageDSLs = (payload?: any) => ({
   type: ReduxActionTypes.POPULATE_PAGEDSLS_INIT,
   payload,

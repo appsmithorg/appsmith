@@ -10,6 +10,8 @@ export interface DynamicValues {
   isLoading: boolean;
   hasStarted: boolean;
   hasFetchFailed: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any;
   config: DynamicValuesConfig;
   evaluatedConfig: DynamicValuesConfig;
@@ -18,6 +20,8 @@ export interface DynamicValues {
 
 export interface DynamicValuesConfig {
   url?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   params: Record<string, any>;
 }
 
@@ -27,6 +31,8 @@ export interface EvaluatedFormConfig {
   evaluateFormConfigObject: FormConfigEvalObject;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ConditonalObject = Record<string, any>;
 
 // Type for the object that will store the evaluation output for each component

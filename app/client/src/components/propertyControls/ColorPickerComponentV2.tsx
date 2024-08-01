@@ -347,6 +347,8 @@ const POPOVER_MODFIER = {
 };
 
 const ColorPickerComponent = React.forwardRef(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (props: ColorPickerProps, containerRef: any) => {
     const {
       isFullColorPicker: defaultFullColorPickerValue = false,
@@ -416,6 +418,8 @@ const ColorPickerComponent = React.forwardRef(
               setTimeout(() => {
                 const firstElement = popupRef.current?.querySelectorAll(
                   "[tabindex='0']",
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 )?.[0] as any;
                 firstElement?.focus();
               });
@@ -423,6 +427,8 @@ const ColorPickerComponent = React.forwardRef(
             break;
           case "Enter":
             emitKeyPressEvent(e.key);
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (document.activeElement as any)?.click();
             setTimeout(() => {
               inputGroupRef.current?.focus();
@@ -445,6 +451,8 @@ const ColorPickerComponent = React.forwardRef(
             (
               document.activeElement?.parentElement?.childNodes[
                 currentFocus.current
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
               ] as any
             ).focus();
             break;
@@ -465,6 +473,8 @@ const ColorPickerComponent = React.forwardRef(
             (
               document.activeElement?.parentElement?.childNodes[
                 currentFocus.current
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
               ] as any
             ).focus();
             break;
@@ -480,6 +490,8 @@ const ColorPickerComponent = React.forwardRef(
             (
               document.activeElement?.parentElement?.childNodes[
                 currentFocus.current
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
               ] as any
             ).focus();
             break;
@@ -500,6 +512,8 @@ const ColorPickerComponent = React.forwardRef(
             (
               document.activeElement?.parentElement?.childNodes[
                 currentFocus.current
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
               ] as any
             ).focus();
             break;
@@ -512,6 +526,8 @@ const ColorPickerComponent = React.forwardRef(
             setIsOpen(true);
             const firstElement = popupRef.current?.querySelectorAll(
               "[tabindex='0']",
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             )?.[0] as any;
             firstElement?.focus();
             break;

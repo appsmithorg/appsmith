@@ -92,6 +92,8 @@ export default class AppEditorEngine extends AppEngine {
    * @param AppEnginePayload
    * @returns
    */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public *setupEngine(payload: AppEnginePayload, rootSpan: Span): any {
     const editorSetupSpan = startNestedSpan(
       "AppEditorEngine.setupEngine",
@@ -253,6 +255,8 @@ export default class AppEditorEngine extends AppEngine {
     applicationId: string,
     allResponses: EditConsolidatedApi,
     rootSpan: Span,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
     yield call(
       this.loadPageThemesAndActions,

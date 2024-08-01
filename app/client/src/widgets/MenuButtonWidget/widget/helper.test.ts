@@ -23,6 +23,8 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
       },
     ];
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
     const expected = {
       currentItem: {
@@ -165,6 +167,8 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
       ],
     ];
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
     const expected = {
       currentItem: {
@@ -188,6 +192,8 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
       },
     };
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
     const expected = { currentItem: {} };
     expect(result).toStrictEqual(expected);
@@ -196,6 +202,8 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
   it("Should test without sourceData", () => {
     const mockProps = {};
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
     const expected = { currentItem: {} };
     expect(result).toStrictEqual(expected);
@@ -210,6 +218,8 @@ describe("getKeysFromSourceDataForEventAutocomplete", () => {
       },
     };
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result = getKeysFromSourceDataForEventAutocomplete(mockProps as any);
     const expected = { currentItem: {} };
     expect(result).toStrictEqual(expected);

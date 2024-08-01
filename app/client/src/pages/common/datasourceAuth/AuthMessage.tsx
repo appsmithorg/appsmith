@@ -36,6 +36,8 @@ interface AuthMessageProps {
   datasource: Datasource;
   description: string;
   pageId?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   style?: any;
   calloutType?: CalloutKind;
   isInViewMode?: boolean;
@@ -59,10 +61,14 @@ export default function AuthMessage(props: AuthMessageProps) {
   const plugin: Plugin | undefined = useSelector((state) =>
     getPlugin(state, pluginId),
   );
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleOauthAuthorization: any = () => {
     if (!pluginType || !pageId) return;
     dispatch(redirectAuthorizationCode(pageId, datasource.id, pluginType));
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleDocumentationClick: any = (e: React.MouseEvent) => {
     e.stopPropagation();
     openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);

@@ -277,6 +277,8 @@ interface addMockDb
     unknown,
     unknown
   > {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraParams?: any;
 }
 
@@ -861,6 +863,8 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
   );
   const payload = {
     ...actionPayload.payload,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     id: actionPayload.payload.id as any,
   };
   const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
@@ -981,6 +985,8 @@ function* testDatasourceSaga(actionPayload: ReduxAction<Datasource>) {
       environmentId: currentEnvironment,
       environmentName: currentEnvDetails.name,
       pluginName: plugin?.name,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       errorMessages: (error as any)?.message,
     });
     AppsmithConsole.error({
@@ -1001,6 +1007,8 @@ function* createTempDatasourceFromFormSaga(
   actionPayload: ReduxAction<CreateDatasourceConfig | Datasource>,
 ) {
   yield call(checkAndGetPluginFormConfigsSaga, actionPayload.payload.pluginId);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formConfig: Record<string, any>[] = yield select(
     getPluginForm,
     actionPayload.payload.pluginId,
@@ -1083,6 +1091,8 @@ function* createDatasourceFromFormSaga(
       checkAndGetPluginFormConfigsSaga,
       actionPayload.payload.pluginId,
     );
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const formConfig: Record<string, any>[] = yield select(
       getPluginForm,
       actionPayload.payload.pluginId,
@@ -1183,9 +1193,13 @@ function* createDatasourceFromFormSaga(
 
       if (actionPayload.onSuccess) {
         if (
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (actionPayload.onSuccess.payload as any).datasourceId ===
           TEMP_DATASOURCE_ID
         ) {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (actionPayload.onSuccess.payload as any).datasourceId =
             response.data.id;
         }
@@ -1487,12 +1501,18 @@ function* fetchDatasourceStructureSaga(
           },
         });
       }
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (!!(response.data as any)?.error) {
         isSuccess = false;
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         errorMessage = (response.data as any).error?.message;
       }
     }
   } catch (error) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     errorMessage = (error as any)?.message;
     isSuccess = false;
     yield put({
@@ -1606,13 +1626,19 @@ function* refreshDatasourceStructure(
           },
         });
       }
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if (!!(response.data as any)?.error) {
         isSuccess = false;
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         errorMessage = (response.data as any)?.error?.message;
       }
     }
   } catch (error) {
     isSuccess = false;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     errorMessage = (error as any)?.message;
     yield put({
       type: ReduxActionErrorTypes.REFRESH_DATASOURCE_STRUCTURE_ERROR,
@@ -1647,6 +1673,8 @@ function* refreshDatasourceStructure(
 }
 
 function* executeDatasourceQuerySaga(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   action: executeDatasourceQueryReduxAction<any>,
 ) {
   try {
@@ -1897,6 +1925,8 @@ function* fetchGsheetSpreadhsheets(
         },
       });
     }
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     yield put({
       type: ReduxActionTypes.FETCH_GSHEET_SPREADSHEETS_FAILURE,
@@ -1943,6 +1973,8 @@ function* fetchGsheetSheets(
         },
       });
     }
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     yield put({
       type: ReduxActionTypes.FETCH_GSHEET_SHEETS_FAILURE,
@@ -1993,6 +2025,8 @@ function* fetchGsheetColumns(
         },
       });
     }
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     yield put({
       type: ReduxActionTypes.FETCH_GSHEET_COLUMNS_FAILURE,
@@ -2012,6 +2046,8 @@ function* loadFilePickerSaga() {
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
   const search = new URLSearchParams(window.location.search);
   const isShowFilePicker = search.get(SHOW_FILE_PICKER_KEY);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const gapiScriptLoaded = (window as any).googleAPIsLoaded;
   const authStatus = search.get(RESPONSE_STATUS);
   if (

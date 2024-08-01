@@ -22,6 +22,8 @@ export const useAnvilWidgetHover = (
 
   // Callback function for handling mouseover events
   const handleMouseOver = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       // Check conditions before focusing the widget on mouseover
       focusWidget &&

@@ -413,6 +413,8 @@ export function handleJSONFormPropertiesListedInDynamicBindingPath(
  * @param newValue: This is the value that will replace the oldValue.
  */
 export function accessNestedObjectValue(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   obj: any,
   path: string,
   oldValue: string,

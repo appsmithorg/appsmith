@@ -413,11 +413,15 @@ export const getDimensionMap = createSelector(
   },
 );
 const addWidgetDimensionProxy = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dimensionMap: any,
   widgets: CanvasWidgetsReduxState,
 ) => {
   const dimensions = Object.keys(dimensionMap);
   const proxyHandler = {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     get(target: any, prop: any) {
       if (dimensions.includes(prop)) {
         const actualMap = dimensionMap[prop];
@@ -443,6 +447,8 @@ export const getWidgetsForBreakpoint = createSelector(
   getIsAutoLayoutMobileBreakPoint,
   getWidgets,
   (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dimensionMap: any,
     isAutoLayoutMobileBreakPoint: boolean,
     widgets: CanvasWidgetsReduxState,
@@ -856,6 +862,8 @@ export const getJSCollectionDataById = createSelector(
 export const getJSCollectionDataByBaseId = createSelector(
   [
     getJSCollections,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (state: AppState, baseCollectionId: any) => baseCollectionId,
   ],
   (jsActions, baseCollectionId) => {

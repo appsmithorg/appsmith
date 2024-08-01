@@ -43,6 +43,8 @@ import type {
 } from "layoutSystems/anvil/utils/paste/types";
 import { call } from "redux-saga/effects";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
 export type WidgetType = (typeof WidgetFactory.widgetTypes)[number];
@@ -60,6 +62,8 @@ class WidgetFactory {
 
   static widgetsMap: Map<WidgetType, typeof BaseWidget> = new Map();
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static widgetBuilderMap: Map<WidgetType, any> = new Map();
 
   static initialize(
@@ -655,6 +659,8 @@ export type WidgetTypeConfigMap = Record<
   string,
   {
     defaultProperties: Record<string, string>;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     metaProperties: Record<string, any>;
     derivedProperties: WidgetDerivedPropertyType;
   }

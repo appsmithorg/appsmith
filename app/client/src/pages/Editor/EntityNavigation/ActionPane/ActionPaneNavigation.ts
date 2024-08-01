@@ -42,10 +42,14 @@ export default class ActionPaneNavigation extends PaneNavigation {
     this.action = action;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   *getConfig(): any {
     return {};
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   *navigate(): any {
     yield call(this.navigateToUrl);
 
@@ -92,6 +96,8 @@ export default class ActionPaneNavigation extends PaneNavigation {
   }
 
   *isInSettingsTab(propertyPath: string) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const settingsConfig: any[] = yield select(
       getSettingConfig,
       this.action.pluginId,
@@ -100,6 +106,8 @@ export default class ActionPaneNavigation extends PaneNavigation {
 
     settingsConfig.forEach((section) => {
       if (section.children) {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         inSettingsTab = section.children.some((config: any) => {
           return propertyPath.includes(config.configProperty);
         });

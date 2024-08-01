@@ -90,6 +90,8 @@ function DraggablePageList(props: {
   const applicationId = useSelector(getCurrentApplicationId);
 
   const onListOrderUpdate = (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     newOrder: any,
     originalIndex: number,
     newIndex: number,

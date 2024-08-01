@@ -174,6 +174,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.allowScroll = false;
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -193,6 +195,8 @@ describe("EChartsConfigurationBuilder", () => {
 
       props.allowScroll = true;
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -212,6 +216,8 @@ describe("EChartsConfigurationBuilder", () => {
       props.chartType = "PIE_CHART";
       props.allowScroll = true;
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -231,6 +237,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "BAR_CHART";
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = { ...defaultExpectedConfig };
       expectedConfig.title = {
         text: "chart name",
@@ -258,6 +266,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "PIE_CHART";
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = { ...defaultExpectedConfig };
       expectedConfig.title = [
         {
@@ -301,6 +311,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "BAR_CHART";
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -319,6 +331,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.labelOrientation = LabelOrientation.SLANT;
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -359,6 +373,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.labelOrientation = LabelOrientation.AUTO;
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -382,6 +398,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "PIE_CHART";
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -406,6 +424,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "BAR_CHART";
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -423,6 +443,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.setAdaptiveYMin = true;
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -460,6 +482,8 @@ describe("EChartsConfigurationBuilder", () => {
       const modifiedChartData = JSON.parse(JSON.stringify(chartData));
       modifiedChartData.seriesID1.color = "";
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -478,6 +502,8 @@ describe("EChartsConfigurationBuilder", () => {
       const modifiedChartData = JSON.parse(JSON.stringify(chartData));
       modifiedChartData.seriesID2.color = "";
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -495,6 +521,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "BAR_CHART";
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -517,6 +545,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "LINE_CHART";
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -535,6 +565,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "COLUMN_CHART";
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -553,6 +585,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "AREA_CHART";
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -573,6 +607,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.chartType = "PIE_CHART";
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );
@@ -616,6 +652,8 @@ describe("EChartsConfigurationBuilder", () => {
         chartDataParams,
         longestLabels,
       );
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let firstSeriesName = (output.series as any[])[0].name;
       expect(firstSeriesName).toEqual("Series");
 
@@ -625,6 +663,8 @@ describe("EChartsConfigurationBuilder", () => {
         chartDataParams,
         longestLabels,
       );
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       firstSeriesName = (output.series as any[])[0].name;
       expect(firstSeriesName).toEqual("Series");
     });
@@ -643,6 +683,8 @@ describe("EChartsConfigurationBuilder", () => {
         },
         longestLabels,
       );
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let firstSeriesName = (output.series as any[])[0].name;
       expect(firstSeriesName).toEqual("Series");
 
@@ -654,6 +696,8 @@ describe("EChartsConfigurationBuilder", () => {
         },
         longestLabels,
       );
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       firstSeriesName = (output.series as any[])[0].name;
       expect(firstSeriesName).toEqual("Series");
     });
@@ -662,6 +706,8 @@ describe("EChartsConfigurationBuilder", () => {
       const props = JSON.parse(JSON.stringify(defaultProps));
       props.showDataPointLabel = true;
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const expectedConfig: any = JSON.parse(
         JSON.stringify(defaultExpectedConfig),
       );

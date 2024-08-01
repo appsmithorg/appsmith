@@ -94,6 +94,8 @@ export default class AppViewerEngine extends AppEngine {
     applicationId: string,
     allResponses: DeployConsolidatedApi,
     rootSpan: Span,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
     const loadAppEntitiesSpan = startNestedSpan(
       "AppViewerEngine.loadAppEntities",
@@ -108,6 +110,8 @@ export default class AppViewerEngine extends AppEngine {
       publishedActions,
       themes,
     } = allResponses;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const initActionsCalls: any = [
       fetchActionsForView({ applicationId, publishedActions }),
       fetchJSCollectionsForView({

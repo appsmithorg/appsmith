@@ -28,6 +28,8 @@ export const PropertyPaneSpaceDistributionHandle = ({
   distributionHandleId: string;
 }) => {
   // Handler for the onMouseDown event
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onMouseDown = (e: any) => {
     e.stopPropagation();
     e.preventDefault();

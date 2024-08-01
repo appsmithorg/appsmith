@@ -173,9 +173,15 @@ export const mockAppDSProps: Datasource[] = [
         datasourceConfiguration: {
           url: "string",
           connection: {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             mode: "READ_WRITE" as any,
             ssl: {
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               authType: "DEFAULT" as any,
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any,
           },
           authentication: {
@@ -221,9 +227,15 @@ export const mockAppDSProps: Datasource[] = [
         datasourceConfiguration: {
           url: "string",
           connection: {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             mode: "READ_WRITE" as any,
             ssl: {
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               authType: "DEFAULT" as any,
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any,
           },
 

@@ -35,12 +35,16 @@ const ModalContentContainer = styled(ModalContent)`
   min-height: 650px;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const ComponentsByTab: { [K in GitSyncModalTab]?: any } = {
   [GitSyncModalTab.GIT_CONNECTION]: GitConnection,
   [GitSyncModalTab.DEPLOY]: Deploy,
   [GitSyncModalTab.MERGE]: Merge,
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const MENU_ITEMS_MAP: { [K in GitSyncModalTab]?: any } = {
   [GitSyncModalTab.GIT_CONNECTION]: {
     key: GitSyncModalTab.GIT_CONNECTION,

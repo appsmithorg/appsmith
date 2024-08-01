@@ -72,6 +72,8 @@ export const getEntitiesForNavigation = createSelector(
   getDataTree,
   getDatasources,
   getModulesData,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (_: any, entityName: string | undefined) => entityName,
   (
     actions,

@@ -140,6 +140,8 @@ interface DatasourceFormFunctions {
   deleteTempDSFromDraft: () => void;
   toggleSaveActionFlag: (flag: boolean) => void;
   toggleSaveActionFromPopupFlag: (flag: boolean) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasource: (data: any) => void;
   setDatasourceViewMode: (payload: {
     datasourceId: string;
@@ -147,6 +149,8 @@ interface DatasourceFormFunctions {
   }) => void;
   loadFilePickerAction: () => void;
   datasourceDiscardAction: (pluginId: string) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initializeDatasource: (values: any) => void;
   resetForm: (formName: string) => void;
 }
@@ -154,6 +158,8 @@ interface DatasourceFormFunctions {
 type DatasourceSaaSEditorProps = StateProps &
   DatasourceFormFunctions &
   SaasEditorWrappperProps &
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   RouteComponentProps<RouteProps> & { dispatch: any };
 
 type Props = DatasourceSaaSEditorProps &
@@ -401,6 +407,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
   blockRoutes() {
     this.setState({
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       unblock: this.props?.history?.block((tx: any) => {
         this.setState(
           {
@@ -546,6 +554,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     );
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderDataSourceConfigForm = (sections: any) => {
     const {
       canDeleteDatasource,
@@ -725,6 +735,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   };
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, props: any) => {
   // This is only present during onboarding flow
   const currentApplicationIdForCreateNewApp =
@@ -868,6 +880,8 @@ const mapStateToProps = (state: AppState, props: any) => {
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
   discardTempDatasource: () => dispatch(removeTempDatasource()),
   deleteTempDSFromDraft: () => dispatch(deleteTempDSFromDraft()),
@@ -887,11 +901,15 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
 
     dispatch(setDatasourceViewMode(payload));
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasource: (data: any) =>
     dispatch(createTempDatasourceFromForm(data)),
   loadFilePickerAction: () => dispatch(loadFilePickerAction()),
   datasourceDiscardAction: (pluginId) =>
     dispatch(datasourceDiscardAction(pluginId)),
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initializeDatasource: (values: any) =>
     dispatch(initialize(DATASOURCE_SAAS_FORM, values)),
   resetForm: (formName: string) => dispatch(reset(formName)),

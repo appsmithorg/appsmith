@@ -516,6 +516,8 @@ export function* fetchStoredTestPayloadsSaga(collections: JSCollection[]) {
       yield getAllActionTestPayloads();
     if (!!storedPayloads && collections.length > 0) {
       for (const collection of collections) {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const testPayloadForCollection: Record<string, any> = {};
         let hasStoredPayload = false;
         for (const action of collection.actions) {

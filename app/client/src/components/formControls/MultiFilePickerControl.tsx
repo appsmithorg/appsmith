@@ -37,6 +37,8 @@ export type MultipleFilePickerControlProps = ControlProps & {
   pluginId?: string;
   config?: {
     uploadToTrigger?: boolean;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params?: Record<string, any>;
   };
   buttonLabel?: string;
@@ -46,6 +48,8 @@ type FilePickerProps = MultipleFilePickerControlProps & {
   input?: WrappedFieldInputProps;
   meta?: WrappedFieldMetaProps;
   disabled?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange: (event: any) => void;
   maxUploadSize: number;
 };

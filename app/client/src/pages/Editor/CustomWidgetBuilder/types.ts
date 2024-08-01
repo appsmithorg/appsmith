@@ -62,6 +62,8 @@ export interface CustomWidgetBuilderContextFunctionType {
   update: (editor: string, value: string) => void;
   updateModel: (model: Record<string, unknown>) => void;
   bulkUpdate: (srcDoc: CustomWidgetBuilderContextValueType["srcDoc"]) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateDebuggerLogs: (log: { type: string; args: any }) => void;
   clearDegbuggerLogs: () => void;
 }
