@@ -162,6 +162,8 @@ export interface AppState {
     autoHeightLayoutTree: AutoHeightLayoutTreeReduxState;
     canvasLevels: CanvasLevelsReduxState;
     layoutElementPositions: LayoutElementPositionsReduxState;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     moduleInstanceEntities: any;
     queryParams: QueryParamsReducerState;
   };
@@ -176,8 +178,12 @@ export interface AppState {
     errors: LintErrorsStore;
   };
   form: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
   settings: SettingsReduxState;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tenant: TenantReduxState<any>;
 }

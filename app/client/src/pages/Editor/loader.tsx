@@ -15,7 +15,11 @@ type Props = {
   clearCache: () => void;
 } & RouteComponentProps<{ basePageId: string }>;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 class EditorLoader extends React.PureComponent<Props, { Page: any }> {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   constructor(props: any) {
     super(props);
 
@@ -61,6 +65,8 @@ class EditorLoader extends React.PureComponent<Props, { Page: any }> {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => {
   return {
     initEditor: (payload: InitEditorActionPayload) =>

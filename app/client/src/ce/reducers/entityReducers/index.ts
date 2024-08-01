@@ -34,7 +34,7 @@ export const entityReducerObject = {
   autoHeightLayoutTree: autoHeightLayoutTreeReducer,
   canvasLevels: canvasLevelsReducer,
   layoutElementPositions: layoutElementPositionsReducer,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   moduleInstanceEntities: (state: AppState, action: ReduxAction<any>) => {
     return {};
   },

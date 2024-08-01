@@ -38,6 +38,8 @@ const useWidget = (
   const { navigateToWidget } = useNavigateToWidget();
 
   const boundNavigateToWidget = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       const isMultiSelect = e.metaKey || e.ctrlKey;
       const isShiftSelect = e.shiftKey;

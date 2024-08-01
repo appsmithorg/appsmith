@@ -246,6 +246,8 @@ const isErrorResponse = (response: ActionExecutionResponse) => {
  * @param blobUrl string A blob url with type added a query param
  * @returns promise that resolves to file content
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* readBlob(blobUrl: string): any {
   const [url, fileType] = parseBlobUrl(blobUrl);
   const file = yield fetch(url).then(async (r) => r.blob());
@@ -286,6 +288,8 @@ function* readBlob(blobUrl: string): any {
  */
 
 function* resolvingBlobUrls(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   executeActionRequest: ExecuteActionRequest,
   index: number,
@@ -337,6 +341,8 @@ function* resolvingBlobUrls(
 // uploads
 function updateBlobDataFromUrls(
   blobUrlPaths: Record<string, string>,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   newVal: any,
   blobMap: string[],
   blobDataMap: Record<string, Blob>,
@@ -389,6 +395,8 @@ function* evaluateActionParams(
   formData: FormData,
   executeActionRequest: ExecuteActionRequest,
   filePickerInstrumentation: FilePickerInstumentationObject,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   executionParams?: Record<string, any> | string,
 ) {
   if (isNil(bindings) || bindings.length === 0) {
@@ -427,6 +435,8 @@ function* evaluateActionParams(
       const arrDatatype: Array<string> = [];
       // array of objects containing blob urls that is loops and individual object is checked for resolution of blob urls.
       for (const val of value) {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const newVal: Record<string, any> = yield call(
           resolvingBlobUrls,
           val,
@@ -545,6 +555,8 @@ export default function* executePluginActionTriggerSaga(
     yield select(getAction, actionId),
     `Action not found for id - ${actionId}`,
   );
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const datasourceId: string = (action?.datasource as any)?.id;
   const plugin: Plugin = yield select(getPlugin, action?.pluginId);
   const currentApp: ApplicationPayload = yield select(getCurrentApplication);
@@ -676,6 +688,8 @@ function* runActionShortcutSaga() {
   if (isGitSyncModalOpen) return;
 
   const { path } = baseMatch;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const match: any = matchPath(pathname, {
     path: [
       trimQueryString(`${path}${API_EDITOR_BASE_PATH}`),
@@ -749,6 +763,8 @@ export function* runActionSaga(
   const plugin: Plugin = yield select(getPlugin, actionObject?.pluginId);
   const datasource: Datasource = yield select(
     getDatasource,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (actionObject?.datasource as any)?.id,
   );
   const pageName: string = yield select(getCurrentPageNameByActionId, actionId);
@@ -1092,6 +1108,8 @@ function* executePageLoadAction(
       `action not found for id - ${pageAction.id}`,
     );
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const datasourceId: string = (action?.datasource as any)?.id;
     const datasource: Datasource = yield select(getDatasource, datasourceId);
     const plugin: Plugin = yield select(getPlugin, action?.pluginId);
@@ -1458,6 +1476,8 @@ function* executePluginActionSaga(
       isError,
     };
   } catch (e) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     if ("clientDefinedError" in (e as any)) {
       // Case: error from client side validation
       if (filePickerInstrumentation.numberOfFiles > 0) {
@@ -1527,6 +1547,8 @@ function* executePluginActionSaga(
 
 // Function to send the file upload event to segment
 function triggerFileUploadInstrumentation(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   filePickerInfo: Record<string, any>,
   status: string,
   statusCode: string,

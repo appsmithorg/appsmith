@@ -379,6 +379,8 @@ export const getPluginTypeFromDatasourceId = (
   return plugin.type;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getPluginForm = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.formConfigs[pluginId];
 };
@@ -397,10 +399,14 @@ export const getIsDatasourceTesting = (state: AppState): boolean => {
   return state.entities.datasources.isTesting;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getEditorConfig = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.editorConfigs[pluginId];
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getSettingConfig = (state: AppState, pluginId: string): any[] => {
   return state.entities.plugins.settingConfigs[pluginId];
 };
@@ -569,6 +575,8 @@ export const getPluginNames = createSelector(getPlugins, (plugins) => {
 });
 
 export const getPluginTemplates = createSelector(getPlugins, (plugins) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pluginTemplates: Record<string, any> = {};
 
   plugins.forEach((plugin) => {
@@ -579,6 +587,8 @@ export const getPluginTemplates = createSelector(getPlugins, (plugins) => {
 });
 
 export const getPluginResponseTypes = createSelector(getPlugins, (plugins) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pluginResponseTypes: Record<string, any> = {};
 
   plugins.forEach((plugin) => {
@@ -858,7 +868,11 @@ export const getCurrentPageWidgets = createSelector(
 );
 
 export const getParentModalId = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   widget: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pageWidgets: Record<string, any>,
 ) => {
   let parentModalId;
@@ -879,6 +893,8 @@ export const getCanvasWidgetsWithParentId = createSelector(
   getCanvasWidgets,
   (canvasWidgets: CanvasWidgetsReduxState) => {
     return Object.entries(canvasWidgets).reduce(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (res, [widgetId, widget]: any) => {
         const parentModalId = getParentModalId(widget, canvasWidgets);
 
@@ -896,8 +912,12 @@ export const getAllWidgetsMap = createSelector(
   getPageWidgets,
   (widgetsByPage) => {
     return Object.entries(widgetsByPage).reduce(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (res: any, [pageId, pageWidgets]: any) => {
         const widgetsMap = Object.entries(pageWidgets.dsl).reduce(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (res, [widgetId, widget]: any) => {
             const parentModalId = getParentModalId(widget, pageWidgets);
 
@@ -922,6 +942,8 @@ export const getAllWidgetsMap = createSelector(
 export const getAllPageWidgets = createSelector(
   getAllWidgetsMap,
   (widgetsMap) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return Object.entries(widgetsMap).reduce((res: any[], [, widget]: any) => {
       res.push(widget);
       return res;
@@ -1128,7 +1150,11 @@ export const selectFilesForExplorer = createSelector(
         return acc;
       },
       {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         group: "" as any,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         files: [] as any,
       },
     );
@@ -1136,6 +1162,8 @@ export const selectFilesForExplorer = createSelector(
   },
 );
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getActionValidationConfig = (state: AppState, action: any) => {
   const pluginId = action.pluginId;
   return getActionValidationConfigFromPlugin(
@@ -1162,6 +1190,8 @@ export const getAllActionValidationConfig = (state: AppState) => {
 };
 
 function getActionValidationConfigFromPlugin(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfigs: any,
   validationConfig: ActionValidationConfigMap,
 ): ActionValidationConfigMap {
@@ -1380,9 +1410,13 @@ export const getDatasourceScopeValue = (
   const configProperty = "datasourceConfiguration.authentication.scopeString";
   const scopeValue = get(formData, configProperty);
   const options = formConfig[0]?.children?.find(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (child: any) => child?.configProperty === configProperty,
   )?.options;
   const label = options?.find(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (option: any) => option.value === scopeValue,
   )?.label;
   return label;

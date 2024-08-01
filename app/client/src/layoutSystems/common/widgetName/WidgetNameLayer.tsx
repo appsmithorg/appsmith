@@ -4,6 +4,8 @@ import { getErrorCount } from "./utils";
 
 interface WidgetNameLayerProps {
   disablePropertyPane?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: any;
   parentId?: string;
   type: string;
@@ -12,6 +14,8 @@ interface WidgetNameLayerProps {
   widgetId: string;
   widgetName: string;
   componentWidth: number;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evalErrorsObj: Record<any, any>;
   showControls?: boolean;
 }

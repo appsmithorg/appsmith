@@ -24,8 +24,12 @@ export const redirectUserAfterSignup = (
   redirectUrl: string,
   shouldEnableFirstTimeUserOnboarding: string | null,
   _validLicense?: boolean,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch?: any,
   isEnabledForCreateNew?: boolean, // is Enabled for only non-invited users
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any => {
   if (redirectUrl) {
     try {

@@ -78,6 +78,8 @@ const mapStateToProps = (state: AppState) => ({
   isProtectedMode: protectedModeSelector(state),
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => ({
   toggleShowModal: () => {
     AnalyticsUtil.logEvent("OPEN_OMNIBAR", { source: "NAVBAR_CLICK" });

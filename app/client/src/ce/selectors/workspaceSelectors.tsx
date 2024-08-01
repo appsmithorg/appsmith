@@ -50,7 +50,11 @@ export const getRoles = createSelector(
   },
 );
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getRolesForField = createSelector(getAllRoles, (roles?: any) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return roles.map((role: any) => {
     return {
       id: role.id,

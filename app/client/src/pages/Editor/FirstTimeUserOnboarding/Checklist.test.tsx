@@ -14,6 +14,8 @@ import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import "@testing-library/jest-dom";
 import * as onboardingSelectors from "selectors/onboardingSelectors";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 
 jest.mock("react-redux", () => {
@@ -39,6 +41,8 @@ jest.mock("utils/lazyLottie", () => ({
   },
 }));
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function renderComponent(store: any) {
   render(
     <Provider store={store}>
@@ -150,6 +154,8 @@ describe("Checklist", () => {
   });
 
   it("with `add a widget` task checked off", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const store: any = getStore(3);
     renderComponent(store);
     const widgetButton = screen.queryAllByTestId("checklist-widget");

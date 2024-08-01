@@ -9,6 +9,8 @@ import { FALLBACK_KEY } from "@appsmith/constants/UsagePulse";
 
 //TODO (Dipyaman): We should return a promise that will get resolved only on success or rejected after the retries
 export const fetchWithRetry = (config: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   url: any;
   payload: Record<string, unknown>;
   retries: number;

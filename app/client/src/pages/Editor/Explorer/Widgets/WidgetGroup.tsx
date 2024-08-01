@@ -115,6 +115,8 @@ export const ExplorerWidgetGroup = memo((props: ExplorerWidgetGroupProps) => {
 });
 
 ExplorerWidgetGroup.displayName = "ExplorerWidgetGroup";
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (ExplorerWidgetGroup as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };

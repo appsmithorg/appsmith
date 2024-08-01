@@ -41,6 +41,8 @@ export interface WidgetLayoutProps {
 export interface LayoutProps {
   layout: LayoutProps[] | WidgetLayoutProps[]; // Array of layout components or widgets to render.
   layoutId: string; // Identifier of layout
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   layoutStyle?: { [key: string]: any }; // React.CSSProperties for overriding default layout style.
   layoutType: LayoutComponentTypes; // Used to identify the correct layout component to render.
 

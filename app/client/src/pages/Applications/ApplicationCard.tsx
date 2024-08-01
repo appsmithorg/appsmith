@@ -262,6 +262,8 @@ export function ApplicationCard(props: ApplicationCardProps) {
   }
 
   // should show correct branch of application when edit mode
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params: any = {};
   if (showGitBadge) {
     params.branch = showGitBadge;

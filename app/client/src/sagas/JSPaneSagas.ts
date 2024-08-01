@@ -439,9 +439,13 @@ export function* handleExecuteJSFunctionSaga(data: {
   try {
     const localExecutionAllowed = isBrowserExecutionAllowed(collection, action);
     let isDirty = false;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let result: any = null;
 
     if (localExecutionAllowed) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response: { isDirty: false; result: any } = yield call(
         executeJSFunction,
         action,
@@ -599,6 +603,8 @@ function* handleUpdateJSCollectionBody(
   jsCollection["body"] = actionPayload.payload.body;
   try {
     if (jsCollection) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const response: ApiResponse<any> =
         yield JSActionAPI.updateJSCollectionBody(
           jsCollection.id,

@@ -4,6 +4,8 @@ import type { ActionEntity } from "@appsmith/entities/DataTree/types";
 
 function runFnDescriptor(
   this: ActionEntity,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSuccessOrParams?: (data: any) => unknown | Record<string, unknown>,
   onError?: (e: string) => unknown,
   params = {},
@@ -32,6 +34,8 @@ export type TRunActionType = TRunDescription["type"];
 
 export default async function run(
   this: ActionEntity,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSuccessOrParams?: (data: any) => unknown | Record<string, unknown>,
   onError?: (e: string) => unknown,
   params = {},
@@ -60,6 +64,8 @@ export default async function run(
     return response[0];
   } catch (e) {
     if (typeof onError === "function") {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onError((e as any).message);
       return;
     }

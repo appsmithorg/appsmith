@@ -1206,7 +1206,11 @@ export interface EvaluationReduxAction<T> extends ReduxAction<T> {
 }
 
 export interface PromisePayload {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reject: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolve: any;
 }
 
@@ -1303,6 +1307,8 @@ export interface ApplicationPayload {
 
 export interface WorkspaceDetails {
   workspace: Workspace;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   applications: any[];
 }
 

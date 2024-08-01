@@ -67,6 +67,8 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
       this.onMessageCancelFunctions.push(
         builder.onMessage(
           CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (data: any) => {
             this.props.onBatchUpdateProperties?.({
               srcDoc: data.srcDoc,

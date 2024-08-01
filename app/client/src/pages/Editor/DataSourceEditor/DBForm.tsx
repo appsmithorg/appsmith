@@ -71,6 +71,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
     return this.renderDataSourceConfigForm(formConfig);
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderDataSourceConfigForm = (sections: any) => {
     const { datasourceId, hiddenHeader, messages, pluginType, viewMode } =
       this.props;
@@ -124,6 +126,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   };
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, props: any) => {
   const datasource = state.entities.datasources.list.find(
     (e) => e.id === props.datasourceId,
