@@ -15,13 +15,14 @@ import { useCanvasWidthAutoResize } from "../../hooks/useCanvasWidthAutoResize";
 interface AppPageProps {
   appName?: string;
   canvasWidth: number;
-  pageId?: string;
+  basePageId?: string;
   pageName?: string;
   widgetsStructure: CanvasWidgetStructure;
 }
 
 export function AppPage(props: AppPageProps) {
-  const { appName, canvasWidth, pageId, pageName, widgetsStructure } = props;
+  const { appName, basePageId, canvasWidth, pageName, widgetsStructure } =
+    props;
 
   const appMode = useSelector(getAppMode);
   const isPublished = appMode === APP_MODE.PUBLISHED;
@@ -38,11 +39,11 @@ export function AppPage(props: AppPageProps) {
   useEffect(() => {
     AnalyticsUtil.logEvent("PAGE_LOAD", {
       pageName: pageName,
-      pageId: pageId,
+      pageId: basePageId,
       appName: appName,
       mode: "VIEW",
     });
-  }, [appName, pageId, pageName]);
+  }, [appName, basePageId, pageName]);
 
   return (
     <PageViewWrapper

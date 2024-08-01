@@ -94,6 +94,8 @@ jest.mock("actions/gitSyncActions", () => ({
 
 const mockStore = configureStore([]);
 describe("Git config ", () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let store: any;
   it("Should render UserProfile component for logged in user", () => {
     store = mockStore(defaultStoreState);

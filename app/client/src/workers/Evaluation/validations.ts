@@ -30,6 +30,8 @@ export const VALIDATION_ERROR_COUNT_THRESHOLD = 10;
 const MAX_ALLOWED_LINE_BREAKS = 1000; // Rendering performance deteriorates beyond this number.
 const LINE_BREAKS_ERROR_MESSAGE = `Warning: New lines in the text exceed ${MAX_ALLOWED_LINE_BREAKS}. The text displayed will not contain any new lines.`;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const flat = (array: Record<string, any>[], uniqueParam: string) => {
   let result: { value: string }[] = [];
   array.forEach((a) => {
@@ -266,6 +268,8 @@ function validateArray(
   };
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validateExcessLineBreaks(value: any): boolean {
   /**
    * Check if the value exceeds a threshold number of line breaks;
@@ -294,6 +298,8 @@ function validateExcessLength(text: string, maxLength: number): boolean {
  * Check for length of string values
  * and trim them in case they are too long.
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function validateObjectValues(obj: any): any {
   if (!obj) return;
   Object.keys(obj).forEach((key) => {
@@ -302,6 +308,8 @@ function validateObjectValues(obj: any): any {
     } else if (isObject(obj[key])) {
       obj[key] = validateObjectValues(obj[key]);
     } else if (isArray(obj[key])) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       obj[key] = obj[key].map((item: any) => validateObjectValues(item));
     }
   });
@@ -1255,6 +1263,8 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
   },
   [ValidationTypes.OBJECT_WITH_FUNCTION]: (
     config: ValidationConfig,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
     props: Record<string, unknown>,
     propertyPath: string,

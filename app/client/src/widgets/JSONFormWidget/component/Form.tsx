@@ -16,6 +16,8 @@ import type { Schema } from "../constants";
 import { ROOT_SCHEMA_KEY } from "../constants";
 import { convertSchemaItemToFormData, schemaItemDefaultValue } from "../helper";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type FormProps<TValues = any> = PropsWithChildren<{
   backgroundColor?: string;
   disabledWhenInvalid?: boolean;
@@ -116,6 +118,8 @@ const RESET_OPTIONS = {
   keepErrors: true,
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function Form<TValues = any>(
   {
     backgroundColor,
@@ -311,4 +315,6 @@ function Form<TValues = any>(
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default React.forwardRef<HTMLDivElement, FormProps<any>>(Form);

@@ -40,6 +40,8 @@ const CurlImportFormContainer = styled.div`
 interface OwnProps {
   curlImportSubmitHandler: (
     values: CurlImportFormValues,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dispatch: any,
   ) => void;
   initialValues: Record<string, unknown>;

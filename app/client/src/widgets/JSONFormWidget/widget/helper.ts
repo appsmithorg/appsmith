@@ -76,6 +76,8 @@ export const getGrandParentPropertyPath = (propertyPath: string) => {
 // that deals with object field type.
 const processFieldObject = (
   schema: Schema,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaInternalFieldState: Record<string, any> = {},
 ) => {
   const obj: Record<string, FieldStateItem> = {};

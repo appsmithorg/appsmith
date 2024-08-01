@@ -61,6 +61,8 @@ export const restructureWidgetSizeConfig = (
   if (!sizeConfig || !sizeConfig.length) return res;
 
   return sizeConfig.reduce(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (acc: any, size: WidgetSizeConfig) => {
       const data = size.configuration(props);
       if (size.viewportMinWidth === 0) {

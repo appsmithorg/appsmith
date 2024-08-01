@@ -31,13 +31,13 @@ import {
 import { DEFAULT_CREATE_API_CONFIG } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { DEFAULT_CREATE_GRAPHQL_CONFIG } from "constants/ApiEditorConstants/GraphQLEditorConstants";
 import history from "utils/history";
-import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import { initialize, autofill, change, reset } from "redux-form";
 import type { Property } from "api/ActionAPI";
 import { getQueryParams } from "utils/URLUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import {
   getAction,
+  getActionByBaseId,
   getDatasourceActionRouteInfo,
   getPlugin,
 } from "@appsmith/selectors/entitiesSelector";
@@ -70,12 +70,8 @@ import { updateReplayEntity } from "actions/pageActions";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { Plugin } from "api/PluginApi";
 import { getDisplayFormat } from "selectors/apiPaneSelectors";
-import {
-  apiEditorIdURL,
-  datasourcesEditorIdURL,
-  integrationEditorURL,
-} from "@appsmith/RouteBuilder";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { apiEditorIdURL, datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { validateResponse } from "./ErrorSagas";
 import type { CreateDatasourceSuccessAction } from "actions/datasourceActions";
 import { removeTempDatasource } from "actions/datasourceActions";
@@ -94,6 +90,7 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import { DEFAULT_CREATE_APPSMITH_AI_CONFIG } from "constants/ApiEditorConstants/AppsmithAIEditorConstants";
 import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
+import { convertToBasePageIdSelector } from "selectors/pageListSelectors";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -142,24 +139,6 @@ function* syncApiParamsSaga(
     );
   }
   PerformanceTracker.stopTracking();
-}
-
-function* redirectToNewIntegrations(
-  action: ReduxAction<{
-    pageId: string;
-    params?: Record<string, string>;
-  }>,
-) {
-  history.push(
-    integrationEditorURL({
-      pageId: action.payload.pageId,
-      selectedTab: INTEGRATION_TABS.ACTIVE,
-      params: {
-        ...action.payload.params,
-        mode: INTEGRATION_EDITOR_MODES.AUTO,
-      },
-    }),
-  );
 }
 
 function* handleUpdateBodyContentType(
@@ -568,16 +547,36 @@ function* formValueChangeSaga(
 }
 
 function* handleActionCreatedSaga(actionPayload: ReduxAction<Action>) {
-  const { id, pageId, pluginType } = actionPayload.payload;
-  const action: Action | undefined = yield select(getAction, id);
+  const {
+    applicationId,
+    baseId: baseActionId,
+    pageId,
+    pluginType,
+  } = actionPayload.payload;
+  const action: Action | undefined = yield select(
+    getActionByBaseId,
+    baseActionId,
+  );
   const data = action ? { ...action } : {};
 
   if (pluginType === PluginType.API) {
     yield put(initialize(API_EDITOR_FORM_NAME, omit(data, "name")));
+    let basePageId: string = yield select(convertToBasePageIdSelector, pageId);
+    if (!basePageId) {
+      const application: ApplicationPayload = yield select(
+        getApplicationByIdFromWorkspaces,
+        applicationId,
+      );
+      if (application && Array.isArray(application.pages)) {
+        basePageId =
+          application.pages.find((page) => page.id === pageId)?.baseId || "";
+      }
+    }
+
     history.push(
       apiEditorIdURL({
-        pageId,
-        apiId: id,
+        basePageId,
+        baseApiId: baseActionId,
         params: {
           editName: "true",
           from: "datasources",
@@ -604,9 +603,6 @@ export function* handleDatasourceCreatedSaga(
     getApplicationByIdFromWorkspaces,
     currentApplicationIdForCreateNewApp || "",
   );
-  const pageId: string = !!currentApplicationIdForCreateNewApp
-    ? application?.defaultPageId
-    : yield select(getCurrentPageId);
 
   const actionRouteInfo: ReturnType<typeof getDatasourceActionRouteInfo> =
     yield select(getDatasourceActionRouteInfo);
@@ -614,12 +610,16 @@ export function* handleDatasourceCreatedSaga(
   // This will ensure that API if saved as datasource, will get attached with datasource
   // once the datasource is saved
   if (
-    !!actionRouteInfo.apiId &&
+    !!actionRouteInfo.baseApiId &&
     actionPayload.payload?.id !== TEMP_DATASOURCE_ID
   ) {
+    const action: Action = yield select(
+      getActionByBaseId,
+      actionRouteInfo.baseApiId,
+    );
     yield put(
       setActionProperty({
-        actionId: actionRouteInfo.apiId,
+        actionId: action?.id,
         propertyName: "datasource",
         value: actionPayload.payload,
       }),
@@ -645,8 +645,8 @@ export function* handleDatasourceCreatedSaga(
   if (actionRouteInfo && redirect) {
     history.push(
       apiEditorIdURL({
-        parentEntityId: actionRouteInfo?.parentEntityId ?? "",
-        apiId: actionRouteInfo.apiId ?? "",
+        baseParentEntityId: actionRouteInfo?.baseParentEntityId ?? "",
+        baseApiId: actionRouteInfo.baseApiId ?? "",
       }),
     );
   } else if (
@@ -654,9 +654,12 @@ export function* handleDatasourceCreatedSaga(
     (!!currentApplicationIdForCreateNewApp &&
       actionPayload.payload.id !== TEMP_DATASOURCE_ID)
   ) {
+    const basePageId: string = !!currentApplicationIdForCreateNewApp
+      ? application?.defaultBasePageId
+      : yield select(getCurrentBasePageId);
     history.push(
       datasourcesEditorIdURL({
-        pageId,
+        basePageId,
         datasourceId: actionPayload.payload.id,
         params: {
           from: "datasources",
@@ -675,6 +678,8 @@ export function* createDefaultApiActionPayload(
   const { apiType, from, newActionName } = props;
   const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
   // Default Config is Rest Api Plugin Config
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let defaultConfig: any = DEFAULT_CREATE_API_CONFIG;
   let pluginType: PluginType = PluginType.API;
   if (apiType === PluginPackageName.GRAPHQL) {
@@ -769,10 +774,14 @@ function* handleApiNameChangeSuccessSaga(
     if (params.editName) {
       params.editName = "false";
     }
+    const basePageId: string = yield select(
+      convertToBasePageIdSelector,
+      actionObj.pageId,
+    );
     history.push(
       apiEditorIdURL({
-        pageId: actionObj.pageId,
-        apiId: actionId,
+        basePageId,
+        baseApiId: actionObj.baseId,
         params,
       }),
     );
@@ -810,11 +819,6 @@ export default function* root() {
       ReduxActionTypes.UPDATE_API_ACTION_BODY_CONTENT_TYPE,
       handleUpdateBodyContentType,
     ),
-    takeEvery(
-      ReduxActionTypes.REDIRECT_TO_NEW_INTEGRATIONS,
-      redirectToNewIntegrations,
-    ),
-    // Intercepting the redux-form change actionType
     takeEvery(ReduxFormActionTypes.VALUE_CHANGE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_REMOVE, formValueChangeSaga),
     takeEvery(ReduxFormActionTypes.ARRAY_PUSH, formValueChangeSaga),

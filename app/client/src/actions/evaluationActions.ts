@@ -76,7 +76,11 @@ export const setDependencyMap = (
 
 // Called when a form is being setup, for setting up the base condition evaluations for the form
 export const initFormEvaluations = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfig: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   settingConfig: any,
   formId: string,
 ) => {

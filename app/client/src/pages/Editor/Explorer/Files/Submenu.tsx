@@ -37,6 +37,8 @@ const SubMenuContainer = styled.div`
 interface SubMenuProps {
   canCreate: boolean;
   className: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleClick: (item: any) => void;
   openMenu: boolean;
   onMenuClose: () => void;
@@ -61,6 +63,8 @@ export function ExplorerMenuContent({
   setQuery,
 }: ExplorerMenuContentProps) {
   const filteredFileOperations = fileOperations?.filter(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (item: any) => item.kind !== SEARCH_ITEM_TYPES.sectionTitle,
   );
 
@@ -96,6 +100,8 @@ export function ExplorerMenuContent({
         value={query}
       />
       <div className="ops-container">
+        {/* TODO: Fix this the next time the file is edited */}
+        {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
         {filteredFileOperations?.map((item: any, idx: number) => {
           const icon =
             item.icon ||

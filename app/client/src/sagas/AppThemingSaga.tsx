@@ -41,7 +41,7 @@ import {
 import { find } from "lodash";
 import * as Sentry from "@sentry/react";
 import { Severity } from "@sentry/react";
-import { getAllPageIds } from "./selectors";
+import { getAllPageIdentities } from "./selectors";
 import type { SagaIterator } from "@redux-saga/types";
 import type { AxiosPromise } from "axios";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
@@ -105,7 +105,8 @@ export function* fetchAppSelectedTheme(
   const { applicationId, currentTheme } = action.payload;
   const mode: APP_MODE = yield select(getAppMode);
 
-  const pageIds = yield select(getAllPageIds);
+  const pageIdentities: { pageId: string; basePageId: string }[] =
+    yield select(getAllPageIdentities);
   const userDetails = yield select(getCurrentUser);
   const applicationVersion = yield select(selectApplicationVersion);
   try {
@@ -124,7 +125,7 @@ export function* fetchAppSelectedTheme(
       Sentry.captureException("Unable to fetch the selected theme", {
         level: Severity.Critical,
         extra: {
-          pageIds,
+          pageIdentities,
           applicationId,
           applicationVersion,
           userDetails,

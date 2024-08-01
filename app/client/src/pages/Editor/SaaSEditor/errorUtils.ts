@@ -42,6 +42,8 @@ export function isAuthorisedFilesEmptyGsheet(
   const isAuthFailure =
     !!authStatus &&
     authStatus === AuthenticationStatus.FAILURE_FILE_NOT_SELECTED;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const gapiLoadSuccess = (window as any).googleAPIsLoaded;
 
   return (

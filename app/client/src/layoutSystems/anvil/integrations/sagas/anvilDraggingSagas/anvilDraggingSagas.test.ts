@@ -49,6 +49,8 @@ describe("", () => {
   it("should successfully add a new widget to the main canvas", async () => {
     const mainCanvasLayoutId = generateReactKey();
     const newWidgetId = generateReactKey();
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const allWidgets: any = {
       [MAIN_CONTAINER_WIDGET_ID]: {
         widgetName: "Main Container",
@@ -116,6 +118,8 @@ describe("", () => {
   it("should successfully add a new modal widget to the main canvas", async () => {
     const mainCanvasLayoutId = generateReactKey();
     const newModalId = generateReactKey();
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const allWidgets: any = {
       [MAIN_CONTAINER_WIDGET_ID]: {
         widgetName: "Main Container",

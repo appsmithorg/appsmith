@@ -4,10 +4,10 @@ import type { Action } from "entities/Action";
 import type { QueryPaneDebuggerState } from "@appsmith/reducers/uiReducers/queryPaneReducer";
 
 export interface ChangeQueryPayload {
-  id: string;
+  baseQueryId: string;
   packageId?: string;
   applicationId?: string;
-  pageId?: string;
+  basePageId?: string;
   moduleId?: string;
   workflowId?: string;
   newQuery?: boolean;

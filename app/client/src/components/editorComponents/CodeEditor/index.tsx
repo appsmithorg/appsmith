@@ -186,6 +186,8 @@ export interface EditorStyleProps {
   showLightningMenu?: boolean;
   dataTreePath?: string;
   focusElementName?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   borderLess?: boolean;
@@ -225,6 +227,8 @@ export type EditorProps = EditorStyleProps &
     additionalDynamicData?: AdditionalDynamicDataTree;
     promptMessage?: React.ReactNode | string;
     hideEvaluatedValue?: boolean;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     errors?: any;
     isInvalid?: boolean;
     isEditorHidden?: boolean;
@@ -1788,6 +1792,8 @@ const mapStateToProps = (state: AppState, props: EditorProps) => ({
   focusedProperty: getFocusablePropertyPaneField(state),
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => ({
   executeCommand: (payload: SlashCommandPayload) =>
     dispatch(executeCommandAction(payload)),

@@ -31,6 +31,8 @@ import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoL
 
 //returns props for Auto to fixed layout conversion flows based on which the Conversion Form can be rendered
 export const useAutoToFixedLayoutFlow = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: Dispatch<any>,
 ): {
   [key: string]: ConversionProps;

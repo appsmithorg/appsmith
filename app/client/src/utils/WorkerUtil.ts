@@ -50,6 +50,8 @@ import {
 // TODO: Add a readiness + liveness probes.
 export class GracefulWorkerService {
   // We keep track of all in-flight requests with these channels.
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private readonly _channels: Map<string, Channel<any>>;
   // The actual WebWorker
   private _Worker: Worker | undefined;
@@ -60,10 +62,14 @@ export class GracefulWorkerService {
   // If isReady is false, wait on `this._readyChan` to get the pulse signal.
   private _isReady: boolean;
   // Channel to signal all waiters that we're ready. Always use it with `this._isReady`.
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private readonly _readyChan: Channel<any>;
 
   private readonly _workerClass: Worker;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private listenerChannel: Channel<TMessage<any>>;
 
   constructor(workerClass: Worker) {
@@ -77,6 +83,8 @@ export class GracefulWorkerService {
     // Do not buffer messages on this channel
     this._readyChan = channel(buffers.none());
     this._isReady = false;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this._channels = new Map<string, Channel<any>>();
     this._workerClass = workerClass;
     this.listenerChannel = channel();
@@ -128,6 +136,8 @@ export class GracefulWorkerService {
     return false;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   *respond(messageId = "", data = {}): any {
     if (!messageId) return;
     yield this.ready(true);
@@ -143,6 +153,8 @@ export class GracefulWorkerService {
     });
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   *ping(data = {}, messageId?: string): any {
     yield this.ready(true);
     if (!this._Worker) return;
@@ -210,6 +222,8 @@ export class GracefulWorkerService {
    *
    * @returns response from the worker
    */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   *request(method: string, data = {}): any {
     yield this.ready(true);
     // Impossible case, but helps avoid `?` later in code and makes it clearer.
@@ -303,6 +317,8 @@ export class GracefulWorkerService {
     }
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _broker(event: MessageEvent<TMessage<any>>) {
     if (!event || !event.data) return;
     const { body, messageType } = event.data;

@@ -46,6 +46,8 @@ const StyledBox = styled.div`
 type UpdatePairFunction = (
   pair: SegmentedControlOption[],
   isUpdatedViaKeyboard?: boolean,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ) => any;
 
 interface KeyValueComponentProps {
@@ -138,10 +140,14 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     pairs.push({
       label: getNextEntityName(
         "Option",
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         pairs.map((pair: any) => pair.label),
       ),
       value: getNextEntityName(
         "OPTION",
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         pairs.map((pair: any) => pair.value),
       ),
     });
@@ -149,14 +155,20 @@ export function KeyValueComponent(props: KeyValueComponentProps) {
     updatedRenderPairs.push({
       label: getNextEntityName(
         "Option",
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         renderPairs.map((pair: any) => pair.label),
       ),
       value: getNextEntityName(
         "OPTION",
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         renderPairs.map((pair: any) => pair.value),
       ),
       key: getNextEntityName(
         "OPTION",
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         renderPairs.map((pair: any) => pair.value),
       ),
     });

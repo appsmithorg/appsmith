@@ -40,7 +40,7 @@ function NavigationLogo(props: NavigationLogoProps) {
   const pageUrl = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
     {
-      pageId: defaultPage?.pageId,
+      basePageId: defaultPage?.basePageId,
     },
   );
   const logoAssetId = get(

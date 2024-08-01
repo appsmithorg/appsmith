@@ -110,7 +110,8 @@ function CreateNewBranch({
   hovered,
   isCreatingNewBranch,
   onClick,
-  shouldScrollIntoView,
+  shouldScrollIntoView, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   useEffect(() => {
     if (itemRef.current && shouldScrollIntoView)

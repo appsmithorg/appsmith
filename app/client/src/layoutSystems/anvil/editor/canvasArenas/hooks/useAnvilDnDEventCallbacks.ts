@@ -141,6 +141,8 @@ export const useAnvilDnDEventCallbacks = ({
   );
 
   const onMouseOver = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       if (canActivate) {
         setDraggingCanvas(layoutId);
@@ -178,6 +180,8 @@ export const useAnvilDnDEventCallbacks = ({
   );
 
   const onMouseMove = useCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (e: any) => {
       if (!canActivate) {
         return;

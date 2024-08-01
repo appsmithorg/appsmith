@@ -26,5 +26,5 @@ public interface ExportServiceCE {
     Mono<? extends ArtifactExchangeJson> exportByArtifactIdAndBranchName(
             String artifactId, String branchName, ArtifactType artifactType);
 
-    Mono<ExportFileDTO> getArtifactFile(String artifactId, String branchName, ArtifactType artifactType);
+    Mono<ExportFileDTO> getArtifactFile(String branchedArtifactId, ArtifactType artifactType);
 }

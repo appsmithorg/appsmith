@@ -69,6 +69,8 @@ class TableFilterPane extends Component<Props> {
     return ThemeMode.LIGHT;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handlePositionUpdate = (position: any) => {
     this.props.setPanePosition(
       this.props.tableFilterPane.widgetId as string,
@@ -143,8 +145,12 @@ const mapStateToProps = (state: AppState, ownProps: TableFilterPaneProps) => {
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => {
   return {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     setPanePosition: (widgetId: string, position: any) => {
       dispatch({
         type: ReduxActionTypes.TABLE_PANE_MOVED,

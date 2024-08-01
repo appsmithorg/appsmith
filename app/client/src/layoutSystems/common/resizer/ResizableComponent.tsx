@@ -201,7 +201,9 @@ export const ResizableComponent = memo(function ResizableComponent(
       [leftColumnMap]: leftColumn,
       [rightColumnMap]: rightColumn,
       [topRowMap]: topRow,
-    } = props as any;
+    } = // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      props as any;
 
     // Get the updated Widget rows and columns props
     // False, if there is collision

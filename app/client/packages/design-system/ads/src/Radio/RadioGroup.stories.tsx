@@ -68,9 +68,7 @@ export function RadioTabStory() {
             <Radio value={value}>Value 1</Radio>
             {selectedValue == value && possibleTabPanels[index] && (
               <RadioPanel>
-                {/*@ts-expect-error type error*/}
                 <Text>{possibleTabPanels[index].name}</Text>
-                {/*@ts-expect-error type error*/}
                 <Text>{possibleTabPanels[index].fruit}</Text>
               </RadioPanel>
             )}

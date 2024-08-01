@@ -31,6 +31,8 @@ const LayoutSystemBasedCanvas = memo((props: WidgetProps) => {
 });
 
 const HydratedLayoutSystemBasedCanvas = withWidgetProps(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   LayoutSystemBasedCanvas as any,
 );
 

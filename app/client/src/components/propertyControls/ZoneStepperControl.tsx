@@ -121,6 +121,8 @@ class ZoneStepperControl extends BaseControl<ZoneStepperControlProps> {
   // Static method to check if the value can be displayed in UI
   static canDisplayValueInUI(
     config: ZoneStepperControlProps,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     value: any,
   ): boolean {
     const steps = 1;

@@ -5,7 +5,7 @@ import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstant
 import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import {
-  getCurrentPageId,
+  getCurrentBasePageId,
   getViewModePageList,
 } from "selectors/editorSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
@@ -33,8 +33,8 @@ export function Navigation() {
   const hideHeader = isEmbed && !showNavBar;
   const [isMenuOpen, setMenuOpen] = useState(false);
   const headerRef = useRef<HTMLDivElement>(null);
-  const pageId = useSelector(getCurrentPageId);
-  const editorURL = useHref(builderURL, { pageId });
+  const basePageId = useSelector(getCurrentBasePageId);
+  const editorURL = useHref(builderURL, { basePageId });
   const currentWorkspaceId: string = useSelector(getCurrentWorkspaceId);
   const currentUser: User | undefined = useSelector(getCurrentUser);
   const lightTheme: Theme = useSelector((state: AppState) =>

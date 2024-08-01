@@ -78,6 +78,8 @@ const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
     setActive(false);
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onEntityClick = (entity: any) => {
     AnalyticsUtil.logEvent("DATASOURCE_SCHEMA_TABLE_SELECT", {
       datasourceId: props.datasourceId,

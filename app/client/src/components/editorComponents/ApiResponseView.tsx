@@ -142,6 +142,8 @@ export const apiReactJsonProps = { ...reactJsonProps, collapsed: 0 };
 
 export const responseTabComponent = (
   responseType: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   output: any,
   tableBodyHeight?: number,
 ): JSX.Element => {

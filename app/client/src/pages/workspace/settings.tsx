@@ -104,6 +104,8 @@ export default function Settings() {
     }
   }, [dispatch, currentWorkspace]);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const pageMenuItems: any[] = [
     {
       icon: "book-line",

@@ -85,6 +85,8 @@ const truncate = (input: string, suffix = "", truncLen = 100) => {
 };
 
 // Converts the data from the log object to a string
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createLogTitleString(data: any[]) {
   try {
     // convert mixed array to string
@@ -149,6 +151,8 @@ export function getDependenciesFromInverseDependencies(
 
   Object.entries(deps).forEach(([dependant, dependencies]) => {
     const { entityName: entity } = getEntityNameAndPropertyPath(dependant);
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (dependencies as any).map((dependency: any) => {
       const { entityName: entityDependency } =
         getEntityNameAndPropertyPath(dependency);

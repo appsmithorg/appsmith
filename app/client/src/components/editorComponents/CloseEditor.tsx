@@ -11,7 +11,7 @@ import {
   widgetListURL,
 } from "@appsmith/RouteBuilder";
 import { useSelector } from "react-redux";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Link } from "design-system";
 import styled from "styled-components";
@@ -29,7 +29,7 @@ function CloseEditor() {
   const params: string = location.search;
   const searchParamsInstance = new URLSearchParams(params);
   const redirectTo = searchParamsInstance.get("from");
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
 
   const isGeneratePageInitiator = getIsGeneratePageInitiator();
   let integrationTab = INTEGRATION_TABS.ACTIVE;
@@ -51,13 +51,13 @@ function CloseEditor() {
     // then route user back to `/generate-page/form`
     // else go back to BUILDER_PAGE
     const redirectURL = isGeneratePageInitiator
-      ? generateTemplateFormURL({ pageId })
-      : widgetListURL({ pageId });
+      ? generateTemplateFormURL({ basePageId })
+      : widgetListURL({ basePageId });
 
     const URL =
       redirectTo === "datasources"
         ? integrationEditorURL({
-            pageId,
+            basePageId,
             selectedTab: integrationTab,
             params: getQueryParams(),
           })
