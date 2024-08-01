@@ -88,8 +88,6 @@ const InlineStyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
   & .${TOOLTIP_CLASSNAME} {
     line-height: 0;
   }
-  ${({ labelPosition }) =>
-    labelPosition === LabelPosition.Auto && "width: auto;"}
   ${({ alignField, labelPosition }) =>
     labelPosition === LabelPosition.Left &&
     alignField === AlignWidgetTypes.LEFT &&
@@ -224,9 +222,7 @@ function FieldLabel({
             </StyledTooltip>
           )}
         </InlineStyledLabelTextWrapper>
-        {(labelPosition === LabelPosition.Left ||
-          labelPosition === LabelPosition.Auto) &&
-          children}
+        {labelPosition === LabelPosition.Left && children}
       </StyledLabel>
     );
   }
