@@ -32,7 +32,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import Container from "./Container";
-import type { CalloutProps } from "design-system/build/Callout/Callout.types";
+import type { CalloutProps } from "design-system";
 
 const validate = (values: ResetPasswordFormValues) => {
   const errors: ResetPasswordFormValues = {};
@@ -219,6 +219,8 @@ export default connect(
       validatingToken: getIsValidatingToken(state),
     };
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (dispatch: any) => ({
     verifyToken: (token: string) =>
       dispatch({

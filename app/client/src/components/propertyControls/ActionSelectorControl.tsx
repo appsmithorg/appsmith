@@ -82,6 +82,8 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
         action={label}
         additionalAutoComplete={this.props.additionalAutoComplete}
         additionalControlData={
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           this.props.additionalControlData as Record<string, any>
         }
         dataTreePath={dataTreePath}
@@ -99,6 +101,8 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     return "ACTION_SELECTOR";
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(_: ControlData, value: any): boolean {
     const state = store.getState();
     const actions = getActions(state);

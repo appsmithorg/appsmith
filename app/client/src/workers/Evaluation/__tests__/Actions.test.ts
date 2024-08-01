@@ -15,6 +15,8 @@ jest.mock("lodash/uniqueId");
 
 describe("Add functions", () => {
   const workerEventMock = jest.fn();
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   self.postMessage = (payload: any) => {
     workerEventMock(payload);
   };

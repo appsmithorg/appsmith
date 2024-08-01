@@ -193,6 +193,8 @@ describe("DataTreeEvaluator", () => {
 
       const originalGetDynamicValue =
         dataTreeEvaluator.getDynamicValue.bind(dataTreeEvaluator);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const getDynamicValueCapturedParams: any[] = [];
       jest.spyOn(dataTreeEvaluator, "getDynamicValue");
       (dataTreeEvaluator.getDynamicValue as jest.Mock).mockImplementation(

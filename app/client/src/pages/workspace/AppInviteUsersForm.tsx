@@ -44,13 +44,15 @@ const BottomContainer = styled.div<{ canInviteToApplication?: boolean }>`
   }
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function AppInviteUsersForm(props: any) {
   const {
     applicationId,
     changeAppViewAccess,
     currentApplicationDetails,
     currentUser,
-    defaultPageId,
+    defaultBasePageId,
     fetchCurrentWorkspace,
     isChangingViewAccess,
     isFetchingApplication,
@@ -96,10 +98,10 @@ function AppInviteUsersForm(props: any) {
 
   const appViewEndPoint = React.useMemo(() => {
     const url = viewerURL({
-      pageId: defaultPageId,
+      basePageId: defaultBasePageId,
     });
     return window.location.origin.toString() + url;
-  }, [defaultPageId]);
+  }, [defaultBasePageId]);
 
   useEffect(() => {
     if (currentUser?.name !== ANONYMOUS_USERNAME) {
@@ -152,6 +154,8 @@ function AppInviteUsersForm(props: any) {
                 }}
               >
                 {createMessage(MAKE_APPLICATION_PUBLIC)}
+                {/* TODO: Fix this the next time the file is edited */}
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 <div onClick={(e: any) => e.preventDefault()}>
                   <Tooltip
                     content={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
@@ -178,11 +182,13 @@ export default connect(
     return {
       currentUser: getCurrentUser(state),
       currentApplicationDetails: state.ui.applications.currentApplication,
-      defaultPageId: state.entities.pageList.defaultPageId,
+      defaultPageId: state.entities.pageList.defaultBasePageId,
       isFetchingApplication: state.ui.applications.isFetchingApplication,
       isChangingViewAccess: state.ui.applications.isChangingViewAccess,
     };
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (dispatch: any) => ({
     changeAppViewAccess: (applicationId: string, publicAccess: boolean) =>
       dispatch({

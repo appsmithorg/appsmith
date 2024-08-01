@@ -72,7 +72,7 @@ public class FileUtilsCEImpl implements FileInterface {
 
     private final GitServiceConfig gitServiceConfig;
     private final GitExecutor gitExecutor;
-    private final FileOperations fileOperations;
+    protected final FileOperations fileOperations;
     private final ObservationHelper observationHelper;
 
     private static final String EDIT_MODE_URL_TEMPLATE = "{{editModeUrl}}";
@@ -515,15 +515,15 @@ public class FileUtilsCEImpl implements FileInterface {
      * This will reconstruct the application from the repo
      *
      * @param organisationId       To which organisation application needs to be rehydrated
-     * @param defaultApplicationId To which organisation application needs to be rehydrated
+     * @param baseApplicationId To which organisation application needs to be rehydrated
      * @param branchName           for which the application needs to be rehydrate
      * @return application reference from which entire application can be rehydrated
      */
     public Mono<ApplicationGitReference> reconstructApplicationReferenceFromGitRepo(
-            String organisationId, String defaultApplicationId, String repoName, String branchName) {
+            String organisationId, String baseApplicationId, String repoName, String branchName) {
 
         Stopwatch processStopwatch = new Stopwatch("FS reconstruct application");
-        Path baseRepoSuffix = Paths.get(organisationId, defaultApplicationId, repoName);
+        Path baseRepoSuffix = Paths.get(organisationId, baseApplicationId, repoName);
 
         // Checkout to mentioned branch if not already checked-out
         return gitExecutor
@@ -956,7 +956,7 @@ public class FileUtilsCEImpl implements FileInterface {
     @Override
     public Mono<Object> reconstructMetadataFromGitRepo(
             String workspaceId,
-            String defaultArtifactId,
+            String baseArtifactId,
             String repoName,
             String branchName,
             Path baseRepoSuffix,

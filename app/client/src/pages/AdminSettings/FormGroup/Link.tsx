@@ -39,6 +39,8 @@ const StyledIcon = styled(Icon)`
 
 export default function Link({ setting }: SettingComponentProps) {
   const dispatch = useDispatch();
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const linkProps: Record<string, string | (() => any)> = {};
   if (setting.url) {
     linkProps.href = setting.url;

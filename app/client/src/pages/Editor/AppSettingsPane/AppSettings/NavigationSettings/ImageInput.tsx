@@ -11,7 +11,11 @@ import {
 import { ContentBox } from "pages/AdminSettings/components";
 
 interface ImageInputProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange?(value?: any): void;
   validate?(
     e: React.ChangeEvent<HTMLInputElement>,

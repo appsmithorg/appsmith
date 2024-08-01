@@ -14,6 +14,8 @@ const OptionsContainer = styled.div`
   height: 100%;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function RemoteBranchListItem({ branch, className, onClick }: any) {
   const textRef = React.useRef<HTMLSpanElement>(null);
   const { isSwitchingBranch, switchingToBranch } = useSelector(

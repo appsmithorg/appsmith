@@ -80,6 +80,8 @@ interface PropertySectionProps {
   children?: ReactNode;
   childrenWrapperRef?: React.RefObject<HTMLDivElement>;
   className?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hidden?: (props: any, propertyPath: string) => boolean;
   isDefaultOpen?: boolean;
   propertyPath?: string;
@@ -219,6 +221,8 @@ export const PropertySection = memo((props: PropertySectionProps) => {
 
 PropertySection.displayName = "PropertySection";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 (PropertySection as any).whyDidYouRender = {
   logOnDifferentValues: false,
 };

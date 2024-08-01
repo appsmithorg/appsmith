@@ -53,7 +53,7 @@ import {
 } from "redux-saga/effects";
 import {
   getCanvasWidth,
-  getCurrentPageId,
+  getCurrentBasePageId,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
@@ -255,6 +255,8 @@ export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
     // If it is an auto-layout canvas, then use positionUtils to update canvas bottomRow.
     let updatedWidgetsAfterResizing = movedWidgets;
     if (layoutSystemType === LayoutSystemTypes.AUTO) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       updatedWidgetsAfterResizing = updatePositionsOfParentAndSiblings(
         movedWidgets,
@@ -390,6 +392,8 @@ const DYNAMIC_BINDING_IGNORED_LIST = [
 function getDynamicBindingPathListUpdate(
   widget: WidgetProps,
   propertyPath: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
 ): DynamicPathUpdate {
   let stringProp = propertyValue;
@@ -1361,6 +1365,8 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
               try {
                 const tabs = Object.values(widget.tabsObj);
                 if (Array.isArray(tabs)) {
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   widget.tabsObj = tabs.reduce((obj: any, tab: any) => {
                     tab.widgetId = widgetIdMap[tab.widgetId];
                     obj[tab.id] = tab;
@@ -1519,6 +1525,8 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
                   !flexLayers ||
                   flexLayers.length <= 0)
               ) {
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const metaProps: Record<string, any> =
                   yield select(getWidgetsMeta);
                 if (widget.widgetId === widgetIdMap[copiedWidget.widgetId])
@@ -1583,6 +1591,8 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
           ...newFlexLayers,
         ],
       };
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       reflowedWidgets = updateWidgetPositions(
         reflowedWidgets,
@@ -1607,10 +1617,10 @@ function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
     );
     yield call(updateAndSaveAnvilLayout, updatedWidgets);
 
-    const pageId: string = yield select(getCurrentPageId);
+    const basePageId: string = yield select(getCurrentBasePageId);
 
     if (copiedWidgetGroups && copiedWidgetGroups.length > 0) {
-      history.push(builderURL({ pageId }));
+      history.push(builderURL({ basePageId }));
     }
 
     yield put({
@@ -1899,6 +1909,8 @@ function* verifyPasteFeasibilitySaga(
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
   if (!isAnvilLayout) {

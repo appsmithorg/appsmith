@@ -83,6 +83,8 @@ export const getWidgetPropsForPropertyPane = createSelector(
   (
     widget: WidgetProps | undefined,
     layoutSystemType,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     evaluatedValue: any,
   ): WidgetProps | undefined => {
     if (!widget) return undefined;
@@ -129,6 +131,8 @@ const populateWidgetProperties = (
     dependencies = [...dependencies, ...dynamicDependencies(widget)];
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const widgetProperties: any = {};
 
   if (!widget) return widgetProperties;
@@ -156,6 +160,8 @@ const populateWidgetProperties = (
   return widgetProperties;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const getAndSetPath = (from: any, to: any, path: string) => {
   if (!from || !to) return;
 

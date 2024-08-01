@@ -102,6 +102,8 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import DatasourceInformation, { ViewModeWrapper } from "./DatasourceSection";
+import { convertToPageIdSelector } from "selectors/pageListSelectors";
+import { getApplicationByIdFromWorkspaces } from "@appsmith/selectors/applicationSelectors";
 
 interface ReduxStateProps {
   canDeleteDatasource: boolean;
@@ -112,10 +114,13 @@ interface ReduxStateProps {
   formName: string;
   isSaving: boolean;
   isTesting: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formConfig: any[];
   isDeleting: boolean;
   isNewDatasource: boolean;
   isPluginAuthorized: boolean;
+  basePageId: string;
   pageId: string;
   pluginImage: string;
   pluginId: string;
@@ -153,7 +158,7 @@ type Props = ReduxStateProps &
   DatasourcePaneFunctions &
   RouteComponentProps<{
     datasourceId: string;
-    pageId: string;
+    basePageId: string;
   }>;
 
 export const DSEditorWrapper = styled.div`
@@ -216,7 +221,11 @@ export interface DatasourcePaneFunctions {
   deleteTempDSFromDraft: () => void;
   toggleSaveActionFlag: (flag: boolean) => void;
   toggleSaveActionFromPopupFlag: (flag: boolean) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reinitializeForm: (formName: string, value: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasource: (data: any) => void;
   resetDefaultKeyValPairFlag: () => void;
   resetForm: (formName: string) => void;
@@ -487,6 +496,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   blockRoutes() {
     this.setState({
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       unblock: this.props?.history?.block((tx: any) => {
         const nextPath = tx.pathname + tx.search;
         const prevPath =
@@ -890,6 +901,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   render() {
     const {
+      basePageId,
       canDeleteDatasource,
       canManageDatasource,
       datasource,
@@ -936,7 +948,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
       }
       history.push(
         saasEditorDatasourceIdURL({
-          pageId,
+          basePageId,
           pluginPackageName,
           datasourceId,
         }),
@@ -1057,7 +1069,18 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
+  const applicationId = props.applicationId ?? getCurrentApplicationId(state);
+  const application = getApplicationByIdFromWorkspaces(state, applicationId);
+
+  const basePageIdFromUrl = props?.match?.params?.basePageId;
+  const pageIdFromUrl = convertToPageIdSelector(state, basePageIdFromUrl);
+  const pageId = props.pageId || pageIdFromUrl;
+  const basePageId =
+    application?.pages?.find((page) => page.id === pageId)?.baseId ?? "";
+
   const datasourceId = props.datasourceId ?? props.match?.params?.datasourceId;
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
@@ -1089,6 +1112,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     | Datasource
     | ApiDatasourceForm;
   const defaultKeyValueArrayConfig =
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     datasourcePane?.defaultKeyValueArrayConfig as any;
 
   const datasourcePermissions = datasource?.userPermissions || [];
@@ -1146,13 +1171,14 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     formConfig: formConfigs[pluginId] || [],
     isNewDatasource,
     isPluginAllowedToPreviewData,
-    pageId: props.pageId ?? props.match?.params?.pageId,
+    pageId,
+    basePageId,
     viewMode,
     pluginType: plugin?.type ?? "",
     pluginName: plugin?.name ?? "",
     pluginDatasourceForm,
     pluginPackageName,
-    applicationId: props.applicationId ?? getCurrentApplicationId(state),
+    applicationId,
     applicationSlug,
     pageSlug,
     isDatasourceBeingSaved: datasources.isDatasourceBeingSaved,
@@ -1166,7 +1192,11 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 };
 
 const mapDispatchToProps = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ownProps: any,
 ): DatasourcePaneFunctions => ({
   switchDatasource: (id: string) => {
@@ -1184,8 +1214,12 @@ const mapDispatchToProps = (
   toggleSaveActionFlag: (flag) => dispatch(toggleSaveActionFlag(flag)),
   toggleSaveActionFromPopupFlag: (flag) =>
     dispatch(toggleSaveActionFromPopupFlag(flag)),
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reinitializeForm: (formName: string, value: any) =>
     dispatch(initialize(formName, value, false)),
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasource: (data: any) =>
     dispatch(createTempDatasourceFromForm(data)),
   resetForm: (formName: string) => dispatch(reset(formName)),

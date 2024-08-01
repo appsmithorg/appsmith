@@ -16,6 +16,8 @@ export const getJsActionPeekData = (
       peekData[jsChild.name] = function () {};
 
       if (jsAction.data?.[jsChild.id] && jsChild.executeOnLoad) {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (peekData[jsChild.name] as any).data = jsAction.data[jsChild.id];
       }
     });

@@ -7,6 +7,8 @@ const Container = styled.div`
   margin: 8px 0 16px;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function PushFailedWarning({ closeHandler, error }: any) {
   return (
     <Container className="ankita">

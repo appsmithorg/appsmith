@@ -54,6 +54,8 @@ function SnipeableComponent(props: SnipeableComponentProps) {
       state.ui.widgetDragResize.focusedWidget === props.widgetId,
   );
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleMouseOver = (e: any) => {
     focusWidget && !isFocusedWidget && focusWidget(props.widgetId);
     e.stopPropagation();

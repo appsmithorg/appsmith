@@ -12,10 +12,14 @@ import store from "store";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { SlashCommandMenuOnFocusWidgetProps } from "./constants";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const removeNewLineChars = (inputValue: any) => {
   return inputValue && inputValue.replace(/(\r\n|\n|\r)/gm, "");
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getInputValue = (inputValue: any) => {
   if (typeof inputValue === "object" || typeof inputValue === "boolean") {
     inputValue = JSON.stringify(inputValue, null, 2);
@@ -72,10 +76,14 @@ export const checkIfCursorInsideJSObject = (
   return /^\s*export default /.test(value);
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isActionEntity = (entity: any): entity is ActionEntity => {
   return entity.ENTITY_TYPE === ENTITY_TYPE.ACTION;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isWidgetEntity = (entity: any): entity is WidgetEntity => {
   return entity.ENTITY_TYPE === ENTITY_TYPE.WIDGET;
 };
@@ -86,6 +94,8 @@ interface Event {
 }
 
 export const addEventToHighlightedElement = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   element: any,
   customClassName: string,
   events?: Event[],
@@ -105,6 +115,8 @@ export const addEventToHighlightedElement = (
 };
 
 export const removeEventFromHighlightedElement = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   element: any,
   events?: Event[],
 ) => {

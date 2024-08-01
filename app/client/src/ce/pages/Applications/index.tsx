@@ -278,6 +278,8 @@ const AnvilTitleTag = (
 
 export function LeftPaneSection(props: {
   heading: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children?: any;
   isFetchingWorkspaces: boolean;
   isBannerVisible?: boolean;
@@ -297,6 +299,8 @@ export function LeftPaneSection(props: {
       {
         name: getNextEntityName(
           "Untitled workspace ",
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           fetchedWorkspaces.map((el: any) => el.name),
         ),
       },
@@ -370,7 +374,8 @@ export const textIconStyles = (props: { color: string; hover: string }) => {
 export function WorkspaceMenuItem({
   isFetchingWorkspaces,
   selected,
-  workspace,
+  workspace, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const history = useHistory();
   const location = useLocation();
@@ -400,6 +405,8 @@ export function WorkspaceMenuItem({
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
   const result = await createWorkspaceSubmitHandler(data, dispatch);
   return result;
@@ -512,6 +519,8 @@ export const WorkspaceSelectorWrapper = styled.div`
   padding: 24px 10px 0;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ApplicationsSection(props: any) {
   const { activeWorkspaceId, applications, packages, workflows, workspaces } =
     props;
@@ -739,6 +748,8 @@ export function ApplicationsSection(props: any) {
         createNewApplication(
           getNextEntityName(
             "Untitled application ",
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             applications.map((el: any) => el.name),
           ),
           workspaceId,
@@ -946,6 +957,8 @@ export function ApplicationsSection(props: any) {
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ApplictionsMainPage = (props: any) => {
   const { searchKeyword } = props;
   const location = useLocation();
@@ -964,12 +977,16 @@ export const ApplictionsMainPage = (props: any) => {
   const isLicensePage = useRouteMatch("/license")?.isExact;
   const isBannerVisible = showBanner && (isHomePage || isLicensePage);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let workspaces: any;
   if (!isFetchingWorkspaces) {
     workspaces = fetchedWorkspaces;
   } else {
     workspaces = loadingUserWorkspaces.map(
       (loadingWorkspaces) => loadingWorkspaces.workspace,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) as any;
   }
 
@@ -1075,6 +1092,8 @@ export interface ApplicationProps {
     fetchEntities: boolean;
     workspaceId: string | null;
   }) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workspaces: any;
   currentUser?: User;
   searchKeyword: string | undefined;
@@ -1161,6 +1180,8 @@ export const mapStateToProps = (state: AppState) => ({
   isReconnectModalOpen: getIsReconnectingDatasourcesModalOpen(state),
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mapDispatchToProps = (dispatch: any) => ({
   getAllWorkspaces: ({
     fetchEntities,

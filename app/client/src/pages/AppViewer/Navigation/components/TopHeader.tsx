@@ -9,7 +9,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import MobileNavToggle from "./MobileNavToggle";
 import ApplicationName from "./ApplicationName";
 import ShareButton from "./ShareButton";
@@ -59,8 +59,8 @@ const TopHeader = (props: TopHeaderProps) => {
     "properties.colors.primaryColor",
     "inherit",
   );
-  const pageId = useSelector(getCurrentPageId);
-  const editorURL = useHref(builderURL, { pageId });
+  const basePageId = useSelector(getCurrentBasePageId);
+  const editorURL = useHref(builderURL, { basePageId });
 
   return (
     <StyledNav

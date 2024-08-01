@@ -18,13 +18,11 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import type { AppState } from "@appsmith/reducers";
-import {
-  getCurrentApplication,
-  getPagePermissions,
-} from "selectors/editorSelectors";
+import { getPagePermissions } from "selectors/editorSelectors";
 import { get } from "lodash";
 import { useEditorType } from "@appsmith/hooks";
 import history from "utils/history";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 interface FetchPreviewData {
   datasourceId: string;
@@ -38,7 +36,11 @@ interface UseDatasourceQueryReturn {
 }
 
 interface UseDatasourceQueryParams {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setPreviewData: (data: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setPreviewDataError: (string: any) => void;
 }
 
@@ -52,6 +54,8 @@ export const useDatasourceQuery = ({
   const [failedFetchingPreviewData, setFailedFetchingPreviewData] =
     useState(false);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFetchPreviewDataSuccess = useCallback((payload: any) => {
     setIsLoading(false);
 
@@ -68,6 +72,8 @@ export const useDatasourceQuery = ({
     }
   }, []);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onFetchPreviewDataFailure = useCallback((error: any) => {
     setIsLoading(false);
     setFailedFetchingPreviewData(true);

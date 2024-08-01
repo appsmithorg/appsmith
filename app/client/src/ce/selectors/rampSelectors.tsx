@@ -60,6 +60,8 @@ export const showProductRamps = (
       const workspaceUsers = ui?.selectedWorkspace?.users;
       if (workspaceUsers?.length) {
         const workspaceUser = workspaceUsers.find(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (user: any) => user?.username === currentUser?.username,
         );
         if (workspaceUser?.roles?.length) {

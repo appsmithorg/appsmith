@@ -94,6 +94,7 @@ import {
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
+import { convertToPageIdSelector } from "selectors/pageListSelectors";
 
 const ViewModeContainer = styled.div`
   display: flex;
@@ -139,6 +140,8 @@ interface DatasourceFormFunctions {
   deleteTempDSFromDraft: () => void;
   toggleSaveActionFlag: (flag: boolean) => void;
   toggleSaveActionFromPopupFlag: (flag: boolean) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasource: (data: any) => void;
   setDatasourceViewMode: (payload: {
     datasourceId: string;
@@ -146,6 +149,8 @@ interface DatasourceFormFunctions {
   }) => void;
   loadFilePickerAction: () => void;
   datasourceDiscardAction: (pluginId: string) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initializeDatasource: (values: any) => void;
   resetForm: (formName: string) => void;
 }
@@ -153,6 +158,8 @@ interface DatasourceFormFunctions {
 type DatasourceSaaSEditorProps = StateProps &
   DatasourceFormFunctions &
   SaasEditorWrappperProps &
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   RouteComponentProps<RouteProps> & { dispatch: any };
 
 type Props = DatasourceSaaSEditorProps &
@@ -174,15 +181,18 @@ interface State {
   navigation(): void;
 }
 
-type SaasEditorWrappperProps = RouteProps & {
+interface SaasEditorWrappperProps {
   hiddenHeader?: boolean; // for reconnect modal
   isInsideReconnectModal?: boolean; // for reconnect modal
   currentEnvironment: string;
   isOnboardingFlow?: boolean;
-};
-interface RouteProps {
   datasourceId: string;
   pageId: string;
+  pluginPackageName: string;
+}
+interface RouteProps {
+  datasourceId: string;
+  basePageId: string;
   pluginPackageName: string;
 }
 
@@ -397,6 +407,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
 
   blockRoutes() {
     this.setState({
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       unblock: this.props?.history?.block((tx: any) => {
         this.setState(
           {
@@ -542,6 +554,8 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
     );
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderDataSourceConfigForm = (sections: any) => {
     const {
       canDeleteDatasource,
@@ -721,7 +735,20 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
   };
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, props: any) => {
+  // This is only present during onboarding flow
+  const currentApplicationIdForCreateNewApp =
+    getCurrentApplicationIdForCreateNewApp(state);
+  const applicationId = !!currentApplicationIdForCreateNewApp
+    ? currentApplicationIdForCreateNewApp
+    : getCurrentApplicationId(state);
+
+  const basePageId = props.match?.params?.basePageId;
+  const pageIdFromUrl = convertToPageIdSelector(state, basePageId);
+  const pageId = props.pageId || pageIdFromUrl;
+
   const datasourceId = props.datasourceId || props.match?.params?.datasourceId;
   const { datasourcePane } = state.ui;
   const { datasources, plugins } = state.entities;
@@ -809,10 +836,6 @@ const mapStateToProps = (state: AppState, props: any) => {
         )
       : false;
 
-  // This is only present during onboarding flow
-  const currentApplicationIdForCreateNewApp =
-    getCurrentApplicationIdForCreateNewApp(state);
-
   // should plugin be able to preview data
   const isPluginAllowedToPreviewData =
     !!plugin && isEnabledForPreviewData(datasource as Datasource, plugin);
@@ -829,7 +852,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     formConfig,
     viewMode: viewMode ?? !props.isInsideReconnectModal,
     isNewDatasource: datasourcePane.newDatasource === TEMP_DATASOURCE_ID,
-    pageId: props.pageId || props.match?.params?.pageId,
+    pageId,
     plugin: plugin,
     pluginImage: getPluginImages(state)[pluginId],
     pluginPackageName:
@@ -839,9 +862,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     pluginId: pluginId,
     actions: state.entities.actions,
     formName: DATASOURCE_SAAS_FORM,
-    applicationId: !!currentApplicationIdForCreateNewApp
-      ? currentApplicationIdForCreateNewApp
-      : getCurrentApplicationId(state),
+    applicationId,
     canManageDatasource,
     canDeleteDatasource,
     datasourceName: datasource?.name ?? "",
@@ -859,6 +880,8 @@ const mapStateToProps = (state: AppState, props: any) => {
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
   discardTempDatasource: () => dispatch(removeTempDatasource()),
   deleteTempDSFromDraft: () => dispatch(deleteTempDSFromDraft()),
@@ -878,11 +901,15 @@ const mapDispatchToProps = (dispatch: any): DatasourceFormFunctions => ({
 
     dispatch(setDatasourceViewMode(payload));
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasource: (data: any) =>
     dispatch(createTempDatasourceFromForm(data)),
   loadFilePickerAction: () => dispatch(loadFilePickerAction()),
   datasourceDiscardAction: (pluginId) =>
     dispatch(datasourceDiscardAction(pluginId)),
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initializeDatasource: (values: any) =>
     dispatch(initialize(DATASOURCE_SAAS_FORM, values)),
   resetForm: (formName: string) => dispatch(reset(formName)),

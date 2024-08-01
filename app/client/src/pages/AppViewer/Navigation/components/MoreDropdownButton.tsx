@@ -79,7 +79,7 @@ const MoreDropdownButton = ({
               navColorStyle={navColorStyle}
               primaryColor={primaryColor}
             />
-
+            {/*@ts-expect-error Fix this the next time the file is edited*/}
             <Icon className="page-icon ml-2" name="expand-more" size="large" />
           </>
         )}
@@ -105,10 +105,10 @@ const MoreDropdownButton = ({
         const pageURL =
           appMode === APP_MODE.PUBLISHED
             ? viewerURL({
-                pageId: page.pageId,
+                basePageId: page.basePageId,
               })
             : builderURL({
-                pageId: page.pageId,
+                basePageId: page.basePageId,
               });
 
         return (
@@ -131,6 +131,7 @@ const MoreDropdownButton = ({
                   "page-icon mr-2": true,
                 })}
                 name="file-line"
+                // @ts-expect-error Fix this the next time the file is edited
                 size="large"
               />
             )}

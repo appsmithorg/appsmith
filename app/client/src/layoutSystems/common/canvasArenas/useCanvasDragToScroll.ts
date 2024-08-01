@@ -7,6 +7,8 @@ export const useCanvasDragToScroll = (
   canvasRef: RefObject<HTMLElement>,
   isCurrentDraggedCanvas: boolean,
   isDragging: boolean,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dependencies: Record<string, any> = {},
 ) => {
   const canScroll = useRef(true);
@@ -50,6 +52,8 @@ export const useCanvasDragToScroll = (
           scrollTimeOut.push(setTimeout(scrollFn, 100 * Math.max(0.4, speed)));
         }
       };
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const checkIfNeedsScroll = (e: any) => {
         if (isDragging && isCurrentDraggedCanvas) {
           const scrollParent: Element | null = getNearestParentCanvas(

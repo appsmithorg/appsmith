@@ -34,6 +34,8 @@ export interface ApiPaneReduxState {
   isSaving: Record<string, boolean>; // RN
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraformData: Record<string, any>;
   selectedConfigTabIndex: number;
   selectedRightPaneTab?: string;
@@ -87,6 +89,8 @@ export const handlers = {
   }),
   [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
     state: ApiPaneReduxState,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<{ [id: string]: any }>,
   ) => {
     const actionId = Object.keys(action.payload)[0];
@@ -245,6 +249,12 @@ export const handlers = {
         ...state.debugger,
         ...action.payload,
       },
+    };
+  },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: ApiPaneReduxState) => {
+    return {
+      ...state,
+      isSaving: {},
     };
   },
 };

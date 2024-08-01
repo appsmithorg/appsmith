@@ -28,6 +28,8 @@ import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoL
 
 //returns props for using snapshot flows based on which the Conversion Form can be rendered
 export const snapShotFlow = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: Dispatch<any>,
   readableSnapShotDetails: ReadableSnapShotDetails | undefined,
   backState?: CONVERSION_STATES,

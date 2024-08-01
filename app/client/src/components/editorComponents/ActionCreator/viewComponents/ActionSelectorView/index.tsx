@@ -62,6 +62,8 @@ export const ActionSelectorView: React.FC<SelectorViewProps> = ({
 
   const fieldConfig = FIELD_CONFIG[FieldType.ACTION_SELECTOR_FIELD];
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actionType = (selectedOption.type || selectedOption.value) as any;
 
   const { action } = getActionInfo(valueWithoutMoustache, actionType, true);

@@ -132,6 +132,8 @@ function QuickActionButton({
 }
 
 const getPullBtnStatus = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   gitStatus: any,
   pullFailed: boolean,
   isProtected: boolean,
@@ -175,6 +177,8 @@ const getQuickActionButtons = ({
   settings: () => void;
   pull: () => void;
   merge: () => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   gitStatus: any;
   isFetchingGitStatus: boolean;
   pullDisabled: boolean;

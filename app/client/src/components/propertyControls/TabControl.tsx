@@ -17,6 +17,8 @@ import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListCon
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Button, Tag } from "design-system";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function AddTabButtonComponent({ widgetId }: any) {
   const dispatch = useDispatch();
   const addOption = () => {
@@ -153,7 +155,11 @@ class TabControl extends BaseControl<ControlProps, State> {
     return menuItems;
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateItems = (items: Array<Record<string, any>>) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const tabsObj = items.reduce((obj: any, each: any, index: number) => {
       obj[each.id] = {
         ...each,

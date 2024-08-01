@@ -26,7 +26,11 @@ export const getWidgetChildrenPeekData = (
       | "ICON_WIDGET"
       | "SKELETON_WIDGET"
       | "TABS_MIGRATOR_WIDGET"
-    > = dataTreeWidget.type as any;
+    > = // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      dataTreeWidget.type as any;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let config: any = WidgetFactory.getAutocompleteDefinitions(type);
     if (config) {
       if (isFunction(config)) config = config(dataTreeWidget);

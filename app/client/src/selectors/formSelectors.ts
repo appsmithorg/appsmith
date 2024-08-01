@@ -14,9 +14,12 @@ import type { Action } from "entities/Action";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { getActionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import { extractConditionalOutput } from "components/formControls/utils";
+import { getActionByBaseId } from "@appsmith/selectors/entitiesSelector";
 
 export interface GetFormData {
   initialValues: Record<string, unknown>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   values: any;
   valid: boolean;
 }
@@ -41,11 +44,16 @@ export const getFormEvaluationState = (state: AppState): FormEvaluationState =>
 // have the fetchOptionsDynamically option set to true
 export const getDynamicFetchedValues = (
   state: AppState,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: any,
 ): DynamicValues => {
+  const baseActionId = getActionIdFromURL();
+  const action = getActionByBaseId(state, baseActionId as string);
+  const actionId = action?.id ?? "";
   const conditionalOutput = extractConditionalOutput(
     config,
-    state.evaluations.triggers[getActionIdFromURL() as string],
+    state.evaluations.triggers[actionId],
   );
   return !!conditionalOutput.fetchDynamicValues
     ? conditionalOutput.fetchDynamicValues
@@ -80,6 +88,8 @@ export const getConfigErrors = createSelector(
   (_: AppState, props: ConfigErrorProps) => props.configProperty,
   (dataTree: DataTree, formValues: Partial<Action>, configProperty: string) => {
     // action that corresponds to this form control
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let action: any;
     let configErrors: EvaluationError[] = [];
 

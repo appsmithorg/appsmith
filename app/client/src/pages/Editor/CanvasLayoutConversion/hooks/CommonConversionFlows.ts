@@ -24,6 +24,8 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 //returns props for common conversion flows based on which the Conversion Form can be rendered
 export const commonConversionFlows = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: Dispatch<any>,
 ): {
   [key: string]: ConversionProps;

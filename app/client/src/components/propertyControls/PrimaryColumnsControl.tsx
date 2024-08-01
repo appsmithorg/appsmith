@@ -28,6 +28,8 @@ import { Button } from "design-system";
 
 interface ReduxStateProps {
   dynamicData: DataTree;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   datasources: any;
 }
 
@@ -37,6 +39,8 @@ type EvaluatedValuePopupWrapperProps = ReduxStateProps & {
   popperPlacement?: Placement;
   popperZIndex?: Indices;
   dataTreePath?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   hideEvaluatedValue?: boolean;
@@ -152,6 +156,8 @@ class PrimaryColumnsControl extends BaseControl<ControlProps, State> {
             items={draggableComponentColumns}
             onEdit={this.onEdit}
             propertyPath={this.props.dataTreePath}
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             renderComponent={(props: any) =>
               DraggableListCard({
                 ...props,
