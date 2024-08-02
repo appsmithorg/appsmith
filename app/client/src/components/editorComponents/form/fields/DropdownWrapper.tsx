@@ -27,12 +27,16 @@ interface DropdownWrapperProps {
 }
 
 function DropdownWrapper(props: DropdownWrapperProps) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedOption, setSelectedOption] = useState<any>([
     {
       value: props.placeholder,
     },
   ]);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSelectHandler = (value?: any, option?: any) => {
     if (props?.isMultiSelect) {
       const updatedItems: Partial<SelectOptionProps>[] = [
@@ -47,8 +51,12 @@ function DropdownWrapper(props: DropdownWrapperProps) {
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onRemoveOptions = (value: any) => {
     const updatedItems = selectedOption.filter(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (option: any) => option.value !== value,
     );
     props.input && props.input.onChange && props.input.onChange(updatedItems);

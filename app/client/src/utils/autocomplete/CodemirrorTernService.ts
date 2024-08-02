@@ -26,14 +26,18 @@ const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
 
+type MakeRequired<T, K extends keyof T> = Omit<T, K> & Required<Pick<T, K>>;
+
 export interface Completion<
   T = {
     doc: string;
   },
-> extends Hint {
+> extends MakeRequired<Hint, "displayText"> {
   origin: string;
   type: AutocompleteDataType | string;
   data: T;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   render?: any;
   isHeader?: boolean;
   recencyWeight?: number;
@@ -67,6 +71,8 @@ export interface TernCompletionResult {
 
 interface ArgHints {
   start: CodeMirror.Position;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   type: { args: any[]; rettype: null | string };
   name: string;
   guess: boolean;
@@ -84,9 +90,17 @@ interface RequestQuery {
   end?: CodeMirror.Position;
   guess?: boolean;
   inLiteral?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fullDocs?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lineCharPositions?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   start?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   file?: any;
   includeKeywords?: boolean;
   depth?: number;
@@ -110,6 +124,25 @@ export function isCustomKeywordType(
   return Boolean(
     customKeywordsList.includes(completion.name) || completion.isKeyword,
   );
+}
+
+// Define the regex for extracting the final object path
+const FINAL_OBJECT_PATH_REGEX = /(?:\w+\.)*\w+$/;
+
+/**
+ * Extracts the final object path from a given input string.
+ * The final object path is the rightmost dot-separated path in the string.
+ *
+ * @param {string} input - The input string from which to extract the object path.
+ * @returns {string|null} - The extracted object path or null if no match is found.
+ *
+ * Example:
+ *   Input: '\tconst k = PageQuery.run'
+ *   Output: 'PageQuery.run'
+ */
+export function extractFinalObjectPath(input: string) {
+  const match = (input || "")?.trim().match(FINAL_OBJECT_PATH_REGEX);
+  return match ? match[0] : null;
 }
 
 export function getDataType(type: string): AutocompleteDataType {
@@ -171,18 +204,22 @@ class CodeMirrorTernService {
   docs: TernDocs = Object.create(null);
   cachedArgHints: ArgHints | null = null;
   activeArgHints: HTMLElement | null = null;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   active: any;
   fieldEntityInformation: FieldEntityInformation = {};
   defEntityInformation: Map<string, DataTreeDefEntityInformation> = new Map<
     string,
     DataTreeDefEntityInformation
   >();
+  entityDef: Def;
   options: { async: boolean };
   recentEntities: string[] = [];
 
   constructor(options: { async: boolean }) {
     this.options = options;
     this.server = new TernWorkerServer(this);
+    this.entityDef = {};
   }
 
   resetServer = () => {
@@ -196,12 +233,16 @@ class CodeMirrorTernService {
       completeSingle: false,
       alignWithWord: false,
       extraKeys: {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Up: (cm: CodeMirror.Editor, handle: any) => {
           handle.moveFocus(-1);
           if (this.active.isHeader === true) {
             handle.moveFocus(-1);
           }
         },
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         Down: (cm: CodeMirror.Editor, handle: any) => {
           handle.moveFocus(1);
           if (this.active.isHeader === true) {
@@ -375,6 +416,8 @@ class CodeMirrorTernService {
   }
 
   showDocs(cm: CodeMirror.Editor) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     this.showContextInfo(cm, "documentation", (data: any) => {
       if (data.url) {
         window.open(data.url, "_blank");
@@ -397,6 +440,7 @@ class CodeMirrorTernService {
       this.server.deleteDefs(name);
     }
 
+    this.entityDef = def || {};
     if (entityInfo) this.defEntityInformation = entityInfo;
   }
 
@@ -405,9 +449,13 @@ class CodeMirrorTernService {
   }
 
   requestCallback(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     error: any,
     data: QueryRegistry["completions"]["result"],
     cm: CodeMirror.Editor,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolve: any,
   ) {
     if (error) return this.showError(cm, error);
@@ -455,9 +503,21 @@ class CodeMirrorTernService {
         completion.origin === "DATA_TREE" &&
         this.defEntityInformation.has(completion.name);
       let completionText = completion.name + after;
+      const completedLine = lineValue.substring(0, from.ch) + completion.name;
+      const entityPath = extractFinalObjectPath(completedLine);
+
       if (dataType === "FUNCTION" && !completion.origin?.startsWith("LIB/")) {
         if (token.type !== "string" && token.string !== "[") {
-          completionText = completionText + "()";
+          const entityDef = entityPath && this.entityDef[entityPath];
+          if (
+            entityDef &&
+            typeof entityDef === "object" &&
+            "!fnParams" in entityDef
+          ) {
+            completionText = completionText + `(${entityDef["!fnParams"]})`;
+          } else {
+            completionText = completionText + "()";
+          }
         }
       }
       const codeMirrorCompletion: Completion<TernCompletionResult> = {
@@ -475,7 +535,11 @@ class CodeMirrorTernService {
       if (isKeyword) {
         codeMirrorCompletion.render = (
           element: HTMLElement,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           self: any,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           data: any,
         ) => {
           element.setAttribute("keyword", data.displayText);
@@ -539,6 +603,8 @@ class CodeMirrorTernService {
     CodeMirror.on(
       obj,
       "select",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (cur: Completion<TernCompletionResult>, node: any) => {
         this.active = cur;
         this.remove(tooltip);
@@ -574,6 +640,8 @@ class CodeMirrorTernService {
   }
 
   async getHint(cm: CodeMirror.Editor) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const hints: Record<string, any> = await new Promise((resolve) => {
       this.request<"completions">(
         cm,
@@ -628,6 +696,8 @@ class CodeMirrorTernService {
     return hints;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   showContextInfo(cm: CodeMirror.Editor, queryName: string, callbackFn?: any) {
     this.request<"type">(cm, { type: queryName }, (error, data) => {
       if (error) return;
@@ -654,6 +724,8 @@ class CodeMirrorTernService {
   request<T extends keyof QueryRegistry>(
     cm: CodeMirror.Editor,
     query: RequestQuery | string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callbackFn: (error: any, data: QueryRegistry[T]["result"]) => void,
     pos?: CodeMirror.Position,
   ) {
@@ -690,6 +762,8 @@ class CodeMirrorTernService {
     return (this.docs[name] = data);
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   buildRequest(doc: TernDoc, query: any, pos?: CodeMirror.Position) {
     const files = [];
     let offsetLines = 0;
@@ -767,6 +841,8 @@ class CodeMirrorTernService {
     change: {
       to: CodeMirror.Position;
       from: CodeMirror.Position;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       text: string | any[];
     },
   ) {
@@ -1071,6 +1147,8 @@ class CodeMirrorTernService {
     x: number,
     y: number,
     content: HTMLElement | string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     cm?: any,
     className?: string | null,
   ) {
@@ -1126,6 +1204,8 @@ class CodeMirrorTernService {
     }
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   elt(tagname: string, cls: string | null, ...rest: any[]) {
     const e = document.createElement(tagname);
     if (cls) e.className = cls;
@@ -1187,6 +1267,8 @@ class CodeMirrorTernService {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const createCompletionHeader = (name: string): Completion<any> => ({
   text: name,
   displayText: name,
@@ -1204,7 +1286,10 @@ export default new CodeMirrorTernService({
 function dotToBracketNotationAtToken(token: CodeMirror.Token) {
   return (cm: CodeMirror.Editor, hints: Hints, curr: Hint) => {
     let completion = curr.text;
-    if (token.type === "string") {
+    if (
+      token.type === "string" ||
+      ("type" in curr && curr.type === AutocompleteDataType.FUNCTION)
+    ) {
       // | represents the cursor
       // Cases like JSObject1["myV|"]
       cm.replaceRange(completion, hints.from, hints.to);

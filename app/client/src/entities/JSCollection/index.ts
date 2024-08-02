@@ -5,10 +5,13 @@ import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/
 
 export interface Variable {
   name: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
 }
 export interface JSCollection {
   id: string;
+  baseId: string;
   applicationId: string;
   workspaceId: string;
   name: string;

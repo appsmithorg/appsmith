@@ -84,11 +84,15 @@ const dowloadOptions: DownloadOptionProps[] = [
 ];
 
 const downloadDataAsCSV = (props: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   csvData: Array<Array<any>>;
   delimiter: string;
   fileName: string;
 }) => {
   let csvContent = "";
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props.csvData.forEach((infoArray: Array<any>, index: number) => {
     const dataString = infoArray.join(props.delimiter);
     csvContent += index < props.csvData.length ? dataString + "\n" : dataString;
@@ -143,6 +147,8 @@ function TableDataDownload(props: TableDataDownloadProps) {
       });
     tableData.push(tableHeaders);
     for (let row = 0; row < props.data.length; row++) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data: { [key: string]: any } = props.data[row];
       const tableRow: Array<DataCellProps> = [];
       for (let colIndex = 0; colIndex < props.columns.length; colIndex++) {

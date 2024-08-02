@@ -33,12 +33,25 @@ import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { Plugin } from "api/PluginApi";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import { Icon } from "design-system";
+import {
+  EditorEntityTab,
+  EditorEntityTabState,
+  EditorState,
+  EditorViewMode,
+} from "@appsmith/entities/IDE/constants";
+import { FocusEntity } from "navigation/FocusEntity";
 
 export const draggableElement = (
   id: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   element: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onPositionChange: any,
   parentElement?: Element | null,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initPostion?: any,
   renderDragBlockPositions?: {
     left?: string;
@@ -181,6 +194,8 @@ export const draggableElement = (
     }
     dragHandler.addEventListener("mousedown", dragMouseDown);
     // stop clicks from propogating to widget editor.
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dragHandler.addEventListener("click", (e: any) => e.stopPropagation());
   };
 
@@ -189,6 +204,8 @@ export const draggableElement = (
 
 const createDragHandler = (
   id: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   el: any,
   dragHandle: () => JSX.Element,
   renderDragBlockPositions?: {
@@ -219,6 +236,8 @@ const createDragHandler = (
 };
 
 // Function to access nested property in an object
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getNestedValue = (obj: Record<string, any>, path = "") => {
   return path.split(".").reduce((prev, cur) => {
     return prev && prev[cur];
@@ -414,4 +433,84 @@ export function getPluginImagesFromPlugins(plugins: Plugin[]) {
     pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
   });
   return pluginImages;
+}
+
+/**
+ * Resolve segment and segmentMode based on entity type.
+ */
+export function getCurrentEntityInfo(entity: FocusEntity) {
+  switch (entity) {
+    case FocusEntity.QUERY:
+    case FocusEntity.API:
+    case FocusEntity.QUERY_MODULE_INSTANCE:
+      return {
+        segment: EditorEntityTab.QUERIES,
+        segmentMode: EditorEntityTabState.Edit,
+      };
+    case FocusEntity.QUERY_LIST:
+      return {
+        segment: EditorEntityTab.QUERIES,
+        segmentMode: EditorEntityTabState.List,
+      };
+    case FocusEntity.QUERY_ADD:
+      return {
+        segment: EditorEntityTab.QUERIES,
+        segmentMode: EditorEntityTabState.Add,
+      };
+    case FocusEntity.JS_OBJECT:
+    case FocusEntity.JS_MODULE_INSTANCE:
+      return {
+        segment: EditorEntityTab.JS,
+        segmentMode: EditorEntityTabState.Edit,
+      };
+    case FocusEntity.JS_OBJECT_ADD:
+      return {
+        segment: EditorEntityTab.JS,
+        segmentMode: EditorEntityTabState.Add,
+      };
+    case FocusEntity.JS_OBJECT_LIST:
+      return {
+        segment: EditorEntityTab.JS,
+        segmentMode: EditorEntityTabState.List,
+      };
+    case FocusEntity.CANVAS:
+      return {
+        segment: EditorEntityTab.UI,
+        segmentMode: EditorEntityTabState.Add,
+      };
+    case FocusEntity.PROPERTY_PANE:
+      return {
+        segment: EditorEntityTab.UI,
+        segmentMode: EditorEntityTabState.Edit,
+      };
+    case FocusEntity.WIDGET_LIST:
+      return {
+        segment: EditorEntityTab.UI,
+        segmentMode: EditorEntityTabState.List,
+      };
+    default:
+      return {
+        segment: EditorEntityTab.UI,
+        segmentMode: EditorEntityTabState.Add,
+      };
+  }
+}
+
+/**
+ * Check if use is currently working is side-by-side editor mode.
+ */
+export function isInSideBySideEditor({
+  appState,
+  segment,
+  viewMode,
+}: {
+  viewMode: EditorViewMode;
+  appState: EditorState;
+  segment: EditorEntityTab;
+}) {
+  return (
+    viewMode === EditorViewMode.SplitScreen &&
+    appState === EditorState.EDITOR &&
+    segment !== EditorEntityTab.UI
+  );
 }

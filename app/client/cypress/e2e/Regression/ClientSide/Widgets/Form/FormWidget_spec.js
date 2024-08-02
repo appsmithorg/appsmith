@@ -105,7 +105,7 @@ describe(
     it("4. Form Widget Functionality To Unchecked Visible Widget", function () {
       cy.openPropertyPane("formwidget");
       // Uncheck the visble JS
-      cy.togglebarDisable(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox, false);
       _.deployMode.DeployApp();
       // Verify the unchecked visible JS
       cy.get(publish.formWidget).should("not.exist");
@@ -115,7 +115,7 @@ describe(
       // Open property pone
       cy.openPropertyPane("formwidget");
       // Check the visible JS
-      cy.togglebar(commonlocators.visibleCheckbox);
+      _.agHelper.CheckUncheck(commonlocators.visibleCheckbox);
       _.deployMode.DeployApp();
       // Verify the Checked Visible JS
       cy.get(publish.formWidget).should("be.visible");

@@ -4,12 +4,14 @@ import { useLocation } from "react-router";
 
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { defaultPageIcon, pageIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import PageContextMenu from "pages/Editor/Explorer/Pages/PageContextMenu";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  getCurrentPageId,
+} from "selectors/editorSelectors";
 import { EntityClassNames } from "pages/Editor/Explorer/Entity";
 import {
   PERMISSION_TYPE,
@@ -19,7 +21,7 @@ import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors"
 import type { AppState } from "@appsmith/reducers";
 import { StyledEntity } from "pages/Editor/Explorer/Common/components";
 import { toValidPageName } from "utils/helpers";
-import { updatePage } from "actions/pageActions";
+import { updatePageAction } from "actions/pageActions";
 import { useGetPageFocusUrl } from "pages/Editor/IDE/hooks";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
@@ -34,7 +36,7 @@ const PageElement = ({
 }) => {
   const dispatch = useDispatch();
   const location = useLocation();
-  const navigateToUrl = useGetPageFocusUrl(page.pageId);
+  const navigateToUrl = useGetPageFocusUrl(page.basePageId);
   const ref = useRef<null | HTMLDivElement>(null);
 
   const currentPageId = useSelector(getCurrentPageId);
@@ -118,7 +120,7 @@ const PageElement = ({
       searchKeyword={""}
       step={0}
       updateEntityName={(id, name) =>
-        updatePage({ id, name, isHidden: !!page.isHidden })
+        updatePageAction({ id, name, isHidden: !!page.isHidden })
       }
     />
   );

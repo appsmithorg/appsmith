@@ -83,6 +83,8 @@ function QueryDebuggerTabs({
   runErrorMessage,
   showSchema,
 }: QueryDebuggerTabsProps) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let output: Record<string, any>[] | null = null;
   const dispatch = useDispatch();
 
@@ -182,8 +184,9 @@ function QueryDebuggerTabs({
           },
         ];
       }
-    } else {
+    } else { 
       output = parseResponseBody(actionResponse.body);
+ 
     }
   }
 
@@ -225,6 +228,7 @@ function QueryDebuggerTabs({
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <QueryResponseTab
+          actionName={actionName}
           actionSource={actionSource}
           currentActionConfig={currentActionConfig}
           isRunning={isRunning}

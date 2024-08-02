@@ -24,6 +24,8 @@ const WalkthroughRenderer = lazy(async () => {
 
 const LoadingFallback = () => null;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function Walkthrough({ children }: any) {
   const [activeWalkthrough, setActiveWalkthrough] =
     useState<FeatureParams | null>();

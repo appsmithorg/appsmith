@@ -4,8 +4,8 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.AnalyticsService;
@@ -31,13 +31,13 @@ public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEIm
             PluginService pluginService,
             AnalyticsService analyticsService,
             SessionUserService sessionUserService,
-            ResponseUtils responseUtils,
             PluginExecutorHelper pluginExecutorHelper,
             DatasourcePermission datasourcePermission,
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             DatasourceStructureSolution datasourceStructureSolution,
-            EnvironmentPermission environmentPermission) {
+            EnvironmentPermission environmentPermission,
+            JsonSchemaMigration jsonSchemaMigration) {
         super(
                 datasourceService,
                 datasourceStorageService,
@@ -49,12 +49,12 @@ public class CreateDBTablePageSolutionImpl extends CreateDBTablePageSolutionCEIm
                 pluginService,
                 analyticsService,
                 sessionUserService,
-                responseUtils,
                 pluginExecutorHelper,
                 datasourcePermission,
                 applicationPermission,
                 pagePermission,
                 datasourceStructureSolution,
-                environmentPermission);
+                environmentPermission,
+                jsonSchemaMigration);
     }
 }

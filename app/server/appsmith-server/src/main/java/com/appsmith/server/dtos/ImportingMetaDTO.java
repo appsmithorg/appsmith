@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -22,6 +23,8 @@ public class ImportingMetaDTO {
     String artifactId;
 
     String branchName;
+
+    List<String> branchedArtifactIds;
 
     /**
      * this flag is for verifying whether the artifact in focus needs to be updated with the given provided json

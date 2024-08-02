@@ -1,3 +1,5 @@
+import type { IPanelProps } from "@blueprintjs/core";
+import equal from "fast-deep-equal/es6";
 import type { ReactElement } from "react";
 import React, {
   useCallback,
@@ -6,47 +8,44 @@ import React, {
   useMemo,
   useRef,
 } from "react";
-import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import type { IPanelProps } from "@blueprintjs/core";
 
-import PropertyPaneTitle from "./PropertyPaneTitle";
-import PropertyControlsGenerator from "./PropertyControlsGenerator";
-import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
-import { copyWidget, deleteSelectedWidget } from "actions/widgetActions";
-import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
-import PropertyPaneConnections from "./PropertyPaneConnections";
-import type { WidgetType } from "constants/WidgetConstants";
-import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
-import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
-import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
-import { buildDeprecationWidgetMessage, isWidgetDeprecated } from "../utils";
-import { Button, Callout } from "design-system";
-import WidgetFactory from "WidgetProvider/factory";
-import { PropertyPaneTab } from "./PropertyPaneTab";
-import { renderWidgetCallouts, useSearchText } from "./helpers";
-import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
-import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { AB_TESTING_EVENT_KEYS } from "@appsmith/entities/FeatureFlag";
-import localStorage from "utils/localStorage";
-import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { PROPERTY_PANE_ID } from "components/editorComponents/PropertyPaneSidebar";
-import {
-  isUserSignedUpFlagSet,
-  setFeatureWalkthroughShown,
-} from "utils/storage";
 import {
   BINDING_WIDGET_WALKTHROUGH_DESC,
   BINDING_WIDGET_WALKTHROUGH_TITLE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { AB_TESTING_EVENT_KEYS } from "@appsmith/entities/FeatureFlag";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import WidgetFactory from "WidgetProvider/factory";
+import { copyWidget, deleteSelectedWidget } from "actions/widgetActions";
+import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import { PROPERTY_PANE_ID } from "components/editorComponents/PropertyPaneSidebar";
+import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
+import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
+import type { WidgetType } from "constants/WidgetConstants";
+import { WIDGET_ID_SHOW_WALKTHROUGH } from "constants/WidgetConstants";
+import { Button } from "design-system";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getWidgets } from "sagas/selectors";
 import { getCurrentUser } from "selectors/usersSelectors";
+import type { InteractionAnalyticsEventDetail } from "utils/AppsmithUtils";
+import { INTERACTION_ANALYTICS_EVENT } from "utils/AppsmithUtils";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import localStorage from "utils/localStorage";
+import {
+  isUserSignedUpFlagSet,
+  setFeatureWalkthroughShown,
+} from "utils/storage";
+import ConnectDataCTA, { actionsExist } from "./ConnectDataCTA";
+import PropertyControlsGenerator from "./PropertyControlsGenerator";
+import PropertyPaneConnections from "./PropertyPaneConnections";
+import { PropertyPaneSearchInput } from "./PropertyPaneSearchInput";
+import { PropertyPaneTab } from "./PropertyPaneTab";
+import PropertyPaneTitle from "./PropertyPaneTitle";
+import { renderWidgetCallouts, useSearchText } from "./helpers";
+import { sendPropertyPaneSearchAnalytics } from "./propertyPaneSearch";
 
 // TODO(abhinav): The widget should add a flag in their configuration if they donot subscribe to data
 // Widgets where we do not want to show the CTA
@@ -67,6 +66,11 @@ export const excludeList: WidgetType[] = [
   "BUTTON_WIDGET_V2",
   "JSON_FORM_WIDGET",
   "CUSTOM_WIDGET",
+  "ZONE_WIDGET",
+  "SECTION_WIDGET",
+  "WDS_MODAL_WIDGET",
+  "WDS_BUTTON_WIDGET",
+  "WDS_TABLE_WIDGET",
 ];
 
 function PropertyPaneView(
@@ -205,6 +209,8 @@ function PropertyPaneView(
    * actions shown on the right of title
    */
   const actions = useMemo((): Array<{
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tooltipContent: any;
     icon: ReactElement;
   }> => {
@@ -242,13 +248,6 @@ function PropertyPaneView(
 
   if (!widgetProperties) return null;
 
-  // Building Deprecation Messages
-  const { isDeprecated, widgetReplacedWith } = isWidgetDeprecated(
-    widgetProperties.type,
-  );
-  // generate messages
-  const deprecationMessage = buildDeprecationWidgetMessage(widgetReplacedWith);
-
   const isContentConfigAvailable =
     WidgetFactory.getWidgetPropertyPaneContentConfig(
       widgetProperties.type,
@@ -285,11 +284,7 @@ function PropertyPaneView(
             widgetType={widgetProperties?.type}
           />
         )}
-        {isDeprecated && (
-          <Callout data-testid="t--deprecation-warning" kind="warning">
-            {deprecationMessage}
-          </Callout>
-        )}
+
         {renderWidgetCallouts(widgetProperties)}
       </div>
 

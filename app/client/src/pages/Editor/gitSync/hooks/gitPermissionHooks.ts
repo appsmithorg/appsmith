@@ -5,7 +5,7 @@ import {
   hasManageDefaultBranchPermission,
   hasManageAutoCommitPermission,
 } from "@appsmith/utils/permissionHelpers";
-import { getCurrentApplication } from "selectors/editorSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 export const useHasConnectToGitPermission = () => {
   const currentApplication = useSelector(getCurrentApplication);

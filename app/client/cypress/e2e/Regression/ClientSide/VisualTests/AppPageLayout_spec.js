@@ -1,9 +1,6 @@
 import homePage from "../../../../locators/HomePage";
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import {
-  createMessage,
-  LOGIN_PAGE_TITLE,
-} from "../../../../../src/ce/constants/messages";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Visual regression tests", { tags: ["@tag.Visual"] }, () => {
   // for any changes in UI, update the screenshot in snapshot folder, to do so:
@@ -22,7 +19,7 @@ describe("Visual regression tests", { tags: ["@tag.Visual"] }, () => {
     cy.get("#root").matchImageSnapshot("apppage");
 
     //Layout validation for Quick page wizard
-    cy.get("[data-testid='generate-app']").click();
+    PageList.AddNewPage(Cypress.env("MESSAGES").GENERATE_PAGE_ACTION_TITLE());
     cy.wait(2000);
     // taking screenshot of generate crud page
     cy.get("#root").matchImageSnapshot("quickPageWizard");
@@ -51,7 +48,10 @@ describe("Visual regression tests", { tags: ["@tag.Visual"] }, () => {
     cy.get(homePage.signOutIcon).click();
     cy.wait(500);
     // validating all the fields on login page
-    cy.xpath("//h1").should("have.text", createMessage(LOGIN_PAGE_TITLE));
+    cy.xpath("//h1").should(
+      "have.text",
+      Cypress.env("MESSAGES").LOGIN_PAGE_TITLE(),
+    );
     cy.get(".bp3-label").first().should("have.text", "Email ");
     cy.get(".bp3-label").last().should("have.text", "Password ");
     cy.xpath('//span[text()="Sign in"]').should("be.visible");

@@ -70,6 +70,8 @@ export function getParentWithEnhancementFn(
 const fixedLayoutOnlyProperties = ["dynamicHeight"];
 
 export function layoutSystemBasedPropertyFilter(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parentProps: any,
   propertyName: string,
 ) {
@@ -175,7 +177,11 @@ export function useChildWidgetEnhancementFn(
 }
 
 // Todo (abhinav): Specify styles here
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type EnhancementFn = (parentProps: any, ...rest: any) => unknown;
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type BoundEnhancementFn = (...rest: any) => unknown;
 
 interface EnhancementFns {

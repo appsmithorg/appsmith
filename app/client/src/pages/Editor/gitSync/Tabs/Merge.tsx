@@ -84,6 +84,8 @@ export default function Merge() {
   const isFetchingBranches = useSelector(getFetchingBranches);
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
   const mergeStatus = useSelector(getMergeStatus);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const gitStatus: any = useSelector(getGitStatus);
   const mergeError = useSelector(getMergeError);
   const isMergeAble = mergeStatus?.isMergeAble && gitStatus?.isClean;
@@ -230,7 +232,7 @@ export default function Merge() {
           <Space size={2} />
           <Row style={{ overflow: "unset", paddingBottom: "4px" }}>
             <Select
-              className="t--merge-branch-dropdown-destination"
+              data-testid="t--merge-branch-dropdown-destination"
               dropdownClassName={Classes.MERGE_DROPDOWN}
               dropdownMatchSelectWidth
               getPopupContainer={(triggerNode) => triggerNode.parentNode}

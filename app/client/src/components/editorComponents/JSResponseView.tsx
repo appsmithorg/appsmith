@@ -88,11 +88,13 @@ type Props = ReduxStateProps &
     isLoading: boolean;
     onButtonClick: (e: React.MouseEvent<HTMLElement, MouseEvent>) => void;
     jsCollectionData: JSCollectionData | undefined;
+    debuggerLogsDefaultName?: string;
   };
 
 function JSResponseView(props: Props) {
   const {
     currentFunction,
+    debuggerLogsDefaultName,
     disabled,
     errorCount,
     errors,
@@ -194,23 +196,26 @@ function JSResponseView(props: Props) {
       title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <>
-          {(hasExecutionParseErrors ||
-            (hasJSObjectParseError && errorMessage)) && (
-            <ResponseTabErrorContainer>
-              <ResponseTabErrorContent>
-                <div className="t--js-response-parse-error-call-out">
-                  {errorMessage}
-                </div>
+          {localExecutionAllowed &&
+            (hasExecutionParseErrors ||
+              (hasJSObjectParseError && errorMessage)) && (
+              <ResponseTabErrorContainer>
+                <ResponseTabErrorContent>
+                  <div className="t--js-response-parse-error-call-out">
+                    {errorMessage}
+                  </div>
 
-                <LogHelper
-                  logType={LOG_TYPE.EVAL_ERROR}
-                  name={errorType}
-                  source={actionSource}
-                />
-              </ResponseTabErrorContent>
-            </ResponseTabErrorContainer>
-          )}
-          <ResponseTabWrapper className={errors.length ? "disable" : ""}>
+                  <LogHelper
+                    logType={LOG_TYPE.EVAL_ERROR}
+                    name={errorType}
+                    source={actionSource}
+                  />
+                </ResponseTabErrorContent>
+              </ResponseTabErrorContainer>
+            )}
+          <ResponseTabWrapper
+            className={errors.length && localExecutionAllowed ? "disable" : ""}
+          >
             <Flex px="spaces-7" width="100%">
               <>
                 {localExecutionAllowed && (
@@ -267,7 +272,9 @@ function JSResponseView(props: Props) {
     {
       key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
-      panelComponent: <DebuggerLogs searchQuery={jsObject?.name} />,
+      panelComponent: (
+        <DebuggerLogs searchQuery={debuggerLogsDefaultName || jsObject?.name} />
+      ),
     },
   ];
 

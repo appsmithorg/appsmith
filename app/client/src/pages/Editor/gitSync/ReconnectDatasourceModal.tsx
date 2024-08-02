@@ -43,7 +43,7 @@ import DatasourceForm from "../DataSourceEditor";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
-import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
+import { findDefaultPage } from "@appsmith/sagas/ApplicationSagas";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import {
   getOAuthAccessToken,
@@ -75,6 +75,7 @@ import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import useReconnectModalData from "@appsmith/pages/Editor/gitSync/useReconnectModalData";
 import { resetImportData } from "@appsmith/actions/workspaceActions";
+import { getLoadingTokenForDatasourceId } from "selectors/datasourceSelectors";
 
 const Section = styled.div`
   display: flex;
@@ -261,6 +262,9 @@ function ReconnectDatasourceModal() {
   const pluginsArray = useSelector(getDatasourcePlugins);
   const plugins = keyBy(pluginsArray, "id");
   const isLoading = useSelector(getIsListing);
+  const loadingTokenForDatasourceId = useSelector(
+    getLoadingTokenForDatasourceId,
+  );
   const isDatasourceTesting = useSelector(getIsDatasourceTesting);
   const isDatasourceUpdating = useSelector(getDatasourceLoading);
 
@@ -358,6 +362,8 @@ function ReconnectDatasourceModal() {
   useEffect(() => {
     if (applications && queryIsImport && queryDatasourceId) {
       if (queryAppId) {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const app = applications.find((app: any) => app.id === queryAppId);
         if (app) {
           dispatch(
@@ -367,11 +373,11 @@ function ReconnectDatasourceModal() {
             }),
           );
           dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: true }));
-          const defaultPageId = getDefaultPageId(app.pages);
+          const defaultPage = findDefaultPage(app.pages);
           if (pageIdForImport) {
             setPageId(pageIdForImport);
-          } else if (defaultPageId) {
-            setPageId(defaultPageId);
+          } else if (defaultPage) {
+            setPageId(defaultPage?.id);
           }
           if (!datasources.length) {
             dispatch({
@@ -413,6 +419,8 @@ function ReconnectDatasourceModal() {
     }
   }, [isModalOpen, isDatasourceTesting, isDatasourceUpdating]);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleClose = (e: any) => {
     // Some magic code to handle the scenario where the reconnect modal and google sheets
     // file picker are both open.
@@ -492,6 +500,8 @@ function ReconnectDatasourceModal() {
     if (!queryIsImport) {
       // @ts-expect-error: importedApplication is of type unknown
       const defaultPage = importedApplication?.pages?.find(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (page: any) => page.isDefault,
       );
       if (defaultPage) {
@@ -562,7 +572,10 @@ function ReconnectDatasourceModal() {
   });
 
   const shouldShowDBForm =
-    isConfigFetched && !isLoading && !checkIfDatasourceIsConfigured(datasource);
+    isConfigFetched &&
+    !isLoading &&
+    !checkIfDatasourceIsConfigured(datasource) &&
+    datasources.findIndex((ds) => ds.id === loadingTokenForDatasourceId) === -1;
 
   const onSkipBtnClick = () => {
     AnalyticsUtil.logEvent("RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK");
@@ -577,7 +590,7 @@ function ReconnectDatasourceModal() {
   return (
     <Modal open={isModalOpen}>
       <ModalContentWrapper
-        data-testid="reconnect-datasource-modal"
+        data-testId="reconnect-datasource-modal"
         onClick={handleClose}
         onEscapeKeyDown={onClose}
         onInteractOutside={handleClose}

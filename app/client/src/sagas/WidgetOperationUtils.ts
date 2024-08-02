@@ -135,6 +135,8 @@ export const handleIfParentIsListWidgetWhilePasting = (
       const listWidget = root;
       const currentWidget = _.cloneDeep(widget);
       let template = _.get(listWidget, "template", {});
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const dynamicBindingPathList: any[] = _.get(
         listWidget,
         "dynamicBindingPathList",
@@ -208,6 +210,8 @@ export const handleSpecificCasesWhilePasting = (
       const newWidgetName = widgetNameMap[oldWidgetName];
 
       const newWidget = newWidgetList.find(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (w: any) => w.widgetName === newWidgetName,
       );
 
@@ -227,6 +231,8 @@ export const handleSpecificCasesWhilePasting = (
 
       // updating dynamicBindingPath in copied widget if the copied widget thas reference to oldWidgetNames
       widget.dynamicBindingPathList = (widget.dynamicBindingPathList || []).map(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (path: any) => {
           if (path.key.startsWith(`template.${oldWidgetName}`)) {
             return {
@@ -243,6 +249,8 @@ export const handleSpecificCasesWhilePasting = (
 
       // updating dynamicTriggerPath in copied widget if the copied widget thas reference to oldWidgetNames
       widget.dynamicTriggerPathList = (widget.dynamicTriggerPathList || []).map(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (path: any) => {
           if (path.key.startsWith(`template.${oldWidgetName}`)) {
             return {
@@ -285,13 +293,15 @@ export const handleSpecificCasesWhilePasting = (
   }
 
   widgets = handleListWidgetV2Pasting(widget, widgets, widgetNameMap);
-  widgets = handleIfParentIsListWidgetWhilePasting(widget, widgets);
-
   return widgets;
 };
-export function getWidgetChildrenIds(
+export // TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function getWidgetChildrenIds(
   canvasWidgets: CanvasWidgetsReduxState,
   widgetId: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   const childrenIds: string[] = [];
   const widget = _.get(canvasWidgets, widgetId);
@@ -1474,6 +1484,8 @@ export function getNextWidgetName(
   options?: Record<string, unknown>,
 ) {
   // Compute the new widget's name
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const defaultConfig: any = WidgetFactory.widgetConfigMap.get(type);
   const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
   const entityNames = Object.keys(evalTree);
@@ -1602,11 +1614,15 @@ export function updateListWidgetPropertiesOnChildDelete(
     }
 
     // delete dynamic binding path if any
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     remove(listWidget?.dynamicBindingPathList || [], (path: any) =>
       path.key.startsWith(`template.${widgetName}`),
     );
 
     // delete dynamic trigger path if any
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     remove(listWidget?.dynamicTriggerPathList || [], (path: any) =>
       path.key.startsWith(`template.${widgetName}`),
     );
@@ -1823,3 +1839,31 @@ const updateListWidgetBindings = (
 
   return widgets;
 };
+
+/**
+ * A function to check if paste of widgets can work without conflicts by checking the source and target layout systems
+ * @param sourceLayoutSystem The layout system from which the widgets to be pasted were copied/cut
+ * @param targetLayoutSystem The layout system to which the copied/cut widgets are pasted
+ * @returns boolean: Is there a conflict?
+ */
+export function isLayoutSystemConflictingForPaste(
+  targetLayoutSystem: LayoutSystemTypes,
+  sourceLayoutSystem?: LayoutSystemTypes,
+) {
+  // If source is not ANVIL and the target is ANVIL, we will have a conflict
+  if (
+    sourceLayoutSystem !== LayoutSystemTypes.ANVIL &&
+    targetLayoutSystem === LayoutSystemTypes.ANVIL
+  ) {
+    return true;
+  }
+  // If source is ANVIL and target is not ANVIL, we will have a conflict
+  if (
+    sourceLayoutSystem === LayoutSystemTypes.ANVIL &&
+    targetLayoutSystem !== LayoutSystemTypes.ANVIL
+  ) {
+    return true;
+  }
+  // All other scenarios should work fine.
+  return false;
+}

@@ -6,7 +6,6 @@ import * as Sentry from "@sentry/react";
 import { mergeWidgetConfig } from "utils/helpers";
 import type { CountryCode } from "libphonenumber-js";
 import type { WidgetState } from "widgets/BaseWidget";
-import derivedProperties from "./parsedDerivedProperties";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {
@@ -17,6 +16,7 @@ import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
+import derivedProperties from "widgets/wds/WDSCurrencyInputWidget/widget/parsedDerivedProperties";
 
 import * as config from "../config";
 import { PhoneInputComponent } from "../component";
@@ -62,6 +62,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     parentConfig[labelSectionIndex].children[labelPropertyIndex] = {
       ...parentConfig[labelSectionIndex].children[labelPropertyIndex],
       placeholderText: "Phone Number",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     const generalSectionIndex = parentConfig.findIndex(
@@ -74,6 +76,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     parentConfig[generalSectionIndex].children[tooltipPropertyIndex] = {
       ...parentConfig[generalSectionIndex].children[tooltipPropertyIndex],
       placeholderText: "You may skip local prefixes",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     const placeholderPropertyIndex = parentConfig[
@@ -85,6 +89,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     parentConfig[generalSectionIndex].children[placeholderPropertyIndex] = {
       ...parentConfig[generalSectionIndex].children[placeholderPropertyIndex],
       placeholderText: "(123) 456-7890",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     return mergeWidgetConfig(config.propertyPaneContentConfig, parentConfig);
@@ -104,6 +110,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
       rawText: "",
@@ -298,6 +306,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         defaultValue={this.props.defaultText}
         dialCode={this.props.dialCode}
         errorMessage={validation.errorMessage}
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
         isReadOnly={this.props.isReadOnly}
@@ -309,7 +318,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         tooltip={this.props.tooltip}
-        validationStatus={validation.validattionStatus}
+        validationStatus={validation.validationStatus}
         value={rawText}
         widgetId={this.props.widgetId}
       />

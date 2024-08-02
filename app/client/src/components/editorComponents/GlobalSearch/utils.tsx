@@ -19,9 +19,6 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import { getQueryParams } from "utils/URLUtils";
-import history from "utils/history";
-import { curlImportPageURL } from "@appsmith/RouteBuilder";
 import { isMacOrIOS, modText, shiftText } from "utils/helpers";
 import { FocusEntity } from "navigation/FocusEntity";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
@@ -31,6 +28,7 @@ import {
   createNewAPIBasedOnParentEntity,
   createNewJSCollectionBasedOnParentEntity,
 } from "@appsmith/actions/helpers";
+import { openCurlImportModal } from "pages/Editor/CurlImport/helpers";
 
 export type SelectEvent =
   | React.MouseEvent
@@ -124,8 +122,12 @@ export interface SearchCategory {
   show?: () => boolean;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getOptionalFilters(optionalFilterMeta: any) {
   return Object.entries(optionalFilterMeta || {}).reduce(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (acc: Array<string>, [key, value]: any) => {
       value.forEach((value: string) => acc.push(`${key}:${value}`));
       return acc;
@@ -164,6 +166,8 @@ export const getFilterCategoryList = () =>
     return cat.show ? cat.show() : true;
   });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SearchItem = Datasource | any;
 
 // todo better checks here?
@@ -225,6 +229,8 @@ export const getItemPage = (item: SearchItem): string => {
 
 export const algoliaHighlightTag = "ais-highlight-0000000000";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const attachKind = (source: any[], kind: string) => {
   return source.map((s) => ({
     ...s,
@@ -234,6 +240,8 @@ export const attachKind = (source: any[], kind: string) => {
 
 export const getEntityId = (entity: {
   entityType: FocusEntity;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }) => {
   const { entityType } = entity;
@@ -257,13 +265,19 @@ export const getEntityId = (entity: {
 export interface ActionOperation {
   title: string;
   desc: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon?: any;
   kind: SEARCH_ITEM_TYPES;
   action?: (
     entityId: string,
     location: EventLocation,
     entityType?: ActionParentEntityTypeInterface,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   redirect?: (entityId: string, location: EventLocation) => any;
   pluginId?: string;
   focusEntityType?: FocusEntity;
@@ -329,17 +343,7 @@ export const actionOperations: ActionOperation[] = [
     desc: "Import a cURL Request",
     kind: SEARCH_ITEM_TYPES.actionOperation,
     icon: <CurlIconV2 />,
-    redirect: (entityId: string, from: EventLocation) => {
-      const queryParams = getQueryParams();
-      const curlImportURL = curlImportPageURL({
-        parentEntityId: entityId,
-        params: {
-          from,
-          ...queryParams,
-        },
-      });
-      history.push(curlImportURL);
-    },
+    action: () => openCurlImportModal(),
     focusEntityType: FocusEntity.API,
   },
 ];

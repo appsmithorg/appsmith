@@ -1,18 +1,23 @@
 import React from "react";
 
+import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 import ProgressBarComponent from "../component";
 
-import { ValidationTypes } from "constants/WidgetValidation";
+import type {
+  AutocompletionDefinitions,
+  WidgetCallout,
+} from "WidgetProvider/constants";
 import { Colors } from "constants/Colors";
-import { BarType } from "../constants";
+import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { ValidationTypes } from "constants/WidgetValidation";
 import type { Stylesheet } from "entities/AppTheming";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import { buildDeprecationWidgetMessage } from "pages/Editor/utils";
+import { BarType } from "../constants";
 import IconSVG from "../icon.svg";
 
 class ProgressBarWidget extends BaseWidget<
@@ -30,6 +35,7 @@ class ProgressBarWidget extends BaseWidget<
       iconSVG: IconSVG,
       needsMeta: false, // Defines if this widget adds any meta properties
       isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
+      tags: [WIDGET_TAGS.CONTENT],
     };
   }
 
@@ -45,6 +51,20 @@ class ProgressBarWidget extends BaseWidget<
       steps: 1,
       version: 1,
       responsiveBehavior: ResponsiveBehavior.Fill,
+    };
+  }
+
+  static getMethods() {
+    return {
+      getEditorCallouts(): WidgetCallout[] {
+        return [
+          {
+            message: buildDeprecationWidgetMessage(
+              ProgressBarWidget.getConfig().name,
+            ),
+          },
+        ];
+      },
     };
   }
 
@@ -185,6 +205,8 @@ class ProgressBarWidget extends BaseWidget<
     return {};
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
   }

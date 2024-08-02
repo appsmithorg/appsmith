@@ -1,6 +1,6 @@
 import { ApplicationVersion } from "@appsmith/actions/applicationActions";
-import { setPageAsDefault, updatePage } from "actions/pageActions";
-import type { UpdatePageRequest } from "api/PageApi";
+import type { UpdatePageActionPayload } from "actions/pageActions";
+import { setPageAsDefault, updatePageAction } from "actions/pageActions";
 import {
   PAGE_SETTINGS_SHOW_PAGE_NAV,
   PAGE_SETTINGS_PAGE_NAME_LABEL,
@@ -129,33 +129,33 @@ function PageSettings(props: { page: Page }) {
   const savePageName = useCallback(() => {
     if (!canManagePages || !!isPageNameValid || page.pageName === pageName)
       return;
-    const payload: UpdatePageRequest = {
+    const payload: UpdatePageActionPayload = {
       id: page.pageId,
       name: pageName,
     };
     setIsPageNameSaving(true);
-    dispatch(updatePage(payload));
+    dispatch(updatePageAction(payload));
   }, [page.pageId, page.pageName, pageName, isPageNameValid]);
 
   const saveCustomSlug = useCallback(() => {
     if (!canManagePages || page.customSlug === customSlug) return;
-    const payload: UpdatePageRequest = {
+    const payload: UpdatePageActionPayload = {
       id: page.pageId,
       customSlug: customSlug || "",
     };
     setIsCustomSlugSaving(true);
-    dispatch(updatePage(payload));
+    dispatch(updatePageAction(payload));
   }, [page.pageId, page.customSlug, customSlug]);
 
   const saveIsShown = useCallback(
     (isShown: boolean) => {
       if (!canManagePages) return;
-      const payload: UpdatePageRequest = {
+      const payload: UpdatePageActionPayload = {
         id: page.pageId,
         isHidden: !isShown,
       };
       setIsShownSaving(true);
-      dispatch(updatePage(payload));
+      dispatch(updatePageAction(payload));
     },
     [page.pageId, isShown],
   );
@@ -253,7 +253,7 @@ function PageSettings(props: { page: Page }) {
       {!appNeedsUpdate && (
         <UrlPreviewWrapper className="mb-2">
           <UrlPreviewScroll
-            className="py-1 pl-2 mr-0.5 text-xs break-all"
+            className="py-1 pl-2 mr-0.5 text-xs break-all select-text"
             onCopy={() => {
               navigator.clipboard.writeText(
                 location.protocol +

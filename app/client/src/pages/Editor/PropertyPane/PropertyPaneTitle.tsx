@@ -29,6 +29,8 @@ interface PropertyPaneTitleProps {
   onBackClick?: () => void;
   isPanelTitle?: boolean;
   actions: Array<{
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tooltipContent: any;
     icon: ReactElement;
     tooltipPosition?: TooltipPlacement;

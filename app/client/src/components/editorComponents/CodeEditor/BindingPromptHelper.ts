@@ -3,6 +3,8 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 
 export const showBindingPrompt = (
   showEvaluatedValue: boolean,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   inputValue: any,
   isHinterOpen: boolean,
 ): boolean => {

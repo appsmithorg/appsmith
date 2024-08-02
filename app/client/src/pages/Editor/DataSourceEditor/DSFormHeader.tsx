@@ -68,6 +68,8 @@ export const PluginImageWrapper = styled.div`
   }
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const PluginImage = (props: any) => {
   return (
     <PluginImageWrapper>
@@ -183,6 +185,7 @@ export const DSFormHeader = (props: DSFormHeaderProps) => {
           {canDeleteDatasource && (
             <MenuWrapper
               className="t--datasource-menu-option"
+              key={datasourceId}
               onClick={(e) => {
                 e.stopPropagation();
               }}

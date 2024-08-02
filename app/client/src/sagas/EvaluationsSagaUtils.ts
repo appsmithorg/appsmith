@@ -20,6 +20,8 @@ export const parseUpdatesAndDeleteUndefinedUpdates = (
 
   //delete all undefined properties from the state
   const { deleteUpdates, regularUpdates } = parsedUpdates.reduce(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (acc: any, curr: any) => {
       const { kind, path, rhs } = curr;
 

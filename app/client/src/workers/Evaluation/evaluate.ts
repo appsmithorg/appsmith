@@ -24,8 +24,13 @@ import {
   TypeErrorModifier,
 } from "./errorModifier";
 import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import { set } from "lodash";
+import { klona } from "klona";
+import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 export interface EvalResult {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   result: any;
   errors: EvaluationError[];
 }
@@ -80,10 +85,15 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   `,
 };
 
-const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
-  acc[key] = true;
-  return acc;
-}, {} as any);
+const topLevelWorkerAPIs = Object.keys(self).reduce(
+  (acc, key: string) => {
+    acc[key] = true;
+    return acc;
+  },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  {} as any,
+);
 
 const ignoreGlobalObjectKeys = new Set([
   "evaluationVersion",
@@ -139,7 +149,10 @@ export const getScriptToEval = (
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type EvalContext = Record<string, any>;
+
 export interface createEvaluationContextArgs {
   dataTree: DataTree;
   configTree?: ConfigTree;
@@ -152,6 +165,79 @@ export interface createEvaluationContextArgs {
    */
   removeEntityFunctions?: boolean;
 }
+
+/**
+ * overrideContext is a set of key-value pairs where they key is a path
+ * and the value is any value.
+ *
+ * The purpose of overrideContext is to update the EVAL_CONTEXT's entity properties
+ * with new value during runtime.
+ * An example of runtime would be execution of a query where some parameters are passed
+ * to the .run function.
+ * This enables to override the entities and their values in EVAL_CONTEXT without any side-effects
+ * to the actual dataTree since this is a non-persistent transient state of evaluation.
+ *
+ * Example:
+ * overrideContext = {
+ *  "Input1.text": "hello"
+ * }
+ * // before overriding
+ * EVAL_CONTEXT = {
+ *  "Input1": {
+ *    "text": "Hey!"
+ *  }
+ * "Text1": {
+ *    "text": "YOLO"
+ *  }
+ * }
+ *
+ * // after overriding just for the particular evaluation
+ * EVAL_CONTEXT = {
+ *  "Input1": {
+ *    "text": "Hello"
+ *  },
+ * "Text1": {
+ *  "text": "YOLO"
+ * }
+ *
+ * Where is this overriding actually used?
+ * At the time of writing this, the use case originated to evaluate run-time params of a
+ * query module instance as pass them off as inputs.
+ * Eg. QueryModule1.run({ input1: "10" }) and the bindings for this could be QueryModule1.inputs.input1
+ * So the executionParams needs to be put in the EVAL_CONTEXT with the above path and the supplied value.
+ * Therefore an overriding of the EVAL_CONTEXT is required during runtime execution.
+ *
+ * Why klona is used to cloned here?
+ * Since EVAL_CONTEXT is build from the dataTree by adding the entities directly referentially
+ * Eg. EVAL_CONTEXT["Input1"] = dataTree["Input1"]
+ * Overriding the EVAL_CONTEXT directly using set(EVAL_CONTEXT, path, value); would mutate the dataTree
+ * thus polluting the dataTree for the next evaluation.
+ * To avoid this, all the unique entities of present in the overrideContext is identified and cloned once for
+ * the particular entities only. This avoid unnecessary cloning of every entity and further multiple times.
+ *
+ */
+const overrideEvalContext = (
+  EVAL_CONTEXT: EvalContext,
+  overrideContext?: Record<string, unknown>,
+) => {
+  if (overrideContext) {
+    const entitiesClonedSoFar = new Set();
+
+    Object.keys(overrideContext).forEach((path) => {
+      const { entityName } = getEntityNameAndPropertyPath(path);
+
+      if (entityName in EVAL_CONTEXT && !entitiesClonedSoFar.has(entityName)) {
+        entitiesClonedSoFar.add(entityName);
+        EVAL_CONTEXT[entityName] = klona(EVAL_CONTEXT[entityName]);
+      }
+    });
+
+    Object.entries(overrideContext).forEach(([path, value]) => {
+      set(EVAL_CONTEXT, path, value);
+    });
+  }
+};
+
 /**
  * This method created an object with dataTree and appsmith's framework actions that needs to be added to worker global scope for the JS code evaluation to then consume it.
  *
@@ -186,6 +272,8 @@ export const createEvaluationContext = (args: createEvaluationContextArgs) => {
     isTriggerBased,
   });
 
+  overrideEvalContext(EVAL_CONTEXT, context?.overrideContext);
+
   return EVAL_CONTEXT;
 };
 
@@ -203,16 +291,23 @@ export function sanitizeScript(js: string) {
  * requestId is used for completing promises
  */
 export interface EvaluateContext {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   thisContext?: Record<string, any>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   globalContext?: Record<string, any>;
   requestId?: string;
   eventType?: EventType;
   triggerMeta?: TriggerMeta;
+  overrideContext?: Record<string, unknown>;
 }
 
 export const getUserScriptToEvaluate = (
   userScript: string,
   isTriggerBased: boolean,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evalArguments?: Array<any>,
 ) => {
   const unescapedJS = sanitizeScript(userScript);
@@ -238,6 +333,8 @@ export function setEvalContext({
   context?: EvaluateContext;
   dataTree: DataTree;
   configTree?: ConfigTree;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evalArguments?: Array<any>;
   isDataField: boolean;
   isTriggerBased: boolean;
@@ -260,6 +357,8 @@ export default function evaluateSync(
   dataTree: DataTree,
   isJSCollection: boolean,
   context?: EvaluateContext,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evalArguments?: Array<any>,
   configTree?: ConfigTree,
 ): EvalResult {
@@ -301,6 +400,8 @@ export default function evaluateSync(
          */
         throw new FoundPromiseInSyncEvalError();
       }
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const { errorCategory, errorMessage, rootcause } = errorModifier.run(
         error,
@@ -330,6 +431,8 @@ export async function evaluateAsync(
   dataTree: DataTree,
   configTree: ConfigTree,
   context?: EvaluateContext,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evalArguments?: Array<any>,
 ) {
   return (async function () {
@@ -350,6 +453,8 @@ export async function evaluateAsync(
 
     try {
       result = await indirectEval(script);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const { errorMessage } = errorModifier.run(
         error,
@@ -372,6 +477,8 @@ export async function evaluateAsync(
   })();
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function shouldAddSetter(setter: any, entity: DataTreeEntity) {
   const isDisabledExpression = setter.disabled;
 

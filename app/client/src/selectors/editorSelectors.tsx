@@ -29,7 +29,6 @@ import {
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 
 import {
-  getActions,
   getApiPaneSavingMap,
   getCanvasWidgets,
   getJSCollections,
@@ -48,6 +47,7 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 import { protectedModeSelector } from "./gitSyncSelectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -142,8 +142,16 @@ export const getPageById = (pageId: string) =>
     pages.find((page) => page.pageId === pageId),
   );
 
+export const getPageByBaseId = (basePageId: string) =>
+  createSelector(getPageList, (pages: Page[]) =>
+    pages.find((page) => page.basePageId === basePageId),
+  );
+
 export const getCurrentPageId = (state: AppState) =>
   state.entities.pageList.currentPageId;
+
+export const getCurrentBasePageId = (state: AppState) =>
+  state.entities.pageList.currentBasePageId;
 
 export const getCurrentPagePermissions = createSelector(
   getCurrentPageId,
@@ -184,12 +192,11 @@ export const selectPageSlugToIdMap = createSelector(getPageList, (pages) =>
   ),
 );
 
-export const getCurrentApplication = (state: AppState) =>
-  state.ui.applications.currentApplication;
-
 export const getCurrentApplicationId = (state: AppState) =>
   state.entities.pageList.applicationId || "";
-/** this is set during init can assume it to be defined */
+
+export const getCurrentBaseApplicationId = (state: AppState) =>
+  state.entities.pageList.baseApplicationId || "";
 
 export const selectCurrentApplicationSlug = (state: AppState) =>
   state.ui.applications.currentApplication?.slug || PLACEHOLDER_APP_SLUG;
@@ -224,6 +231,9 @@ export const getRenderMode = (state: AppState) => {
     ? RenderModes.CANVAS
     : RenderModes.PAGE;
 };
+
+export const getIsViewMode = (state: AppState) =>
+  state.entities.app.mode === APP_MODE.PUBLISHED;
 
 export const getViewModePageList = createSelector(
   getPageList,
@@ -403,11 +413,15 @@ export const getDimensionMap = createSelector(
   },
 );
 const addWidgetDimensionProxy = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dimensionMap: any,
   widgets: CanvasWidgetsReduxState,
 ) => {
   const dimensions = Object.keys(dimensionMap);
   const proxyHandler = {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     get(target: any, prop: any) {
       if (dimensions.includes(prop)) {
         const actualMap = dimensionMap[prop];
@@ -433,6 +447,8 @@ export const getWidgetsForBreakpoint = createSelector(
   getIsAutoLayoutMobileBreakPoint,
   getWidgets,
   (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dimensionMap: any,
     isAutoLayoutMobileBreakPoint: boolean,
     widgets: CanvasWidgetsReduxState,
@@ -829,22 +845,12 @@ export function getContainerWidgetSpacesSelectorWhileMoving(
   );
 }
 
-export const getActionById = createSelector(
-  [getActions, (state: any, props: any) => props.match.params.apiId],
-  (actions, id) => {
-    const action = actions.find((action) => action.config.id === id);
-    if (action) {
-      return action.config;
-    } else {
-      return undefined;
-    }
-  },
-);
-
 export const getJSCollectionDataById = createSelector(
   [getJSCollections, (state: AppState, collectionId: string) => collectionId],
-  (jsActions, id) => {
-    const action = jsActions.find((action) => action.config.id === id);
+  (jsActions, collectionId) => {
+    const action = jsActions.find(
+      (action) => action.config.id === collectionId,
+    );
     if (action) {
       return action;
     } else {
@@ -853,15 +859,19 @@ export const getJSCollectionDataById = createSelector(
   },
 );
 
-export const getJSCollectionById = createSelector(
+export const getJSCollectionDataByBaseId = createSelector(
   [
     getJSCollections,
-    (state: any, props: any) => props.match.params.collectionId,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (state: AppState, baseCollectionId: any) => baseCollectionId,
   ],
-  (jsActions, id) => {
-    const action = jsActions.find((action) => action.config.id === id);
+  (jsActions, baseCollectionId) => {
+    const action = jsActions.find(
+      (action) => action.config.baseId === baseCollectionId,
+    );
     if (action) {
-      return action.config;
+      return action;
     } else {
       return undefined;
     }

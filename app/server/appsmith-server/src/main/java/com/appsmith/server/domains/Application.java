@@ -17,6 +17,7 @@ import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -272,6 +273,15 @@ public class Application extends BaseDomain implements Artifact {
         }
     }
 
+    @Override
+    public String getBaseId() {
+        if (this.getGitArtifactMetadata() != null
+                && StringUtils.hasLength(this.getGitArtifactMetadata().getDefaultArtifactId())) {
+            return this.getGitArtifactMetadata().getDefaultArtifactId();
+        }
+        return Artifact.super.getBaseId();
+    }
+
     @JsonView(Views.Internal.class)
     @Override
     public GitArtifactMetadata getGitArtifactMetadata() {
@@ -469,6 +479,9 @@ public class Application extends BaseDomain implements Artifact {
         @JsonView({Views.Public.class, Git.class})
         IconStyle iconStyle;
 
+        @JsonView({Views.Public.class, Git.class})
+        AppMaxWidth appMaxWidth = AppMaxWidth.LARGE;
+
         public ThemeSetting(Type colorMode) {
             this.colorMode = colorMode;
         }
@@ -482,6 +495,12 @@ public class Application extends BaseDomain implements Artifact {
             OUTLINED,
             FILLED
         }
+
+        public enum AppMaxWidth {
+            UNLIMITED,
+            LARGE,
+            MEDIUM,
+        }
     }
 
     public static class Fields extends BaseDomain.Fields {
@@ -489,6 +508,9 @@ public class Application extends BaseDomain implements Artifact {
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.gitAuth);
         public static final String gitApplicationMetadata_defaultApplicationId =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultApplicationId);
+
+        public static final String gitApplicationMetadata_defaultArtifactId =
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultArtifactId);
         public static final String gitApplicationMetadata_isAutoDeploymentEnabled =
                 dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isAutoDeploymentEnabled);
         public static final String gitApplicationMetadata_branchName =

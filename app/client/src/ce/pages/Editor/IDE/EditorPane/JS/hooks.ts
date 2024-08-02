@@ -7,16 +7,14 @@ import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import type { UseRoutes } from "@appsmith/entities/IDE/constants";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import JSEditor from "pages/Editor/JSEditor";
 import AddJS from "pages/Editor/IDE/EditorPane/JS/Add";
 import { ADD_PATH } from "@appsmith/constants/routes/appRoutes";
-import ListJS from "pages/Editor/IDE/EditorPane/JS/List";
 import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
 import { getJSUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
+import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
 
 export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);
@@ -42,7 +40,7 @@ export const useJSAdd = () => {
   const closeAddJS = useCallback(() => {
     const url = getJSUrl(currentEntityInfo, false);
     history.push(url);
-  }, [pageId, currentEntityInfo]);
+  }, [currentEntityInfo]);
 
   return { openAddJS, closeAddJS };
 };
@@ -76,37 +74,25 @@ export const useGroupedAddJsOperations = (): GroupedAddOperations => {
   ];
 };
 
-export const useJSSegmentRoutes = (path: string): UseRoutes => {
-  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
-  const editorMode = useSelector(getIDEViewMode);
-  if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
-    return [
-      {
-        exact: true,
-        key: "AddJS",
-        component: AddJS,
-        path: [`${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
-      },
-      {
-        exact: true,
-        key: "JSEditor",
-        component: JSEditor,
-        path: [path + "/:collectionId"],
-      },
-      {
-        key: "JSEmpty",
-        component: ListJS,
-        exact: true,
-        path: [path],
-      },
-    ];
-  }
+export const useJSEditorRoutes = (path: string): UseRoutes => {
   return [
     {
-      exact: false,
-      key: "ListJS",
-      component: ListJS,
-      path: [path, `${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
+      exact: true,
+      key: "AddJS",
+      component: AddJS,
+      path: [`${path}${ADD_PATH}`, `${path}/:baseCollectionId${ADD_PATH}`],
+    },
+    {
+      exact: true,
+      key: "JSEditor",
+      component: JSEditor,
+      path: [path + "/:baseCollectionId"],
+    },
+    {
+      key: "JSEmpty",
+      component: JSBlankState,
+      exact: true,
+      path: [path],
     },
   ];
 };

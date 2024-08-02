@@ -8,9 +8,14 @@ import {
 } from "@appsmith/actions/workspaceActions";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import {
+  ANVIL_APPLICATIONS,
+  APPLICATIONS,
+  CLASSIC_APPLICATION_CARD_LIST_ZERO_STATE,
   CREATE_A_NEW_WORKSPACE,
   createMessage,
+  FIXED_APPLICATIONS,
   INVITE_USERS_PLACEHOLDER,
+  NEW_APPLICATION_CARD_LIST_ZERO_STATE,
   NO_APPS_FOUND,
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
@@ -45,6 +50,7 @@ import {
   Option,
   Select,
   Tooltip,
+  Tag,
 } from "design-system";
 import {
   AppIconCollection,
@@ -128,6 +134,8 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -253,8 +261,25 @@ const LeftPaneDataSection = styled.div<{ isBannerVisible?: boolean }>`
   }
 `;
 
+// Tags for some reason take all available space.
+// We're changing the max width to fit the contents as Tags are supposed to be
+const TitleTag = styled(Tag)`
+  max-width: fit-content;
+`;
+
+// A static component that is a tag signifying Anvil applications
+// This will be passed down to the ApplicationCardsList component
+// in the titleTag prop.
+const AnvilTitleTag = (
+  <TitleTag isClosable={false} onClose={() => {}}>
+    Anvil α
+  </TitleTag>
+);
+
 export function LeftPaneSection(props: {
   heading: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children?: any;
   isFetchingWorkspaces: boolean;
   isBannerVisible?: boolean;
@@ -274,6 +299,8 @@ export function LeftPaneSection(props: {
       {
         name: getNextEntityName(
           "Untitled workspace ",
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           fetchedWorkspaces.map((el: any) => el.name),
         ),
       },
@@ -347,7 +374,8 @@ export const textIconStyles = (props: { color: string; hover: string }) => {
 export function WorkspaceMenuItem({
   isFetchingWorkspaces,
   selected,
-  workspace,
+  workspace, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const history = useHistory();
   const location = useLocation();
@@ -377,6 +405,8 @@ export function WorkspaceMenuItem({
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
   const result = await createWorkspaceSubmitHandler(data, dispatch);
   return result;
@@ -489,6 +519,8 @@ export const WorkspaceSelectorWrapper = styled.div`
   padding: 24px 10px 0;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ApplicationsSection(props: any) {
   const { activeWorkspaceId, applications, packages, workflows, workspaces } =
     props;
@@ -501,6 +533,9 @@ export function ApplicationsSection(props: any) {
   const isDeletingWorkspace = useSelector(getIsDeletingWorkspace);
   const { isFetchingPackages } = usePackage();
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
+  // This checks if the Anvil feature flag is enabled and shows different sections in the workspace
+  // for Anvil and Classic applications
+  const isAnvilEnabled = useSelector(getIsAnvilLayoutEnabled);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
   const urlParams = new URLSearchParams(location.search);
@@ -713,6 +748,8 @@ export function ApplicationsSection(props: any) {
         createNewApplication(
           getNextEntityName(
             "Untitled application ",
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             applications.map((el: any) => el.name),
           ),
           workspaceId,
@@ -737,6 +774,21 @@ export function ApplicationsSection(props: any) {
         handleResetMenuState();
       }
     };
+
+    // The following filters the applications into classic and Anvil applications
+    // So, that they can be listed in different card lists depending on whether Anvil is enabled
+    const anvilApplications: ApplicationPayload[] = [];
+    const nonAnvilApplications: ApplicationPayload[] = [];
+    applications.forEach((application: ApplicationPayload) => {
+      if (
+        application.applicationDetail?.appPositioning?.type ===
+        LayoutSystemTypes.ANVIL
+      ) {
+        anvilApplications.push(application);
+      } else {
+        nonAnvilApplications.push(application);
+      }
+    });
 
     workspacesListComponent = (
       <React.Fragment key={activeWorkspace.id}>
@@ -825,10 +877,39 @@ export function ApplicationsSection(props: any) {
             <ResourceListLoader isMobile={isMobile} resources={applications} />
           ) : (
             <>
+              {isAnvilEnabled && ( // Anvil Applications list
+                <ApplicationCardList
+                  applications={anvilApplications}
+                  canInviteToWorkspace={canInviteToWorkspace}
+                  deleteApplication={deleteApplication}
+                  emptyStateMessage={createMessage(
+                    NEW_APPLICATION_CARD_LIST_ZERO_STATE,
+                  )}
+                  enableImportExport={enableImportExport}
+                  hasCreateNewApplicationPermission={
+                    hasCreateNewApplicationPermission
+                  }
+                  hasManageWorkspacePermissions={hasManageWorkspacePermissions}
+                  isMobile={isMobile}
+                  onClickAddNewButton={onClickAddNewAppButton}
+                  title={createMessage(ANVIL_APPLICATIONS)}
+                  titleTag={AnvilTitleTag}
+                  updateApplicationDispatch={updateApplicationDispatch}
+                  workspaceId={activeWorkspace.id}
+                />
+              )}
               <ApplicationCardList
-                applications={applications}
+                applications={nonAnvilApplications}
                 canInviteToWorkspace={canInviteToWorkspace}
                 deleteApplication={deleteApplication}
+                emptyStateMessage={
+                  // We let the original message includded in the ApplicationCardList component
+                  // show if Anvil is not enabled. If Anvil is enabled, we need to pass the message
+                  // to make them appropriate to the context.
+                  isAnvilEnabled
+                    ? createMessage(CLASSIC_APPLICATION_CARD_LIST_ZERO_STATE)
+                    : undefined
+                }
                 enableImportExport={enableImportExport}
                 hasCreateNewApplicationPermission={
                   hasCreateNewApplicationPermission
@@ -836,6 +917,12 @@ export function ApplicationsSection(props: any) {
                 hasManageWorkspacePermissions={hasManageWorkspacePermissions}
                 isMobile={isMobile}
                 onClickAddNewButton={onClickAddNewAppButton}
+                title={
+                  // The title is different based on whether Anvil is enabled or not
+                  createMessage(
+                    isAnvilEnabled ? FIXED_APPLICATIONS : APPLICATIONS,
+                  )
+                }
                 updateApplicationDispatch={updateApplicationDispatch}
                 workspaceId={activeWorkspace.id}
               />
@@ -870,6 +957,8 @@ export function ApplicationsSection(props: any) {
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ApplictionsMainPage = (props: any) => {
   const { searchKeyword } = props;
   const location = useLocation();
@@ -888,12 +977,16 @@ export const ApplictionsMainPage = (props: any) => {
   const isLicensePage = useRouteMatch("/license")?.isExact;
   const isBannerVisible = showBanner && (isHomePage || isLicensePage);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let workspaces: any;
   if (!isFetchingWorkspaces) {
     workspaces = fetchedWorkspaces;
   } else {
     workspaces = loadingUserWorkspaces.map(
       (loadingWorkspaces) => loadingWorkspaces.workspace,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) as any;
   }
 
@@ -999,6 +1092,8 @@ export interface ApplicationProps {
     fetchEntities: boolean;
     workspaceId: string | null;
   }) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   workspaces: any;
   currentUser?: User;
   searchKeyword: string | undefined;
@@ -1085,6 +1180,8 @@ export const mapStateToProps = (state: AppState) => ({
   isReconnectModalOpen: getIsReconnectingDatasourcesModalOpen(state),
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mapDispatchToProps = (dispatch: any) => ({
   getAllWorkspaces: ({
     fetchEntities,

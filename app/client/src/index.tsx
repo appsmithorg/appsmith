@@ -6,6 +6,8 @@ import "./wdyr";
 import ReactDOM from "react-dom";
 import { Provider } from "react-redux";
 import "./index.css";
+import "design-system-old/src/themes/default/index.css";
+import "design-system/src/__theme__/default/index.css";
 import { ThemeProvider } from "styled-components";
 import { appInitializer } from "utils/AppUtils";
 import store, { runSagaMiddleware } from "./store";
@@ -24,7 +26,9 @@ import { setAutoFreeze } from "immer";
 import AppErrorBoundary from "./AppErrorBoundry";
 import log from "loglevel";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { BrowserAgent } from "@newrelic/browser-agent/loaders/browser-agent";
+import { PageViewTiming } from "@newrelic/browser-agent/features/page_view_timing";
+import { PageViewEvent } from "@newrelic/browser-agent/features/page_view_event";
+import { Agent } from "@newrelic/browser-agent/loaders/agent";
 
 const { newRelic } = getAppsmithConfigs();
 const { enableNewRelic } = newRelic;
@@ -33,7 +37,6 @@ const newRelicBrowserAgentConfig = {
   init: {
     distributed_tracing: { enabled: true },
     privacy: { cookies_enabled: true },
-    ajax: { deny_list: [newRelic.browserAgentEndpoint] },
   },
   info: {
     beacon: newRelic.browserAgentEndpoint,
@@ -53,7 +56,15 @@ const newRelicBrowserAgentConfig = {
 
 // The agent loader code executes immediately on instantiation.
 if (enableNewRelic) {
-  new BrowserAgent(newRelicBrowserAgentConfig);
+  new Agent(
+    {
+      ...newRelicBrowserAgentConfig,
+      features: [PageViewTiming, PageViewEvent],
+    },
+    // The second argument agentIdentifier is not marked as optional in its type definition.
+    // Passing a null value throws an error as well. So we pass undefined.
+    undefined,
+  );
 }
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
@@ -67,7 +78,7 @@ enableNewRelic &&
   (async () => {
     try {
       await import(
-        /* webpackChunkName: "otlpTelemetry" */ "./UITelemetry/auto-otel-web.js"
+        /* webpackChunkName: "otlpTelemetry" */ "./UITelemetry/auto-otel-web"
       );
     } catch (e) {
       log.error("Error loading telemetry script", e);
@@ -87,6 +98,8 @@ function App() {
 }
 
 class ThemedApp extends React.Component<{
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   currentTheme: any;
 }> {
   render() {
@@ -110,6 +123,10 @@ const ThemedAppWithProps = connect(mapStateToProps)(ThemedApp);
 ReactDOM.render(<App />, document.getElementById("root"));
 
 // expose store when run in Cypress
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 if ((window as any).Cypress) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).store = store;
 }

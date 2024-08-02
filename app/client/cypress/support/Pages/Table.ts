@@ -37,9 +37,7 @@ export class Table {
   private assertHelper = ObjectsRegistry.AssertHelper;
 
   private _tableWrap = "//div[contains(@class,'tableWrap')]";
-  private _tableHeader =
-    this._tableWrap +
-    "//div[contains(@class,'thead')]//div[contains(@class,'tr')][1]";
+  private _tableHeader = ".thead div[role=columnheader]";
   private _columnHeader = (columnName: string) =>
     this._tableWrap +
     "//div[contains(@class,'thead')]//div[contains(@class,'tr')][1]//div[@role='columnheader']//div[contains(text(),'" +
@@ -258,7 +256,7 @@ export class Table {
   }
 
   public AssertTableHeaderOrder(expectedOrder: string) {
-    cy.xpath(this._tableHeader)
+    cy.get(this._tableHeader)
       .invoke("text")
       .then((x) => {
         expect(x).to.eq(expectedOrder);
@@ -585,6 +583,20 @@ export class Table {
       force: true,
     });
     cy.get(this._defaultColName).type(colId, { force: true });
+  }
+
+  public toggleColumnEditableViaColSettingsPane(
+    columnName: string,
+    tableVersion: "v1" | "v2" = "v2",
+    editable = true,
+    goBackToPropertyPane = true,
+  ) {
+    this.EditColumn(columnName, tableVersion);
+    this.propPane.TogglePropertyState(
+      "Editable",
+      editable === true ? "On" : "Off",
+    );
+    goBackToPropertyPane && this.propPane.NavigateBackToPropertyPane();
   }
 
   public EditColumn(columnName: string, tableVersion: "v1" | "v2") {

@@ -70,12 +70,14 @@ interface StateProps {
 }
 
 interface DispatchFunctions {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createDatasource: (data: any) => void;
   createAction: (data: Partial<SaaSAction>) => void;
 }
 
 type RouteProps = RouteComponentProps<{
-  pageId: string;
+  basePageId: string;
   pluginPackageName: string;
 }>;
 
@@ -89,13 +91,13 @@ class ListView extends React.Component<Props> {
     const {
       location,
       match: {
-        params: { pageId },
+        params: { basePageId },
       },
     } = this.props;
     const params: string = location.search;
     let pgId = new URLSearchParams(params).get("importTo");
     if (!pgId) {
-      pgId = pageId;
+      pgId = basePageId;
     }
     if (pgId) {
       this.props.createAction({
@@ -163,7 +165,7 @@ class ListView extends React.Component<Props> {
     const {
       history,
       match: {
-        params: { pageId },
+        params: { basePageId },
       },
     } = this.props;
     return (
@@ -173,7 +175,7 @@ class ListView extends React.Component<Props> {
           onBackButton={() =>
             history.push(
               integrationEditorURL({
-                pageId,
+                basePageId,
                 selectedTab: INTEGRATION_TABS.ACTIVE,
               }),
             )
@@ -207,8 +209,12 @@ const mapStateToProps = (state: AppState, props: RouteProps): StateProps => {
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): DispatchFunctions => {
   return {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
     createAction: (data: Partial<SaaSAction>) => {
       dispatch(createActionRequest(data));

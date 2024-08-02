@@ -1,0 +1,17 @@
+.toggleGroup {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+
+  &[data-disabled] {
+    cursor: not-allowed;
+  }
+
+  &[data-orientation="horizontal"] [data-label-position="end"] {
+    margin-inline-end: 0;
+  }
+
+  &[data-orientation="horizontal"] [data-label-position="start"] {
+    width: fit-content;
+  }
+}

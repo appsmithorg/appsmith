@@ -2662,7 +2662,7 @@ public class RestApiPluginTest {
         mockEndpoint.enqueue(new MockResponse().setBody("{}").addHeader("Content-Type", "application/json"));
 
         AuthenticationDTO authenticationDTO =
-                new ApiKeyAuth(ApiKeyAuth.Type.QUERY_PARAMS, "secret", null, "secret_value");
+                new ApiKeyAuth(ApiKeyAuth.Type.QUERY_PARAMS, "secret", null, "secret&another=value");
         dsConfig.setAuthentication(authenticationDTO);
 
         ActionConfiguration actionConfig = new ActionConfiguration();

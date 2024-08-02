@@ -26,8 +26,8 @@ import * as Sentry from "@sentry/react";
 import { resetRecentEntities } from "actions/globalSearchActions";
 
 import {
-  initAppViewer,
-  initEditor,
+  initAppViewerAction,
+  initEditorAction,
   resetEditorSuccess,
 } from "actions/initActions";
 import {
@@ -85,6 +85,11 @@ import type { Datasource } from "entities/Datasource";
 import type { Plugin, PluginFormPayload } from "api/PluginApi";
 import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
 import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
+import {
+  endSpan,
+  startNestedSpan,
+  startRootSpan,
+} from "UITelemetry/generateTraces";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -160,6 +165,8 @@ export function* reportSWStatus() {
   const mode: APP_MODE = yield select(getAppMode);
   const startTime = Date.now();
   if ("serviceWorker" in navigator) {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const result: { success: any; failed: any } = yield race({
       success: navigator.serviceWorker.ready.then((reg) => ({
         reg,
@@ -199,20 +206,22 @@ function* executeActionDuringUserDetailsInitialisation(
 
 export function* getInitResponses({
   applicationId,
+  basePageId,
   mode,
-  pageId,
   shouldInitialiseUserDetails,
 }: {
   applicationId?: string;
-  pageId?: string;
+  basePageId?: string;
   branch?: string;
   mode?: APP_MODE;
   shouldInitialiseUserDetails?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): any {
   const params = pickBy(
     {
       applicationId,
-      defaultPageId: pageId,
+      defaultPageId: basePageId,
     },
     identity,
   );
@@ -238,6 +247,8 @@ export function* getInitResponses({
       // its only invalid when there is a axios related error
       throw new Error("Error occured " + axiosConnectionAbortedCode);
     }
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (e: any) {
     // when the user is an anonymous user we embed the url with the attempted route
     // this is taken care in ce code repo but not on ee
@@ -250,13 +261,12 @@ export function* getInitResponses({
       ReduxActionTypes.END_CONSOLIDATED_PAGE_LOAD,
       shouldInitialiseUserDetails,
     );
-
     Sentry.captureMessage(
       `consolidated api failure for ${JSON.stringify(
         params,
       )} errored message response ${e}`,
     );
-    throw new PageNotFoundError(`Cannot find page with id: ${pageId}`);
+    throw new PageNotFoundError(`Cannot find page with base id: ${basePageId}`);
   }
 
   const { featureFlags, productAlert, tenantConfig, userProfile, ...rest } =
@@ -284,32 +294,55 @@ export function* getInitResponses({
 }
 
 export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
+  const rootSpan = startRootSpan("startAppEngine", {
+    mode: action.payload.mode,
+    pageId: action.payload.basePageId,
+    applicationId: action.payload.applicationId,
+    branch: action.payload.branch,
+  });
+
   try {
     const engine: AppEngine = AppEngineFactory.create(
       action.payload.mode,
       action.payload.mode,
     );
     engine.startPerformanceTracking();
-    yield call(engine.setupEngine, action.payload);
+    yield call(engine.setupEngine, action.payload, rootSpan);
+
+    const getInitResponsesSpan = startNestedSpan(
+      "getInitResponsesSpan",
+      rootSpan,
+    );
+
     const allResponses: InitConsolidatedApi = yield call(getInitResponses, {
       ...action.payload,
     });
+
+    endSpan(getInitResponsesSpan);
+
     yield put({ type: ReduxActionTypes.LINT_SETUP });
-    const { applicationId, toLoadPageId } = yield call(
+    const { applicationId, toLoadBasePageId, toLoadPageId } = yield call(
       engine.loadAppData,
       action.payload,
       allResponses,
+      rootSpan,
     );
-    yield call(engine.loadAppURL, toLoadPageId, action.payload.pageId);
+
+    yield call(engine.loadAppURL, {
+      basePageId: toLoadBasePageId,
+      basePageIdInUrl: action.payload.basePageId,
+      rootSpan,
+    });
 
     yield call(
       engine.loadAppEntities,
       toLoadPageId,
       applicationId,
       allResponses,
+      rootSpan,
     );
-    yield call(engine.loadGit, applicationId);
-    yield call(engine.completeChore);
+    yield call(engine.loadGit, applicationId, rootSpan);
+    yield call(engine.completeChore, rootSpan);
     yield put(generateAutoHeightLayoutTreeAction(true, false));
     engine.stopPerformanceTracking();
   } catch (e) {
@@ -317,6 +350,8 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
     if (e instanceof AppEngineApiError) return;
     Sentry.captureException(e);
     yield put(safeCrashAppRequest());
+  } finally {
+    endSpan(rootSpan);
   }
 }
 
@@ -402,14 +437,14 @@ function* eagerPageInitSaga() {
     const matchedEditorParams = matchEditorPath(url);
     if (matchedEditorParams) {
       const {
-        params: { applicationId, pageId },
+        params: { baseApplicationId, basePageId },
       } = matchedEditorParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-      if (pageId) {
+      if (basePageId) {
         yield put(
-          initEditor({
-            pageId,
-            applicationId,
+          initEditorAction({
+            basePageId,
+            baseApplicationId,
             branch,
             mode: APP_MODE.EDIT,
             shouldInitialiseUserDetails: true,
@@ -422,15 +457,15 @@ function* eagerPageInitSaga() {
     const matchedViewerParams = matchViewerPath(url);
     if (matchedViewerParams) {
       const {
-        params: { applicationId, pageId },
+        params: { baseApplicationId, basePageId },
       } = matchedViewerParams;
       const branch = getSearchQuery(search, GIT_BRANCH_QUERY_KEY);
-      if (applicationId || pageId) {
+      if (baseApplicationId || basePageId) {
         yield put(
-          initAppViewer({
-            applicationId,
+          initAppViewerAction({
+            baseApplicationId,
             branch,
-            pageId,
+            basePageId,
             mode: APP_MODE.PUBLISHED,
             shouldInitialiseUserDetails: true,
           }),

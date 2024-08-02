@@ -1,4 +1,3 @@
-// import { Text, TextType } from "design-system-old";
 import {
   ADD_PAGE_FROM_TEMPLATE_MODAL,
   createMessage,

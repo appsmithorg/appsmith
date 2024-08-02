@@ -10,7 +10,7 @@ import history from "utils/history";
 import { getQueryParams } from "utils/URLUtils";
 import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
 import { omit } from "lodash";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { DatasourceStructureContext } from "entities/Datasource";
 
 export interface Props {
@@ -40,7 +40,7 @@ const ButtonWrapper = styled.div`
 const DatasourceStructureNotFound = (props: Props) => {
   const { datasourceId, error, pluginName } = props;
 
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
 
   const editDatasource = () => {
     let entryPoint = DatasourceEditEntryPoints.QUERY_EDITOR_DATASOURCE_SCHEMA;
@@ -61,7 +61,7 @@ const DatasourceStructureNotFound = (props: Props) => {
     }
 
     const url = datasourcesEditorIdURL({
-      pageId,
+      basePageId,
       datasourceId: datasourceId,
       params: { ...omit(getQueryParams(), "viewMode"), viewMode: false },
       generateEditorPath: true,

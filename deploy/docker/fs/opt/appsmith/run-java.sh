@@ -59,10 +59,10 @@ fi
 
 # Wait until RTS started and listens on port 8091
 while ! curl --fail --silent localhost:"${APPSMITH_RTS_PORT:-8091}"/rts-api/v1/health-check; do
-  echo 'Waiting for RTS to start ...'
+  tlog 'Waiting for RTS to start ...'
   sleep 1
 done
-echo 'RTS started.'
+tlog 'RTS started.'
 
 sh /opt/appsmith/run-starting-page-init.sh &
 

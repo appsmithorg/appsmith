@@ -34,6 +34,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { DynamicHeight, type WidgetFeatures } from "utils/WidgetFeatures";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 
 const StyledLink = styled(Link)`
   display: inline-block;
@@ -55,6 +56,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
       tags: [WIDGET_TAGS.DISPLAY],
       searchTags: ["external"],
       isSearchWildcard: true,
+      hideCard: isAirgapped(),
     };
   }
 
@@ -385,6 +387,8 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       model: undefined,

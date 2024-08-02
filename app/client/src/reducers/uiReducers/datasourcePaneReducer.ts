@@ -21,10 +21,10 @@ export interface DatasourcePaneReduxState {
   drafts: Record<string, Datasource>;
   expandDatasourceId: string;
   actionRouteInfo: Partial<{
-    apiId: string;
+    baseApiId: string;
     datasourceId: string;
-    pageId: string;
-    applicationId: string;
+    baseParentEntityId: string;
+    baseApplicationId: string;
   }>;
   newDatasource: string;
   viewMode: boolean;
@@ -60,12 +60,7 @@ const datasourcePaneReducer = createReducer(initialState, {
   }),
   [ReduxActionTypes.STORE_AS_DATASOURCE_UPDATE]: (
     state: DatasourcePaneReduxState,
-    action: ReduxAction<{
-      apiId: string;
-      datasourceId: string;
-      pageId: string;
-      applicationId: string;
-    }>,
+    action: ReduxAction<DatasourcePaneReduxState["actionRouteInfo"]>,
   ) => {
     return {
       ...state,

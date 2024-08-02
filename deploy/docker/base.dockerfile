@@ -27,8 +27,10 @@ RUN set -o xtrace \
   && echo "deb http://apt.postgresql.org/pub/repos/apt $(grep CODENAME /etc/lsb-release | cut -d= -f2)-pgdg main" | tee /etc/apt/sources.list.d/pgdg.list \
   && curl --silent --show-error --location https://www.postgresql.org/media/keys/ACCC4CF8.asc | apt-key add - \
   && apt update \
-  && apt-get install --no-install-recommends --yes mongodb-org redis postgresql-13 \
+  && apt-get install --no-install-recommends --yes mongodb-org redis postgresql-14 \
   && apt-get clean
+
+ENV PATH="/usr/lib/postgresql/14/bin:${PATH}"
 
 # Install Java
 RUN set -o xtrace \

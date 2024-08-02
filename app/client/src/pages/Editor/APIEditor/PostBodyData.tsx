@@ -195,6 +195,8 @@ function PostBodyData(props: Props) {
 
 const selector = formValueSelector(API_EDITOR_FORM_NAME);
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => ({
   updateBodyContentType: (contentType: string, apiId: string) =>
     dispatch(updateBodyContentType(contentType, apiId)),

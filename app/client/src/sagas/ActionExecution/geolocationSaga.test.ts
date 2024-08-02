@@ -10,6 +10,8 @@ import { logActionExecutionError } from "./errorUtils";
 const mockFn = jest.fn();
 
 jest.mock("./errorUtils.ts", () => ({
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logActionExecutionError: (payload: any) => mockFn(payload),
 }));
 

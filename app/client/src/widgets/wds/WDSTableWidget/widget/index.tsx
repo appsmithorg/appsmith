@@ -87,6 +87,8 @@ const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
 );
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const emptyArr: any = [];
 
 type addNewRowToTable = (
@@ -106,6 +108,8 @@ const getMemoisedAddNewRow = (): addNewRowToTable =>
 export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   inlineEditTimer: number | null = null;
   memoisedAddNewRow: addNewRowToTable;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   memoiseGetColumnsWithLocalStorage: (localStorage: any) => getColumns;
   memoiseTransformDataWithEditableCell: transformDataWithEditableCell;
 
@@ -157,6 +161,8 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       getMemoiseTransformDataWithEditableCell();
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
@@ -925,6 +931,11 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columns={tableColumns}
           delimiter={delimiter}
           disableDrag={this.toggleDrag}
+          disableScroll={
+            this.props.renderMode === RenderModes.CANVAS &&
+            !Boolean(this.props.isPreviewMode)
+          }
+          excludeFromTabOrder={this.props.disableWidgetInteraction}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
@@ -961,7 +972,8 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           showConnectDataOverlay={
             primaryColumns &&
             !Object.keys(primaryColumns).length &&
-            this.props.renderMode === RenderModes.CANVAS
+            this.props.renderMode === RenderModes.CANVAS &&
+            !Boolean(this.props.isPreviewMode)
           }
           sortTableColumn={this.handleColumnSorting}
           tableData={finalTableData}
@@ -1167,6 +1179,8 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleSearchTable = (searchKey: any) => {
     const {
       commitBatchMetaUpdates,
@@ -1523,6 +1537,8 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return -1;
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderCell = (props: any) => {
     const column =
       this.getColumnByOriginalId(
@@ -1559,6 +1575,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             buttonColor={cellProperties.buttonColor}
             buttonLabel={cellProperties.buttonLabel || "Action"}
             buttonVariant={cellProperties.buttonVariant}
+            excludeFromTabOrder={this.props.disableWidgetInteraction}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isDisabled={cellProperties.isDisabled}
             isHidden={isHidden}

@@ -40,6 +40,7 @@ import QueryEditorHeader from "./QueryEditorHeader";
 import ActionEditor from "../IDE/EditorPane/components/ActionEditor";
 import QueryResponseTab from "./QueryResponseTab";
 import DatasourceSelector from "./DatasourceSelector";
+import RunHistory from "@appsmith/components/RunHistory";
 
 const QueryFormContainer = styled.form`
   flex: 1;
@@ -138,6 +139,11 @@ export const SegmentedControlContainer = styled.div`
   overflow-x: scroll;
 `;
 
+const StyledNotificationWrapper = styled.div`
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-3)
+    var(--ads-v2-spaces-7);
+`;
+
 interface QueryFormProps {
   onDeleteClick: () => void;
   onRunClick: () => void;
@@ -149,10 +155,16 @@ interface QueryFormProps {
   actionResponse?: ActionResponse;
   runErrorMessage: string | undefined;
   location: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any;
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfig?: any;
   formName: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   settingConfig: any;
   formData: SaaSAction | QueryAction;
   responseDisplayFormat: { title: string; value: string };
@@ -198,13 +210,15 @@ export function EditorJSONtoForm(props: Props) {
     notification,
   } = useContext(QueryEditorContext);
 
-  const params = useParams<{ apiId?: string; queryId?: string }>();
+  const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
   // fetch the error count from the store.
   const actions: Action[] = useSelector((state: AppState) =>
     state.entities.actions.map((action) => action.config),
   );
   const currentActionConfig: Action | undefined = actions.find(
-    (action) => action.id === params.apiId || action.id === params.queryId,
+    (action) =>
+      action.baseId === params.baseApiId ||
+      action.baseId === params.baseQueryId,
   );
 
   const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
@@ -250,6 +264,7 @@ export function EditorJSONtoForm(props: Props) {
         title: createMessage(DEBUGGER_RESPONSE),
         panelComponent: (
           <QueryResponseTab
+            actionName={actionName}
             actionSource={actionSource}
             currentActionConfig={currentActionConfig}
             isRunning={isRunning}
@@ -306,7 +321,9 @@ export function EditorJSONtoForm(props: Props) {
           onRunClick={onRunClick}
           plugin={plugin}
         />
-        {notification}
+        {notification && (
+          <StyledNotificationWrapper>{notification}</StyledNotificationWrapper>
+        )}
         <Wrapper>
           <div className="flex flex-1 w-full">
             <SecondaryWrapper>
@@ -386,6 +403,7 @@ export function EditorJSONtoForm(props: Props) {
                 runErrorMessage={runErrorMessage}
                 showSchema={showSchema}
               />
+              <RunHistory />
             </SecondaryWrapper>
           </div>
           <ActionRightPane

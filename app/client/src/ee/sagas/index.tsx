@@ -7,6 +7,8 @@ import * as sentry from "@sentry/react";
 
 const sagasArr = [...CE_Sagas];
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* rootSaga(sagasToRun = sagasArr): any {
   // This race effect ensures that we fail as soon as the first safe crash is dispatched.
   // Without this, all the subsequent safe crash failures would be shown in the toast messages as well.

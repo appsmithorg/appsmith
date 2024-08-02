@@ -49,6 +49,8 @@ const useBrandingTheme = () => {
     }
 
     // Set the favicon
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let favicon: any = document.querySelector("link[rel='shortcut icon']");
     if (!favicon) {
       favicon = document.createElement("link");

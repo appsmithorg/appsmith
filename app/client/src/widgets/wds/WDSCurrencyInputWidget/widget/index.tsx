@@ -74,6 +74,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     parentConfig[labelSectionIndex].children[labelPropertyIndex] = {
       ...parentConfig[labelSectionIndex].children[labelPropertyIndex],
       placeholderText: "Current Price",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     const generalSectionIndex = parentConfig.findIndex(
@@ -87,6 +89,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
       ...parentConfig[generalSectionIndex].children[tooltipPropertyIndex],
       placeholderText:
         "Prices in other currencies should be recalculated in USD",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     const placeholderPropertyIndex = parentConfig[
@@ -98,6 +102,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     parentConfig[generalSectionIndex].children[placeholderPropertyIndex] = {
       ...parentConfig[generalSectionIndex].children[placeholderPropertyIndex],
       placeholderText: "10",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     return mergeWidgetConfig(config.propertyPaneContentConfig, parentConfig);
@@ -109,14 +115,16 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
 
   static getDerivedPropertiesMap() {
     return {
-      isValid: `{{(()=>{${derivedProperties.isValid}})()}}`,
-      rawText: `{{(()=>{${derivedProperties.value}})()}}`,
+      isValid: `{{(() => {${derivedProperties.isValid}})()}}`,
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return _.merge(super.getMetaPropertiesMap(), {
-      text: undefined,
+      rawText: "",
+      parsedText: "",
       currencyCode: undefined,
     });
   }
@@ -124,6 +132,8 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   static getDefaultPropertiesMap(): Record<string, string> {
     return _.merge(super.getDefaultPropertiesMap(), {
       currencyCode: "defaultCurrencyCode",
+      rawText: "defaultText",
+      parsedText: "defaultText",
     });
   }
 
@@ -175,7 +185,9 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
       Sentry.captureException(e);
     }
 
-    this.props.updateWidgetMetaProperty("parsedText", String(formattedValue), {
+    this.props.updateWidgetMetaProperty("parsedText", String(formattedValue));
+
+    this.props.updateWidgetMetaProperty("rawText", value, {
       triggerPropertyName: "onTextChanged",
       dynamicString: this.props.onTextChanged,
       event: {
@@ -295,8 +307,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   }
 
   getWidgetView() {
-    const value = this.props.parsedText ?? "";
-
+    const value = this.props.rawText ?? "";
     const validation = validateInput(this.props);
 
     return (
@@ -306,6 +317,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
         currencyCode={this.props.currencyCode}
         defaultValue={this.props.defaultText}
         errorMessage={validation.errorMessage}
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         isDisabled={this.props.isDisabled}
         isLoading={this.props.isLoading}
         isReadOnly={this.props.isReadOnly}
@@ -317,7 +329,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         tooltip={this.props.tooltip}
-        validationStatus={validation.validattionStatus}
+        validationStatus={validation.validationStatus}
         value={value}
         widgetId={this.props.widgetId}
       />

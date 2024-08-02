@@ -49,6 +49,8 @@ interface ReactTableComponentProps {
   columnWidthMap?: { [key: string]: number };
   handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSearch: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   columns: ReactTableColumnProps[];
@@ -81,6 +83,8 @@ interface ReactTableComponentProps {
   canFreezeColumn?: boolean;
   showConnectDataOverlay: boolean;
   onConnectData: () => void;
+  excludeFromTabOrder?: boolean;
+  disableScroll?: boolean;
 }
 
 function ReactTableComponent(props: ReactTableComponentProps) {
@@ -97,6 +101,7 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     delimiter,
     disabledAddNewRowSave,
     disableDrag,
+    disableScroll,
     editableCell,
     editMode,
     filters,
@@ -208,10 +213,12 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       data={tableData}
       delimiter={delimiter}
       disableDrag={memoziedDisableDrag}
+      disableScroll={disableScroll}
       disabledAddNewRowSave={disabledAddNewRowSave}
       editMode={editMode}
       editableCell={editableCell}
       enableDrag={memoziedEnableDrag}
+      excludeFromTabOrder={props.excludeFromTabOrder}
       filters={filters}
       handleColumnFreeze={handleColumnFreeze}
       handleReorderColumn={handleReorderColumn}
@@ -310,6 +317,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.allowSorting === next.allowSorting &&
     prev.disabledAddNewRowSave === next.disabledAddNewRowSave &&
     prev.canFreezeColumn === next.canFreezeColumn &&
-    prev.showConnectDataOverlay === next.showConnectDataOverlay
+    prev.showConnectDataOverlay === next.showConnectDataOverlay &&
+    prev.disableScroll === next.disableScroll
   );
 });

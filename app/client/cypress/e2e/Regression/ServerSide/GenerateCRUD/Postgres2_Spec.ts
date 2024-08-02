@@ -608,20 +608,11 @@ describe(
       table.ReadTableRowColumnData(0, 0, "v2", 2000).then(($cellData) => {
         expect($cellData).not.eq("159180"); //Deleted record Store_ID
       });
-    });
-
-    it("15. Validate Deletion of the Newly Created Page - Vessels", () => {
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad(0, 0, "v2");
-      //Delete the test data
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Public.vessels",
-        action: "Delete",
-        entityType: entityItems.Page,
-      });
     });
 
-    it("16. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
+    it("15. Validate Drop of the Newly Created - Vessels - Table from Postgres datasource", () => {
       const deleteTblQuery = "DROP TABLE Vessels;";
       dataSources.CreateQueryForDS(dsName, deleteTblQuery, "DropVessels");
       agHelper.FocusElement(locators._codeMirrorTextArea);
@@ -630,7 +621,7 @@ describe(
       dataSources.AssertTableInVirtuosoList(dsName, "public.vessels", false);
     });
 
-    it("17. Verify application does not break when user runs the query with wrong table name", function () {
+    it("16. Verify application does not break when user runs the query with wrong table name", function () {
       EditorNavigation.SelectEntityByName("DropVessels", EntityType.Query);
       dataSources.RunQuery({ toValidateResponse: false });
       cy.wait("@postExecute").then(({ response }) => {
@@ -645,7 +636,7 @@ describe(
       });
     });
 
-    it("18. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
+    it("17. Verify Deletion of the datasource when Pages/Actions associated are not removed yet", () => {
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409);

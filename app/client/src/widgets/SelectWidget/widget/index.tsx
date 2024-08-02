@@ -93,11 +93,15 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       labelPosition: LabelPosition.Top,
       labelAlignment: Alignment.LEFT,
       labelWidth: 5,
-      sourceData: [
-        { name: "Blue", code: "BLUE" },
-        { name: "Green", code: "GREEN" },
-        { name: "Red", code: "RED" },
-      ],
+      sourceData: JSON.stringify(
+        [
+          { name: "Blue", code: "BLUE" },
+          { name: "Green", code: "GREEN" },
+          { name: "Red", code: "RED" },
+        ],
+        null,
+        2,
+      ),
       optionLabel: "name",
       optionValue: "code",
       serverSideFiltering: false,
@@ -111,6 +115,7 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
       labelTextSize: "0.875rem",
       responsiveBehavior: ResponsiveBehavior.Fill,
       minWidth: FILL_WIDGET_MIN_WIDTH,
+      dynamicPropertyPathList: [{ key: "sourceData" }],
     };
   }
 
@@ -758,6 +763,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       value: undefined,
@@ -820,6 +827,8 @@ class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isStringOrNumber = (value: any): value is string | number =>
     isString(value) || isNumber(value);
 
@@ -956,8 +965,14 @@ export interface SelectWidgetProps extends WidgetProps {
   onOptionChange?: string;
   onDropdownOpen?: string;
   onDropdownClose?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   defaultOptionValue?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   label?: any;
   isRequired: boolean;
   isFilterable: boolean;

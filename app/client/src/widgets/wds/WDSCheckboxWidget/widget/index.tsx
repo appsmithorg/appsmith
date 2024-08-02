@@ -58,6 +58,8 @@ class WDSCheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       isChecked: undefined,
@@ -95,13 +97,14 @@ class WDSCheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   getWidgetView() {
     return (
       <Checkbox
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         id={this.props.widgetId}
         isDisabled={this.props.isDisabled}
+        isInvalid={!this.props.isValid}
         isRequired={this.props.isRequired}
         isSelected={!!this.props.isChecked}
         key={this.props.widgetId}
         onChange={this.onChange}
-        validationState={this.props.isValid ? "valid" : "invalid"}
       >
         {this.props.label}
       </Checkbox>

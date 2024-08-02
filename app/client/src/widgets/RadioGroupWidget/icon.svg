@@ -1,9 +1,1 @@
-<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M17 5H29" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M17 21H29" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M17 9H25" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M17 25H25" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="7" cy="23" r="6" transform="rotate(-90 7 23)" stroke="#364252" stroke-width="2" stroke-linejoin="round"/>
-<circle cx="7" cy="7" r="6" transform="rotate(-90 7 7)" stroke="#364252" stroke-width="2" stroke-linejoin="round"/>
-<circle cx="7" cy="7" r="2" transform="rotate(-90 7 7)" stroke="#364252" stroke-width="2" stroke-linejoin="round"/>
-</svg>
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none"><path stroke="#000" stroke-linecap="round" stroke-linejoin="round" d="M8.5 2.5h6M8.5 10.5h6M8.5 4.5h4M8.5 12.5h4"/><circle cx="3.5" cy="11.5" r="3" stroke="#000" stroke-linejoin="round" transform="rotate(-90 3.5 11.5)"/><circle cx="3.5" cy="3.5" r="3" stroke="#000" stroke-linejoin="round" transform="rotate(-90 3.5 3.5)"/><circle cx="3.5" cy="3.5" r="1" stroke="#000" stroke-linejoin="round" transform="rotate(-90 3.5 3.5)"/></svg>
