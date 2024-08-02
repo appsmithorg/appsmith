@@ -116,7 +116,7 @@ const getBindingSuffix = (tableId: string) => {
       ${tableId}.isAddRowInProgress
         ? ${tableId}.newRow
         : (
-          ${tableId}.processedTableData[${tableId}.editableCell["${ORIGINAL_INDEX_KEY}"]]
+          ${tableId}.processedTableData[${tableId}.editableCell.${ORIGINAL_INDEX_KEY}]
           || Object.keys(${tableId}.processedTableData[0])
               .filter(key => ["${ORIGINAL_INDEX_KEY}", "${PRIMARY_COLUMN_KEY_VALUE}"].indexOf(key) === -1)
               .reduce((prev, curr) => {
@@ -124,8 +124,7 @@ const getBindingSuffix = (tableId: string) => {
                 return prev;
               }, {}))
     )
-  }}
-  `;
+  }}`;
 };
 
 class TableInlineEditValidationControl extends BaseControl<TableInlineEditValidationControlProps> {
