@@ -8,6 +8,8 @@ import JSObjectCollection from "../Collection";
 const applyJSVariableUpdatesToEvalTreeMock = jest.fn();
 jest.mock("../JSVariableUpdates.ts", () => ({
   ...jest.requireActual("../JSVariableUpdates.ts"),
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   applyJSVariableUpdatesToEvalTree: (...args: any[]) => {
     applyJSVariableUpdatesToEvalTreeMock(args);
   },

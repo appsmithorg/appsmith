@@ -249,9 +249,10 @@ function BindDataButton(props: BindDataButtonProps) {
   const pagePermissions = useSelector(getPagePermissions);
 
   const params = useParams<{
-    pageId: string;
-    apiId?: string;
-    queryId?: string;
+    basePageId: string;
+    baseApiId?: string;
+    baseQueryId?: string;
+    moduleInstanceId?: string;
   }>();
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -338,9 +339,11 @@ function BindDataButton(props: BindDataButtonProps) {
     }
     dispatch(
       bindDataOnCanvas({
-        queryId: (params.apiId || params.queryId) as string,
+        queryId: (params.baseApiId ||
+          params.baseQueryId ||
+          params.moduleInstanceId) as string,
         applicationId: applicationId as string,
-        pageId: params.pageId,
+        basePageId: params.basePageId,
       }),
     );
 

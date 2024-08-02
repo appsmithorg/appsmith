@@ -8,7 +8,6 @@ import {
   createMessage,
   IN_APP_EMBED_SETTING,
 } from "@appsmith/constants/messages";
-import { getCurrentApplication } from "selectors/editorSelectors";
 import PrivateEmbeddingContent, {
   PrivateEmbedRampModal,
   PrivateEmbedRampSidebar,
@@ -17,6 +16,7 @@ import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { ADMIN_SETTINGS_PATH } from "constants/routes";
 import { defaultOptionSelected, to, getSnippetUrl } from "@appsmith/utils";
 import { PrivateEmbedSettings } from "@appsmith/pages/Applications/PrivateEmbedSettings";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 export const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {

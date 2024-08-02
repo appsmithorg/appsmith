@@ -36,7 +36,6 @@ public class SaasControllerCE {
     public Mono<ResponseDTO<String>> getAppsmithToken(
             @PathVariable String datasourceId,
             @RequestBody RequestAppsmithTokenDTO requestAppsmithTokenDTO,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
             @RequestParam(required = false) String importForGit,
             ServerWebExchange serverWebExchange) {
@@ -47,7 +46,6 @@ public class SaasControllerCE {
                         datasourceId,
                         environmentId,
                         requestAppsmithTokenDTO,
-                        branchName,
                         serverWebExchange.getRequest().getHeaders(),
                         importForGit)
                 .map(token -> new ResponseDTO<>(HttpStatus.OK.value(), token, null));
@@ -58,8 +56,7 @@ public class SaasControllerCE {
     public Mono<ResponseDTO<OAuth2ResponseDTO>> getAccessToken(
             @PathVariable String datasourceId,
             @RequestParam String appsmithToken,
-            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId,
-            ServerWebExchange serverWebExchange) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
 
         log.debug("Received callback for an OAuth2 authorization request");
         return authenticationService

@@ -166,7 +166,7 @@ export function PageTabs(props: Props) {
       {appPages.map((page) => {
         return (
           <PageTabContainer
-            isTabActive={pathname.indexOf(page.pageId) > -1}
+            isTabActive={pathname.indexOf(page.basePageId) > -1}
             key={page.pageId}
             setShowScrollArrows={props.setShowScrollArrows}
             tabsScrollable={props.tabsScrollable}
@@ -197,7 +197,7 @@ function PageTabItem({
   const appMode = useSelector(getAppMode);
   const pageURL = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
-    { pageId: page.pageId },
+    { basePageId: page.basePageId },
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
   const navColorStyle =

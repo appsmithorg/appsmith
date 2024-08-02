@@ -5,6 +5,8 @@ import type { DatasourceStorage } from "entities/Datasource";
 export const getSheetUrl = (sheetId: string): string =>
   `https://docs.google.com/spreadsheets/d/${sheetId}/edit#gid=0`;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isValidGsheetConfig = (config: Record<string, any>) =>
   config.sheet &&
   config.tableHeaderIndex &&

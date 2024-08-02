@@ -84,6 +84,7 @@ class DatePickerControl extends BaseControl<
           inputRef={this.inputRef}
           maxDate={this.maxDate}
           minDate={this.minDate}
+          // @ts-expect-error types methods and component do not match
           onChange={this.onDateSelected}
           parseDate={this.parseDate}
           placeholderText="YYYY-MM-DD HH:mm"
@@ -157,6 +158,8 @@ class DatePickerControl extends BaseControl<
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     return !isDynamicValue(value);
   }

@@ -36,6 +36,8 @@ interface NavigationProps {
 
 export function PageMenu(props: NavigationProps) {
   const { application, headerRef, isOpen, pages, setMenuOpen } = props;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const menuRef = useRef<any>();
   const selectedTheme = useSelector(getSelectedAppTheme);
   const workspaceID = useSelector(getCurrentWorkspaceId);
@@ -180,7 +182,7 @@ function PageNavLink({
   const selectedTheme = useSelector(getSelectedAppTheme);
   const pathname = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
-    { pageId: page.pageId },
+    { basePageId: page.basePageId },
   );
 
   return (
@@ -190,7 +192,7 @@ function PageNavLink({
         borderColor: selectedTheme.properties.colors.primaryColor,
       }}
       className="flex flex-col px-4 py-2 no-underline border-transparent border-r-3 hover:no-underline"
-      key={page.pageId}
+      key={page.basePageId}
       navColorStyle={navColorStyle}
       onClick={closeMenu}
       primaryColor={primaryColor}

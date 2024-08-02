@@ -4,7 +4,6 @@ import com.appsmith.external.constants.ActionCreationSourceTypeEnum;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.clonepage.ClonePageServiceCE;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ClonePageMetaDTO;
@@ -30,22 +29,10 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
         return getCloneableActions(clonePageMetaDTO.getBranchedSourcePageId())
                 .flatMap(action -> {
                     // Set new page id in the actionDTO
-                    final DefaultResources clonedPageDefaultResources =
-                            clonePageMetaDTO.getClonedPageDTO().getDefaultResources();
                     ActionDTO actionDTO = action.getUnpublishedAction();
-                    DefaultResources defaultResources = new DefaultResources();
-                    defaultResources.setPageId(clonedPageDefaultResources.getPageId());
-                    defaultResources.setBranchName(clonedPageDefaultResources.getBranchName());
-                    defaultResources.setApplicationId(clonedPageDefaultResources.getApplicationId());
-                    actionDTO.setDefaultResources(defaultResources);
+                    actionDTO.setBranchName(clonePageMetaDTO.getBranchName());
 
                     actionDTO.setPageId(clonePageMetaDTO.getClonedPageDTO().getId());
-                    if (actionDTO.getCollectionId() != null) {
-                        String clonedActionCollectionId =
-                                clonePageMetaDTO.getOldToNewCollectionIds().get(actionDTO.getCollectionId());
-                        actionDTO.setCollectionId(clonedActionCollectionId);
-                        actionDTO.getDefaultResources().setCollectionId(clonedActionCollectionId);
-                    }
                     /*
                      * - Now create the new action from the template of the source action.
                      * - Use CLONE_PAGE context to make sure that page / application clone quirks are

@@ -6,7 +6,7 @@ import {
   EditorEntityTab,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
-import { getCurrentPageId } from "./editorSelectors";
+import { getCurrentBasePageId } from "./editorSelectors";
 import type { ParentEntityIDETabs } from "../reducers/uiReducers/ideReducer";
 import { get } from "lodash";
 
@@ -45,17 +45,17 @@ export const getWidgetsCount = (state: AppState, pageId: string) =>
 export const getIDETabs = (state: AppState) => state.ui.ide.tabs;
 
 export const getJSTabs = createSelector(
-  getCurrentPageId,
+  getCurrentBasePageId,
   getIDETabs,
-  (pageId: string, tabs: ParentEntityIDETabs) =>
-    get(tabs, [pageId, EditorEntityTab.JS], []),
+  (basePageId: string, tabs: ParentEntityIDETabs) =>
+    get(tabs, [basePageId, EditorEntityTab.JS], []),
 );
 
 export const getQueryTabs = createSelector(
-  getCurrentPageId,
+  getCurrentBasePageId,
   getIDETabs,
-  (pageId: string, tabs: ParentEntityIDETabs): string[] =>
-    get(tabs, [pageId, EditorEntityTab.QUERIES], []),
+  (basePageId: string, tabs: ParentEntityIDETabs): string[] =>
+    get(tabs, [basePageId, EditorEntityTab.QUERIES], []),
 );
 
 export const getShowCreateNewModal = (state: AppState) =>

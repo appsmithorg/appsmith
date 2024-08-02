@@ -37,8 +37,14 @@ export interface Plugin {
 }
 
 export interface PluginFormPayload {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editor: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setting: any[];
   dependencies: DependencyMap;
   formButton: string[];
@@ -75,6 +81,8 @@ class PluginsApi extends Api {
   // Definition to fetch the dynamic data via the URL passed in the config
   static async fetchDynamicFormValues(
     url: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     body: Record<string, any>,
   ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(url, body);
@@ -89,6 +97,8 @@ class PluginsApi extends Api {
   static async uploadFiles(
     pluginId: string,
     files: File[],
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params?: Record<string, any>,
   ): Promise<AxiosPromise<ApiResponse>> {
     const url = this.dynamicTriggerURLForInternalPlugins(pluginId);

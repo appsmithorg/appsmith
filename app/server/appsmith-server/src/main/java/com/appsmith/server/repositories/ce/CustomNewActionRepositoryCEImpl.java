@@ -1,6 +1,5 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.AclPermission;
@@ -222,11 +221,10 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Optional<NewAction> findByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, Boolean viewMode, AclPermission permission, User currentUser) {
-        final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(
-                        NewAction.Fields.defaultResources_actionId, defaultActionId)
-                .equal(NewAction.Fields.defaultResources_branchName, branchName);
+    public Optional<NewAction> findByBranchNameAndBaseActionId(
+            String branchName, String baseActionId, Boolean viewMode, AclPermission permission, User currentUser) {
+        final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(NewAction.Fields.baseId, baseActionId)
+                .equal(NewAction.Fields.branchName, branchName);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
@@ -322,17 +320,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         }
 
         return q;
-    }
-
-    @Override
-    public List<NewAction> findByDefaultApplicationId(
-            String defaultApplicationId, Optional<AclPermission> permission, User currentUser) {
-        final String defaultResources = BranchAwareDomain.Fields.defaultResources;
-        return queryBuilder()
-                .criteria(Bridge.equal(NewAction.Fields.defaultResources_applicationId, defaultApplicationId)
-                        .isNull(NewAction.Fields.unpublishedAction_deletedAt))
-                .permission(permission.orElse(null), currentUser)
-                .all();
     }
 
     @Override
@@ -437,5 +424,13 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         }
 
         return queryBuilder().criteria(q).permission(permission, currentUser).all();
+    }
+
+    @Override
+    public List<NewAction> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields) {
+        return queryBuilder()
+                .criteria(Bridge.in(NewAction.Fields.applicationId, applicationIds))
+                .fields(includedFields)
+                .all();
     }
 }

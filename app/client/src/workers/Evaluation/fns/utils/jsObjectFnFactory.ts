@@ -1,6 +1,8 @@
 import { isPromise } from "workers/Evaluation/JSObject/utils";
 import TriggerEmitter, { BatchKey } from "./TriggerEmitter";
 import ExecutionMetaData from "./ExecutionMetaData";
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function addMetaDataToError(e: any, fnName: string, fnString: string) {
   // To account for cascaded errors, if error has a source, retain it
   e.source = e.source || fnName;
@@ -10,8 +12,12 @@ function addMetaDataToError(e: any, fnName: string, fnString: string) {
 declare global {
   interface Window {
     structuredClone: (
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       value: any,
       options?: StructuredSerializeOptions | undefined,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ) => any;
   }
 }
@@ -49,6 +55,8 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
       try {
         result = fn.call(this, ...args);
         return result;
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (e: any) {
         e = addMetaDataToError(e, name, fn.toString());
         throw e;
@@ -92,6 +100,8 @@ export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
         );
       }
       return result;
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (e: any) {
       e = addMetaDataToError(e, name, fn.toString());
       postProcessors.forEach((postProcessor) => {

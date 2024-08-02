@@ -81,8 +81,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<ActionViewDTO> getActionsForViewMode(String applicationId);
 
-    Flux<ActionViewDTO> getActionsForViewMode(String defaultApplicationId, String branchName);
-
     ActionViewDTO generateActionViewDTO(NewAction action, ActionDTO actionDTO, boolean viewMode);
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
@@ -130,13 +128,11 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params);
 
-    Flux<ActionDTO> getUnpublishedActionsExceptJs(MultiValueMap<String, String> params, String branchName);
+    Mono<NewAction> findByBranchNameAndBaseActionId(
+            String branchName, String baseActionId, Boolean viewMode, AclPermission permission);
 
-    Mono<NewAction> findByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, Boolean viewMode, AclPermission permission);
-
-    Mono<String> findBranchedIdByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, AclPermission permission);
+    Mono<String> findBranchedIdByBranchNameAndBaseActionId(
+            String branchName, String baseActionId, AclPermission permission);
 
     Mono<NewAction> sanitizeAction(NewAction action);
 
@@ -164,8 +160,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
             boolean includeJs);
 
     NewAction generateActionDomain(ActionDTO action);
-
-    void updateDefaultResourcesInAction(NewAction newAction);
 
     Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO);
 

@@ -113,6 +113,8 @@ export const config: AdminConfigType = {
     {
       id: "APPSMITH_MAIL_TEST_EMAIL",
       category: SettingCategories.EMAIL,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       action: (dispatch: Dispatch<ReduxAction<any>>, settings: any = {}) => {
         dispatch &&
           dispatch({
@@ -132,6 +134,8 @@ export const config: AdminConfigType = {
           });
       },
       controlType: SettingTypes.BUTTON,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       isDisabled: (settings?: Record<string, any>) => {
         return (
           !settings ||

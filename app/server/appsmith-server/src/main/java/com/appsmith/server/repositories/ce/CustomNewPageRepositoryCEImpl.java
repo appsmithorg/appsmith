@@ -118,8 +118,9 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public List<NewPage> findAllPageDTOsByIds(List<String> ids, AclPermission permission, User currentUser) {
         List<String> includedFields = List.of(
-                FieldName.APPLICATION_ID,
-                FieldName.DEFAULT_RESOURCES,
+                NewPage.Fields.applicationId,
+                NewPage.Fields.baseId,
+                NewPage.Fields.branchName,
                 NewPage.Fields.policies,
                 NewPage.Fields.unpublishedPage_name,
                 NewPage.Fields.unpublishedPage_icon,
@@ -158,18 +159,18 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Optional<NewPage> findPageByBranchNameAndDefaultPageId(
-            String branchName, String defaultPageId, AclPermission permission, User currentUser) {
+    public Optional<NewPage> findPageByBranchNameAndBasePageId(
+            String branchName, String basePageId, AclPermission permission, User currentUser) {
 
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
-                Bridge.equal(NewPage.Fields.defaultResources_pageId, defaultPageId);
+                Bridge.equal(NewPage.Fields.baseId, basePageId);
 
         if (branchName != null) {
             // branchCriteria
-            q.equal(NewPage.Fields.defaultResources_branchName, branchName);
+            q.equal(NewPage.Fields.branchName, branchName);
         } else {
-            q.isNull(NewPage.Fields.defaultResources_branchName);
+            q.isNull(NewPage.Fields.branchName);
         }
 
         return queryBuilder().criteria(q).permission(permission, currentUser).one();
@@ -179,8 +180,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             String branchName, String defaultPageId, AclPermission permission, User currentUser) {
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
-                Bridge.equal(NewPage.Fields.defaultResources_pageId, defaultPageId);
-        q.equal(NewPage.Fields.defaultResources_branchName, branchName);
+                Bridge.equal(NewPage.Fields.baseId, defaultPageId);
+        q.equal(NewPage.Fields.branchName, branchName);
 
         return queryBuilder()
                 .criteria(q)
@@ -190,31 +191,11 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     }
 
     @Override
-    public Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission, User currentUser) {
-        return findByGitSyncIdAndDefaultApplicationId(
-                defaultApplicationId, gitSyncId, Optional.ofNullable(permission), currentUser);
-    }
-
-    @Override
-    public Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission, User currentUser) {
-
-        // defaultAppIdCriteria
-        final BridgeQuery<NewPage> q =
-                Bridge.equal(NewPage.Fields.defaultResources_applicationId, defaultApplicationId);
-
-        if (gitSyncId != null) {
-            // gitSyncIdCriteria
-            q.equal(NewPage.Fields.gitSyncId, gitSyncId);
-        } else {
-            q.isNull(NewPage.Fields.gitSyncId);
-        }
-
+    public List<NewPage> findAllByApplicationIds(List<String> applicationIds, List<String> includedFields) {
         return queryBuilder()
-                .criteria(q)
-                .permission(permission.orElse(null), currentUser)
-                .first();
+                .criteria(Bridge.in(NewPage.Fields.applicationId, applicationIds))
+                .fields(includedFields)
+                .all();
     }
 
     @Override

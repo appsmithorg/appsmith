@@ -28,6 +28,8 @@ const ShareToggle = styled.div`
   }
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function ShareApplicationForm(props: any) {
   const {
     applicationId,
@@ -69,6 +71,8 @@ const mapStateToProps = (state: AppState) => ({
   applicationId: getCurrentApplicationId(state),
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => ({
   changeAppViewAccess: (applicationId: string, publicAccess: boolean) =>
     dispatch({

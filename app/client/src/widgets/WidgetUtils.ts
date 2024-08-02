@@ -46,7 +46,11 @@ interface SanitizeOptions {
 const REACT_ELEMENT_PROPS = "__reactProps$";
 
 export function getDisplayName(WrappedComponent: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   displayName: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   name: any;
 }) {
   return WrappedComponent.displayName || WrappedComponent.name || "Component";
@@ -269,6 +273,8 @@ export const getComplementaryGrayscaleColor = (color = "#fff") => {
  */
 export const isLightColor = (color = "#fff") => {
   const tinyColor = tinycolor(color);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rgb: any = tinyColor.isValid()
     ? tinyColor.toRgb()
     : tinycolor("#fff").toRgb();
@@ -534,6 +540,8 @@ export const boxShadowMigration = (
   dynamicList: DynamicPath[],
   columnName: string,
   boxShadow: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   boxShadowColor: any,
 ) => {
   const boxShadowRegex = new RegExp(columnName + ".boxShadow$");
@@ -681,16 +689,26 @@ export const getMainCanvas = () =>
 export function composePropertyUpdateHook(
   updateFunctions: Array<
     (
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       props: any,
       propertyPath: string,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       propertyValue: any,
     ) => Array<PropertyUpdates> | undefined
   >,
 ): (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: any,
   propertyPath: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue: any,
 ) => Array<PropertyUpdates> | undefined {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (props: any, propertyPath: string, propertyValue: any) => {
     if (updateFunctions.length) {
       let updates: PropertyUpdates[] = [];
@@ -910,6 +928,8 @@ export const scrollCSS = css`
 export const widgetTypeClassname = (widgetType: string): string =>
   `t--widget-${widgetType.split("_").join("").toLowerCase()}`;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const findReactInstanceProps = (domElement: any) => {
   for (const key in domElement) {
     if (key.startsWith(REACT_ELEMENT_PROPS)) {

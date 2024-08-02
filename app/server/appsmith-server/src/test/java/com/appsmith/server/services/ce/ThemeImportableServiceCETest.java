@@ -38,7 +38,6 @@ import reactor.test.StepVerifier;
 import java.util.List;
 import java.util.UUID;
 
-import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -174,22 +173,31 @@ public class ThemeImportableServiceCETest {
         applicationJson.setEditModeTheme(customTheme);
         applicationJson.setPublishedTheme(customTheme);
 
-        Mono<Application> applicationMono = Mono.just(application)
+        MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
+        ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO();
+
+        Mono<MappedImportableResourcesDTO> mappedImportableResourcesDTOMono = Mono.just(application)
                 .flatMap(savedApplication -> themeImportableService
                         .importEntities(
-                                new ImportingMetaDTO(),
-                                new MappedImportableResourcesDTO(),
+                                importingMetaDTO,
+                                mappedImportableResourcesDTO,
                                 null,
                                 Mono.just(application),
                                 applicationJson,
                                 false)
-                        .thenReturn(savedApplication.getId()))
-                .flatMap(applicationId -> applicationRepository.findById(applicationId, MANAGE_APPLICATIONS));
+                        .thenReturn(mappedImportableResourcesDTO));
 
-        StepVerifier.create(applicationMono)
-                .assertNext(app -> {
-                    assertThat(app.getEditModeThemeId().equals(app.getPublishedModeThemeId()))
-                            .isFalse();
+        StepVerifier.create(mappedImportableResourcesDTOMono)
+                .assertNext(mappedImportDTO -> {
+                    assertThat(mappedImportDTO
+                                    .getThemeDryRunQueries()
+                                    .get("SAVE")
+                                    .size())
+                            .isEqualTo(2);
+                    List<Theme> themesList =
+                            mappedImportDTO.getThemeDryRunQueries().get("SAVE");
+                    assertThat(themesList.get(0).getId())
+                            .isNotEqualTo(themesList.get(1).getId());
                 })
                 .verifyComplete();
     }
@@ -206,12 +214,15 @@ public class ThemeImportableServiceCETest {
         themeInJson.setSystemTheme(true);
         themeInJson.setName(defaultTheme.getName());
 
+        MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
+        ImportingMetaDTO importingMetaDTO = new ImportingMetaDTO();
+
         // create a application json with the above theme set in both modes
         ApplicationJson applicationJson = new ApplicationJson();
         applicationJson.setEditModeTheme(themeInJson);
         applicationJson.setPublishedTheme(themeInJson);
 
-        Mono<Application> applicationMono = Mono.just(createApplication())
+        Mono<MappedImportableResourcesDTO> mappedImportableResourcesDTOMono = Mono.just(createApplication())
                 .map(application -> {
                     // setting invalid ids to themes to check the case
                     application.setEditModeThemeId(UUID.randomUUID().toString());
@@ -223,21 +234,21 @@ public class ThemeImportableServiceCETest {
                     assert savedApplication.getId() != null;
                     return themeImportableService
                             .importEntities(
-                                    new ImportingMetaDTO(),
-                                    new MappedImportableResourcesDTO(),
+                                    importingMetaDTO,
+                                    mappedImportableResourcesDTO,
                                     null,
                                     Mono.just(savedApplication),
                                     applicationJson,
                                     false)
-                            .thenReturn(savedApplication.getId());
-                })
-                .flatMap(applicationId -> applicationRepository.findById(applicationId, MANAGE_APPLICATIONS));
+                            .thenReturn(mappedImportableResourcesDTO);
+                });
 
-        StepVerifier.create(applicationMono)
-                .assertNext(app -> {
+        StepVerifier.create(mappedImportableResourcesDTOMono)
+                .assertNext(mappedImportDTO -> {
                     // both edit mode and published mode should have default theme set
-                    assertThat(app.getEditModeThemeId()).isEqualTo(app.getPublishedModeThemeId());
-                    assertThat(app.getEditModeThemeId()).isEqualTo(defaultTheme.getId());
+                    List<Theme> themesList =
+                            mappedImportDTO.getThemeDryRunQueries().get("SAVE");
+                    assertThat(themesList.get(0).getId()).isEqualTo(defaultTheme.getId());
                 })
                 .verifyComplete();
     }

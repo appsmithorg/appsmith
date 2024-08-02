@@ -134,6 +134,7 @@ function DatasourceDropdown() {
                 data-testId="t--one-click-binding-datasource--search"
                 onChange={onChange}
                 size="md"
+                // @ts-expect-error Fix this the next time the file is edited
                 type="text"
                 value={searchText}
               />

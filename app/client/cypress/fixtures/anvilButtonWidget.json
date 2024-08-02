@@ -2,19 +2,19 @@
   "dsl": {
     "widgetName": "MainContainer",
     "backgroundColor": "none",
-    "rightColumn": 4896,
-    "snapColumns": 64,
+    "rightColumn": 4896.0,
+    "snapColumns": 64.0,
     "detachFromLayout": true,
     "widgetId": "0",
-    "topRow": 0,
-    "bottomRow": 380,
+    "topRow": 0.0,
+    "bottomRow": 380.0,
     "containerStyle": "none",
-    "snapRows": 124,
-    "parentRowSpace": 1,
+    "snapRows": 124.0,
+    "parentRowSpace": 1.0,
     "type": "CANVAS_WIDGET",
     "canExtend": true,
-    "version": 89,
-    "minHeight": 1292,
+    "version": 89.0,
+    "minHeight": 1292.0,
     "layout": [
       {
         "layoutId": "zf1rn0cr3v",
@@ -26,14 +26,14 @@
             "isPermanent": false,
             "layout": [
               {
-                "alignment": "start",
-                "widgetId": "v8yjcqoas6",
+                "alignment" : "start"         ,
+                "widgetId"  : "v8yjcqoas6"    ,
                 "widgetType": "SECTION_WIDGET"
               }
             ],
             "layoutId": "qatp0f0qli",
             "layoutType": "WIDGET_ROW",
-            "maxChildLimit": 1
+            "maxChildLimit": 1.0
           },
           {
             "insertChild": true,
@@ -41,14 +41,14 @@
             "isPermanent": false,
             "layout": [
               {
-                "alignment": "start",
-                "widgetId": "22t51nvpve",
+                "alignment" : "start"         ,
+                "widgetId"  : "22t51nvpve"    ,
                 "widgetType": "SECTION_WIDGET"
               }
             ],
             "layoutId": "2rw4sa3p5s",
             "layoutType": "WIDGET_ROW",
-            "maxChildLimit": 1
+            "maxChildLimit": 1.0
           },
           {
             "insertChild": true,
@@ -56,14 +56,14 @@
             "isPermanent": false,
             "layout": [
               {
-                "alignment": "start",
-                "widgetId": "wa3fauc5cx",
+                "alignment" : "start"         ,
+                "widgetId"  : "wa3fauc5cx"    ,
                 "widgetType": "SECTION_WIDGET"
               }
             ],
             "layoutId": "2kjgp9j6vg",
             "layoutType": "WIDGET_ROW",
-            "maxChildLimit": 1
+            "maxChildLimit": 1.0
           },
           {
             "insertChild": true,
@@ -71,21 +71,21 @@
             "isPermanent": false,
             "layout": [
               {
-                "alignment": "start",
-                "widgetId": "c3qg79mmbs",
+                "alignment" : "start"         ,
+                "widgetId"  : "c3qg79mmbs"    ,
                 "widgetType": "SECTION_WIDGET"
               }
             ],
             "layoutId": "ixc3rg3glt",
             "layoutType": "WIDGET_ROW",
-            "maxChildLimit": 1
+            "maxChildLimit": 1.0
           }
         ],
         "layoutStyle": {
-          "border": "none",
-          "height": "100%",
+          "border" : "none"     ,
+          "height" : "100%"     ,
           "padding": "spacing-4",
-          "gap": "spacing-4"
+          "gap"    : "spacing-4"
         },
         "isDropTarget": true,
         "isPermanent": true,
@@ -96,95 +96,80 @@
           "layout": [],
           "layoutId": "",
           "layoutType": "WIDGET_ROW",
-          "maxChildLimit": 1
+          "maxChildLimit": 1.0
         }
       }
     ],
     "dynamicTriggerPathList": [],
-    "parentColumnSpace": 1,
+    "parentColumnSpace": 1.0,
     "dynamicBindingPathList": [],
-    "leftColumn": 0,
+    "leftColumn": 0.0,
     "children": [
       {
         "needsErrorInfo": false,
         "boxShadow": "NONE",
-        "mobileBottomRow": 10,
+        "mobileBottomRow": 10.0,
         "widgetName": "Section1",
         "isCanvas": true,
         "displayName": "Section",
-        "searchTags": [
-          "div",
-          "parent",
-          "group"
-        ],
-        "topRow": 0,
-        "bottomRow": 10,
-        "parentRowSpace": 10,
+        "searchTags": ["div", "parent", "group"],
+        "topRow": 0.0,
+        "bottomRow": 10.0,
+        "parentRowSpace": 10.0,
         "type": "SECTION_WIDGET",
         "hideCard": true,
-        "mobileRightColumn": 64,
-        "parentColumnSpace": 1,
-        "leftColumn": 0,
+        "mobileRightColumn": 64.0,
+        "parentColumnSpace": 1.0,
+        "leftColumn": 0.0,
         "dynamicBindingPathList": [],
         "children": [
           {
             "needsErrorInfo": false,
             "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
-            "mobileBottomRow": 10,
+            "mobileBottomRow": 10.0,
             "widgetName": "Zone1",
-            "flexGrow": 12,
+            "flexGrow": 12.0,
             "isCanvas": true,
             "displayName": "Zone",
-            "searchTags": [
-              "div",
-              "parent",
-              "group"
-            ],
-            "topRow": 0,
-            "bottomRow": 10,
-            "parentRowSpace": 10,
+            "searchTags": ["div", "parent", "group"],
+            "topRow": 0.0,
+            "bottomRow": 10.0,
+            "parentRowSpace": 10.0,
             "type": "ZONE_WIDGET",
             "hideCard": false,
-            "mobileRightColumn": 64,
-            "parentColumnSpace": 1,
-            "leftColumn": 0,
+            "mobileRightColumn": 64.0,
+            "parentColumnSpace": 1.0,
+            "leftColumn": 0.0,
             "dynamicBindingPathList": [
-              {
-                "key": "borderRadius"
-              },
-              {
-                "key": "boxShadow"
-              }
+              {"key": "borderRadius"},
+              {"key": "boxShadow"   }
             ],
             "children": [
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "x75woyqacu",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -195,48 +180,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy",
                 "buttonColor": "neutral",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "5npsfsw7uy",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -247,48 +226,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2CopyCopy",
                 "buttonColor": "negative",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "gtzwavo5zz",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -299,48 +272,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2CopyCopyCopy",
                 "buttonColor": "warning",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "34d2yb2t59",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -351,48 +318,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2CopyCopyCopyCopy",
                 "buttonColor": "positive",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "7zgoizvqf2",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -403,48 +364,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2CopyCopy1",
                 "buttonColor": "neutral",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "7io1tl1uje",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -455,48 +410,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "outlined"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2CopyCopyCopyCopyCopy",
                 "buttonColor": "positive",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "ujh45xvca3",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -507,48 +456,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "outlined"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "wkf4n8empq",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -559,48 +502,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "outlined"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2CopyCopyCopyCopy1",
                 "buttonColor": "warning",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "mpima51xp0",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -611,48 +548,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "outlined"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2CopyCopyCopy1",
                 "buttonColor": "negative",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "se9oq90vzz",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -663,48 +594,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "outlined"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1Copy",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "7eeot7rb75",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -715,48 +640,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "ghost"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2CopyCopy1Copy",
                 "buttonColor": "neutral",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "xqiwegh9cw",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -767,48 +686,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "ghost"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2CopyCopyCopyCopyCopyCopy",
                 "buttonColor": "positive",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "6ovzai7czh",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -819,48 +732,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "ghost"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2CopyCopyCopy1Copy",
                 "buttonColor": "negative",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "jgge200zlv",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -871,48 +778,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "ghost"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2CopyCopyCopyCopy1Copy",
                 "buttonColor": "warning",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "7a5uzqwl80",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -923,49 +824,43 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "ghost"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1CopyCopy",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
-                "iconName": "123",
+                "rightColumn": 64.0,
+                "iconName": "number-123",
                 "widgetId": "87z6livnpl",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -976,49 +871,43 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1CopyCopyCopy2",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
-                "iconName": "123",
+                "rightColumn": 64.0,
+                "iconName": "number-123",
                 "widgetId": "vbxoco7b0r",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -1029,50 +918,44 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled",
                 "iconAlign": "end"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1CopyCopyCopy3",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": true,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
-                "iconName": "123",
+                "rightColumn": 64.0,
+                "iconName": "number-123",
                 "widgetId": "jyin7lo020",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -1083,48 +966,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1CopyCopyCopy3Copy1",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Very long label that can't fit in a button",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "v7oj2c1blu",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -1135,49 +1012,43 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1CopyCopyCopy3Copy2",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": true,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
-                "iconName": "123",
+                "rightColumn": 64.0,
+                "iconName": "number-123",
                 "widgetId": "wmmdr2putr",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -1188,18 +1059,15 @@
                 },
                 "isVisible": false,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "8j9w9sv03h",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               }
             ],
@@ -1207,7 +1075,7 @@
             "flexVerticalAlignment": "stretch",
             "key": "f6b8hrxei4",
             "isDeprecated": false,
-            "rightColumn": 64,
+            "rightColumn": 64.0,
             "detachFromLayout": false,
             "widgetId": "8j9w9sv03h",
             "onCanvasUI": {
@@ -1218,14 +1086,12 @@
               "disableParentSelection": false
             },
             "isVisible": true,
-            "version": 1,
+            "version": 1.0,
             "parentId": "v8yjcqoas6",
-            "tags": [
-              "Layout"
-            ],
+            "tags": ["Layout"],
             "renderMode": "CANVAS",
             "isLoading": false,
-            "mobileTopRow": 0,
+            "mobileTopRow": 0.0,
             "layout": [
               {
                 "isContainer": true,
@@ -1238,35 +1104,33 @@
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
-                        "alignment": "start",
-                        "widgetId": "x75woyqacu",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "x75woyqacu"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "5npsfsw7uy",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "5npsfsw7uy"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "7zgoizvqf2",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "7zgoizvqf2"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "gtzwavo5zz",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "gtzwavo5zz"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "34d2yb2t59",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "34d2yb2t59"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       }
                     ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
+                    "allowedWidgetTypes": ["SMALL_WIDGETS"],
+                    "maxChildLimit": 0.0
                   },
                   {
                     "insertChild": true,
@@ -1274,35 +1138,33 @@
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
-                        "alignment": "start",
-                        "widgetId": "wkf4n8empq",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "wkf4n8empq"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "7io1tl1uje",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "7io1tl1uje"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "ujh45xvca3",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "ujh45xvca3"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "se9oq90vzz",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "se9oq90vzz"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "mpima51xp0",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "mpima51xp0"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       }
                     ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
+                    "allowedWidgetTypes": ["SMALL_WIDGETS"],
+                    "maxChildLimit": 0.0
                   },
                   {
                     "insertChild": true,
@@ -1310,35 +1172,33 @@
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
-                        "alignment": "start",
-                        "widgetId": "7eeot7rb75",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "7eeot7rb75"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "xqiwegh9cw",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "xqiwegh9cw"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "6ovzai7czh",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "6ovzai7czh"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "jgge200zlv",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "jgge200zlv"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "7a5uzqwl80",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "7a5uzqwl80"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       }
                     ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
+                    "allowedWidgetTypes": ["SMALL_WIDGETS"],
+                    "maxChildLimit": 0.0
                   },
                   {
                     "insertChild": true,
@@ -1346,20 +1206,18 @@
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
-                        "alignment": "start",
-                        "widgetId": "87z6livnpl",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "87z6livnpl"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "vbxoco7b0r",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "vbxoco7b0r"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       }
                     ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
+                    "allowedWidgetTypes": ["SMALL_WIDGETS"],
+                    "maxChildLimit": 0.0
                   },
                   {
                     "insertChild": true,
@@ -1367,20 +1225,18 @@
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
-                        "alignment": "start",
-                        "widgetId": "jyin7lo020",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "jyin7lo020"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "start",
-                        "widgetId": "wmmdr2putr",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "wmmdr2putr"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       }
                     ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
+                    "allowedWidgetTypes": ["SMALL_WIDGETS"],
+                    "maxChildLimit": 0.0
                   },
                   {
                     "insertChild": true,
@@ -1388,34 +1244,29 @@
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
-                        "alignment": "start",
-                        "widgetId": "v7oj2c1blu",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "v7oj2c1blu"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       }
                     ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
+                    "allowedWidgetTypes": ["SMALL_WIDGETS"],
+                    "maxChildLimit": 0.0
                   }
                 ],
                 "layoutId": "d58md2udti",
-                "layoutStyle": {
-                  "border": "none",
-                  "height": "100%"
-                },
+                "layoutStyle": {"border": "none", "height": "100%"},
                 "layoutType": "ZONE"
               }
             ],
             "responsiveBehavior": "fill",
             "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-            "mobileLeftColumn": 0
+            "mobileLeftColumn": 0.0
           }
         ],
         "elevatedBackground": false,
         "key": "04mvbegryn",
         "isDeprecated": false,
-        "rightColumn": 64,
+        "rightColumn": 64.0,
         "detachFromLayout": false,
         "widgetId": "v8yjcqoas6",
         "onCanvasUI": {
@@ -1425,16 +1276,14 @@
           "focusColorCSSVar": "--on-canvas-ui-section-selection",
           "disableParentSelection": true
         },
-        "zoneCount": 1,
+        "zoneCount": 1.0,
         "isVisible": true,
-        "version": 1,
+        "version": 1.0,
         "parentId": "0",
-        "tags": [
-          "Layout"
-        ],
+        "tags": ["Layout"],
         "renderMode": "CANVAS",
         "isLoading": false,
-        "mobileTopRow": 0,
+        "mobileTopRow": 0.0,
         "layout": [
           {
             "isContainer": true,
@@ -1442,107 +1291,90 @@
             "isPermanent": true,
             "layout": [
               {
-                "alignment": "start",
-                "widgetId": "8j9w9sv03h",
+                "alignment" : "start"      ,
+                "widgetId"  : "8j9w9sv03h" ,
                 "widgetType": "ZONE_WIDGET"
               }
             ],
             "layoutId": "ejuo2ps87t",
-            "layoutStyle": {
-              "border": "none"
-            },
+            "layoutStyle": {"border": "none"},
             "layoutType": "SECTION",
-            "maxChildLimit": 4
+            "maxChildLimit": 4.0
           }
         ],
         "responsiveBehavior": "fill",
-        "mobileLeftColumn": 0,
+        "mobileLeftColumn": 0.0,
         "spaceDistributed": {
-          "8j9w9sv03h": 12,
-          "esf9bo8rdb": 6,
-          "9skig54m85": 6
+          "8j9w9sv03h": 12.0,
+          "esf9bo8rdb":  6.0,
+          "9skig54m85":  6.0
         }
       },
       {
         "needsErrorInfo": false,
         "boxShadow": "NONE",
-        "mobileBottomRow": 10,
+        "mobileBottomRow": 10.0,
         "widgetName": "Section2",
         "isCanvas": true,
         "displayName": "Section",
-        "searchTags": [
-          "div",
-          "parent",
-          "group"
-        ],
-        "topRow": 0,
-        "bottomRow": 10,
-        "parentRowSpace": 10,
+        "searchTags": ["div", "parent", "group"],
+        "topRow": 0.0,
+        "bottomRow": 10.0,
+        "parentRowSpace": 10.0,
         "type": "SECTION_WIDGET",
         "hideCard": true,
-        "mobileRightColumn": 64,
-        "parentColumnSpace": 1,
-        "leftColumn": 0,
+        "mobileRightColumn": 64.0,
+        "parentColumnSpace": 1.0,
+        "leftColumn": 0.0,
         "dynamicBindingPathList": [],
         "children": [
           {
             "needsErrorInfo": false,
             "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
-            "mobileBottomRow": 10,
+            "mobileBottomRow": 10.0,
             "widgetName": "Zone2",
-            "flexGrow": 12,
+            "flexGrow": 12.0,
             "isCanvas": true,
             "displayName": "Zone",
-            "searchTags": [
-              "div",
-              "parent",
-              "group"
-            ],
-            "topRow": 0,
-            "bottomRow": 10,
-            "parentRowSpace": 10,
+            "searchTags": ["div", "parent", "group"],
+            "topRow": 0.0,
+            "bottomRow": 10.0,
+            "parentRowSpace": 10.0,
             "type": "ZONE_WIDGET",
             "hideCard": false,
-            "mobileRightColumn": 64,
-            "parentColumnSpace": 1,
-            "leftColumn": 0,
+            "mobileRightColumn": 64.0,
+            "parentColumnSpace": 1.0,
+            "leftColumn": 0.0,
             "dynamicBindingPathList": [
-              {
-                "key": "borderRadius"
-              },
-              {
-                "key": "boxShadow"
-              }
+              {"key": "borderRadius"},
+              {"key": "boxShadow"   }
             ],
             "children": [
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1CopyCopyCopy3Copy",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "ccexmv1nin",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -1553,54 +1385,46 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "82umg6t5jk",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1CopyCopyCopy3CopyCopy",
                 "onClick": "{{}}",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "dynamicPropertyPathList": [
-                  {
-                    "key": "onClick"
-                  }
+                  {"key": "onClick"}
                 ],
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "yhmyxkaqqe",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -1611,48 +1435,42 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "82umg6t5jk",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               },
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1CopyCopyCopy3CopyCopyCopy",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "dk0b1jq9ot",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -1663,18 +1481,15 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "82umg6t5jk",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               }
             ],
@@ -1682,7 +1497,7 @@
             "flexVerticalAlignment": "stretch",
             "key": "f6b8hrxei4",
             "isDeprecated": false,
-            "rightColumn": 64,
+            "rightColumn": 64.0,
             "detachFromLayout": false,
             "widgetId": "82umg6t5jk",
             "onCanvasUI": {
@@ -1693,14 +1508,12 @@
               "disableParentSelection": false
             },
             "isVisible": true,
-            "version": 1,
+            "version": 1.0,
             "parentId": "22t51nvpve",
-            "tags": [
-              "Layout"
-            ],
+            "tags": ["Layout"],
             "renderMode": "CANVAS",
             "isLoading": false,
-            "mobileTopRow": 0,
+            "mobileTopRow": 0.0,
             "layout": [
               {
                 "isContainer": true,
@@ -1713,44 +1526,39 @@
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
-                        "alignment": "start",
-                        "widgetId": "ccexmv1nin",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "ccexmv1nin"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "center",
-                        "widgetId": "yhmyxkaqqe",
+                        "alignment" : "center"           ,
+                        "widgetId"  : "yhmyxkaqqe"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       },
                       {
-                        "alignment": "end",
-                        "widgetId": "dk0b1jq9ot",
+                        "alignment" : "end"              ,
+                        "widgetId"  : "dk0b1jq9ot"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       }
                     ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
+                    "allowedWidgetTypes": ["SMALL_WIDGETS"],
+                    "maxChildLimit": 0.0
                   }
                 ],
                 "layoutId": "wezhh0gbiu",
-                "layoutStyle": {
-                  "border": "none",
-                  "height": "100%"
-                },
+                "layoutStyle": {"border": "none", "height": "100%"},
                 "layoutType": "ZONE"
               }
             ],
             "responsiveBehavior": "fill",
             "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-            "mobileLeftColumn": 0
+            "mobileLeftColumn": 0.0
           }
         ],
         "elevatedBackground": false,
         "key": "04mvbegryn",
         "isDeprecated": false,
-        "rightColumn": 64,
+        "rightColumn": 64.0,
         "detachFromLayout": false,
         "widgetId": "22t51nvpve",
         "onCanvasUI": {
@@ -1760,16 +1568,14 @@
           "focusColorCSSVar": "--on-canvas-ui-section-selection",
           "disableParentSelection": true
         },
-        "zoneCount": 1,
+        "zoneCount": 1.0,
         "isVisible": true,
-        "version": 1,
+        "version": 1.0,
         "parentId": "0",
-        "tags": [
-          "Layout"
-        ],
+        "tags": ["Layout"],
         "renderMode": "CANVAS",
         "isLoading": false,
-        "mobileTopRow": 0,
+        "mobileTopRow": 0.0,
         "layout": [
           {
             "isContainer": true,
@@ -1777,105 +1583,86 @@
             "isPermanent": true,
             "layout": [
               {
-                "alignment": "start",
-                "widgetId": "82umg6t5jk",
+                "alignment" : "start"      ,
+                "widgetId"  : "82umg6t5jk" ,
                 "widgetType": "ZONE_WIDGET"
               }
             ],
             "layoutId": "52wwglyrdw",
-            "layoutStyle": {
-              "border": "none"
-            },
+            "layoutStyle": {"border": "none"},
             "layoutType": "SECTION",
-            "maxChildLimit": 4
+            "maxChildLimit": 4.0
           }
         ],
         "responsiveBehavior": "fill",
-        "mobileLeftColumn": 0,
-        "spaceDistributed": {
-          "82umg6t5jk": 12
-        }
+        "mobileLeftColumn": 0.0,
+        "spaceDistributed": {"82umg6t5jk": 12.0}
       },
       {
         "needsErrorInfo": false,
         "boxShadow": "NONE",
-        "mobileBottomRow": 10,
+        "mobileBottomRow": 10.0,
         "widgetName": "Section3",
         "isCanvas": true,
         "displayName": "Section",
-        "searchTags": [
-          "div",
-          "parent",
-          "group"
-        ],
-        "topRow": 0,
-        "bottomRow": 10,
-        "parentRowSpace": 10,
+        "searchTags": ["div", "parent", "group"],
+        "topRow": 0.0,
+        "bottomRow": 10.0,
+        "parentRowSpace": 10.0,
         "type": "SECTION_WIDGET",
         "hideCard": true,
-        "mobileRightColumn": 64,
-        "parentColumnSpace": 1,
-        "leftColumn": 0,
+        "mobileRightColumn": 64.0,
+        "parentColumnSpace": 1.0,
+        "leftColumn": 0.0,
         "dynamicBindingPathList": [],
         "children": [
           {
             "needsErrorInfo": false,
             "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
-            "mobileBottomRow": 10,
+            "mobileBottomRow": 10.0,
             "widgetName": "Zone3",
-            "flexGrow": 6,
+            "flexGrow": 6.0,
             "isCanvas": true,
             "displayName": "Zone",
-            "searchTags": [
-              "div",
-              "parent",
-              "group"
-            ],
-            "topRow": 0,
-            "bottomRow": 10,
-            "parentRowSpace": 10,
+            "searchTags": ["div", "parent", "group"],
+            "topRow": 0.0,
+            "bottomRow": 10.0,
+            "parentRowSpace": 10.0,
             "type": "ZONE_WIDGET",
             "hideCard": false,
-            "mobileRightColumn": 64,
-            "parentColumnSpace": 1,
-            "leftColumn": 0,
+            "mobileRightColumn": 64.0,
+            "parentColumnSpace": 1.0,
+            "leftColumn": 0.0,
             "dynamicBindingPathList": [
-              {
-                "key": "borderRadius"
-              },
-              {
-                "key": "boxShadow"
-              }
+              {"key": "borderRadius"},
+              {"key": "boxShadow"   }
             ],
             "children": [
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1CopyCopyCopy3CopyCopy1Copy",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "ctap96gwts",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -1886,18 +1673,15 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "piz7tt0to3",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               }
             ],
@@ -1905,7 +1689,7 @@
             "flexVerticalAlignment": "stretch",
             "key": "f6b8hrxei4",
             "isDeprecated": false,
-            "rightColumn": 64,
+            "rightColumn": 64.0,
             "detachFromLayout": false,
             "widgetId": "piz7tt0to3",
             "onCanvasUI": {
@@ -1916,14 +1700,12 @@
               "disableParentSelection": false
             },
             "isVisible": true,
-            "version": 1,
+            "version": 1.0,
             "parentId": "wa3fauc5cx",
-            "tags": [
-              "Layout"
-            ],
+            "tags": ["Layout"],
             "renderMode": "CANVAS",
             "isLoading": false,
-            "mobileTopRow": 0,
+            "mobileTopRow": 0.0,
             "layout": [
               {
                 "isContainer": true,
@@ -1936,87 +1718,71 @@
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
-                        "alignment": "start",
-                        "widgetId": "ctap96gwts",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "ctap96gwts"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       }
                     ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
+                    "allowedWidgetTypes": ["SMALL_WIDGETS"],
+                    "maxChildLimit": 0.0
                   }
                 ],
                 "layoutId": "lep7vtv1il",
-                "layoutStyle": {
-                  "border": "none",
-                  "height": "100%"
-                },
+                "layoutStyle": {"border": "none", "height": "100%"},
                 "layoutType": "ZONE"
               }
             ],
             "responsiveBehavior": "fill",
             "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-            "mobileLeftColumn": 0
+            "mobileLeftColumn": 0.0
           },
           {
             "needsErrorInfo": false,
             "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
-            "mobileBottomRow": 10,
+            "mobileBottomRow": 10.0,
             "widgetName": "Zone4",
-            "flexGrow": 6,
+            "flexGrow": 6.0,
             "isCanvas": true,
             "displayName": "Zone",
-            "searchTags": [
-              "div",
-              "parent",
-              "group"
-            ],
-            "topRow": 0,
-            "bottomRow": 10,
-            "parentRowSpace": 10,
+            "searchTags": ["div", "parent", "group"],
+            "topRow": 0.0,
+            "bottomRow": 10.0,
+            "parentRowSpace": 10.0,
             "type": "ZONE_WIDGET",
             "hideCard": false,
-            "mobileRightColumn": 64,
-            "parentColumnSpace": 1,
-            "leftColumn": 0,
+            "mobileRightColumn": 64.0,
+            "parentColumnSpace": 1.0,
+            "leftColumn": 0.0,
             "dynamicBindingPathList": [
-              {
-                "key": "borderRadius"
-              },
-              {
-                "key": "boxShadow"
-              }
+              {"key": "borderRadius"},
+              {"key": "boxShadow"   }
             ],
             "children": [
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1CopyCopyCopy3CopyCopy1",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "4u9iglohfg",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -2027,18 +1793,15 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "m010rk2xo7",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               }
             ],
@@ -2046,7 +1809,7 @@
             "flexVerticalAlignment": "stretch",
             "key": "f6b8hrxei4",
             "isDeprecated": false,
-            "rightColumn": 64,
+            "rightColumn": 64.0,
             "detachFromLayout": false,
             "widgetId": "m010rk2xo7",
             "onCanvasUI": {
@@ -2057,14 +1820,12 @@
               "disableParentSelection": false
             },
             "isVisible": true,
-            "version": 1,
+            "version": 1.0,
             "parentId": "wa3fauc5cx",
-            "tags": [
-              "Layout"
-            ],
+            "tags": ["Layout"],
             "renderMode": "CANVAS",
             "isLoading": false,
-            "mobileTopRow": 0,
+            "mobileTopRow": 0.0,
             "layout": [
               {
                 "isContainer": true,
@@ -2077,34 +1838,29 @@
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
-                        "alignment": "start",
-                        "widgetId": "4u9iglohfg",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "4u9iglohfg"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       }
                     ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
+                    "allowedWidgetTypes": ["SMALL_WIDGETS"],
+                    "maxChildLimit": 0.0
                   }
                 ],
                 "layoutId": "j8zcjs6hp3",
-                "layoutStyle": {
-                  "border": "none",
-                  "height": "100%"
-                },
+                "layoutStyle": {"border": "none", "height": "100%"},
                 "layoutType": "ZONE"
               }
             ],
             "responsiveBehavior": "fill",
             "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-            "mobileLeftColumn": 0
+            "mobileLeftColumn": 0.0
           }
         ],
         "elevatedBackground": false,
         "key": "04mvbegryn",
         "isDeprecated": false,
-        "rightColumn": 64,
+        "rightColumn": 64.0,
         "detachFromLayout": false,
         "widgetId": "wa3fauc5cx",
         "onCanvasUI": {
@@ -2114,16 +1870,14 @@
           "focusColorCSSVar": "--on-canvas-ui-section-selection",
           "disableParentSelection": true
         },
-        "zoneCount": 2,
+        "zoneCount": 2.0,
         "isVisible": true,
-        "version": 1,
+        "version": 1.0,
         "parentId": "0",
-        "tags": [
-          "Layout"
-        ],
+        "tags": ["Layout"],
         "renderMode": "CANVAS",
         "isLoading": false,
-        "mobileTopRow": 0,
+        "mobileTopRow": 0.0,
         "layout": [
           {
             "isContainer": true,
@@ -2131,111 +1885,91 @@
             "isPermanent": true,
             "layout": [
               {
-                "alignment": "start",
-                "widgetId": "piz7tt0to3",
+                "alignment" : "start"      ,
+                "widgetId"  : "piz7tt0to3" ,
                 "widgetType": "ZONE_WIDGET"
               },
               {
-                "alignment": "start",
-                "widgetId": "m010rk2xo7",
+                "alignment" : "start"      ,
+                "widgetId"  : "m010rk2xo7" ,
                 "widgetType": "ZONE_WIDGET"
               }
             ],
             "layoutId": "3t66a13vsa",
-            "layoutStyle": {
-              "border": "none"
-            },
+            "layoutStyle": {"border": "none"},
             "layoutType": "SECTION",
-            "maxChildLimit": 4
+            "maxChildLimit": 4.0
           }
         ],
         "responsiveBehavior": "fill",
-        "mobileLeftColumn": 0,
-        "spaceDistributed": {
-          "piz7tt0to3": 6,
-          "m010rk2xo7": 6
-        }
+        "mobileLeftColumn": 0.0,
+        "spaceDistributed": {"piz7tt0to3": 6.0, "m010rk2xo7": 6.0}
       },
       {
         "needsErrorInfo": false,
         "boxShadow": "NONE",
-        "mobileBottomRow": 10,
+        "mobileBottomRow": 10.0,
         "widgetName": "Section4",
         "isCanvas": true,
         "displayName": "Section",
-        "searchTags": [
-          "div",
-          "parent",
-          "group"
-        ],
-        "topRow": 0,
-        "bottomRow": 10,
-        "parentRowSpace": 10,
+        "searchTags": ["div", "parent", "group"],
+        "topRow": 0.0,
+        "bottomRow": 10.0,
+        "parentRowSpace": 10.0,
         "type": "SECTION_WIDGET",
         "hideCard": true,
-        "mobileRightColumn": 64,
-        "parentColumnSpace": 1,
-        "leftColumn": 0,
+        "mobileRightColumn": 64.0,
+        "parentColumnSpace": 1.0,
+        "leftColumn": 0.0,
         "dynamicBindingPathList": [],
         "children": [
           {
             "needsErrorInfo": false,
             "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
-            "mobileBottomRow": 10,
+            "mobileBottomRow": 10.0,
             "widgetName": "Zone5",
-            "flexGrow": 4,
+            "flexGrow": 4.0,
             "isCanvas": true,
             "displayName": "Zone",
-            "searchTags": [
-              "div",
-              "parent",
-              "group"
-            ],
-            "topRow": 0,
-            "bottomRow": 10,
-            "parentRowSpace": 10,
+            "searchTags": ["div", "parent", "group"],
+            "topRow": 0.0,
+            "bottomRow": 10.0,
+            "parentRowSpace": 10.0,
             "type": "ZONE_WIDGET",
             "hideCard": false,
-            "mobileRightColumn": 64,
-            "parentColumnSpace": 1,
-            "leftColumn": 0,
+            "mobileRightColumn": 64.0,
+            "parentColumnSpace": 1.0,
+            "leftColumn": 0.0,
             "dynamicBindingPathList": [
-              {
-                "key": "borderRadius"
-              },
-              {
-                "key": "boxShadow"
-              }
+              {"key": "borderRadius"},
+              {"key": "boxShadow"   }
             ],
             "children": [
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1CopyCopyCopy3CopyCopy1Copy1",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "wvm4rsp28w",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -2246,18 +1980,15 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "c1zk109ftd",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               }
             ],
@@ -2265,7 +1996,7 @@
             "flexVerticalAlignment": "stretch",
             "key": "f6b8hrxei4",
             "isDeprecated": false,
-            "rightColumn": 64,
+            "rightColumn": 64.0,
             "detachFromLayout": false,
             "widgetId": "c1zk109ftd",
             "onCanvasUI": {
@@ -2276,14 +2007,12 @@
               "disableParentSelection": false
             },
             "isVisible": true,
-            "version": 1,
+            "version": 1.0,
             "parentId": "c3qg79mmbs",
-            "tags": [
-              "Layout"
-            ],
+            "tags": ["Layout"],
             "renderMode": "CANVAS",
             "isLoading": false,
-            "mobileTopRow": 0,
+            "mobileTopRow": 0.0,
             "layout": [
               {
                 "isContainer": true,
@@ -2296,87 +2025,71 @@
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
-                        "alignment": "start",
-                        "widgetId": "wvm4rsp28w",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "wvm4rsp28w"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       }
                     ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
+                    "allowedWidgetTypes": ["SMALL_WIDGETS"],
+                    "maxChildLimit": 0.0
                   }
                 ],
                 "layoutId": "rr29h0gs2r",
-                "layoutStyle": {
-                  "border": "none",
-                  "height": "100%"
-                },
+                "layoutStyle": {"border": "none", "height": "100%"},
                 "layoutType": "ZONE"
               }
             ],
             "responsiveBehavior": "fill",
             "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-            "mobileLeftColumn": 0
+            "mobileLeftColumn": 0.0
           },
           {
             "needsErrorInfo": false,
             "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
-            "mobileBottomRow": 10,
+            "mobileBottomRow": 10.0,
             "widgetName": "Zone4Copy",
-            "flexGrow": 4,
+            "flexGrow": 4.0,
             "isCanvas": true,
             "displayName": "Zone",
-            "searchTags": [
-              "div",
-              "parent",
-              "group"
-            ],
-            "topRow": 0,
-            "bottomRow": 10,
-            "parentRowSpace": 10,
+            "searchTags": ["div", "parent", "group"],
+            "topRow": 0.0,
+            "bottomRow": 10.0,
+            "parentRowSpace": 10.0,
             "type": "ZONE_WIDGET",
             "hideCard": false,
-            "mobileRightColumn": 64,
-            "parentColumnSpace": 1,
-            "leftColumn": 0,
+            "mobileRightColumn": 64.0,
+            "parentColumnSpace": 1.0,
+            "leftColumn": 0.0,
             "dynamicBindingPathList": [
-              {
-                "key": "borderRadius"
-              },
-              {
-                "key": "boxShadow"
-              }
+              {"key": "borderRadius"},
+              {"key": "boxShadow"   }
             ],
             "children": [
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1CopyCopyCopy3CopyCopy1Copy2",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "jz6hajk7n5",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -2387,18 +2100,15 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "194q1o3h78",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               }
             ],
@@ -2406,7 +2116,7 @@
             "flexVerticalAlignment": "stretch",
             "key": "f6b8hrxei4",
             "isDeprecated": false,
-            "rightColumn": 64,
+            "rightColumn": 64.0,
             "detachFromLayout": false,
             "widgetId": "194q1o3h78",
             "onCanvasUI": {
@@ -2417,14 +2127,12 @@
               "disableParentSelection": false
             },
             "isVisible": true,
-            "version": 1,
+            "version": 1.0,
             "parentId": "c3qg79mmbs",
-            "tags": [
-              "Layout"
-            ],
+            "tags": ["Layout"],
             "renderMode": "CANVAS",
             "isLoading": false,
-            "mobileTopRow": 0,
+            "mobileTopRow": 0.0,
             "layout": [
               {
                 "isContainer": true,
@@ -2437,87 +2145,71 @@
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
-                        "alignment": "start",
-                        "widgetId": "jz6hajk7n5",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "jz6hajk7n5"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       }
                     ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
+                    "allowedWidgetTypes": ["SMALL_WIDGETS"],
+                    "maxChildLimit": 0.0
                   }
                 ],
                 "layoutId": "5dcj1urevc",
-                "layoutStyle": {
-                  "border": "none",
-                  "height": "100%"
-                },
+                "layoutStyle": {"border": "none", "height": "100%"},
                 "layoutType": "ZONE"
               }
             ],
             "responsiveBehavior": "fill",
             "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-            "mobileLeftColumn": 0
+            "mobileLeftColumn": 0.0
           },
           {
             "needsErrorInfo": false,
             "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
-            "mobileBottomRow": 10,
+            "mobileBottomRow": 10.0,
             "widgetName": "Zone4Copy1",
-            "flexGrow": 4,
+            "flexGrow": 4.0,
             "isCanvas": true,
             "displayName": "Zone",
-            "searchTags": [
-              "div",
-              "parent",
-              "group"
-            ],
-            "topRow": 0,
-            "bottomRow": 10,
-            "parentRowSpace": 10,
+            "searchTags": ["div", "parent", "group"],
+            "topRow": 0.0,
+            "bottomRow": 10.0,
+            "parentRowSpace": 10.0,
             "type": "ZONE_WIDGET",
             "hideCard": false,
-            "mobileRightColumn": 64,
-            "parentColumnSpace": 1,
-            "leftColumn": 0,
+            "mobileRightColumn": 64.0,
+            "parentColumnSpace": 1.0,
+            "leftColumn": 0.0,
             "dynamicBindingPathList": [
-              {
-                "key": "borderRadius"
-              },
-              {
-                "key": "boxShadow"
-              }
+              {"key": "borderRadius"},
+              {"key": "boxShadow"   }
             ],
             "children": [
               {
                 "resetFormOnClick": false,
                 "needsErrorInfo": false,
-                "mobileBottomRow": 10,
+                "mobileBottomRow": 10.0,
                 "widgetName": "Button2Copy1CopyCopyCopy3CopyCopy1Copy3",
                 "buttonColor": "accent",
                 "isCanvas": false,
                 "displayName": "Button",
-                "searchTags": [
-                  "click",
-                  "submit"
-                ],
-                "topRow": 0,
-                "bottomRow": 10,
-                "parentRowSpace": 10,
+                "searchTags": ["click", "submit"],
+                "topRow": 0.0,
+                "bottomRow": 10.0,
+                "parentRowSpace": 10.0,
                 "type": "WDS_BUTTON_WIDGET",
                 "hideCard": false,
-                "mobileRightColumn": 64,
+                "mobileRightColumn": 64.0,
                 "animateLoading": true,
-                "parentColumnSpace": 1,
+                "parentColumnSpace": 1.0,
                 "dynamicTriggerPathList": [],
-                "leftColumn": 0,
+                "leftColumn": 0.0,
                 "dynamicBindingPathList": [],
                 "text": "Do something",
                 "isDisabled": false,
                 "key": "bn9xz1h2d0",
                 "isDeprecated": false,
-                "rightColumn": 64,
+                "rightColumn": 64.0,
                 "widgetId": "ok0k9hn4dg",
                 "onCanvasUI": {
                   "selectionBGCSSVar": "--on-canvas-ui-widget-selection",
@@ -2528,18 +2220,15 @@
                 },
                 "isVisible": true,
                 "recaptchaType": "V3",
-                "version": 1,
+                "version": 1.0,
                 "parentId": "o7j5kktsuu",
-                "tags": [
-                  "Suggested",
-                  "Buttons"
-                ],
+                "tags": ["Suggested", "Buttons"],
                 "renderMode": "CANVAS",
                 "isLoading": false,
-                "mobileTopRow": 0,
+                "mobileTopRow": 0.0,
                 "responsiveBehavior": "hug",
                 "disabledWhenInvalid": false,
-                "mobileLeftColumn": 0,
+                "mobileLeftColumn": 0.0,
                 "buttonVariant": "filled"
               }
             ],
@@ -2547,7 +2236,7 @@
             "flexVerticalAlignment": "stretch",
             "key": "f6b8hrxei4",
             "isDeprecated": false,
-            "rightColumn": 64,
+            "rightColumn": 64.0,
             "detachFromLayout": false,
             "widgetId": "o7j5kktsuu",
             "onCanvasUI": {
@@ -2558,14 +2247,12 @@
               "disableParentSelection": false
             },
             "isVisible": true,
-            "version": 1,
+            "version": 1.0,
             "parentId": "c3qg79mmbs",
-            "tags": [
-              "Layout"
-            ],
+            "tags": ["Layout"],
             "renderMode": "CANVAS",
             "isLoading": false,
-            "mobileTopRow": 0,
+            "mobileTopRow": 0.0,
             "layout": [
               {
                 "isContainer": true,
@@ -2578,34 +2265,29 @@
                     "layoutType": "ALIGNED_WIDGET_ROW",
                     "layout": [
                       {
-                        "alignment": "start",
-                        "widgetId": "ok0k9hn4dg",
+                        "alignment" : "start"            ,
+                        "widgetId"  : "ok0k9hn4dg"       ,
                         "widgetType": "WDS_BUTTON_WIDGET"
                       }
                     ],
-                    "allowedWidgetTypes": [
-                      "SMALL_WIDGETS"
-                    ],
-                    "maxChildLimit": 0
+                    "allowedWidgetTypes": ["SMALL_WIDGETS"],
+                    "maxChildLimit": 0.0
                   }
                 ],
                 "layoutId": "4ea1fxmoer",
-                "layoutStyle": {
-                  "border": "none",
-                  "height": "100%"
-                },
+                "layoutStyle": {"border": "none", "height": "100%"},
                 "layoutType": "ZONE"
               }
             ],
             "responsiveBehavior": "fill",
             "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
-            "mobileLeftColumn": 0
+            "mobileLeftColumn": 0.0
           }
         ],
         "elevatedBackground": false,
         "key": "04mvbegryn",
         "isDeprecated": false,
-        "rightColumn": 64,
+        "rightColumn": 64.0,
         "detachFromLayout": false,
         "widgetId": "c3qg79mmbs",
         "onCanvasUI": {
@@ -2615,16 +2297,14 @@
           "focusColorCSSVar": "--on-canvas-ui-section-selection",
           "disableParentSelection": true
         },
-        "zoneCount": 3,
+        "zoneCount": 3.0,
         "isVisible": true,
-        "version": 1,
+        "version": 1.0,
         "parentId": "0",
-        "tags": [
-          "Layout"
-        ],
+        "tags": ["Layout"],
         "renderMode": "CANVAS",
         "isLoading": false,
-        "mobileTopRow": 0,
+        "mobileTopRow": 0.0,
         "layout": [
           {
             "isContainer": true,
@@ -2632,35 +2312,33 @@
             "isPermanent": true,
             "layout": [
               {
-                "alignment": "start",
-                "widgetId": "c1zk109ftd",
+                "alignment" : "start"      ,
+                "widgetId"  : "c1zk109ftd" ,
                 "widgetType": "ZONE_WIDGET"
               },
               {
-                "alignment": "start",
-                "widgetId": "194q1o3h78",
+                "alignment" : "start"      ,
+                "widgetId"  : "194q1o3h78" ,
                 "widgetType": "ZONE_WIDGET"
               },
               {
-                "alignment": "start",
-                "widgetId": "o7j5kktsuu",
+                "alignment" : "start"      ,
+                "widgetId"  : "o7j5kktsuu" ,
                 "widgetType": "ZONE_WIDGET"
               }
             ],
             "layoutId": "eogsma2p43",
-            "layoutStyle": {
-              "border": "none"
-            },
+            "layoutStyle": {"border": "none"},
             "layoutType": "SECTION",
-            "maxChildLimit": 4
+            "maxChildLimit": 4.0
           }
         ],
         "responsiveBehavior": "fill",
-        "mobileLeftColumn": 0,
+        "mobileLeftColumn": 0.0,
         "spaceDistributed": {
-          "c1zk109ftd": 4,
-          "194q1o3h78": 4,
-          "o7j5kktsuu": 4
+          "c1zk109ftd": 4.0,
+          "194q1o3h78": 4.0,
+          "o7j5kktsuu": 4.0
         }
       }
     ]

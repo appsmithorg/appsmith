@@ -4,7 +4,6 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -37,7 +36,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitUtils;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
@@ -50,7 +48,6 @@ import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.repositories.cakes.WorkspaceRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
-import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -79,7 +76,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -97,7 +93,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ApplicationService applicationService;
     private final SessionUserService sessionUserService;
     private final WorkspaceRepositoryCake workspaceRepository;
-    private final LayoutActionService layoutActionService;
     private final UpdateLayoutService updateLayoutService;
 
     private final AnalyticsService analyticsService;
@@ -109,7 +104,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ActionCollectionService actionCollectionService;
     private final CommonGitFileUtils commonGitFileUtils;
     private final ThemeService themeService;
-    private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
@@ -159,10 +153,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         Mono<PageDTO> pageMono = applicationMono.map(application -> {
             generateAndSetPagePolicies(application, page);
-            if (page.getDefaultResources() == null) {
-                DefaultResources defaults = new DefaultResources();
-                defaults.setApplicationId(page.getApplicationId());
-                page.setDefaultResources(defaults);
+            if (application.getGitArtifactMetadata() != null) {
+                page.setBranchName(application.getGitArtifactMetadata().getBranchName());
             }
             return page;
         });
@@ -179,28 +171,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 });
     }
 
-    public Mono<PageDTO> createPageWithBranchName(PageDTO page, String branchName) {
-
-        DefaultResources defaultResources =
-                page.getDefaultResources() == null ? new DefaultResources() : page.getDefaultResources();
-        if (StringUtils.isEmpty(defaultResources.getApplicationId())) {
-            // Client will be aware of default application Id only so we are safe to assume this
-            defaultResources.setApplicationId(page.getApplicationId());
-        }
-        defaultResources.setBranchName(branchName);
-        return applicationService
-                .findBranchedApplicationId(
-                        branchName,
-                        defaultResources.getApplicationId(),
-                        applicationPermission.getPageCreatePermission())
-                .flatMap(branchedApplicationId -> {
-                    page.setApplicationId(branchedApplicationId);
-                    page.setDefaultResources(defaultResources);
-                    return createPage(page);
-                })
-                .map(responseUtils::updatePageDTOWithDefaultResources);
-    }
-
     /**
      * This function is called during page create in Page Service. It adds the given page to its ApplicationPages list.
      * Note: It is assumed here that `application` is already checked for the MANAGE_APPLICATIONS policy.
@@ -212,13 +182,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     @Override
     public Mono<Integer> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
 
-        String defaultPageId = page.getDefaultResources() == null
-                        || StringUtils.isEmpty(page.getDefaultResources().getPageId())
-                ? page.getId()
-                : page.getDefaultResources().getPageId();
+        String basePageId = StringUtils.isEmpty(page.getBaseId()) ? page.getId() : page.getBaseId();
         if (isDuplicatePage(application, page.getId())) {
             return applicationRepository
-                    .addPageToApplication(application.getId(), page.getId(), isDefault, defaultPageId)
+                    .addPageToApplication(application.getId(), page.getId(), isDefault, basePageId)
                     .doOnSuccess(count -> {
                         if (count != 1) {
                             log.error(
@@ -307,16 +274,24 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         }
                     }
                     return Mono.just(pageDTO);
-                })
-                .map(responseUtils::updatePageDTOWithDefaultResources);
+                });
     }
 
     @Override
-    public Mono<PageDTO> getPageAndMigrateDslByBranchAndDefaultPageId(
+    public Mono<PageDTO> getPageAndMigrateDslByBranchAndBasePageId(
             String defaultPageId, String branchName, boolean viewMode, boolean migrateDsl) {
         // Fetch the page with read permission in both editor and in viewer.
         return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission())
+                .findByBranchNameAndBasePageId(branchName, defaultPageId, pagePermission.getReadPermission())
+                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl));
+    }
+
+    @Override
+    public Mono<PageDTO> getPageAndMigrateDslByBranchedPageId(
+            String branchedPageId, boolean viewMode, boolean migrateDsl) {
+        // Fetch the page with read permission in both editor and in viewer.
+        return newPageService
+                .findById(branchedPageId, pagePermission.getReadPermission())
                 .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl));
     }
 
@@ -394,15 +369,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<Application> makePageDefault(String defaultApplicationId, String defaultPageId, String branchName) {
-        // TODO remove the dependency of applicationId as pageId and branch can get the exact resource
-        return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                .flatMap(branchedPage -> makePageDefault(branchedPage.getApplicationId(), branchedPage.getId()))
-                .map(responseUtils::updateApplicationWithDefaultResources);
-    }
-
-    @Override
     public Mono<Application> createApplication(Application application) {
         return createApplication(application, application.getWorkspaceId());
     }
@@ -448,7 +414,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 application1.setPublishedModeThemeId(themeId);
                                 return themeId;
                             })
-                            .then(applicationService.createDefaultApplication(application1));
+                            .then(applicationService.createBaseApplication(application1));
                 })
                 .flatMap(savedApplication -> {
                     PageDTO page = new PageDTO();
@@ -458,11 +424,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     layoutList.add(newPageService.createDefaultLayout());
                     page.setLayouts(layoutList);
 
-                    if (page.getDefaultResources() == null) {
-                        DefaultResources defaults = new DefaultResources();
-                        defaults.setApplicationId(page.getApplicationId());
-                        page.setDefaultResources(defaults);
-                    }
                     // Set the page policies
                     generateAndSetPagePolicies(savedApplication, page);
 
@@ -471,7 +432,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .flatMap(savedPage -> addPageToApplication(savedApplication, savedPage, true))
                             // Now publish this newly created app with default states so that
                             // launching of newly created application is possible.
-                            .flatMap(ignored -> publish(savedApplication.getId(), false)
+                            .flatMap(ignored -> publishWithoutPermissionChecks(savedApplication.getId(), false)
                                     .then(applicationService.findById(
                                             savedApplication.getId(), applicationPermission.getReadPermission())));
                 });
@@ -527,7 +488,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMapMany(application -> {
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     if (GitUtils.isApplicationConnectedToGit(application)) {
-                        return applicationService.findAllApplicationsByDefaultApplicationId(
+                        return applicationService.findAllApplicationsByBaseApplicationId(
                                 gitData.getDefaultArtifactId(), applicationPermission.getDeletePermission());
                     }
                     return Flux.fromIterable(List.of(application));
@@ -579,23 +540,18 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<PageDTO> clonePage(String pageId, ClonePageMetaDTO clonePageMetaDTO) {
+    public Mono<PageDTO> clonePage(String pageId) {
         return newPageService
                 .findById(pageId, pagePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Clone Page")))
-                .flatMap(page -> applicationService
-                        .saveLastEditInformation(page.getApplicationId())
-                        .then(clonePageGivenApplicationId(pageId, page.getApplicationId(), " Copy", clonePageMetaDTO)));
-    }
-
-    @Override
-    public Mono<PageDTO> clonePageByDefaultPageIdAndBranch(String defaultPageId, String branchName) {
-        final ClonePageMetaDTO clonePageMetaDTO = new ClonePageMetaDTO();
-        clonePageMetaDTO.setBranchName(branchName);
-        return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                .flatMap(newPage -> clonePage(newPage.getId(), clonePageMetaDTO))
-                .map(responseUtils::updatePageDTOWithDefaultResources);
+                .flatMap(page -> {
+                    ClonePageMetaDTO clonePageMetaDTO = new ClonePageMetaDTO();
+                    clonePageMetaDTO.setBranchName(page.getBranchName());
+                    return applicationService
+                            .saveLastEditInformation(page.getApplicationId())
+                            .then(clonePageGivenApplicationId(
+                                    pageId, page.getApplicationId(), " Copy", clonePageMetaDTO));
+                });
     }
 
     protected Mono<PageDTO> clonePageGivenApplicationId(
@@ -628,7 +584,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(page -> {
                     clonePageMetaDTO.setBranchedSourcePageId(page.getId());
                     Mono<ApplicationPagesDTO> pageNamesMono =
-                            newPageService.findApplicationPagesByApplicationIdViewMode(
+                            newPageService.findApplicationPagesByBranchedApplicationIdAndViewMode(
                                     page.getApplicationId(), false, false);
 
                     Mono<Application> destinationApplicationMono = applicationService
@@ -663,15 +619,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 // Proceed with creating the copy of the page
                                 page.setId(null);
                                 page.setApplicationId(applicationId);
-                                DefaultResources defaults = new DefaultResources();
                                 GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                                 if (gitData != null) {
-                                    defaults.setApplicationId(gitData.getDefaultArtifactId());
-                                    defaults.setBranchName(gitData.getBranchName());
-                                } else {
-                                    defaults.setApplicationId(applicationId);
+                                    page.setBranchName(gitData.getBranchName());
                                 }
-                                page.setDefaultResources(defaults);
                                 return newPageService.createDefault(page);
                             });
                 })
@@ -707,12 +658,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 applicationPage.setId(savedPage.getId());
                                 applicationPage.setIsDefault(false);
 
-                                String defaultPageId = StringUtils.isEmpty(
-                                                savedPage.getDefaultResources().getPageId())
+                                String basePageId = StringUtils.isEmpty(savedPage.getBaseId())
                                         ? savedPage.getId()
-                                        : savedPage.getDefaultResources().getPageId();
+                                        : savedPage.getBaseId();
 
-                                applicationPage.setDefaultPageId(defaultPageId);
+                                applicationPage.setDefaultPageId(basePageId);
                                 application.getPages().add(applicationPage);
 
                                 return applicationService.save(application);
@@ -747,30 +697,27 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<Application> cloneApplication(String applicationId, String branchName) {
+    public Mono<Application> cloneApplication(String branchedApplicationId) {
 
         // 1. Find valid application to clone, depending on branch
         Mono<Application> applicationMono = applicationService
-                .findByBranchNameAndDefaultApplicationId(
-                        branchName, applicationId, applicationPermission.getEditPermission())
+                .findById(branchedApplicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
                     // For git connected application user can update the default branch
                     // In such cases we should fork the application from the new default branch
-                    if (StringUtils.isEmpty(branchName)
-                            && !Optional.ofNullable(application.getGitApplicationMetadata())
-                                    .isEmpty()
-                            && !application
+                    if (application.getGitApplicationMetadata() == null
+                            || application
                                     .getGitApplicationMetadata()
                                     .getBranchName()
                                     .equals(application
                                             .getGitApplicationMetadata()
                                             .getDefaultBranchName())) {
-                        return applicationService.findByBranchNameAndDefaultApplicationId(
-                                application.getGitApplicationMetadata().getDefaultBranchName(),
-                                applicationId,
-                                applicationPermission.getEditPermission());
+                        return Mono.just(application);
                     }
-                    return Mono.just(application);
+                    return applicationService.findByBranchNameAndBaseApplicationId(
+                            application.getGitApplicationMetadata().getDefaultBranchName(),
+                            application.getGitApplicationMetadata().getDefaultArtifactId(),
+                            applicationPermission.getEditPermission());
                 })
                 .cache();
 
@@ -832,7 +779,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                 // setting modified by to current user
                                 application1.setModifiedBy(
                                         applicationUserTuple2.getT2().getUsername());
-                                return applicationService.createDefaultApplication(application1);
+                                return applicationService.createBaseApplication(application1);
                             })
                             // 4. Now fetch the pages of the source application, clone and add them to this new
                             // application
@@ -845,7 +792,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                     ApplicationPage newApplicationPage = new ApplicationPage();
                                                     newApplicationPage.setId(clonedPage.getId());
                                                     newApplicationPage.setIsDefault(isDefault);
-                                                    // Now set defaultPageId to current page itself
+                                                    // Now set basePageId to current page itself
                                                     newApplicationPage.setDefaultPageId(clonedPage.getId());
                                                     return newApplicationPage;
                                                 });
@@ -877,7 +824,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                                 .thenReturn(application);
                                     }))
                             // 6. Publish copy of application
-                            .flatMap(application -> publish(application.getId(), false))
+                            .flatMap(application -> publishWithoutPermissionChecks(application.getId(), false))
                             .flatMap(application -> sendCloneApplicationAnalyticsEvent(sourceApplication, application));
                 });
 
@@ -1030,15 +977,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 });
     }
 
-    public Mono<PageDTO> deleteUnpublishedPageByBranchAndDefaultPageId(String defaultPageId, String branchName) {
-        return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getDeletePermission())
-                .flatMap(newPage -> deleteUnpublishedPage(newPage.getId()))
-                .map(responseUtils::updatePageDTOWithDefaultResources)
-        // .as(transactionalOperator::transactional)
-        ;
-    }
-
     /**
      * This function walks through all the pages in the application. In each page, it walks through all the layouts.
      * In a layout, dsl and publishedDsl JSONObjects exist. Publish function is responsible for copying the dsl into
@@ -1048,7 +986,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * @return Publishes a Boolean true, when the application has been published.
      */
     @Override
-    public Mono<Application> publish(String applicationId, boolean isPublishedManually) {
+    public Mono<Application> publishWithoutPermissionChecks(String applicationId, boolean isPublishedManually) {
         return publishAndGetMetadata(applicationId, isPublishedManually)
                 .flatMap(tuple2 -> {
                     ApplicationPublishingMetaDTO metaDTO = tuple2.getT2();
@@ -1256,38 +1194,34 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<Application> publish(String defaultApplicationId, String branchName, boolean isPublishedManually) {
+    public Mono<Application> publish(String branchedApplicationId, boolean isPublishedManually) {
         Mono<Application> applicationMono = applicationService
-                .findBranchedApplicationId(branchName, defaultApplicationId, applicationPermission.getEditPermission())
-                .flatMap(branchedApplicationId ->
-                        applicationService.findById(branchedApplicationId, applicationPermission.getEditPermission()))
+                .findById(branchedApplicationId, applicationPermission.getEditPermission())
                 .cache();
         return validateAllObjectsForPermissions(applicationMono, AppsmithError.UNABLE_TO_DEPLOY_MISSING_PERMISSION)
                 .then(applicationMono)
-                .flatMap(application -> publish(application.getId(), isPublishedManually))
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .flatMap(application -> publishWithoutPermissionChecks(application.getId(), isPublishedManually));
     }
 
     /**
      * This function walks through all the pages and reorders them and updates the order as per the user preference.
      * A page can be moved up or down from the current position and accordingly the order of the remaining page changes.
      *
-     * @param defaultAppId  The id of the Application
-     * @param defaultPageId Targetted page id
-     * @param order         New order for the selected page
+     * @param branchedApplicationId The id of the Application
+     * @param branchedPageId   Targetted page id
+     * @param order        New order for the selected page
      * @return Application object with the latest order
      **/
     @Override
-    public Mono<ApplicationPagesDTO> reorderPage(
-            String defaultAppId, String defaultPageId, Integer order, String branchName) {
+    public Mono<ApplicationPagesDTO> reorderPage(String branchedApplicationId, String branchedPageId, Integer order) {
         return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
+                .findById(branchedPageId, pagePermission.getEditPermission())
                 .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, defaultPageId)))
+                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, branchedPageId)))
                 .zipWhen(branchedPage -> applicationService
                         .findById(branchedPage.getApplicationId(), applicationPermission.getEditPermission())
                         .switchIfEmpty(Mono.error(new AppsmithException(
-                                AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultAppId))))
+                                AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId))))
                 .flatMap(tuple -> {
                     final NewPage branchedPage = tuple.getT1();
                     Application application = tuple.getT2();
@@ -1308,12 +1242,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     return applicationRepository
                             .setPages(application.getId(), pages)
-                            .flatMap(ignored ->
-                                    sendPageOrderAnalyticsEvent(application, defaultPageId, order, branchName))
-                            .then(newPageService.findApplicationPagesByApplicationIdViewMode(
+                            .flatMap(ignored -> sendPageOrderAnalyticsEvent(
+                                    application, branchedPageId, order, branchedPage.getBranchName()))
+                            .then(newPageService.findApplicationPagesByBranchedApplicationIdAndViewMode(
                                     application.getId(), Boolean.FALSE, false));
-                })
-                .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
+                });
     }
 
     /**

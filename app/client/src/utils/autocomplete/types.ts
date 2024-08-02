@@ -9,4 +9,6 @@ export enum TernWorkerAction {
   DEBUG = "DEBUG",
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type CallbackFn = (...args: any) => any;

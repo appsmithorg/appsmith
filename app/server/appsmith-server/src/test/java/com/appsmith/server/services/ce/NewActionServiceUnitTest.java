@@ -6,11 +6,9 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionServiceCEImpl;
 import com.appsmith.server.newactions.helpers.NewActionHelper;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -80,9 +78,6 @@ public class NewActionServiceUnitTest {
     ConfigService configService;
 
     @MockBean
-    ResponseUtils responseUtils;
-
-    @MockBean
     PermissionGroupService permissionGroupService;
 
     @MockBean
@@ -112,12 +107,6 @@ public class NewActionServiceUnitTest {
     ObservationRegistry observationRegistry;
 
     @MockBean
-    DefaultResourcesService<NewAction> defaultResourcesService;
-
-    @MockBean
-    DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
-
-    @MockBean
     SessionUserService sessionUserService;
 
     @BeforeEach
@@ -135,7 +124,6 @@ public class NewActionServiceUnitTest {
                 applicationService,
                 policySolution,
                 configService,
-                responseUtils,
                 permissionGroupService,
                 newActionHelper,
                 datasourcePermission,
@@ -143,9 +131,7 @@ public class NewActionServiceUnitTest {
                 pagePermission,
                 actionPermission,
                 entityValidationService,
-                observationRegistry,
-                defaultResourcesService,
-                dtoDefaultResourcesService);
+                observationRegistry);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);

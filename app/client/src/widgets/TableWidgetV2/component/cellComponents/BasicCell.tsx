@@ -76,6 +76,8 @@ const StyledEditIcon = styled.div<{
 
 type PropType = BaseCellComponentProps & {
   accentColor: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   columnType: string;
   tableWidth: number;

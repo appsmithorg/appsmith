@@ -7,8 +7,6 @@ import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
-import com.appsmith.external.models.DefaultResources;
-import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.ArtifactType;
@@ -29,7 +27,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.fork.forkable.ForkableService;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -51,7 +48,6 @@ import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -74,7 +70,6 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     protected final WorkspaceService workspaceService;
     protected final SessionUserService sessionUserService;
     private final AnalyticsService analyticsService;
-    private final ResponseUtils responseUtils;
     protected final WorkspacePermission workspacePermission;
     protected final ApplicationPermission applicationPermission;
     private final ImportService importService;
@@ -160,10 +155,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     final NewPage newPage = tuple.getT1();
                     final boolean isDefault = tuple.getT2();
                     final String templatePageId = newPage.getId();
-                    DefaultResources defaults = new DefaultResources();
-                    defaults.setApplicationId(newPage.getApplicationId());
-                    newPage.setDefaultResources(defaults);
                     newPage.makePristine();
+                    newPage.setGitSyncId(null);
                     PageDTO page = newPage.getUnpublishedPage();
 
                     if (page.getLayouts() != null) {
@@ -173,7 +166,6 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     }
 
                     page.setApplicationId(newPage.getApplicationId());
-                    page.setDefaultResources(defaults);
 
                     ForkingMetaDTO sourceMetaForPage = sourceMeta.toBuilder()
                             .applicationId(page.getApplicationId())
@@ -228,21 +220,14 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                     log.info("Creating clone of action collection {}", originalCollectionId);
                                     // Sanitize them
                                     actionCollection.makePristine();
+                                    actionCollection.setGitSyncId(null);
                                     actionCollection.setPublishedCollection(null);
                                     final ActionCollectionDTO unpublishedCollection =
                                             actionCollection.getUnpublishedCollection();
                                     unpublishedCollection.setPageId(savedPage.getId());
 
-                                    DefaultResources defaultResources = new DefaultResources();
-                                    defaultResources.setPageId(savedPage.getId());
-                                    unpublishedCollection.setDefaultResources(defaultResources);
-
                                     actionCollection.setWorkspaceId(toWorkspaceId);
                                     actionCollection.setApplicationId(savedPage.getApplicationId());
-
-                                    DefaultResources defaultResources1 = new DefaultResources();
-                                    defaultResources1.setApplicationId(savedPage.getApplicationId());
-                                    actionCollection.setDefaultResources(defaultResources1);
 
                                     actionCollectionService.generateAndSetPolicies(savedPage, actionCollection);
 
@@ -253,14 +238,10 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                         Mono.just(clonedActionCollection.getId()),
                                                         Mono.just(originalCollectionId));
 
-                                                if (org.springframework.util.StringUtils.isEmpty(clonedActionCollection
-                                                        .getDefaultResources()
-                                                        .getCollectionId())) {
+                                                if (org.springframework.util.StringUtils.isEmpty(
+                                                        clonedActionCollection.getBaseId())) {
                                                     ActionCollection updates = new ActionCollection();
-                                                    DefaultResources defaultResources2 =
-                                                            clonedActionCollection.getDefaultResources();
-                                                    defaultResources2.setCollectionId(clonedActionCollection.getId());
-                                                    updates.setDefaultResources(defaultResources2);
+                                                    updates.setBaseId(clonedActionCollection.getId());
                                                     return actionCollectionService
                                                             .update(clonedActionCollection.getId(), updates)
                                                             .then(tuple2Mono);
@@ -283,7 +264,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                         action.getName(),
                                                         newAction.getId());
                                                 action.setPageId(savedPage.getId());
-                                                action.setDefaultResources(null);
+                                                action.setBaseId(null);
+                                                action.setBranchName(null);
                                                 return newAction;
                                             })
                                             .flatMap(newAction -> {
@@ -294,6 +276,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                                 String forkedCollectionId = collectionIdMap.get(originalCollectionId);
                                                 log.info("Creating clone of action {}", originalActionId);
                                                 newAction.makePristine();
+                                                newAction.setGitSyncId(null);
                                                 newAction.setWorkspaceId(toWorkspaceId);
                                                 ActionDTO action = newAction.getUnpublishedAction();
                                                 action.setCollectionId(forkedCollectionId);
@@ -431,7 +414,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
         return applicationPageService
                 .setApplicationPolicies(userMono, workspaceId, application)
-                .flatMap(applicationService::createDefaultApplication); // */
+                .flatMap(applicationService::createBaseApplication); // */
     }
 
     @Override
@@ -502,39 +485,34 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     }
 
     public Mono<ApplicationImportDTO> forkApplicationToWorkspace(
-            String srcApplicationId, String targetWorkspaceId, String branchName) {
+            String branchedSourceApplicationId, String targetWorkspaceId) {
 
         // First we try to find the correct database entry of application to fork, based on git
         Mono<Application> applicationMono;
 
-        if (StringUtils.isEmpty(branchName)) {
-            applicationMono = applicationService
-                    .findById(srcApplicationId, applicationPermission.getReadPermission())
-                    .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
-                    .flatMap(application -> {
-                        // For git connected application user can update the default branch
-                        // In such cases we should fork the application from the new default branch
-                        if (!(application.getGitApplicationMetadata() == null)
-                                && !application
-                                        .getGitApplicationMetadata()
-                                        .getBranchName()
-                                        .equals(application
-                                                .getGitApplicationMetadata()
-                                                .getDefaultBranchName())) {
-                            return applicationService.findByBranchNameAndDefaultApplicationId(
-                                    application.getGitApplicationMetadata().getDefaultBranchName(),
-                                    srcApplicationId,
-                                    applicationPermission.getReadPermission());
-                        }
+        applicationMono = applicationService
+                .findById(branchedSourceApplicationId, applicationPermission.getReadPermission())
+                .switchIfEmpty(Mono.error(new AppsmithException(
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedSourceApplicationId)))
+                .flatMap(application -> {
+                    if ((application.getGitApplicationMetadata() == null)
+                            || application
+                                    .getGitApplicationMetadata()
+                                    .getBranchName()
+                                    .equals(application
+                                            .getGitApplicationMetadata()
+                                            .getDefaultBranchName())) {
                         return Mono.just(application);
-                    });
-        } else {
-            applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(
-                    branchName, srcApplicationId, applicationPermission.getReadPermission());
-        }
+                    }
+                    // For git connected application user can update the default branch
+                    // In such cases we should fork the application from the new default branch
+                    return applicationService.findByBranchNameAndBaseApplicationId(
+                            application.getGitApplicationMetadata().getDefaultBranchName(),
+                            application.getGitApplicationMetadata().getDefaultArtifactId(),
+                            applicationPermission.getReadPermission());
+                });
 
-        return checkPermissionsForForking(srcApplicationId, targetWorkspaceId, branchName)
+        return checkPermissionsForForking(branchedSourceApplicationId, targetWorkspaceId)
                 .then(applicationMono)
                 // We will be forking to the default environment in the new workspace
                 .zipWhen(application -> workspaceService.getDefaultEnvironmentId(application.getWorkspaceId(), null))
@@ -543,7 +521,6 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     String sourceEnvironmentId = tuple.getT2();
                     return forkApplicationToWorkspaceWithEnvironment(
                                     fromApplicationId, targetWorkspaceId, sourceEnvironmentId)
-                            .map(responseUtils::updateApplicationWithDefaultResources)
                             .flatMap(application -> importService.getArtifactImportDTO(
                                     application.getWorkspaceId(),
                                     application.getId(),
@@ -576,15 +553,12 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                 });
     }
 
-    private Mono<Boolean> checkPermissionsForForking(
-            String srcApplicationId, String targetWorkspaceId, String branchName) {
-        Optional<String> optionalBranchName = Optional.ofNullable(branchName);
-        Optional<AclPermission> optionalAclPermission = Optional.empty();
+    private Mono<Boolean> checkPermissionsForForking(String branchedApplicationId1, String targetWorkspaceId) {
         Mono<Application> applicationMonoWithOutPermission = applicationService
-                .findBranchedApplicationId(optionalBranchName, srcApplicationId, optionalAclPermission)
-                .flatMap(branchedApplicationId -> applicationService.findById(branchedApplicationId, null))
+                .findById(branchedApplicationId1, null)
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
+                        AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, branchedApplicationId1)))
+                .cache();
 
         Mono<User> currentUserMono = sessionUserService.getCurrentUser().cache();
         Flux<User> currentUserFlux = currentUserMono.repeat();
@@ -594,16 +568,9 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
             if (isForkingEnabled) {
                 return Mono.just(Boolean.TRUE);
             }
-            Mono<Application> applicationMono = applicationService
-                    .findBranchedApplicationId(branchName, srcApplicationId, applicationPermission.getEditPermission())
-                    .flatMap(branchedApplicationId -> applicationService.findById(
-                            branchedApplicationId, applicationPermission.getEditPermission()))
-                    .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)))
-                    .cache();
 
             // Normal Application forking with developer/edit access
-            Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
+            Flux<BaseDomain> pageFlux = applicationMonoWithOutPermission.flatMapMany(application -> newPageRepository
                     .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                     .map(idPoliciesOnly -> {
                         NewPage newPage = new NewPage();
@@ -614,19 +581,21 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     .zipWith(currentUserFlux)
                     .flatMap(object -> newPageRepository.setUserPermissionsInObject(object.getT1(), object.getT2())));
 
-            Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
-                    .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
-                    .map(idPoliciesOnly -> {
-                        NewAction newAction = new NewAction();
-                        newAction.setId(idPoliciesOnly.getId());
-                        newAction.setPolicies(idPoliciesOnly.getPolicies());
-                        return newAction;
-                    })
-                    .zipWith(currentUserFlux)
-                    .flatMap(object -> newActionRepository.setUserPermissionsInObject(object.getT1(), object.getT2())));
+            Flux<BaseDomain> actionFlux =
+                    applicationMonoWithOutPermission.flatMapMany(application -> newActionRepository
+                            .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                            .map(idPoliciesOnly -> {
+                                NewAction newAction = new NewAction();
+                                newAction.setId(idPoliciesOnly.getId());
+                                newAction.setPolicies(idPoliciesOnly.getPolicies());
+                                return newAction;
+                            })
+                            .zipWith(currentUserFlux)
+                            .flatMap(object ->
+                                    newActionRepository.setUserPermissionsInObject(object.getT1(), object.getT2())));
 
             Flux<BaseDomain> actionCollectionFlux =
-                    applicationMono.flatMapMany(application -> actionCollectionRepository
+                    applicationMonoWithOutPermission.flatMapMany(application -> actionCollectionRepository
                             .findByApplicationId(application.getId(), Optional.empty(), Optional.empty())
                             .zipWith(currentUserFlux)
                             .flatMap(object -> actionCollectionRepository.setUserPermissionsInObject(

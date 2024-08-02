@@ -26,7 +26,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -187,6 +186,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     @Cache(cacheName = "tenantNewFeatures", key = "{#tenantId}")
     @Override
     public Mono<CachedFeatures> updateCachedTenantFeatures(String tenantId, CachedFeatures cachedFeatures) {
+        log.debug("Updating cached tenant features for tenant: {}", tenantId);
         return Mono.just(cachedFeatures);
     }
 
@@ -239,12 +239,6 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                 .accept(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(featuresRequestDTO))
                 .retrieve()
-                .onStatus(
-                        HttpStatusCode::isError,
-                        response -> Mono.error(new AppsmithException(
-                                AppsmithError.CLOUD_SERVICES_ERROR,
-                                "unable to connect to cloud-services with error status ",
-                                response.statusCode())))
                 .toEntity(new ParameterizedTypeReference<>() {});
 
         return responseEntityMono

@@ -33,8 +33,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     List<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission, User currentUser);
 
-    Optional<Integer> addPageToApplication(
-            String applicationId, String pageId, boolean isDefault, String defaultPageId);
+    Optional<Integer> addPageToApplication(String applicationId, String pageId, boolean isDefault, String basePageId);
 
     /*@Modifying
     @Query(value = "UPDATE Application SET pages = :pages WHERE id = :applicationId")
@@ -46,21 +45,18 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Optional<Void> setDefaultPage(String applicationId, String pageId);
 
-    Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(
-            String defaultApplicationId, String branchName, Optional<AclPermission> permission, User currentUser);
+    Optional<Application> getApplicationByGitBranchAndBaseApplicationId(
+            String baseApplicationId, String branchName, AclPermission permission, User currentUser);
 
-    Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(
-            String defaultApplicationId, String branchName, AclPermission permission, User currentUser);
-
-    Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(
-            String defaultApplicationId,
+    Optional<Application> getApplicationByGitBranchAndBaseApplicationId(
+            String baseApplicationId,
             List<String> projectionFieldNames,
             String branchName,
             AclPermission permission,
             User currentUser);
 
-    List<Application> getApplicationByGitDefaultApplicationId(
-            String defaultApplicationId, AclPermission permission, User currentUser);
+    List<Application> getApplicationByGitBaseApplicationId(
+            String baseApplicationId, AclPermission permission, User currentUser);
 
     int setAppTheme(
             String applicationId,
@@ -74,14 +70,12 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     List<Application> getGitConnectedApplicationByWorkspaceId(
             String workspaceId, AclPermission permission, User currentUser);
 
-    Optional<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
+    Optional<Application> getApplicationByBaseApplicationIdAndDefaultBranch(String baseApplicationId);
 
-    Optional<Integer> updateFieldByDefaultIdAndBranchName(
-            String defaultId,
-            String defaultIdPath,
+    Optional<Integer> updateFieldById(
+            String id,
+            String idPath,
             Map<String, Object> fieldNameValueMap,
-            String branchName,
-            String branchNamePath,
             AclPermission permission,
             User currentUser);
 
@@ -98,4 +92,9 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     int protectBranchedApplications(
             String applicationId, List<String> branchNames, AclPermission permission, User currentUser);
+
+    List<String> findBranchedApplicationIdsByBaseApplicationId(String baseApplicationId);
+
+    List<String> findAllBranchedApplicationIdsByBranchedApplicationId(
+            String branchedApplicationId, AclPermission permission, User currentUser);
 }

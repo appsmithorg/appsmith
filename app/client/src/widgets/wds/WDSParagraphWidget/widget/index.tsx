@@ -54,6 +54,8 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {};
   }
@@ -72,6 +74,7 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
           size={this.props.fontSize}
           textAlign={this.props.textAlign}
           title={this.props.lineClamp ? this.props.text : undefined}
+          wordBreak="break-word"
         >
           {this.props.text}
         </Text>

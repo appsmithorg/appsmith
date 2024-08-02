@@ -21,24 +21,12 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
     List<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission permission, User currentUser);
 
-    List<ActionCollection> findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-            String name,
-            List<String> pageIds,
-            boolean viewMode,
-            String branchName,
-            AclPermission permission,
-            User currentUser,
-            Sort sort);
-
     List<ActionCollection> findByPageId(String pageId, AclPermission permission, User currentUser);
 
     List<ActionCollection> findByPageId(String pageId);
 
-    Optional<ActionCollection> findByBranchNameAndDefaultCollectionId(
-            String branchName, String defaultCollectionId, AclPermission permission, User currentUser);
-
-    List<ActionCollection> findByDefaultApplicationId(
-            String defaultApplicationId, AclPermission permission, User currentUser);
+    Optional<ActionCollection> findByBranchNameAndBaseCollectionId(
+            String branchName, String baseCollectionId, AclPermission permission, User currentUser);
 
     List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission, User currentUser);
 

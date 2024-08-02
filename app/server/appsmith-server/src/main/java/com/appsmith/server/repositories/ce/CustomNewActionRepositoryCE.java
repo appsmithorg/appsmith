@@ -46,11 +46,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Optional<Long> countByDatasourceId(String datasourceId);
 
-    Optional<NewAction> findByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, Boolean viewMode, AclPermission permission, User currentUser);
-
-    List<NewAction> findByDefaultApplicationId(
-            String defaultApplicationId, Optional<AclPermission> permission, User currentUser);
+    Optional<NewAction> findByBranchNameAndBaseActionId(
+            String branchName, String baseActionId, Boolean viewMode, AclPermission permission, User currentUser);
 
     List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission, User currentUser);
 
@@ -85,4 +82,6 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
             AclPermission permission,
             User currentUser,
             boolean includeJs);
+
+    List<NewAction> findAllByApplicationIds(List<String> branchedArtifactIds, List<String> includedFields);
 }

@@ -151,6 +151,8 @@ export const useCanvasDragging = (
       let canvasIsDragging = false;
       let isUpdatingRows = false;
       let currentRectanglesToDraw: WidgetDraggingBlock[] = [];
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const scrollObj: any = {};
 
       let currentReflowParams: {
@@ -176,6 +178,8 @@ export const useCanvasDragging = (
         throttledStopReflowing();
         reflow.current?.resetReflow();
         if (stickyCanvasRef.current && slidingArenaRef.current) {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
           canvasCtx.clearRect(
             0,
@@ -242,6 +246,8 @@ export const useCanvasDragging = (
           }, 0);
         };
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onFirstMoveOnCanvas = (e: any, over = false) => {
           if (
             !isResizing &&
@@ -265,6 +271,8 @@ export const useCanvasDragging = (
           }
         };
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const triggerReflow = (e: any, firstMove: boolean) => {
           const canReflow =
             !currentRectanglesToDraw[0].detachFromLayout && !dropDisabled;
@@ -349,6 +357,8 @@ export const useCanvasDragging = (
           rowRef.current = newRows ? newRows : rowRef.current;
         };
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onMouseMove = (e: any, firstMove = false) => {
           if (isDragging && canvasIsDragging && slidingArenaRef.current) {
             const delta = {
@@ -428,6 +438,8 @@ export const useCanvasDragging = (
         const renderNewRows = debounce((delta) => {
           isUpdatingRows = true;
           if (slidingArenaRef.current && stickyCanvasRef.current) {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const canvasCtx: any = stickyCanvasRef.current.getContext("2d");
 
             currentRectanglesToDraw = blocksToDraw.map((each) => {
@@ -534,6 +546,8 @@ export const useCanvasDragging = (
               });
             }
           }, 0);
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const onMouseOver = (e: any) => {
           onFirstMoveOnCanvas(e, true);
         };

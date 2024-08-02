@@ -20,11 +20,9 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.CacheableTemplateHelper;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
-import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
@@ -55,9 +53,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     private final ImportService importService;
     private final ExportService exportService;
     private final AnalyticsService analyticsService;
-    private final UserDataService userDataService;
     private final ApplicationService applicationService;
-    private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
     private final ObjectMapper objectMapper;
     private final SessionUserService sessionUserService;
@@ -70,9 +66,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             ImportService importService,
             ExportService exportService,
             AnalyticsService analyticsService,
-            UserDataService userDataService,
             ApplicationService applicationService,
-            ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             ObjectMapper objectMapper,
             SessionUserService sessionUserService,
@@ -82,9 +76,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
         this.importService = importService;
         this.exportService = exportService;
         this.analyticsService = analyticsService;
-        this.userDataService = userDataService;
         this.applicationService = applicationService;
-        this.responseUtils = responseUtils;
         this.applicationPermission = applicationPermission;
         this.objectMapper = objectMapper;
         this.sessionUserService = sessionUserService;
@@ -232,11 +224,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
      */
     @Override
     public Mono<ApplicationImportDTO> mergeTemplateWithApplication(
-            String templateId,
-            String applicationId,
-            String organizationId,
-            String branchName,
-            List<String> pagesToImport) {
+            String templateId, String branchedApplicationId, String organizationId, List<String> pagesToImport) {
         Mono<ApplicationImportDTO> importedApplicationMono = getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson -> {
                     String templateName = "";
@@ -244,22 +232,10 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                             && applicationJson.getExportedApplication().getName() != null) {
                         templateName = applicationJson.getExportedApplication().getName();
                     }
-                    if (branchName != null) {
-                        return applicationService
-                                .findByBranchNameAndDefaultApplicationId(
-                                        branchName, applicationId, applicationPermission.getEditPermission())
-                                .flatMap(application -> importService.mergeArtifactExchangeJsonWithImportableArtifact(
-                                        organizationId,
-                                        application.getId(),
-                                        branchName,
-                                        applicationJson,
-                                        pagesToImport))
-                                .map(importableArtifact -> (Application) importableArtifact)
-                                .zipWith(Mono.just(templateName));
-                    }
+
                     return importService
                             .mergeArtifactExchangeJsonWithImportableArtifact(
-                                    organizationId, applicationId, null, applicationJson, pagesToImport)
+                                    organizationId, branchedApplicationId, null, applicationJson, pagesToImport)
                             .map(importableArtifact -> (Application) importableArtifact)
                             .zipWith(Mono.just(templateName));
                 })
@@ -276,8 +252,6 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                             .flatMap(importableArtifactDTO -> {
                                 ApplicationImportDTO applicationImportDTO =
                                         (ApplicationImportDTO) importableArtifactDTO;
-                                responseUtils.updateApplicationWithDefaultResources(
-                                        applicationImportDTO.getApplication());
                                 Application application1 = applicationImportDTO.getApplication();
                                 ApplicationTemplate applicationTemplate = new ApplicationTemplate();
                                 applicationTemplate.setId(templateId);
@@ -366,7 +340,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     application.setForkingEnabled(true);
                     application.setIsCommunityTemplate(isCommunityTemplate);
 
-                    return applicationService.update(applicationId, application, branchId);
+                    return applicationService.updateApplicationWithPresets(applicationId, application);
                 });
     }
 
@@ -408,8 +382,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                 .flatMap(application -> {
                     ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
                     applicationAccessDTO.setPublicAccess(true);
-                    return applicationService.changeViewAccess(
-                            application.getId(), resource.getBranchName(), applicationAccessDTO);
+                    return applicationService.changeViewAccessForAllBranchesByBranchedApplicationId(
+                            application.getId(), applicationAccessDTO);
                 });
     }
 

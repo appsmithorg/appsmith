@@ -12,6 +12,8 @@ import type { ErrorActionPayload } from "sagas/ErrorSagas";
 import { USER_DISPLAY_PICTURE_FILE_INVALID } from "@appsmith/constants/messages";
 
 function FormDisplayImage() {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [file, setFile] = useState<any>();
   const dispatch = useDispatch();
   const user = useSelector(getCurrentUser);
@@ -26,6 +28,8 @@ function FormDisplayImage() {
     dispatch(updatePhotoId({ photoId }));
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSelectFile = (file: any) => {
     setFile(file.data);
   };

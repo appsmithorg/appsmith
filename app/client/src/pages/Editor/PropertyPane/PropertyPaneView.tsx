@@ -66,6 +66,11 @@ export const excludeList: WidgetType[] = [
   "BUTTON_WIDGET_V2",
   "JSON_FORM_WIDGET",
   "CUSTOM_WIDGET",
+  "ZONE_WIDGET",
+  "SECTION_WIDGET",
+  "WDS_MODAL_WIDGET",
+  "WDS_BUTTON_WIDGET",
+  "WDS_TABLE_WIDGET",
 ];
 
 function PropertyPaneView(
@@ -204,6 +209,8 @@ function PropertyPaneView(
    * actions shown on the right of title
    */
   const actions = useMemo((): Array<{
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tooltipContent: any;
     icon: ReactElement;
   }> => {

@@ -30,7 +30,7 @@ import java.util.Set;
 @Entity
 @Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
-public class Datasource extends BranchAwareDomain {
+public class Datasource extends GitSyncedDomain {
 
     @Transient
     public static final String DEFAULT_NAME_PREFIX = "Untitled datasource";

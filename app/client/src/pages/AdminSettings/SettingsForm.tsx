@@ -73,6 +73,8 @@ function getSettingsConfig(category: string, subCategory?: string) {
 export function SettingsForm(
   props: InjectedFormProps & RouteComponentProps & FormProps,
 ) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params = useParams() as any;
   const { category, selected: subCategory } = params;
   const settingsDetails = getSettingsConfig(category, subCategory);
@@ -113,6 +115,8 @@ export function SettingsForm(
       dispatch(saveSettings(props.settings));
     } else {
       // only tenant settings
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const config: any = {};
       for (const each in props.settings) {
         if (tenantConfigConnection.includes(each)) {
@@ -183,6 +187,8 @@ export function SettingsForm(
     return !(requiredFields.length > 0);
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onClear = (event?: React.FocusEvent<any, any>) => {
     if (event?.type === "click") {
       AnalyticsUtil.logEvent("ADMIN_SETTINGS_RESET", {
@@ -227,6 +233,8 @@ export function SettingsForm(
   };
 
   const disconnect = (currentSettings: AdminConfig) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const updatedSettings: any = {};
     const connectedMethodsCount =
       socialLoginList.length + (isFormLoginEnabled ? 1 : 0);
@@ -310,7 +318,11 @@ export function SettingsForm(
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const validate = (values: Record<string, any>) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errors: any = {};
   _.filter(values, (value, name) => {
     const err_message = AdminConfig.validate(name, value);
@@ -325,6 +337,8 @@ const selector = formValueSelector(SETTINGS_FORM_NAME);
 export default withRouter(
   connect((state: AppState) => {
     const settingsConfig = getSettings(state);
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newProps: any = {
       settings: {},
       settingsConfig,
@@ -345,6 +359,8 @@ export default withRouter(
     });
     return newProps;
   }, null)(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     reduxForm<any, any>({
       validate,
       form: SETTINGS_FORM_NAME,

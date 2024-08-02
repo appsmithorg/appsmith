@@ -58,7 +58,7 @@
         <dependency>
             <groupId>com.graphql-java</groupId>
             <artifactId>graphql-java</artifactId>
-            <version>21.1</version>
+            <version>21.5</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>

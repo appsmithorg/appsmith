@@ -30,7 +30,7 @@ export const useNavigateToWidget = () => {
     (
       widgetId: string,
       widgetType: WidgetType,
-      pageId: string,
+      basePageId: string,
       navigationMethod: NavigationMethod,
       isWidgetSelected?: boolean,
       isMultiSelect?: boolean,
@@ -45,7 +45,7 @@ export const useNavigateToWidget = () => {
           SelectionRequestType.UnsafeSelect,
           [widgetId],
           navigationMethod,
-          pageId,
+          basePageId,
         );
         return;
       }

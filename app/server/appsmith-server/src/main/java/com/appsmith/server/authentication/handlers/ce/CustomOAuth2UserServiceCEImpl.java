@@ -3,6 +3,8 @@ package com.appsmith.server.authentication.handlers.ce;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exceptions.AppsmithOAuth2AuthenticationException;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.UserService;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.userinfo.DefaultReactiveOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.OAuth2Error;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import reactor.core.publisher.Mono;
 
@@ -67,6 +70,12 @@ public class CustomOAuth2UserServiceCEImpl extends DefaultReactiveOAuth2UserServ
                         return repository.save(user);
                     }
                     return Mono.just(user);
-                }); // */
+                })
+                .onErrorMap(
+                        AppsmithException.class,
+                        // Throwing an AppsmithOAuth2AuthenticationException in case of an AppsmithException
+                        // This is to differentiate between Appsmith exceptions and OAuth2 exceptions
+                        error -> new AppsmithOAuth2AuthenticationException(
+                                new OAuth2Error(error.getAppErrorCode().toString(), error.getMessage(), ""))); // */
     }
 }

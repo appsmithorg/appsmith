@@ -14,6 +14,7 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.cakes.TenantRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.EnvManager;
 import org.junit.jupiter.api.AfterEach;
@@ -69,6 +70,9 @@ class TenantServiceCETest {
 
     @Autowired
     UserUtils userUtils;
+
+    @SpyBean
+    FeatureFlagService featureFlagService;
 
     @Autowired
     ReactiveRedisTemplate<String, Object> reactiveRedisTemplate;

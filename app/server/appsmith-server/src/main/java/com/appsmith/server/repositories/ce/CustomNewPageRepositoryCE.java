@@ -29,21 +29,14 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
     Optional<String> getNameByPageId(String pageId, boolean isPublishedName);
 
-    Optional<NewPage> findPageByBranchNameAndDefaultPageId(
-            String branchName, String defaultPageId, AclPermission permission, User currentUser);
+    Optional<NewPage> findPageByBranchNameAndBasePageId(
+            String branchName, String basePageId, AclPermission permission, User currentUser);
 
-    Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission, User currentUser);
-
-    Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission, User currentUser);
+    List<NewPage> findAllByApplicationIds(List<String> branchedArtifactIds, List<String> includedFields);
 
     Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission, User currentUser);
 
     List<NewPage> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
-
-    Optional<String> findBranchedPageId(
-            String branchName, String defaultPageId, AclPermission permission, User currentUser);
 
     Optional<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap);
 }

@@ -2,9 +2,6 @@
   "newPage": {
     "id": "testPageId",
     "applicationId": "testApplicationId",
-    "defaultResources": {
-      "pageId" : "testPageId"
-    },
     "unpublishedPage": {
       "name": "TestPage",
       "layouts": [

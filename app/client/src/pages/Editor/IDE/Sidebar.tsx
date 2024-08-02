@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { builderURL } from "@appsmith/RouteBuilder";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import history, { NavigationMethod } from "utils/history";
 import { useCurrentAppState } from "./hooks";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
@@ -21,7 +21,7 @@ import {
 function Sidebar() {
   const dispatch = useDispatch();
   const appState = useCurrentAppState();
-  const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
   const datasources = useSelector(getDatasources);
   const datasourcesExist = datasources.length > 0;
@@ -50,7 +50,7 @@ function Sidebar() {
     (suffix) => {
       history.push(
         builderURL({
-          pageId,
+          basePageId,
           suffix,
         }),
         {
@@ -58,7 +58,7 @@ function Sidebar() {
         },
       );
     },
-    [pageId],
+    [basePageId],
   );
 
   return (

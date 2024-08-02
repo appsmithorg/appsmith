@@ -54,6 +54,8 @@ function FormTitle(props: FormTitleProps) {
 
   const hasNameConflict = React.useCallback(
     (name: string) => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const datasourcesNames: Record<string, any> = {};
       datasources
         // in case of REST API and Authenticated GraphQL API, when user clicks on save as datasource
@@ -67,6 +69,8 @@ function FormTitle(props: FormTitleProps) {
             !(
               datasource.name === currentDatasource?.name &&
               ["REST API", "Authenticated GraphQL API"].includes(
+                // TODO: Fix this the next time the file is edited
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 (datasource as any).pluginName,
               ) &&
               datasource.pluginId === currentDatasource?.pluginId

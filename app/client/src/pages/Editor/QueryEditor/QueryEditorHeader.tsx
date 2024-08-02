@@ -9,10 +9,10 @@ import {
   getHasExecuteActionPermission,
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
+import { useActiveActionBaseId } from "@appsmith/pages/Editor/Explorer/hooks";
 import { useSelector } from "react-redux";
 import {
-  getAction,
+  getActionByBaseId,
   getPluginNameFromId,
 } from "@appsmith/selectors/entitiesSelector";
 import { QueryEditorContext } from "./QueryEditorContext";
@@ -62,9 +62,11 @@ const QueryEditorHeader = (props: Props) => {
   } = props;
   const { moreActionsMenu, saveActionName } = useContext(QueryEditorContext);
 
-  const activeActionId = useActiveAction();
+  const activeActionBaseId = useActiveActionBaseId();
   const currentActionConfig = useSelector((state) =>
-    activeActionId ? getAction(state, activeActionId) : undefined,
+    activeActionBaseId
+      ? getActionByBaseId(state, activeActionBaseId)
+      : undefined,
   );
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isChangePermitted = getHasManageActionPermission(

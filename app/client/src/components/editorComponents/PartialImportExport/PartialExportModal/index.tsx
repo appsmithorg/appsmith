@@ -76,6 +76,8 @@ export const PartialExportModal = () => {
   }, [selectedParams]);
 
   const entities = useMemo(() => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const groupedData: Record<string, any> = {};
 
     let currentGroup: unknown = null;
@@ -90,6 +92,8 @@ export const PartialExportModal = () => {
     }
     const jsObjects =
       groupedData["JS Objects"] &&
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       groupedData["JS Objects"].map((item: any) => item.entity);
     delete groupedData["JS Objects"];
 

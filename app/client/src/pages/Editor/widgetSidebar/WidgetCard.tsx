@@ -81,6 +81,8 @@ function WidgetCardComponent({
   onDragStart = noop,
 }: {
   details: WidgetCardProps;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onDragStart?: (e: any) => void;
 }) {
   const type = `${details.type.split("_").join("").toLowerCase()}`;
@@ -110,6 +112,8 @@ function WidgetCard(props: CardProps) {
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const { setDraggingNewWidget } = useWidgetDragResize();
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onDragStart = (e: any) => {
     e.preventDefault();
     e.stopPropagation();
@@ -128,10 +132,13 @@ function WidgetCard(props: CardProps) {
         widgetName: props.details.displayName,
       });
     }
+
     setDraggingNewWidget &&
       setDraggingNewWidget(true, {
         ...props.details,
-        widgetId: generateReactKey(),
+        widgetId: generateReactKey({
+          prefix: props.details.type === "ZONE_WIDGET" ? "zone-" : "component-",
+        }),
       });
   };
 

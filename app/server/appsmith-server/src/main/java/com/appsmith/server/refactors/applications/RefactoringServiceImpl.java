@@ -4,7 +4,6 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
@@ -21,7 +20,6 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
 
     public RefactoringServiceImpl(
             NewPageService newPageService,
-            ResponseUtils responseUtils,
             UpdateLayoutService updateLayoutService,
             ApplicationService applicationService,
             PagePermission pagePermission,
@@ -34,7 +32,6 @@ public class RefactoringServiceImpl extends RefactoringServiceCEImpl implements 
             EntityRefactoringService<Layout> widgetEntityRefactoringService) {
         super(
                 newPageService,
-                responseUtils,
                 updateLayoutService,
                 applicationService,
                 pagePermission,

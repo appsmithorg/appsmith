@@ -104,10 +104,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Modifying
     @Override
     public Optional<Integer> addPageToApplication(
-            String applicationId, String pageId, boolean isDefault, String defaultPageId) {
+            String applicationId, String pageId, boolean isDefault, String basePageId) {
         final ApplicationPage applicationPage = new ApplicationPage();
         applicationPage.setIsDefault(isDefault);
-        applicationPage.setDefaultPageId(defaultPageId);
+        applicationPage.setDefaultPageId(basePageId);
         applicationPage.setId(pageId);
 
         // * Original PG implementation
@@ -161,15 +161,15 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     @Deprecated
-    public Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(
-            String defaultApplicationId, String branchName, AclPermission permission, User currentUser) {
-        return getApplicationByGitBranchAndDefaultApplicationId(
-                defaultApplicationId, null, branchName, permission, currentUser);
+    public Optional<Application> getApplicationByGitBranchAndBaseApplicationId(
+            String baseApplicationId, String branchName, AclPermission permission, User currentUser) {
+        return getApplicationByGitBranchAndBaseApplicationId(
+                baseApplicationId, null, branchName, permission, currentUser);
     }
 
     @Override
-    public Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(
-            String defaultApplicationId,
+    public Optional<Application> getApplicationByGitBranchAndBaseApplicationId(
+            String baseApplicationId,
             List<String> projectionFieldNames,
             String branchName,
             AclPermission permission,
@@ -179,10 +179,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 .criteria(Bridge.or(
                                 Bridge.equal(
                                         Application.Fields.gitApplicationMetadata_defaultApplicationId,
-                                        defaultApplicationId),
+                                        baseApplicationId),
                                 Bridge.equal(
-                                        Application.Fields.gitApplicationMetadata_defaultArtifactId,
-                                        defaultApplicationId))
+                                        Application.Fields.gitApplicationMetadata_defaultArtifactId, baseApplicationId))
                         .equal(Application.Fields.gitApplicationMetadata_branchName, branchName))
                 .fields(projectionFieldNames)
                 .permission(permission, currentUser)
@@ -190,24 +189,12 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(
-            String defaultApplicationId, String branchName, Optional<AclPermission> permission, User currentUser) {
+    public List<Application> getApplicationByGitBaseApplicationId(
+            String baseApplicationId, AclPermission permission, User currentUser) {
 
         return queryBuilder()
-                .criteria(Bridge.equal(
-                                Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId)
-                        .equal(Application.Fields.gitApplicationMetadata_branchName, branchName))
-                .permission(permission.orElse(null), currentUser)
-                .one();
-    }
-
-    @Override
-    public List<Application> getApplicationByGitDefaultApplicationId(
-            String defaultApplicationId, AclPermission permission, User currentUser) {
-
-        return queryBuilder()
-                .criteria(Bridge.equal(
-                        Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId))
+                .criteria(
+                        Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, baseApplicationId))
                 .permission(permission, currentUser)
                 .all();
     }
@@ -235,11 +222,11 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Optional<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId) {
+    public Optional<Application> getApplicationByBaseApplicationIdAndDefaultBranch(String baseApplicationId) {
 
         return queryBuilder()
-                .criteria(Bridge.equal(
-                        Application.Fields.gitApplicationMetadata_defaultApplicationId, defaultApplicationId))
+                .criteria(
+                        Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, baseApplicationId))
                 .one();
     }
 
@@ -351,5 +338,34 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
             }
         }
         return count;
+    }
+
+    @Override
+    public List<String> findBranchedApplicationIdsByBaseApplicationId(String baseApplicationId) {
+
+        final BridgeQuery<Application> q =
+                Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, baseApplicationId);
+
+        return queryBuilder().criteria(q).fields(Application.Fields.id).all().stream()
+                .map(application -> application.getId())
+                .toList();
+    }
+
+    @Override
+    public List<String> findAllBranchedApplicationIdsByBranchedApplicationId(
+            String branchedApplicationId, AclPermission permission, User currentUser) {
+        Optional<Application> branchedApplicationMono = this.findById(branchedApplicationId, permission, currentUser);
+
+        if (branchedApplicationMono.isEmpty()) {
+            return List.of();
+        }
+        Application application = branchedApplicationMono.get();
+        if (application.getGitArtifactMetadata() != null
+                && application.getGitArtifactMetadata().getDefaultArtifactId() != null) {
+            return this.findBranchedApplicationIdsByBaseApplicationId(
+                    application.getGitArtifactMetadata().getDefaultArtifactId());
+        } else {
+            return List.of(application.getId());
+        }
     }
 }

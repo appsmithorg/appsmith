@@ -3,8 +3,8 @@ import React from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import {
-  getCurrentPageId,
   getApplicationLastDeployedAt,
+  getCurrentBasePageId,
 } from "selectors/editorSelectors";
 import {
   createMessage,
@@ -34,7 +34,7 @@ const Container = styled.div`
 `;
 
 export default function DeployPreview(props: { showSuccess: boolean }) {
-  const pageId = useSelector(getCurrentPageId) as string;
+  const basePageId = useSelector(getCurrentBasePageId);
   const lastDeployedAt = useSelector(getApplicationLastDeployedAt);
 
   const showDeployPreview = () => {
@@ -42,7 +42,7 @@ export default function DeployPreview(props: { showSuccess: boolean }) {
       source: "GIT_DEPLOY_MODAL",
     });
     const path = viewerURL({
-      pageId,
+      basePageId,
     });
     window.open(path, "_blank");
   };

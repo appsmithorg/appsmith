@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -25,7 +24,6 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
             ActionCollectionService actionCollectionService,
             NewActionService newActionService,
             AnalyticsService analyticsService,
-            ResponseUtils responseUtils,
             ActionCollectionRepositoryCake actionCollectionRepository,
             PagePermission pagePermission,
             ActionPermission actionPermission) {
@@ -37,7 +35,6 @@ public class LayoutCollectionServiceImpl extends LayoutCollectionServiceCEImpl i
                 actionCollectionService,
                 newActionService,
                 analyticsService,
-                responseUtils,
                 actionCollectionRepository,
                 pagePermission,
                 actionPermission);

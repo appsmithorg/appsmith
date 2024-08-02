@@ -26,6 +26,8 @@ export function WidgetContextMenu(props: {
     return state.ui.pageWidgets[props.pageId].dsl[props.widgetId];
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const parentWidget: any = useSelector((state: AppState) => {
     if (parentId) return state.ui.pageWidgets[props.pageId].dsl[parentId];
     return {};
@@ -83,7 +85,7 @@ export function WidgetContextMenu(props: {
     const option: TreeDropdownOption = {
       value: "rename",
       onSelect: editWidgetName,
-      label: "Edit name",
+      label: "Rename",
     };
     optionTree.push(option);
   }

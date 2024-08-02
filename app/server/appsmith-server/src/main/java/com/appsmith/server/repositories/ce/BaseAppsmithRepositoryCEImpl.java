@@ -162,15 +162,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     @Modifying
     @Transactional
-    public Optional<Integer> updateFieldByDefaultIdAndBranchName(
-            String defaultId,
-            String defaultIdPath,
+    public Optional<Integer> updateFieldByBaseIdAndBranchName(
+            String baseId,
+            String baseIdPath,
             Map<String, Object> fieldNameValueMap,
             String branchName,
             String branchNamePath,
             AclPermission permission,
             User currentUser) {
-        final BridgeQuery<BaseDomain> q = Bridge.equal(defaultIdPath, defaultId);
+        final BridgeQuery<BaseDomain> q = Bridge.equal(baseIdPath, baseId);
 
         if (StringUtils.hasLength(branchName)) {
             q.equal(branchNamePath, branchName);
@@ -181,6 +181,23 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         final int count =
                 queryBuilder().criteria(q).permission(permission, currentUser).updateFirst(update);
+        return Optional.of(count);
+    }
+
+    public Optional<Integer> updateFieldById(
+            String id,
+            String idPath,
+            Map<String, Object> fieldNameValueMap,
+            AclPermission permission,
+            User currentUser) {
+        final BridgeQuery<T> builder = Bridge.equal(idPath, id);
+        BridgeUpdate update = new BridgeUpdate();
+        fieldNameValueMap.forEach(update::set);
+
+        final int count = queryBuilder()
+                .criteria(builder)
+                .permission(permission, currentUser)
+                .updateFirst(update);
         return Optional.of(count);
     }
 

@@ -66,9 +66,13 @@ import { LayoutSystemTypes } from "layoutSystems/types";
  */
 
 export function getSetterConfig(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setterConfig: Record<string, any>,
   widget: FlattenedWidgetProps,
 ) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const modifiedSetterConfig: Record<string, any> = {};
 
   try {
@@ -139,6 +143,8 @@ export function getSetterConfig(
 
         for (const [setterName, setterBody] of entries) {
           //path = primaryColumns.action.isRequired
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const path = (setterBody as any).path.replace(placeHolder, accesskey);
           const setterPathArray = path.split(".");
           setterPathArray.pop();
@@ -171,6 +177,8 @@ const generateDataTreeWidgetWithoutMeta = (
   defaultMetaProps: Record<string, unknown>;
   entityConfig: WidgetEntityConfig;
 } => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const derivedProps: any = {};
   const blockedDerivedProps: Record<string, true> = {};
   const unInitializedDefaultProps: Record<string, undefined> = {};

@@ -185,11 +185,7 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             ExecuteActionDTO executeActionDTO, ExecuteActionMetaDTO executeActionMetaDTO) {
         AclPermission executePermission = getPermission(executeActionMetaDTO, actionPermission.getExecutePermission());
         Mono<NewAction> newActionMono = newActionService
-                .findByBranchNameAndDefaultActionId(
-                        executeActionMetaDTO.getBranchName(),
-                        executeActionDTO.getActionId(),
-                        executeActionDTO.getViewMode(),
-                        executePermission)
+                .findById(executeActionDTO.getActionId(), executePermission)
                 .cache();
 
         Mono<ExecuteActionDTO> populatedExecuteActionDTOMono =
@@ -259,21 +255,15 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
      * Executes the action(queries) by creating executeActionDTO and sending it to the plugin for further execution
      *
      * @param partFlux
-     * @param branchName
      * @param environmentId
      * @return Mono of actionExecutionResult if the query succeeds, error messages otherwise
      */
     @Override
     public Mono<ActionExecutionResult> executeAction(
-            Flux<Part> partFlux,
-            String branchName,
-            String environmentId,
-            HttpHeaders httpHeaders,
-            Boolean operateWithoutPermission) {
+            Flux<Part> partFlux, String environmentId, HttpHeaders httpHeaders, Boolean operateWithoutPermission) {
         ExecuteActionMetaDTO executeActionMetaDTO = ExecuteActionMetaDTO.builder()
                 .headers(httpHeaders)
                 .operateWithoutPermission(operateWithoutPermission)
-                .branchName(branchName)
                 .environmentId(environmentId)
                 .build();
         Mono<ExecuteActionDTO> executeActionDTOMono = createExecuteActionDTO(partFlux);

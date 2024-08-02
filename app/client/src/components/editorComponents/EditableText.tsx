@@ -186,6 +186,8 @@ export function EditableText(props: EditableTextProps) {
     setError(false);
   }, [location.pathname]);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const edit = (e: any) => {
     setIsEditing(true);
     e.preventDefault();

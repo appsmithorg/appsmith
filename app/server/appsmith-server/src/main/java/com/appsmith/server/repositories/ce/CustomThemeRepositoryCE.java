@@ -11,7 +11,7 @@ import java.util.Optional;
 public interface CustomThemeRepositoryCE extends AppsmithRepository<Theme> {
     List<Theme> getApplicationThemes(String applicationId, AclPermission permission, User currentUser);
 
-    List<Theme> getSystemThemes();
+    List<Theme> getSystemThemes(AclPermission permission, User currentUser);
 
     Optional<Theme> getSystemThemeByName(String themeName, AclPermission permission, User currentUser);
 

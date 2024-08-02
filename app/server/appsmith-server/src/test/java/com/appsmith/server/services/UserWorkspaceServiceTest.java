@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.extensions.AfterAllCleanUpExtension;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
@@ -61,6 +62,9 @@ public class UserWorkspaceServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    UserUtils userUtils;
 
     @Autowired
     private UserWorkspaceService userWorkspaceService;
@@ -129,7 +133,7 @@ public class UserWorkspaceServiceTest {
 
         // Add application and workspace to the recently used list by accessing the application pages.
         newPageService
-                .findApplicationPagesByApplicationIdViewModeAndBranch(savedApplication.getId(), null, false, true)
+                .findApplicationPagesByBranchedApplicationIdAndViewMode(savedApplication.getId(), false, true)
                 .block();
 
         Set<String> uniqueUsersInWorkspaceBefore = userWorkspaceService

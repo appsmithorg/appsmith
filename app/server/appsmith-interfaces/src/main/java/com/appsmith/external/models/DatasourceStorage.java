@@ -32,7 +32,7 @@ import static com.appsmith.external.constants.PluginConstants.DEFAULT_REST_DATAS
 @Entity
 @Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
-public class DatasourceStorage extends BaseDomain {
+public class DatasourceStorage extends GitSyncedDomain {
 
     @JsonView(Views.Public.class)
     String datasourceId;
@@ -167,4 +167,6 @@ public class DatasourceStorage extends BaseDomain {
         return (DEFAULT_REST_DATASOURCE.equals(this.name) || DEFAULT_APPSMITH_AI_DATASOURCE.equals(this.name))
                 && !StringUtils.hasText(this.datasourceId);
     }
+
+    public static class Fields extends BaseDomain.Fields {}
 }

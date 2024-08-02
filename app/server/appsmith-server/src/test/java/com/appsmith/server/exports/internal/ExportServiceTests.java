@@ -312,7 +312,8 @@ public class ExportServiceTests {
 
         // Make the application public
         applicationService
-                .changeViewAccess(createdApplication.getId(), applicationAccessDTO)
+                .changeViewAccessForSingleBranchByBranchedApplicationId(
+                        createdApplication.getId(), applicationAccessDTO)
                 .block();
 
         Mono<ApplicationJson> resultMono = exportService
@@ -492,7 +493,7 @@ public class ExportServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService
-                            .createCollection(actionCollectionDTO1, null)
+                            .createCollection(actionCollectionDTO1)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(updateLayoutService.updateLayout(
@@ -781,6 +782,11 @@ public class ExportServiceTests {
                                     .getThemeSetting()
                                     .getIconStyle())
                             .isEqualTo(Application.ThemeSetting.IconStyle.OUTLINED);
+                    assertThat(exportedApp
+                                    .getApplicationDetail()
+                                    .getThemeSetting()
+                                    .getAppMaxWidth())
+                            .isEqualTo(Application.ThemeSetting.AppMaxWidth.LARGE);
 
                     assertThat(exportedApp.getPolicies()).isNull();
                     assertThat(exportedApp.getUserPermissions()).isNull();
@@ -885,13 +891,11 @@ public class ExportServiceTests {
                     final String branchName =
                             application.getGitApplicationMetadata().getBranchName();
                     pageList.forEach(page -> {
-                        assertThat(page.getDefaultResources()).isNotNull();
-                        assertThat(page.getDefaultResources().getBranchName()).isEqualTo(branchName);
+                        assertThat(page.getBranchName()).isEqualTo(branchName);
                     });
 
                     actionList.forEach(action -> {
-                        assertThat(action.getDefaultResources()).isNotNull();
-                        assertThat(action.getDefaultResources().getBranchName()).isEqualTo(branchName);
+                        assertThat(action.getBranchName()).isEqualTo(branchName);
                     });
                 })
                 .verifyComplete();
@@ -951,7 +955,7 @@ public class ExportServiceTests {
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
         Application newApplication = applicationService
-                .changeViewAccess(application.getId(), "master", applicationAccessDTO)
+                .changeViewAccessForAllBranchesByBranchedApplicationId(application.getId(), applicationAccessDTO)
                 .block();
 
         PermissionGroup anonymousPermissionGroup =
@@ -994,6 +998,7 @@ public class ExportServiceTests {
         themeSettings.setFontFamily("#000000");
         themeSettings.setColorMode(Application.ThemeSetting.Type.LIGHT);
         themeSettings.setIconStyle(Application.ThemeSetting.IconStyle.OUTLINED);
+        themeSettings.setAppMaxWidth(Application.ThemeSetting.AppMaxWidth.LARGE);
         return themeSettings;
     }
 
@@ -1019,7 +1024,7 @@ public class ExportServiceTests {
         ApplicationAccessDTO accessDTO = new ApplicationAccessDTO();
         accessDTO.setPublicAccess(true);
         applicationService
-                .changeViewAccess(exportWithConfigurationAppId, accessDTO)
+                .changeViewAccessForSingleBranchByBranchedApplicationId(exportWithConfigurationAppId, accessDTO)
                 .block();
         final String appName = testApplication.getName();
         final Mono<ApplicationJson> resultMono = Mono.zip(
@@ -1086,7 +1091,7 @@ public class ExportServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService
-                            .createCollection(actionCollectionDTO1, null)
+                            .createCollection(actionCollectionDTO1)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(updateLayoutService.updateLayout(
@@ -1314,10 +1319,10 @@ public class ExportServiceTests {
 
         // Set order for the newly created pages
         applicationPageService
-                .reorderPage(testApplication.getId(), testPage1.getId(), 0, null)
+                .reorderPage(testApplication.getId(), testPage1.getId(), 0)
                 .block();
         applicationPageService
-                .reorderPage(testApplication.getId(), testPage2.getId(), 1, null)
+                .reorderPage(testApplication.getId(), testPage2.getId(), 1)
                 .block();
         // Deploy the current application
         applicationPageService.publish(testApplication.getId(), true).block();
@@ -1546,10 +1551,10 @@ public class ExportServiceTests {
 
         // Set order for the newly created pages
         applicationPageService
-                .reorderPage(testApplication.getId(), testPage1.getId(), 0, null)
+                .reorderPage(testApplication.getId(), testPage1.getId(), 0)
                 .block();
         applicationPageService
-                .reorderPage(testApplication.getId(), testPage2.getId(), 1, null)
+                .reorderPage(testApplication.getId(), testPage2.getId(), 1)
                 .block();
 
         Mono<ApplicationJson> applicationJsonMono = exportService
@@ -1686,7 +1691,7 @@ public class ExportServiceTests {
                     ApplicationAccessDTO accessDTO = new ApplicationAccessDTO();
                     accessDTO.setPublicAccess(true);
                     return applicationService
-                            .changeViewAccess(application.getId(), accessDTO)
+                            .changeViewAccessForSingleBranchByBranchedApplicationId(application.getId(), accessDTO)
                             .thenReturn(application);
                 });
 
@@ -1834,7 +1839,7 @@ public class ExportServiceTests {
     public void createExportAppJsonWithCustomJSLibTest() {
         CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
         Mono<Boolean> addJSLibMonoCached = customJSLibService
-                .addJSLibsToContext(testAppId, CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
+                .addJSLibsToContext(testAppId, CreatorContextType.APPLICATION, Set.of(jsLib), false)
                 .flatMap(isJSLibAdded ->
                         Mono.zip(Mono.just(isJSLibAdded), applicationPageService.publish(testAppId, true)))
                 .map(tuple2 -> {
@@ -1907,7 +1912,7 @@ public class ExportServiceTests {
         action1.getActionConfiguration().setBody("mockBody");
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
-        return layoutCollectionService.createCollection(actionCollectionDTO1, null);
+        return layoutCollectionService.createCollection(actionCollectionDTO1);
     }
 
     @Test
