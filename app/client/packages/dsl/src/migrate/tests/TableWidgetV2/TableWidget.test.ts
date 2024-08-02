@@ -7,7 +7,12 @@ import { migrateTableWidgetSelectedRowBindings } from "../../migrations/039-migr
 import { migrateTableWidgetV2ValidationBinding } from "../../migrations/066-migrate-table-widget-v2-validation-binding";
 import { migrateTableWidgetV2SelectOption } from "../../migrations/071-migrate-table-widget-v2-select-option";
 import { migrateTableWidgetTableDataJsMode } from "../../migrations/079-migrate-table-widget-table-data-js-mode";
+import { migrateTableWidgetV2CurrentRowInValidationsBinding } from "../../migrations/089-migrage-table-widget-v2-currentRow-binding";
 import type { DSLWidget } from "../../types";
+import {
+  currentRownInValidationsBindingInput,
+  currentRownInValidationsBindingOutput,
+} from "./DSLs/CurrenRowInValidationsBindingDSLs";
 import {
   isEditableCellInput,
   isEditableCellOutput,
@@ -650,5 +655,15 @@ describe("migrateTableWidgetTableDataJsMode", () => {
     expect(migrateTableWidgetTableDataJsMode(tableV2DataJSModeInput)).toEqual(
       tableV2DataJSModeOutput,
     );
+  });
+});
+
+describe("migrateTableWidgetV2CurrentRowInValidationsBinding", () => {
+  it("should test that tableData js mode is enabled", () => {
+    expect(
+      migrateTableWidgetV2CurrentRowInValidationsBinding(
+        currentRownInValidationsBindingInput,
+      ),
+    ).toEqual(currentRownInValidationsBindingOutput);
   });
 });
