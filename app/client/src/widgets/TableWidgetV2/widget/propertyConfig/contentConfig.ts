@@ -57,6 +57,7 @@ export default [
           isToggleDisabled: boolean,
           triggerFlag?: boolean,
         ) => triggerFlag && isDynamic && !isToggleDisabled,
+        showAutocompleteMenuByDefault: true,
       },
       {
         propertyName: "primaryColumns",

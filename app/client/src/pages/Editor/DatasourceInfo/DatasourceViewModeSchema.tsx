@@ -242,7 +242,8 @@ const DatasourceViewModeSchema = (props: Props) => {
     tableName &&
     canCreateDatasourceActions &&
     canCreatePages &&
-    !isAnvilEnabled;
+    !isAnvilEnabled &&
+    false;
 
   return (
     <ViewModeSchemaContainer>
