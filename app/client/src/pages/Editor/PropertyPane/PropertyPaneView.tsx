@@ -209,6 +209,8 @@ function PropertyPaneView(
    * actions shown on the right of title
    */
   const actions = useMemo((): Array<{
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tooltipContent: any;
     icon: ReactElement;
   }> => {

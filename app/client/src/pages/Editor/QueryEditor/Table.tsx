@@ -15,6 +15,8 @@ import { isArray, uniqueId } from "lodash";
 import type { Theme } from "constants/DefaultTheme";
 
 interface TableProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: Record<string, any>[];
   tableBodyHeight?: number;
   shouldResize?: boolean;
@@ -169,6 +171,8 @@ export const TableWrapper = styled.div<{ minColumnWidth?: number }>`
   }
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const renderCell = (props: any) => {
   const value = props.cell.value;
   let displayValue;
@@ -208,6 +212,8 @@ const renderCell = (props: any) => {
 // The function will return the scrollbar width that needs to be added
 // in the table body width, when scrollbar is shown the width should be > 0,
 // when scrollbar is not shown, width should be 0
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getScrollBarWidth = (tableBodyEle: any, scrollBarW: number) => {
   return !!tableBodyEle && tableBodyEle.scrollHeight > tableBodyEle.clientHeight
     ? scrollBarW
@@ -230,6 +236,8 @@ function Table(props: TableProps) {
 
   const columns = React.useMemo(() => {
     if (data.length) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return Object.keys(data[0]).map((key: any) => {
         const uniqueKey = uniqueId();
         return {
@@ -305,6 +313,8 @@ function Table(props: TableProps) {
           })}
           className="tr"
         >
+          {/* TODO: Fix this the next time the file is edited */}
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {row.cells.map((cell: any, cellIndex: number) => {
             return (
               <div {...cell.getCellProps()} className="td" key={cellIndex}>
@@ -335,6 +345,8 @@ function Table(props: TableProps) {
         <div className="tableWrap">
           <div {...getTableProps()} className="table">
             <div>
+              {/* TODO: Fix this the next time the file is edited */}
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {headerGroups.map((headerGroup: any, index: number) => (
                 <div
                   {...headerGroup.getHeaderGroupProps()}
@@ -342,6 +354,8 @@ function Table(props: TableProps) {
                   key={index}
                 >
                   {headerGroup.headers.map(
+                    // TODO: Fix this the next time the file is edited
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     (column: any, columnIndex: number) => (
                       <div
                         {...column.getHeaderProps()}

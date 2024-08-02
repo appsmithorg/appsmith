@@ -24,6 +24,8 @@ export const setGlobalSearchCategory = (
   payload: category,
 });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const setGlobalSearchFilterContext = (payload: any) => ({
   type: ReduxActionTypes.SET_SEARCH_FILTER_CONTEXT,
   payload,

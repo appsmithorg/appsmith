@@ -47,7 +47,11 @@ export function matchExact(r: RegExp, str: string) {
 
 // Recursive function to generate the evaluation state for form config
 const generateInitialEvalState = (formConfig: FormConfigType) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const conditionals: Record<string, any> = {};
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const conditionTypes: Record<string, any> = {};
   let dependencyPaths: string[] = [];
 
@@ -260,8 +264,12 @@ function generateEvalFormConfigPaths(
 
 function evaluateDynamicValuesConfig(
   actionConfiguration: ActionConfig,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   config: Record<string, any>,
 ) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const evaluatedConfig: Record<string, any> = { ...config };
   const configArray = Object.entries(config);
   if (configArray.length > 0) {

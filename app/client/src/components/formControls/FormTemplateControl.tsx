@@ -41,11 +41,15 @@ export interface FormTemplateControlProps extends ControlProps {
 interface FormTemplateOption {
   label: string;
   value: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     [key: string]: any;
   };
 }
 
 interface ReduxDispatchProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateFormProperty: (formName: string, field: string, value: any) => void;
 }
 
@@ -60,6 +64,8 @@ interface FormTemplatePartialProps {
   isRequired?: boolean;
   name: string;
   disabled?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   customStyles?: any;
   configProperty: string;
   formName: string;
@@ -154,7 +160,11 @@ const mapStateToProps = (
   return { formValues };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): ReduxDispatchProps => ({
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateFormProperty: (formName: string, field: string, value: any) => {
     dispatch(change(formName, field, value));
   },

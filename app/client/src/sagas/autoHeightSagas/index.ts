@@ -20,6 +20,8 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 // Auto height actions must be computed only in FIXED layout
 // We can avoid these types of checks once we change the architecture of layout specific sagas.
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* shouldCallAutoHeight(saga: any, action: ReduxAction<unknown>) {
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
   if (layoutSystemType === LayoutSystemTypes.FIXED) {

@@ -40,6 +40,8 @@ interface GenerateSSHState {
 interface GenerateSSHProps {
   onChange: (args: Partial<GenerateSSHState>) => void;
   value: Partial<GenerateSSHState>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   errorData?: any;
 }
 

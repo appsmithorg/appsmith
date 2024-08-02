@@ -55,6 +55,8 @@ function useUpdateEmbedSnippet() {
     ...application?.embedSetting,
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const areDimensionValuesValid = useCallback((embedSetting: any) => {
     const isHeightValid = regex.test(embedSetting.height);
     const isWidthValid = regex.test(embedSetting.width);
@@ -62,6 +64,8 @@ function useUpdateEmbedSnippet() {
     return isHeightValid && isWidthValid;
   }, []);
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onChange = (setting: any) => {
     if (application) {
       const updatedSetting = { ...embedSetting, ...setting };

@@ -66,10 +66,16 @@ export const IconBox = styled.div`
 `;
 
 interface NameEditorProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   children: (params: any) => JSX.Element;
   id?: string;
   name?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatchAction: (a: any) => any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   suffixErrorMessage?: (params?: any) => string;
   idUndefinedErrorMessage: string;
   saveStatus: { isSaving: boolean; error: boolean };

@@ -98,6 +98,8 @@ function App() {
 }
 
 class ThemedApp extends React.Component<{
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   currentTheme: any;
 }> {
   render() {
@@ -121,6 +123,10 @@ const ThemedAppWithProps = connect(mapStateToProps)(ThemedApp);
 ReactDOM.render(<App />, document.getElementById("root"));
 
 // expose store when run in Cypress
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 if ((window as any).Cypress) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (window as any).store = store;
 }

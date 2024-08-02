@@ -26,6 +26,8 @@ jest.mock("pages/Editor/Explorer/Widgets/WidgetIcon", () => ({
 }));
 
 describe("<PartialExportModal />", () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let store: any;
 
   beforeEach(() => {
@@ -63,6 +65,8 @@ describe("<PartialExportModal />", () => {
     render(<BaseComponentRender />);
     const pageList = defaultAppState.entities.pageList;
     const currentPageName = pageList.pages.find(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (page: any) => page.pageId === pageList.currentPageId,
     )?.pageName;
     expect(screen.getByText(`Export - ${currentPageName}`)).toBeInTheDocument();

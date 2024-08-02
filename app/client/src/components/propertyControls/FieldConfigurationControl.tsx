@@ -278,6 +278,8 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
           items={draggableComponentColumns}
           onEdit={this.onEdit}
           propertyPath={this.props.dataTreePath}
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           renderComponent={(props: any) => {
             const { id, isCustomField } = props.item;
 

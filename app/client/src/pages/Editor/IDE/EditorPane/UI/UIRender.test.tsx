@@ -72,6 +72,8 @@ describe("IDE URL rendering: UI", () => {
     });
 
     const widgetID = "tableWidgetId";
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const children: any = buildChildren([
       {
         type: "TABLE_WIDGET",
@@ -82,6 +84,8 @@ describe("IDE URL rendering: UI", () => {
         widgetId: widgetID,
       },
     ]);
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dsl: any = widgetCanvasFactory.build({
       children,
     });

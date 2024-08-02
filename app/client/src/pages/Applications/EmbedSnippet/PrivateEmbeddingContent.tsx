@@ -23,6 +23,8 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import EnterpriseTag from "components/EnterpriseTag";
 
 function PrivateEmbeddingContent(props: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   userAppPermissions: any[];
   changeTab?: () => void;
   isAppSettings?: boolean;

@@ -7,6 +7,8 @@ import { createMessage, INVALID_URL } from "@appsmith/constants/messages";
 import FormControlRegistry from "utils/formControl/FormControlRegistry";
 import { reduxForm } from "redux-form";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 
 const urlValidator = (value: string) => {
@@ -49,6 +51,8 @@ function renderComponent() {
     );
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Parent = reduxForm<any, any>({
     validate: () => {
       return {};

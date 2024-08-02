@@ -183,7 +183,11 @@ class ImageComponent extends React.Component<
 
     const onClick = (
       event: React.MouseEvent<HTMLElement>,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       zoomIn: any,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       zoomOut: any,
     ) => {
       if (!this.isPanning) {
@@ -225,6 +229,8 @@ class ImageComponent extends React.Component<
           onPanningStop={() => {
             this.props.disableDrag(false);
           }}
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           onZoomChange={(zoom: any) => {
             if (zoomActive) {
               //Check max zoom
@@ -259,6 +265,8 @@ class ImageComponent extends React.Component<
             disabled: !zoomActive,
           }}
         >
+          {/* TODO: Fix this the next time the file is edited */}
+          {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
           {({ zoomIn, zoomOut }: any) => (
             <>
               {this.renderImageControl()}
@@ -347,6 +355,8 @@ class ImageComponent extends React.Component<
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleImageRotate = (rotateRight: boolean) => (e: any) => {
     const { imageRotation } = this.state;
 

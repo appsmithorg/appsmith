@@ -146,6 +146,8 @@ const useDependencyList = (name: string) => {
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function OptionNode(props: any) {
   const getEntityInfo = useGetEntityInfo(props.option.label);
   const entityInfo = getEntityInfo();

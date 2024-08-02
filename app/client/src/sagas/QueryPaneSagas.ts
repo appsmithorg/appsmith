@@ -132,7 +132,11 @@ function* changeQuerySaga(actionPayload: ReduxAction<ChangeQueryPayload>) {
 
   // fetching pluginId and the consequent configs from the action
   const pluginId = action.pluginId;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentEditorConfig: any[] = yield select(getEditorConfig, pluginId);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const currentSettingConfig: any[] = yield select(getSettingConfig, pluginId);
 
   // Update the evaluations when the queryID is changed by changing the

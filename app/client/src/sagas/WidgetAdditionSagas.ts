@@ -62,6 +62,8 @@ export interface GeneratedWidgetPayload {
 }
 
 interface WidgetAddTabChild {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tabs: any;
   widgetId: string;
 }
@@ -236,6 +238,8 @@ export function* generateChildWidgets(
   params: WidgetAddChild,
   widgets: { [widgetId: string]: FlattenedWidgetProps },
   propsBlueprint?: WidgetBlueprint,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   // Get the props for the widget
   const widget = yield getChildWidgetProps(parent, params, widgets);
@@ -482,6 +486,8 @@ function* addNewTabChildSaga(
   const newTabId = generateReactKey({ prefix: "tab" });
   const newTabLabel = getNextEntityName(
     "Tab ",
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tabsArray.map((tab: any) => tab.label),
   );
 
@@ -495,6 +501,8 @@ function* addNewTabChildSaga(
       isVisible: true,
     },
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const newTabProps: any = getChildTabData(tabProps, {
     id: newTabId,
     label: newTabLabel,

@@ -62,6 +62,8 @@ export function* executeActionTriggers(
   trigger: ActionDescription,
   eventType: EventType,
   triggerMeta: TriggerMeta,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any {
   // when called via a promise, a trigger can return some value to be used in .then
   let response: unknown[] = [];
@@ -132,6 +134,8 @@ export function* executeActionTriggers(
 }
 
 // This function gets called when a user clicks on a button on the canvas UI
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* executeAppAction(payload: ExecuteTriggerPayload): any {
   const {
     callbackData,

@@ -42,7 +42,11 @@ const StyledDropDownContainer = styled.div``;
 
 interface ErrorPageHeaderProps {
   user?: User;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   flushErrors?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   flushErrorsAndRedirect?: any;
   safeCrash: boolean;
 }

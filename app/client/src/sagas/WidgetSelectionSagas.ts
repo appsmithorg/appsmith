@@ -251,6 +251,8 @@ function* appendSelectedWidgetToUrlSaga(
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* waitForInitialization(saga: any, action: ReduxAction<unknown>) {
   const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
   const appMode: APP_MODE = yield select(getAppMode);

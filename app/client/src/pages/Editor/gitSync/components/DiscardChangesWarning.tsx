@@ -12,7 +12,8 @@ const Container = styled.div`
 `;
 
 export default function DiscardChangesWarning({
-  onCloseDiscardChangesWarning,
+  onCloseDiscardChangesWarning, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const discardDocUrl =
     "https://docs.appsmith.com/advanced-concepts/version-control-with-git/commit-and-push";

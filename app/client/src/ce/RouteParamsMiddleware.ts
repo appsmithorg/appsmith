@@ -12,6 +12,8 @@ import type {
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import type { Middleware } from "redux";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const handler = (action: ReduxAction<any>) => {
   let appParams: ApplicationURLParams = {};
   let pageParams: PageURLParams[] = [];
@@ -124,6 +126,8 @@ export const handler = (action: ReduxAction<any>) => {
 };
 
 const routeParamsMiddleware: Middleware =
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   () => (next: any) => (action: ReduxAction<any>) => {
     handler(action);
     return next(action);

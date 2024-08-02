@@ -63,7 +63,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, delay, put, select, take } from "redux-saga/effects";
+import { all, call, put, select, take } from "redux-saga/effects";
 import history from "utils/history";
 import { isNameValid } from "utils/helpers";
 import { extractCurrentDSL } from "utils/WidgetPropsUtils";
@@ -79,7 +79,6 @@ import type { ApiResponse } from "api/ApiResponses";
 import {
   combinedPreviewModeSelector,
   getCurrentApplicationId,
-  getCurrentBasePageId,
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
@@ -438,7 +437,8 @@ export function* savePageSaga(action: ReduxAction<{ isRetry?: boolean }>) {
         applicationId: string;
         pageId: string;
         layoutId: string;
-      }
+      } // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     | undefined = yield select(getEditorConfigs) as any;
 
   if (!editorConfigs) return;
@@ -599,6 +599,8 @@ export function getLayoutSavePayload(
   widgets: {
     [widgetId: string]: FlattenedWidgetProps;
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfigs: any,
 ) {
   const nestedDSL = nestDSL(widgets, Object.keys(widgets)[0]);
@@ -698,6 +700,7 @@ export function* createNewPageFromEntity(
     });
   }
 }
+
 export function* createPageSaga(action: ReduxAction<CreatePageActionPayload>) {
   try {
     const layoutSystemType: LayoutSystemTypes =
@@ -961,6 +964,8 @@ export function* updateWidgetNameSaga(
 
     // If we're trying to update the name of a tab in the TABS_WIDGET
     if (tabsObj !== undefined) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const tabs: any = Object.values(tabsObj);
       // Get all canvas widgets
       const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -978,6 +983,8 @@ export function* updateWidgetNameSaga(
       const parent = { ...widgets[parentId] };
       // Update the tabs property of the parent tabs widget
       const tabToChange = tabs.find(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (each: any) => each.widgetId === action.payload.id,
       );
       const updatedTab = {
@@ -1164,6 +1171,8 @@ export function* populatePageDSLsSaga(action?: {
           return call(fetchPageDSLSaga, pageId);
         }
         const { data } = pagesWithMigratedDsl;
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const v1PageDSL = data?.find?.((v: any) => v?.id === pageId);
         return call(fetchPageDSLSaga, pageId, {
           ...pagesWithMigratedDsl,
@@ -1226,6 +1235,8 @@ export function* generateTemplatePageSaga(
     const request: GenerateTemplatePageRequest = action.payload;
     // if pageId is available in request, it will just update that page else it will generate new page.
     const response: ApiResponse<{
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       page: any;
       successImageUrl: string;
       successMessage: string;
@@ -1333,24 +1344,12 @@ export function* setCanvasCardsStateSaga(action: ReduxAction<string>) {
 }
 
 export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
-  const currentBasePageId: string = yield select(getCurrentBasePageId);
   const isPreviewMode: boolean = yield select(combinedPreviewModeSelector);
   if (action.payload) {
     // we animate out elements and then move to the canvas
     yield put(setPreviewModeAction(action.payload));
-    history.push(
-      builderURL({
-        basePageId: currentBasePageId,
-      }),
-    );
   } else if (isPreviewMode) {
     // check if already in edit mode, then only do this
-
-    // when switching back to edit mode
-    // we go back to the previous route e.g query, api etc.
-    history.goBack();
-    // small delay to wait for the content to render and then animate
-    yield delay(10);
     yield put(setPreviewModeAction(action.payload));
   }
 }

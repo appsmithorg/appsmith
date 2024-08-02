@@ -121,7 +121,11 @@ describe("getOriginalRowIndex", () => {
     const newTableData = undefined;
     const selectedRowIndex = 1;
     const result = getOriginalRowIndex(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       oldTableData as any as Array<Record<string, unknown>>,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       newTableData as any as Array<Record<string, unknown>>,
       selectedRowIndex,
     );

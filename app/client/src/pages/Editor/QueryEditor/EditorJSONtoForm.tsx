@@ -155,10 +155,16 @@ interface QueryFormProps {
   actionResponse?: ActionResponse;
   runErrorMessage: string | undefined;
   location: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any;
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editorConfig?: any;
   formName: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   settingConfig: any;
   formData: SaaSAction | QueryAction;
   responseDisplayFormat: { title: string; value: string };

@@ -39,6 +39,8 @@ const Wrapper = styled.div<{
 
 export interface ModalComponentProps {
   isOpen: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClose: (e: any) => void;
   onModalClose?: () => void;
   modalChildrenProps: WidgetProps[];

@@ -496,6 +496,8 @@ export const convertArrayToSentence = (arr: string[]) => {
  */
 export const isNameValid = (
   name: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   invalidNames: Record<string, any>,
 ) => {
   return !(
@@ -513,6 +515,8 @@ export const isNameValid = (
  *
  * @param array any[]
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const removeFalsyEntries = (arr: any[]): any[] => {
   return arr.filter(Boolean);
 };
@@ -524,6 +528,8 @@ export const removeFalsyEntries = (arr: any[]): any[] => {
  * ['Pawan', 'Goku'] -> false
  * { name: "Pawan"} -> false
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isString = (str: any): str is string => {
   return typeof str === "string" || str instanceof String;
 };
@@ -554,6 +560,8 @@ export const playWelcomeAnimation = (container: string) => {
 const playLottieAnimation = (
   selector: string,
   animationURL: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   styles?: any,
 ) => {
   const container: Element = document.querySelector(selector) as Element;
@@ -613,9 +621,15 @@ export const scrollbarWidth = () => {
 // Flatten object
 // From { isValid: false, settings: { color: false}}
 // To { isValid: false, settings.color: false}
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const flattenObject = (data: Record<string, any>) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result: Record<string, any> = {};
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function recurse(cur: any, prop: any) {
     if (Object(cur) !== cur) {
       result[prop] = cur;
@@ -645,6 +659,8 @@ export const flattenObject = (data: Record<string, any>) => {
  * @param newKey
  * @returns
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const renameKeyInObject = (object: any, key: string, newKey: string) => {
   if (object[key]) {
     set(object, newKey, object[key]);
@@ -824,7 +840,11 @@ export function isValidColor(color: string) {
  *  Function to merge property pane config of a widget
  *
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mergeWidgetConfig = (target: any, source: any) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sectionMap: Record<string, any> = {};
   const mergedConfig = clone(target);
 
@@ -832,6 +852,8 @@ export const mergeWidgetConfig = (target: any, source: any) => {
     sectionMap[section.sectionName] = section;
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   source.forEach((section: { sectionName: string; children: any[] }) => {
     const targetSection = sectionMap[section.sectionName];
 
@@ -902,6 +924,8 @@ export function shouldBeDefined<T>(
  *
  * @param value: any
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const isEmptyOrNill = (value: any) => {
   return isNil(value) || (isString(value) && value === "");
 };
@@ -1127,6 +1151,8 @@ export const getSupportedMimeTypes = (media: "video" | "audio") => {
   return supported[0];
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function AutoBind(target: any, _: string, descriptor: any) {
   if (typeof descriptor.value === "function")
     descriptor.value = descriptor.value.bind(target);
