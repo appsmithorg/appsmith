@@ -50,7 +50,7 @@ const PROPERTIES = {
         isBindProperty: true,
         isTriggerProperty: false,
         fullWidth: false,
-        defaultValue:AlignWidgetTypes.LEFT,
+        defaultValue: AlignWidgetTypes.LEFT,
         options: [
           {
             startIcon: "align-left",

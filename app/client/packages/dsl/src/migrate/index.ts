@@ -93,7 +93,7 @@ import { migrateCustomWidgetDynamicHeight } from "./migrations/088-migrate-custo
 import { migrateJsonFormWidgetLabelPositonAndAlignment } from "./migrations/089-migrate-jsonformwidget-labelposition-and-alignment";
 import type { DSLWidget } from "./types";
 
-export const LATEST_DSL_VERSION = 90;
+export const LATEST_DSL_VERSION = 89;
 
 export const calculateDynamicHeight = () => {
   const DEFAULT_GRID_ROW_HEIGHT = 10;

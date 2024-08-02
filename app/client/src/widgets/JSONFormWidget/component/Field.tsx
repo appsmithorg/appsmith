@@ -44,12 +44,12 @@ function Field<TValue>({
   inlineLabel = false,
   isRequiredField,
   label,
+  labelPosition,
   labelStyle,
   labelTextColor,
   labelTextSize,
   name,
   tooltip,
-  labelPosition
 }: FieldProps<TValue>) {
   const refDefaultValue = useRef<TValue>();
   const { setValue } = useFormContext();
@@ -67,7 +67,6 @@ function Field<TValue>({
     }
   }, [defaultValue, setValue]);
 
-
   const direction = inlineLabel ? "row" : "column";
 
   return (
@@ -83,11 +82,11 @@ function Field<TValue>({
           direction={direction}
           isRequiredField={isRequiredField}
           label={label}
+          labelPosition={labelPosition}
           labelStyle={labelStyle}
           labelTextColor={labelTextColor}
           labelTextSize={labelTextSize}
           tooltip={tooltip}
-          labelPosition={labelPosition}
         >
           {children}
         </FieldLabel>
