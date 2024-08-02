@@ -536,7 +536,7 @@ export const getAllPathsBasedOnDiffPaths = (
     if (event === DataTreeDiffEvent.DELETE) {
       delete newResult[payload.propertyPath];
     }
-    if (event === DataTreeDiffEvent.NEW) {
+    if (event === DataTreeDiffEvent.NEW || event === DataTreeDiffEvent.EDIT) {
       const newDataSegments = get(records, payload.propertyPath);
       // directly mutates on the result so we don't have to merge it back to the result
       getAllPaths(newDataSegments, payload.propertyPath, newResult);
