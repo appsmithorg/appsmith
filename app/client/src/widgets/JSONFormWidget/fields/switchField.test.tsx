@@ -93,8 +93,8 @@ const DefaultTestComponent = () => {
             fieldClassName="test-switch-field"
             name="test-switch"
             passedDefaultValue={false}
-            schemaItem={DefaultschemaItem}
             propertyPath={"schema.__root_schema__.children"}
+            schemaItem={DefaultschemaItem}
           />
         </FormProvider>
       </FormContextProvider>
@@ -134,8 +134,8 @@ const TestComponentRight = () => {
             fieldClassName="test-switch-field"
             name="test-switch"
             passedDefaultValue={false}
-            schemaItem={schemaItemRight}
             propertyPath={"schema.__root_schema__.children"}
+            schemaItem={schemaItemRight}
           />
         </FormProvider>
       </FormContextProvider>

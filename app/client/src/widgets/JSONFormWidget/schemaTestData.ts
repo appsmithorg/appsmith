@@ -8,6 +8,7 @@ import {
   FieldType,
   ROOT_SCHEMA_KEY,
 } from "./constants";
+import { LabelPosition } from "components/constants";
 
 export const schemaItemStyles = {
   accentColor:
@@ -181,6 +182,7 @@ const initialDataset = {
           isVisible: true,
           labelTextSize: "0.875rem",
           label: "Boolean",
+          labelPosition: LabelPosition.Left,
           children: {},
           dataType: DataType.BOOLEAN,
           defaultValue:
@@ -375,6 +377,7 @@ const initialDataset = {
                   isVisible: true,
                   labelTextSize: "0.875rem",
                   label: "Boolean",
+                  labelPosition: LabelPosition.Left,
                   children: {},
                   dataType: DataType.BOOLEAN,
                   defaultValue: undefined,
@@ -796,6 +799,7 @@ const withRemovedKeyFromInitialDataset = {
                   dataType: DataType.BOOLEAN,
                   defaultValue: undefined,
                   fieldType: FieldType.SWITCH,
+                  labelPosition: LabelPosition.Left,
                   sourceData: true,
                   isCustomField: false,
                   accessor: "boolean",
@@ -1208,6 +1212,7 @@ const withRemovedAddedKeyToInitialDataset = {
                   isVisible: true,
                   labelTextSize: "0.875rem",
                   label: "Boolean",
+                  labelPosition: LabelPosition.Left,
                   children: {},
                   dataType: DataType.BOOLEAN,
                   defaultValue: undefined,
