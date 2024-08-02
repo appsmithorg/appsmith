@@ -2,7 +2,6 @@ package com.appsmith.server.domains.ce;
 
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.ActionCollectionDTO;
@@ -42,7 +41,6 @@ public class ActionCollectionCE extends BranchAwareDomain {
 
     @Override
     public void sanitiseToExportDBObject() {
-        this.setDefaultResources(null);
         ActionCollectionDTO unpublishedCollection = this.getUnpublishedCollection();
         if (unpublishedCollection != null) {
             unpublishedCollection.sanitiseForExport();
@@ -69,11 +67,7 @@ public class ActionCollectionCE extends BranchAwareDomain {
                 dotted(publishedCollection, ActionCollectionDTO.Fields.contextType);
         public static final String unpublishedCollection_contextType =
                 dotted(unpublishedCollection, ActionCollectionDTO.Fields.contextType);
-
         public static final String unpublishedCollection_deletedAt =
                 dotted(unpublishedCollection, ActionCollectionDTO.Fields.deletedAt);
-
-        public static final String defaultResources_collectionId =
-                dotted(defaultResources, DefaultResources.Fields.collectionId);
     }
 }

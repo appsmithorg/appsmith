@@ -173,9 +173,15 @@ export const mockAppDSProps: Datasource[] = [
         datasourceConfiguration: {
           url: "string",
           connection: {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             mode: "READ_WRITE" as any,
             ssl: {
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               authType: "DEFAULT" as any,
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any,
           },
           authentication: {
@@ -221,9 +227,15 @@ export const mockAppDSProps: Datasource[] = [
         datasourceConfiguration: {
           url: "string",
           connection: {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             mode: "READ_WRITE" as any,
             ssl: {
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               authType: "DEFAULT" as any,
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any,
           },
 
@@ -2429,9 +2441,6 @@ export const defaultAppState = {
                   authType: "SCRAM_SHA_1",
                   username: "mockdb-admin",
                   databaseName: "movies",
-                  hasExpired: {
-                    scanAvailable: true,
-                  },
                 },
                 properties: [
                   {
@@ -2490,9 +2499,6 @@ export const defaultAppState = {
                   authenticationType: "dbAuth",
                   username: "users",
                   databaseName: "users",
-                  hasExpired: {
-                    scanAvailable: true,
-                  },
                 },
               },
               isConfigured: true,
@@ -11216,8 +11222,6 @@ export const defaultAppState = {
     templates: {
       isImportingTemplate: false,
       isImportingTemplateToApp: false,
-      isImportingStarterBuildingBlockToApp: false,
-      starterBuildingBlockDatasourcePrompt: false,
       loadingFilters: false,
       gettingAllTemplates: false,
       gettingTemplate: false,

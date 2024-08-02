@@ -20,6 +20,7 @@ export const defaultsConfig = {
   size: "medium",
   title: "Modal Title",
   showSubmitButton: true,
+  closeOnSubmit: true,
   submitButtonText: "Save Changes",
   cancelButtonText: "Cancel",
   blueprint: {
@@ -33,7 +34,6 @@ export const defaultsConfig = {
           layoutSystemType: LayoutSystemTypes,
         ) => {
           if (layoutSystemType !== LayoutSystemTypes.ANVIL) return [];
-
           const layout: LayoutProps[] = modalPreset();
           return getWidgetBluePrintUpdates({
             [widget.widgetId]: {

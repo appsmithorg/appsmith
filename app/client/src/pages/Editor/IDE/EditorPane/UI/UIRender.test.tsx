@@ -17,6 +17,8 @@ const FeatureFlags = {
   rollout_side_by_side_enabled: true,
 };
 
+const pageId = "0123456789abcdef00000000";
+
 describe("IDE URL rendering: UI", () => {
   it("Empty canvas: Render UI add state", async () => {
     const page = PageFactory.build();
@@ -29,7 +31,7 @@ describe("IDE URL rendering: UI", () => {
         <IDE />
       </Route>,
       {
-        url: "/app/applicationSlug/pageSlug-page_id_1/edit",
+        url: `/app/applicationSlug/pageSlug-${pageId}/edit`,
         featureFlags: FeatureFlags,
         initialState: state,
       },
@@ -49,7 +51,7 @@ describe("IDE URL rendering: UI", () => {
         <IDE />
       </Route>,
       {
-        url: "/app/applicationSlug/pageSlug-page_id_1/edit/widgets",
+        url: `/app/applicationSlug/pageSlug-${pageId}/edit/widgets`,
         featureFlags: FeatureFlags,
         initialState: state,
       },
@@ -70,6 +72,8 @@ describe("IDE URL rendering: UI", () => {
     });
 
     const widgetID = "tableWidgetId";
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const children: any = buildChildren([
       {
         type: "TABLE_WIDGET",
@@ -80,13 +84,15 @@ describe("IDE URL rendering: UI", () => {
         widgetId: widgetID,
       },
     ]);
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
     dsl.bottomRow = 250;
 
     const url =
-      "/app/applicationSlug/pageSlug-page_id_1/edit/widgets/" + widgetID;
+      `/app/applicationSlug/pageSlug-${pageId}/edit/widgets/` + widgetID;
 
     const { getByTestId } = render(
       <Route path={BUILDER_PATH}>
@@ -115,7 +121,7 @@ describe("IDE URL rendering: UI", () => {
         <IDE />
       </Route>,
       {
-        url: "/app/applicationSlug/pageSlug-page_id_1/edit",
+        url: `/app/applicationSlug/pageSlug-${pageId}/edit`,
         featureFlags: FeatureFlags,
         initialState: state,
       },

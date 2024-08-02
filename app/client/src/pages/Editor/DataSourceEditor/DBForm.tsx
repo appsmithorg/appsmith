@@ -59,20 +59,23 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   };
 
   render() {
-    const { formConfig, viewMode } = this.props;
+    const { formConfig, initialized, viewMode } = this.props;
 
     // make sure this redux form has been initialized before rendering anything.
     // the initialized prop below comes from redux-form.
     // The viewMode condition is added to allow the conditons only run on the editMode
-    if (!this.props.initialized && !viewMode) {
+    if (!initialized && !viewMode) {
       return null;
     }
 
     return this.renderDataSourceConfigForm(formConfig);
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderDataSourceConfigForm = (sections: any) => {
-    const { datasourceId, messages, pluginType, viewMode } = this.props;
+    const { datasourceId, hiddenHeader, messages, pluginType, viewMode } =
+      this.props;
 
     return (
       <Form
@@ -89,12 +92,12 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
               </Callout>
             );
           })}
-        {!this.props.hiddenHeader &&
+        {!hiddenHeader &&
           cloudHosting &&
           pluginType === PluginType.DB &&
           !viewMode && (
             <Callout
-              className="mt-4"
+              className="mt-4 select-text"
               kind="info"
               links={[
                 {
@@ -123,6 +126,8 @@ class DatasourceDBEditor extends JSONtoForm<Props> {
   };
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, props: any) => {
   const datasource = state.entities.datasources.list.find(
     (e) => e.id === props.datasourceId,

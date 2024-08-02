@@ -5,10 +5,14 @@ import {
 import type { ISDCodeProps } from "constants/ISDCodes_v2";
 import { ISDCodeOptions } from "constants/ISDCodes_v2";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function validateInput(props: any) {
-  const value = props.text ?? "";
+  const value = props.parsedText ?? "";
   const isInvalid = "isValid" in props && !props.isValid && !!props.isDirty;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const conditionalProps: any = {};
 
   conditionalProps.errorMessage = props.errorMessage;
@@ -18,7 +22,7 @@ export function validateInput(props: any) {
   }
 
   return {
-    validattionStatus: isInvalid ? "invalid" : undefined,
+    validationStatus: isInvalid ? "invalid" : undefined,
     errorMessage: isInvalid ? conditionalProps.errorMessage : undefined,
   } as const;
 }

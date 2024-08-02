@@ -28,6 +28,7 @@ import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiC
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import { UNUSED_ENV_ID } from "constants/EnvironmentContants";
+import { ID_EXTRACTION_REGEX } from "@appsmith/constants/routes/appRoutes";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -49,8 +50,8 @@ export const BLOCKED_ROUTES_REGEX = new RegExp(
 );
 
 export const ENV_ENABLED_ROUTES = [
-  "v1/datasources/[a-z0-9]+/structure",
-  "/v1/datasources/[a-z0-9]+/trigger",
+  `v1/datasources/${ID_EXTRACTION_REGEX}/structure`,
+  `/v1/datasources/${ID_EXTRACTION_REGEX}/trigger`,
   "v1/actions/execute",
   "v1/saas",
 ];
@@ -59,6 +60,8 @@ export const ENV_ENABLED_ROUTES_REGEX = new RegExp(
   `^(${ENV_ENABLED_ROUTES.join("|")})($|/)`,
 );
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const makeExecuteActionResponse = (response: any): ActionExecutionResponse => ({
   ...response.data,
   clientMeta: {
@@ -145,6 +148,8 @@ export const apiSuccessResponseInterceptor = (
 };
 
 // Handle different api failure scenarios
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const apiFailureResponseInterceptor = async (error: any) => {
   // this can be extended to other errors we want to catch.
   // in this case it is 413.

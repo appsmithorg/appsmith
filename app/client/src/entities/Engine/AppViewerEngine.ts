@@ -34,7 +34,8 @@ import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
-
+import type { Span } from "@opentelemetry/api";
+import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {
     super(mode);
@@ -50,16 +51,30 @@ export default class AppViewerEngine extends AppEngine {
     return;
   }
 
-  *completeChore() {
+  *completeChore(rootSpan: Span) {
+    const completeChoreSpan = startNestedSpan(
+      "AppViewerEngine.completeChore",
+      rootSpan,
+    );
+
     yield call(waitForWidgetConfigBuild);
     yield put({
       type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER_SUCCESS,
     });
     yield spawn(reportSWStatus);
+
+    endSpan(completeChoreSpan);
   }
 
-  *setupEngine(payload: AppEnginePayload) {
-    yield call(super.setupEngine.bind(this), payload);
+  *setupEngine(payload: AppEnginePayload, rootSpan: Span) {
+    const viewerSetupSpan = startNestedSpan(
+      "AppViewerEngine.setupEngine",
+      rootSpan,
+    );
+
+    yield call(super.setupEngine.bind(this), payload, rootSpan);
+
+    endSpan(viewerSetupSpan);
   }
 
   startPerformanceTracking() {
@@ -78,7 +93,15 @@ export default class AppViewerEngine extends AppEngine {
     toLoadPageId: string,
     applicationId: string,
     allResponses: DeployConsolidatedApi,
+    rootSpan: Span,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
+    const loadAppEntitiesSpan = startNestedSpan(
+      "AppViewerEngine.loadAppEntities",
+      rootSpan,
+    );
+
     const {
       currentTheme,
       customJSLibraries,
@@ -87,6 +110,8 @@ export default class AppViewerEngine extends AppEngine {
       publishedActions,
       themes,
     } = allResponses;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const initActionsCalls: any = [
       fetchActionsForView({ applicationId, publishedActions }),
       fetchJSCollectionsForView({
@@ -128,9 +153,29 @@ export default class AppViewerEngine extends AppEngine {
         `Unable to fetch actions for the application: ${applicationId}`,
       );
 
+    const waitForUserSpan = startNestedSpan(
+      "AppViewerEngine.waitForFetchUserSuccess",
+      rootSpan,
+    );
     yield call(waitForFetchUserSuccess);
+    endSpan(waitForUserSpan);
+
+    const waitForSegmentSpan = startNestedSpan(
+      "AppViewerEngine.waitForSegmentInit",
+      rootSpan,
+    );
     yield call(waitForSegmentInit, true);
+    endSpan(waitForSegmentSpan);
+
+    const waitForEnvironmentsSpan = startNestedSpan(
+      "AppViewerEngine.waitForFetchEnvironments",
+      rootSpan,
+    );
     yield call(waitForFetchEnvironments);
+    endSpan(waitForEnvironmentsSpan);
+
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+
+    endSpan(loadAppEntitiesSpan);
   }
 }

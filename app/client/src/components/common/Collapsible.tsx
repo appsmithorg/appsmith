@@ -71,6 +71,8 @@ export interface CollapsibleProps {
   expand?: boolean;
   children: ReactNode;
   label: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   CustomLabelComponent?: (props: any) => JSX.Element;
   isDisabled?: boolean;
   datasource?: Partial<Datasource>;

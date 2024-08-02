@@ -5,12 +5,15 @@ import {
   remoteUrlInputValue,
   resetPullMergeStatus,
   fetchBranchesInit,
-  startAutocommitProgressPolling,
+  triggerAutocommitInitAction,
   getGitMetadataInitAction,
 } from "actions/gitSyncActions";
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
-import { fetchAllPageEntityCompletion, setupPage } from "actions/pageActions";
+import {
+  fetchAllPageEntityCompletion,
+  setupPageAction,
+} from "actions/pageActions";
 import {
   executePageLoadActions,
   fetchActions,
@@ -30,7 +33,6 @@ import {
   reportSWStatus,
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
-import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import history from "utils/history";
@@ -66,6 +68,9 @@ import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import type { Span } from "@opentelemetry/api";
+import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {
@@ -87,10 +92,19 @@ export default class AppEditorEngine extends AppEngine {
    * @param AppEnginePayload
    * @returns
    */
-  public *setupEngine(payload: AppEnginePayload): any {
-    yield* super.setupEngine.call(this, payload);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  public *setupEngine(payload: AppEnginePayload, rootSpan: Span): any {
+    const editorSetupSpan = startNestedSpan(
+      "AppEditorEngine.setupEngine",
+      rootSpan,
+    );
+
+    yield* super.setupEngine.call(this, payload, rootSpan);
     yield put(resetEditorSuccess());
     CodemirrorTernService.resetServer();
+
+    endSpan(editorSetupSpan);
   }
 
   public startPerformanceTracking() {
@@ -109,7 +123,13 @@ export default class AppEditorEngine extends AppEngine {
     toLoadPageId: string,
     applicationId: string,
     allResponses: EditConsolidatedApi,
+    rootSpan: Span,
   ) {
+    const loadPageThemesAndActionsSpan = startNestedSpan(
+      "AppEditorEngine.loadPageThemesAndActions",
+      rootSpan,
+    );
+
     const {
       currentTheme,
       customJSLibraries,
@@ -119,7 +139,7 @@ export default class AppEditorEngine extends AppEngine {
       unpublishedActions,
     } = allResponses;
     const initActionsCalls = [
-      setupPage(toLoadPageId, true, pageWithMigratedDsl),
+      setupPageAction(toLoadPageId, true, pageWithMigratedDsl),
       fetchActions({ applicationId, unpublishedActions }, []),
       fetchJSCollections({ applicationId, unpublishedActionCollections }),
       fetchSelectedAppThemeAction(applicationId, currentTheme),
@@ -157,13 +177,39 @@ export default class AppEditorEngine extends AppEngine {
         `Unable to fetch actions for the application: ${applicationId}`,
       );
 
+    const waitForUserSpan = startNestedSpan(
+      "AppEditorEngine.waitForFetchUserSuccess",
+      rootSpan,
+    );
     yield call(waitForFetchUserSuccess);
+    endSpan(waitForUserSpan);
+
+    const waitForSegmentInitSpan = startNestedSpan(
+      "AppEditorEngine.waitForSegmentInit",
+      rootSpan,
+    );
     yield call(waitForSegmentInit, true);
+    endSpan(waitForSegmentInitSpan);
+
+    const waitForFetchEnvironmentsSpan = startNestedSpan(
+      "AppEditorEngine.waitForFetchEnvironments",
+      rootSpan,
+    );
     yield call(waitForFetchEnvironments);
+    endSpan(waitForFetchEnvironmentsSpan);
+
     yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+    endSpan(loadPageThemesAndActionsSpan);
   }
 
-  private *loadPluginsAndDatasources(allResponses: EditConsolidatedApi) {
+  private *loadPluginsAndDatasources(
+    allResponses: EditConsolidatedApi,
+    rootSpan: Span,
+  ) {
+    const loadPluginsAndDatasourcesSpan = startNestedSpan(
+      "AppEditorEngine.loadPluginsAndDatasources",
+      rootSpan,
+    );
     const { mockDatasources, pluginFormConfigs } = allResponses || {};
     const isAirgappedInstance = isAirgapped();
     const currentWorkspaceId: string = yield select(getCurrentWorkspaceId);
@@ -195,6 +241,9 @@ export default class AppEditorEngine extends AppEngine {
       [ReduxActionTypes.FETCH_PLUGIN_FORM_CONFIGS_SUCCESS],
       [ReduxActionErrorTypes.FETCH_PLUGIN_FORM_CONFIGS_ERROR],
     );
+
+    endSpan(loadPluginsAndDatasourcesSpan);
+
     if (!pluginFormCall)
       throw new PluginFormConfigsNotFoundError(
         "Unable to fetch plugin form configs",
@@ -205,17 +254,26 @@ export default class AppEditorEngine extends AppEngine {
     toLoadPageId: string,
     applicationId: string,
     allResponses: EditConsolidatedApi,
+    rootSpan: Span,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
     yield call(
       this.loadPageThemesAndActions,
       toLoadPageId,
       applicationId,
       allResponses,
+      rootSpan,
     );
-    yield call(this.loadPluginsAndDatasources, allResponses);
+    yield call(this.loadPluginsAndDatasources, allResponses, rootSpan);
   }
 
-  public *completeChore() {
+  public *completeChore(rootSpan: Span) {
+    const completeChoreSpan = startNestedSpan(
+      "AppEditorEngine.completeChore",
+      rootSpan,
+    );
+
     const isFirstTimeUserOnboardingComplete: boolean = yield select(
       getFirstTimeUserOnboardingComplete,
     );
@@ -272,9 +330,13 @@ export default class AppEditorEngine extends AppEngine {
     yield put({
       type: ReduxActionTypes.INITIALIZE_EDITOR_SUCCESS,
     });
+
+    endSpan(completeChoreSpan);
   }
 
-  public *loadGit(applicationId: string) {
+  public *loadGit(applicationId: string, rootSpan: Span) {
+    const loadGitSpan = startNestedSpan("AppEditorEngine.loadGit", rootSpan);
+
     const branchInStore: string = yield select(getCurrentGitBranch);
     yield put(
       restoreRecentEntitiesRequest({
@@ -285,10 +347,13 @@ export default class AppEditorEngine extends AppEngine {
     // init of temporary remote url from old application
     yield put(remoteUrlInputValue({ tempRemoteUrl: "" }));
     // add branch query to path and fetch status
+
     if (branchInStore) {
       history.replace(addBranchParam(branchInStore));
       yield fork(this.loadGitInBackground);
     }
+
+    endSpan(loadGitSpan);
   }
 
   private *loadGitInBackground() {
@@ -296,10 +361,8 @@ export default class AppEditorEngine extends AppEngine {
     yield put(fetchGitProtectedBranchesInit());
     yield put(fetchGitProtectedBranchesInit());
     yield put(getGitMetadataInitAction());
-
+    yield put(triggerAutocommitInitAction());
     yield put(fetchGitStatusInit({ compareRemote: true }));
-
-    yield put(startAutocommitProgressPolling());
     yield put(resetPullMergeStatus());
   }
 }

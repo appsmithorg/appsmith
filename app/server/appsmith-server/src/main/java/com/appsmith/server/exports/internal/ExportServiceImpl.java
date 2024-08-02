@@ -7,6 +7,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exports.exportable.ExportableService;
 import com.appsmith.server.exports.internal.artifactbased.ArtifactBasedExportService;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -26,7 +27,8 @@ public class ExportServiceImpl extends ExportServiceCEImpl implements ExportServ
             Gson gson,
             ExportableService<Datasource> datasourceExportableService,
             ExportableService<Plugin> pluginExportableService,
-            ExportableService<CustomJSLib> customJSLibExportableService) {
+            ExportableService<CustomJSLib> customJSLibExportableService,
+            JsonSchemaVersions jsonSchemaVersions) {
         super(
                 sessionUserService,
                 analyticsService,
@@ -35,6 +37,7 @@ public class ExportServiceImpl extends ExportServiceCEImpl implements ExportServ
                 gson,
                 datasourceExportableService,
                 pluginExportableService,
-                customJSLibExportableService);
+                customJSLibExportableService,
+                jsonSchemaVersions);
     }
 }

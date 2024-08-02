@@ -130,6 +130,8 @@ function ApiAuthentication(props: Props): JSX.Element {
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, ownProps: any): ReduxStateProps => {
   const apiFormValueSelector = formValueSelector(ownProps.formName);
   const datasourceFromAction = apiFormValueSelector(state, "datasource");

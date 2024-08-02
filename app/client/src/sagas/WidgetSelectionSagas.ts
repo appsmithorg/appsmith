@@ -36,7 +36,7 @@ import {
   unselectWidget,
 } from "sagas/WidgetSelectUtils";
 import {
-  getCurrentPageId,
+  getCurrentBasePageId,
   getIsEditorInitialized,
   getIsFetchingPage,
   snipingModeSelector,
@@ -67,8 +67,8 @@ import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
   try {
     const {
+      basePageId,
       invokedBy,
-      pageId,
       payload = [],
       selectionRequestType,
     } = action.payload;
@@ -193,7 +193,7 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       appendSelectedWidgetToUrlSaga,
       newSelection,
       selectionRequestType,
-      pageId,
+      basePageId,
       invokedBy,
     );
   } catch (error) {
@@ -211,13 +211,13 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
  * Append Selected widgetId as hash to the url path
  * @param selectedWidgets
  * @param type
- * @param pageId
+ * @param basePageId
  * @param invokedBy
  */
 function* appendSelectedWidgetToUrlSaga(
   selectedWidgets: string[],
   type: SelectionRequestType,
-  pageId?: string,
+  basePageId?: string,
   invokedBy?: NavigationMethod,
 ) {
   const isSnipingMode: boolean = yield select(snipingModeSelector);
@@ -229,17 +229,17 @@ function* appendSelectedWidgetToUrlSaga(
   if (isSnipingMode || viewMode) return;
 
   const { pathname } = window.location;
-  const currentPageId: string = yield select(getCurrentPageId);
+  const currentBasePageId: string = yield select(getCurrentBasePageId);
   const currentURL = pathname;
   const newUrl = selectedWidgets.length
     ? widgetURL({
-        pageId: pageId ?? currentPageId,
+        basePageId: basePageId ?? currentBasePageId,
         persistExistingParams: true,
         add: type === SelectionRequestType.Create,
         selectedWidgets,
       })
     : widgetURL({
-        pageId: pageId ?? currentPageId,
+        basePageId: basePageId ?? currentBasePageId,
         persistExistingParams: true,
         selectedWidgets: [MAIN_CONTAINER_WIDGET_ID],
       });
@@ -251,6 +251,8 @@ function* appendSelectedWidgetToUrlSaga(
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* waitForInitialization(saga: any, action: ReduxAction<unknown>) {
   const isEditorInitialized: boolean = yield select(getIsEditorInitialized);
   const appMode: APP_MODE = yield select(getAppMode);

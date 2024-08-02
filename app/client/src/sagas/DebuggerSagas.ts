@@ -68,6 +68,8 @@ function generateErrorId(error: Log) {
 // Saga to format action request values to be shown in the debugger
 function* formatActionRequestSaga(
   payload: LogActionPayload,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   requestPath?: any,
 ) {
   // If there are no headers or body we don't format anything.

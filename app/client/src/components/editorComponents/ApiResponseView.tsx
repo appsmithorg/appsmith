@@ -142,6 +142,8 @@ export const apiReactJsonProps = { ...reactJsonProps, collapsed: 0 };
 
 export const responseTabComponent = (
   responseType: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   output: any,
   tableBodyHeight?: number,
 ): JSX.Element => {
@@ -203,6 +205,7 @@ export const NoResponse = (props: NoResponseProps) => (
 function ApiResponseView(props: Props) {
   const {
     actionResponse = EMPTY_RESPONSE,
+    apiName,
     currentActionConfig,
     disabled,
     isRunning,
@@ -335,7 +338,7 @@ function ApiResponseView(props: Props) {
       panelComponent: (
         <ResponseTabWrapper>
           <ApiResponseMeta
-            actionName={currentActionConfig?.name}
+            actionName={apiName || currentActionConfig?.name}
             actionResponse={actionResponse}
           />
           {Array.isArray(messages) && messages.length > 0 && (

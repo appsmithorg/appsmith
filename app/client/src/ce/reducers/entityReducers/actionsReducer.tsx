@@ -31,7 +31,7 @@ export interface ActionDataWithMeta extends ActionData {
 export type ActionDataState = ActionData[];
 export interface PartialActionData {
   isLoading: boolean;
-  config: { id: string };
+  config: { id: string; baseId: string };
   data?: ActionResponse;
 }
 
@@ -111,7 +111,11 @@ export const handlers = {
   ) => {
     return draftMetaState.concat([
       {
-        config: { ...action.payload, id: action.payload.name },
+        config: {
+          ...action.payload,
+          baseId: action.payload.name,
+          id: action.payload.name,
+        },
         isLoading: false,
       },
     ]);
@@ -148,6 +152,12 @@ export const handlers = {
         a.config = action.payload.data;
       }
     });
+  },
+  [ReduxActionTypes.APPEND_ACTION_AFTER_BUILDING_BLOCK_DROP]: (
+    draftMetaState: ActionDataState,
+    action: ReduxAction<{ data: Action }>,
+  ) => {
+    return [...draftMetaState, action.payload.data];
   },
   [ReduxActionTypes.UPDATE_ACTION_PROPERTY]: (
     draftMetaState: ActionDataState,
@@ -190,7 +200,7 @@ export const handlers = {
     } else {
       const partialAction: PartialActionData = {
         isLoading: false,
-        config: { id: action.payload.id },
+        config: { id: action.payload.id, baseId: action.payload.baseId },
         data: action.payload.response,
       };
       draftMetaState.push(partialAction);

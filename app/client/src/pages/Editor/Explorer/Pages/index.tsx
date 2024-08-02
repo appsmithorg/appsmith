@@ -7,7 +7,6 @@ import React, {
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  getCurrentApplication,
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
@@ -38,6 +37,7 @@ import {
 } from "../Common/components";
 import { EntityExplorerResizeHandler } from "../Common/EntityExplorerResizeHandler";
 import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 function Pages() {
   const applicationId = useSelector(getCurrentApplicationId);

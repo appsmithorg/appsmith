@@ -1,6 +1,6 @@
 import {
-  entityExplorer,
   agHelper,
+  entityExplorer,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
 
@@ -26,16 +26,14 @@ describe(
     // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
     const SUGGESTED_WIDGETS_ORDER: Record<string, number> = {
       TABLE_WIDGET_V2: 1,
-      JSON_FORM_WIDGET: 2,
-      INPUT_WIDGET_V2: 3,
-      TEXT_WIDGET: 4,
-      SELECT_WIDGET: 5,
-      LIST_WIDGET_V2: 6,
+      INPUT_WIDGET_V2: 2,
+      TEXT_WIDGET: 3,
+      SELECT_WIDGET: 4,
     };
 
     // When adding a new widget or tag, we need to manually add it to this list.
     const WIDGETS_CATALOG: Record<string, string[]> = {
-      Suggested: ["Input", "JSON Form", "List", "Select", "Table", "Text"],
+      Suggested: ["Input", "Select", "Table", "Text"],
       Inputs: [
         "Currency Input",
         "DatePicker",
@@ -70,8 +68,13 @@ describe(
     };
 
     if (Cypress.env("AIRGAPPED")) {
-      // Remove map widget in case of airgap
-      WIDGETS_CATALOG.Content = ["Progress", "Rating", "Text"];
+      // Remove map and custom widget in case of airgap
+      WIDGETS_CATALOG.Content = WIDGETS_CATALOG.Content.filter(
+        (widget) => widget !== "Map",
+      );
+      WIDGETS_CATALOG.Display = WIDGETS_CATALOG.Display.filter(
+        (widget) => widget !== "Custom",
+      );
     }
 
     const getTotalNumberOfWidgets = () => {
@@ -192,8 +195,12 @@ describe(
       agHelper.AssertElementLength(entityExplorer._widgetCards, 2);
 
       agHelper.ClearNType(entityExplorer._widgetSearchInput, "cypress");
-      agHelper.AssertElementLength(entityExplorer._widgetCards, 1);
-      agHelper.AssertElementExist(".t--widget-card-draggable-customwidget");
+      if (Cypress.env("AIRGAPPED")) {
+        agHelper.AssertElementLength(entityExplorer._widgetCards, 0);
+      } else {
+        agHelper.AssertElementLength(entityExplorer._widgetCards, 1);
+        agHelper.AssertElementExist(".t--widget-card-draggable-customwidget");
+      }
 
       agHelper.ClearTextField(entityExplorer._widgetSearchInput);
       // click to show all building blocks

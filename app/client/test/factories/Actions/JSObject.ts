@@ -3,22 +3,26 @@ import type { JSCollection } from "entities/JSCollection";
 import { PluginPackageName, PluginType } from "entities/Action";
 import { PluginIDs } from "test/factories/MockPluginsState";
 
+const pageId = "0123456789abcdef00000000";
 export const JSObjectFactory = Factory.Sync.makeFactory<JSCollection>({
   id: "js_id",
+  baseId: "js_base_id",
   workspaceId: "workspaceId",
   applicationId: "appId",
   name: Factory.each((i) => `JSObject${i + 1}`),
-  pageId: "5ff4735253b64c03e830009b",
+  pageId: pageId,
   pluginId: PluginIDs[PluginPackageName.JS],
   pluginType: PluginType.JS,
   actions: [
     {
       id: "myFunc1_id",
+      baseId: "myFunc1_base_id",
       workspaceId: "workspaceId",
+      applicationId: "applicationId",
       pluginId: PluginIDs[PluginPackageName.JS],
       name: "myFun1",
       fullyQualifiedName: "JSObject1.myFun1",
-      pageId: "page_id",
+      pageId: pageId,
       collectionId: "js_id",
       actionConfiguration: {
         timeoutInMillisecond: 10000,
@@ -49,11 +53,13 @@ export const JSObjectFactory = Factory.Sync.makeFactory<JSCollection>({
     },
     {
       id: "myFunc2_id",
+      baseId: "myFunc2_base_id",
       workspaceId: "workspaceId",
+      applicationId: "applicationId",
       pluginId: "613a26d921750e4b557a9241",
       name: "myFun2",
       fullyQualifiedName: "JSObject1.myFun2",
-      pageId: "5ff4735253b64c03e830009b",
+      pageId: pageId,
       collectionId: "660261174b59877d57fc3670",
       actionConfiguration: {
         timeoutInMillisecond: 10000,

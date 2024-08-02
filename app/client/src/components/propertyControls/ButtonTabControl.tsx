@@ -91,6 +91,8 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
     return "BUTTON_GROUP";
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     const allowedValues = new Set(
       (config as ButtonTabControlProps)?.options?.map(

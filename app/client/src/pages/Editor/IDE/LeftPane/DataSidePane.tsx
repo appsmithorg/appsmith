@@ -3,7 +3,6 @@ import styled from "styled-components";
 import { Flex, List, Text } from "design-system";
 import { useSelector } from "react-redux";
 import {
-  getCurrentPageId,
   getDatasourceUsageCountForApp,
   getDatasources,
   getDatasourcesGroupedByPluginCategory,
@@ -33,10 +32,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { EmptyState } from "../EditorPane/components/EmptyState";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-
-const PaneContainer = styled.div`
-  width: 300px;
-`;
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 
 const PaneBody = styled.div`
   padding: var(--ads-v2-spaces-3) 0;
@@ -55,13 +51,15 @@ const StyledList = styled(List)`
 `;
 
 interface DataSidePaneProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dsUsageSelector?: (...args: any[]) => Record<string, string>;
 }
 
 const DataSidePane = (props: DataSidePaneProps) => {
   const { dsUsageSelector = getDatasourceUsageCountForApp } = props;
   const editorType = useEditorType(history.location.pathname);
-  const pageId = useSelector(getCurrentPageId) as string;
+  const basePageId = useSelector(getCurrentBasePageId) as string;
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
     string | undefined
   >("");
@@ -93,13 +91,18 @@ const DataSidePane = (props: DataSidePaneProps) => {
   const addButtonClickHandler = () =>
     history.push(
       integrationEditorURL({
-        pageId: pageId,
+        basePageId,
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
 
   return (
-    <PaneContainer>
+    <Flex
+      borderRight="1px solid var(--ads-v2-color-border)"
+      flexDirection="column"
+      height="100%"
+      width="300px"
+    >
       <PaneHeader
         rightIcon={
           canCreateDatasource && datasources.length !== 0 ? (
@@ -155,7 +158,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
           ))}
         </Flex>
       </PaneBody>
-    </PaneContainer>
+    </Flex>
   );
 };
 

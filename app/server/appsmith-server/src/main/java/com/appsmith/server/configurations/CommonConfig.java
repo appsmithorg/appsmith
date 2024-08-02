@@ -1,5 +1,6 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.server.helpers.LoadShifter;
 import com.appsmith.util.JSONPrettyPrinter;
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.PrettyPrinter;
@@ -12,13 +13,13 @@ import jakarta.validation.ValidatorFactory;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.util.StringUtils;
 import reactor.core.scheduler.Scheduler;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -33,7 +34,6 @@ import java.util.Set;
 @Configuration
 public class CommonConfig {
 
-    private static final String ELASTIC_THREAD_POOL_NAME = "appsmith-elastic-pool";
     public static final Integer LATEST_INSTANCE_SCHEMA_VERSION = 2;
 
     @Setter(AccessLevel.NONE)
@@ -73,12 +73,11 @@ public class CommonConfig {
 
     private static final String MIN_SUPPORTED_MONGODB_VERSION = "5.0.0";
 
+    private static String adminEmailDomainHash;
+
     @Bean
-    public Scheduler scheduler() {
-        return Schedulers.newBoundedElastic(
-                Schedulers.DEFAULT_BOUNDED_ELASTIC_SIZE,
-                Schedulers.DEFAULT_BOUNDED_ELASTIC_QUEUESIZE,
-                ELASTIC_THREAD_POOL_NAME);
+    public Scheduler elasticScheduler() {
+        return LoadShifter.elasticScheduler;
     }
 
     @Bean
@@ -141,5 +140,19 @@ public class CommonConfig {
 
     public Long getCurrentTimeInstantEpochMilli() {
         return Instant.now().toEpochMilli();
+    }
+
+    public String getAdminEmailDomainHash() {
+        if (StringUtils.hasLength(adminEmailDomainHash)) {
+            return adminEmailDomainHash;
+        }
+        adminEmailDomainHash = this.adminEmails.stream()
+                .map(email -> email.split("@"))
+                .filter(emailParts -> emailParts.length == 2)
+                .findFirst()
+                .map(email -> email[1])
+                .map(DigestUtils::sha256Hex)
+                .orElse("");
+        return adminEmailDomainHash;
     }
 }

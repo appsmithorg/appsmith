@@ -116,6 +116,8 @@ export const updateJSCollectionInUnEvalTree = (
 
         oldConfig.dynamicBindingPathList =
           oldConfig.dynamicBindingPathList.filter(
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (path: any) => path["key"] !== oldActionName,
           );
 
@@ -123,6 +125,8 @@ export const updateJSCollectionInUnEvalTree = (
         const removeIndex = dependencyMap.indexOf(oldActionName);
         if (removeIndex > -1) {
           oldConfig.dependencyMap["body"] = dependencyMap.filter(
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (item: any) => item !== oldActionName,
           );
         }
@@ -176,6 +180,8 @@ export const updateJSCollectionInUnEvalTree = (
 
         oldConfig.dynamicBindingPathList =
           oldConfig.dynamicBindingPathList.filter(
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (path: any) => path["key"] !== varListItem,
           );
 
@@ -232,10 +238,14 @@ export const removeFunctionsAndVariableJSCollection = (
     unset(modifiedDataTree[entityName], actionName);
 
     oldConfig.dynamicBindingPathList = oldConfig.dynamicBindingPathList.filter(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (path: any) => path["key"] !== actionName,
     );
 
     oldConfig.dependencyMap["body"] = entity.dependencyMap["body"].filter(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (item: any) => item !== actionName,
     );
   }
@@ -271,6 +281,8 @@ export function isJSObjectVariable(
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function isPromise(value: any): value is Promise<unknown> {
   return Boolean(value && typeof value.then === "function");
 }

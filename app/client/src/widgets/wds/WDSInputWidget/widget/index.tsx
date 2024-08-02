@@ -15,6 +15,8 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 
 class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
+  static type = "WDS_INPUT_WIDGET";
+
   static getConfig() {
     return config.metaConfig;
   }
@@ -54,6 +56,8 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     });
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
       rawText: "",
@@ -83,6 +87,8 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   }
 
   onFocusChange = (focusState: boolean) => {
+    if (this.props.isReadOnly) return;
+
     if (focusState) {
       this.props.updateWidgetMetaProperty("isFocused", focusState, {
         triggerPropertyName: "onFocus",
@@ -202,6 +208,16 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
     );
   };
 
+  onPaste = (e: React.ClipboardEvent<HTMLInputElement>) => {
+    if (this.props.inputType === INPUT_TYPES.NUMBER) {
+      const pastedValue = e.clipboardData.getData("text");
+
+      if (isNaN(Number(pastedValue))) {
+        e.preventDefault();
+      }
+    }
+  };
+
   getWidgetView() {
     const { inputType, rawText } = this.props;
 
@@ -214,6 +230,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         autoFocus={this.props.autoFocus}
         defaultValue={this.props.defaultText}
         errorMessage={errorMessage}
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         iconAlign={this.props.iconAlign}
         iconName={this.props.iconName}
         inputType={inputType}
@@ -227,6 +244,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
         minNum={this.props.minNum}
         onFocusChange={this.onFocusChange}
         onKeyDown={this.onKeyDown}
+        onPaste={this.onPaste}
         onValueChange={this.onValueChange}
         placeholder={this.props.placeholderText}
         spellCheck={this.props.isSpellCheck}
@@ -237,8 +255,6 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
       />
     );
   }
-
-  static type = "WDS_INPUT_WIDGET";
 }
 
 export { WDSInputWidget };

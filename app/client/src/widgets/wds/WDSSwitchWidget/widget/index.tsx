@@ -61,6 +61,8 @@ class WDSSwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       isSwitchedOn: undefined,
@@ -94,13 +96,14 @@ class WDSSwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   getWidgetView() {
     return (
       <Switch
+        excludeFromTabOrder={this.props.disableWidgetInteraction}
         id={this.props.widgetId}
         isDisabled={this.props.isDisabled}
-        isSelected={!!this.props.isSwitchedOn}
+        isInvalid={this.props.isValid === "invalid"}
+        isSelected={this.props.isSwitchedOn}
         key={this.props.widgetId}
         labelPosition={this.props.labelPosition}
         onChange={this.onChange}
-        validationState={this.props.isValid ? "valid" : "invalid"}
       >
         {this.props.label}
       </Switch>

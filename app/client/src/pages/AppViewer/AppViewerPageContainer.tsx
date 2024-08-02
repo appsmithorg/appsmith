@@ -53,7 +53,7 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
           Please add widgets to this page in the&nbsp;
           <Link
             to={builderURL({
-              pageId: props.match.params.pageId as string,
+              basePageId: props.match.params.basePageId as string,
             })}
           >
             Appsmith Editor
@@ -94,8 +94,8 @@ function AppViewerPageContainer(props: AppViewerPageContainerProps) {
     <Section>
       <AppPage
         appName={currentApplication?.name}
+        basePageId={match.params.basePageId}
         canvasWidth={canvasWidth}
-        pageId={match.params.pageId}
         pageName={currentPageName}
         widgetsStructure={widgetsStructure}
       />

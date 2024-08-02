@@ -1,6 +1,8 @@
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 export class WorkerEnv {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static flags: any;
   static cloudHosting: boolean;
 

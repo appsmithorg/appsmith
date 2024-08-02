@@ -8,7 +8,16 @@ import postcssEach from "postcss-each";
 import postcssModulesValues from "postcss-modules-values";
 
 export default defineConfig({
-  plugins: [react(), svgr()],
+  plugins: [
+    react(),
+    svgr({
+      svgrOptions: {
+        exportType: "named",
+        ref: true,
+      },
+      include: "**/*.svg",
+    }),
+  ],
   css: {
     postcss: {
       plugins: [

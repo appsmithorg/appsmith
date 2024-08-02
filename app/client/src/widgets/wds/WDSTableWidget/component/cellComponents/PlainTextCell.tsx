@@ -5,6 +5,8 @@ import { Text } from "@design-system/widgets";
 import type { BaseCellComponentProps } from "../Constants";
 
 export interface PlainTextCellProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   cellColor?: "default" | keyof typeof COLORS;
   isBold?: boolean;

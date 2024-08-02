@@ -87,30 +87,6 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.updateExecute(this, update);
     }
 
-    public Mono<T> updateFirstAndFind(@NonNull UpdateDefinition update) {
-        scope = Scope.FIRST;
-        return repo.updateExecuteAndFind(this, update);
-    }
-
-    @Deprecated(forRemoval = true)
-    public QueryAllParams<T> criteria(Criteria... criteria) {
-        if (criteria == null) {
-            return this;
-        }
-        return criteria(List.of(criteria));
-    }
-
-    @Deprecated(forRemoval = true)
-    public QueryAllParams<T> criteria(List<Criteria> criteria) {
-        if (criteria == null) {
-            return this;
-        }
-        for (Criteria c : criteria) {
-            criteria(c);
-        }
-        return this;
-    }
-
     public QueryAllParams<T> criteria(Criteria c) {
         if (c == null) {
             return this;

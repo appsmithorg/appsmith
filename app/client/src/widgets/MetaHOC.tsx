@@ -180,6 +180,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       if (!this.batchMetaUpdates || !this.batchMetaUpdates.length) return;
 
       const metaUpdates = this.batchMetaUpdates.reduce(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (acc: any, { propertyName, propertyValue }) => {
           acc[propertyName] = propertyValue;
           return acc;
@@ -227,6 +229,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       if (syncBatchUpdateWidgetMetaProperties) {
         const metaOptions = this.props.__metaOptions;
         const consolidatedUpdates = batchMetaUpdates.reduce(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (acc: any, { propertyName, propertyValue }) => {
             acc.push({ widgetId, propertyName, propertyValue });
             if (metaOptions) {

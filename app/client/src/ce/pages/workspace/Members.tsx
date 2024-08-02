@@ -236,6 +236,8 @@ export default function MemberSettings(props: PageProps) {
     onOpenConfirmationModal();
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onDeleteMember = (data?: any) => {
     if (!userToBeDeleted && !data) return null;
     dispatch(
@@ -327,6 +329,8 @@ export default function MemberSettings(props: PageProps) {
         MEMBERS_TAB_TITLE(filteredData?.length, !isGACEnabled),
       ),
       accessor: "users",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: function UserCell(props: any) {
         const member = props.cell.row.original;
         return (
@@ -352,6 +356,8 @@ export default function MemberSettings(props: PageProps) {
     {
       Header: "Resource",
       accessor: "resource",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: function ResourceCell(cellProps: any) {
         return (
           <RowWrapper>
@@ -366,11 +372,15 @@ export default function MemberSettings(props: PageProps) {
     {
       Header: "Role",
       accessor: "permissionGroupName",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: function DropdownCell(cellProps: any) {
         const data = cellProps.cell.row.original;
         const allRoles = useSelector(getAllRoles);
         const roles = allRoles
-          ? allRoles.map((role: any) => {
+          ? // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            allRoles.map((role: any) => {
               return {
                 key: role.id,
                 value: role.name?.split(" - ")[0],
@@ -400,6 +410,8 @@ export default function MemberSettings(props: PageProps) {
               roleChangingUserInfo.username === data.username
             }
             listHeight={400}
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             onSelect={(_value: string, option: any) => {
               dispatch(
                 changeWorkspaceUserRole(workspaceId, option.key, data.username),
@@ -435,6 +447,8 @@ export default function MemberSettings(props: PageProps) {
     {
       Header: "Actions",
       accessor: "actions",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Cell: function DeleteCell(cellProps: any) {
         return (
           <Button
@@ -462,7 +476,9 @@ export default function MemberSettings(props: PageProps) {
   ];
   const isMobile: boolean = useMediaQuery({ maxWidth: 767 });
   const roles = allRoles
-    ? allRoles.map((role: any) => {
+    ? // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      allRoles.map((role: any) => {
         return {
           key: role.id,
           value: role.name?.split(" - ")[0],
@@ -471,6 +487,8 @@ export default function MemberSettings(props: PageProps) {
       })
     : [];
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const selectRole = (option: any, username: any) => {
     dispatch(changeWorkspaceUserRole(workspaceId, option, username));
   };
@@ -500,6 +518,8 @@ export default function MemberSettings(props: PageProps) {
             {filteredData.map((member, index) => {
               const role =
                 roles.find(
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   (role: any) =>
                     role.value === member.permissionGroupName.split(" - ")[0],
                 ) || roles[0];
@@ -547,6 +567,8 @@ export default function MemberSettings(props: PageProps) {
                         roleChangingUserInfo &&
                         roleChangingUserInfo.username === member.username
                       }
+                      // TODO: Fix this the next time the file is edited
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
                       onSelect={(_value: string, option: any) => {
                         selectRole(option.key, member.username);
                       }}

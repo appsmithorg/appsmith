@@ -7,10 +7,8 @@ import {
   getIsAppSettingsPaneWithNavigationTabOpen,
 } from "selectors/appSettingsPaneSelectors";
 import { useSelector } from "react-redux";
-import {
-  combinedPreviewModeSelector,
-  getCurrentApplication,
-} from "selectors/editorSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 
 /**
  * useNavigationPreviewHeight

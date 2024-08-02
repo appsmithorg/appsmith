@@ -9,11 +9,8 @@ import homePage from "../../../../locators/HomePage";
 import {
   agHelper,
   homePage as homePageHelpers,
+  table,
 } from "../../../../support/Objects/ObjectsCore";
-import {
-  createMessage,
-  IMPORT_APP_SUCCESSFUL,
-} from "../../../../../src/ce/constants/messages";
 
 describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
   it("1. Import application and Validate Migration on pageload", function () {
@@ -32,7 +29,7 @@ describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
     cy.wait("@importNewApplication").then(() => {
       cy.get(homePage.toastMessage).should(
         "contain",
-        createMessage(IMPORT_APP_SUCCESSFUL),
+        Cypress.env("MESSAGES").IMPORT_APP_SUCCESSFUL(),
       );
 
       //Renaming imported app!
@@ -123,7 +120,7 @@ describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
       });
 
       //Card Number mapping to text widget!
-      cy.isSelectRow(2);
+      table.SelectTableRow(2);
       cy.wait(2500); //time for table row select to reflect!
       cy.readTabledataPublish("2", "0").then((cardNumber) => {
         cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
@@ -210,7 +207,7 @@ describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
         interval: 2000,
       }).then(() => cy.wait(1000)); //wait for page load!
 
-      cy.isSelectRow(2); //as aft refresh row selection is also gone
+      table.SelectTableRow(2);
       cy.getTableDataSelector("2", "18").then((selector) => {
         cy.get(selector + " button")
           .click()

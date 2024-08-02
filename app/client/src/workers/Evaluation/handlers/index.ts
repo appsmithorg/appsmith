@@ -22,13 +22,17 @@ import setupEvaluationEnvironment, {
 import validateProperty from "./validateProperty";
 import updateActionData from "./updateActionData";
 import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
+import { evalTreeWithChanges } from "../evalTreeWithChanges";
 
 const syncHandlerMap: Record<
   EVAL_WORKER_SYNC_ACTION,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (req: EvalWorkerSyncRequest) => any
 > = {
   [EVAL_WORKER_ACTIONS.EVAL_ACTION_BINDINGS]: evalActionBindings,
   [EVAL_WORKER_ACTIONS.EVAL_TREE]: evalTree,
+  [EVAL_WORKER_ACTIONS.EVAL_TREE_WITH_CHANGES]: evalTreeWithChanges,
   [EVAL_WORKER_ACTIONS.UNDO]: undo,
   [EVAL_WORKER_ACTIONS.REDO]: redo,
   [EVAL_WORKER_ACTIONS.UPDATE_REPLAY_OBJECT]: updateReplayObject,
@@ -44,6 +48,8 @@ const syncHandlerMap: Record<
 
 const asyncHandlerMap: Record<
   EVAL_WORKER_ASYNC_ACTION,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (req: EvalWorkerASyncRequest) => any
 > = {
   [EVAL_WORKER_ACTIONS.EVAL_TRIGGER]: evalTrigger,

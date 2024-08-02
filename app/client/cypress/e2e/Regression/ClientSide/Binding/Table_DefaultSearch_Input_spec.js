@@ -29,7 +29,8 @@ describe(
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       cy.testJsontext("defaultsearchtext", "2736212");
 
-      cy.wait("@updateLayout").isSelectRow(0);
+      cy.wait("@updateLayout");
+      _.table.SelectTableRow(0);
       cy.readTabledataPublish("0", "0").then((tabData) => {
         const tabValue = tabData;
         expect(tabValue).to.be.equal("2736212");

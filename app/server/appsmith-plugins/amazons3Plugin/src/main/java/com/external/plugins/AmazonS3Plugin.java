@@ -103,8 +103,10 @@ import static com.external.plugins.constants.S3PluginConstants.ACCESS_DENIED_ERR
 import static com.external.plugins.constants.S3PluginConstants.AWS_S3_SERVICE_PROVIDER;
 import static com.external.plugins.constants.S3PluginConstants.BASE64_DELIMITER;
 import static com.external.plugins.constants.S3PluginConstants.CUSTOM_ENDPOINT_INDEX;
+import static com.external.plugins.constants.S3PluginConstants.DEFAULT_BUCKET_PROPERTY_INDEX;
 import static com.external.plugins.constants.S3PluginConstants.DEFAULT_FILE_NAME;
 import static com.external.plugins.constants.S3PluginConstants.DEFAULT_URL_EXPIRY_IN_MINUTES;
+import static com.external.plugins.constants.S3PluginConstants.GOOGLE_CLOUD_SERVICE_PROVIDER;
 import static com.external.plugins.constants.S3PluginConstants.NO;
 import static com.external.plugins.constants.S3PluginConstants.S3_DRIVER;
 import static com.external.plugins.constants.S3PluginConstants.S3_SERVICE_PROVIDER_PROPERTY_INDEX;
@@ -769,7 +771,12 @@ public class AmazonS3Plugin extends BasePlugin {
                                 requestParams.add(
                                         new RequestParamDTO(ACTION_CONFIGURATION_PATH, path, null, null, null));
 
-                                deleteMultipleObjects(connection, bucketName, path);
+                                List<Property> properties = datasourceConfiguration.getProperties();
+                                String s3Provider = (String) properties
+                                        .get(S3_SERVICE_PROVIDER_PROPERTY_INDEX)
+                                        .getValue();
+
+                                deleteMultipleObjects(s3Provider, connection, bucketName, path);
                                 actionResult = Map.of("status", "All files deleted successfully");
                                 break;
                                 /**
@@ -828,7 +835,7 @@ public class AmazonS3Plugin extends BasePlugin {
                     .subscribeOn(scheduler);
         }
 
-        private void deleteMultipleObjects(AmazonS3 connection, String bucketName, String path)
+        private void deleteMultipleObjects(String s3Provider, AmazonS3 connection, String bucketName, String path)
                 throws AppsmithPluginException {
             List<String> listOfFiles;
             try {
@@ -842,7 +849,13 @@ public class AmazonS3Plugin extends BasePlugin {
 
             DeleteObjectsRequest deleteObjectsRequest = getDeleteObjectsRequest(bucketName, listOfFiles);
             try {
-                connection.deleteObjects(deleteObjectsRequest);
+                if (GOOGLE_CLOUD_SERVICE_PROVIDER.equals(s3Provider)) {
+                    for (String filePath : listOfFiles) {
+                        connection.deleteObject(bucketName, filePath);
+                    }
+                } else {
+                    connection.deleteObjects(deleteObjectsRequest);
+                }
             } catch (SdkClientException e) {
                 throw new AppsmithPluginException(
                         S3PluginError.AMAZON_S3_QUERY_EXECUTION_FAILED,
@@ -948,36 +961,97 @@ public class AmazonS3Plugin extends BasePlugin {
                 invalids.add(S3ErrorMessages.DS_MANDATORY_PARAMETER_ENDPOINT_URL_MISSING_ERROR_MSG);
             }
 
+            if (datasourceConfiguration != null) {
+                String serviceProvider = (String)
+                        properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue();
+                if (GOOGLE_CLOUD_SERVICE_PROVIDER.equals(serviceProvider)) {
+                    String defaultBucket = (String)
+                            properties.get(DEFAULT_BUCKET_PROPERTY_INDEX).getValue();
+                    if (StringUtils.isNullOrEmpty(defaultBucket)) {
+                        invalids.add(S3ErrorMessages.DS_MANDATORY_PARAMETER_DEFAULT_BUCKET_MISSING_ERROR_MSG);
+                    }
+                }
+            }
+
             return invalids;
         }
 
         @Override
-        public Mono<DatasourceTestResult> testDatasource(AmazonS3 connection) {
-            return Mono.fromCallable(() -> {
-                        /*
-                         * - Please note that as of 28 Jan 2021, the way AmazonS3 client works, creating a connection
-                         *   object with wrong credentials does not throw any exception.
-                         * - Hence, adding a listBuckets() method call to test the connection.
-                         */
-                        connection.listBuckets();
-                        return new DatasourceTestResult();
-                    })
-                    .onErrorResume(error -> {
-                        if (error instanceof AmazonS3Exception
-                                && ACCESS_DENIED_ERROR_CODE.equals(((AmazonS3Exception) error).getErrorCode())) {
-                            /**
-                             * Sometimes a valid account credential may not have permission to run listBuckets action
-                             * . In this case `AccessDenied` error is returned.
-                             * That fact that the credentials caused `AccessDenied` error instead of invalid access key
-                             * id or signature mismatch error means that the credentials are valid, we are able to
-                             * establish a connection as well, but the account does not have permission to run
-                             * listBuckets.
-                             */
-                            return Mono.just(new DatasourceTestResult());
-                        }
+        public Mono<DatasourceTestResult> testDatasource(DatasourceConfiguration datasourceConfiguration) {
+            if (datasourceConfiguration == null) {
+                return Mono.just(new DatasourceTestResult(
+                        S3ErrorMessages.DS_AT_LEAST_ONE_MANDATORY_PARAMETER_MISSING_ERROR_MSG));
+            }
 
-                        return Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error)));
-                    });
+            List<Property> properties = datasourceConfiguration.getProperties();
+            String s3Provider =
+                    (String) properties.get(S3_SERVICE_PROVIDER_PROPERTY_INDEX).getValue();
+
+            // Handle Google Cloud Storage in a separate method if necessary
+            if (GOOGLE_CLOUD_SERVICE_PROVIDER.equals(s3Provider)) {
+                return testGoogleCloudStorage(datasourceConfiguration);
+            }
+
+            // For Amazon S3 or other providers, perform a standard test by listing buckets in Amazon S3
+            return datasourceCreate(datasourceConfiguration)
+                    .flatMap(connection -> Mono.fromCallable(() -> {
+                                /*
+                                 * - Please note that as of 28 Jan 2021, the way AmazonS3 client works, creating a connection
+                                 *   object with wrong credentials does not throw any exception.
+                                 * - Hence, adding a listBuckets() method call to test the connection.
+                                 */
+                                connection.listBuckets();
+                                return new DatasourceTestResult();
+                            })
+                            .onErrorResume(error -> {
+                                if (error instanceof AmazonS3Exception
+                                        && ACCESS_DENIED_ERROR_CODE.equals(
+                                                ((AmazonS3Exception) error).getErrorCode())) {
+                                    /**
+                                     * Sometimes a valid account credential may not have permission to run listBuckets action
+                                     * . In this case `AccessDenied` error is returned.
+                                     * That fact that the credentials caused `AccessDenied` error instead of invalid access key
+                                     * id or signature mismatch error means that the credentials are valid, we are able to
+                                     * establish a connection as well, but the account does not have permission to run
+                                     * listBuckets.
+                                     */
+                                    return Mono.just(new DatasourceTestResult());
+                                }
+
+                                return Mono.just(new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error)));
+                            })
+                            .doFinally(signalType -> connection.shutdown()))
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
+                    .subscribeOn(scheduler);
+        }
+
+        private Mono<DatasourceTestResult> testGoogleCloudStorage(DatasourceConfiguration datasourceConfiguration) {
+            List<Property> properties = datasourceConfiguration.getProperties();
+            String defaultBucket =
+                    (String) properties.get(DEFAULT_BUCKET_PROPERTY_INDEX).getValue();
+            if (StringUtils.isNullOrEmpty(defaultBucket)) {
+                return Mono.just(new DatasourceTestResult(
+                        S3ErrorMessages.DS_MANDATORY_PARAMETER_DEFAULT_BUCKET_MISSING_ERROR_MSG));
+            }
+
+            return datasourceCreate(datasourceConfiguration)
+                    .flatMap(connection -> Mono.fromCallable(() -> {
+                                connection.listObjects(defaultBucket);
+                                return new DatasourceTestResult();
+                            })
+                            .onErrorResume(error -> {
+                                if (error instanceof AmazonS3Exception
+                                        && ((AmazonS3Exception) error).getStatusCode() == 404) {
+                                    return Mono.just(
+                                            new DatasourceTestResult(S3ErrorMessages.NON_EXITED_BUCKET_ERROR_MSG));
+                                } else {
+                                    return Mono.just(
+                                            new DatasourceTestResult(amazonS3ErrorUtils.getReadableError(error)));
+                                }
+                            })
+                            .doFinally(signalType -> connection.shutdown()))
+                    .onErrorResume(error -> Mono.just(new DatasourceTestResult(error.getMessage())))
+                    .subscribeOn(scheduler);
         }
 
         /**

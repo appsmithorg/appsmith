@@ -9,6 +9,7 @@ const {
   agHelper,
   assertHelper,
   dataSources,
+  propPane,
 } = require("../../../../../support/Objects/ObjectsCore");
 const {
   default: EditorNavigation,
@@ -68,9 +69,7 @@ describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
 
   it("4. Does not clear the search field when widget is closed and serverSideFiltering is on", () => {
     // toggle the serversidefiltering option on
-    cy.togglebar(
-      '.t--property-control-serversidefiltering input[type="checkbox"]',
-    );
+    agHelper.CheckUncheck(widgetLocators.serversideFilteringInput);
     // search for option Red in the search input
     cy.get(commonlocators.selectInputSearch).type("Red");
     // Select the Red option from dropdown list
@@ -93,6 +92,7 @@ describe("Select widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
 
     cy.get("@dsName").then((dsName) => {
       EditorNavigation.SelectEntityByName("Select1", EntityType.Widget);
+      propPane.ToggleJSMode("sourcedata", false);
 
       oneClickBinding.ChooseAndAssertForm(
         `${dsName}`,

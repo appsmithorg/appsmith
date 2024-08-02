@@ -8,7 +8,7 @@ import type {
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
 import type { EvalContext } from "workers/Evaluation/evaluate";
-import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
+import type { EvaluationVersion } from "constants/EvalConstants";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 import {
   getEntityFunctions,
@@ -118,6 +118,8 @@ export const addEntityFunctionsToEvalContext = (
   }
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const fnDef of getPlatformFunctions()) {
     addFn(context, fnDef.name, fnDef.fn.bind(context));

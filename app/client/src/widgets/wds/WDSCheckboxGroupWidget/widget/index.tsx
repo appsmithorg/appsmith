@@ -4,7 +4,7 @@ import BaseWidget from "widgets/BaseWidget";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
 import type { AnvilConfig } from "WidgetProvider/constants";
-import { Checkbox, CheckboxGroup } from "@design-system/widgets";
+import { Checkbox, ToggleGroup } from "@design-system/widgets";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
@@ -72,6 +72,8 @@ class WDSCheckboxGroupWidget extends BaseWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       selectedValues: undefined,
@@ -114,20 +116,25 @@ class WDSCheckboxGroupWidget extends BaseWidget<
     const validation = validateInput(this.props);
 
     return (
-      <CheckboxGroup
+      <ToggleGroup
         {...rest}
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
+        isInvalid={validation.validationStatus === "invalid"}
+        items={options}
         onChange={this.onChange}
-        validationState={validation.validationStatus}
         value={selectedValues}
       >
-        {options.map((option, index) => (
-          <Checkbox key={`${widgetId}-option-${index}`} value={option.value}>
-            {option.label}
+        {({ index, label, value }) => (
+          <Checkbox
+            excludeFromTabOrder={this.props.disableWidgetInteraction}
+            key={`${widgetId}-option-${index}`}
+            value={value}
+          >
+            {label}
           </Checkbox>
-        ))}
-      </CheckboxGroup>
+        )}
+      </ToggleGroup>
     );
   }
 }
