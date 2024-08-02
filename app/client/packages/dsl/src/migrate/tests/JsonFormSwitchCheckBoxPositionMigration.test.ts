@@ -230,6 +230,6 @@ const outputDsl: DSLWidget = {
 describe("JSON Form Widget Property Migration", () => {
   it("should migrate JSON Form widget properties correctly", () => {
     const newDsl = migrateJsonFormWidgetLabelPositonAndAlignment(inputDsl);
-    expect(JSON.stringify(newDsl)).toBe(JSON.stringify(outputDsl));
+    expect(newDsl).toEqual(outputDsl);
   });
 });
