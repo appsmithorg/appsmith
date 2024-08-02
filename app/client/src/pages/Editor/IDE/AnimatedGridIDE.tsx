@@ -24,7 +24,7 @@ import {
 } from "constants/AppConstants";
 import EditorWrapperContainer from "../commons/EditorWrapperContainer";
 import BottomBar from "components/BottomBar";
-import useWindowDimensions from "../../../utils/hooks/useWindowDimensions";
+import useWindowDimensions from "utils/hooks/useWindowDimensions";
 
 const Areas = {
   Sidebar: "Sidebar",
@@ -99,7 +99,7 @@ function useAppIDEAnimated(): [string[], string[], string[][]] {
             SIDEBAR_WIDTH,
             "255px",
             windowWidth - 50 - 256 - PropertyPaneWidth + "px",
-            PropertyPaneWidth + "px",
+            PropertyPaneWidth + 1 + "px",
           ]);
         }
     }
