@@ -62,6 +62,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     parentConfig[labelSectionIndex].children[labelPropertyIndex] = {
       ...parentConfig[labelSectionIndex].children[labelPropertyIndex],
       placeholderText: "Phone Number",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     const generalSectionIndex = parentConfig.findIndex(
@@ -74,6 +76,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     parentConfig[generalSectionIndex].children[tooltipPropertyIndex] = {
       ...parentConfig[generalSectionIndex].children[tooltipPropertyIndex],
       placeholderText: "You may skip local prefixes",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     const placeholderPropertyIndex = parentConfig[
@@ -85,6 +89,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     parentConfig[generalSectionIndex].children[placeholderPropertyIndex] = {
       ...parentConfig[generalSectionIndex].children[placeholderPropertyIndex],
       placeholderText: "(123) 456-7890",
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } as any;
 
     return mergeWidgetConfig(config.propertyPaneContentConfig, parentConfig);
@@ -104,6 +110,8 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     };
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return merge(super.getMetaPropertiesMap(), {
       rawText: "",

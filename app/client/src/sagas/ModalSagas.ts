@@ -205,6 +205,8 @@ export function* closeModalSaga(
     } else {
       // If modalName is not provided, find all open modals
       // Get all meta prop records
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       const modalWidgetType: string = yield select(getModalWidgetType);
 

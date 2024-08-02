@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+import static com.appsmith.git.constants.CommonConstants.CANVAS_WIDGET;
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -60,7 +62,7 @@ public class DSLTransformerHelper {
         if (children.length() != 0) {
             for (int i = 0; i < children.length(); i++) {
                 JSONObject child = children.getJSONObject(i);
-                if (!CommonConstants.CANVAS_WIDGET.equals(child.optString(CommonConstants.WIDGET_TYPE))) {
+                if (!CANVAS_WIDGET.equals(child.optString(CommonConstants.WIDGET_TYPE))) {
                     jsonObject.remove(CommonConstants.CHILDREN);
                 } else {
                     JSONObject childCopy = new JSONObject(child.toString());
@@ -94,7 +96,7 @@ public class DSLTransformerHelper {
     }
 
     public static boolean isCanvasWidget(JSONObject jsonObject) {
-        return jsonObject.optString(CommonConstants.WIDGET_TYPE).startsWith(CommonConstants.CANVAS_WIDGET);
+        return jsonObject.optString(CommonConstants.WIDGET_TYPE).startsWith(CANVAS_WIDGET);
     }
 
     public static Map<String, List<String>> calculateParentDirectories(List<String> paths) {
@@ -189,7 +191,7 @@ public class DSLTransformerHelper {
             // Is the children CANVAS_WIDGET
             if (children.length() == 1) {
                 JSONObject childObject = children.getJSONObject(0);
-                if (CommonConstants.CANVAS_WIDGET.equals(childObject.optString(CommonConstants.WIDGET_TYPE))) {
+                if (CANVAS_WIDGET.equals(childObject.optString(CommonConstants.WIDGET_TYPE))) {
                     childObject.put(CommonConstants.CHILDREN, childWidgets);
                 }
             } else if (children.length() > 1) { // Tabs Widget children mapping case
@@ -223,5 +225,21 @@ public class DSLTransformerHelper {
             widgetIdWidgetNameMapping.put(existingChild.optString(CommonConstants.WIDGET_ID), existingChild);
         }
         return widgetIdWidgetNameMapping;
+    }
+
+    public static String getPathToWidgetFile(String key, JSONObject jsonObject, String widgetName) {
+        // get path with splitting the name via key
+        String childPath = key.replace(CommonConstants.MAIN_CONTAINER, CommonConstants.EMPTY_STRING)
+                .replace(CommonConstants.DELIMITER_POINT, CommonConstants.DELIMITER_PATH);
+        // Replace the canvas Widget as a child and add it to the same level as parent
+        childPath = childPath.replaceAll(CANVAS_WIDGET, CommonConstants.EMPTY_STRING);
+        if (!DSLTransformerHelper.hasChildren(jsonObject) && !DSLTransformerHelper.isTabsWidget(jsonObject)) {
+            // Save the widget as a directory or Save the widget as a file
+            // Only consider widgetName at the end of the childPath to reset
+            // For example, "foobar/bar" should convert into "foobar/"
+            childPath = childPath.replaceAll(widgetName + "$", CommonConstants.EMPTY_STRING);
+        }
+
+        return childPath;
     }
 }

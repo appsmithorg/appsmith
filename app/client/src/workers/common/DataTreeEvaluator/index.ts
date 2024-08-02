@@ -180,6 +180,8 @@ export default class DataTreeEvaluator {
   undefinedEvalValuesMap: Record<string, boolean> = {};
 
   prevState = {};
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setPrevState(state: any) {
     this.prevState = state;
   }
@@ -234,6 +236,8 @@ export default class DataTreeEvaluator {
    * evaluation of the first tree
    */
   setupFirstTree(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     unEvalTree: any,
     configTree: ConfigTree,
     webworkerTelemetry: Record<string, WebworkerSpanData | SpanAttributes> = {},
@@ -1041,6 +1045,8 @@ export default class DataTreeEvaluator {
         const entityConfig = oldConfigTree[entityName];
         if (!isWidgetActionOrJsObject(entity)) continue;
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         let unEvalPropertyValue = get(contextTree as any, fullPropertyPath);
 
         const isADynamicBindingPath = isAPathDynamicBindingPath(
@@ -1345,6 +1351,8 @@ export default class DataTreeEvaluator {
     configTree: ConfigTree,
     evaluationSubstitutionType: EvaluationSubstitutionType,
     contextData?: EvaluateContext,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callBackData?: Array<any>,
     fullPropertyPath?: string,
   ) {
@@ -1481,6 +1489,8 @@ export default class DataTreeEvaluator {
     data: DataTree,
     isJSObject: boolean,
     contextData?: EvaluateContext,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     callbackData?: Array<any>,
   ): EvalResult {
     let evalResponse: EvalResult;
@@ -1564,6 +1574,8 @@ export default class DataTreeEvaluator {
     fullPropertyPath: string,
     action: ActionEntity,
     currentTree: DataTree,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     evalPropertyValue: any,
     unEvalPropertyValue: string,
     configTree: ConfigTree,
@@ -1606,6 +1618,8 @@ export default class DataTreeEvaluator {
   updateEvalTreeWithChanges({
     differences,
   }: {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     differences: Diff<any, any>[];
   }) {
     for (const d of differences) {
@@ -1701,6 +1715,8 @@ export default class DataTreeEvaluator {
     // If the user has added a proper object (valid case) it will be an object
     // If they have not added any execution params or not an object
     // it would be a string (invalid case)
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let evaluatedExecutionParams: Record<string, any> = {};
     let overrideContext: Record<string, unknown>;
     if (executionParams && isObject(executionParams)) {

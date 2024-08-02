@@ -42,6 +42,8 @@ import showToast from "sagas/ToastSagas";
 export const getDefaultActionError = (action: string) =>
   `Incurred an error when ${action}`;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* callAPI(apiCall: any, requestPayload: any) {
   try {
     const response: ApiResponse = yield call(apiCall, requestPayload);
@@ -82,6 +84,8 @@ export class IncorrectBindingError extends Error {}
  * @param logToSentry
  */
 export function* validateResponse(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   response: ApiResponse | any,
   show = true,
   logToSentry = false,
@@ -140,6 +144,8 @@ interface ClientDefinedErrorMetadata {
 }
 
 export function extractClientDefinedErrorMetadata(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   err: any,
 ): ClientDefinedErrorMetadata | undefined {
   if (err?.clientDefinedError && err?.response) {
@@ -227,6 +233,8 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
         // This is the toast that is rendered when any page load API fails.
         yield call(showToast, message, { kind: "error" });
 
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         if ((window as any).Cypress) {
           if (message === "" || message === null) {
             yield put(
@@ -255,6 +263,8 @@ export function* errorSaga(errorAction: ReduxAction<ErrorActionPayload>) {
     payload: {
       source: errorAction.type,
       message,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       stackTrace: (error as any)?.stack,
     },
   });

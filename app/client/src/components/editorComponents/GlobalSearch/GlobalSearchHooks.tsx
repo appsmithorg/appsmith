@@ -194,6 +194,8 @@ export const useFilteredWidgets = (query: string) => {
   const searchableWidgets = useMemo(
     () =>
       allWidgets.filter(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (widget: any) =>
           ["CANVAS_WIDGET", "ICON_WIDGET"].indexOf(widget.type) === -1,
       ),
@@ -202,6 +204,8 @@ export const useFilteredWidgets = (query: string) => {
   return useMemo(() => {
     if (!query) return searchableWidgets;
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return searchableWidgets.filter((widget: any) => {
       const page = pageMap[widget.pageId];
       const isPageNameMatching = isMatching(page?.pageName, query);
@@ -218,6 +222,8 @@ export const useFilteredActions = (query: string) => {
   const pageMap = keyBy(pages, "pageId");
   return useMemo(() => {
     if (!query) return actions;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return actions.filter((action: any) => {
       const page = pageMap[action?.config?.pageId];
       const isPageNameMatching = isMatching(page?.pageName, query);
@@ -236,6 +242,8 @@ export const useFilteredJSCollections = (query: string) => {
   return useMemo(() => {
     if (!query) return jsActions;
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     return jsActions.filter((action: any) => {
       const page = pageMap[action?.config?.pageId];
       const isPageNameMatching = isMatching(page?.pageName, query);
@@ -254,6 +262,8 @@ export const useFilteredPages = (query: string) => {
     if (!query) return attachKind(pages, SEARCH_ITEM_TYPES.page);
     return attachKind(
       pages.filter(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (page: any) =>
           page.pageName.toLowerCase().indexOf(query?.toLowerCase()) > -1,
       ),

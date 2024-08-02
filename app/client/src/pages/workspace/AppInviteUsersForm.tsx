@@ -44,6 +44,8 @@ const BottomContainer = styled.div<{ canInviteToApplication?: boolean }>`
   }
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function AppInviteUsersForm(props: any) {
   const {
     applicationId,
@@ -152,6 +154,8 @@ function AppInviteUsersForm(props: any) {
                 }}
               >
                 {createMessage(MAKE_APPLICATION_PUBLIC)}
+                {/* TODO: Fix this the next time the file is edited */}
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 <div onClick={(e: any) => e.preventDefault()}>
                   <Tooltip
                     content={createMessage(MAKE_APPLICATION_PUBLIC_TOOLTIP)}
@@ -183,6 +187,8 @@ export default connect(
       isChangingViewAccess: state.ui.applications.isChangingViewAccess,
     };
   },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (dispatch: any) => ({
     changeAppViewAccess: (applicationId: string, publicAccess: boolean) =>
       dispatch({

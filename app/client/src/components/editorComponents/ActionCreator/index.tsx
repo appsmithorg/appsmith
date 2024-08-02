@@ -29,6 +29,8 @@ export const ActionCreatorContext = React.createContext<{
 });
 
 const ActionCreator = React.forwardRef(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (props: ActionCreatorProps, ref: any) => {
     const [actions, setActions] = useState<Record<string, string>>(() => {
       const blocks = getActionBlocks(

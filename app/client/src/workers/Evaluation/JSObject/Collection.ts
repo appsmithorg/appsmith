@@ -16,9 +16,15 @@ export interface Patch {
   value?: unknown;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type VariableState = Record<string, Record<string, any>>;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type CurrentJSCollectionState = Record<string, any>;
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 type ResolvedFunctions = Record<string, any>;
 
 export default class JSObjectCollection {
@@ -31,6 +37,8 @@ export default class JSObjectCollection {
     this.resolvedFunctions = resolvedFunctions;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static updateResolvedFunctions(path: string, value: any) {
     set(this.resolvedFunctions, path, value);
   }
@@ -43,6 +51,8 @@ export default class JSObjectCollection {
     return this.resolvedFunctions;
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static updateUnEvalState(path: string, value: any) {
     set(this.unEvalState, path, value);
   }
@@ -80,6 +90,8 @@ export default class JSObjectCollection {
 
   static getVariableState(
     JSObjectName?: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): VariableState | Record<string, any> {
     if (!JSObjectName || !this.variableState) return klona(this.variableState);
     return this.variableState[JSObjectName];

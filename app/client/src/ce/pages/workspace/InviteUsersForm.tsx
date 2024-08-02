@@ -167,7 +167,11 @@ const validateFormValues = (values: {
   }
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const validate = (values: any) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const errors: any = {};
   if (!(values.users && values.users.length > 0)) {
     errors["users"] = createMessage(INVITE_USERS_VALIDATION_EMAILS_EMPTY);
@@ -225,6 +229,8 @@ export function InviteUserText({
 }
 
 export function CustomRolesRamp() {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [dynamicProps, setDynamicProps] = useState<any>({});
   const rampLinkSelector = getRampLink({
     section: RampSection.WorkspaceShare,
@@ -271,8 +277,12 @@ export function CustomRolesRamp() {
   );
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function InviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [selectedOption, setSelectedOption] = useState<any[]>([]);
   const showRampSelector = showProductRamps(RAMP_NAME.CUSTOM_ROLES);
   const canShowRamp = useSelector(showRampSelector);
@@ -344,7 +354,9 @@ function InviteUsersForm(props: any) {
   const styledRoles =
     props.options && props.options.length > 0
       ? props.options
-      : props.roles.map((role: any) => {
+      : // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        props.roles.map((role: any) => {
           return {
             key: role.id,
             value: role.name?.split(" - ")[0],
@@ -373,7 +385,11 @@ function InviteUsersForm(props: any) {
   };
 
   const inviteUsersSubmitHandler = async (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     values: any,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     dispatch: any,
     recaptchaToken?: string,
   ) => {
@@ -410,6 +426,8 @@ function InviteUsersForm(props: any) {
   };
 
   const captchaWrappedInviteUsersSubmitHandler = handleSubmit(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async (values: any, dispatch: any) => {
       try {
         if (
@@ -539,6 +557,8 @@ export const mapStateToProps = (
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const mapDispatchToProps = (dispatch: any) => ({
   fetchAllRoles: (workspaceId: string) =>
     dispatch(fetchRolesForWorkspace(workspaceId)),

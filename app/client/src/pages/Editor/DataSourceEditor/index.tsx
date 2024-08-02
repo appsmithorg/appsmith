@@ -114,6 +114,8 @@ interface ReduxStateProps {
   formName: string;
   isSaving: boolean;
   isTesting: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formConfig: any[];
   isDeleting: boolean;
   isNewDatasource: boolean;
@@ -219,7 +221,11 @@ export interface DatasourcePaneFunctions {
   deleteTempDSFromDraft: () => void;
   toggleSaveActionFlag: (flag: boolean) => void;
   toggleSaveActionFromPopupFlag: (flag: boolean) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reinitializeForm: (formName: string, value: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasource: (data: any) => void;
   resetDefaultKeyValPairFlag: () => void;
   resetForm: (formName: string) => void;
@@ -490,6 +496,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
 
   blockRoutes() {
     this.setState({
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       unblock: this.props?.history?.block((tx: any) => {
         const nextPath = tx.pathname + tx.search;
         const prevPath =
@@ -1061,6 +1069,8 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const applicationId = props.applicationId ?? getCurrentApplicationId(state);
   const application = getApplicationByIdFromWorkspaces(state, applicationId);
@@ -1102,6 +1112,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
     | Datasource
     | ApiDatasourceForm;
   const defaultKeyValueArrayConfig =
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     datasourcePane?.defaultKeyValueArrayConfig as any;
 
   const datasourcePermissions = datasource?.userPermissions || [];
@@ -1180,7 +1192,11 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
 };
 
 const mapDispatchToProps = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ownProps: any,
 ): DatasourcePaneFunctions => ({
   switchDatasource: (id: string) => {
@@ -1198,8 +1214,12 @@ const mapDispatchToProps = (
   toggleSaveActionFlag: (flag) => dispatch(toggleSaveActionFlag(flag)),
   toggleSaveActionFromPopupFlag: (flag) =>
     dispatch(toggleSaveActionFromPopupFlag(flag)),
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reinitializeForm: (formName: string, value: any) =>
     dispatch(initialize(formName, value, false)),
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasource: (data: any) =>
     dispatch(createTempDatasourceFromForm(data)),
   resetForm: (formName: string) => dispatch(reset(formName)),

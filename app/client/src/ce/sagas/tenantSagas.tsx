@@ -29,6 +29,8 @@ export function* fetchCurrentTenantConfigSaga(action?: {
 
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data: any = response.data;
       yield put({
         type: ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS,
@@ -71,6 +73,8 @@ export function* updateTenantConfigSaga(
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const payload = response.data as any;
 
       if (hasSingleSessionUserSetting || hasShowRolesAndGroupsSetting) {

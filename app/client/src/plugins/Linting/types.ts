@@ -31,6 +31,8 @@ export interface LintTreeRequestPayload {
 }
 
 export interface LintRequest {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any;
   method: LINT_WORKER_ACTIONS;
 }

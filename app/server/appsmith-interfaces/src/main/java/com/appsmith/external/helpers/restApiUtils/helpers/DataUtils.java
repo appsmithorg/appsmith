@@ -9,6 +9,7 @@ import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.Property;
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.StreamReadConstraints;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -80,8 +81,16 @@ public class DataUtils {
     }
 
     public DataUtils() {
-        this.objectMapper = SerializationUtils.getObjectMapperWithSourceInLocationEnabled();
-        this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        this.objectMapper = SerializationUtils.getObjectMapperWithSourceInLocationEnabled()
+                .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+        // Multipart data would be parsed using object mapper, these files may be large in the size.
+        // Hence, the length should not be truncated, therefore allowing maximum length.
+        this.objectMapper
+                .getFactory()
+                .setStreamReadConstraints(StreamReadConstraints.builder()
+                        .maxStringLength(Integer.MAX_VALUE)
+                        .build());
     }
 
     public BodyInserter<?, ?> buildBodyInserter(Object body, String contentType, Boolean encodeParamsToggle) {

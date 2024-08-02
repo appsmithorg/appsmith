@@ -135,6 +135,8 @@ const isUninterestingChangeForDependencyUpdate = (path: string) => {
 };
 
 export const translateDiffEventToDataTreeDiffEvent = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   difference: Diff<any, any>,
   unEvalDataTree: DataTree,
 ): DataTreeDiff | DataTreeDiff[] => {
@@ -427,13 +429,19 @@ export function isDataTreeEntity(entity: unknown) {
   return !!entity && typeof entity === "object" && "ENTITY_TYPE" in entity;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const serialiseToBigInt = (value: any) =>
   JSON.stringify(value, (_, v) => (typeof v === "bigint" ? v.toString() : v));
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const removeFunctionsAndSerialzeBigInt = (value: any) =>
   JSON.parse(serialiseToBigInt(value));
 // We need to remove functions from data tree to avoid any unexpected identifier while JSON parsing
 // Check issue https://github.com/appsmithorg/appsmith/issues/719
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const removeFunctions = (value: any) => {
   if (_.isFunction(value)) {
     return "Function call";

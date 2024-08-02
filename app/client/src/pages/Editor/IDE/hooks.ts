@@ -9,7 +9,7 @@ import {
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useDispatch, useSelector } from "react-redux";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { getIDEViewMode } from "selectors/ideSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import history, { NavigationMethod } from "utils/history";
 import {
@@ -21,8 +21,9 @@ import {
 import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import {
-  DEFAULT_EDITOR_PANE_WIDTH,
-  DEFAULT_SPLIT_SCREEN_WIDTH,
+  APP_SIDEBAR_WIDTH,
+  DEFAULT_EXPLORER_PANE_WIDTH,
+  SPLIT_SCREEN_RATIO,
 } from "constants/AppConstants";
 import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
 import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
@@ -35,6 +36,7 @@ import { closeJSActionTab } from "actions/jsActionActions";
 import { closeQueryActionTab } from "actions/pluginActionActions";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { getCurrentEntityInfo } from "../utils";
+import useWindowDimensions from "../../../utils/hooks/useWindowDimensions";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -74,23 +76,27 @@ export const useCurrentEditorState = () => {
 };
 
 export const useEditorPaneWidth = (): string => {
-  const [width, setWidth] = useState(DEFAULT_EDITOR_PANE_WIDTH + "px");
-  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+  const [windowWidth] = useWindowDimensions();
+  const [width, setWidth] = useState(windowWidth - APP_SIDEBAR_WIDTH + "px");
   const editorMode = useSelector(getIDEViewMode);
   const { segment } = useCurrentEditorState();
   const propertyPaneWidth = useSelector(getPropertyPaneWidth);
   useEffect(() => {
-    if (
-      isSideBySideEnabled &&
-      editorMode === EditorViewMode.SplitScreen &&
-      segment !== EditorEntityTab.UI
-    ) {
-      // 1px is propertypane border width
-      setWidth(DEFAULT_SPLIT_SCREEN_WIDTH);
+    if (editorMode === EditorViewMode.SplitScreen) {
+      if (segment !== EditorEntityTab.UI) {
+        // 1px is propertypane border width
+        setWidth(windowWidth * SPLIT_SCREEN_RATIO + "px");
+      } else {
+        setWidth(DEFAULT_EXPLORER_PANE_WIDTH + "px");
+      }
     } else {
-      setWidth(DEFAULT_EDITOR_PANE_WIDTH + "px");
+      if (segment !== EditorEntityTab.UI) {
+        setWidth(windowWidth - APP_SIDEBAR_WIDTH + "px");
+      } else {
+        setWidth(DEFAULT_EXPLORER_PANE_WIDTH + "px");
+      }
     }
-  }, [isSideBySideEnabled, editorMode, segment, propertyPaneWidth]);
+  }, [editorMode, segment, propertyPaneWidth, windowWidth]);
 
   return width;
 };
@@ -164,7 +170,7 @@ export function useWidgetSelectionBlockListener() {
       FocusEntity.WIDGET_LIST,
     ].includes(currentFocus.entity);
     dispatch(setWidgetSelectionBlock(!inUIMode));
-  }, [currentFocus]);
+  }, [currentFocus, dispatch]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);

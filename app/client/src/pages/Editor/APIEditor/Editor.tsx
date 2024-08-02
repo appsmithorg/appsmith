@@ -52,8 +52,12 @@ interface ReduxStateProps {
   apiName: string;
   currentApplication?: ApplicationPayload;
   currentPageName: string | undefined;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pages: any;
   plugins: Plugin[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pluginId: any;
   apiAction: Action | ActionData | undefined;
   paginationType: PaginationType;
@@ -225,6 +229,8 @@ const formStyles: CSSProperties = {
   flexDirection: "column",
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   const apiAction = getActionByBaseId(state, props?.match?.params?.baseApiId);
   const apiName = apiAction?.name ?? "";
@@ -249,6 +255,8 @@ const mapStateToProps = (state: AppState, props: any): ReduxStateProps => {
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any): ReduxActionProps => ({
   submitForm: (name: string) => dispatch(submit(name)),
   changeAPIPage: (actionId: string, isSaas: boolean) =>

@@ -141,6 +141,8 @@ describe(".getQueryStringfromObject", () => {
   test.each(cases.map((x) => [x.index, x.input, x.expected]))(
     "test case %d",
     (_, input, expected) => {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = getQueryStringfromObject(input as any);
       expect(result).toStrictEqual(expected);
     },

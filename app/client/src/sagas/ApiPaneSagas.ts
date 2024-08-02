@@ -678,6 +678,8 @@ export function* createDefaultApiActionPayload(
   const { apiType, from, newActionName } = props;
   const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
   // Default Config is Rest Api Plugin Config
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let defaultConfig: any = DEFAULT_CREATE_API_CONFIG;
   let pluginType: PluginType = PluginType.API;
   if (apiType === PluginPackageName.GRAPHQL) {
