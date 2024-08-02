@@ -528,6 +528,7 @@ export const getAllPaths = (
 export const getAllPathsBasedOnDiffPaths = (
   records: any,
   diff: DataTreeDiff[],
+  // this argument would be mutable
   previousResult: Record<string, true> = {},
 ): Record<string, true> => {
   const newResult = previousResult;
