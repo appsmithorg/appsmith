@@ -114,6 +114,9 @@ import { evalErrorHandler } from "./EvalErrorHandler";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { transformTriggerEvalErrors } from "@appsmith/sagas/helpers";
+import { getAllQueryParams } from "../selectors/QueryParamsSelector";
+import { generateDataTreeQueryParam } from "@appsmith/entities/DataTree/dataTreeAction";
+import type { QueryParamsReducerState } from "../reducers/entityReducers/queryParamsReducer";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
 export const evalWorker = new GracefulWorkerService(
@@ -315,6 +318,9 @@ export function* evaluateActionBindings(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   executionParams: Record<string, any> | string = {},
 ) {
+  const queryParamsState: QueryParamsReducerState =
+    yield select(getAllQueryParams);
+  const queryParams = generateDataTreeQueryParam(queryParamsState);
   const span = startRootSpan("evaluateActionBindings");
   const workerResponse: { errors: EvalError[]; values: unknown } = yield call(
     evalWorker.request,
@@ -322,6 +328,7 @@ export function* evaluateActionBindings(
     {
       bindings,
       executionParams,
+      queryParams,
     },
   );
 
