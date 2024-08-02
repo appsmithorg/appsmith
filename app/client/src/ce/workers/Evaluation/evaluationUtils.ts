@@ -506,7 +506,7 @@ export const getImmediateParentsOfPropertyPaths = (
 };
 
 export const getAllPaths = (
-  records: any,
+  records: Record<string, unknown> | unknown,
   curKey = "",
   result: Record<string, true> = {},
 ): Record<string, true> => {
@@ -526,7 +526,7 @@ export const getAllPaths = (
   return result;
 };
 export const getAllPathsBasedOnDiffPaths = (
-  records: any,
+  records: Record<string, unknown> | unknown,
   diff: DataTreeDiff[],
   // this argument would be mutable
   previousResult: Record<string, true> = {},
