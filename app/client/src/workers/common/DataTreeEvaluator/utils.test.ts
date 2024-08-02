@@ -165,6 +165,7 @@ describe("getAllPathsBasedOnDiffPaths", () => {
   });
   test("should delete the correct paths within allKeys when a node within a widget is deleted", () => {
     const deletedWidgetName = produce(initialTree, (draft: any) => {
+      // a property within the widget is deleted
       delete draft.WidgetName.name;
     });
     const updatedAllKeys = getAllPathsBasedOnDiffPaths(
@@ -180,15 +181,16 @@ describe("getAllPathsBasedOnDiffPaths", () => {
       // we have to make a copy since allKeys is mutable
       { ...initialAllKeys },
     );
-    const deletedWidgetNameAllKeys = produce(initialAllKeys, (draft: any) => {
+    const deletedWidgetNameInAllKeys = produce(initialAllKeys, (draft: any) => {
       delete draft["WidgetName.name"];
     });
 
-    expect(deletedWidgetNameAllKeys).toEqual(updatedAllKeys);
+    expect(deletedWidgetNameInAllKeys).toEqual(updatedAllKeys);
   });
 
   test("should add the correct paths to the allKeys when a node within a widget is added", () => {
     const addedNewWidgetProperty = produce(initialTree, (draft: any) => {
+      // new property is added to the widget
       draft.WidgetName.widgetNewProperty = "newValue";
     });
 
@@ -205,18 +207,19 @@ describe("getAllPathsBasedOnDiffPaths", () => {
       // we have to make a copy since allKeys is mutable
       { ...initialAllKeys },
     );
-    const addedNewWidgetPropertyAllKeys = produce(
+    const addedNewWidgetPropertyInAllKeys = produce(
       initialAllKeys,
       (draft: any) => {
         draft["WidgetName.widgetNewProperty"] = true;
       },
     );
 
-    expect(addedNewWidgetPropertyAllKeys).toEqual(updatedAllKeys);
+    expect(addedNewWidgetPropertyInAllKeys).toEqual(updatedAllKeys);
   });
 
   test("should generate the correct paths when the value changes form a simple primitive to a collection, this is for EDIT diffs", () => {
     const addedNewWidgetProperty = produce(initialTree, (draft: any) => {
+      //existing property within the widget is edited
       draft.WidgetName.name = [{ a: 1 }];
     });
 
@@ -233,10 +236,10 @@ describe("getAllPathsBasedOnDiffPaths", () => {
       // we have to make a copy since allKeys is mutable
       { ...initialAllKeys },
     );
-    const deletedWidgetNameAllKeys = produce(initialAllKeys, (draft: any) => {
+    const addedACollectionInAllKeys = produce(initialAllKeys, (draft: any) => {
       draft["WidgetName.name[0]"] = true;
       draft["WidgetName.name[0].a"] = true;
     });
-    expect(deletedWidgetNameAllKeys).toEqual(updatedAllKeys);
+    expect(addedACollectionInAllKeys).toEqual(updatedAllKeys);
   });
 });
