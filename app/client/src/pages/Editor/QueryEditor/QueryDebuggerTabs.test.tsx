@@ -10,8 +10,35 @@ import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import "@testing-library/jest-dom/extend-expect";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import type { ActionResponse } from "api/ActionAPI";
 
 const mockStore = configureStore([]);
+
+const mockSuccessResponse: ActionResponse = {
+  body: ["Record 1", "Record 2"],
+  statusCode: "200",
+  dataTypes: [],
+  duration: "3000",
+  size: "200",
+  isExecutionSuccess: true,
+  headers: {
+    "Content-Type": ["application/json"],
+    "Cache-Control": ["no-cache"],
+  },
+};
+
+const mockFailedResponse: ActionResponse = {
+  body: [{ response: "Failed" }],
+  statusCode: "200",
+  dataTypes: [],
+  duration: "3000",
+  size: "200",
+  isExecutionSuccess: false,
+  headers: {
+    "Content-Type": ["application/json"],
+    "Cache-Control": ["no-cache"],
+  },
+};
 
 const storeState = {
   ...unitTestBaseMockStore,
@@ -86,5 +113,61 @@ describe("ApiResponseView", () => {
         .querySelector(".t--query-bottom-pane-container")
         ?.classList.contains("select-text"),
     ).toBe(true);
+  });
+
+  it("should show record count as result if the query response returns records", () => {
+    const { container } = render(
+      <Provider store={store}>
+        <ThemeProvider theme={lightTheme}>
+          <Router>
+            <QueryDebuggerTabs
+              actionName="Query1"
+              actionSource={{
+                id: "ID1",
+                name: "Query1",
+                type: ENTITY_TYPE.ACTION,
+              }}
+              actionResponse={mockSuccessResponse}
+              isRunning={false}
+              onRunClick={() => {}}
+            />
+          </Router>
+        </ThemeProvider>
+      </Provider>,
+    );
+
+    const expectedResultText = "Result: 2 Records";
+    const resultTextElement = container.querySelector(".result-text");
+
+    expect(resultTextElement).toBeInTheDocument();
+    expect(resultTextElement?.textContent).toContain(expectedResultText);
+  });
+
+  it("should show error as result if the query response returns the error", () => {
+    const { container } = render(
+      <Provider store={store}>
+        <ThemeProvider theme={lightTheme}>
+          <Router>
+            <QueryDebuggerTabs
+              actionName="Query1"
+              actionSource={{
+                id: "ID1",
+                name: "Query1",
+                type: ENTITY_TYPE.ACTION,
+              }}
+              actionResponse={mockFailedResponse}
+              isRunning={false}
+              onRunClick={() => {}}
+            />
+          </Router>
+        </ThemeProvider>
+      </Provider>,
+    );
+
+    const expectedResultText = "Result: Error";
+    const resultTextElement = container.querySelector(".result-text");
+
+    expect(resultTextElement).toBeInTheDocument();
+    expect(resultTextElement?.textContent).toContain(expectedResultText);
   });
 });
