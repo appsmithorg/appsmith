@@ -1,0 +1,20 @@
+.zone {
+  display: grid;
+  gap: var(--ads-v2-spaces-4);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.zone[data-layout="double-column"] {
+  grid-template-columns: repeat(2, minmax(260px, 1fr));
+}
+
+.zone[data-layout="single-column"] {
+  grid-template-columns: 1fr;
+}
+
+@container uqi-section (max-width: 531px) {
+  .zone[data-layout="double-column"] {
+    grid-template-columns: 1fr;
+  }
+}
