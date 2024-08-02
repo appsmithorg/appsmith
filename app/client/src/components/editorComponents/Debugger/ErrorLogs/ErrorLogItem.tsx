@@ -127,6 +127,8 @@ const showToggleIcon = (e: Log) => {
 };
 
 //format the requestedAt timestamp to a readable format.
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getUpdateTimestamp = (state?: Record<string, any>) => {
   if (state) {
     //clone state to avoid mutating the original state.
@@ -174,7 +176,11 @@ export interface LogItemProps {
   category: LOG_CATEGORY;
   iconId?: string;
   logType?: LOG_TYPE;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logData?: any[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   state?: Record<string, any>;
   id?: string;
   source?: SourceEntity;

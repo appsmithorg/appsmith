@@ -203,6 +203,8 @@ function JSEditorForm({
   );
 
   // Triggered when there is a change in the code editor
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleEditorChange = (valueOrEvent: ChangeEvent<any> | string) => {
     const value: string =
       typeof valueOrEvent === "string"
@@ -369,7 +371,7 @@ function JSEditorForm({
             </StyledNotificationWrapper>
           )}
           <Wrapper>
-            <div className="flex flex-1">
+            <div className="flex flex-1 w-full">
               <SecondaryWrapper>
                 <TabbedViewContainer isExecuting={isExecutingCurrentJSAction}>
                   <Tabs

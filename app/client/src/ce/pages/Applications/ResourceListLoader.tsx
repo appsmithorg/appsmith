@@ -20,6 +20,8 @@ function ResourceListLoader({ isMobile, resources }: ResourcesLoaderProps) {
   const resourcesToUse = resources?.length ? resources : DEAFULT_RESOURCES;
   return (
     <CardList isLoading isMobile={isMobile} title="Apps">
+      {/* TODO: Fix this the next time the file is edited */}
+      {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
       {resourcesToUse.map((resource: any) => {
         return (
           <PaddingWrapper isMobile={isMobile} key={resource.id}>

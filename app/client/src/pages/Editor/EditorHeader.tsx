@@ -4,7 +4,7 @@ import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
+  getCurrentBasePageId,
   getIsPageSaving,
   getIsPublishingApplication,
   getPageSavingError,
@@ -93,13 +93,13 @@ export function EditorHeader() {
   const applicationId = useSelector(getCurrentApplicationId);
   const currentApplication = useSelector(getCurrentApplication);
   const isPublishing = useSelector(getIsPublishingApplication);
-  const pageId = useSelector(getCurrentPageId) as string;
+  const basePageId = useSelector(getCurrentBasePageId) as string;
   const featureFlags = useSelector(selectFeatureFlags);
   const isSaving = useSelector(getIsPageSaving);
   const pageSaveError = useSelector(getPageSavingError);
   const isProtectedMode = useSelector(protectedModeSelector);
 
-  const deployLink = useHref(viewerURL, { pageId });
+  const deployLink = useHref(viewerURL, { basePageId });
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);

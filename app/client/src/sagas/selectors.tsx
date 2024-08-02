@@ -101,6 +101,8 @@ export const getWidgetOptionsTree = memoize((state: AppState) =>
 export const getDataTreeForActionCreator = memoize((state: AppState) => {
   const dataTree: DataTreeForActionCreator = {};
   Object.keys(state.evaluations.tree).forEach((key) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const value: any = state.evaluations.tree[key];
     dataTree[key] = {
       meta: value?.meta || null,
@@ -123,6 +125,9 @@ export const getEditorConfigs = (
 
 export const getDefaultPageId = (state: AppState): string =>
   state.entities.pageList.defaultPageId;
+
+export const getDefaultBasePageId = (state: AppState): string =>
+  state.entities.pageList.defaultBasePageId;
 
 export const getExistingWidgetNames = createSelector(
   getWidgets,
@@ -150,6 +155,8 @@ export const getExistingActionNames = createSelector(
 export const getPluginIdToImageLocation = createSelector(
   getPlugins,
   (plugins) =>
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     plugins.reduce((acc: any, p: Plugin) => {
       acc[p.id] = p.iconLocation;
       return acc;
@@ -162,6 +169,8 @@ export const getPluginIdToImageLocation = createSelector(
  * @param state
  */
 export const getExistingPageNames = (state: AppState) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const map: Record<string, any> = {};
 
   state.entities.pageList.pages.map((page: Page) => {
@@ -182,8 +191,11 @@ export const getWidgetByName = (
   );
 };
 
-export const getAllPageIds = (state: AppState) => {
-  return state.entities.pageList.pages.map((page) => page.pageId);
+export const getAllPageIdentities = (state: AppState) => {
+  return state.entities.pageList.pages.map((page) => ({
+    pageId: page.pageId,
+    basePageId: page.basePageId,
+  }));
 };
 
 export const getPluginIdOfPackageName = (

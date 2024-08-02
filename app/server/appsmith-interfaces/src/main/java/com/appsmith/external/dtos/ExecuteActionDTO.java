@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 public class ExecuteActionDTO {
 
     String actionId;
-
     String datasourceId;
     String workspaceId;
     String instanceId;

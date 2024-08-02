@@ -4,6 +4,8 @@ import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
 import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
 import TextComponent from "./Text";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 const buttonClickHandler = jest.fn();
 const setting: Setting = {

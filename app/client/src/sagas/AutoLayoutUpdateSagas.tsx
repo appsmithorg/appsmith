@@ -70,6 +70,8 @@ import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 // An alternative implementation would be to re-use shouldRunSaga,
 // however we will still have to check for individula action types.
 // This seems cleaner
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* preventForAnvil(saga: any, action: ReduxAction<unknown>) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
   if (!isAnvilLayout) {
@@ -77,6 +79,8 @@ function* preventForAnvil(saga: any, action: ReduxAction<unknown>) {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function* shouldRunSaga(saga: any, action: ReduxAction<unknown>) {
   const isAutoLayout: boolean = yield select(getIsAutoLayout);
   if (isAutoLayout) {
@@ -117,6 +121,8 @@ export function* updateLayoutForMobileCheckpoint(
       allWidgets = yield select(getWidgets);
     }
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const metaProps: Record<string, any> = yield select(getWidgetsMeta);
     const updatedWidgets: CanvasWidgetsReduxState = isMobile
       ? alterLayoutForMobile(
@@ -354,6 +360,8 @@ function* processAutoLayoutDimensionUpdatesSaga() {
       [widgetId]: widgetToBeUpdated,
     };
   }
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const metaProps: Record<string, any> = yield select(getWidgetsMeta);
   // Update the position of all the widgets
   for (const parentId of parentIds) {
@@ -367,6 +375,8 @@ function* processAutoLayoutDimensionUpdatesSaga() {
     );
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let widgetsToUpdate: any = {};
 
   /**
@@ -377,6 +387,8 @@ function* processAutoLayoutDimensionUpdatesSaga() {
   for (const widgetId of Object.keys(widgets)) {
     const widget = widgets[widgetId];
     const oldWidget = widgetsOld[widgetId];
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const propertiesToUpdate: Record<string, any> = {};
 
     const positionProperties = [
@@ -455,6 +467,8 @@ function* updatePositionsOnTabChangeSaga(
   if (!selectedTabWidgetId || !allWidgets[selectedTabWidgetId]) return;
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const metaProps: Record<string, any> = yield select(getWidgetsMeta);
 
   const updatedWidgets: CanvasWidgetsReduxState = updateWidgetPositions(
@@ -478,6 +492,8 @@ function* updatePositionsSaga(action: ReduxAction<{ widgetId: string }>) {
   if (!widgetId || !allWidgets[widgetId]) return;
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
   const mainCanvasWidth: number = yield select(getMainCanvasWidth);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const metaProps: Record<string, any> = yield select(getWidgetsMeta);
   let canvasId: string = widgetId;
   if (allWidgets[canvasId].type === "TABS_WIDGET") {

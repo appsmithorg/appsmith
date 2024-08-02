@@ -50,6 +50,8 @@ function renderComponent(
     placeholder: string;
     dataType?: DSInputType;
     disabled?: boolean;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     reference: any;
     validator?: (value: string) => { isValid: boolean; message: string };
   } & {
@@ -74,6 +76,8 @@ function renderComponent(
 }
 
 class InputTextControl extends BaseControl<InputControlProps> {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   fieldRef: any;
 
   state = {

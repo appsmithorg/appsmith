@@ -91,7 +91,7 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(application));
         Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitArtifactMetadata.class), anyString()))
                 .thenReturn(Mono.just(Boolean.FALSE));
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
@@ -114,7 +114,7 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(application));
         Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitArtifactMetadata.class), eq(branchName)))
                 .thenReturn(Mono.just(Boolean.TRUE));
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
@@ -139,7 +139,7 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
                 .thenReturn(Mono.just(application));
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
         Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitArtifactMetadata.class), eq(branchName)))
@@ -164,7 +164,7 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(Boolean.FALSE));
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
                 .thenReturn(Mono.just(Boolean.TRUE));
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
@@ -197,12 +197,11 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
                 .thenReturn(Mono.just(application));
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
-        Mockito.when(commonGitService.fetchRemoteChanges(
-                        any(Application.class), any(Application.class), anyString(), anyBoolean()))
+        Mockito.when(commonGitService.fetchRemoteChanges(any(Application.class), any(Application.class), anyBoolean()))
                 .thenReturn(Mono.just(branchTrackingStatus));
 
         Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(0);
@@ -299,11 +298,10 @@ public class GitAutoCommitHelperImplTest {
                 .thenReturn(Mono.just(Boolean.TRUE));
         Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
                 .thenReturn(Mono.just(application));
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
-        Mockito.when(commonGitService.fetchRemoteChanges(
-                        any(Application.class), any(Application.class), anyString(), anyBoolean()))
+        Mockito.when(commonGitService.fetchRemoteChanges(any(Application.class), any(Application.class), anyBoolean()))
                 .thenReturn(Mono.just(branchTrackingStatus));
 
         Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(1);
@@ -364,20 +362,30 @@ public class GitAutoCommitHelperImplTest {
         Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
-        Mockito.when(applicationService.findByBranchNameAndDefaultApplicationId(
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
-        Mockito.when(commonGitService.fetchRemoteChanges(
-                        any(Application.class), any(Application.class), anyString(), anyBoolean()))
+        Mockito.when(commonGitService.fetchRemoteChanges(any(Application.class), any(Application.class), anyBoolean()))
                 .thenReturn(Mono.just(branchTrackingStatus));
 
         Mockito.when(branchTrackingStatus.getBehindCount()).thenReturn(0);
 
+        Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitArtifactMetadata.class), eq(branchName)))
+                .thenReturn(Mono.just(Boolean.FALSE));
+
+        GitProfile gitProfile = new GitProfile();
+        gitProfile.setAuthorEmail("user@example.com");
+        gitProfile.setAuthorName("test user name");
+
+        Mockito.when(userDataService.getGitProfileForCurrentUser(defaultApplicationId))
+                .thenReturn(Mono.just(gitProfile));
+
         StepVerifier.create(gitAutoCommitHelper.autoCommitServerMigration(defaultApplicationId, branchName))
                 .assertNext(isAutoCommitPublished -> {
                     assertThat(isAutoCommitPublished).isTrue();
-                });
+                })
+                .verifyComplete();
     }
 
     @Test
@@ -402,9 +410,14 @@ public class GitAutoCommitHelperImplTest {
         Mockito.when(applicationService.findById(anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
+        Mockito.when(applicationService.findByBranchNameAndBaseApplicationId(
+                        anyString(), anyString(), any(AclPermission.class)))
+                .thenReturn(Mono.just(application));
+
         StepVerifier.create(gitAutoCommitHelper.autoCommitServerMigration(defaultApplicationId, branchName))
                 .assertNext(isAutoCommitPublished -> {
                     assertThat(isAutoCommitPublished).isFalse();
-                });
+                })
+                .verifyComplete();
     }
 }

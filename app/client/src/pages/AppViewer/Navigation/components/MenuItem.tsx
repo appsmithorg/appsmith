@@ -32,7 +32,7 @@ const MenuItem = ({
   const appMode = useSelector(getAppMode);
   const pageURL = useHref(
     appMode === APP_MODE.PUBLISHED ? viewerURL : builderURL,
-    { pageId: page.pageId },
+    { basePageId: page.basePageId },
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
   const navColorStyle =
@@ -71,6 +71,7 @@ const MenuItem = ({
             "mx-auto": isMinimal,
           })}
           name="file-line"
+          // @ts-expect-error Fix this the next time the file is edited
           size="large"
         />
       )}

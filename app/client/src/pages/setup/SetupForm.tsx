@@ -165,6 +165,8 @@ function SetupForm(props: SetupFormProps) {
     setIsFirstPage(!isFirstPage);
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onKeyDown = (event: any) => {
     if (event.key === "Enter") {
       if (props.valid) {

@@ -249,9 +249,9 @@ function BindDataButton(props: BindDataButtonProps) {
   const pagePermissions = useSelector(getPagePermissions);
 
   const params = useParams<{
-    pageId: string;
-    apiId?: string;
-    queryId?: string;
+    basePageId: string;
+    baseApiId?: string;
+    baseQueryId?: string;
     moduleInstanceId?: string;
   }>();
 
@@ -339,11 +339,11 @@ function BindDataButton(props: BindDataButtonProps) {
     }
     dispatch(
       bindDataOnCanvas({
-        queryId: (params.apiId ||
-          params.queryId ||
+        queryId: (params.baseApiId ||
+          params.baseQueryId ||
           params.moduleInstanceId) as string,
         applicationId: applicationId as string,
-        pageId: params.pageId,
+        basePageId: params.basePageId,
       }),
     );
 

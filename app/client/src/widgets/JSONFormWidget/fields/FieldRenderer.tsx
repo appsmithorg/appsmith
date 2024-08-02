@@ -8,6 +8,8 @@ import { FIELD_MAP } from "../constants";
 
 interface FieldRendererProps {
   fieldName: ControllerRenderProps["name"];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   options?: Record<string, any>;
   passedDefaultValue?: unknown;
   propertyPath: string;

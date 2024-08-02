@@ -39,7 +39,7 @@ const ExplorerDatasourceEntity = React.memo(
       let url;
       if (props.plugin && props.plugin.type === PluginType.SAAS) {
         url = saasEditorDatasourceIdURL({
-          pageId: entityId,
+          basePageId: entityId,
           pluginPackageName: props.plugin.packageName,
           datasourceId: props.datasource.id,
           params: {
@@ -48,7 +48,7 @@ const ExplorerDatasourceEntity = React.memo(
         });
       } else {
         url = datasourcesEditorIdURL({
-          pageId: entityId,
+          basePageId: entityId,
           datasourceId: props.datasource.id,
           params: omit(getQueryParams(), "viewMode"),
         });

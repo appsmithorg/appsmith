@@ -44,6 +44,8 @@ class PrimaryColumnDropdownControl extends BaseControl<ControlProps> {
     // Get columns from widget properties
     const columns: Record<string, ColumnProperties> =
       this.props.widgetProperties.primaryColumns;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const options: any[] = [];
 
     for (const i in columns) {

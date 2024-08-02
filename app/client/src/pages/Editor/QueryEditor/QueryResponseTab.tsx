@@ -150,6 +150,8 @@ const QueryResponseTab = (props: Props) => {
 
   let error = runErrorMessage;
   let hintMessages: Array<string> = [];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let output: Record<string, any>[] | null = null;
 
   // Query is executed even once during the session, show the response data.
@@ -176,6 +178,8 @@ const QueryResponseTab = (props: Props) => {
     } else {
       //reset error.
       error = "";
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       output = actionResponse.body as any;
     }
     if (actionResponse.messages && actionResponse.messages.length) {

@@ -10,6 +10,8 @@ export type ActionDescriptionWithExecutionType = ActionDescription & {
 };
 
 export type ActionDispatcherWithExecutionType = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ...args: any[]
 ) => ActionDescriptionWithExecutionType;
 

@@ -10,14 +10,13 @@ import BackToCanvas from "components/common/BackToCanvas";
 import { INTEGRATION_TABS } from "constants/routes";
 import {
   getCurrentApplicationId,
-  getCurrentPageId,
   getIsEditorInitialized,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { changeQuery } from "actions/queryPaneActions";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import {
-  getAction,
+  getActionByBaseId,
   getIsActionConverting,
   getPluginImages,
   getPluginSettingConfigs,
@@ -46,21 +45,22 @@ import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
 function QueryEditor(props: QueryEditorProps) {
-  const { apiId, queryId } = props.match.params;
-  const actionId = queryId || apiId;
+  const { baseApiId, basePageId, baseQueryId } = props.match.params;
+  const baseActionId = baseQueryId || baseApiId;
   const dispatch = useDispatch();
-  const action = useSelector((state) => getAction(state, actionId || ""));
+  const action = useSelector((state) =>
+    getActionByBaseId(state, baseActionId || ""),
+  );
   const pluginId = action?.pluginId || "";
   const isEditorInitialized = useSelector(getIsEditorInitialized);
   const applicationId: string = useSelector(getCurrentApplicationId);
-  const pageId: string = useSelector(getCurrentPageId);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const settingsConfig = useSelector((state) =>
     getPluginSettingConfigs(state, pluginId),
   );
   const pagePermissions = useSelector(getPagePermissions);
   const isConverting = useSelector((state) =>
-    getIsActionConverting(state, actionId || ""),
+    getIsActionConverting(state, action?.id || ""),
   );
   const pluginImages = useSelector(getPluginImages);
   const editorMode = useSelector(getIDEViewMode);
@@ -102,12 +102,12 @@ function QueryEditor(props: QueryEditorProps) {
     return (
       <>
         <MoreActionsMenu
+          basePageId={basePageId}
           className="t--more-action-menu"
           id={action?.id || ""}
           isChangePermitted={isChangePermitted}
           isDeletePermitted={isDeletePermitted}
           name={action?.name || ""}
-          pageId={pageId}
           prefixAdditionalMenus={
             editorMode === EditorViewMode.SplitScreen && (
               <ConvertToModuleInstanceCTA {...convertToModuleProps} />
@@ -126,26 +126,28 @@ function QueryEditor(props: QueryEditorProps) {
     action?.name,
     isChangePermitted,
     isDeletePermitted,
-    pageId,
+    basePageId,
     isCreatePermitted,
     editorMode,
   ]);
 
   const actionRightPaneBackLink = useMemo(() => {
-    return <BackToCanvas pageId={pageId} />;
-  }, [pageId]);
+    return <BackToCanvas basePageId={basePageId} />;
+  }, [basePageId]);
 
   const changeQueryPage = useCallback(
-    (queryId: string) => {
-      dispatch(changeQuery({ id: queryId, pageId, applicationId }));
+    (baseQueryId: string) => {
+      dispatch(
+        changeQuery({ baseQueryId: baseQueryId, basePageId, applicationId }),
+      );
     },
-    [pageId, applicationId],
+    [basePageId, applicationId],
   );
 
   const onCreateDatasourceClick = useCallback(() => {
     history.push(
       integrationEditorURL({
-        pageId,
+        basePageId: basePageId,
         selectedTab: INTEGRATION_TABS.NEW,
       }),
     );
@@ -155,7 +157,7 @@ function QueryEditor(props: QueryEditorProps) {
       entryPoint,
     });
   }, [
-    pageId,
+    basePageId,
     history,
     integrationEditorURL,
     DatasourceCreateEntryPoints,
@@ -167,11 +169,11 @@ function QueryEditor(props: QueryEditorProps) {
     () =>
       history.push(
         integrationEditorURL({
-          pageId,
+          basePageId: basePageId,
           selectedTab: INTEGRATION_TABS.ACTIVE,
         }),
       ),
-    [pageId, history, integrationEditorURL],
+    [basePageId, history, integrationEditorURL],
   );
 
   const notification = useMemo(() => {

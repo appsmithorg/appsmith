@@ -126,6 +126,8 @@ export interface EntityItem {
 
 export type UseRoutes = Array<{
   key: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   component: ComponentType<any>;
   path: string[];
   exact: boolean;

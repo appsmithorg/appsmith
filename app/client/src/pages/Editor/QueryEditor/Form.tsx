@@ -15,6 +15,8 @@ import { getFormEvaluationState } from "selectors/formSelectors";
 import { actionResponseDisplayDataFormats } from "../utils";
 
 const valueSelector = formValueSelector(QUERY_EDITOR_FORM_NAME);
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapStateToProps = (state: AppState, props: any) => {
   const actionId = valueSelector(state, "id");
   const actionName = valueSelector(state, "name");

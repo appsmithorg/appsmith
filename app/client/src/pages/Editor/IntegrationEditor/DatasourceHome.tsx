@@ -125,13 +125,21 @@ interface DatasourceHomeScreenProps {
   };
   showMostPopularPlugins?: boolean;
   isCreating?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   showUnsupportedPluginDialog: (callback: any) => void;
   isAirgappedInstance?: boolean;
 }
 
 interface ReduxDispatchProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initializeForm: (data: Record<string, any>) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createDatasource: (data: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasource: (data: any) => void;
   createNewApiActionBasedOnEditorType: (
     editorType: string,
@@ -156,6 +164,8 @@ class DatasourceHomeScreen extends React.Component<Props> {
   goToCreateDatasource = (
     pluginId: string,
     pluginName: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     params?: any,
   ) => {
     const {
@@ -246,6 +256,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
                       {createMessage(CREATE_NEW_DATASOURCE_REST_API)}
                     </p>
                   </CardContentWrapper>
+                  {/*@ts-expect-error Fix this the next time the file is edited*/}
                   {isCreating && <Spinner className="cta" size={25} />}
                 </ApiCard>
               ) : null
@@ -305,11 +316,19 @@ const mapStateToProps = (
   };
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const mapDispatchToProps = (dispatch: any) => {
   return {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     initializeForm: (data: Record<string, any>) =>
       dispatch(initialize(DATASOURCE_DB_FORM, data)),
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     createDatasource: (data: any) => dispatch(createDatasourceFromForm(data)),
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     createTempDatasource: (data: any) =>
       dispatch(createTempDatasourceFromForm(data)),
     createNewApiActionBasedOnEditorType: (

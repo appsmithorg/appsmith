@@ -19,6 +19,8 @@ export const generateDataTreeJSAction = (
   const meta: Record<string, MetaArgs> = {};
   const dynamicBindingPathList = [];
   const bindingPaths: Record<string, EvaluationSubstitutionType> = {};
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const variableList: Record<string, any> = {};
   const variables = js.config?.variables;
   const listVariables: Array<string> = [];
@@ -40,6 +42,8 @@ export const generateDataTreeJSAction = (
   const dependencyMap: DependencyMap = {};
   dependencyMap["body"] = [];
   const actions = js.config.actions;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actionsData: Record<string, any> = {};
   if (actions) {
     for (let i = 0; i < actions.length; i++) {

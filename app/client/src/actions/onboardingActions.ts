@@ -32,14 +32,14 @@ export const disableStartSignpostingAction = () => {
 
 export const firstTimeUserOnboardingInit = (
   applicationId: string | undefined,
-  pageId: string,
+  basePageId: string,
   suffix?: string,
 ) => {
   return {
     type: ReduxActionTypes.FIRST_TIME_USER_ONBOARDING_INIT,
     payload: {
-      applicationId: applicationId,
-      pageId: pageId,
+      applicationId,
+      basePageId,
       suffix,
     },
   };
