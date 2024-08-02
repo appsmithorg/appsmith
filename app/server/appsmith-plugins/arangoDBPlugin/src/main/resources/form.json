@@ -1,137 +1,133 @@
-{
-  "form": [
+{"form": [
     {
-      "sectionName": "Connection",
-      "id": 1,
-      "children": [
-        {
-          "sectionName": null,
-          "children": [
+        "sectionName": "Connection",
+        "children": [
             {
-              "label": "Host address",
-              "configProperty": "datasourceConfiguration.endpoints[*].host",
-              "controlType": "KEYVALUE_ARRAY",
-              "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$",
-              "placeholderText": "myapp.abcde.arango.net"
+                "sectionName": null,
+                "children": [
+                    {
+                        "controlType": "KEYVALUE_ARRAY",
+                        "validationMessage": "Please enter a valid host",
+                        "placeholderText": "myapp.abcde.arango.net",
+                        "label": "Host address",
+                        "validationRegex": "^((?![/:]).)*$",
+                        "configProperty": "datasourceConfiguration.endpoints[*].host"
+                    },
+                    {
+                        "controlType": "KEYVALUE_ARRAY",
+                        "dataType": "NUMBER",
+                        "placeholderText": "8529",
+                        "label": "Port",
+                        "initialValue": ["8529"],
+                        "configProperty": "datasourceConfiguration.endpoints[*].port"
+                    }
+                ]
             },
             {
-              "label": "Port",
-              "configProperty": "datasourceConfiguration.endpoints[*].port",
-              "dataType": "NUMBER",
-              "initialValue": ["8529"],
-              "controlType": "KEYVALUE_ARRAY",
-              "placeholderText": "8529"
+                "controlType": "INPUT_TEXT",
+                "placeholderText": "Database name",
+                "label": "Database name",
+                "initialValue": "_system",
+                "configProperty": "datasourceConfiguration.authentication.databaseName"
             }
-          ]
-        },
-        {
-          "label": "Database name",
-          "configProperty": "datasourceConfiguration.authentication.databaseName",
-          "controlType": "INPUT_TEXT",
-          "placeholderText": "Database name",
-          "initialValue": "_system"
-        }
-      ]
+        ],
+        "id": 1
     },
     {
-      "sectionName": "Authentication",
-      "id": 2,
-      "children": [
-        {
-          "sectionName": null,
-          "children": [
-            {
-              "label": "Username",
-              "configProperty": "datasourceConfiguration.authentication.username",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Username"
-            },
-            {
-              "label": "Password",
-              "configProperty": "datasourceConfiguration.authentication.password",
-              "dataType": "PASSWORD",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Password",
-              "encrypted": true
-            }
-          ]
-        }
-      ]
+        "sectionName": "Authentication",
+        "children": [{
+            "sectionName": null,
+            "children": [
+                {
+                    "controlType": "INPUT_TEXT",
+                    "placeholderText": "Username",
+                    "label": "Username",
+                    "configProperty": "datasourceConfiguration.authentication.username"
+                },
+                {
+                    "controlType": "INPUT_TEXT",
+                    "encrypted": true,
+                    "dataType": "PASSWORD",
+                    "placeholderText": "Password",
+                    "label": "Password",
+                    "configProperty": "datasourceConfiguration.authentication.password"
+                }
+            ]
+        }],
+        "id": 2
     },
     {
-      "id": 3,
-      "sectionName": "SSL (optional)",
-      "children": [
-        {
-          "label": "SSL mode",
-          "configProperty": "datasourceConfiguration.connection.ssl.authType",
-          "controlType": "DROP_DOWN",
-          "initialValue": "DEFAULT",
-          "options": [
+        "sectionName": "SSL (optional)",
+        "children": [
             {
-              "label": "Default",
-              "value": "DEFAULT"
+                "controlType": "DROP_DOWN",
+                "options": [
+                    {
+                        "label": "Default",
+                        "value": "DEFAULT"
+                    },
+                    {
+                        "label": "Enabled",
+                        "value": "ENABLED"
+                    },
+                    {
+                        "label": "Disabled",
+                        "value": "DISABLED"
+                    }
+                ],
+                "label": "SSL mode",
+                "initialValue": "DEFAULT",
+                "configProperty": "datasourceConfiguration.connection.ssl.authType"
             },
             {
-              "label": "Enabled",
-              "value": "ENABLED"
+                "controlType": "DROP_DOWN",
+                "hidden": {
+                    "path": "datasourceConfiguration.connection.ssl.authType",
+                    "comparison": "NOT_EQUALS",
+                    "value": "ENABLED"
+                },
+                "options": [
+                    {
+                        "label": "Disabled",
+                        "value": "NONE"
+                    },
+                    {
+                        "label": "Upload File",
+                        "value": "FILE"
+                    },
+                    {
+                        "label": "Base64 String",
+                        "value": "BASE64_STRING"
+                    }
+                ],
+                "label": "Use CA Certificate",
+                "initialValue": "NONE",
+                "configProperty": "datasourceConfiguration.connection.ssl.caCertificateType"
             },
             {
-              "label": "Disabled",
-              "value": "DISABLED"
+                "controlType": "FILE_PICKER",
+                "encrypted": true,
+                "hidden": {
+                    "path": "datasourceConfiguration.connection.ssl.caCertificateType",
+                    "comparison": "NOT_EQUALS",
+                    "value": "FILE"
+                },
+                "label": "CA Certificate File",
+                "configProperty": "datasourceConfiguration.connection.ssl.caCertificateFile"
+            },
+            {
+                "controlType": "INPUT_TEXT",
+                "encrypted": true,
+                "hidden": {
+                    "path": "datasourceConfiguration.connection.ssl.caCertificateType",
+                    "comparison": "NOT_EQUALS",
+                    "value": "BASE64_STRING"
+                },
+                "dataType": "PASSWORD",
+                "label": "Base64 Encoded CA Certificate String",
+                "configProperty": "datasourceConfiguration.connection.ssl.caCertificateFile.base64Content"
             }
-          ]
-        },
-        {
-          "label": "Use CA Certificate",
-          "configProperty": "datasourceConfiguration.connection.ssl.caCertificateType",
-          "controlType": "DROP_DOWN",
-          "initialValue": "NONE",
-          "options": [
-            {
-              "label": "Disabled",
-              "value": "NONE"
-            },
-            {
-              "label": "Upload File",
-              "value": "FILE"
-            },
-            {
-              "label": "Base64 String",
-              "value": "BASE64_STRING"
-            }
-          ],
-          "hidden": {
-            "path": "datasourceConfiguration.connection.ssl.authType",
-            "comparison": "NOT_EQUALS",
-            "value": "ENABLED"
-          }
-        },
-        {
-          "label": "CA Certificate File",
-          "configProperty": "datasourceConfiguration.connection.ssl.caCertificateFile",
-          "controlType": "FILE_PICKER",
-          "encrypted": true,
-          "hidden": {
-            "path": "datasourceConfiguration.connection.ssl.caCertificateType",
-            "comparison": "NOT_EQUALS",
-            "value": "FILE"
-          }
-        },
-        {
-          "label": "Base64 Encoded CA Certificate String",
-          "configProperty": "datasourceConfiguration.connection.ssl.caCertificateFile.base64Content",
-          "controlType": "INPUT_TEXT",
-          "dataType": "PASSWORD",
-          "encrypted": true,
-          "hidden": {
-            "path": "datasourceConfiguration.connection.ssl.caCertificateType",
-            "comparison": "NOT_EQUALS",
-            "value": "BASE64_STRING"
-          }
-        }
-      ]
+        ],
+        "id": 3
     }
-  ]
-}
+]}
