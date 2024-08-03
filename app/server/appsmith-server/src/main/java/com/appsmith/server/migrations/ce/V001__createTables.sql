@@ -2,6 +2,8 @@ create table action_collection
 (
     id varchar(255) not null
         primary key,
+    base_id text,
+    branch_name text,
     created_at timestamp(6) with time zone,
     created_by text,
     deleted_at timestamp(6) with time zone,
@@ -10,7 +12,6 @@ create table action_collection
     policies jsonb,
     policy_map jsonb,
     updated_at timestamp(6) with time zone,
-    default_resources jsonb,
     application_id text,
     context_type text,
     published_collection jsonb,
@@ -173,7 +174,6 @@ create table datasource
     policies jsonb,
     policy_map jsonb,
     updated_at timestamp(6) with time zone,
-    default_resources jsonb,
     datasource_configuration jsonb,
     has_datasource_storage boolean,
     invalids jsonb,
@@ -259,6 +259,8 @@ create table new_action
 (
     id varchar(255) not null
         primary key,
+    base_id text,
+    branch_name text,
     created_at timestamp(6) with time zone,
     created_by text,
     deleted_at timestamp(6) with time zone,
@@ -267,7 +269,6 @@ create table new_action
     policies jsonb,
     policy_map jsonb,
     updated_at timestamp(6) with time zone,
-    default_resources jsonb,
     application_id text,
     documentation jsonb,
     plugin_id text,
@@ -281,6 +282,8 @@ create table new_page
 (
     id varchar(255) not null
         primary key,
+    base_id text,
+    branch_name text,
     created_at timestamp(6) with time zone,
     created_by text,
     deleted_at timestamp(6) with time zone,
@@ -289,7 +292,6 @@ create table new_page
     policies jsonb,
     policy_map jsonb,
     updated_at timestamp(6) with time zone,
-    default_resources jsonb,
     application_id text,
     published_page jsonb,
     unpublished_page jsonb

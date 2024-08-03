@@ -867,7 +867,8 @@ public class ApplicationServiceCEImpl
             return Mono.just(baseApplicationId);
         }
         return repository
-                .getApplicationByGitBranchAndBaseApplicationId(baseApplicationId, branchName.get(), permission.orElse(null))
+                .getApplicationByGitBranchAndBaseApplicationId(
+                        baseApplicationId, branchName.get(), permission.orElse(null))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, baseApplicationId + ", " + branchName)))
                 .map(Application::getId);

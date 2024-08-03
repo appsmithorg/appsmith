@@ -184,6 +184,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return Optional.of(count);
     }
 
+    @Transactional
+    @Modifying
     public Optional<Integer> updateFieldById(
             String id,
             String idPath,
