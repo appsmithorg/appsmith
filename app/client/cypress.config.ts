@@ -24,10 +24,10 @@ export default defineConfig({
     openMode: 0,
   },
   e2e: {
-    baseUrl: "https://dev.appsmith.com/",
+    baseUrl: "http://localhost/",
     env: {
-      USERNAME: "xxxx",
-      PASSWORD: "xxx",
+      USERNAME: "abcd@appsmith.com",
+      PASSWORD: "Test1234$",
       grepFilterSpecs: true,
       grepOmitFiltered: true,
     },
