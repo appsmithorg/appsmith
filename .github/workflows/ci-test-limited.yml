@@ -109,6 +109,8 @@ jobs:
           specs_to_run=""
           while IFS= read -r line
           do
+            echo going to print test line
+            echo $line
             if [[ $line =~ ^#|^\/\/ ]]; then
               continue
             else

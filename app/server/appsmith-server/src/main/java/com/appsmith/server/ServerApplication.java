@@ -26,6 +26,7 @@ import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import reactor.blockhound.BlockHound;
 
 import java.time.Duration;
 
@@ -58,6 +59,25 @@ public class ServerApplication {
         new SpringApplicationBuilder(ServerApplication.class)
                 .bannerMode(Banner.Mode.OFF)
                 .run(args);
+                BlockHound.install(b -> {
+                    b.allowBlockingCallsInside(com.mongodb.internal.session.ServerSessionPool.class.getName(),
+         "createNewServerSessionIdentifier" );
+
+         b.allowBlockingCallsInside(org.springframework.session.data.redis.ReactiveRedisSessionRepository.class.getName(), "lambda$createSession$0");
+                    b.allowBlockingCallsInside(javax.net.ssl.SSLContext.class.getName(), "init");
+                    b.allowBlockingCallsInside(org.springframework.session.MapSession.class.getName(), "generateId");
+                    b.allowBlockingCallsInside(java.util.UUID.class.getName(), "randomUUID");
+                    b.allowBlockingCallsInside(org.springframework.data.projection.SpelAwareProxyProjectionFactory.class.getName(), "createProjectionInformation");
+                    b.allowBlockingCallsInside(org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder.class.getName(), "encode");
+
+         b.allowBlockingCallsInside(org.springframework.session.data.redis.ReactiveRedisSessionRepository.class.getName(), "changeSessionId");
+
+         b.allowBlockingCallsInside(org.springframework.session.web.server.session.SpringSessionWebSessionStore.class.getName(), "$SpringSessionWebSession.lambda$changeSessionId$0");
+         b.allowBlockingCallsInside("com.mongodb.connection.netty.NettyStream", "readAsync");
+//         b.allowBlockingCallsInside("java.io.FileInputStream", "readBytes");
+//         b.allowBlockingCallsInside("jdk.internal.misc.Unsafe", "#park");
+
+                });
     }
 
     private void printBuildInfo() {

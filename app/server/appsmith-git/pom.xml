@@ -66,6 +66,13 @@
             <artifactId>spring-boot-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>io.projectreactor.tools</groupId>
+            <artifactId>blockhound-junit-platform</artifactId>
+            <version>1.0.9.RELEASE</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <repositories>
