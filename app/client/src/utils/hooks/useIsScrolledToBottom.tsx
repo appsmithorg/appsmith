@@ -5,10 +5,14 @@ import { useEffect, useState } from "react";
  */
 const useIsScrolledToBottom = (
   ref: React.RefObject<HTMLDivElement | null>,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   deps: any[] = [],
 ) => {
   const [isScrolledToBottom, setIsScrolledToBottom] = useState(true);
   useEffect(() => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const calculateIsScrolledToBottom = (e: any) => {
       if (!e.target) return;
       const { offsetHeight, scrollHeight, scrollTop } = e.target;

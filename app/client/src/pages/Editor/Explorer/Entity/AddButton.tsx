@@ -35,6 +35,8 @@ export const EntityAddButton = (props: {
   className?: string;
   buttonSize?: ButtonSizes;
 }) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleClick = (e: any) => {
     props.onClick && props.onClick();
     e.stopPropagation();

@@ -12,6 +12,8 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getAdminSettingsPath } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 
 const Main = () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const params = useParams() as any;
   const { category, selected: subCategory } = params;
   const user = useSelector(getCurrentUser);

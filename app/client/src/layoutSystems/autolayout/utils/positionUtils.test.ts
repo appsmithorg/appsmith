@@ -329,8 +329,9 @@ describe("test PositionUtils methods", () => {
       };
       jest
         .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .mockImplementation((widget: any, width: number) => {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .mockImplementation((widget: any) => {
           if (
             ["DOCUMENT_VIEWER_WIDGET", "CONTAINER_WIDGET"].includes(
               widget?.type,
@@ -906,8 +907,9 @@ describe("test PositionUtils methods", () => {
       };
       jest
         .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .mockImplementation((widget: any, width: number) => {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .mockImplementation((widget: any) => {
           if (
             ["DOCUMENT_VIEWER_WIDGET", "CONTAINER_WIDGET"].includes(
               widget?.type,
@@ -1042,8 +1044,9 @@ describe("test PositionUtils methods", () => {
       };
       jest
         .spyOn(utils, "getWidgetMinMaxDimensionsInPixel")
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .mockImplementation((widget: any, width: number) => {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .mockImplementation((widget: any) => {
           if (
             ["DOCUMENT_VIEWER_WIDGET", "CONTAINER_WIDGET"].includes(
               widget?.type,

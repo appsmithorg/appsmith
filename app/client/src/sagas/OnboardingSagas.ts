@@ -88,7 +88,7 @@ function* endFirstTimeUserOnboardingSaga() {
 function* firstTimeUserOnboardingInitSaga(
   action: ReduxAction<{
     applicationId: string;
-    pageId: string;
+    basePageId: string;
     suffix?: string;
   }>,
 ) {
@@ -99,7 +99,7 @@ function* firstTimeUserOnboardingInitSaga(
   });
   history.replace(
     builderURL({
-      pageId: action.payload.pageId,
+      basePageId: action.payload.basePageId,
       suffix: action.payload.suffix || "",
     }),
   );

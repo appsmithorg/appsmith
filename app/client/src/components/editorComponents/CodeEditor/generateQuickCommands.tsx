@@ -66,6 +66,8 @@ export const showMoreCommandOption = (
   className: "CodeMirror-commands show-more-option",
   data: {},
   shortcut: Shortcuts.SHOW_MORE,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   render: (element: HTMLElement, self: any, data: any) => {
     ReactDOM.render(
       <ShowMoreCommand
@@ -101,7 +103,8 @@ export const generateCreateNewCommand = ({
   isBeta,
   shortcut,
   text,
-  triggerCompletionsPostPick,
+  triggerCompletionsPostPick, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any): CommandsCompletion => ({
   text,
   displayText: displayText,
@@ -110,6 +113,8 @@ export const generateCreateNewCommand = ({
   shortcut,
   action,
   triggerCompletionsPostPick,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   render: (element: HTMLElement, self: any, data: any) => {
     ReactDOM.render(
       <Command
@@ -138,6 +143,8 @@ export const iconsByType = {
 };
 
 export function ShowMoreCommand(props: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon: any;
   name: string;
   editor: CodeMirror.Editor;
@@ -145,6 +152,8 @@ export function ShowMoreCommand(props: {
   suggestions: CommandsCompletion[];
   searchText: string;
 }) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleShowMoreClick = (event: any) => {
     event.stopPropagation();
     event.preventDefault();
@@ -202,6 +211,8 @@ export function ShowMoreCommand(props: {
 }
 
 export function Command(props: {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon: any;
   name: string;
   desc?: string;
@@ -357,6 +368,8 @@ export const generateQuickCommands = (
           args: { datasource: action },
           callback,
         }),
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       render: (element: HTMLElement, self: any, data: CommandsCompletion) => {
         const completionData = data.data as Datasource;
         const icon = (

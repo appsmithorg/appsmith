@@ -8,7 +8,7 @@ import history from "utils/history";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { WidgetType } from "constants/WidgetConstants";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { getCurrentPageId } from "selectors/editorSelectors";
+import { getCurrentBasePageId } from "selectors/editorSelectors";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 
@@ -33,13 +33,13 @@ interface ConnectDataCTAProps {
 }
 
 function ConnectDataCTA(props: ConnectDataCTAProps) {
-  const pageId: string = useSelector(getCurrentPageId);
+  const basePageId: string = useSelector(getCurrentBasePageId);
 
   const onClick = () => {
     const { widgetId, widgetTitle, widgetType } = props;
     history.push(
       integrationEditorURL({
-        pageId,
+        basePageId,
         selectedTab: INTEGRATION_TABS.NEW,
         params: { mode: INTEGRATION_EDITOR_MODES.AUTO },
       }),

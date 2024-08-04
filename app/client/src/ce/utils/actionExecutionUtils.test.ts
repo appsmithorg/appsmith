@@ -18,6 +18,7 @@ describe("getTestPayloadFromCollectionData", () => {
       isLoading: false,
       config: {
         id: "",
+        baseId: "",
         applicationId: "",
         workspaceId: "",
         name: "",
@@ -37,6 +38,7 @@ describe("getTestPayloadFromCollectionData", () => {
       isLoading: false,
       config: {
         id: "",
+        baseId: "",
         applicationId: "",
         workspaceId: "",
         name: "",

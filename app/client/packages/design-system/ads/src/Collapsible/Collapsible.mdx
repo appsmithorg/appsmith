@@ -1,0 +1,57 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as CollapsibleStories from "./Collapsible.stories";
+
+<Meta of={CollapsibleStories} />
+
+# Collapsible
+
+A collapsible is a component that has related items under a section heading. These items could be either all content or all controls, but never both together. It retains memory of its past state.
+
+<Canvas of={CollapsibleStories.CollapsibleStory} />
+
+## Anatomy
+
+1. **Header**: contains the section title and is control for revealing the panel.
+2. **Arrow**: indicates if the panel is open or closed.
+3. **Icon**: (optional).
+
+### Copy
+
+The collapsible's header should be the category name for the group of items in it. Avoid using generic terms like "Show More" and "Hide Details". The UX already does the job of drawing attention to the interaction, and therefore the label should provide a hint as to what the user will find inside it.
+
+### Scrolling content
+
+If the content within the collapsible extends beyond the visible area of the screen, the collapsible element should stretch to accommodate the entire content, but should never scroll. However, the parent of the collapsible should scroll. Horizontal scrolling must also be avoided entirely within the collapsible component.
+
+![Collapsible anatomy](./docs/collapsible-anatomy.png)
+
+## Spacing
+
+![Collapsible spacing](./docs/collapsible-spacing.png)
+
+## When to use
+
+- To organize related information.
+- To shorten pages and reduce scrolling when content is not crucial to read in full.
+- When space is at a premium and long content cannot be displayed all at once, like on a mobile interface or in a side panel.
+- Do not hide critical information or actions behind collapsible components. Users should not miss important content due to it being hidden.
+
+### Examples
+
+1. Widget drawer (a simple collapsible)
+   In the widget drawer, a collapsible contains the list of widgets grouped by type of widget
+
+2. Entity explorer (a collapsible with supplementary action and nested items)
+   In the entity explorer, a collapsible opens up queries, data sources, installed libraries, etc.
+
+3. Pages panel (a collapsible with a supplementary action)
+   In the pages panel, users can add a new page and view all other pages
+
+4. Property pane (a collapsible with a chevron icon on the right)
+   In the property pane, users can see all section properties under a collapsible, it can be anything from inputs, toggles, text area and more.
+
+## States
+
+The collapsible element operates in two primary modes: collapsed and expanded. The chevron icon located at the end of the collapsible signifies its current state.
+By default, the collapsible starts out collapsed, so all content is concealed. This initial collapsed state offers users opportunity to look at information that is perhaps more relevant in the rest of the page.

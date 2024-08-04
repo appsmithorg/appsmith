@@ -12,7 +12,7 @@ export default class DefaultURLRedirect extends URLRedirect {
     super(mode);
   }
 
-  *generateRedirectURL(pageId: string) {
+  *generateRedirectURL(basePageId: string) {
     const currentApplication: ApplicationPayload = yield select(
       getCurrentApplication,
     );
@@ -28,7 +28,7 @@ export default class DefaultURLRedirect extends URLRedirect {
     // we need to compute the legacy url
     // This scenario can happen only in edit mode.
     newURL = builderURL({
-      pageId: pageId,
+      basePageId,
       hash,
     });
     return newURL;

@@ -11,42 +11,42 @@ import {
 
 export const getQueryEntityItemUrl = (
   item: EntityItem,
-  pageId: string,
+  basePageId: string,
 ): string => {
   const config = getActionConfig(item.type);
   if (!config) {
     throw Error(`Cannot find url of plugin type ${item.type}`);
   }
-  return config.getURL(pageId, item.key, item.type);
+  return config.getURL(basePageId, item.key, item.type);
 };
 
 export const getQueryUrl = (
   item: FocusEntityInfo,
   add: boolean = true,
 ): string => {
-  if (item.params.apiId) {
+  if (item.params.baseApiId) {
     if (item.params.pluginPackageName) {
       return saasEditorApiIdURL({
         pluginPackageName: item.params.pluginPackageName,
-        apiId: item.params.apiId,
+        baseApiId: item.params.baseApiId,
         add,
       });
     } else {
       return apiEditorIdURL({
-        apiId: item.params.apiId,
+        baseApiId: item.params.baseApiId,
         add,
       });
     }
-  } else if (item.params.queryId) {
-    if (item.params.queryId === "add") {
-      return queryListURL({ pageId: item.params.pageId });
+  } else if (item.params.baseQueryId) {
+    if (item.params.baseQueryId === "add") {
+      return queryListURL({ basePageId: item.params.basePageId });
     }
     return queryEditorIdURL({
-      queryId: item.params.queryId,
+      baseQueryId: item.params.baseQueryId,
       add,
     });
   }
   return add
-    ? queryAddURL({ pageId: item.params.pageId })
-    : queryListURL({ pageId: item.params.pageId });
+    ? queryAddURL({ basePageId: item.params.basePageId })
+    : queryListURL({ basePageId: item.params.basePageId });
 };

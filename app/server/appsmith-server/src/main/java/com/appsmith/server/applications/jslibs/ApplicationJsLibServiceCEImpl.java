@@ -21,15 +21,14 @@ public class ApplicationJsLibServiceCEImpl implements ContextBasedJsLibServiceCE
 
     @Override
     public Mono<Set<CustomJSLibContextDTO>> getAllVisibleJSLibContextDTOFromContext(
-            String contextId, String branchName, Boolean isViewMode) {
+            String branchedContextId, Boolean isViewMode) {
         return applicationService
-                .findByIdAndBranchName(
-                        contextId,
+                .findByBranchedId(
+                        branchedContextId,
                         List.of(
                                 isViewMode
                                         ? Application.Fields.publishedCustomJSLibs
-                                        : Application.Fields.unpublishedCustomJSLibs),
-                        branchName)
+                                        : Application.Fields.unpublishedCustomJSLibs))
                 .map(application -> {
                     if (isViewMode) {
                         return application.getPublishedCustomJSLibs() == null
@@ -45,8 +44,8 @@ public class ApplicationJsLibServiceCEImpl implements ContextBasedJsLibServiceCE
 
     @Override
     public Mono<Integer> updateJsLibsInContext(
-            String contextId, String branchName, Set<CustomJSLibContextDTO> updatedJSLibDTOSet) {
+            String branchedContextId, Set<CustomJSLibContextDTO> updatedJSLibDTOSet) {
         Map<String, Object> fieldNameValueMap = Map.of(Application.Fields.unpublishedCustomJSLibs, updatedJSLibDTOSet);
-        return applicationService.update(contextId, fieldNameValueMap, branchName);
+        return applicationService.updateByBranchedIdAndFieldsMap(branchedContextId, fieldNameValueMap);
     }
 }

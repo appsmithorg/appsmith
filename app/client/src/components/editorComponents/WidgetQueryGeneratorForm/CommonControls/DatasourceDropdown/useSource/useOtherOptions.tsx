@@ -30,7 +30,7 @@ function useOtherOptions(props: OtherOptionsProps) {
     sampleData,
     updateConfig,
   } = useContext(WidgetQueryGeneratorFormContext);
-  const { pageId: currentPageId } = useParams<ExplorerURLParams>();
+  const { basePageId } = useParams<ExplorerURLParams>();
   const isAddBindingAllowed =
     datasourceDropdownVariant === DROPDOWN_VARIANT.CREATE_OR_EDIT_RECORDS;
   const { widget } = props;
@@ -44,7 +44,7 @@ function useOtherOptions(props: OtherOptionsProps) {
         onSelect: () => {
           history.push(
             integrationEditorURL({
-              pageId: currentPageId,
+              basePageId,
               selectedTab: INTEGRATION_TABS.NEW,
             }),
           );
@@ -117,14 +117,7 @@ function useOtherOptions(props: OtherOptionsProps) {
     }
 
     return options;
-  }, [
-    currentPageId,
-    sampleData,
-    addBinding,
-    updateConfig,
-    widget,
-    propertyName,
-  ]);
+  }, [basePageId, sampleData, addBinding, updateConfig, widget, propertyName]);
 
   return otherOptions;
 }

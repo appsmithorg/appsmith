@@ -105,7 +105,9 @@ export const addEntityAction: ReduxAction<WidgetAddChild> = {
 export const newlyCreatedActions: Action[] = [
   {
     id: "6673f0a0b64fdc719809bf28",
+    baseId: "6673f0a0b64fdc719809bf29",
     workspaceId: "6672debbb64fdc719809bf05",
+    applicationId: "6672debbb64fdc719809b111",
     cacheResponse: "",
     pluginType: PluginType.DB,
     pluginId: "667115877cb2c839782babdd",

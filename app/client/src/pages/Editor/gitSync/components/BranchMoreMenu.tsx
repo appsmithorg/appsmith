@@ -29,6 +29,8 @@ interface Props {
 function DeleteButton(
   branchToDelete: string,
   gitMetaData: GitApplicationMetadata,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: Dispatch<any>,
 ) {
   const currentBranch = gitMetaData?.branchName || "";

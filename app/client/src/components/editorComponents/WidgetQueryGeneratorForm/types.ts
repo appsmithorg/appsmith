@@ -6,6 +6,8 @@ export interface DropdownOptionType {
   value?: string;
   icon?: JSX.Element;
   onSelect?: (value: string, option: DropdownOptionType) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: any;
   message?: string;
 }
@@ -23,6 +25,8 @@ export interface OtherField {
   optionType: string;
   isRequired: boolean;
   options?: DropdownOptionType[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   isVisible?: (config: any) => boolean;
   onSelect?: (value: string, option: DefaultOptionType) => void;
   getDefaultValue?: (options?: Record<string, unknown>) => string;

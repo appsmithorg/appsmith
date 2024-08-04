@@ -12,6 +12,8 @@ import {
  * @param headerIndexToUpdate
  * @returns
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getIndextoUpdate = (headers: any, headerIndexToUpdate: number) => {
   const firstEmptyHeaderRowIndex: number = headers?.findIndex(
     (element: { key: string; value: string }) =>

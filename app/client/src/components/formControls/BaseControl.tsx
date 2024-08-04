@@ -38,6 +38,8 @@ export interface ConditionObject {
 export interface Condition {
   path: string;
   comparison: ComparisonOperations;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any;
   flagValue: FeatureFlag;
 }
@@ -61,6 +63,8 @@ export interface ControlData {
   tooltipText?: string | Record<string, string>;
   configProperty: string;
   controlType: ControlType;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   propertyValue?: any;
   isValid: boolean;
   validationMessage?: string;
@@ -77,6 +81,8 @@ export interface ControlData {
   conditionals?: ConditonalObject; // Object that contains the conditionals config
   hidden?: HiddenType;
   placeholderText?: string | Record<string, string>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   schema?: any;
   errorText?: string;
   showError?: boolean;
@@ -88,7 +94,11 @@ export interface ControlData {
   logicalTypes?: string[];
   comparisonTypes?: string[];
   nestedLevels?: number;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   customStyles?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sectionStyles?: any;
   propertyName?: string;
   identifier?: string;

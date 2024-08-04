@@ -38,7 +38,7 @@ const queryDebuggerConfig: Config = {
 const getConfig = (focusInfo: FocusEntityInfo): Config => {
   switch (focusInfo.entity) {
     case FocusEntity.QUERY:
-      if (focusInfo.params.apiId) {
+      if (focusInfo.params.baseApiId) {
         if (focusInfo.params.pluginPackageName) {
           return queryDebuggerConfig;
         }

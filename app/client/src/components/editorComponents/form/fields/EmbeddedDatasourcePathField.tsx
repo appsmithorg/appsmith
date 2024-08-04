@@ -292,6 +292,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
     };
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   handleOnChange = (valueOrEvent: ChangeEvent<any> | string) => {
     const value: string =
       typeof valueOrEvent === "string"
@@ -374,6 +376,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
                     )
                       ? "datasource-hint custom invalid"
                       : "datasource-hint custom",
+                    // TODO: Fix this the next time the file is edited
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     render: (element: HTMLElement, self: any, data: any) => {
                       ReactDOM.render(
                         <CustomHint
@@ -484,6 +488,8 @@ class EmbeddedDatasourcePathComponent extends React.Component<
   };
 
   // if the next props is not equal to the current props, do not rerender, same for state
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   shouldComponentUpdate(nextProps: any, nextState: any) {
     if (!equal(nextProps, this.props)) {
       return true;
@@ -635,7 +641,11 @@ const mapStateToProps = (
 };
 
 const mapDispatchToProps = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ownProps: any,
 ): ReduxDispatchProps => ({
   updateDatasource: (datasource) =>

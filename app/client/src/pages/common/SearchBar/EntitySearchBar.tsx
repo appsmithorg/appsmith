@@ -11,9 +11,11 @@ import history from "utils/history";
 import ProductUpdatesModal from "pages/Applications/ProductUpdatesModal";
 import { useDispatch, useSelector } from "react-redux";
 import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
-import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
+import {
+  getCurrentApplication,
+  getCurrentApplicationIdForCreateNewApp,
+} from "@appsmith/selectors/applicationSelectors";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { getCurrentApplication } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { debounce, get } from "lodash";
 import HomepageHeaderAction from "pages/common/SearchBar/HomepageHeaderAction";
@@ -36,6 +38,7 @@ import MobileEntitySearchField from "pages/common/SearchBar/MobileEntitySearchFi
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import Fuse from "fuse.js";
 import { useOutsideClick } from "@appsmith/hooks";
+import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
 
 const HeaderSection = styled.div`
   display: flex;
@@ -49,6 +52,8 @@ const HeaderSection = styled.div`
   }
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function EntitySearchBar(props: any) {
   const isMobile = useIsMobileDevice();
   const dispatch = useDispatch();
@@ -133,11 +138,11 @@ function EntitySearchBar(props: any) {
       (app: ApplicationPayload) => app.id === applicationId,
     );
 
-    const defaultPageId = searchedApplication?.pages.find(
-      (page: any) => page.isDefault === true,
-    )?.id;
+    const defaultPage = searchedApplication?.pages.find(
+      (page: PageDefaultMeta) => page.isDefault === true,
+    );
     const viewURL = viewerURL({
-      pageId: defaultPageId,
+      basePageId: defaultPage.baseId,
     });
     window.location.href = `${viewURL}`;
   }

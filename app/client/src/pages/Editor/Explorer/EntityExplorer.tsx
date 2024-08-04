@@ -17,6 +17,7 @@ import ExplorerWidgetGroup from "./Widgets/WidgetGroup";
 import { builderURL } from "@appsmith/RouteBuilder";
 import history from "utils/history";
 import {
+  getCurrentBasePageId,
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
@@ -49,7 +50,7 @@ const NoResult = styled(NonIdealState)`
       svg {
         height: 52px;
         width: 144px;
-      
+      }
     }
 
     div {
@@ -74,15 +75,16 @@ function EntityExplorer({ isActive }: { isActive: boolean }) {
     getIsFirstTimeUserOnboardingEnabled,
   );
   const noResults = false;
+  const basePageId = useSelector(getCurrentBasePageId);
   const pageId = useSelector(getCurrentPageId);
   const showWidgetsSidebar = useCallback(() => {
     AnalyticsUtil.logEvent("EXPLORER_WIDGET_CLICK");
-    history.push(builderURL({ pageId }));
+    history.push(builderURL({ basePageId }));
     dispatch(forceOpenWidgetPanel(true));
     if (isFirstTimeUserOnboardingEnabled) {
       dispatch(toggleInOnboardingWidgetSelection(true));
     }
-  }, [isFirstTimeUserOnboardingEnabled, pageId]);
+  }, [isFirstTimeUserOnboardingEnabled, basePageId]);
 
   const currentWorkspaceId = useSelector(getCurrentWorkspaceId);
 

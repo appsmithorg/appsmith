@@ -44,6 +44,8 @@ export function* batchCallsToUpdateWidgetAutoHeightSaga(
 // In this saga, we simply call the UPDATE_LAYOUT, with shouldReplay: false
 // This makes sure that we call eval, but we don't add the updates to the replay stack
 export function* callEvalWithoutReplay(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   action: ReduxAction<{ widgetsToUpdate: any; shouldEval: boolean }>,
 ) {
   if (action.payload.shouldEval) {

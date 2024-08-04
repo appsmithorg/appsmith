@@ -27,6 +27,8 @@ interface FilesContextContextProps {
   parentEntityType: ActionParentEntityTypeInterface;
   showModules?: boolean;
   showWorkflows?: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   selectFilesForExplorer?: (state: any) => any;
 }
 

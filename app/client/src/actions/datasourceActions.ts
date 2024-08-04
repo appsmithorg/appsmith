@@ -305,6 +305,8 @@ export interface addMockRequest
     isGeneratePageMode?: string;
     skipRedirection?: boolean;
   }> {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   extraParams?: any;
 }
 
@@ -360,7 +362,11 @@ type errorPayload = string;
 
 export interface executeDatasourceReduxActionPayload {
   datasourceId: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   template?: Record<string, any>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data?: Record<string, any>;
   isGeneratePage: boolean;
 }
@@ -378,9 +384,13 @@ export const executeDatasourceQuery = ({
 }: {
   onErrorCallback?: (payload: errorPayload) => void;
   onSuccessCallback?: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     payload: executeDatasourceQuerySuccessPayload<any>,
   ) => void;
   payload: executeDatasourceReduxActionPayload;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }): executeDatasourceQueryReduxAction<any> => {
   return {
     type: ReduxActionTypes.EXECUTE_DATASOURCE_QUERY_INIT,

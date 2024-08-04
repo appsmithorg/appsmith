@@ -18,6 +18,8 @@ enum OrderDropDownValues {
 }
 
 // Form config for the column field
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const columnFieldConfig: any = {
   key: "column",
   controlType: "QUERY_DYNAMIC_INPUT_TEXT",
@@ -30,6 +32,8 @@ const columnFieldConfig: any = {
 };
 
 // Form config for the order field
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const orderFieldConfig: any = {
   key: "order",
   controlType: "DROP_DOWN",
@@ -91,7 +95,11 @@ const ColumnDropdownContainer = styled.div``;
 // Component for the icons
 const CenteredButton = styled(Button)``;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function SortingComponent(props: any) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formValues: any = useSelector((state) =>
     getFormValues(props.formName)(state),
   );
@@ -151,6 +159,8 @@ function SortingComponent(props: any) {
     <SortingContainer className={`t--${props?.configProperty}`} ref={targetRef}>
       {props.fields &&
         props.fields.length > 0 &&
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         props.fields.map((field: any, index: number) => {
           const columnPath = getBindingOrConfigPathsForSortingControl(
             SortingSubComponent.Column,

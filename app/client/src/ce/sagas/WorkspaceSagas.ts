@@ -401,6 +401,8 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
   }
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* searchWorkspaceEntitiesSaga(action: ReduxAction<any>) {
   try {
     const response: SearchApiResponse = yield call(

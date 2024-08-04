@@ -5,7 +5,7 @@ import styled from "styled-components";
 
 import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
 import { selectJSSegmentEditorList } from "@appsmith/selectors/appIDESelectors";
-import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
+import { useActiveActionBaseId } from "@appsmith/pages/Editor/Explorer/hooks";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -39,7 +39,7 @@ const ListJSObjects = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const pageId = useSelector(getCurrentPageId);
   const files = useSelector(selectJSSegmentEditorList);
-  const activeActionId = useActiveAction();
+  const activeActionBaseId = useActiveActionBaseId();
   const applicationId = useSelector(getCurrentApplicationId);
 
   const pagePermissions = useSelector(getPagePermissions);
@@ -104,7 +104,7 @@ const ListJSObjects = () => {
                   {items.map((item) => {
                     return (
                       <JSListItem
-                        isActive={item.key === activeActionId}
+                        isActive={item.key === activeActionBaseId}
                         item={item}
                         key={item.key}
                         parentEntityId={pageId}

@@ -9,7 +9,7 @@ export const getWidgetChildrenNavData = (
   widgetName: string,
   widgetType: string,
   dataTree: DataTree,
-  pageId: string,
+  basePageId: string,
 ) => {
   const dataTreeWidget: WidgetEntity = dataTree[widgetName] as WidgetEntity;
   if (widgetType === "FORM_WIDGET") {
@@ -23,7 +23,7 @@ export const getWidgetChildrenNavData = (
           id: `${widgetName}.data.${childWidgetName}`,
           name: childWidgetName,
           type: ENTITY_TYPE.WIDGET,
-          url: builderURL({ pageId, hash: childWidgetId }),
+          url: builderURL({ basePageId, hash: childWidgetId }),
           children: {},
         });
       });

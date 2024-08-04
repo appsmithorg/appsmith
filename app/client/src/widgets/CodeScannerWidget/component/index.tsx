@@ -489,6 +489,8 @@ function CodeScannerComponent(props: CodeScannerComponentProps) {
   };
 
   const renderComponent = () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleOnResult = (err: any, result: any) => {
       if (!!result) {
         const codeData = result.text;

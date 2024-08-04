@@ -56,6 +56,8 @@ export const truncateTextUsingEllipsis = css`
 `;
 
 export const getTypographyByKey = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   props: Record<string, any>,
   key: TypographyKeys,
 ) => `
@@ -393,6 +395,8 @@ export interface Theme {
   drawerWidth: string;
   spaces: Array<number>;
   fontWeights: Array<number>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   colors: any;
   typography: Typography;
   lineHeights: Array<number>;
@@ -412,6 +416,8 @@ export interface Theme {
   pageTabsHeight: string;
   integrationsPageUnusableHeight: string;
   backBanner: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   homePage: any;
   sidebarWidth: string;
   canvasBottomPadding: number;
@@ -1096,7 +1102,11 @@ interface ColorType {
       fullForm: string;
     };
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   floatingBtn: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   auth: any;
   formMessage: Record<string, Record<Intent, string>>;
   header: {

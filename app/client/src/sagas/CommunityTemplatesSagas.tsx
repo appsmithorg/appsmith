@@ -47,6 +47,8 @@ function* handleFailure(error: unknown) {
     show: true,
     error: {
       message:
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (error as any).message ??
         createMessage(COMMUNITY_TEMPLATES.publishFormPage.publishedFailedError),
     },

@@ -96,9 +96,15 @@ TriggerEmitter.on(BatchKey.process_batched_triggers, defaultTriggerHandler);
 
 const fnExecutionDataHandler = deferredBatchedActionHandler((data) => {
   const batchedData = data.reduce<{
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     JSExecutionData: Record<string, any>;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     JSExecutionErrors: Record<string, any>;
   }>(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (acc, d: any) => {
       const { data, name } = d;
       try {

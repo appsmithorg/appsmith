@@ -7,10 +7,16 @@ import { LINT_WORKER_ACTIONS as LINT_ACTIONS } from "plugins/Linting/types";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 export interface ILinter {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   lintTree(args: LintTreeRequestPayload): any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateJSLibraryGlobals(args: updateJSLibraryProps): any;
   start(): void;
   shutdown(): void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setup(args: FeatureFlags): any;
 }
 

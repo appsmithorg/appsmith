@@ -67,6 +67,8 @@ function GoogleSheetSchema(props: Props) {
     [],
   );
   const [sheetOptions, setSheetOptions] = useState<DropdownOptions>([]);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [sheetData, setSheetData] = useState<any>([]);
   const [selectedSpreadsheet, setSelectedSpreadsheet] =
     useState<DropdownOption>({});
@@ -407,10 +409,11 @@ function GoogleSheetSchema(props: Props) {
                 <SearchInput
                   className="datasourceStructure-search"
                   endIcon="close"
-                  onChange={(value) => handleSearch(value)}
+                  onChange={(value: string) => handleSearch(value)}
                   placeholder={createMessage(GSHEET_SEARCH_PLACEHOLDER)}
                   size={"sm"}
                   startIcon="search"
+                  //@ts-expect-error Fix this the next time the file is edited
                   type="text"
                 />
               </DatasourceStructureSearchContainer>

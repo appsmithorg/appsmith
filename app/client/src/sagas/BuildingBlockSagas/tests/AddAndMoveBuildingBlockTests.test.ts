@@ -226,6 +226,8 @@ describe("addNewlyAddedActionsToRedux", () => {
   it("1. should add new actions to Redux if they do not already exist", () => {
     const existingAction = undefined;
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const generator: any = addNewlyAddedActionsToRedux(newlyCreatedActions);
 
     for (const action of newlyCreatedActions) {
@@ -278,6 +280,8 @@ describe("updateWidgetsNameInNewQueries", () => {
   it("2. should return an empty array when queries array is empty", () => {
     const oldWidgetName = "OldWidget";
     const newWidgetName = "NewWidget";
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const queries: any[] = [];
 
     const updatedQueries = updateWidgetsNameInNewQueries(
