@@ -48,8 +48,8 @@
     "cypress:snapshot:docker:build": "docker build . -f cypress/Dockerfile -t cypress-snapshot"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.441.0",
-    "@aws-sdk/lib-storage": "^3.441.0",
+    "@aws-sdk/client-s3": "^3.622.0",
+    "@aws-sdk/lib-storage": "^3.622.0",
     "@babel/standalone": "^7.23.6",
     "@blueprintjs/core": "^3.43.0",
     "@blueprintjs/datetime": "^3.23.6",
