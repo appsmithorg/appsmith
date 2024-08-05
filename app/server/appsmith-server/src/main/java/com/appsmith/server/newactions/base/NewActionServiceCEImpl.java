@@ -731,6 +731,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             String applicationId, Boolean viewMode, AclPermission permission, Sort sort) {
         return repository
                 .findByApplicationId(applicationId, permission, sort)
+                .name("appsmith.consolidated-api.actions.actions_db")
+                .tap(Micrometer.observation(observationRegistry))
                 // In case of view mode being true, filter out all the actions which haven't been published
                 .flatMap(action -> {
                     if (Boolean.TRUE.equals(viewMode)) {
@@ -745,7 +747,11 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     return Mono.just(action);
                 })
-                .flatMap(this::sanitizeAction);
+                .name("appsmith.consolidated-api.actions.filter")
+                .tap(Micrometer.observation(observationRegistry))
+                .flatMap(this::sanitizeAction)
+                .name("appsmith.consolidated-api.actions.sanitise")
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -782,8 +788,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         // fetch the published actions by applicationId
         // No need to sort the results
         return findAllByApplicationIdAndViewMode(applicationId, true, actionPermission.getExecutePermission(), null)
+                .name("appsmith.consolidated-api.actions.initial")
+                .tap(Micrometer.observation(observationRegistry))
                 .filter(newAction -> !PluginType.JS.equals(newAction.getPluginType()))
-                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true));
+                .map(action -> generateActionViewDTO(action, action.getPublishedAction(), true))
+                .name("appsmith.consolidated-api.actions.final")
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -1159,31 +1169,43 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
          */
         Datasource datasource = actionDTO.getDatasource();
         if (actionDTO.getCollectionId() != null) {
-            return setPluginIdAndTypeForJSAction(action);
+            return setPluginIdAndTypeForJSAction(action)
+                    .name("appsmith.consolidated-api.actions.set_js")
+                    .tap(Micrometer.observation(observationRegistry));
         } else if (datasource != null && datasource.getPluginId() != null) {
             String pluginId = datasource.getPluginId();
             action.setPluginId(pluginId);
 
-            return setPluginTypeFromId(action, pluginId);
+            return setPluginTypeFromId(action, pluginId)
+                    .name("appsmith.consolidated-api.actions.set_plu_type")
+                    .tap(Micrometer.observation(observationRegistry));
         }
 
         return Mono.just(action);
     }
 
     private Mono<NewAction> setPluginTypeFromId(NewAction action, String pluginId) {
-        return pluginService.findById(pluginId).flatMap(plugin -> {
-            action.setPluginType(plugin.getType());
-            return Mono.just(action);
-        });
+        return pluginService
+                .findById(pluginId)
+                .name("appsmith.consolidated-api.actions.plugindb")
+                .tap(Micrometer.observation(observationRegistry))
+                .flatMap(plugin -> {
+                    action.setPluginType(plugin.getType());
+                    return Mono.just(action);
+                });
     }
 
     private Mono<NewAction> setPluginIdAndTypeForJSAction(NewAction action) {
         action.setPluginType(JS_PLUGIN_TYPE);
 
-        return pluginService.findByPackageName(JS_PLUGIN_PACKAGE_NAME).flatMap(plugin -> {
-            action.setPluginId(plugin.getId());
-            return Mono.just(action);
-        });
+        return pluginService
+                .findByPackageName(JS_PLUGIN_PACKAGE_NAME)
+                .name("appsmith.consolidated-api.actions.plugindb")
+                .tap(Micrometer.observation(observationRegistry))
+                .flatMap(plugin -> {
+                    action.setPluginId(plugin.getId());
+                    return Mono.just(action);
+                });
     }
 
     // We can afford to make this call all the time since we already have all the info we need in context
