@@ -42,6 +42,7 @@ const getCommonTelemetryAttributes = () => {
     browserName,
     browserVersion,
     otlpSessionId: OTLP_SESSION_ID,
+    hostname: window.location.hostname,
   };
 };
 

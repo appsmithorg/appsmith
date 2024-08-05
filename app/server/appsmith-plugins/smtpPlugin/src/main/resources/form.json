@@ -1,56 +1,50 @@
-{
-  "form": [
+{"form": [
     {
-      "sectionName": "Email Configuration",
-      "id": 1,
-      "children": [
-        {
-          "sectionName": null,
-          "children": [
-            {
-              "label": "Host address",
-              "configProperty": "datasourceConfiguration.endpoints[*].host",
-              "controlType": "KEYVALUE_ARRAY",
-              "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$",
-              "placeholderText": "myapp.abcde.smtp.net"
-            },
-            {
-              "label": "Port",
-              "configProperty": "datasourceConfiguration.endpoints[*].port",
-              "dataType": "NUMBER",
-              "initialValue": ["25"],
-              "controlType": "KEYVALUE_ARRAY",
-              "placeholderText": "25"
-            }
-          ]
-        }
-      ]
+        "sectionName": "Email Configuration",
+        "children": [{
+            "sectionName": null,
+            "children": [
+                {
+                    "controlType": "KEYVALUE_ARRAY",
+                    "validationMessage": "Please enter a valid host",
+                    "placeholderText": "myapp.abcde.smtp.net",
+                    "label": "Host address",
+                    "validationRegex": "^((?![/:]).)*$",
+                    "configProperty": "datasourceConfiguration.endpoints[*].host"
+                },
+                {
+                    "controlType": "KEYVALUE_ARRAY",
+                    "dataType": "NUMBER",
+                    "placeholderText": "25",
+                    "label": "Port",
+                    "initialValue": ["25"],
+                    "configProperty": "datasourceConfiguration.endpoints[*].port"
+                }
+            ]
+        }],
+        "id": 1
     },
     {
-      "sectionName": "Authentication",
-      "id": 2,
-      "children": [
-        {
-          "sectionName": null,
-          "children": [
-            {
-              "label": "Username",
-              "configProperty": "datasourceConfiguration.authentication.username",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Username"
-            },
-            {
-              "label": "Password",
-              "configProperty": "datasourceConfiguration.authentication.password",
-              "dataType": "PASSWORD",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Password",
-              "encrypted": true
-            }
-          ]
-        }
-      ]
+        "sectionName": "Authentication",
+        "children": [{
+            "sectionName": null,
+            "children": [
+                {
+                    "controlType": "INPUT_TEXT",
+                    "placeholderText": "Username",
+                    "label": "Username",
+                    "configProperty": "datasourceConfiguration.authentication.username"
+                },
+                {
+                    "controlType": "INPUT_TEXT",
+                    "encrypted": true,
+                    "dataType": "PASSWORD",
+                    "placeholderText": "Password",
+                    "label": "Password",
+                    "configProperty": "datasourceConfiguration.authentication.password"
+                }
+            ]
+        }],
+        "id": 2
     }
-  ]
-}
+]}

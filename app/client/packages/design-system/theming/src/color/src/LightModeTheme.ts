@@ -303,12 +303,12 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bgAccent.clone();
 
     // For bright accents it helps to make neutral a bit darker to differentiate with bgAccent
-    if (this.bgAccent.oklch.l >= 0.85) {
-      color.oklch.l -= 0.2;
+    if (this.bgAccent.oklch.l >= 0.7) {
+      color.oklch.l -= 0.55;
     }
 
-    if (this.bgAccent.oklch.l > 0.25 && this.bgAccent.oklch.l < 0.85) {
-      color.oklch.l -= 0.1;
+    if (this.bgAccent.oklch.l > 0.2 && this.bgAccent.oklch.l < 0.85) {
+      color.oklch.l -= 0.35;
     }
 
     if (this.seedIsAchromatic) {
@@ -345,23 +345,23 @@ export class LightModeTheme implements ColorModeTheme {
     // Simplified and adjusted version of bgAccentHover algorithm (bgNeutral has very low or no chroma)
 
     if (this.bgNeutral.oklch.l < 0.06) {
-      color.oklch.l += 0.21;
+      color.oklch.l += 0.3;
     }
 
     if (this.bgNeutral.oklch.l > 0.06 && this.bgNeutral.oklch.l < 0.14) {
-      color.oklch.l += 0.12;
+      color.oklch.l += 0.19;
     }
 
     if (this.bgNeutral.oklch.l >= 0.14 && this.bgNeutral.oklch.l < 0.21) {
-      color.oklch.l += 0.06;
+      color.oklch.l += 0.11;
     }
 
     if (this.bgNeutral.oklch.l >= 0.21 && this.bgNeutral.oklch.l < 0.7) {
-      color.oklch.l += 0.04;
+      color.oklch.l += 0.07;
     }
 
     if (this.bgNeutral.oklch.l >= 0.7 && this.bgNeutral.oklch.l < 0.955) {
-      color.oklch.l += 0.02;
+      color.oklch.l += 0.04;
     }
 
     if (this.bgNeutral.oklch.l >= 0.955) {

@@ -1,16 +1,6 @@
-{
-  "templates": [
-    {
-      "file": "CREATE.sql"
-    },
-    {
-      "file": "SELECT.sql"
-    },
-    {
-      "file": "UPDATE.sql"
-    },
-    {
-      "file": "DELETE.sql"
-    }
-  ]
-}
+{"templates": [
+    {"file": "CREATE.sql"},
+    {"file": "SELECT.sql"},
+    {"file": "UPDATE.sql"},
+    {"file": "DELETE.sql"}
+]}

@@ -2,7 +2,7 @@ import React from "react";
 import styles from "./styles.module.css";
 
 interface SectionProps {
-  children?: React.ReactNode;
+  children: React.ReactNode;
   isStandalone?: boolean;
 }
 

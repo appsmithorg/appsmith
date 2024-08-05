@@ -1,15 +1,9 @@
-{
-  "editor": [
-    {
-      "sectionName": "",
-      "id": 1,
-      "children": [
-        {
-          "label": "",
-          "configProperty": "actionConfiguration.body",
-          "controlType": "QUERY_DYNAMIC_TEXT"
-        }
-      ]
-    }
-  ]
-}
+{"editor": [{
+    "sectionName": "",
+    "children": [{
+        "controlType": "QUERY_DYNAMIC_TEXT",
+        "label": "",
+        "configProperty": "actionConfiguration.body"
+    }],
+    "id": 1
+}]}
