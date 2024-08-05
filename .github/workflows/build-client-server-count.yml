@@ -2,7 +2,7 @@ name: Build Client, Server & Run only Cypress
 
 on:
   repository_dispatch:
-    types: [ci-test-limit-command]
+    types: [ci-test-limit-count]
 
 jobs:
   file-check:
