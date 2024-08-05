@@ -1,156 +1,145 @@
 {
-  "editor": [
-    {
-      "controlType": "SECTION",
-      "identifier": "SELECTOR",
-      "children": [
-        {
-          "label": "Operation",
-          "tooltipText": "The command to run on the datasource",
-          "description": "Select the operation you would like to execute",
-          "propertyName": "rows_commands",
-          "configProperty": "actionConfiguration.formData.command.data",
-          "controlType": "DROP_DOWN",
-          "initialValue": "FETCH_MANY",
-          "isRequired": true,
-          "options": [
+    "editor": [{
+        "identifier": "SELECTOR",
+        "controlType": "SECTION",
+        "children": [
             {
-              "label": "Fetch Details",
-              "value": "FETCH_DETAILS"
-            },
-            {
-              "label": "Insert One",
-              "value": "INSERT_ONE"
-            },
-            {
-              "label": "Update One",
-              "value": "UPDATE_ONE"
-            },
-            {
-              "label": "Delete One",
-              "value": "DELETE_ONE"
-            },
-            {
-              "label": "Fetch Many",
-              "value": "FETCH_MANY"
-            },
-            {
-              "label": "Insert Many",
-              "value": "INSERT_MANY"
-            },
-            {
-              "label": "Update Many",
-              "value": "UPDATE_MANY"
-            }
-          ]
-        },
-        {
-          "label": "Entity",
-          "tooltipText": "The entity to query on the datasource",
-          "description": "Select the entity that you would like to work with",
-          "propertyName": "entityType",
-          "configProperty": "actionConfiguration.formData.entityType.data",
-          "controlType": "DROP_DOWN",
-          "initialValue": "ROWS",
-          "isRequired": true,
-          "setFirstOptionAsDefault": true,
-          "options": [
-            {
-              "disabled": "{{ ['INSERT_ONE', 'UPDATE_ONE', 'DELETE_ONE', 'FETCH_MANY', 'UPDATE_MANY', 'INSERT_MANY'].includes(actionConfiguration.formData.command.data) === false }}",
-              "label": "Sheet Row(s)",
-              "value": "ROWS"
-            },
-            {
-              "disabled": "{{ ['FETCH_MANY', 'FETCH_DETAILS', 'INSERT_ONE', 'DELETE_ONE'].includes(actionConfiguration.formData.command.data) === false || (['INSERT_ONE', 'DELETE_ONE'].includes(actionConfiguration.formData.command.data) === true &&  ['https://www.googleapis.com/auth/drive.file'].includes(datasourceConfiguration.authentication.scopeString) === true)}}",
-              "label": "Spreadsheet",
-              "value": "SPREADSHEET"
-            },
-            {
-              "disabled": "{{ ['DELETE_ONE'].includes(actionConfiguration.formData.command.data) === false }}",
-              "label": "Sheet",
-              "value": "SHEET"
-            }
-          ],
-          "conditionals": {
-            "evaluateFormConfig": {
-              "condition": "{{true}}",
-              "paths": ["options"]
-            }
-          }
-        },
-        {
-          "label": "",
-          "configProperty": "actionConfiguration.formData.selector.data",
-          "controlType": "ENTITY_SELECTOR",
-          "conditionals": {
-            "show": "{{ !!actionConfiguration.formData.entityType.data && (new Object({ 'SPREADSHEET': ['FETCH_DETAILS', 'DELETE_ONE'], 'SHEET': ['DELETE_ONE'], 'ROWS': ['INSERT_ONE', 'UPDATE_ONE', 'DELETE_ONE', 'FETCH_MANY', 'INSERT_MANY', 'UPDATE_MANY'] })[actionConfiguration.formData.entityType.data].includes(actionConfiguration.formData.command.data))  }}"
-          },
-          "schema": [
-            {
-              "label": "Spreadsheet",
-              "tooltipText": "The URL of the spreadsheet in your Google Drive",
-              "propertyName": "rows_get_spreadsheetUrl",
-              "configProperty": "actionConfiguration.formData.sheetUrl.data",
-              "controlType": "DROP_DOWN",
-              "isSearchable": true,
-              "isRequired": true,
-              "-placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0",
-              "fetchOptionsConditionally": true,
-              "alternateViewTypes": ["json"],
-              "conditionals": {
-                "fetchDynamicValues": {
-                  "condition": "{{true}}",
-                  "config": {
-                    "params": {
-                      "requestType": "SPREADSHEET_SELECTOR",
-                      "displayType": "DROP_DOWN"
+                "isRequired": true,
+                "controlType": "DROP_DOWN",
+                "tooltipText": "The command to run on the datasource",
+                "propertyName": "rows_commands",
+                "options": [
+                    {
+                        "label": "Fetch Details",
+                        "value": "FETCH_DETAILS"
+                    },
+                    {
+                        "label": "Insert One",
+                        "value": "INSERT_ONE"
+                    },
+                    {
+                        "label": "Update One",
+                        "value": "UPDATE_ONE"
+                    },
+                    {
+                        "label": "Delete One",
+                        "value": "DELETE_ONE"
+                    },
+                    {
+                        "label": "Fetch Many",
+                        "value": "FETCH_MANY"
+                    },
+                    {
+                        "label": "Insert Many",
+                        "value": "INSERT_MANY"
+                    },
+                    {
+                        "label": "Update Many",
+                        "value": "UPDATE_MANY"
                     }
-                  }
-                }
-              }
+                ],
+                "description": "Select the operation you would like to execute",
+                "label": "Operation",
+                "initialValue": "FETCH_MANY",
+                "configProperty": "actionConfiguration.formData.command.data"
             },
             {
-              "label": "Sheet name",
-              "propertyName": "rows_get_sheetName",
-              "tooltipText": "The name of the sheet inside the spreadsheet",
-              "configProperty": "actionConfiguration.formData.sheetName.data",
-              "controlType": "DROP_DOWN",
-              "isSearchable": true,
-              "isRequired": true,
-              "fetchOptionsConditionally": true,
-              "alternateViewTypes": ["json"],
-              "conditionals": {
-                "show": "{{ new Object({ 'SPREADSHEET': [], 'SHEET': ['DELETE_ONE'], 'ROWS': ['INSERT_ONE', 'UPDATE_ONE', 'DELETE_ONE', 'FETCH_MANY', 'INSERT_MANY', 'UPDATE_MANY'] })[actionConfiguration.formData.entityType.data].includes(actionConfiguration.formData.command.data) && !!actionConfiguration.formData.sheetUrl.data }}",
-                "fetchDynamicValues": {
-                  "condition": "{{ !!actionConfiguration.formData.sheetUrl.data }}",
-                  "config": {
-                    "params": {
-                      "requestType": "SHEET_SELECTOR",
-                      "displayType": "DROP_DOWN",
-                      "parameters": {
-                        "sheetUrl": "{{actionConfiguration.formData.sheetUrl.data}}"
-                      }
+                "isRequired": true,
+                "controlType": "DROP_DOWN",
+                "tooltipText": "The entity to query on the datasource",
+                "propertyName": "entityType",
+                "options": [
+                    {
+                        "disabled": "{{ ['INSERT_ONE', 'UPDATE_ONE', 'DELETE_ONE', 'FETCH_MANY', 'UPDATE_MANY', 'INSERT_MANY'].includes(actionConfiguration.formData.command.data) === false }}",
+                        "label": "Sheet Row(s)",
+                        "value": "ROWS"
+                    },
+                    {
+                        "disabled": "{{ ['FETCH_MANY', 'FETCH_DETAILS', 'INSERT_ONE', 'DELETE_ONE'].includes(actionConfiguration.formData.command.data) === false || (['INSERT_ONE', 'DELETE_ONE'].includes(actionConfiguration.formData.command.data) === true &&  ['https://www.googleapis.com/auth/drive.file'].includes(datasourceConfiguration.authentication.scopeString) === true)}}",
+                        "label": "Spreadsheet",
+                        "value": "SPREADSHEET"
+                    },
+                    {
+                        "disabled": "{{ ['DELETE_ONE'].includes(actionConfiguration.formData.command.data) === false }}",
+                        "label": "Sheet",
+                        "value": "SHEET"
                     }
-                  }
-                }
-              }
+                ],
+                "description": "Select the entity that you would like to work with",
+                "label": "Entity",
+                "setFirstOptionAsDefault": true,
+                "conditionals": {"evaluateFormConfig": {
+                    "condition": "{{true}}",
+                    "paths": ["options"]
+                }},
+                "initialValue": "ROWS",
+                "configProperty": "actionConfiguration.formData.entityType.data"
             },
             {
-              "label": "Table heading row index",
-              "tooltipText": "The index of the column names in the sheet (starts from 1)",
-              "propertyName": "rows_get_tableHeadingRowIndex",
-              "configProperty": "actionConfiguration.formData.tableHeaderIndex.data",
-              "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
-              "initialValue": "1",
-              "isRequired": true,
-              "conditionals": {
-                "show": "{{ new Object({ 'SPREADSHEET': [], 'SHEET': [], 'ROWS': ['INSERT_ONE', 'UPDATE_ONE', 'DELETE_ONE', 'FETCH_MANY', 'INSERT_MANY', 'UPDATE_MANY'] })[actionConfiguration.formData.entityType.data].includes(actionConfiguration.formData.command.data) && !!actionConfiguration.formData.sheetName.data }}"
-              }
+                "schema": [
+                    {
+                        "fetchOptionsConditionally": true,
+                        "isRequired": true,
+                        "alternateViewTypes": ["json"],
+                        "controlType": "DROP_DOWN",
+                        "tooltipText": "The URL of the spreadsheet in your Google Drive",
+                        "propertyName": "rows_get_spreadsheetUrl",
+                        "label": "Spreadsheet",
+                        "isSearchable": true,
+                        "conditionals": {"fetchDynamicValues": {
+                            "condition": "{{true}}",
+                            "config": {"params": {
+                                "displayType": "DROP_DOWN",
+                                "requestType": "SPREADSHEET_SELECTOR"
+                            }}
+                        }},
+                        "-placeholderText": "https://docs.google.com/spreadsheets/d/xyz/edit#gid=0",
+                        "configProperty": "actionConfiguration.formData.sheetUrl.data"
+                    },
+                    {
+                        "fetchOptionsConditionally": true,
+                        "isRequired": true,
+                        "alternateViewTypes": ["json"],
+                        "controlType": "DROP_DOWN",
+                        "propertyName": "rows_get_sheetName",
+                        "tooltipText": "The name of the sheet inside the spreadsheet",
+                        "label": "Sheet name",
+                        "isSearchable": true,
+                        "conditionals": {
+                            "fetchDynamicValues": {
+                                "condition": "{{ !!actionConfiguration.formData.sheetUrl.data }}",
+                                "config": {"params": {
+                                    "displayType": "DROP_DOWN",
+                                    "requestType": "SHEET_SELECTOR",
+                                    "parameters": {"sheetUrl": "{{actionConfiguration.formData.sheetUrl.data}}"}
+                                }}
+                            },
+                            "show": "{{ new Object({ 'SPREADSHEET': [], 'SHEET': ['DELETE_ONE'], 'ROWS': ['INSERT_ONE', 'UPDATE_ONE', 'DELETE_ONE', 'FETCH_MANY', 'INSERT_MANY', 'UPDATE_MANY'] })[actionConfiguration.formData.entityType.data].includes(actionConfiguration.formData.command.data) && !!actionConfiguration.formData.sheetUrl.data }}"
+                        },
+                        "configProperty": "actionConfiguration.formData.sheetName.data"
+                    },
+                    {
+                        "isRequired": true,
+                        "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+                        "tooltipText": "The index of the column names in the sheet (starts from 1)",
+                        "propertyName": "rows_get_tableHeadingRowIndex",
+                        "label": "Table heading row index",
+                        "conditionals": {"show": "{{ new Object({ 'SPREADSHEET': [], 'SHEET': [], 'ROWS': ['INSERT_ONE', 'UPDATE_ONE', 'DELETE_ONE', 'FETCH_MANY', 'INSERT_MANY', 'UPDATE_MANY'] })[actionConfiguration.formData.entityType.data].includes(actionConfiguration.formData.command.data) && !!actionConfiguration.formData.sheetName.data }}"},
+                        "initialValue": "1",
+                        "configProperty": "actionConfiguration.formData.tableHeaderIndex.data"
+                    }
+                ],
+                "controlType": "ENTITY_SELECTOR",
+                "label": "",
+                "conditionals": {"show": "{{ !!actionConfiguration.formData.entityType.data && (new Object({ 'SPREADSHEET': ['FETCH_DETAILS', 'DELETE_ONE'], 'SHEET': ['DELETE_ONE'], 'ROWS': ['INSERT_ONE', 'UPDATE_ONE', 'DELETE_ONE', 'FETCH_MANY', 'INSERT_MANY', 'UPDATE_MANY'] })[actionConfiguration.formData.entityType.data].includes(actionConfiguration.formData.command.data))  }}"},
+                "configProperty": "actionConfiguration.formData.selector.data"
             }
-          ]
-        }
-      ]
-    }
-  ],
-  "files": ["insert.json", "delete.json", "fetch_many.json", "update.json"]
+        ]
+    }],
+    "files": [
+        "insert.json",
+        "delete.json",
+        "fetch_many.json",
+        "update.json"
+    ]
 }

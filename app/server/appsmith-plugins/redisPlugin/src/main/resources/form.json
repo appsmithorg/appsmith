@@ -1,63 +1,59 @@
-{
-  "form": [
+{"form": [
     {
-      "sectionName": "Connection",
-      "id": 1,
-      "children": [
-        {
-          "sectionName": null,
-          "children": [
+        "sectionName": "Connection",
+        "children": [
             {
-              "label": "Host address",
-              "configProperty": "datasourceConfiguration.endpoints[*].host",
-              "controlType": "KEYVALUE_ARRAY",
-              "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$",
-              "placeholderText": "myapp.abcde.redis.net"
+                "sectionName": null,
+                "children": [
+                    {
+                        "controlType": "KEYVALUE_ARRAY",
+                        "validationMessage": "Please enter a valid host",
+                        "placeholderText": "myapp.abcde.redis.net",
+                        "label": "Host address",
+                        "validationRegex": "^((?![/:]).)*$",
+                        "configProperty": "datasourceConfiguration.endpoints[*].host"
+                    },
+                    {
+                        "controlType": "KEYVALUE_ARRAY",
+                        "dataType": "NUMBER",
+                        "placeholderText": "6379",
+                        "label": "Port",
+                        "initialValue": ["6379"],
+                        "configProperty": "datasourceConfiguration.endpoints[*].port"
+                    }
+                ]
             },
             {
-              "label": "Port",
-              "configProperty": "datasourceConfiguration.endpoints[*].port",
-              "dataType": "NUMBER",
-              "initialValue": ["6379"],
-              "controlType": "KEYVALUE_ARRAY",
-              "placeholderText": "6379"
+                "controlType": "INPUT_TEXT",
+                "dataType": "NUMBER",
+                "placeholderText": "0",
+                "label": "Database number",
+                "configProperty": "datasourceConfiguration.authentication.databaseName"
             }
-          ]
-        },
-        {
-          "label": "Database number",
-          "configProperty": "datasourceConfiguration.authentication.databaseName",
-          "controlType": "INPUT_TEXT",
-          "dataType": "NUMBER",
-          "placeholderText": "0"
-        }
-      ]
+        ],
+        "id": 1
     },
     {
-      "sectionName": "Authentication",
-      "id": 2,
-      "children": [
-        {
-          "sectionName": null,
-          "children": [
-            {
-              "label": "Username",
-              "configProperty": "datasourceConfiguration.authentication.username",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Username"
-            },
-            {
-              "label": "Password",
-              "configProperty": "datasourceConfiguration.authentication.password",
-              "dataType": "PASSWORD",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Password",
-              "encrypted": true
-            }
-          ]
-        }
-      ]
+        "sectionName": "Authentication",
+        "children": [{
+            "sectionName": null,
+            "children": [
+                {
+                    "controlType": "INPUT_TEXT",
+                    "placeholderText": "Username",
+                    "label": "Username",
+                    "configProperty": "datasourceConfiguration.authentication.username"
+                },
+                {
+                    "controlType": "INPUT_TEXT",
+                    "encrypted": true,
+                    "dataType": "PASSWORD",
+                    "placeholderText": "Password",
+                    "label": "Password",
+                    "configProperty": "datasourceConfiguration.authentication.password"
+                }
+            ]
+        }],
+        "id": 2
     }
-  ]
-}
+]}

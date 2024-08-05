@@ -1,16 +1,10 @@
-{
-  "editor": [
-    {
-      "controlType": "SECTION",
-      "identifier": "SELECTOR",
-      "children": [
-        {
-          "label": "",
-          "configProperty": "actionConfiguration.body",
-          "controlType": "QUERY_DYNAMIC_TEXT",
-          "evaluationSubstitutionType": "TEMPLATE"
-        }
-      ]
-    }
-  ]
-}
+{"editor": [{
+    "identifier": "SELECTOR",
+    "controlType": "SECTION",
+    "children": [{
+        "controlType": "QUERY_DYNAMIC_TEXT",
+        "evaluationSubstitutionType": "TEMPLATE",
+        "label": "",
+        "configProperty": "actionConfiguration.body"
+    }]
+}]}
