@@ -1,7 +1,5 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -12,15 +10,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.UncategorizedMongoDbException;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
-import org.springframework.data.mongodb.core.query.Query;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 @Slf4j
 @ChangeUnit(order = "058", id = "add-idx-branch-aware", author = " ")
