@@ -4,6 +4,7 @@ import React, {
   useContext,
   useCallback,
   useMemo,
+  useRef,
 } from "react";
 import styled, { ThemeContext } from "styled-components";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
@@ -112,7 +113,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [isForkApplicationModalopen, setForkApplicationModalOpen] =
     useState(false);
-  const [lastUpdatedValue, setLastUpdatedValue] = useState("");
+  const lastUpdatedValueRef = useRef(props.application.name);
   const dispatch = useDispatch();
 
   const applicationId = props.application?.id;
@@ -212,7 +213,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       link.click();
     }
     setIsMenuOpen(false);
-    toast.show(`Successfully exported ${props.application.name}`, {
+    toast.show(`Successfully exported ${lastUpdatedValueRef.current }`, {
       kind: "success",
     });
   };
@@ -274,10 +275,10 @@ export function ApplicationCard(props: ApplicationCardProps) {
       setIsMenuOpen(false);
       setShowOverlay(false);
       addDeleteOption();
-      if (lastUpdatedValue && props.application.name !== lastUpdatedValue) {
+      if (props.application.name !== lastUpdatedValueRef.current) {
         props.update &&
           props.update(applicationId, {
-            name: lastUpdatedValue,
+            name: lastUpdatedValueRef.current,
           });
       }
     } else {
@@ -297,6 +298,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
             kind="tertiary"
             size="sm"
             startIcon="context-menu"
+            onClick={() => handleMenuOnClose(true)}
           />
         </MenuTrigger>
         <MenuContent side="right" style={{ maxHeight: "unset" }}>
@@ -329,7 +331,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
                     });
                 }}
                 onTextChanged={(value: string) => {
-                  setLastUpdatedValue(value);
+                  lastUpdatedValueRef.current = value;
                 }}
                 placeholder={"Edit text input"}
                 savingState={
