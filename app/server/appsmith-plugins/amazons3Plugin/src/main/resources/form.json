@@ -1,130 +1,126 @@
-{
-  "form": [
-    {
-      "sectionName": "Details",
-      "id": 1,
-      "children": [
+{"form": [{
+    "sectionName": "Details",
+    "children": [
         {
-          "label": "S3 service provider key",
-          "configProperty": "datasourceConfiguration.properties[1].key",
-          "controlType": "INPUT_TEXT",
-          "initialValue": "s3Provider",
-          "hidden": true
+            "controlType": "INPUT_TEXT",
+            "hidden": true,
+            "label": "S3 service provider key",
+            "initialValue": "s3Provider",
+            "configProperty": "datasourceConfiguration.properties[1].key"
         },
         {
-          "label": "S3 service provider",
-          "configProperty": "datasourceConfiguration.properties[1].value",
-          "controlType": "DROP_DOWN",
-          "isRequired": true,
-          "initialValue": "amazon-s3",
-          "setFirstOptionAsDefault": true,
-          "options": [
-            {
-              "label": "Amazon S3",
-              "value": "amazon-s3"
-            },
-            {
-              "label": "Upcloud",
-              "value": "upcloud"
-            },
-            {
-              "label": "Digital Ocean spaces",
-              "value": "digital-ocean-spaces"
-            },
-            {
-              "label": "Wasabi",
-              "value": "wasabi"
-            },
-            {
-              "label": "DreamObjects",
-              "value": "dream-objects"
-            },
-            {
-              "label": "MinIO",
-              "value": "minio"
-            },
-            {
-              "label": "Google Cloud Storage",
-              "value": "google-cloud-storage"
-            },
-            {
-              "label": "Other",
-              "value": "other"
-            }
-          ]
+            "isRequired": true,
+            "controlType": "DROP_DOWN",
+            "options": [
+                {
+                    "label": "Amazon S3",
+                    "value": "amazon-s3"
+                },
+                {
+                    "label": "Upcloud",
+                    "value": "upcloud"
+                },
+                {
+                    "label": "Digital Ocean spaces",
+                    "value": "digital-ocean-spaces"
+                },
+                {
+                    "label": "Wasabi",
+                    "value": "wasabi"
+                },
+                {
+                    "label": "DreamObjects",
+                    "value": "dream-objects"
+                },
+                {
+                    "label": "MinIO",
+                    "value": "minio"
+                },
+                {
+                    "label": "Google Cloud Storage",
+                    "value": "google-cloud-storage"
+                },
+                {
+                    "label": "Other",
+                    "value": "other"
+                }
+            ],
+            "label": "S3 service provider",
+            "setFirstOptionAsDefault": true,
+            "initialValue": "amazon-s3",
+            "configProperty": "datasourceConfiguration.properties[1].value"
         },
         {
-          "label": "Access key",
-          "configProperty": "datasourceConfiguration.authentication.username",
-          "controlType": "INPUT_TEXT",
-          "isRequired": true,
-          "initialValue": ""
+            "isRequired": true,
+            "controlType": "INPUT_TEXT",
+            "label": "Access key",
+            "initialValue": "",
+            "configProperty": "datasourceConfiguration.authentication.username"
         },
         {
-          "label": "Secret key",
-          "configProperty": "datasourceConfiguration.authentication.password",
-          "controlType": "INPUT_TEXT",
-          "dataType": "PASSWORD",
-          "initialValue": "",
-          "isRequired": true,
-          "encrypted": true
+            "isRequired": true,
+            "controlType": "INPUT_TEXT",
+            "encrypted": true,
+            "dataType": "PASSWORD",
+            "label": "Secret key",
+            "initialValue": "",
+            "configProperty": "datasourceConfiguration.authentication.password"
         },
         {
-          "label": "Endpoint URL (with or without protocol and port no)",
-          "configProperty": "datasourceConfiguration.endpoints[0].host",
-          "controlType": "INPUT_TEXT",
-          "initialValue": "",
-          "isRequired": true,
-          "placeholderText": "https://user-storage.de-fra1.upcloudobjects.com",
-          "hidden": {
-            "path": "datasourceConfiguration.properties[1].value",
-            "comparison": "EQUALS",
-            "value": "amazon-s3"
-          }
+            "isRequired": true,
+            "controlType": "INPUT_TEXT",
+            "hidden": {
+                "path": "datasourceConfiguration.properties[1].value",
+                "comparison": "EQUALS",
+                "value": "amazon-s3"
+            },
+            "placeholderText": "https://user-storage.de-fra1.upcloudobjects.com",
+            "label": "Endpoint URL (with or without protocol and port no)",
+            "initialValue": "",
+            "configProperty": "datasourceConfiguration.endpoints[0].host"
         },
         {
-          "label": "Custom endpoint URL key",
-          "configProperty": "datasourceConfiguration.properties[2].key",
-          "controlType": "INPUT_TEXT",
-          "initialValue": "customRegion",
-          "hidden": true
+            "controlType": "INPUT_TEXT",
+            "hidden": true,
+            "label": "Custom endpoint URL key",
+            "initialValue": "customRegion",
+            "configProperty": "datasourceConfiguration.properties[2].key"
         },
         {
-          "label": "Region",
-          "configProperty": "datasourceConfiguration.properties[2].value",
-          "controlType": "INPUT_TEXT",
-          "initialValue": "",
-          "placeholderText": "de-fra1",
-          "hidden": {
-            "conditionType": "AND",
-            "conditions": [
-              {
+            "controlType": "INPUT_TEXT",
+            "hidden": {
+                "conditionType": "AND",
+                "conditions": [
+                    {
+                        "path": "datasourceConfiguration.properties[1].value",
+                        "comparison": "NOT_EQUALS",
+                        "value": "other"
+                    },
+                    {
+                        "path": "datasourceConfiguration.properties[1].value",
+                        "comparison": "NOT_EQUALS",
+                        "value": "minio"
+                    }
+                ]
+            },
+            "placeholderText": "de-fra1",
+            "label": "Region",
+            "initialValue": "",
+            "configProperty": "datasourceConfiguration.properties[2].value"
+        },
+        {
+            "isRequired": true,
+            "controlType": "INPUT_TEXT",
+            "hidden": {
                 "path": "datasourceConfiguration.properties[1].value",
                 "comparison": "NOT_EQUALS",
-                "value": "other"
-              },
-              {
-                "path": "datasourceConfiguration.properties[1].value",
-                "comparison": "NOT_EQUALS",
-                "value": "minio"
-              }
-            ]
-          }
-        },
-        {
-          "label": "Default Bucket",
-          "configProperty": "datasourceConfiguration.properties[3].value",
-          "controlType": "INPUT_TEXT",
-          "initialValue": "",
-          "placeholderText": "Enter default bucket name",
-          "isRequired": true,
-          "hidden": {
-            "path": "datasourceConfiguration.properties[1].value",
-            "comparison": "NOT_EQUALS",
-            "value": "google-cloud-storage"
-          }
+                "value": "google-cloud-storage"
+            },
+            "placeholderText": "Enter default bucket name",
+            "label": "Default Bucket",
+            "initialValue": "",
+            "configProperty": "datasourceConfiguration.properties[3].value"
         }
-      ]
-    }
-  ]
-}
+    ],
+    "id": 1
+}]}
