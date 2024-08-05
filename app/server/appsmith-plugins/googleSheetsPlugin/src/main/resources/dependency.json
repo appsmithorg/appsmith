@@ -1,10 +1,4 @@
-{
-  "dependencies": {
-    "actionConfiguration.formData.rowObject.data": [
-      "actionConfiguration.formData.smartSubstitution.data"
-    ],
-    "actionConfiguration.formData.rowObjects.data": [
-      "actionConfiguration.formData.smartSubstitution.data"
-    ]
-  }
-}
+{"dependencies": {
+    "actionConfiguration.formData.rowObject.data": ["actionConfiguration.formData.smartSubstitution.data"],
+    "actionConfiguration.formData.rowObjects.data": ["actionConfiguration.formData.smartSubstitution.data"]
+}}

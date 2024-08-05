@@ -1,37 +1,33 @@
-{
-  "setting": [
-    {
-      "sectionName": "",
-      "id": 1,
-      "children": [
+{"setting": [{
+    "sectionName": "",
+    "children": [
         {
-          "label": "Run query on page load",
-          "configProperty": "executeOnLoad",
-          "controlType": "SWITCH",
-          "subtitle": "Will refresh data each time the page is loaded"
+            "controlType": "SWITCH",
+            "subtitle": "Will refresh data each time the page is loaded",
+            "label": "Run query on page load",
+            "configProperty": "executeOnLoad"
         },
         {
-          "label": "Request confirmation before running query",
-          "configProperty": "confirmBeforeExecute",
-          "controlType": "SWITCH",
-          "subtitle": "Ask confirmation from the user each time before refreshing data"
+            "controlType": "SWITCH",
+            "subtitle": "Ask confirmation from the user each time before refreshing data",
+            "label": "Request confirmation before running query",
+            "configProperty": "confirmBeforeExecute"
         },
         {
-          "label": "Use Prepared Statement",
-          "subtitle": "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
-          "configProperty": "actionConfiguration.formData.preparedStatement.data",
-          "controlType": "SWITCH",
-          "initialValue": true
+            "controlType": "SWITCH",
+            "subtitle": "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
+            "label": "Use Prepared Statement",
+            "initialValue": true,
+            "configProperty": "actionConfiguration.formData.preparedStatement.data"
         },
         {
-          "label": "Query timeout (in milliseconds)",
-          "subtitle": "Maximum time after which the query will return",
-          "configProperty": "actionConfiguration.timeoutInMillisecond",
-          "controlType": "INPUT_TEXT",
-          "dataType": "NUMBER",
-          "width": "270px"
+            "controlType": "INPUT_TEXT",
+            "subtitle": "Maximum time after which the query will return",
+            "dataType": "NUMBER",
+            "width": "270px",
+            "label": "Query timeout (in milliseconds)",
+            "configProperty": "actionConfiguration.timeoutInMillisecond"
         }
-      ]
-    }
-  ]
-}
+    ],
+    "id": 1
+}]}
