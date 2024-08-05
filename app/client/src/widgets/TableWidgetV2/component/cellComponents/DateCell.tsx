@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import type { VerticalAlignment } from "../Constants";
 import {
   ALIGN_ITEMS,
@@ -195,6 +195,14 @@ export const DateCell = (props: DateComponentProps) => {
   const [isValid, setIsValid] = useState(true);
   const [showRequiredError, setShowRequiredError] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isNewRow && isRequired && !value) {
+      setIsValid(false);
+    } else {
+      setIsValid(true);
+    }
+  }, [value, isRequired, isNewRow]);
 
   const valueInISOFormat = useMemo(() => {
     if (typeof value !== "string") return "";
