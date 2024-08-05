@@ -1,7 +1,1 @@
-{
-  "dependencies": {
-    "actionConfiguration.formData.body.data": [
-      "actionConfiguration.formData.smartSubstitution.data"
-    ]
-  }
-}
+{"dependencies": {"actionConfiguration.formData.body.data": ["actionConfiguration.formData.smartSubstitution.data"]}}

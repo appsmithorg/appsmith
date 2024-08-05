@@ -1,159 +1,155 @@
-{
-  "form": [
-    {
-      "sectionName": "Details",
-      "id": 1,
-      "children": [
+{"form": [{
+    "sectionName": "Details",
+    "children": [
         {
-          "label": "Region",
-          "configProperty": "datasourceConfiguration.authentication.databaseName",
-          "controlType": "DROP_DOWN",
-          "isRequired": true,
-          "initialValue": "ap-south-1",
-          "options": [
-            {
-              "label": "ap-south-1",
-              "value": "ap-south-1"
-            },
-            {
-              "label": "eu-south-1",
-              "value": "eu-south-1"
-            },
-            {
-              "label": "us-gov-east-1",
-              "value": "us-gov-east-1"
-            },
-            {
-              "label": "ca-central-1",
-              "value": "ca-central-1"
-            },
-            {
-              "label": "eu-central-1",
-              "value": "eu-central-1"
-            },
-            {
-              "label": "us-west-1",
-              "value": "us-west-1"
-            },
-            {
-              "label": "us-west-2",
-              "value": "us-west-2"
-            },
-            {
-              "label": "af-south-1",
-              "value": "af-south-1"
-            },
-            {
-              "label": "eu-north-1",
-              "value": "eu-north-1"
-            },
-            {
-              "label": "eu-west-3",
-              "value": "eu-west-3"
-            },
-            {
-              "label": "eu-west-2",
-              "value": "eu-west-2"
-            },
-            {
-              "label": "eu-west-1",
-              "value": "eu-west-1"
-            },
-            {
-              "label": "ap-northeast-2",
-              "value": "ap-northeast-2"
-            },
-            {
-              "label": "ap-northeast-1",
-              "value": "ap-northeast-1"
-            },
-            {
-              "label": "me-south-1",
-              "value": "me-south-1"
-            },
-            {
-              "label": "sa-east-1",
-              "value": "sa-east-1"
-            },
-            {
-              "label": "ap-east-1",
-              "value": "ap-east-1"
-            },
-            {
-              "label": "cn-north-1",
-              "value": "cn-north-1"
-            },
-            {
-              "label": "us-gov-west-1",
-              "value": "us-gov-west-1"
-            },
-            {
-              "label": "ap-southeast-1",
-              "value": "ap-southeast-1"
-            },
-            {
-              "label": "ap-southeast-2",
-              "value": "ap-southeast-2"
-            },
-            {
-              "label": "us-iso-east-1",
-              "value": "us-iso-east-1"
-            },
-            {
-              "label": "us-east-1",
-              "value": "us-east-1"
-            },
-            {
-              "label": "us-east-2",
-              "value": "us-east-2"
-            },
-            {
-              "label": "cn-northwest-1",
-              "value": "cn-northwest-1"
-            },
-            {
-              "label": "us-isob-east-1",
-              "value": "us-isob-east-1"
-            },
-            {
-              "label": "aws-global",
-              "value": "aws-global"
-            },
-            {
-              "label": "aws-cn-global",
-              "value": "aws-cn-global"
-            },
-            {
-              "label": "aws-us-gov-global",
-              "value": "aws-us-gov-global"
-            },
-            {
-              "label": "aws-iso-global",
-              "value": "aws-iso-global"
-            },
-            {
-              "label": "aws-iso-b-global",
-              "value": "aws-iso-b-global"
-            }
-          ]
+            "isRequired": true,
+            "controlType": "DROP_DOWN",
+            "options": [
+                {
+                    "label": "ap-south-1",
+                    "value": "ap-south-1"
+                },
+                {
+                    "label": "eu-south-1",
+                    "value": "eu-south-1"
+                },
+                {
+                    "label": "us-gov-east-1",
+                    "value": "us-gov-east-1"
+                },
+                {
+                    "label": "ca-central-1",
+                    "value": "ca-central-1"
+                },
+                {
+                    "label": "eu-central-1",
+                    "value": "eu-central-1"
+                },
+                {
+                    "label": "us-west-1",
+                    "value": "us-west-1"
+                },
+                {
+                    "label": "us-west-2",
+                    "value": "us-west-2"
+                },
+                {
+                    "label": "af-south-1",
+                    "value": "af-south-1"
+                },
+                {
+                    "label": "eu-north-1",
+                    "value": "eu-north-1"
+                },
+                {
+                    "label": "eu-west-3",
+                    "value": "eu-west-3"
+                },
+                {
+                    "label": "eu-west-2",
+                    "value": "eu-west-2"
+                },
+                {
+                    "label": "eu-west-1",
+                    "value": "eu-west-1"
+                },
+                {
+                    "label": "ap-northeast-2",
+                    "value": "ap-northeast-2"
+                },
+                {
+                    "label": "ap-northeast-1",
+                    "value": "ap-northeast-1"
+                },
+                {
+                    "label": "me-south-1",
+                    "value": "me-south-1"
+                },
+                {
+                    "label": "sa-east-1",
+                    "value": "sa-east-1"
+                },
+                {
+                    "label": "ap-east-1",
+                    "value": "ap-east-1"
+                },
+                {
+                    "label": "cn-north-1",
+                    "value": "cn-north-1"
+                },
+                {
+                    "label": "us-gov-west-1",
+                    "value": "us-gov-west-1"
+                },
+                {
+                    "label": "ap-southeast-1",
+                    "value": "ap-southeast-1"
+                },
+                {
+                    "label": "ap-southeast-2",
+                    "value": "ap-southeast-2"
+                },
+                {
+                    "label": "us-iso-east-1",
+                    "value": "us-iso-east-1"
+                },
+                {
+                    "label": "us-east-1",
+                    "value": "us-east-1"
+                },
+                {
+                    "label": "us-east-2",
+                    "value": "us-east-2"
+                },
+                {
+                    "label": "cn-northwest-1",
+                    "value": "cn-northwest-1"
+                },
+                {
+                    "label": "us-isob-east-1",
+                    "value": "us-isob-east-1"
+                },
+                {
+                    "label": "aws-global",
+                    "value": "aws-global"
+                },
+                {
+                    "label": "aws-cn-global",
+                    "value": "aws-cn-global"
+                },
+                {
+                    "label": "aws-us-gov-global",
+                    "value": "aws-us-gov-global"
+                },
+                {
+                    "label": "aws-iso-global",
+                    "value": "aws-iso-global"
+                },
+                {
+                    "label": "aws-iso-b-global",
+                    "value": "aws-iso-b-global"
+                }
+            ],
+            "label": "Region",
+            "initialValue": "ap-south-1",
+            "configProperty": "datasourceConfiguration.authentication.databaseName"
         },
         {
-          "label": "AWS Access key ID",
-          "configProperty": "datasourceConfiguration.authentication.username",
-          "controlType": "INPUT_TEXT",
-          "isRequired": true,
-          "placeholderText": "",
-          "initialValue": ""
+            "isRequired": true,
+            "controlType": "INPUT_TEXT",
+            "placeholderText": "",
+            "label": "AWS Access key ID",
+            "initialValue": "",
+            "configProperty": "datasourceConfiguration.authentication.username"
         },
         {
-          "label": "AWS Secret Access Key",
-          "configProperty": "datasourceConfiguration.authentication.password",
-          "controlType": "INPUT_TEXT",
-          "dataType": "PASSWORD",
-          "initialValue": "",
-          "encrypted": true
+            "controlType": "INPUT_TEXT",
+            "encrypted": true,
+            "dataType": "PASSWORD",
+            "label": "AWS Secret Access Key",
+            "initialValue": "",
+            "configProperty": "datasourceConfiguration.authentication.password"
         }
-      ]
-    }
-  ]
-}
+    ],
+    "id": 1
+}]}
