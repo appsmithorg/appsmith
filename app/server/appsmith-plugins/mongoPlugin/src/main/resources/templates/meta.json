@@ -1,16 +1,6 @@
-{
-  "templates": [
-    {
-      "file": "CREATE.json"
-    },
-    {
-      "file": "READ.json"
-    },
-    {
-      "file": "UPDATE.json"
-    },
-    {
-      "file": "DELETE.json"
-    }
-  ]
-}
+{"templates": [
+    {"file": "CREATE.json"},
+    {"file": "READ.json"},
+    {"file": "UPDATE.json"},
+    {"file": "DELETE.json"}
+]}

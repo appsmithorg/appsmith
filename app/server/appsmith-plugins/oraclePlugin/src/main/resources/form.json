@@ -1,88 +1,82 @@
-{
-  "form": [
+{"form": [
     {
-      "sectionName": "Connection",
-      "id": 1,
-      "children": [
-        {
-          "sectionName": null,
-          "children": [
+        "sectionName": "Connection",
+        "children": [
             {
-              "label": "Host address",
-              "configProperty": "datasourceConfiguration.endpoints[*].host",
-              "controlType": "KEYVALUE_ARRAY",
-              "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$",
-              "isRequired": true,
-              "placeholderText": "myapp.abcde.oracle.net"
+                "sectionName": null,
+                "children": [
+                    {
+                        "isRequired": true,
+                        "controlType": "KEYVALUE_ARRAY",
+                        "validationMessage": "Please enter a valid host",
+                        "placeholderText": "myapp.abcde.oracle.net",
+                        "label": "Host address",
+                        "validationRegex": "^((?![/:]).)*$",
+                        "configProperty": "datasourceConfiguration.endpoints[*].host"
+                    },
+                    {
+                        "controlType": "KEYVALUE_ARRAY",
+                        "dataType": "NUMBER",
+                        "placeholderText": "1521",
+                        "label": "Port",
+                        "initialValue": ["1521"],
+                        "configProperty": "datasourceConfiguration.endpoints[*].port"
+                    }
+                ]
             },
             {
-              "label": "Port",
-              "configProperty": "datasourceConfiguration.endpoints[*].port",
-              "dataType": "NUMBER",
-              "initialValue": ["1521"],
-              "controlType": "KEYVALUE_ARRAY",
-              "placeholderText": "1521"
+                "isRequired": true,
+                "controlType": "INPUT_TEXT",
+                "placeholderText": "gfb284db6bcee33_testdb_high.adb.oraclecloud.com",
+                "label": "Service Name",
+                "configProperty": "datasourceConfiguration.authentication.databaseName"
             }
-          ]
-        },
-        {
-          "label": "Service Name",
-          "configProperty": "datasourceConfiguration.authentication.databaseName",
-          "controlType": "INPUT_TEXT",
-          "placeholderText": "gfb284db6bcee33_testdb_high.adb.oraclecloud.com",
-          "isRequired": true
-        }
-      ]
+        ],
+        "id": 1
     },
     {
-      "sectionName": "Authentication",
-      "id": 2,
-      "children": [
-        {
-          "sectionName": null,
-          "children": [
-            {
-              "label": "Username",
-              "configProperty": "datasourceConfiguration.authentication.username",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "admin",
-              "isRequired": true
-            },
-            {
-              "label": "Password",
-              "configProperty": "datasourceConfiguration.authentication.password",
-              "dataType": "PASSWORD",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "password",
-              "encrypted": true,
-              "isRequired": true
-            }
-          ]
-        }
-      ]
+        "sectionName": "Authentication",
+        "children": [{
+            "sectionName": null,
+            "children": [
+                {
+                    "isRequired": true,
+                    "controlType": "INPUT_TEXT",
+                    "placeholderText": "admin",
+                    "label": "Username",
+                    "configProperty": "datasourceConfiguration.authentication.username"
+                },
+                {
+                    "isRequired": true,
+                    "controlType": "INPUT_TEXT",
+                    "encrypted": true,
+                    "dataType": "PASSWORD",
+                    "placeholderText": "password",
+                    "label": "Password",
+                    "configProperty": "datasourceConfiguration.authentication.password"
+                }
+            ]
+        }],
+        "id": 2
     },
     {
-      "id": 3,
-      "sectionName": "SSL",
-      "children": [
-        {
-          "label": "SSL mode",
-          "configProperty": "datasourceConfiguration.connection.ssl.authType",
-          "controlType": "DROP_DOWN",
-          "initialValue": "NO_VERIFY",
-          "options": [
-            {
-              "label": "Disable",
-              "value": "DISABLE"
-            },
-            {
-              "label": "TLS",
-              "value": "NO_VERIFY"
-            }
-          ]
-        }
-      ]
+        "sectionName": "SSL",
+        "children": [{
+            "controlType": "DROP_DOWN",
+            "options": [
+                {
+                    "label": "Disable",
+                    "value": "DISABLE"
+                },
+                {
+                    "label": "TLS",
+                    "value": "NO_VERIFY"
+                }
+            ],
+            "label": "SSL mode",
+            "initialValue": "NO_VERIFY",
+            "configProperty": "datasourceConfiguration.connection.ssl.authType"
+        }],
+        "id": 3
     }
-  ]
-}
+]}

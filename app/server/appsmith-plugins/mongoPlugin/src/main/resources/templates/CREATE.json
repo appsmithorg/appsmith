@@ -1,10 +1,8 @@
 {
-  "insert": "users",
-  "documents": [
-    {
-      "name": "{{ nameInput.text }}",
-      "email": "{{ emailInput.text }}",
-      "gender": "{{ genderDropdown.selectedOptionValue }}"
-    }
-  ]
+    "documents": [{
+        "gender": "{{ genderDropdown.selectedOptionValue }}",
+        "name": "{{ nameInput.text }}",
+        "email": "{{ emailInput.text }}"
+    }],
+    "insert": "users"
 }

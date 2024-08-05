@@ -1,220 +1,216 @@
-{
-  "form": [
+{"form": [
     {
-      "sectionName": "Connection",
-      "children": [
-        {
-          "label": "Use mongo connection string URI key",
-          "configProperty": "datasourceConfiguration.properties[0].key",
-          "controlType": "INPUT_TEXT",
-          "initialValue": "Use mongo connection string URI",
-          "hidden": true
-        },
-        {
-          "label": "Use mongo connection string URI",
-          "configProperty": "datasourceConfiguration.properties[0].value",
-          "controlType": "DROP_DOWN",
-          "initialValue": "No",
-          "options": [
+        "sectionName": "Connection",
+        "children": [
             {
-              "label": "Yes",
-              "value": "Yes"
+                "controlType": "INPUT_TEXT",
+                "hidden": true,
+                "label": "Use mongo connection string URI key",
+                "initialValue": "Use mongo connection string URI",
+                "configProperty": "datasourceConfiguration.properties[0].key"
             },
             {
-              "label": "No",
-              "value": "No"
-            }
-          ]
-        },
-        {
-          "label": "Connection string URI key",
-          "configProperty": "datasourceConfiguration.properties[1].key",
-          "controlType": "INPUT_TEXT",
-          "initialValue": "Connection string URI",
-          "hidden": true
-        },
-        {
-          "label": "Connection string URI",
-          "placeholderText": "mongodb+srv://<username>:<password>@test-db.swrsq.mongodb.net/myDatabase",
-          "configProperty": "datasourceConfiguration.properties[1].value",
-          "controlType": "INPUT_TEXT",
-          "hidden": {
-            "path": "datasourceConfiguration.properties[0].value",
-            "comparison": "NOT_EQUALS",
-            "value": "Yes"
-          }
-        },
-        {
-          "label": "Connection mode",
-          "configProperty": "datasourceConfiguration.connection.mode",
-          "controlType": "SEGMENTED_CONTROL",
-          "initialValue": "READ_WRITE",
-          "options": [
-            {
-              "label": "Read / Write",
-              "value": "READ_WRITE"
+                "controlType": "DROP_DOWN",
+                "options": [
+                    {
+                        "label": "Yes",
+                        "value": "Yes"
+                    },
+                    {
+                        "label": "No",
+                        "value": "No"
+                    }
+                ],
+                "label": "Use mongo connection string URI",
+                "initialValue": "No",
+                "configProperty": "datasourceConfiguration.properties[0].value"
             },
             {
-              "label": "Read only",
-              "value": "READ_ONLY"
-            }
-          ],
-          "hidden": {
-            "path": "datasourceConfiguration.properties[0].value",
-            "comparison": "EQUALS",
-            "value": "Yes"
-          }
-        },
-        {
-          "label": "Connection type",
-          "configProperty": "datasourceConfiguration.connection.type",
-          "initialValue": "DIRECT",
-          "controlType": "DROP_DOWN",
-          "options": [
-            {
-              "label": "Direct connection",
-              "value": "DIRECT"
+                "controlType": "INPUT_TEXT",
+                "hidden": true,
+                "label": "Connection string URI key",
+                "initialValue": "Connection string URI",
+                "configProperty": "datasourceConfiguration.properties[1].key"
             },
             {
-              "label": "Replica set",
-              "value": "REPLICA_SET"
-            }
-          ],
-          "hidden": {
-            "path": "datasourceConfiguration.properties[0].value",
-            "comparison": "EQUALS",
-            "value": "Yes"
-          }
-        },
-        {
-          "sectionName": null,
-          "children": [
-            {
-              "label": "Host address",
-              "configProperty": "datasourceConfiguration.endpoints[*].host",
-              "controlType": "KEYVALUE_ARRAY",
-              "validationMessage": "Please enter a valid host",
-              "validationRegex": "^((?![/:]).)*$",
-              "placeholderText": "myapp.abcde.mongodb.net",
-              "hidden": {
-                "path": "datasourceConfiguration.properties[0].value",
-                "comparison": "EQUALS",
-                "value": "Yes"
-              }
+                "controlType": "INPUT_TEXT",
+                "hidden": {
+                    "path": "datasourceConfiguration.properties[0].value",
+                    "comparison": "NOT_EQUALS",
+                    "value": "Yes"
+                },
+                "placeholderText": "mongodb+srv://<username>:<password>@test-db.swrsq.mongodb.net/myDatabase",
+                "label": "Connection string URI",
+                "configProperty": "datasourceConfiguration.properties[1].value"
             },
             {
-              "label": "Port",
-              "configProperty": "datasourceConfiguration.endpoints[*].port",
-              "dataType": "NUMBER",
-              "controlType": "KEYVALUE_ARRAY",
-              "initialValue": ["27017"],
-              "hidden": {
-                "path": "datasourceConfiguration.properties[0].value",
-                "comparison": "EQUALS",
-                "value": "Yes"
-              },
-              "placeholderText": "27017"
+                "controlType": "SEGMENTED_CONTROL",
+                "hidden": {
+                    "path": "datasourceConfiguration.properties[0].value",
+                    "comparison": "EQUALS",
+                    "value": "Yes"
+                },
+                "options": [
+                    {
+                        "label": "Read / Write",
+                        "value": "READ_WRITE"
+                    },
+                    {
+                        "label": "Read only",
+                        "value": "READ_ONLY"
+                    }
+                ],
+                "label": "Connection mode",
+                "initialValue": "READ_WRITE",
+                "configProperty": "datasourceConfiguration.connection.mode"
+            },
+            {
+                "controlType": "DROP_DOWN",
+                "hidden": {
+                    "path": "datasourceConfiguration.properties[0].value",
+                    "comparison": "EQUALS",
+                    "value": "Yes"
+                },
+                "options": [
+                    {
+                        "label": "Direct connection",
+                        "value": "DIRECT"
+                    },
+                    {
+                        "label": "Replica set",
+                        "value": "REPLICA_SET"
+                    }
+                ],
+                "label": "Connection type",
+                "initialValue": "DIRECT",
+                "configProperty": "datasourceConfiguration.connection.type"
+            },
+            {
+                "sectionName": null,
+                "children": [
+                    {
+                        "controlType": "KEYVALUE_ARRAY",
+                        "hidden": {
+                            "path": "datasourceConfiguration.properties[0].value",
+                            "comparison": "EQUALS",
+                            "value": "Yes"
+                        },
+                        "validationMessage": "Please enter a valid host",
+                        "placeholderText": "myapp.abcde.mongodb.net",
+                        "label": "Host address",
+                        "validationRegex": "^((?![/:]).)*$",
+                        "configProperty": "datasourceConfiguration.endpoints[*].host"
+                    },
+                    {
+                        "controlType": "KEYVALUE_ARRAY",
+                        "hidden": {
+                            "path": "datasourceConfiguration.properties[0].value",
+                            "comparison": "EQUALS",
+                            "value": "Yes"
+                        },
+                        "dataType": "NUMBER",
+                        "placeholderText": "27017",
+                        "label": "Port",
+                        "initialValue": ["27017"],
+                        "configProperty": "datasourceConfiguration.endpoints[*].port"
+                    }
+                ]
+            },
+            {
+                "controlType": "INPUT_TEXT",
+                "hidden": {
+                    "path": "datasourceConfiguration.properties[0].value",
+                    "comparison": "EQUALS",
+                    "value": "Yes"
+                },
+                "placeholderText": "(optional)",
+                "label": "Default database name",
+                "configProperty": "datasourceConfiguration.connection.defaultDatabaseName"
             }
-          ]
-        },
-        {
-          "label": "Default database name",
-          "placeholderText": "(optional)",
-          "configProperty": "datasourceConfiguration.connection.defaultDatabaseName",
-          "controlType": "INPUT_TEXT",
-          "hidden": {
-            "path": "datasourceConfiguration.properties[0].value",
-            "comparison": "EQUALS",
-            "value": "Yes"
-          }
-        }
-      ]
+        ]
     },
     {
-      "sectionName": "Authentication",
-      "hidden": {
-        "path": "datasourceConfiguration.properties[0].value",
-        "comparison": "EQUALS",
-        "value": "Yes"
-      },
-      "children": [
-        {
-          "label": "Database name",
-          "configProperty": "datasourceConfiguration.authentication.databaseName",
-          "controlType": "INPUT_TEXT",
-          "placeholderText": "Database name",
-          "initialValue": "admin"
+        "sectionName": "Authentication",
+        "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "EQUALS",
+            "value": "Yes"
         },
-        {
-          "label": "Authentication type",
-          "configProperty": "datasourceConfiguration.authentication.authType",
-          "controlType": "DROP_DOWN",
-          "initialValue": "SCRAM_SHA_1",
-          "options": [
+        "children": [
             {
-              "label": "SCRAM-SHA-1",
-              "value": "SCRAM_SHA_1"
+                "controlType": "INPUT_TEXT",
+                "placeholderText": "Database name",
+                "label": "Database name",
+                "initialValue": "admin",
+                "configProperty": "datasourceConfiguration.authentication.databaseName"
             },
             {
-              "label": "SCRAM-SHA-256",
-              "value": "SCRAM_SHA_256"
+                "controlType": "DROP_DOWN",
+                "options": [
+                    {
+                        "label": "SCRAM-SHA-1",
+                        "value": "SCRAM_SHA_1"
+                    },
+                    {
+                        "label": "SCRAM-SHA-256",
+                        "value": "SCRAM_SHA_256"
+                    },
+                    {
+                        "label": "MONGODB-CR",
+                        "value": "MONGODB_CR"
+                    }
+                ],
+                "label": "Authentication type",
+                "initialValue": "SCRAM_SHA_1",
+                "configProperty": "datasourceConfiguration.authentication.authType"
             },
             {
-              "label": "MONGODB-CR",
-              "value": "MONGODB_CR"
+                "sectionName": null,
+                "children": [
+                    {
+                        "controlType": "INPUT_TEXT",
+                        "placeholderText": "Username",
+                        "label": "Username",
+                        "configProperty": "datasourceConfiguration.authentication.username"
+                    },
+                    {
+                        "controlType": "INPUT_TEXT",
+                        "encrypted": true,
+                        "dataType": "PASSWORD",
+                        "placeholderText": "Password",
+                        "label": "Password",
+                        "configProperty": "datasourceConfiguration.authentication.password"
+                    }
+                ]
             }
-          ]
-        },
-        {
-          "sectionName": null,
-          "children": [
-            {
-              "label": "Username",
-              "configProperty": "datasourceConfiguration.authentication.username",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Username"
-            },
-            {
-              "label": "Password",
-              "configProperty": "datasourceConfiguration.authentication.password",
-              "dataType": "PASSWORD",
-              "controlType": "INPUT_TEXT",
-              "placeholderText": "Password",
-              "encrypted": true
-            }
-          ]
-        }
-      ]
+        ]
     },
     {
-      "sectionName": "SSL (optional)",
-      "hidden": {
-        "path": "datasourceConfiguration.properties[0].value",
-        "comparison": "EQUALS",
-        "value": "Yes"
-      },
-      "children": [
-        {
-          "label": "SSL mode",
-          "configProperty": "datasourceConfiguration.connection.ssl.authType",
-          "controlType": "DROP_DOWN",
-          "initialValue": "DEFAULT",
-          "options": [
-            {
-              "label": "Default",
-              "value": "DEFAULT"
-            },
-            {
-              "label": "Enabled",
-              "value": "ENABLED"
-            },
-            {
-              "label": "Disabled",
-              "value": "DISABLED"
-            }
-          ]
-        }
-      ]
+        "sectionName": "SSL (optional)",
+        "hidden": {
+            "path": "datasourceConfiguration.properties[0].value",
+            "comparison": "EQUALS",
+            "value": "Yes"
+        },
+        "children": [{
+            "controlType": "DROP_DOWN",
+            "options": [
+                {
+                    "label": "Default",
+                    "value": "DEFAULT"
+                },
+                {
+                    "label": "Enabled",
+                    "value": "ENABLED"
+                },
+                {
+                    "label": "Disabled",
+                    "value": "DISABLED"
+                }
+            ],
+            "label": "SSL mode",
+            "initialValue": "DEFAULT",
+            "configProperty": "datasourceConfiguration.connection.ssl.authType"
+        }]
     }
-  ]
-}
+]}
