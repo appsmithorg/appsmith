@@ -35,9 +35,11 @@ on:
         required: false
         type: number
         default: 1
-
+  repository_dispatch:
+    types: [ci-test-limit-count]
+    
 jobs:
-  ci-test-limited:
+  ci-test-limit-count:
     runs-on: ubuntu-latest
     #timeout-minutes: 50
     if: |
