@@ -32,11 +32,14 @@ public class Migration058AddIndexesToBranchAwareDomains {
 
     @Execution
     public void executeMigration() {
+        String indexName = "baseId_branchName_compound_index";
+
+        Index index = makeIndex("baseId", "branchName", "deleted", "deletedAt").named(indexName);
 
         // NewPage
         Mono<Boolean> newPageMono = Mono.fromCallable(() -> {
                     log.debug("Fixing NewPage indices");
-                    createNewPageIndex();
+                    createNewPageIndex(indexName, index);
                     return true;
                 })
                 .subscribeOn(Schedulers.boundedElastic());
@@ -44,7 +47,7 @@ public class Migration058AddIndexesToBranchAwareDomains {
         // NewAction
         Mono<Boolean> newActionMono = Mono.fromCallable(() -> {
                     log.debug("Fixing NewAction indices");
-                    createNewActionIndex();
+                    createNewActionIndex(indexName, index);
                     return true;
                 })
                 .subscribeOn(Schedulers.boundedElastic());
@@ -52,7 +55,7 @@ public class Migration058AddIndexesToBranchAwareDomains {
         // ActionCollection
         Mono<Boolean> actionCollectionMono = Mono.fromCallable(() -> {
                     log.debug("Fixing ActionCollection indices");
-                    createActionCollectionIndex();
+                    createActionCollectionIndex(indexName, index);
                     return true;
                 })
                 .subscribeOn(Schedulers.boundedElastic());
@@ -60,10 +63,7 @@ public class Migration058AddIndexesToBranchAwareDomains {
         Mono.zip(newPageMono, newActionMono, actionCollectionMono).block();
     }
 
-    private void createNewPageIndex() {
-        String indexName = "baseId_branchName_compound_index";
-
-        Index index = makeIndex("baseId", "branchName", "deleted", "deletedAt").named(indexName);
+    private void createNewPageIndex(String indexName, Index index) {
 
         try {
             dropIndexIfExists(mongoTemplate, NewPage.class, "defaultApplicationId_gitSyncId_deleted");
@@ -81,10 +81,7 @@ public class Migration058AddIndexesToBranchAwareDomains {
         }
     }
 
-    private void createNewActionIndex() {
-        String indexName = "baseId_branchName_compound_index";
-
-        Index index = makeIndex("baseId", "branchName", "deleted", "deletedAt").named(indexName);
+    private void createNewActionIndex(String indexName, Index index) {
 
         try {
             dropIndexIfExists(mongoTemplate, NewAction.class, "defaultActionId_branchName_deleted_compound_index");
@@ -102,10 +99,7 @@ public class Migration058AddIndexesToBranchAwareDomains {
         }
     }
 
-    private void createActionCollectionIndex() {
-        String indexName = "baseId_branchName_compound_index";
-
-        Index index = makeIndex("baseId", "branchName", "deleted", "deletedAt").named(indexName);
+    private void createActionCollectionIndex(String indexName, Index index) {
 
         try {
             dropIndexIfExists(mongoTemplate, ActionCollection.class, "defaultCollectionId_branchName_deleted");
