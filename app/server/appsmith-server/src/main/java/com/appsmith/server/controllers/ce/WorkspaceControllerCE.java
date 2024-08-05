@@ -110,7 +110,7 @@ public class WorkspaceControllerCE {
     @GetMapping("/home")
     public Mono<ResponseDTO<List<Workspace>>> workspacesForHome() {
         return userWorkspaceService
-                .getUserWorkspacesByRecentlyUsedOrder()
+                .getUserWorkspaceInAlphabeticalOrder()
                 .map(workspaces -> new ResponseDTO<>(HttpStatus.OK.value(), workspaces, null));
     }
 }
