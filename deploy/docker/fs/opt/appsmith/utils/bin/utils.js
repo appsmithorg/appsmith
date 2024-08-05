@@ -32,21 +32,22 @@ function start(apps) {
   console.log("Started " + appsStr);
 }
 
-
 function getDburl() {
+  let dbUrl = '';
   try {
     let env_array = fs.readFileSync(Constants.ENV_PATH, 'utf8').toString().split("\n");
-    for(i in env_array) {
-        if (env_array[i].startsWith("APPSMITH_MONGODB_URI") || env_array[i].startsWith("APPSMITH_DB_URL")) {
-          var dbUrl = env_array[i].toString().split("=")[1];
-        }
+    for (let i in env_array) {
+      if (env_array[i].startsWith("APPSMITH_MONGODB_URI") || env_array[i].startsWith("APPSMITH_DB_URL")) {
+        dbUrl = env_array[i].toString().split("=")[1];
+        break; // Break early when the desired line is found
+      }
     }
   } catch (err) {
-    console.error(err);
+    console.error("Error reading the environment file:", err);
   }
   let dbEnvUrl = process.env.APPSMITH_DB_URL || process.env.APPSMITH_MONGO_DB_URI;
-  if (dbEnvUrl != "undefined"){
-    var dbUrl = dbEnvUrl;
+  if (dbEnvUrl && dbEnvUrl !== "undefined") {
+    dbUrl = dbEnvUrl;
   }
   return dbUrl;
 }
