@@ -70,7 +70,7 @@ describe(
     });
 
     it("4. should check that cell column height doesn't grow taller when text wrapping is disabled", () => {
-      const DEFAULT_NON_WRAP_CELL_COLUMN_HEIGHT = 29;
+      const DEFAULT_NON_WRAP_CELL_COLUMN_HEIGHT = 28;
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
       table.toggleColumnEditableViaColSettingsPane("step", "v2", true, true);
       table.EditTableCell(0, 0, "", false);
