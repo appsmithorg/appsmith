@@ -38,11 +38,6 @@ public class Migration058AddIndexesToBranchAwareDomains {
     @Execution
     public void executeMigration() {
 
-        Query findQuery = query(where(BaseDomain.Fields.deletedAt)
-                .isNull()
-                .and(BranchAwareDomain.Fields.branchName)
-                .exists(false));
-
         // NewPage
         Mono<Boolean> newPageMono = Mono.fromCallable(() -> {
                     log.debug("Fixing NewPage indices");
