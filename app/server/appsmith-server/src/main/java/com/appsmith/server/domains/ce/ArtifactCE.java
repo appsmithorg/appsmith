@@ -1,6 +1,5 @@
 package com.appsmith.server.domains.ce;
 
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.GitArtifactMetadata;
 
