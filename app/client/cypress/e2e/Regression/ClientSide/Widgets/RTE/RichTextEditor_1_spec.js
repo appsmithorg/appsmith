@@ -38,6 +38,9 @@ describe(
   function () {
     before(() => {
       _.agHelper.AddDsl("formdsl1");
+      cy.openPropertyPane("richtexteditorwidget");
+      cy.CheckWidgetProperties(commonlocators.hideToolbarCheckbox);
+      cy.UncheckWidgetProperties(commonlocators.hideToolbarCheckbox);
     });
 
     beforeEach(() => {
