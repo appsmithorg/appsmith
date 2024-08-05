@@ -14,6 +14,8 @@ export const getAutoIndentShortcutKeyText = () => {
 };
 
 export const autoIndentCode = (editor: CodeMirror.Editor) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   editor.eachLine((line: any) => {
     const lineNumber = editor.getLineNumber(line);
     if (!isNil(lineNumber)) {

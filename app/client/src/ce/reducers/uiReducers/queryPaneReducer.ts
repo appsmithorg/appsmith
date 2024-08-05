@@ -124,6 +124,8 @@ export const handlers = {
     },
   }),
   [ReduxActionTypes.RUN_ACTION_REQUEST]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any,
     action: ReduxAction<{ id: string }>,
   ): QueryPaneReduxState => {
@@ -142,6 +144,8 @@ export const handlers = {
   },
 
   [ReduxActionTypes.RUN_ACTION_CANCELLED]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any,
     action: ReduxAction<{ id: string }>,
   ) => {
@@ -155,6 +159,8 @@ export const handlers = {
   },
 
   [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any,
     action: ReduxAction<{ [id: string]: ActionResponse }>,
   ) => {
@@ -169,6 +175,8 @@ export const handlers = {
     };
   },
   [ReduxActionErrorTypes.RUN_ACTION_ERROR]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: any,
     action: ReduxAction<{ id: string; error: Error }>,
   ) => {
@@ -206,6 +214,12 @@ export const handlers = {
         ...state.debugger,
         ...action.payload,
       },
+    };
+  },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: QueryPaneReduxState) => {
+    return {
+      ...state,
+      isSaving: {},
     };
   },
 };

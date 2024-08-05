@@ -25,7 +25,6 @@ public class FieldNameCE {
     public static final String LAYOUT_ID = "layoutId";
     public static final String APPLICATION_ID = "applicationId";
     public static final String SOURCE_APPLICATION_ID = "sourceApplicationId";
-    public static final String DEFAULT_RESOURCES = "defaultResources";
     public static final String PLUGIN_ID = "pluginId";
     public static final String DATASOURCE = "datasource";
     public static final String CONFIG = "config";

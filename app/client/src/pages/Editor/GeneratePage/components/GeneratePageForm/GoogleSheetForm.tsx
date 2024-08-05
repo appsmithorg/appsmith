@@ -38,6 +38,8 @@ interface Props {
     onSubmit: () => void;
     disabled: boolean;
     isLoading: boolean;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   }) => ReactElement<any, any>;
   sheetsListProps: UseSheetListReturn;
   spreadSheetsProps: UseSpreadSheetsReturn;
@@ -136,9 +138,10 @@ function GoogleSheetForm(props: Props) {
     getEditorConfig(state, googleSheetPluginId),
   );
 
-  const [sheetQueryRequest, setSheetQueryRequest] = useState<
-    Record<any, string>
-  >({});
+  const [sheetQueryRequest, setSheetQueryRequest] =
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    useState<Record<any, string>>({});
 
   useEffect(() => {
     // Check if google sheet editor config is fetched.
@@ -155,6 +158,8 @@ function GoogleSheetForm(props: Props) {
 
   useEffect(() => {
     if (googleSheetEditorConfig && googleSheetEditorConfig[0]) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const requestObject: Record<any, string> = {};
       const configs = googleSheetEditorConfig[0]?.children;
       if (Array.isArray(configs)) {

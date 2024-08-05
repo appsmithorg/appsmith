@@ -71,6 +71,8 @@ export const createNewApiActionBasedOnEditorType = (
   parentEntityId: string,
   parentEntityType: ActionParentEntityTypeInterface,
   apiType: string,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): any => {
   if (parentEntityId) {
     return createNewAPIBasedOnParentEntity(

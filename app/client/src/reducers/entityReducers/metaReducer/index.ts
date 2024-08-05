@@ -83,6 +83,8 @@ export const metaReducer = createReducer(initialState, {
     action: ReduxAction<TableFilterPanePositionConfig>,
   ) => {
     const next = { ...state };
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let widgetMetaProps: Record<string, any> = next[action.payload.widgetId];
     if (widgetMetaProps === undefined) {
       widgetMetaProps = {

@@ -10,7 +10,10 @@ import {
 } from "actions/gitSyncActions";
 import { restoreRecentEntitiesRequest } from "actions/globalSearchActions";
 import { resetEditorSuccess } from "actions/initActions";
-import { fetchAllPageEntityCompletion, setupPage } from "actions/pageActions";
+import {
+  fetchAllPageEntityCompletion,
+  setupPageAction,
+} from "actions/pageActions";
 import {
   executePageLoadActions,
   fetchActions,
@@ -30,7 +33,6 @@ import {
   reportSWStatus,
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
-import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import history from "utils/history";
@@ -66,6 +68,7 @@ import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
+import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { Span } from "@opentelemetry/api";
 import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
 
@@ -89,6 +92,8 @@ export default class AppEditorEngine extends AppEngine {
    * @param AppEnginePayload
    * @returns
    */
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public *setupEngine(payload: AppEnginePayload, rootSpan: Span): any {
     const editorSetupSpan = startNestedSpan(
       "AppEditorEngine.setupEngine",
@@ -134,7 +139,7 @@ export default class AppEditorEngine extends AppEngine {
       unpublishedActions,
     } = allResponses;
     const initActionsCalls = [
-      setupPage(toLoadPageId, true, pageWithMigratedDsl),
+      setupPageAction(toLoadPageId, true, pageWithMigratedDsl),
       fetchActions({ applicationId, unpublishedActions }, []),
       fetchJSCollections({ applicationId, unpublishedActionCollections }),
       fetchSelectedAppThemeAction(applicationId, currentTheme),
@@ -250,6 +255,8 @@ export default class AppEditorEngine extends AppEngine {
     applicationId: string,
     allResponses: EditConsolidatedApi,
     rootSpan: Span,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ): any {
     yield call(
       this.loadPageThemesAndActions,

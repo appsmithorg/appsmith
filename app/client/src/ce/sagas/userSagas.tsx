@@ -84,7 +84,7 @@ import {
   USER_PROFILE_PICTURE_UPLOAD_FAILED,
   UPDATE_USER_DETAILS_FAILED,
 } from "@appsmith/constants/messages";
-import { createMessage } from "design-system-old/build/constants/messages";
+import { createMessage } from "design-system-old";
 import type {
   ProductAlert,
   ProductAlertConfig,
@@ -337,6 +337,8 @@ interface InviteUserPayload {
   permissionGroupId: string;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function* inviteUser(payload: InviteUserPayload, reject: any) {
   const response: ApiResponse = yield callAPI(UserApi.inviteUser, payload);
   const isValidResponse: boolean = yield validateResponse(response);
@@ -533,6 +535,8 @@ export function* updatePhoto(
       show: true,
       error: {
         message:
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (error as any).message ??
           createMessage(USER_PROFILE_PICTURE_UPLOAD_FAILED),
       },

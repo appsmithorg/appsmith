@@ -10,7 +10,10 @@ import type { AppState } from "@appsmith/reducers";
 
 import { saveActionName } from "actions/pluginActionActions";
 import { Flex } from "design-system";
-import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
+import {
+  getActionByBaseId,
+  getPlugin,
+} from "@appsmith/selectors/entitiesSelector";
 import NameEditorComponent, {
   IconBox,
   IconWrapper,
@@ -44,10 +47,10 @@ interface ActionNameEditorProps {
 }
 
 function ActionNameEditor(props: ActionNameEditorProps) {
-  const params = useParams<{ apiId?: string; queryId?: string }>();
+  const params = useParams<{ baseApiId?: string; baseQueryId?: string }>();
 
   const currentActionConfig = useSelector((state: AppState) =>
-    getAction(state, params.apiId || params.queryId || ""),
+    getActionByBaseId(state, params.baseApiId || params.baseQueryId || ""),
   );
 
   const currentPlugin = useSelector((state: AppState) =>

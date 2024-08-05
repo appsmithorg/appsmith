@@ -95,6 +95,8 @@ export const SettingName = styled(Text)<{ active?: boolean }>`
 
 export function getSettingsCategory(type: string): Category[] {
   return Array.from(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     AdminConfig.categories.filter((cat: any) => cat.categoryType === type),
   );
 }
@@ -115,6 +117,8 @@ export function Categories({
   const dispatch = useDispatch();
 
   const triggerAnalytics = (page: string) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const source: any = {
       "audit-logs": "AuditLogs",
       "access-control": "AccessControl",
@@ -188,6 +192,8 @@ export default function LeftPane() {
   const categories = getSettingsCategory(CategoryType.GENERAL);
   const aclCategories = getSettingsCategory(CategoryType.ACL);
   const othersCategories = getSettingsCategory(CategoryType.OTHER);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { category, selected: subCategory } = useParams() as any;
   const user = useSelector(getCurrentUser);
   const isSuperUser = user?.isSuperUser;

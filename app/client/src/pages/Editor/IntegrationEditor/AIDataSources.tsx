@@ -111,7 +111,11 @@ interface Props {
   pageId: string;
   plugins: Plugin[];
   isCreating: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   showUnsupportedPluginDialog: (callback: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   createTempDatasourceFromForm: (data: any) => void;
   showSaasAPIs: boolean; // If this is true, only SaaS APIs will be shown
 }

@@ -1,6 +1,5 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
@@ -31,6 +30,10 @@ public class PageDTO {
     @Transient
     @JsonView({Views.Public.class})
     private String id;
+
+    @Transient
+    @JsonView({Views.Public.class})
+    private String baseId;
 
     @JsonView({Views.Public.class, Views.Export.class, Git.class})
     String name;
@@ -73,11 +76,9 @@ public class PageDTO {
     @JsonView(Views.Public.class)
     Long lastUpdatedTime;
 
-    // This field will be used to store the default/root pageId and applicationId for actions generated for git
-    // connected applications and will be used to connect actions across the branches
     @Transient
-    @JsonView(Views.Public.class)
-    DefaultResources defaultResources;
+    @JsonView({Views.Internal.class})
+    String branchName;
 
     @JsonView(Views.Public.class)
     Map<String, List<String>> dependencyMap;

@@ -20,6 +20,8 @@ interface PageHeaderProps {
   searchPlaceholder: string;
   onButtonClick?: () => void;
   onSearch?: DebouncedFunc<(search: string) => void>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pageMenuItems: any[];
   title?: string;
   showMoreOptions?: boolean;
@@ -69,6 +71,8 @@ export function SettingsPageHeader(props: PageHeaderProps) {
 
   const onOptionSelect = (
     e: React.MouseEvent<Element, MouseEvent>,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     menuItem: any,
   ) => {
     if (menuItem.label === "delete") {

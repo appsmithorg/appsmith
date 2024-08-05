@@ -1,0 +1,77 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as PopoverStories from "./Popover.stories";
+
+<Meta of={PopoverStories} />
+
+# Popover
+
+A Popover is a page overlay triggered by a button that displays additional interactive content.
+
+<Canvas of={PopoverStories.PopoverStory} />
+
+## Anatomy
+
+![Popover anatomy](./docs/popover-anatomy.png)
+
+1. **Popover panel**: Container for the popover content.
+2. **Header**: Contains an optional heading and an optional close icon.
+3. **Title**: A title is an optional element in the popover header that provides a brief label for the content inside the popover.
+4. **Close icon**: The close icon indicates to the user that the popover can be closed, either via clicking on the close icon or via pressing the `Esc` key.
+
+Consider that the close icon and title are not mandatory and might not be needed in every scenario. The inclusion and implementation of these features could differ based on the requirements of the use case.
+
+## Spacing
+
+![Popover spacing](./docs/popover-spacing.png)
+
+## Size
+
+### Small
+
+Small popovers are best suited for providing quick information or simple actions. They are ideal for presenting concise content or single-line actions. They are suitable for cases where a brief description or small set of options needs to be displayed.
+
+Example: Action selector.
+
+<Canvas of={PopoverStories.PopoverContentStory} />
+
+### Medium
+
+Medium popovers are suitable for more detailed content and actions. They work well for scenarios where users need to interact with more content, such as selecting from a verbose list of options or filling out a form.
+
+Example: Add JS libraries, Git branch
+
+<Canvas of={PopoverStories.MediumPopoverContentStory} />
+
+## Usage
+
+### Triggers
+
+Triggers for a popover can be a button, icon, icon-button, action-list.
+
+1. Popover should appear near its trigger element (e.g. button or link) to have connection.
+2. Position the popover in relation to the source element either above, below, to the left, or to the right.
+3. Popover should not obstruct information on the page that the popover content is directly related to.
+
+### Scrolling
+
+Ensure that the content area of the popover is scrollable to accommodate longer content.
+
+**List of options**: When presenting a list of options, items, or actions that wouldn't fit entirely within the popover's visible area, scrolling lets users explore the full list without enlarging the popover itself. However, the header of the popover should remain sticky as the user scrolls through the content. This has been done in this component by default, but should be implemented for any secondary headings within the popover content.
+
+### When not to use a popover
+
+1. Excessively: Avoid using popovers too frequently or for non-essential information. Overusing popovers can lead to a cluttered user interface and may confuse or frustrate users.
+2. For critical information: Do not rely on popovers to display critical information that users must see to proceed. Important messages, warnings, or critical instructions should be presented more prominently, such as in a modal dialog or as part of the main content.
+
+| ✅ Do                                                                                                                                         | ❌ Don’t                                                                                                                                                |
+| --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Use Popover when you need to display supplemental interactive content over the top of your UI. It should have at least one focusable element. | Don’t present critical information or required inputs in Popovers, use the Modal instead.                                                               |
+| Popovers should be triggered by a button.                                                                                                     | Don’t place more than one primary action in a Popover.                                                                                                  |
+| Consider the best size for the Popover container, based on its content.                                                                       | Don’t use a Popover to guide users through a complex workflow with a series of steps or for presenting critical information. Use a Modal for workflows. |
+
+---
+
+## Resources
+
+1. Internally, this component is a customized wrapper around https://www.radix-ui.com/primitives/docs/components/popover

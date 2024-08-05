@@ -2,8 +2,8 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.GitSyncedDomain;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -109,13 +109,12 @@ public class DatabaseChangelog2 {
     }
 
     public static void doAddIndexesForGit(MongoTemplate mongoTemplate) {
-        String defaultResources = BranchAwareDomain.Fields.defaultResources;
         ensureIndexes(
                 mongoTemplate,
                 ActionCollection.class,
                 makeIndex(
-                                defaultResources + "." + FieldName.APPLICATION_ID,
-                                BaseDomain.Fields.gitSyncId,
+                                "defaultResources." + FieldName.APPLICATION_ID,
+                                GitSyncedDomain.Fields.gitSyncId,
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
 
@@ -123,8 +122,8 @@ public class DatabaseChangelog2 {
                 mongoTemplate,
                 NewAction.class,
                 makeIndex(
-                                defaultResources + "." + FieldName.APPLICATION_ID,
-                                BaseDomain.Fields.gitSyncId,
+                                "defaultResources." + FieldName.APPLICATION_ID,
+                                GitSyncedDomain.Fields.gitSyncId,
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
 
@@ -132,8 +131,8 @@ public class DatabaseChangelog2 {
                 mongoTemplate,
                 NewPage.class,
                 makeIndex(
-                                defaultResources + "." + FieldName.APPLICATION_ID,
-                                BaseDomain.Fields.gitSyncId,
+                                "defaultResources." + FieldName.APPLICATION_ID,
+                                GitSyncedDomain.Fields.gitSyncId,
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
     }

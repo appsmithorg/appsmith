@@ -10,6 +10,8 @@ import { SIGNPOSTING_STEP } from "./Utils";
 import { signpostingStepUpdateInit } from "actions/onboardingActions";
 import * as onboardingSelectors from "selectors/onboardingSelectors";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 
 jest.mock("react-redux", () => {
@@ -34,6 +36,8 @@ const originalOnboardingSelectors = jest.requireActual(
   "../../../selectors/onboardingSelectors",
 );
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function renderComponent(store: any) {
   render(
     <Provider store={store}>
@@ -130,6 +134,8 @@ describe("Statusbar", () => {
   });
 
   it("should test useIsWidgetActionConnectionPresent function", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const store = getStore(4).getState() as any;
     const isWidgetActionConnectionPresentHelper = () => {
       return originalOnboardingSelectors.isWidgetActionConnectionPresent.resultFunc(

@@ -16,7 +16,7 @@ import { useHref } from "pages/Editor/utils";
 import { builderURL } from "@appsmith/RouteBuilder";
 import {
   combinedPreviewModeSelector,
-  getCurrentPageId,
+  getCurrentBasePageId,
 } from "selectors/editorSelectors";
 import type { User } from "constants/userConstants";
 import SidebarProfileComponent from "./components/SidebarProfileComponent";
@@ -76,8 +76,8 @@ export function Sidebar(props: SidebarProps) {
   const location = useLocation();
   const { pathname } = location;
   const [query, setQuery] = useState("");
-  const pageId = useSelector(getCurrentPageId);
-  const editorURL = useHref(builderURL, { pageId });
+  const basePageId = useSelector(getCurrentBasePageId);
+  const editorURL = useHref(builderURL, { basePageId });
   const dispatch = useDispatch();
   const isPinned = useSelector(getAppSidebarPinned);
   const [isOpen, setIsOpen] = useState(true);

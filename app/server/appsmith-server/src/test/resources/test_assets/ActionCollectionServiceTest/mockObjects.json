@@ -1,110 +1,87 @@
 {
-  "newPage": {
-    "id": "testPageId",
-    "applicationId": "testApplicationId",
-    "defaultResources": {
-      "pageId" : "testPageId"
-    },
-    "unpublishedPage": {
-      "name": "TestPage",
-      "layouts": [
-        {
-          "id": "testLayoutId",
-          "viewMode": false,
-          "dsl": {
-            "widgetName": "MainContainer",
-            "children": []
-          },
-          "layoutOnLoadActions": [],
-          "widgetNames": [
-            "MainContainer"
-          ],
-          "allOnPageLoadActionNames": [],
-          "actionsUsedInDynamicBindings": [],
-          "policies": []
-        }
-      ]
-    },
-    "publishedPage": {
-      "name": "TestPage",
-      "layouts": [
-        {
-          "id": "testLayoutId",
-          "viewMode": false,
-          "dsl": {
-            "widgetName": "MainContainer",
-            "children": []
-          },
-          "widgetNames": [
-            "MainContainer"
-          ],
-          "policies": []
-        }
-      ]
-    }
-  },
-  "actionCollectionWithAction": {
-    "id": "testCollectionId",
-    "applicationId": "testApplicationId",
-    "workspaceId": "testWorkspaceId",
-    "unpublishedCollection": {
-      "name": "testCollection",
-      "pageId": "testPageId",
-      "pluginId": "testPluginId",
-      "actions": [
-        {
-          "id": "testActionId1"
+    "actionCollectionAfterModifiedActions": {
+        "publishedCollection": {
+            "pluginId": "testPluginId",
+            "name": "testCollection",
+            "pageId": "testPageId"
         },
-        {
-          "id": "testActionId2"
-        }
-      ]
-    },
-    "publishedCollection": {
-      "name": "testCollection",
-      "pageId": "testPageId",
-      "pluginId": "testPluginId"
-    }
-  },
-  "actionCollectionDTOWithModifiedActions": {
-    "id": "testCollectionId",
-    "applicationId": "testApplicationId",
-    "workspaceId": "testWorkspaceId",
-    "name": "testCollection",
-    "pageId": "testPageId",
-    "pluginId": "testPluginId",
-    "actions": [
-      {
-        "id": "testActionId1"
-      },
-      {
-        "id": "testActionId3"
-      }
-    ]
-  },
-  "actionCollectionAfterModifiedActions": {
-    "id": "testCollectionId",
-    "applicationId": "testApplicationId",
-    "workspaceId": "testWorkspaceId",
-    "unpublishedCollection": {
-      "id": "testCollectionId",
-      "workspaceId": "testWorkspaceId",
-      "name": "testCollection",
-      "pageId": "testPageId",
-      "pluginId": "testPluginId",
-      "actions": [
-        {
-          "id": "testActionId1"
+        "id": "testCollectionId",
+        "unpublishedCollection": {
+            "pluginId": "testPluginId",
+            "name": "testCollection",
+            "id": "testCollectionId",
+            "pageId": "testPageId",
+            "actions": [
+                {"id": "testActionId1"},
+                {"id": "testActionId3"}
+            ],
+            "workspaceId": "testWorkspaceId"
         },
-        {
-          "id": "testActionId3"
-        }
-      ]
+        "applicationId": "testApplicationId",
+        "workspaceId": "testWorkspaceId"
     },
-    "publishedCollection": {
-      "name": "testCollection",
-      "pageId": "testPageId",
-      "pluginId": "testPluginId"
+    "actionCollectionWithAction": {
+        "publishedCollection": {
+            "pluginId": "testPluginId",
+            "name": "testCollection",
+            "pageId": "testPageId"
+        },
+        "id": "testCollectionId",
+        "unpublishedCollection": {
+            "pluginId": "testPluginId",
+            "name": "testCollection",
+            "pageId": "testPageId",
+            "actions": [
+                {"id": "testActionId1"},
+                {"id": "testActionId2"}
+            ]
+        },
+        "applicationId": "testApplicationId",
+        "workspaceId": "testWorkspaceId"
+    },
+    "newPage": {
+        "publishedPage": {
+            "name": "TestPage",
+            "layouts": [{
+                "widgetNames": ["MainContainer"],
+                "policies": [],
+                "id": "testLayoutId",
+                "viewMode": false,
+                "dsl": {
+                    "widgetName": "MainContainer",
+                    "children": []
+                }
+            }]
+        },
+        "unpublishedPage": {
+            "name": "TestPage",
+            "layouts": [{
+                "actionsUsedInDynamicBindings": [],
+                "widgetNames": ["MainContainer"],
+                "policies": [],
+                "id": "testLayoutId",
+                "layoutOnLoadActions": [],
+                "allOnPageLoadActionNames": [],
+                "viewMode": false,
+                "dsl": {
+                    "widgetName": "MainContainer",
+                    "children": []
+                }
+            }]
+        },
+        "id": "testPageId",
+        "applicationId": "testApplicationId"
+    },
+    "actionCollectionDTOWithModifiedActions": {
+        "pluginId": "testPluginId",
+        "name": "testCollection",
+        "id": "testCollectionId",
+        "applicationId": "testApplicationId",
+        "pageId": "testPageId",
+        "actions": [
+            {"id": "testActionId1"},
+            {"id": "testActionId3"}
+        ],
+        "workspaceId": "testWorkspaceId"
     }
-  }
 }

@@ -56,7 +56,11 @@ export interface FormTextFieldProps {
   hideErrorMessage?: boolean;
   isRequired?: boolean;
   defaultValue?: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   format?: (value: any) => any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   parse?: (value: any) => any;
 }
 

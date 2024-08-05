@@ -89,6 +89,8 @@ interface RenderComponentProps {
   updateOption: (index: string, key: string, value: string) => void;
   evaluated: {
     seriesName: string;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     data: Array<{ x: string; y: string }> | any;
     color: string;
   };

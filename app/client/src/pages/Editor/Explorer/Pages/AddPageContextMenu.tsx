@@ -60,7 +60,7 @@ function AddPageContextMenu({
 }: SubMenuProps) {
   const [show, setShow] = useState(openMenu);
   const dispatch = useDispatch();
-  const { pageId } = useParams<ExplorerURLParams>();
+  const { basePageId } = useParams<ExplorerURLParams>();
   const isAirgappedInstance = isAirgapped();
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
@@ -84,7 +84,7 @@ function AddPageContextMenu({
       items.push({
         title: createMessage(GENERATE_PAGE_ACTION_TITLE),
         icon: "database-2-line",
-        onClick: () => history.push(generateTemplateFormURL({ pageId })),
+        onClick: () => history.push(generateTemplateFormURL({ basePageId })),
         "data-testid": "generate-page",
         key: "GENERATE_PAGE",
       });
@@ -102,7 +102,7 @@ function AddPageContextMenu({
     }
 
     return items;
-  }, [pageId, enableGenerateCrud]);
+  }, [basePageId, enableGenerateCrud]);
 
   const handleOpenChange = (open: boolean) => {
     if (open) {

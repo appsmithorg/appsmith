@@ -4,7 +4,7 @@ import type { RouteComponentProps } from "react-router";
 import * as Sentry from "@sentry/react";
 
 type Props = RouteComponentProps<{
-  pageId: string;
+  basePageId: string;
   selectedTab: string;
 }>;
 
@@ -21,9 +21,9 @@ const integrationsEditor = (props: Props) => {
       }}
     >
       <IntegrationsHomeScreen
+        basePageId={match.params.basePageId}
         history={history}
         location={location}
-        pageId={match.params.pageId}
         selectedTab={match.params.selectedTab}
       />
     </div>

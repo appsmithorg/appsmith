@@ -29,6 +29,8 @@ export const generateMockDataWithTwoSections = () => {
       },
     ],
   };
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const allWidgets: any = {
     [MAIN_CONTAINER_WIDGET_ID]: {
       widgetName: "Main Container",

@@ -1,15 +1,13 @@
 package com.appsmith.server.domains.ce;
 
-import com.appsmith.external.views.Views;
+import com.appsmith.external.models.Policy;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.GitArtifactMetadata;
-import com.fasterxml.jackson.annotation.JsonView;
 
 public interface ArtifactCE {
 
     String getId();
 
-    @JsonView(Views.Internal.class)
     default String getBaseId() {
         return getId();
     }

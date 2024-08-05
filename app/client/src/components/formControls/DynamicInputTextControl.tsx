@@ -47,6 +47,8 @@ export function InputText(props: {
   name: string;
   actionName: string;
   inputType?: INPUT_TEXT_INPUT_TYPES;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   customStyles?: any;
   disabled?: boolean;
   showLineNumbers?: boolean;

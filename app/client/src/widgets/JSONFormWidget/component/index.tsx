@@ -26,6 +26,8 @@ interface StyledContainerProps {
   backgroundColor?: string;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export interface JSONFormComponentProps<TValues = any> {
   backgroundColor?: string;
   borderColor?: Color;
@@ -59,7 +61,11 @@ export interface JSONFormComponentProps<TValues = any> {
   submitButtonStyles: ButtonStyleProps;
   title: string;
   updateFormData: (values: TValues) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateWidgetMetaProperty: (propertyName: string, propertyValue: any) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   updateWidgetProperty: (propertyName: string, propertyValue: any) => void;
   widgetId: string;
   showConnectDataOverlay?: boolean;
