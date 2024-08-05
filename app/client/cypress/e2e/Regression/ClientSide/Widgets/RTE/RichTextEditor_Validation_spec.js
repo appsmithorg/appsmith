@@ -16,7 +16,7 @@ describe(
     });
 
     it("RichTextEditor-required with empty content show error border for textarea", function () {
-      cy.setTinyMceContent("rte-6h8j08u7ea", "");
+      cy.setTinyMceContent("rte-component-vw4zehojqt", "");
       cy.get(commonlocators.requiredCheckbox).click({ force: true });
       cy.wait(500);
 

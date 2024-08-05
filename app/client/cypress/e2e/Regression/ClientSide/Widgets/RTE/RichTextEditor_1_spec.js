@@ -152,7 +152,7 @@ describe(
       // Enable the widget
       cy.UncheckWidgetProperties(formWidgetsPage.disableJs);
 
-      cy.setTinyMceContent("rte-6h8j08u7ea", "<h1>content</h1>");
+      cy.setTinyMceContent("rte-component-vw4zehojqt", "<h1>content</h1>");
 
       cy.validateHTMLText(
         formWidgetsPage.richTextEditorWidget,

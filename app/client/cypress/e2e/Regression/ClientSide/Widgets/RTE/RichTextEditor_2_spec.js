@@ -69,7 +69,7 @@ describe(
 
     it("2. Check if text does not re-appear when cut, inside the RTE widget", function () {
       cy.window().then((win) => {
-        const tinyMceId = "rte-6h8j08u7ea";
+        const tinyMceId = "rte-component-vw4zehojqt";
 
         const editor = win.tinymce.EditorManager.get(tinyMceId);
 
@@ -90,7 +90,7 @@ describe(
     });
 
     it("3. Check if the cursor position is at the end for the RTE widget", function () {
-      const tinyMceId = "rte-6h8j08u7ea";
+      const tinyMceId = "rte-component-vw4zehojqt";
       const testString = "Test Content";
       const testStringLen = testString.length;
 
@@ -107,7 +107,7 @@ describe(
     });
 
     it("4. Check if different font size texts are supported inside the RTE widget", function () {
-      const tinyMceId = "rte-6h8j08u7ea";
+      const tinyMceId = "rte-component-vw4zehojqt";
       const testString = "Test Content";
 
       // Set the content inside RTE widget by typing
@@ -145,7 +145,7 @@ describe(
       cy.wait(500);
       cy.get('[data-mce-tooltip="grinning"]').click({ force: true });
       const getEditorContent = (win) => {
-        const tinyMceId = "rte-6h8j08u7ea";
+        const tinyMceId = "rte-component-vw4zehojqt";
         const editor = win.tinymce.EditorManager.get(tinyMceId);
         return editor.getContent();
       };
