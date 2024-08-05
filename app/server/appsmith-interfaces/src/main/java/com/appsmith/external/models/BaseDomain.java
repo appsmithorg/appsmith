@@ -99,12 +99,6 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Public.class)
     public Set<String> userPermissions = new HashSet<>();
 
-    // This field will only be used for git related functionality to sync the action object across different instances.
-    // This field will be deprecated once we move to the new git sync implementation.
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView({Views.Internal.class, Git.class})
-    String gitSyncId;
-
     // TODO Abhijeet: Remove this method once we have migrated all the usages of policies to policyMap
     /**
      * An unmodifiable set of policies.
