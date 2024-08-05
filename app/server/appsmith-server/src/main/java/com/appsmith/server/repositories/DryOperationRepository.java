@@ -105,12 +105,6 @@ public class DryOperationRepository {
                         saveDatasourceStorageToDb(datasourceStorageList);
                     });
 
-            mappedImportableResourcesDTO.getCustomJSLibsDryOps().keySet().forEach(key -> {
-                List<CustomJSLib> customJSLibList =
-                        mappedImportableResourcesDTO.getCustomJSLibsDryOps().get(key);
-                saveCustomJSLibToDb(customJSLibList);
-            });
-
             // Save all custom js libs
             mappedImportableResourcesDTO.getCustomJSLibsDryOps().keySet().forEach(key -> {
                 List<CustomJSLib> customJSLibList =
