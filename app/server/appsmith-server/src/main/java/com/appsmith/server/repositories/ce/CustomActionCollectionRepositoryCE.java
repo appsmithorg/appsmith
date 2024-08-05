@@ -18,7 +18,7 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
     List<ActionCollection> findByApplicationId(
             String applicationId, Optional<AclPermission> permission, User currentUser, Optional<Sort> sort);
 
-    List<ActionCollection> findByApplicationIdAndViewMode(
+    List<ActionCollection> findNonComposedByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission permission, User currentUser);
 
     List<ActionCollection> findByPageId(String pageId, AclPermission permission, User currentUser);
@@ -39,5 +39,8 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
             String contextId, CreatorContextType contextType, AclPermission permission, User currentUser);
 
     List<ActionCollection> findByPageIdAndViewMode(
+            String pageId, boolean viewMode, AclPermission permission, User currentUser);
+
+    List<ActionCollection> findAllNonComposedByPageIdAndViewMode(
             String pageId, boolean viewMode, AclPermission permission, User currentUser);
 }

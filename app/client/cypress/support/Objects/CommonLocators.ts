@@ -118,7 +118,9 @@ export class CommonLocators {
   _actionTextArea = (actionName: string) =>
     "//label[text()='" +
     actionName +
-    "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea";
+    "']/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea | //label[text()='" +
+    actionName +
+    "']/parent::div/following-sibling::div//div[contains(@class, 'CodeMirror')]//textarea";
   _existingDefaultTextInput =
     ".t--property-control-defaulttext .CodeMirror-code";
   _widgetPageIcon = (widgetType: string) =>
@@ -144,7 +146,9 @@ export class CommonLocators {
     fieldName.replace(/ +/g, "").toLowerCase() +
     "')] | //label[text()='" +
     fieldName +
-    "']/following-sibling::div";
+    "']/following-sibling::div | //label[text()='" +
+    fieldName +
+    "']/parent::div/following-sibling::div";
   _existingFieldValueByName = (fieldName: string) =>
     this._existingFieldTextByName(fieldName) +
     "//div[contains(@class,'CodeMirror-code')]";

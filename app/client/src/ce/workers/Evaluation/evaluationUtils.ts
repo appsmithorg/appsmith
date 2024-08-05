@@ -514,9 +514,7 @@ export const getImmediateParentsOfPropertyPaths = (
 };
 
 export const getAllPaths = (
-  // TODO: Fix this the next time the file is edited
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  records: any,
+  records: Record<string, unknown> | unknown,
   curKey = "",
   result: Record<string, true> = {},
 ): Record<string, true> => {
@@ -534,6 +532,27 @@ export const getAllPaths = (
     }
   }
   return result;
+};
+export const getAllPathsBasedOnDiffPaths = (
+  records: Record<string, unknown> | unknown,
+  diff: DataTreeDiff[],
+  // this argument would be mutable
+  previousResult: Record<string, true> = {},
+): Record<string, true> => {
+  const newResult = previousResult;
+  diff.forEach((curr) => {
+    const { event, payload } = curr;
+    if (event === DataTreeDiffEvent.DELETE) {
+      delete newResult[payload.propertyPath];
+    }
+    if (event === DataTreeDiffEvent.NEW || event === DataTreeDiffEvent.EDIT) {
+      const newDataSegments = get(records, payload.propertyPath);
+      // directly mutates on the result so we don't have to merge it back to the result
+      getAllPaths(newDataSegments, payload.propertyPath, newResult);
+    }
+  });
+
+  return newResult;
 };
 export const trimDependantChangePaths = (
   changePaths: Set<string>,

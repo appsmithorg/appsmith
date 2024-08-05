@@ -134,7 +134,7 @@ public class ActionCollectionServiceCEImpl
     @Override
     public Flux<ActionCollectionDTO> getPopulatedActionCollectionsByViewMode(
             MultiValueMap<String, String> params, Boolean viewMode) {
-        return this.getActionCollectionsByViewMode(params, viewMode)
+        return this.getNonComposedActionCollectionsByViewMode(params, viewMode)
                 .flatMap(actionCollectionDTO -> this.populateActionCollectionByViewMode(actionCollectionDTO, viewMode));
     }
 
@@ -191,7 +191,7 @@ public class ActionCollectionServiceCEImpl
         return applicationService
                 .findBranchedApplicationId(branchName, applicationId, applicationPermission.getReadPermission())
                 .flatMapMany(branchedApplicationId -> repository
-                        .findByApplicationIdAndViewMode(
+                        .findNonComposedByApplicationIdAndViewMode(
                                 branchedApplicationId, true, actionPermission.getExecutePermission())
                         .flatMap(this::generateActionCollectionViewDTO));
     }
@@ -199,7 +199,8 @@ public class ActionCollectionServiceCEImpl
     @Override
     public Flux<ActionCollectionViewDTO> getActionCollectionsForViewMode(String branchedApplicationId) {
         return repository
-                .findByApplicationIdAndViewMode(branchedApplicationId, true, actionPermission.getExecutePermission())
+                .findNonComposedByApplicationIdAndViewMode(
+                        branchedApplicationId, true, actionPermission.getExecutePermission())
                 .flatMap(this::generateActionCollectionViewDTO);
     }
 
@@ -239,16 +240,16 @@ public class ActionCollectionServiceCEImpl
     }
 
     @Override
-    public Flux<ActionCollectionDTO> getActionCollectionsByViewMode(
+    public Flux<ActionCollectionDTO> getNonComposedActionCollectionsByViewMode(
             MultiValueMap<String, String> params, Boolean viewMode) {
         if (params == null || viewMode == null) {
             return Flux.empty();
         }
-        return getActionCollectionsFromRepoByViewMode(params, viewMode)
+        return getNonComposedActionCollectionsFromRepoByViewMode(params, viewMode)
                 .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
     }
 
-    protected Flux<ActionCollection> getActionCollectionsFromRepoByViewMode(
+    protected Flux<ActionCollection> getNonComposedActionCollectionsFromRepoByViewMode(
             MultiValueMap<String, String> params, Boolean viewMode) {
         if (params.getFirst(FieldName.APPLICATION_ID) != null) {
             // Fetch unpublished pages because GET actions is only called during edit mode. For view mode, different
@@ -258,7 +259,7 @@ public class ActionCollectionServiceCEImpl
                             params.getFirst(FieldName.BRANCH_NAME),
                             params.getFirst(FieldName.APPLICATION_ID),
                             applicationPermission.getReadPermission())
-                    .flatMapMany(childApplicationId -> repository.findByApplicationIdAndViewMode(
+                    .flatMapMany(childApplicationId -> repository.findNonComposedByApplicationIdAndViewMode(
                             childApplicationId, viewMode, actionPermission.getReadPermission()));
         }
         String pageId = null;
@@ -266,7 +267,7 @@ public class ActionCollectionServiceCEImpl
         if (params.getFirst(FieldName.PAGE_ID) != null) {
             pageId = params.getFirst(FieldName.PAGE_ID);
         }
-        return repository.findByPageIdAndViewMode(pageId, viewMode, actionPermission.getReadPermission());
+        return repository.findAllNonComposedByPageIdAndViewMode(pageId, viewMode, actionPermission.getReadPermission());
     }
 
     @Override

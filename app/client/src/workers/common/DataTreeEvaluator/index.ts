@@ -35,7 +35,10 @@ import type {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { convertMicroDiffToDeepDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  convertMicroDiffToDeepDiff,
+  getAllPathsBasedOnDiffPaths,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 
 import {
   addDependantsOfNestedPropertyPaths,
@@ -662,7 +665,11 @@ export default class DataTreeEvaluator {
     // TODO => Optimize using dataTree diff
 
     this.allKeys = profileFn("getAllPaths", undefined, webworkerTelemetry, () =>
-      getAllPaths(unEvalTreeWithStringifiedJSFunctions),
+      getAllPathsBasedOnDiffPaths(
+        unEvalTreeWithStringifiedJSFunctions,
+        translatedDiffs,
+        this.allKeys,
+      ),
     );
     // Find all the paths that have changed as part of the difference and update the
     // global dependency map if an existing dynamic binding has now become legal
