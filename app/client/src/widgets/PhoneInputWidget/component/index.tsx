@@ -87,6 +87,7 @@ class PhoneInputComponent extends React.PureComponent<PhoneInputComponentProps> 
         tooltip={this.props.tooltip}
         value={this.props.value}
         widgetId={this.props.widgetId}
+        maxChars={this.props.maxLength}
       />
     );
   }
@@ -97,6 +98,7 @@ export interface PhoneInputComponentProps extends BaseInputComponentProps {
   countryCode?: CountryCode;
   onISDCodeChange: (code?: string) => void;
   allowDialCodeChange: boolean;
+  maxLength?: number;
 }
 
 export default PhoneInputComponent;
