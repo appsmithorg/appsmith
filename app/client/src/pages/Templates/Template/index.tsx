@@ -5,11 +5,8 @@ import type { Template as TemplateInterface } from "api/TemplatesApi";
 import { Button, Tooltip, Text } from "design-system";
 import ForkTemplateDialog from "../ForkTemplate";
 import DatasourceChip from "../DatasourceChip";
-import {
-  createMessage,
-  FORK_THIS_TEMPLATE,
-} from "@appsmith/constants/messages";
-import { templateIdUrl } from "@appsmith/RouteBuilder";
+import { createMessage, FORK_THIS_TEMPLATE } from "ee/constants/messages";
+import { templateIdUrl } from "ee/RouteBuilder";
 import { Position } from "@blueprintjs/core";
 import {
   activeLoadingTemplateId,

@@ -67,7 +67,7 @@ import {
   ONSUBMIT_NOT_CONFIGURED_ACTION_URL,
   ONSUBMIT_NOT_CONFIGURED_MESSAGE,
 } from "../constants/messages";
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage } from "ee/constants/messages";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {

@@ -3,9 +3,9 @@ import { Text, TextType } from "design-system-old";
 import { Icon, Tooltip } from "design-system";
 import type { Datasource } from "entities/Datasource";
 import styled from "styled-components";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { PluginImage } from "pages/Editor/DataSourceEditor/DSFormHeader";
-import { isEnvironmentConfigured } from "@appsmith/utils/Environments";
+import { isEnvironmentConfigured } from "ee/utils/Environments";
 import type { Plugin } from "api/PluginApi";
 import {
   isDatasourceAuthorizedForQueryCreation,

@@ -1,4 +1,4 @@
-import { getEntityForEvalContextMap } from "@appsmith/workers/Evaluation/getEntityForEvalContextMap";
+import { getEntityForEvalContextMap } from "ee/workers/Evaluation/getEntityForEvalContextMap";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 
 export function getEntityForEvalContext(

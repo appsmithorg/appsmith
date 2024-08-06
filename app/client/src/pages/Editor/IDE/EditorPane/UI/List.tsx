@@ -3,18 +3,18 @@ import { Button, Flex } from "design-system";
 import WidgetEntity from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import { useSelector } from "react-redux";
 
-import { selectWidgetsForCurrentPage } from "@appsmith/selectors/entitiesSelector";
+import { selectWidgetsForCurrentPage } from "ee/selectors/entitiesSelector";
 import {
   getCurrentBasePageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { EmptyState } from "../components/EmptyState";
 import history from "utils/history";
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import styled from "styled-components";
 
 const ListContainer = styled(Flex)`

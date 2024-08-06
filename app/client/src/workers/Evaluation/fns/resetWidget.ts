@@ -11,15 +11,15 @@ import _ from "lodash";
 import type {
   WidgetEntityConfig,
   WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
-import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/entities/DataTree/types";
+import { isWidget } from "ee/workers/Evaluation/evaluationUtils";
 import { klona } from "klona";
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import evaluateSync, { setEvalContext } from "../evaluate";
 import type { DescendantWidgetMap } from "sagas/WidgetOperationUtils";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
+import type { EvalMetaUpdates } from "ee/workers/common/DataTreeEvaluator/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { validateAndParseWidgetProperty } from "workers/common/DataTreeEvaluator/validationUtils";
 

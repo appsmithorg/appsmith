@@ -2,18 +2,18 @@ import { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createNewJSCollection } from "actions/jsPaneActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import type { GroupedAddOperations } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import type { GroupedAddOperations } from "ee/pages/Editor/IDE/EditorPane/Query/hooks";
+import { createMessage, EDITOR_PANE_TEXTS } from "ee/constants/messages";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
-import type { UseRoutes } from "@appsmith/entities/IDE/constants";
+import type { UseRoutes } from "ee/entities/IDE/constants";
 import JSEditor from "pages/Editor/JSEditor";
 import AddJS from "pages/Editor/IDE/EditorPane/JS/Add";
-import { ADD_PATH } from "@appsmith/constants/routes/appRoutes";
+import { ADD_PATH } from "ee/constants/routes/appRoutes";
 import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
-import { getJSUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
+import { useModuleOptions } from "ee/utils/moduleInstanceHelpers";
+import { getJSUrl } from "ee/pages/Editor/IDE/EditorPane/JS/utils";
 import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
 
 export const useJSAdd = () => {

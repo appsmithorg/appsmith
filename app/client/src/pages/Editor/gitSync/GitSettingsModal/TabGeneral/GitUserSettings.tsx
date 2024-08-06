@@ -10,7 +10,7 @@ import {
   UPDATE,
   USE_DEFAULT_CONFIGURATION,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import styled, { keyframes } from "styled-components";
 import { Button, Input, Switch, Text } from "design-system";
 import {

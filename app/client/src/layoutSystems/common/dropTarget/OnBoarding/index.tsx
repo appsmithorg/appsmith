@@ -1,7 +1,4 @@
-import {
-  EMPTY_CANVAS_HINTS,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { EMPTY_CANVAS_HINTS, createMessage } from "ee/constants/messages";
 import React from "react";
 
 function Onboarding() {

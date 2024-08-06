@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import {
   selectAllWidgetsInAreaAction,
   setCanvasSelectionStateAction,
@@ -14,7 +14,7 @@ import { throttle } from "lodash";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getWidget } from "sagas/selectors";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import {
   getIsAutoLayout,

@@ -5,7 +5,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type {
   ApplicationPayload,
   Page,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 // import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { useWindowSizeHooks } from "utils/hooks/dragResizeHooks";
 // import { getSelectedAppTheme } from "selectors/appThemingSelectors";

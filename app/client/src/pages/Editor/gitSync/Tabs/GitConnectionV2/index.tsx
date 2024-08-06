@@ -22,9 +22,9 @@ import {
   GIT_IMPORT_WAITING,
   PREVIOUS_STEP,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import GitSyncStatusbar from "../../components/Statusbar";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 const StyledModalBody = styled(ModalBody)`
   flex: 1;

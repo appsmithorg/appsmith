@@ -12,14 +12,14 @@ import history from "utils/history";
 import {
   FORK_THIS_TEMPLATE_BUILDING_BLOCK,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Position } from "@blueprintjs/core";
 import { useSelector } from "react-redux";
 import {
   activeLoadingTemplateId,
   isImportingTemplateToAppSelector,
 } from "selectors/templatesSelectors";
-import { templateIdUrl } from "@appsmith/RouteBuilder";
+import { templateIdUrl } from "ee/RouteBuilder";
 import { BUILDING_BLOCK_THUMBNAIL_ALT_TEXT } from "../constants";
 import ForkTemplateDialog from "../ForkTemplate";
 

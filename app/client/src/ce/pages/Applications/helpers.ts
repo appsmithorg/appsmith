@@ -1,4 +1,4 @@
-import { getIsFetchingPackages } from "@appsmith/selectors/packageSelectors";
+import { getIsFetchingPackages } from "ee/selectors/packageSelectors";
 import { useCallback } from "react";
 import { useSelector } from "react-redux";
 

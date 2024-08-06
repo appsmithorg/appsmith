@@ -5,14 +5,14 @@ import {
 } from "actions/datasourceActions";
 import { connect, useDispatch, useSelector } from "react-redux";
 import history from "utils/history";
-import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
+import { datasourcesEditorIdURL } from "ee/RouteBuilder";
 import { getQueryParams } from "utils/URLUtils";
 import { getCurrentBasePageId } from "selectors/editorSelectors";
 import {
   createMessage,
   EDIT_DATASOURCE,
   SAVE_DATASOURCE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Button } from "design-system";
 
 interface storeDataSourceProps {

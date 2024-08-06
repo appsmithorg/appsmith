@@ -7,8 +7,8 @@ import { Classes, Text, TextType } from "design-system-old";
 import history from "utils/history";
 import { thinScrollbar } from "constants/DefaultTheme";
 import { Colors } from "constants/Colors";
-import { createMessage, TEMPLATES } from "@appsmith/constants/messages";
-import { templateIdUrl } from "@appsmith/RouteBuilder";
+import { createMessage, TEMPLATES } from "ee/constants/messages";
+import { templateIdUrl } from "ee/RouteBuilder";
 
 const Wrapper = styled.div`
   width: ${(props) => props.theme.homePage.sidebar}px;

@@ -1,6 +1,6 @@
 import type { DependencyMap, DynamicPath } from "utils/DynamicBindingUtils";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
-import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { ActionData } from "ee/reducers/entityReducers/actionsReducer";
 import {
   getBindingAndReactivePathsOfAction,
   getDataTreeActionConfigPath,
@@ -8,7 +8,7 @@ import {
 import type {
   ActionEntity,
   ActionEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 
 export const generateDataTreeAction = (
   action: ActionData,

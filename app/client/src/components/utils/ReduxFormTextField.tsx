@@ -5,7 +5,7 @@ import type { InputType } from "design-system-old";
 import { Input, NumberInput } from "design-system";
 
 import type { Intent } from "constants/DefaultTheme";
-import { SettingSubtype } from "@appsmith/pages/AdminSettings/config/types";
+import { SettingSubtype } from "ee/pages/AdminSettings/config/types";
 import { omit } from "lodash";
 
 const renderComponent = (

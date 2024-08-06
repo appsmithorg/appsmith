@@ -26,7 +26,7 @@ import {
   DEFAULT_CAMERA_LABEL,
   DEFAULT_CAMERA_LABEL_DESCRIPTION,
   FRONT_CAMERA_LABEL,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,

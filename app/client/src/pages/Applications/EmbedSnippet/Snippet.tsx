@@ -1,9 +1,6 @@
 import React from "react";
 import copy from "copy-to-clipboard";
-import {
-  createMessage,
-  IN_APP_EMBED_SETTING,
-} from "@appsmith/constants/messages";
+import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";
 import styled from "styled-components";
 import { Icon, Text, toast } from "design-system";
 

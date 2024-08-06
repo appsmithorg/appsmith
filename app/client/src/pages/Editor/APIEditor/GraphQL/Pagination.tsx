@@ -9,7 +9,7 @@ import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorC
 import type { AnyAction, Dispatch } from "redux";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { FormLabel } from "components/editorComponents/form/fields/StyledFormComponents";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import type { GRAPHQL_PAGINATION_TYPE } from "constants/ApiEditorConstants/GraphQLEditorConstants";

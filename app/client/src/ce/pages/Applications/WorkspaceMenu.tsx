@@ -7,12 +7,12 @@ import {
   SavingState,
   notEmptyValidator,
 } from "design-system-old";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import type { Workspace } from "ee/constants/workspaceConstants";
 import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "pages/common/CustomizedDropdown/dropdownHelpers";
-import { ManageEnvironmentsMenu } from "@appsmith/pages/Applications/ManageEnvironmentsMenu";
+import { ManageEnvironmentsMenu } from "ee/pages/Applications/ManageEnvironmentsMenu";
 
 interface WorkspaceMenuProps {
   canDeleteWorkspace: boolean;

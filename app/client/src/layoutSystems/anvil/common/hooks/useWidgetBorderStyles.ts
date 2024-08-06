@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import WidgetFactory from "WidgetProvider/factory";
 import { getWidgetErrorCount } from "layoutSystems/anvil/editor/AnvilWidgetName/selectors";
 import {

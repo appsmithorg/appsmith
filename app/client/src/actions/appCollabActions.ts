@@ -2,7 +2,7 @@ import {
   appLevelWebsocketWriteEvent,
   pageLevelWebsocketWriteEvent,
 } from "./websocketActions";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { PAGE_LEVEL_SOCKET_EVENTS } from "sagas/WebsocketSagas/socketEvents";
 
 // App Editors presence Socket actions

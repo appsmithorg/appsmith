@@ -19,11 +19,11 @@ import {
   fetchActions,
 } from "actions/pluginActionActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { addBranchParam } from "constants/routes";
 import type { APP_MODE } from "entities/App";
 import { call, fork, put, select, spawn } from "redux-saga/effects";
@@ -34,7 +34,7 @@ import {
   waitForWidgetConfigBuild,
 } from "sagas/InitSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import history from "utils/history";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -50,25 +50,25 @@ import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import {
   waitForSegmentInit,
   waitForFetchUserSuccess,
-} from "@appsmith/sagas/userSagas";
+} from "ee/sagas/userSagas";
 import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelectors";
-import { isAirgapped } from "@appsmith/utils/airgapHelpers";
+import { isAirgapped } from "ee/utils/airgapHelpers";
 import { getAIPromptTriggered } from "utils/storage";
 import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
-import { getPageDependencyActions } from "@appsmith/entities/Engine/actionHelpers";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { waitForFetchEnvironments } from "ee/sagas/EnvironmentSagas";
+import { getPageDependencyActions } from "ee/entities/Engine/actionHelpers";
+import { getCurrentWorkspaceId } from "ee/selectors/selectedWorkspaceSelectors";
 import {
   getFeatureFlagsForEngine,
   type DependentFeatureFlags,
-} from "@appsmith/selectors/engineSelectors";
+} from "ee/selectors/engineSelectors";
 import { fetchJSCollections } from "actions/jsActionActions";
 import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import type { Span } from "@opentelemetry/api";
 import { endSpan, startNestedSpan } from "UITelemetry/generateTraces";
 

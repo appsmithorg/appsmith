@@ -1,7 +1,7 @@
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 
 export const fetchWidgetCards = () => {

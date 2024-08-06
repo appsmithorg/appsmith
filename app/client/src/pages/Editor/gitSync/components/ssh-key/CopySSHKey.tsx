@@ -1,5 +1,5 @@
 import { TooltipWrapper, IconContainer } from "./StyledComponents";
-import { COPY_SSH_KEY, createMessage } from "@appsmith/constants/messages";
+import { COPY_SSH_KEY, createMessage } from "ee/constants/messages";
 import React from "react";
 import { Button, Icon, Tooltip } from "design-system";
 

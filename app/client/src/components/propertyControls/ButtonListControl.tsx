@@ -12,7 +12,7 @@ import { DraggableListCard } from "components/propertyControls/DraggableListCard
 import {
   createMessage,
   BUTTON_WIDGET_DEFAULT_LABEL,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 interface State {
   focusedIndex: number | null;

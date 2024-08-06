@@ -1,7 +1,7 @@
 import type { BaseAction } from "../Action";
 import type { PluginType } from "entities/Action";
 import type { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "ee/entities/Engine/actionHelpers";
 
 export interface Variable {
   name: string;

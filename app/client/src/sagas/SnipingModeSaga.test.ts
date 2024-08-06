@@ -1,18 +1,18 @@
-import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
+import type { ModuleInstance } from "ee/constants/ModuleInstanceConstants";
 import { keyBy } from "lodash";
 import { testStore } from "store";
 import { PostgresFactory } from "test/factories/Actions/Postgres";
 import type { Saga } from "redux-saga";
 import { runSaga } from "redux-saga";
 import { bindDataToWidgetSaga } from "./SnipingModeSagas";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { getModuleInstanceById } from "@appsmith/selectors/moduleInstanceSelectors";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import { getModuleInstanceById } from "ee/selectors/moduleInstanceSelectors";
 import WidgetFactory from "WidgetProvider/factory";
 import TableWidget from "widgets/TableWidget/widget";
 import { InputFactory } from "test/factories/Widgets/InputFactory";
 
-jest.mock("@appsmith/selectors/moduleInstanceSelectors", () => ({
-  ...jest.requireActual("@appsmith/selectors/moduleInstanceSelectors"),
+jest.mock("ee/selectors/moduleInstanceSelectors", () => ({
+  ...jest.requireActual("ee/selectors/moduleInstanceSelectors"),
   getModuleInstanceById: jest.fn(),
 }));
 

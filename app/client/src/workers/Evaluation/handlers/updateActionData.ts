@@ -3,7 +3,7 @@ import type { EvalWorkerSyncRequest } from "../types";
 import set from "lodash/set";
 import { evalTreeWithChanges } from "../evalTreeWithChanges";
 import DataStore from "../dataStore";
-import { EVAL_WORKER_SYNC_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
+import { EVAL_WORKER_SYNC_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
 
 export interface UpdateActionProps {
   entityName: string;
