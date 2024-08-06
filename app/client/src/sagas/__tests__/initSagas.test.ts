@@ -1,7 +1,7 @@
 import {
   type ReduxAction,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { APP_MODE } from "entities/App";
 import AppEngineFactory from "entities/Engine/factory";
 import { getInitResponses } from "sagas/InitSagas";
@@ -27,11 +27,13 @@ jest.mock("entities/Engine/factory", () => ({
 }));
 
 describe("tests the sagas in initSagas", () => {
+  const pageId = "pageId";
+  const basePageId = "basePageId";
   const action: ReduxAction<AppEnginePayload> = {
     type: ReduxActionTypes.INITIALIZE_EDITOR,
     payload: {
       mode: APP_MODE.EDIT,
-      pageId: "pageId",
+      basePageId: basePageId,
       applicationId: "applicationId",
     },
   };
@@ -42,7 +44,8 @@ describe("tests the sagas in initSagas", () => {
       setupEngine: jest.fn(),
       loadAppData: jest.fn().mockResolvedValue({
         applicationId: action.payload.applicationId,
-        toLoadPageId: action.payload.pageId,
+        toLoadPageId: pageId,
+        toLoadBasePageId: action.payload.basePageId,
       }),
       loadAppURL: jest.fn(),
       loadAppEntities: jest.fn(),
@@ -66,17 +69,18 @@ describe("tests the sagas in initSagas", () => {
       .call(engine.loadAppData, action.payload, mockResponse.data, mockRootSpan)
       .next({
         applicationId: action.payload.applicationId,
-        toLoadPageId: action.payload.pageId,
+        toLoadPageId: pageId,
+        toLoadBasePageId: basePageId,
       })
       .call(engine.loadAppURL, {
-        pageId: action.payload.pageId,
-        pageIdInUrl: action.payload.pageId,
+        basePageId: action.payload.basePageId,
+        basePageIdInUrl: action.payload.basePageId,
         rootSpan: mockRootSpan,
       })
       .next()
       .call(
         engine.loadAppEntities,
-        action.payload.pageId,
+        pageId,
         action.payload.applicationId,
         mockResponse.data,
         mockRootSpan,

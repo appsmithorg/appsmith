@@ -3,24 +3,26 @@ import { useSelector } from "react-redux";
 import { Flex, Text } from "design-system";
 import styled from "styled-components";
 
-import { selectJSSegmentEditorList } from "@appsmith/selectors/appIDESelectors";
-import { useActiveAction } from "@appsmith/pages/Editor/Explorer/hooks";
+import type { EditorSegmentList } from "ee/selectors/appIDESelectors";
+import { selectJSSegmentEditorList } from "ee/selectors/appIDESelectors";
+import { useActiveActionBaseId } from "ee/pages/Editor/Explorer/hooks";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
   getPagePermissions,
 } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasCreateActionPermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
+import { ActionParentEntityType } from "ee/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
-import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
-import { JSListItem } from "@appsmith/pages/Editor/IDE/EditorPane/JS/ListItem";
+import { useJSAdd } from "ee/pages/Editor/IDE/EditorPane/JS/hooks";
+import { JSListItem } from "ee/pages/Editor/IDE/EditorPane/JS/ListItem";
 import { BlankState } from "./BlankState";
 import { AddAndSearchbar } from "../components/AddAndSearchbar";
-import { fuzzySearchInFiles } from "../utils";
-import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
+import { fuzzySearchInObjectItems } from "../utils";
+import { EmptySearchResult } from "../components/EmptySearchResult";
+import { EDITOR_PANE_TEXTS, createMessage } from "ee/constants/messages";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {
@@ -37,14 +39,17 @@ const ListJSObjects = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const pageId = useSelector(getCurrentPageId);
   const files = useSelector(selectJSSegmentEditorList);
-  const activeActionId = useActiveAction();
+  const activeActionBaseId = useActiveActionBaseId();
   const applicationId = useSelector(getCurrentApplicationId);
 
   const pagePermissions = useSelector(getPagePermissions);
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const localFiles = fuzzySearchInFiles(searchTerm, files);
+  const localFiles = fuzzySearchInObjectItems<EditorSegmentList>(
+    searchTerm,
+    files,
+  );
 
   const canCreateActions = getHasCreateActionPermission(
     isFeatureEnabled,
@@ -60,6 +65,7 @@ const ListJSObjects = () => {
       flexDirection="column"
       gap="spaces-3"
       overflow="hidden"
+      px="spaces-3"
       py="spaces-3"
     >
       {files && files.length > 0 ? (
@@ -80,13 +86,12 @@ const ListJSObjects = () => {
           flexDirection="column"
           gap="spaces-4"
           overflowY="auto"
-          px="spaces-3"
         >
           {localFiles.map(({ group, items }) => {
             return (
               <Flex flexDirection={"column"} key={group}>
                 {group !== "NA" ? (
-                  <Flex px="spaces-3" py="spaces-1">
+                  <Flex py="spaces-1">
                     <Text
                       className="overflow-hidden overflow-ellipsis whitespace-nowrap"
                       kind="body-s"
@@ -99,7 +104,7 @@ const ListJSObjects = () => {
                   {items.map((item) => {
                     return (
                       <JSListItem
-                        isActive={item.key === activeActionId}
+                        isActive={item.key === activeActionBaseId}
                         item={item}
                         key={item.key}
                         parentEntityId={pageId}
@@ -112,13 +117,9 @@ const ListJSObjects = () => {
             );
           })}
           {localFiles.length === 0 && searchTerm !== "" ? (
-            <Text
-              className="font-normal text-center"
-              color="var(--ads-v2-color-fg-muted)"
-              kind="body-s"
-            >
-              {createMessage(EDITOR_PANE_TEXTS.empty_search_result, "JS")}
-            </Text>
+            <EmptySearchResult
+              type={createMessage(EDITOR_PANE_TEXTS.search_objects.jsObject)}
+            />
           ) : null}
         </Flex>
       </FilesContextProvider>

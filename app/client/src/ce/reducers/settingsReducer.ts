@@ -1,11 +1,11 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { createReducer } from "utils/ReducerUtils";
-import type { TenantReduxState } from "@appsmith/reducers/tenantReducer";
-import { tenantConfigConnection } from "@appsmith/constants/tenantConstants";
+import type { TenantReduxState } from "ee/reducers/tenantReducer";
+import { tenantConfigConnection } from "ee/constants/tenantConstants";
 
 export const initialState: SettingsReduxState = {
   isLoading: true,
@@ -44,9 +44,15 @@ export const handlers = {
     },
   }),
   [ReduxActionTypes.FETCH_CURRENT_TENANT_CONFIG_SUCCESS]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: SettingsReduxState & TenantReduxState<any>,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<TenantReduxState<any>>,
   ) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const configs: any = {};
     tenantConfigConnection.forEach((key: string) => {
       if (action.payload?.tenantConfiguration?.hasOwnProperty(key)) {
@@ -63,9 +69,15 @@ export const handlers = {
     };
   },
   [ReduxActionTypes.UPDATE_TENANT_CONFIG_SUCCESS]: (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     state: SettingsReduxState & TenantReduxState<any>,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     action: ReduxAction<TenantReduxState<any>>,
   ) => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const configs: any = {};
     tenantConfigConnection.forEach((key: string) => {
       if (action.payload?.tenantConfiguration?.hasOwnProperty(key)) {

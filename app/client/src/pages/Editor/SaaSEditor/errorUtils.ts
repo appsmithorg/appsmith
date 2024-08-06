@@ -6,7 +6,7 @@ import {
   GSHEET_AUTHORISED_FILE_IDS_KEY,
   GSHEET_AUTHORIZATION_ERROR,
   GSHEET_FILES_NOT_SELECTED,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { getDatasourcePropertyValue } from "utils/editorContextUtils";
 import { GOOGLE_SHEET_SPECIFIC_SHEETS_SCOPE } from "constants/Datasource";
 import { PluginPackageName } from "entities/Action";
@@ -42,6 +42,8 @@ export function isAuthorisedFilesEmptyGsheet(
   const isAuthFailure =
     !!authStatus &&
     authStatus === AuthenticationStatus.FAILURE_FILE_NOT_SELECTED;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const gapiLoadSuccess = (window as any).googleAPIsLoaded;
 
   return (

@@ -9,7 +9,7 @@ import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import unescapeJS from "unescape-js";
 import { Severity } from "entities/AppsmithConsole";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
 import DOM_APIS from "./domApis";
 import {
@@ -23,12 +23,14 @@ import {
   PrimitiveErrorModifier,
   TypeErrorModifier,
 } from "./errorModifier";
-import { addDataTreeToContext } from "@appsmith/workers/Evaluation/Actions";
+import { addDataTreeToContext } from "ee/workers/Evaluation/Actions";
 import { set } from "lodash";
 import { klona } from "klona";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 
 export interface EvalResult {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   result: any;
   errors: EvaluationError[];
 }
@@ -83,10 +85,15 @@ export const EvaluationScripts: Record<EvaluationScriptType, string> = {
   `,
 };
 
-const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
-  acc[key] = true;
-  return acc;
-}, {} as any);
+const topLevelWorkerAPIs = Object.keys(self).reduce(
+  (acc, key: string) => {
+    acc[key] = true;
+    return acc;
+  },
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  {} as any,
+);
 
 const ignoreGlobalObjectKeys = new Set([
   "evaluationVersion",
@@ -142,6 +149,8 @@ export const getScriptToEval = (
 
 const beginsWithLineBreakRegex = /^\s+|\s+$/;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type EvalContext = Record<string, any>;
 
 export interface createEvaluationContextArgs {
@@ -282,7 +291,11 @@ export function sanitizeScript(js: string) {
  * requestId is used for completing promises
  */
 export interface EvaluateContext {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   thisContext?: Record<string, any>;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   globalContext?: Record<string, any>;
   requestId?: string;
   eventType?: EventType;
@@ -293,6 +306,8 @@ export interface EvaluateContext {
 export const getUserScriptToEvaluate = (
   userScript: string,
   isTriggerBased: boolean,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evalArguments?: Array<any>,
 ) => {
   const unescapedJS = sanitizeScript(userScript);
@@ -318,6 +333,8 @@ export function setEvalContext({
   context?: EvaluateContext;
   dataTree: DataTree;
   configTree?: ConfigTree;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evalArguments?: Array<any>;
   isDataField: boolean;
   isTriggerBased: boolean;
@@ -340,6 +357,8 @@ export default function evaluateSync(
   dataTree: DataTree,
   isJSCollection: boolean,
   context?: EvaluateContext,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evalArguments?: Array<any>,
   configTree?: ConfigTree,
 ): EvalResult {
@@ -381,6 +400,8 @@ export default function evaluateSync(
          */
         throw new FoundPromiseInSyncEvalError();
       }
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const { errorCategory, errorMessage, rootcause } = errorModifier.run(
         error,
@@ -410,6 +431,8 @@ export async function evaluateAsync(
   dataTree: DataTree,
   configTree: ConfigTree,
   context?: EvaluateContext,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evalArguments?: Array<any>,
 ) {
   return (async function () {
@@ -430,6 +453,8 @@ export async function evaluateAsync(
 
     try {
       result = await indirectEval(script);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       const { errorMessage } = errorModifier.run(
         error,
@@ -452,6 +477,8 @@ export async function evaluateAsync(
   })();
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function shouldAddSetter(setter: any, entity: DataTreeEntity) {
   const isDisabledExpression = setter.disabled;
 

@@ -1,5 +1,5 @@
 import { dataTreeEvaluator } from "./evalTree";
-import { removeFunctions } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { removeFunctions } from "ee/workers/Evaluation/evaluationUtils";
 import type { EvalWorkerSyncRequest } from "../types";
 
 export default function (request: EvalWorkerSyncRequest) {

@@ -5,10 +5,10 @@ import type {
   SourceEntity,
 } from "entities/AppsmithConsole";
 import { Severity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { klona } from "klona/lite";
 import moment from "moment";
-import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
+import type { TriggerMeta } from "ee/sagas/ActionExecution/ActionExecutionSagas";
 import TriggerEmitter from "../utils/TriggerEmitter";
 import type { EventEmitter } from "events";
 import ExecutionMetaData from "../utils/ExecutionMetaData";
@@ -23,6 +23,8 @@ class UserLog {
   }
   private emitter?: EventEmitter;
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private saveLog(method: Methods, data: any[]) {
     const parsed = this.parseLogs(method, data);
     this.emitter?.emit("process_logs", parsed);
@@ -33,31 +35,43 @@ class UserLog {
     const { debug, error, info, log, table, warn } = console;
     console = {
       ...console,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       table: (...args: any) => {
         if (!this.isEnabled) return;
         table.call(this, args);
         this.saveLog("table", args);
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       error: (...args: any) => {
         if (!this.isEnabled) return;
         error.apply(this, args);
         this.saveLog("error", args);
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       log: (...args: any) => {
         if (!this.isEnabled) return;
         log.apply(this, args);
         this.saveLog("log", args);
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       debug: (...args: any) => {
         if (!this.isEnabled) return;
         debug.apply(this, args);
         this.saveLog("debug", args);
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       warn: (...args: any) => {
         if (!this.isEnabled) return;
         warn.apply(this, args);
         this.saveLog("warn", args);
       },
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       info: (...args: any) => {
         if (!this.isEnabled) return;
         info.apply(this, args);
@@ -65,10 +79,14 @@ class UserLog {
       },
     };
   }
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private replaceFunctionWithNamesFromObjects(data: any) {
     if (typeof data === "function") return `func() ${data.name}`;
     if (!data || typeof data !== "object") return data;
     if (data instanceof Promise) return "Promise";
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const acc: any =
       Object.prototype.toString.call(data) === "[object Array]" ? [] : {};
     return Object.keys(data).reduce((acc, key) => {
@@ -77,6 +95,8 @@ class UserLog {
     }, acc);
   }
   // iterates over the data and if data is object/array, then it will remove any functions from it
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private sanitizeData(data: any): any {
     try {
       const returnData = this.replaceFunctionWithNamesFromObjects(data);
@@ -97,6 +117,8 @@ class UserLog {
   };
 
   // parses the incoming log and converts it to the log object
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private parseLogs(method: Methods, data: any[]): LogObject {
     // Create an ID
     const id = uuid4();

@@ -27,6 +27,8 @@ class OptionControl extends BaseControl<ControlProps> {
     return "OPTION_INPUT";
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static canDisplayValueInUI(config: ControlData, value: any): boolean {
     if (isDynamicValue(value)) return false;
 

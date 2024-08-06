@@ -38,7 +38,7 @@ export default class AstController extends BaseController {
     } catch (err) {
       return super.sendError(
         res,
-        super.serverErrorMessaage,
+        this.serverErrorMessage,
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR,
       );
@@ -65,7 +65,7 @@ export default class AstController extends BaseController {
     } catch (err) {
       return super.sendError(
         res,
-        super.serverErrorMessaage,
+        this.serverErrorMessage,
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR,
       );
@@ -93,7 +93,7 @@ export default class AstController extends BaseController {
     } catch (err) {
       return super.sendError(
         res,
-        super.serverErrorMessaage,
+        this.serverErrorMessage,
         [err.message],
         StatusCodes.INTERNAL_SERVER_ERROR,
       );

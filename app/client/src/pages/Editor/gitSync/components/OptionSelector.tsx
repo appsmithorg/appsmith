@@ -48,6 +48,8 @@ const DropdownContainer = styled.div`
 interface OptionSelectorProps {
   options: DropdownOption[];
   selected: DropdownOption;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onSelect?: (value?: string, dropdownOption?: any) => void;
 }
 

@@ -1,9 +1,9 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
@@ -363,6 +363,8 @@ function* moveWidgetsSaga(
        */
       const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
       const mainCanvasWidth: number = yield select(getCanvasWidth);
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const metaProps: Record<string, any> = yield select(getWidgetsMeta);
       updatedWidgets = updateRelationships(
         draggedBlocksToUpdate.map((block) => block.widgetId),

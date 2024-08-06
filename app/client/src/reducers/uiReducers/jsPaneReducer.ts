@@ -1,9 +1,9 @@
 import { createReducer } from "utils/ReducerUtils";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import type { JSCollection } from "entities/JSCollection";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
@@ -166,6 +166,12 @@ const jsPaneReducer = createReducer(initialState, {
         ...state.debugger,
         ...action.payload,
       },
+    };
+  },
+  [ReduxActionTypes.RESET_EDITOR_REQUEST]: (state: JsPaneReduxState) => {
+    return {
+      ...state,
+      isSaving: false,
     };
   },
 });

@@ -1,5 +1,5 @@
-import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
-import { addPlatformFunctionsToEvalContext } from "@appsmith/workers/Evaluation/Actions";
+import { MAIN_THREAD_ACTION } from "ee/workers/Evaluation/evalWorkerActions";
+import { addPlatformFunctionsToEvalContext } from "ee/workers/Evaluation/Actions";
 import { setEvalContext } from "workers/Evaluation/evaluate";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
@@ -49,6 +49,8 @@ jest.mock("../utils/Messenger.ts", () => ({
   ...jest.requireActual("../utils/Messenger.ts"),
   get WorkerMessenger() {
     return {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       request: (...args: any) => requestMock(...args),
     };
   },
@@ -71,6 +73,8 @@ describe("Tests for entity function to be defined", () => {
         data: ["resolved"],
       }),
     );
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const evalContext = globalThis as any;
     evalContext.resetWidget("WidgetName", true);
 

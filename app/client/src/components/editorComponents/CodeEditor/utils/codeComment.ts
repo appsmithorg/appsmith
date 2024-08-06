@@ -83,7 +83,7 @@ function performLineCommenting(
   to: CodeMirror.Position,
   options = noOptions,
 ) {
-  // eslint-disable-next-line @typescript-eslint/no-this-alias
+  // eslint-disable-next-line @typescript-eslint/no-this-alias, @typescript-eslint/no-explicit-any
   const self: CodeMirror.Editor = this as any;
   const mode = self.getMode();
   const firstLine = self.getLine(from.line);

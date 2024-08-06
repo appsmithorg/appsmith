@@ -1,11 +1,11 @@
-import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import type { ERROR_CODES } from "ee/constants/ApiConstants";
+import type { Workspace } from "ee/constants/workspaceConstants";
 import type {
   AppEmbedSetting,
   ApplicationPagePayload,
   GitApplicationMetadata,
-} from "@appsmith/api/ApplicationApi";
-import type { ApplicationVersion } from "@appsmith/actions/applicationActions";
+} from "ee/api/ApplicationApi";
+import type { ApplicationVersion } from "ee/actions/applicationActions";
 import type { NavigationSetting, ThemeSetting } from "constants/AppConstants";
 import type { WidgetCardProps, WidgetProps } from "widgets/BaseWidget";
 import type {
@@ -30,7 +30,13 @@ const ActionSelectorReduxActionTypes = {
     "CLEAR_EVALUATED_ACTION_SELECTOR_FIELD",
 };
 
+const ResourceMapActionTypes = {
+  SET_PAGE_RESOURCE_MAPS: "SET_PAGE_RESOURCE_MAPS",
+  RESET_ALL_RESOURCE_MAPS: "RESET_ALL_RESOURCE_MAPS",
+};
+
 const ActionTypes = {
+  ...ResourceMapActionTypes,
   TOGGLE_INSTALLER: "TOGGLE_INSTALLER",
   FETCH_JS_LIBRARIES_INIT: "FETCH_JS_LIBRARIES_INIT",
   FETCH_JS_LIBRARIES_SUCCESS: "FETCH_JS_LIBRARIES_SUCCESS",
@@ -182,7 +188,6 @@ const ActionTypes = {
   REPORT_ERROR: "REPORT_ERROR",
   FLUSH_ERRORS: "FLUSH_ERRORS",
   FLUSH_AND_REDIRECT: "FLUSH_AND_REDIRECT",
-  REDIRECT_TO_NEW_INTEGRATIONS: "REDIRECT_TO_NEW_INTEGRATIONS",
   SAFE_CRASH_APPSMITH: "SAFE_CRASH_APPSMITH",
   SAFE_CRASH_APPSMITH_REQUEST: "SAFE_CRASH_APPSMITH_REQUEST",
   INIT_CANVAS_LAYOUT: "INIT_CANVAS_LAYOUT",
@@ -574,6 +579,8 @@ const ActionTypes = {
     "RESET_APPLICATION_WIDGET_STATE_REQUEST",
   SAAS_GET_OAUTH_ACCESS_TOKEN: "SAAS_GET_OAUTH_ACCESS_TOKEN",
   GET_OAUTH_ACCESS_TOKEN: "GET_OAUTH_ACCESS_TOKEN",
+  GET_OAUTH_ACCESS_TOKEN_SUCCESS: "GET_OAUTH_ACCESS_TOKEN_SUCCESS",
+  GET_OAUTH_ACCESS_TOKEN_ERROR: "GET_OAUTH_ACCESS_TOKEN_ERROR",
   RESTORE_RECENT_ENTITIES_REQUEST: "RESTORE_RECENT_ENTITIES_REQUEST",
   RESTORE_RECENT_ENTITIES_SUCCESS: "RESTORE_RECENT_ENTITIES_SUCCESS",
   SET_RECENT_ENTITIES: "SET_RECENT_ENTITIES",
@@ -1198,7 +1205,11 @@ export interface EvaluationReduxAction<T> extends ReduxAction<T> {
 }
 
 export interface PromisePayload {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   reject: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   resolve: any;
 }
 
@@ -1236,6 +1247,7 @@ export interface Page {
   pageName: string;
   description?: string;
   pageId: string;
+  basePageId: string;
   isDefault: boolean;
   latest?: boolean;
   isHidden?: boolean;
@@ -1248,6 +1260,7 @@ export interface ClonePageSuccessPayload {
   pageName: string;
   description?: string;
   pageId: string;
+  basePageId: string;
   layoutId: string;
   isDefault: boolean;
   slug: string;
@@ -1255,11 +1268,13 @@ export interface ClonePageSuccessPayload {
 
 export interface ApplicationPayload {
   id: string;
+  baseId: string;
   name: string;
   color?: string;
   icon?: string;
   workspaceId: string;
   defaultPageId: string;
+  defaultBasePageId: string;
   isPublic?: boolean;
   userPermissions?: string[];
   appIsExample: boolean;
@@ -1291,6 +1306,8 @@ export interface ApplicationPayload {
 
 export interface WorkspaceDetails {
   workspace: Workspace;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   applications: any[];
 }
 

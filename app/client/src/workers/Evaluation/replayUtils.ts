@@ -41,6 +41,8 @@ export const WIDGETS = "widgets";
 export function processDiff(
   dsl: CanvasWidgetsReduxState,
   diff: DSLDiff,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   replay: any,
   isUndo: boolean,
 ) {
@@ -136,6 +138,8 @@ function isPositionUpdate(widgetProperty: string) {
  * @param value
  * @returns
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function setPropertyUpdate(replay: any, path: string[], value: string[]) {
   const existingPathValue = get(replay, path);
 
@@ -153,6 +157,8 @@ function setPropertyUpdate(replay: any, path: string[], value: string[]) {
  * @param value
  * @returns
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function addToArray(obj: any, key: string, value: any) {
   if (!obj) return;
 
@@ -169,6 +175,8 @@ function addToArray(obj: any, key: string, value: any) {
  * @param diffs
  * @returns
  */
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getPathsFromDiff(diffs: any) {
   const paths = [];
 

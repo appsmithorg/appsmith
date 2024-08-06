@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { NameComponentStates } from "./types";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import get from "lodash/get";

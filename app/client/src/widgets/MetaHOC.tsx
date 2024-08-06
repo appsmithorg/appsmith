@@ -3,12 +3,12 @@ import type { WidgetProps } from "./BaseWidget";
 import { debounce, fromPairs, isEmpty } from "lodash";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import { connect } from "react-redux";
 import { getWidgetMetaProps } from "sagas/selectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { error } from "loglevel";
 import WidgetFactory from "WidgetProvider/factory";
 import type BaseWidget from "./BaseWidget";
@@ -180,6 +180,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       if (!this.batchMetaUpdates || !this.batchMetaUpdates.length) return;
 
       const metaUpdates = this.batchMetaUpdates.reduce(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (acc: any, { propertyName, propertyValue }) => {
           acc[propertyName] = propertyValue;
           return acc;
@@ -227,6 +229,8 @@ function withMeta(WrappedWidget: typeof BaseWidget) {
       if (syncBatchUpdateWidgetMetaProperties) {
         const metaOptions = this.props.__metaOptions;
         const consolidatedUpdates = batchMetaUpdates.reduce(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (acc: any, { propertyName, propertyValue }) => {
             acc.push({ widgetId, propertyName, propertyValue });
             if (metaOptions) {

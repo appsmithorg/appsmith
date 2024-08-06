@@ -33,6 +33,8 @@ export function useSearchText(initialVal: string) {
 
 export function evaluateHiddenProperty(
   config: readonly PropertyPaneConfig[],
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   widgetProps: any,
   shouldHidePropertyFn?: (propertyName: string) => boolean | undefined,
 ) {
@@ -138,6 +140,8 @@ export function renderWidgetCallouts(props: WidgetProps): JSX.Element[] {
  */
 export function savePropertyInSessionStorageIfRequired(props: {
   isReusable: boolean;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   widgetProperties: any;
   propertyName: string;
   propertyValue: string;

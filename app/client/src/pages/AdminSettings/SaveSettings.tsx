@@ -5,7 +5,7 @@ import {
   SAVE_AND_RESTART_BUTTON,
   SAVE_BUTTON,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Button } from "design-system";
 import styled from "styled-components";
 

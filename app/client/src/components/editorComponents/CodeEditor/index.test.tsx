@@ -19,6 +19,8 @@ describe("<CodeEditor /> - Keyboard navigation", () => {
   // To avoid warning "Error: Not implemented: window.focus"
   window.focus = jest.fn();
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getTestComponent = (handleOnSelect: any = undefined) => (
     <Provider store={store}>
       <ThemeProvider theme={lightTheme}>

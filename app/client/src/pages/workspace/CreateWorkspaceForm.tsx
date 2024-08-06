@@ -1,9 +1,9 @@
 import React, { useCallback } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { Form, reduxForm } from "redux-form";
-import { CREATE_WORKSPACE_FORM_NAME } from "@appsmith/constants/forms";
-import type { CreateWorkspaceFormValues } from "@appsmith/pages/workspace/helpers";
-import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers";
+import { CREATE_WORKSPACE_FORM_NAME } from "ee/constants/forms";
+import type { CreateWorkspaceFormValues } from "ee/pages/workspace/helpers";
+import { createWorkspaceSubmitHandler } from "ee/pages/workspace/helpers";
 import { noSpaces } from "utils/formhelpers";
 import TextField from "components/editorComponents/form/fields/TextField";
 import FormGroup from "components/editorComponents/form/FormGroup";

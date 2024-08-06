@@ -240,6 +240,8 @@ export const convertSchemaItemToFormData = <TValue>(
 };
 
 const processObject = (schema: Schema, toKey: keyof SchemaItem) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const obj: Record<string, any> = {};
   Object.values(schema).forEach((schemaItem) => {
     obj[schemaItem[toKey]] = schemaItemDefaultValue(schemaItem, toKey);
@@ -248,6 +250,8 @@ const processObject = (schema: Schema, toKey: keyof SchemaItem) => {
   return obj;
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const processArray = (schema: Schema, toKey: keyof SchemaItem): any[] => {
   if (schema[ARRAY_ITEM_KEY]) {
     return [schemaItemDefaultValue(schema[ARRAY_ITEM_KEY], toKey)];
@@ -373,6 +377,8 @@ export const generateSchemaWithDefaultValues = (columns: Column[]) => {
   };
 
   const convertedObject: Record<string, unknown> = columns.reduce(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (obj: any, curr: any) => {
       obj[curr.name] = typeMappings[curr.type];
       return obj;

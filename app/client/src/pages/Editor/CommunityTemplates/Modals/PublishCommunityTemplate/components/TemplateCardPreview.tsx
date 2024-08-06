@@ -1,7 +1,4 @@
-import {
-  COMMUNITY_TEMPLATES,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { COMMUNITY_TEMPLATES, createMessage } from "ee/constants/messages";
 import { Text } from "design-system";
 import ProfileImage from "pages/common/ProfileImage";
 import React from "react";
