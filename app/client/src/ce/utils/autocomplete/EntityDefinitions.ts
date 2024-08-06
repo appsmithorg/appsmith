@@ -1,9 +1,6 @@
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import {
-  ENTITY_TYPE,
-  type AppsmithEntity,
-} from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE, type AppsmithEntity } from "ee/entities/DataTree/types";
 import _ from "lodash";
 import { EVALUATION_PATH } from "utils/DynamicBindingUtils";
 import type { Def } from "tern";
@@ -12,10 +9,10 @@ import type {
   ActionEntityConfig,
   DataTreeEntityConfig,
   WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
+} from "ee/entities/DataTree/types";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import { eeAppsmithAutocompleteDefs } from "@appsmith/utils/autocomplete/helpers";
+import { eeAppsmithAutocompleteDefs } from "ee/utils/autocomplete/helpers";
 
 export const entityDefinitions = {
   APPSMITH: (entity: AppsmithEntity, extraDefsToDefine: ExtraDef) => {
@@ -278,6 +275,8 @@ export const GLOBAL_FUNCTIONS = {
   },
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const ternDocsInfo: Record<string, any> = {
   showAlert: {
     exampleArgs: [

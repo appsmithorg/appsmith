@@ -7,6 +7,8 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 
 export const requiresUnauth = (Component: React.ComponentType) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   function Wrapped(props: any) {
     const user = useSelector(getCurrentUser);
     if (!user) return null;
@@ -20,6 +22,8 @@ export const requiresUnauth = (Component: React.ComponentType) => {
 };
 
 export const requiresAuth = (Component: React.ComponentType) => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return function Wrapped(props: any) {
     const user = useSelector(getCurrentUser);
     if (!user) return null;

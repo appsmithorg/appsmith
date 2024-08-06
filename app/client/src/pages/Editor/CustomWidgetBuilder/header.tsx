@@ -10,10 +10,7 @@ import styles from "./styles.module.css";
 import { Button, Icon, Text } from "design-system";
 import clsx from "clsx";
 import { CustomWidgetBuilderContext } from ".";
-import {
-  createMessage,
-  CUSTOM_WIDGET_FEATURE,
-} from "@appsmith/constants/messages";
+import { createMessage, CUSTOM_WIDGET_FEATURE } from "ee/constants/messages";
 
 const theme = getTheme(ThemeMode.LIGHT);
 
@@ -52,6 +49,7 @@ export default function Header() {
             className={styles.closeButton}
             kind="tertiary"
             onClick={close}
+            // @ts-expect-error Fix this the next time the file is edited
             size="lg"
           >
             {createMessage(CUSTOM_WIDGET_FEATURE.builder.close)}

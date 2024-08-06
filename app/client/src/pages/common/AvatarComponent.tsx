@@ -11,6 +11,8 @@ export interface AvatarProps {
   isTooltipEnabled?: boolean;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function AvatarComponent(props: any) {
   const getInitials = (name: string) => {
     const names = name.split(" ");

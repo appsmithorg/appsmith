@@ -36,6 +36,8 @@ function migrateTabsDataUsingMigrator(currentDSL: DSLWidget) {
 
 const migrateTabsData = (currentDSL: DSLWidget) => {
   if (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ["TABS_WIDGET", "TABS_MIGRATOR_WIDGET"].includes(currentDSL.type as any) &&
     currentDSL.version === 1
   ) {
@@ -50,6 +52,8 @@ const migrateTabsData = (currentDSL: DSLWidget) => {
       if (isTabsDataBinded) {
         const tabsString = currentDSL.tabs.replace(
           DATA_BIND_REGEX_GLOBAL,
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (word: any) => `"${word}"`,
         );
         try {
@@ -57,11 +61,15 @@ const migrateTabsData = (currentDSL: DSLWidget) => {
         } catch (error) {
           return migrateTabsDataUsingMigrator(currentDSL);
         }
-        const dynamicPropsList = currentDSL.tabs
-          .filter((each: any) => DATA_BIND_REGEX_GLOBAL.test(each.isVisible))
+        const dynamicPropsList = currentDSL.tabs // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .filter((each: any) => DATA_BIND_REGEX_GLOBAL.test(each.isVisible)) // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .map((each: any) => {
             return { key: `tabsObj.${each.id}.isVisible` };
           });
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const dynamicBindablePropsList = currentDSL.tabs.map((each: any) => {
           return { key: `tabsObj.${each.id}.isVisible` };
         });
@@ -83,6 +91,8 @@ const migrateTabsData = (currentDSL: DSLWidget) => {
           return each.key !== "tabs";
         });
       currentDSL.tabsObj = currentDSL.tabs.reduce(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (obj: any, tab: any, index: number) => {
           obj = {
             ...obj,

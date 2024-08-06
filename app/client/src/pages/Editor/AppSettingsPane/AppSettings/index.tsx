@@ -1,9 +1,9 @@
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import type { Page } from "ee/constants/ReduxActionConstants";
 import { ThemePropertyPane } from "pages/Editor/ThemePropertyPane";
 import { WDSThemePropertyPane } from "pages/Editor/WDSThemePropertyPane";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
+import { selectAllPages } from "ee/selectors/entitiesSelector";
 import styled from "styled-components";
 import GeneralSettings from "./GeneralSettings";
 import type { SectionHeaderProps } from "./SectionHeader";
@@ -23,12 +23,12 @@ import {
   THEME_SETTINGS_SECTION_HEADER,
   THEME_SETTINGS_SECTION_HEADER_DESC,
   UPDATE_VIA_IMPORT_SETTING,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Colors } from "constants/Colors";
 import EmbedSettings from "./EmbedSettings";
 import NavigationSettings from "./NavigationSettings";
 import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneActions";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { Divider } from "design-system";
 import { ImportAppSettings } from "./ImportAppSettings";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";

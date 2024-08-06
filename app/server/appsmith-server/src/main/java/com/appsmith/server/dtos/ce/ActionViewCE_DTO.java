@@ -1,6 +1,5 @@
 package com.appsmith.server.dtos.ce;
 
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
@@ -21,6 +20,9 @@ public class ActionViewCE_DTO {
     String id;
 
     @JsonView(Views.Public.class)
+    String baseId;
+
+    @JsonView(Views.Public.class)
     String name;
 
     @JsonView(Views.Public.class)
@@ -34,9 +36,6 @@ public class ActionViewCE_DTO {
 
     @JsonView(Views.Public.class)
     Set<String> jsonPathKeys;
-
-    @JsonView(Views.Internal.class)
-    DefaultResources defaultResources;
 
     // Overriding the getter to ensure that for actions missing action configuration, the timeout is
     // still set for the client to use as a guideline (even though this would be an invalid action

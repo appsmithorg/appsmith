@@ -5,7 +5,7 @@ import {
   NOT_PUSHED_YET,
   TRY_TO_PULL,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import styled from "styled-components";
 
 const TitleText = styled(Text)`

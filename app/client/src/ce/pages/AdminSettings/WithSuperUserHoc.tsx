@@ -4,9 +4,9 @@ import { useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { Redirect } from "react-router";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { getShowAdminSettings } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
+import { getShowAdminSettings } from "ee/utils/BusinessFeatures/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 
 export default function WithSuperUserHOC(
   Component: React.ComponentType<RouteComponentProps>,

@@ -13,7 +13,7 @@ import {
   ADD_NEW_WIDGET,
   CONNECT_EXISTING_WIDGET_LABEL,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentApplicationId,
@@ -22,13 +22,13 @@ import {
 } from "selectors/editorSelectors";
 import type { SuggestedWidget } from "api/ActionAPI";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
+import { getHasManagePagePermission } from "ee/utils/BusinessFeatures/permissionPageHelpers";
 import { getWidgets } from "sagas/selectors";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { addSuggestedWidget } from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
@@ -249,9 +249,10 @@ function BindDataButton(props: BindDataButtonProps) {
   const pagePermissions = useSelector(getPagePermissions);
 
   const params = useParams<{
-    pageId: string;
-    apiId?: string;
-    queryId?: string;
+    basePageId: string;
+    baseApiId?: string;
+    baseQueryId?: string;
+    moduleInstanceId?: string;
   }>();
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -338,9 +339,11 @@ function BindDataButton(props: BindDataButtonProps) {
     }
     dispatch(
       bindDataOnCanvas({
-        queryId: (params.apiId || params.queryId) as string,
+        queryId: (params.baseApiId ||
+          params.baseQueryId ||
+          params.moduleInstanceId) as string,
         applicationId: applicationId as string,
-        pageId: params.pageId,
+        basePageId: params.basePageId,
       }),
     );
 

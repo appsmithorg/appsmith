@@ -5,14 +5,14 @@ import { toast } from "design-system";
 import {
   createMessage,
   INFO_VERSION_MISMATCH_FOUND_RELOAD_REQUEST,
-} from "@appsmith/constants/messages";
-import type { AppVersionData } from "@appsmith/configs/types";
+} from "ee/constants/messages";
+import type { AppVersionData } from "ee/configs/types";
 import {
   getVersionUpdateState,
   removeVersionUpdateState,
   setVersionUpdateState,
 } from "utils/storage";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 enum UpdateStateEvent {
   PROMPT_SHOWN = "PROMPT_SHOWN",

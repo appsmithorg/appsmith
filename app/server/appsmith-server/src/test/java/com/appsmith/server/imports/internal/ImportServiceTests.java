@@ -514,7 +514,7 @@ public class ImportServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService
-                            .createCollection(actionCollectionDTO1, null)
+                            .createCollection(actionCollectionDTO1)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(updateLayoutService.updateLayout(
@@ -975,10 +975,12 @@ public class ImportServiceTests {
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null)
                                     .collectList(),
                             customJSLibService.getAllJSLibsInContext(
-                                    application.getId(), CreatorContextType.APPLICATION, null, false));
+                                    application.getId(), CreatorContextType.APPLICATION, false),
+                            applicationService.findById(
+                                    applicationImportDTO.getApplication().getId(), MANAGE_APPLICATIONS));
                 }))
                 .assertNext(tuple -> {
-                    final Application application = tuple.getT1().getApplication();
+                    final Application application = tuple.getT7();
                     final List<Datasource> unConfiguredDatasourceList =
                             tuple.getT1().getUnConfiguredDatasourceList();
                     final boolean isPartialImport = tuple.getT1().getIsPartialImport();
@@ -1044,8 +1046,6 @@ public class ImportServiceTests {
 
                         if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
                             collectionIdInAction.add(actionDTO.getCollectionId());
-                            assertThat(actionDTO.getDefaultResources().getCollectionId())
-                                    .isEqualTo(actionDTO.getCollectionId());
                         }
                     });
 
@@ -1126,20 +1126,20 @@ public class ImportServiceTests {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Import theme test org");
 
-        final Mono<ApplicationImportDTO> resultMono = workspaceService
+        final Mono<Application> resultMono = workspaceService
                 .create(newWorkspace)
                 .flatMap(workspace ->
                         importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
-                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
+                .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO)
+                .flatMap(importDTO ->
+                        applicationService.findById(importDTO.getApplication().getId(), MANAGE_APPLICATIONS));
 
         StepVerifier.create(resultMono.flatMap(applicationImportDTO -> Mono.zip(
                         Mono.just(applicationImportDTO),
-                        themeRepository.findById(
-                                applicationImportDTO.getApplication().getEditModeThemeId()),
-                        themeRepository.findById(
-                                applicationImportDTO.getApplication().getPublishedModeThemeId()))))
+                        themeRepository.findById(applicationImportDTO.getEditModeThemeId()),
+                        themeRepository.findById(applicationImportDTO.getPublishedModeThemeId()))))
                 .assertNext(tuple -> {
-                    final Application application = tuple.getT1().getApplication();
+                    final Application application = tuple.getT1();
                     Theme editTheme = tuple.getT2();
                     Theme publishedTheme = tuple.getT3();
 
@@ -1284,18 +1284,20 @@ public class ImportServiceTests {
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
 
-        final Mono<ApplicationImportDTO> resultMono = workspaceService
+        final Mono<Application> resultMono = workspaceService
                 .create(newWorkspace)
                 .flatMap(workspace ->
                         importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
-                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
+                .flatMap(importableArtifactDTO -> {
+                    ApplicationImportDTO applicationImportDTO = (ApplicationImportDTO) importableArtifactDTO;
+                    return applicationService.findById(
+                            applicationImportDTO.getApplication().getId(), MANAGE_APPLICATIONS);
+                });
 
         StepVerifier.create(resultMono)
                 .assertNext(applicationImportDTO -> {
-                    assertThat(applicationImportDTO.getApplication().getEditModeThemeId())
-                            .isNotEmpty();
-                    assertThat(applicationImportDTO.getApplication().getPublishedModeThemeId())
-                            .isNotEmpty();
+                    assertThat(applicationImportDTO.getEditModeThemeId()).isNotEmpty();
+                    assertThat(applicationImportDTO.getPublishedModeThemeId()).isNotEmpty();
                 })
                 .verifyComplete();
     }
@@ -1418,13 +1420,11 @@ public class ImportServiceTests {
                     final String branchName =
                             application.getGitApplicationMetadata().getBranchName();
                     pageList.forEach(page -> {
-                        assertThat(page.getDefaultResources()).isNotNull();
-                        assertThat(page.getDefaultResources().getBranchName()).isEqualTo(branchName);
+                        assertThat(page.getBranchName()).isEqualTo(branchName);
                     });
 
                     actionList.forEach(action -> {
-                        assertThat(action.getDefaultResources()).isNotNull();
-                        assertThat(action.getDefaultResources().getBranchName()).isEqualTo(branchName);
+                        assertThat(action.getBranchName()).isEqualTo(branchName);
                     });
                 })
                 .verifyComplete();
@@ -1508,10 +1508,12 @@ public class ImportServiceTests {
                                     .collectList(),
                             actionCollectionService
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null)
-                                    .collectList());
+                                    .collectList(),
+                            applicationService.findById(
+                                    applicationImportDTO.getApplication().getId(), MANAGE_APPLICATIONS));
                 }))
                 .assertNext(tuple -> {
-                    final Application application = tuple.getT1().getApplication();
+                    final Application application = tuple.getT6();
                     final List<Datasource> unConfiguredDatasourceList =
                             tuple.getT1().getUnConfiguredDatasourceList();
                     final boolean isPartialImport = tuple.getT1().getIsPartialImport();
@@ -1765,7 +1767,7 @@ public class ImportServiceTests {
         ApplicationAccessDTO applicationAccessDTO = new ApplicationAccessDTO();
         applicationAccessDTO.setPublicAccess(true);
         Application newApplication = applicationService
-                .changeViewAccess(application.getId(), "master", applicationAccessDTO)
+                .changeViewAccessForAllBranchesByBranchedApplicationId(application.getId(), applicationAccessDTO)
                 .block();
 
         PermissionGroup anonymousPermissionGroup =
@@ -2059,7 +2061,7 @@ public class ImportServiceTests {
                     actionCollectionDTO1.setActions(List.of(action1));
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
-                    return layoutCollectionService.createCollection(actionCollectionDTO1, null);
+                    return layoutCollectionService.createCollection(actionCollectionDTO1);
                 })
                 .flatMap(actionCollectionDTO ->
                         actionCollectionService.getByIdWithoutPermissionCheck(actionCollectionDTO.getId()))
@@ -2761,7 +2763,7 @@ public class ImportServiceTests {
         ApplicationAccessDTO accessDTO = new ApplicationAccessDTO();
         accessDTO.setPublicAccess(true);
         applicationService
-                .changeViewAccess(exportWithConfigurationAppId, accessDTO)
+                .changeViewAccessForSingleBranchByBranchedApplicationId(exportWithConfigurationAppId, accessDTO)
                 .block();
         final String appName = testApplication.getName();
         final Mono<ApplicationJson> resultMono = Mono.zip(
@@ -2828,7 +2830,7 @@ public class ImportServiceTests {
                     actionCollectionDTO1.setPluginType(PluginType.JS);
 
                     return layoutCollectionService
-                            .createCollection(actionCollectionDTO1, null)
+                            .createCollection(actionCollectionDTO1)
                             .then(layoutActionService.createSingleAction(action, Boolean.FALSE))
                             .then(layoutActionService.createSingleAction(action2, Boolean.FALSE))
                             .then(updateLayoutService.updateLayout(
@@ -3166,10 +3168,10 @@ public class ImportServiceTests {
 
         // Set order for the newly created pages
         applicationPageService
-                .reorderPage(testApplication.getId(), testPage1.getId(), 0, null)
+                .reorderPage(testApplication.getId(), testPage1.getId(), 0)
                 .block();
         applicationPageService
-                .reorderPage(testApplication.getId(), testPage2.getId(), 1, null)
+                .reorderPage(testApplication.getId(), testPage2.getId(), 1)
                 .block();
         // Deploy the current application
         applicationPageService.publish(testApplication.getId(), true).block();
@@ -3396,10 +3398,10 @@ public class ImportServiceTests {
 
         // Set order for the newly created pages
         applicationPageService
-                .reorderPage(testApplication.getId(), testPage1.getId(), 0, null)
+                .reorderPage(testApplication.getId(), testPage1.getId(), 0)
                 .block();
         applicationPageService
-                .reorderPage(testApplication.getId(), testPage2.getId(), 1, null)
+                .reorderPage(testApplication.getId(), testPage2.getId(), 1)
                 .block();
 
         Mono<ApplicationJson> applicationJsonMono = exportService
@@ -3575,8 +3577,7 @@ public class ImportServiceTests {
                 .flatMap(application ->
                         // fetch the application pages, this should contain pages from application json
                         Mono.zip(
-                                newPageService.findApplicationPages(
-                                        application.getId(), null, null, ApplicationMode.EDIT),
+                                newPageService.findApplicationPages(application.getId(), null, ApplicationMode.EDIT),
                                 newActionService
                                         .findAllByApplicationIdAndViewMode(
                                                 application.getId(), false, MANAGE_ACTIONS, null)
@@ -3642,7 +3643,7 @@ public class ImportServiceTests {
                                 .thenReturn(application))
                 .flatMap(application ->
                         // fetch the application pages, this should contain pages from application json
-                        newPageService.findApplicationPages(application.getId(), null, null, ApplicationMode.EDIT));
+                        newPageService.findApplicationPages(application.getId(), null, ApplicationMode.EDIT));
 
         StepVerifier.create(applicationPagesDTOMono)
                 .assertNext(applicationPagesDTO -> {
@@ -4468,7 +4469,7 @@ public class ImportServiceTests {
                     ApplicationAccessDTO accessDTO = new ApplicationAccessDTO();
                     accessDTO.setPublicAccess(true);
                     return applicationService
-                            .changeViewAccess(application.getId(), accessDTO)
+                            .changeViewAccessForSingleBranchByBranchedApplicationId(application.getId(), accessDTO)
                             .thenReturn(application);
                 });
 
@@ -4634,7 +4635,7 @@ public class ImportServiceTests {
                         })
                         .zipWith(applicationJson)
                         .flatMap(objects -> importService
-                                .restoreSnapshot(workspaceId, objects.getT1().getId(), null, objects.getT2())
+                                .restoreSnapshot(workspaceId, objects.getT1().getId(), objects.getT2())
                                 .map(importableArtifact -> (Application) importableArtifact)
                                 .zipWith(Mono.just(objects.getT1())))
                         .flatMap(objects -> {
@@ -4841,7 +4842,7 @@ public class ImportServiceTests {
     public void createExportAppJsonWithCustomJSLibTest() {
         CustomJSLib jsLib = new CustomJSLib("TestLib", Set.of("accessor1"), "url", "docsUrl", "1.0", "defs_string");
         Mono<Boolean> addJSLibMonoCached = customJSLibService
-                .addJSLibsToContext(testAppId, CreatorContextType.APPLICATION, Set.of(jsLib), null, false)
+                .addJSLibsToContext(testAppId, CreatorContextType.APPLICATION, Set.of(jsLib), false)
                 .flatMap(isJSLibAdded ->
                         Mono.zip(Mono.just(isJSLibAdded), applicationPageService.publish(testAppId, true)))
                 .map(tuple2 -> {
@@ -5014,7 +5015,7 @@ public class ImportServiceTests {
         action1.getActionConfiguration().setBody("mockBody");
         actionCollectionDTO1.setActions(List.of(action1));
         actionCollectionDTO1.setPluginType(PluginType.JS);
-        return layoutCollectionService.createCollection(actionCollectionDTO1, null);
+        return layoutCollectionService.createCollection(actionCollectionDTO1);
     }
 
     @Test
@@ -5265,10 +5266,12 @@ public class ImportServiceTests {
                                     .collectList(),
                             actionCollectionService
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null)
-                                    .collectList());
+                                    .collectList(),
+                            applicationService.findById(
+                                    applicationImportDTO.getApplication().getId(), MANAGE_APPLICATIONS));
                 }))
                 .assertNext(tuple -> {
-                    final Application application = tuple.getT1().getApplication();
+                    final Application application = tuple.getT6();
                     final List<Datasource> unConfiguredDatasourceList =
                             tuple.getT1().getUnConfiguredDatasourceList();
                     final boolean isPartialImport = tuple.getT1().getIsPartialImport();

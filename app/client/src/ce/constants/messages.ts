@@ -1,9 +1,8 @@
 import type { PageErrorMessageProps } from "pages/common/ErrorPages/Components/PageErrorMessage";
 
-export function createMessage(
-  format: (...strArgs: any[]) => string,
-  ...args: any[]
-) {
+export // TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function createMessage(format: (...strArgs: any[]) => string, ...args: any[]) {
   return format(...args);
 }
 
@@ -2312,10 +2311,17 @@ export const EDITOR_PANE_TEXTS = {
   query_create_tab_title: () => "Create new query from",
   widgets_create_tab_title: () => "Drag & drop UI elements",
   js_create_tab_title: () => "Create JS object from",
-  queries_create_from_existing: () => "From existing datasource",
-  queries_create_new: () => "New API",
+  js_create_modules: () => "JS modules (Beta)",
+  queries_create_from_existing: () => "Datasources",
+  queries_create_new: () => "Quick actions",
+  queries_create_modules: () => "Query modules (Beta)",
   loading_building_blocks: () => "Loading building blocks",
   empty_search_result: (type: string) => `No ${type} match your search`,
+  search_objects: {
+    jsObject: () => "JS object",
+    queries: () => "queries",
+    datasources: () => "datasources",
+  },
 };
 
 export const PARTIAL_IMPORT_EXPORT = {

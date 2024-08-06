@@ -3,7 +3,7 @@ import {
   CONFIGURE_CD_TITLE,
   TRY_APPSMITH_ENTERPRISE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Button, Text } from "design-system";
 import { useAppsmithEnterpriseLink } from "pages/Editor/gitSync/GitSettingsModal/TabBranch/hooks";
 import React from "react";

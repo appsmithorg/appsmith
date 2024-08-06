@@ -5,7 +5,7 @@ import {
   LEARN_MORE,
   UPDATE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { updateGitProtectedBranchesInit } from "actions/gitSyncActions";
 import { Button, Link, Option, Select, Text } from "design-system";
 import { xor } from "lodash";
@@ -19,10 +19,10 @@ import {
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { FEATURE_FLAG } from "ee/entities/FeatureFlag";
 import { useAppsmithEnterpriseLink } from "./hooks";
 import { REMOTE_BRANCH_PREFIX } from "../../constants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 
 const Container = styled.div`

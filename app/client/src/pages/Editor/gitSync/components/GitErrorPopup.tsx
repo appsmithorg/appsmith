@@ -10,12 +10,12 @@ import {
 import {
   createMessage,
   CONFLICTS_FOUND_WHILE_PULLING_CHANGES,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Space } from "./StyledComponents";
 import { Colors } from "constants/Colors";
 
 import ConflictInfo from "../components/ConflictInfo";
-import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentAppGitMetaData } from "ee/selectors/applicationSelectors";
 import { Button } from "design-system";
 
 const StyledGitErrorPopup = styled.div`

@@ -71,6 +71,8 @@ export function updateRelationships(
   onlyUpdateFlexLayers = false,
   isMobile = false,
   mainCanvasWidth: number,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metaProps?: Record<string, any>,
 ): CanvasWidgetsReduxState {
   const widgets = { ...allWidgets };

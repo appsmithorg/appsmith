@@ -6,7 +6,7 @@ import {
   PAGE_NOT_FOUND_ERROR,
   INVALID_URL_ERROR,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { useHistory } from "react-router-dom";
 
 const Wrapper = styled.div`

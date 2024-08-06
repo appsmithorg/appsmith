@@ -1,8 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,70 +97,5 @@ public class CustomActionCollectionRepositoryCEImplTest {
                     });
                 })
                 .verifyComplete();
-    }
-
-    private void testFindAllActionCollectionsByNamePageIdsViewModeAndBranch(boolean isViewMode) {
-        String defaultPageId = "default-page-id", branchName = "main", childPageId = "child-page-id";
-
-        // create action collection that has different values in pageId and defaultResources.pageId
-        ActionCollection actionCollection = new ActionCollection();
-        ActionCollectionDTO actionCollectionDTO = new ActionCollectionDTO();
-        actionCollectionDTO.setPageId(childPageId);
-        actionCollectionDTO.setDefaultResources(new DefaultResources());
-        actionCollectionDTO.getDefaultResources().setPageId(defaultPageId);
-
-        if (isViewMode) {
-            actionCollection.setPublishedCollection(actionCollectionDTO);
-        } else {
-            actionCollection.setUnpublishedCollection(actionCollectionDTO);
-        }
-
-        actionCollection.setDefaultResources(new DefaultResources());
-        actionCollection.getDefaultResources().setBranchName(branchName);
-
-        Mono<ActionCollection> createActionCollectionMono =
-                actionCollectionRepository.save(actionCollection).cache();
-
-        // check whether action collection is found when branch and default page id matches
-        Mono<List<ActionCollection>> actionCollectionListMono = createActionCollectionMono
-                .thenMany(actionCollectionRepository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-                        null, List.of(defaultPageId), isViewMode, branchName, null, null))
-                .collectList();
-
-        StepVerifier.create(actionCollectionListMono)
-                .assertNext(actionCollectionList -> {
-                    assertThat(actionCollectionList).hasSize(1);
-                })
-                .verifyComplete();
-
-        // check whether action collection is not found when branch name does not match
-        Mono<List<ActionCollection>> actionCollectionListMono2 = createActionCollectionMono
-                .thenMany(actionCollectionRepository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-                        null, List.of(defaultPageId), isViewMode, "feature", null, null))
-                .collectList();
-
-        StepVerifier.create(actionCollectionListMono2)
-                .assertNext(actionCollectionList -> {
-                    assertThat(actionCollectionList).hasSize(0);
-                })
-                .verifyComplete();
-
-        // check whether action collection is not found when default page id does not match
-        Mono<List<ActionCollection>> actionCollectionListMono3 = createActionCollectionMono
-                .thenMany(actionCollectionRepository.findAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-                        null, List.of(childPageId), isViewMode, branchName, null, null))
-                .collectList();
-
-        StepVerifier.create(actionCollectionListMono3)
-                .assertNext(actionCollectionList -> {
-                    assertThat(actionCollectionList).hasSize(0);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void findAllActionCollectionsByNamePageIdsViewModeAndBranch_ForChildBranch_Successful() {
-        testFindAllActionCollectionsByNamePageIdsViewModeAndBranch(false);
-        testFindAllActionCollectionsByNamePageIdsViewModeAndBranch(true);
     }
 }

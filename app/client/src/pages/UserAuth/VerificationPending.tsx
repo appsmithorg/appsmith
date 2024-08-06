@@ -6,7 +6,7 @@ import {
   VERIFICATION_PENDING_NOT_YOU,
   VERIFICATION_PENDING_RESEND_LINK,
   VERIFICATION_PENDING_TITLE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { RouteComponentProps } from "react-router-dom";
 import { Button, Callout, Link, Text } from "design-system";
 import styled from "styled-components";

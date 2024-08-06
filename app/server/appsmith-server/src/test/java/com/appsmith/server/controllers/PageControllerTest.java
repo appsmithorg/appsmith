@@ -218,9 +218,7 @@ public class PageControllerTest {
     @Test
     @WithMockUser
     void emptyCustomSlugShouldBeOkay() {
-        doReturn(Mono.just(new PageDTO()))
-                .when(newPageService)
-                .updatePageByDefaultPageIdAndBranch(anyString(), any(), anyString());
+        doReturn(Mono.just(new PageDTO())).when(newPageService).updatePage(anyString(), any());
 
         client.put()
                 .uri("/api/v1/pages/abcdef")
@@ -228,6 +226,6 @@ public class PageControllerTest {
                 .body(BodyInserters.fromValue(Map.of("customSlug", "")))
                 .exchange();
 
-        verify(newPageService, times(1)).updatePageByDefaultPageIdAndBranch(eq("abcdef"), any(), eq(null));
+        verify(newPageService, times(1)).updatePage(eq("abcdef"), any());
     }
 }

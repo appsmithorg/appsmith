@@ -1,0 +1,67 @@
+import { Meta } from "@storybook/blocks";
+import { ColorBlock } from "./components/ColorBlock";
+import { CodeBlock } from "./components/CodeBlock";
+import { Toast } from "../Toast";
+
+import { bgTokens, fgTokens, borderTokens } from "./tokens";
+
+<Meta title="ADS/Docs/Semantic Tokens" name="Semantic Tokens" />
+
+#### Content
+
+If and when you are not able to use category token, then use the tokens from below list.
+
+---
+
+##### Background
+
+<table>
+  <tbody>
+    {bgTokens.map((token) => (
+      <tr key={token}>
+        <td>
+          <CodeBlock code={token} />
+        </td>
+        <td>
+          <ColorBlock color={token} />
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+##### Foreground
+
+<table>
+  <tbody>
+    {fgTokens.map((token) => (
+      <tr key={token}>
+        <td>
+          <CodeBlock code={token} />
+        </td>
+        <td>
+          <ColorBlock color={token} />
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+##### Border
+
+<table>
+  <tbody>
+    {borderTokens.map((token) => (
+      <tr key={token}>
+        <td>
+          <CodeBlock code={token} />
+        </td>
+        <td>
+          <ColorBlock color={token} />
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+<Toast />

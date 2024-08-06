@@ -7,7 +7,7 @@ import {
   AVAILABLE_ON_ENTERPRISE,
   createMessage,
   UPGRADE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 const FooterContainer = styled.div`
   position: absolute;

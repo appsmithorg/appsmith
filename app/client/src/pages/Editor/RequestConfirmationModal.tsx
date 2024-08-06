@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { Keys } from "@blueprintjs/core";
 import {
   showActionConfirmationModal,
@@ -18,11 +18,13 @@ import {
 import {
   createMessage,
   QUERY_CONFIRMATION_MODAL_MESSAGE,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 
 interface Props {
   modals: ModalInfo[];
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: any;
 }
 

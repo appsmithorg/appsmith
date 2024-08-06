@@ -137,10 +137,10 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
      */
     @Override
     public Mono<ConsolidatedAPIResponseDTO> getConsolidatedInfoForPageLoad(
-            String defaultPageId, String applicationId, String branchName, ApplicationMode mode) {
+            String basePageId, String baseApplicationId, String branchName, ApplicationMode mode) {
 
-        /* if either of pageId or applicationId are provided then application mode must also be provided */
-        if (mode == null && (!isBlank(defaultPageId) || !isBlank(applicationId))) {
+        /* if either of pageId or defaultApplicationId are provided then application mode must also be provided */
+        if (mode == null && (!isBlank(basePageId) || !isBlank(baseApplicationId))) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, APP_MODE));
         }
 
@@ -191,30 +191,29 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                 .name(getQualifiedSpanName(PRODUCT_ALERT_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
 
-        if (isBlank(defaultPageId) && isBlank(applicationId)) {
+        if (isBlank(basePageId) && isBlank(baseApplicationId)) {
             return Mono.when(fetches).thenReturn(consolidatedAPIResponseDTO);
         }
 
         /* Get view mode - EDIT or PUBLISHED */
         boolean isViewMode = ApplicationMode.PUBLISHED.equals(mode);
 
-        /* Fetch application id if not provided */
-        Mono<String> applicationIdMonoCache;
-        if (isBlank(applicationId)) {
-            applicationIdMonoCache = newPageService
-                    .findRootApplicationIdFromNewPage(branchName, defaultPageId)
+        /* Fetch default application id if not provided */
+        Mono<Application> branchedApplicationMonoCached;
+        if (isBlank(baseApplicationId)) {
+            branchedApplicationMonoCached = newPageService
+                    .findByBranchNameAndBasePageIdAndApplicationMode(branchName, basePageId, mode)
+                    .map(NewPage::getApplicationId)
+                    .flatMap(applicationId ->
+                            applicationService.findByBranchedApplicationIdAndApplicationMode(applicationId, mode))
                     .name(getQualifiedSpanName(APPLICATION_ID_SPAN, mode))
                     .tap(Micrometer.observation(observationRegistry))
                     .cache();
         } else {
-            applicationIdMonoCache = Mono.just(applicationId).cache();
+            branchedApplicationMonoCached = applicationService
+                    .findByBaseIdBranchNameAndApplicationMode(baseApplicationId, branchName, mode)
+                    .cache();
         }
-
-        // dslMigration-over-here using the branchName and defaultId
-        Mono<Application> branchedApplicationMonoCached = applicationIdMonoCache
-                .flatMap(defaultApplicationId -> applicationService.findByDefaultIdBranchNameAndApplicationMode(
-                        defaultApplicationId, branchName, mode))
-                .cache();
 
         Mono<List<NewPage>> pagesFromCurrentApplicationMonoCached = branchedApplicationMonoCached
                 .flatMap(branchedApplication ->
@@ -238,35 +237,36 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         fetches.add(applicationPagesDTOResponseDTOMonoCache);
 
         /* Get current theme */
-        fetches.add(applicationIdMonoCache
-                .flatMap(appId -> themeService.getApplicationTheme(appId, mode, branchName))
+        fetches.add(branchedApplicationMonoCached
+                .flatMap(branchedApplication -> themeService.getApplicationTheme(branchedApplication.getId(), mode))
                 .as(this::toResponseDTO)
                 .doOnSuccess(consolidatedAPIResponseDTO::setCurrentTheme)
                 .name(getQualifiedSpanName(CURRENT_THEME_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
 
         /* Get all themes */
-        fetches.add(applicationIdMonoCache
-                .flatMap(appId ->
-                        themeService.getApplicationThemes(appId, branchName).collectList())
+        fetches.add(branchedApplicationMonoCached
+                .flatMap(branchedApplication -> themeService
+                        .getApplicationThemes(branchedApplication.getId())
+                        .collectList())
                 .as(this::toResponseDTO)
                 .doOnSuccess(consolidatedAPIResponseDTO::setThemes)
                 .name(getQualifiedSpanName(THEMES_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
 
         /* Get all custom JS libraries installed in the application */
-        fetches.add(applicationIdMonoCache
-                .flatMap(appId -> customJSLibService.getAllJSLibsInContext(
-                        appId, CreatorContextType.APPLICATION, branchName, isViewMode))
+        fetches.add(branchedApplicationMonoCached
+                .flatMap(branchedApplication -> customJSLibService.getAllJSLibsInContext(
+                        branchedApplication.getId(), CreatorContextType.APPLICATION, isViewMode))
                 .as(this::toResponseDTO)
                 .doOnSuccess(consolidatedAPIResponseDTO::setCustomJSLibraries)
                 .name(getQualifiedSpanName(CUSTOM_JS_LIB_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
 
-        if (!isBlank(defaultPageId)) {
+        if (!isBlank(basePageId)) {
             /* Get current page */
             fetches.add(applicationPageService
-                    .getPageAndMigrateDslByBranchAndDefaultPageId(defaultPageId, branchName, isViewMode, true)
+                    .getPageAndMigrateDslByBranchAndBasePageId(basePageId, branchName, isViewMode, true)
                     .as(this::toResponseDTO)
                     .doOnSuccess(consolidatedAPIResponseDTO::setPageWithMigratedDsl)
                     .name(getQualifiedSpanName(CURRENT_PAGE_SPAN, mode))
@@ -276,9 +276,9 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
         /* Fetch view specific data */
         if (isViewMode) {
             /* Get list of all actions in view mode */
-            fetches.add(applicationIdMonoCache
-                    .flatMap(appId -> newActionService
-                            .getActionsForViewMode(appId, branchName)
+            fetches.add(branchedApplicationMonoCached
+                    .flatMap(branchedApplication -> newActionService
+                            .getActionsForViewMode(branchedApplication.getId())
                             .collectList())
                     .as(this::toResponseDTO)
                     .doOnSuccess(consolidatedAPIResponseDTO::setPublishedActions)
@@ -286,9 +286,9 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     .tap(Micrometer.observation(observationRegistry)));
 
             /* Get list of all action collections in view mode */
-            fetches.add(applicationIdMonoCache
-                    .flatMap(appId -> actionCollectionService
-                            .getActionCollectionsForViewMode(appId, branchName)
+            fetches.add(branchedApplicationMonoCached
+                    .flatMap(branchedApplication -> actionCollectionService
+                            .getActionCollectionsForViewMode(branchedApplication.getId())
                             .collectList())
                     .as(this::toResponseDTO)
                     .doOnSuccess(consolidatedAPIResponseDTO::setPublishedActionCollections)
@@ -296,12 +296,12 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
 
         } else {
             /* Get all actions in edit mode */
-            fetches.add(applicationIdMonoCache
-                    .flatMap(appId -> {
+            fetches.add(branchedApplicationMonoCached
+                    .flatMap(branchedApplication -> {
                         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                        params.add(APPLICATION_ID, appId);
+                        params.add(APPLICATION_ID, branchedApplication.getId());
                         return newActionService
-                                .getUnpublishedActions(params, branchName, false)
+                                .getUnpublishedActions(params, false)
                                 .collectList();
                     })
                     .as(this::toResponseDTO)
@@ -310,12 +310,11 @@ public class ConsolidatedAPIServiceCEImpl implements ConsolidatedAPIServiceCE {
                     .tap(Micrometer.observation(observationRegistry)));
 
             /* Get all action collections in edit mode */
-            fetches.add(applicationIdMonoCache
-                    .flatMapMany(appId -> {
+            fetches.add(branchedApplicationMonoCached
+                    .flatMapMany(branchedApplication -> {
                         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                        params.add(APPLICATION_ID, appId);
-                        return actionCollectionService.getPopulatedActionCollectionsByViewMode(
-                                params, false, branchName);
+                        params.add(APPLICATION_ID, branchedApplication.getId());
+                        return actionCollectionService.getPopulatedActionCollectionsByViewMode(params, false);
                     })
                     .collectList()
                     .as(this::toResponseDTO)

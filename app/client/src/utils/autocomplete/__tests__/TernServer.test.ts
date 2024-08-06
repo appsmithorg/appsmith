@@ -225,8 +225,12 @@ describe("Tern server", () => {
       const mockAddFile = jest.fn();
       CodemirrorTernService.server.addFile = mockAddFile;
 
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const value: any = CodemirrorTernService.requestCallback(
         null,
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         testCase.input.requestCallbackData as any,
         MockCodemirrorEditor as unknown as CodeMirror.Editor,
         () => null,
@@ -252,6 +256,8 @@ describe("Tern server sorting", () => {
     },
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sameEntityCompletion: Completion<any> = {
     text: "sameEntity.tableData",
     displayText: "sameEntity.tableData",
@@ -268,6 +274,8 @@ describe("Tern server sorting", () => {
     subType: "TABLE_WIDGET_V2",
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const priorityCompletion: Completion<any> = {
     text: "selectedRow",
     displayText: "selectedRow",
@@ -284,6 +292,8 @@ describe("Tern server sorting", () => {
     subType: "TABLE_WIDGET_V2",
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const diffTypeCompletion: Completion<any> = {
     text: "diffType.tableData",
     displayText: "diffType.tableData",
@@ -301,6 +311,8 @@ describe("Tern server sorting", () => {
     subType: "TABLE_WIDGET_V2",
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const sameTypeDiffEntityTypeCompletion: Completion<any> = {
     text: "diffEntity.data",
     displayText: "diffEntity.data",
@@ -314,6 +326,8 @@ describe("Tern server sorting", () => {
     subType: ENTITY_TYPE.ACTION,
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const dataTreeCompletion: Completion<any> = {
     text: "otherDataTree",
     displayText: "otherDataTree",
@@ -327,6 +341,8 @@ describe("Tern server sorting", () => {
     subType: "TEXT_WIDGET",
   });
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const functionCompletion: Completion<any> = {
     text: "otherDataFunction",
     displayText: "otherDataFunction",
@@ -335,6 +351,8 @@ describe("Tern server sorting", () => {
     data: {},
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const ecmascriptCompletion: Completion<any> = {
     text: "otherJS",
     displayText: "otherJS",
@@ -343,6 +361,8 @@ describe("Tern server sorting", () => {
     data: {},
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const libCompletion: Completion<any> = {
     text: "libValue",
     displayText: "libValue",
@@ -351,6 +371,8 @@ describe("Tern server sorting", () => {
     data: {},
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const unknownCompletion: Completion<any> = {
     text: "unknownSuggestion",
     displayText: "unknownSuggestion",

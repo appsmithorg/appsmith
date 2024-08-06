@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Tabs, TabsList, Tab, TabPanel } from "design-system";
 import { getSelectedPropertyTabIndex } from "selectors/editorContextSelectors";
 import { setSelectedPropertyTabIndex } from "actions/editorContextActions";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 interface PropertyPaneTabProps {
   styleComponent: JSX.Element | null;

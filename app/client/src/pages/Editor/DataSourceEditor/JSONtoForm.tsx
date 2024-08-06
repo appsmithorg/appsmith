@@ -7,7 +7,7 @@ import type { ControlProps } from "components/formControls/BaseControl";
 import type { Datasource } from "entities/Datasource";
 import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "ee/entities/FeatureFlag";
 
 export const FormContainer = styled.div`
   display: flex;
@@ -34,6 +34,8 @@ export const FormContainerBody = styled.div`
 export interface JSONtoFormProps {
   formData: Datasource;
   formName: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   formConfig: any[];
   datasourceId: string;
   featureFlags?: FeatureFlags;
@@ -45,8 +47,12 @@ export interface JSONtoFormProps {
 export class JSONtoForm<
   P = unknown,
   S = unknown,
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   SS = any,
 > extends React.Component<JSONtoFormProps & P, S, SS> {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderForm = (formContent: any) => {
     return (
       // <MainContainer>
@@ -59,6 +65,8 @@ export class JSONtoForm<
     );
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderMainSection = (section: any, index: number) => {
     if (
       !this.props.formData ||
@@ -133,6 +141,8 @@ export class JSONtoForm<
     }
   };
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   renderEachConfig = (section: any) => {
     return (
       <div
@@ -156,6 +166,8 @@ export class JSONtoForm<
           )
             return null;
           if ("children" in propertyControlOrSection) {
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             const { children } = propertyControlOrSection as any;
             if (isKVArray(children)) {
               return this.renderKVArray(children);

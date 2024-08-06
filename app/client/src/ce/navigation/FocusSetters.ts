@@ -3,7 +3,7 @@ import {
   builderURL,
   datasourcesEditorIdURL,
   jsCollectionIdURL,
-} from "@appsmith/RouteBuilder";
+} from "ee/RouteBuilder";
 import { PluginType } from "entities/Action";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
@@ -23,21 +23,21 @@ export function setSelectedDatasource(id?: string) {
 }
 
 export function setSelectedQuery(entityInfo?: FocusEntityInfo) {
-  if (entityInfo && entityInfo.params.pageId) {
+  if (entityInfo && entityInfo.params.basePageId) {
     if ([FocusEntity.API, FocusEntity.QUERY].includes(entityInfo.entity)) {
-      const { apiId, pluginPackageName, queryId } = entityInfo.params;
-      const key = apiId ? apiId : queryId;
+      const { baseApiId, baseQueryId, pluginPackageName } = entityInfo.params;
+      const key = baseApiId ? baseApiId : baseQueryId;
       if (!key) return undefined;
       let type: PluginType = PluginType.API;
       if (pluginPackageName) {
         type = PluginType.SAAS;
-      } else if (queryId) {
+      } else if (baseQueryId) {
         type = PluginType.DB;
       }
 
       const url = getQueryEntityItemUrl(
         { type, key, title: key },
-        entityInfo.params.pageId,
+        entityInfo.params.basePageId,
       );
       history.replace(url, { invokedBy: NavigationMethod.ContextSwitching });
     }
@@ -48,7 +48,7 @@ export function setSelectedJSObject(focusInfo?: FocusEntityInfo) {
   if (focusInfo && focusInfo.entity === FocusEntity.JS_OBJECT) {
     history.replace(
       jsCollectionIdURL({
-        collectionId: focusInfo.id,
+        baseCollectionId: focusInfo.id,
       }),
       { invokedBy: NavigationMethod.ContextSwitching },
     );

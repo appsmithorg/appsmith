@@ -9,7 +9,7 @@ import {
   SNAPSHOT_TIME_FROM_MESSAGE,
   USE_SNAPSHOT,
   USE_SNAPSHOT_TEXT,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { ConversionProps } from "../ConversionForm";
 
 import type { Dispatch } from "redux";
@@ -18,16 +18,18 @@ import {
   setConversionStop,
   setLayoutConversionStateAction,
 } from "actions/autoLayoutActions";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
 import { commonConversionFlows } from "./CommonConversionFlows";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { ReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 
 //returns props for using snapshot flows based on which the Conversion Form can be rendered
 export const snapShotFlow = (
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dispatch: Dispatch<any>,
   readableSnapShotDetails: ReadableSnapShotDetails | undefined,
   backState?: CONVERSION_STATES,

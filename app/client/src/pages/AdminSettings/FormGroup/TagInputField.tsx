@@ -4,7 +4,7 @@ import { Field } from "redux-form";
 import { TagInput } from "design-system-old";
 import { FormGroup } from "./Common";
 import type { Intent } from "constants/DefaultTheme";
-import type { Setting } from "@appsmith/pages/AdminSettings/config/types";
+import type { Setting } from "ee/pages/AdminSettings/config/types";
 
 const renderComponent = (
   componentProps: TagListFieldProps & {

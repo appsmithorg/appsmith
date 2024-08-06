@@ -53,11 +53,17 @@ const AddMoreAction = styled.div`
   width: max-content;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function NestedComponents(props: any) {
   const addMore = useCallback(() => {
     const { schema = {} } = props;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const newObject: any = {};
 
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     schema.forEach((s: any) => {
       newObject[s.key] = s.initialValue || "";
     });
@@ -72,6 +78,8 @@ function NestedComponents(props: any) {
         props.fields.map((field: string, index: number) => {
           return (
             <SecondaryBox key={index}>
+              {/* TODO: Fix this the next time the file is edited */}
+              {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
               {props.schema.map((sch: any, idx: number) => {
                 sch = {
                   ...sch,

@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Flex, Text } from "design-system";
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage } from "ee/constants/messages";
 import { useSelector } from "react-redux";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
@@ -20,7 +20,6 @@ const SegmentAddHeader = (props: Props) => {
           : "var(--ads-v2-color-gray-50)"
       }
       justifyContent="space-between"
-      py="spaces-2"
     >
       <Text color="var(--ads-v2-color-fg)" kind="heading-xs">
         {createMessage(props.titleMessage)}

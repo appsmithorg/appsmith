@@ -7,10 +7,7 @@ import {
   PopoverTrigger,
 } from "design-system";
 import React, { useCallback, useState } from "react";
-import {
-  createMessage,
-  customJSLibraryMessages,
-} from "@appsmith/constants/messages";
+import { createMessage, customJSLibraryMessages } from "ee/constants/messages";
 import { Installer } from "../../Explorer/Libraries/Installer";
 import { clearInstalls } from "actions/JSLibraryActions";
 import { useDispatch } from "react-redux";

@@ -4,7 +4,7 @@ import {
   LOCAL_STORAGE_NO_SPACE_LEFT_ON_DEVICE_MESSAGE,
   LOCAL_STORAGE_NOT_SUPPORTED_APP_MIGHT_NOT_WORK_AS_EXPECTED,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { toast } from "design-system";
 
 export const LOCAL_STORAGE_KEYS = {

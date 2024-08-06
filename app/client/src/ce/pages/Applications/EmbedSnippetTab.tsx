@@ -4,19 +4,16 @@ import styled from "styled-components";
 import { Switch, Icon, Tooltip, Link, Text } from "design-system";
 import useUpdateEmbedSnippet from "pages/Applications/EmbedSnippet/useUpdateEmbedSnippet";
 import EmbedCodeSnippet from "pages/Applications/EmbedSnippet/Snippet";
-import {
-  createMessage,
-  IN_APP_EMBED_SETTING,
-} from "@appsmith/constants/messages";
-import { getCurrentApplication } from "selectors/editorSelectors";
+import { createMessage, IN_APP_EMBED_SETTING } from "ee/constants/messages";
 import PrivateEmbeddingContent, {
   PrivateEmbedRampModal,
   PrivateEmbedRampSidebar,
 } from "pages/Applications/EmbedSnippet/PrivateEmbeddingContent";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { ADMIN_SETTINGS_PATH } from "constants/routes";
-import { defaultOptionSelected, to, getSnippetUrl } from "@appsmith/utils";
-import { PrivateEmbedSettings } from "@appsmith/pages/Applications/PrivateEmbedSettings";
+import { defaultOptionSelected, to, getSnippetUrl } from "ee/utils";
+import { PrivateEmbedSettings } from "ee/pages/Applications/PrivateEmbedSettings";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 
 export const StyledPropertyHelpLabel = styled(PropertyHelpLabel)`
   .bp3-popover-content > div {

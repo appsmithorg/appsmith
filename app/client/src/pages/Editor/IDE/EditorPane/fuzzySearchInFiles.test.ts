@@ -1,5 +1,5 @@
-import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
-import { fuzzySearchInFiles } from "./utils";
+import type { EditorSegmentList } from "ee/selectors/appIDESelectors";
+import { fuzzySearchInObjectItems } from "./utils";
 import { PluginType } from "entities/Action";
 
 const sampleFiles: EditorSegmentList = [
@@ -19,14 +19,14 @@ const sampleFiles: EditorSegmentList = [
   },
 ];
 
-describe("fuzzySearchInFiles", () => {
+describe("fuzzySearchInObjectItems", () => {
   it("should return all files when the search string is empty", () => {
-    const result = fuzzySearchInFiles("", sampleFiles);
+    const result = fuzzySearchInObjectItems("", sampleFiles);
     expect(result).toEqual(sampleFiles);
   });
 
   it("should return the correct file when the search string exactly matches a file title", () => {
-    const result = fuzzySearchInFiles("file1", sampleFiles);
+    const result = fuzzySearchInObjectItems("file1", sampleFiles);
     expect(result).toEqual([
       {
         group: "Group 1",
@@ -36,12 +36,12 @@ describe("fuzzySearchInFiles", () => {
   });
 
   it("should return an empty array when no files match the search string", () => {
-    const result = fuzzySearchInFiles("nonexistentfile", sampleFiles);
+    const result = fuzzySearchInObjectItems("nonexistentfile", sampleFiles);
     expect(result).toEqual([]);
   });
 
   it("should return all files containing the common substring in their titles", () => {
-    const result = fuzzySearchInFiles("file", sampleFiles);
+    const result = fuzzySearchInObjectItems("file", sampleFiles);
     expect(result).toEqual(sampleFiles);
   });
 });
