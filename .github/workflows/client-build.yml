@@ -78,7 +78,8 @@ jobs:
           ALL_CHANGED_FILES: ${{ steps.changed-files-specific.outputs.all_changed_files }}
         run: |
           echo "One or more files in the server folder has changed."
-          echo "List all the files that have changed: $ALL_CHANGED_FILES"
+          echo "List all the files that have changed: "
+          echo "$ALL_CHANGED_FILES | xargs -n 1 echo"
 
       - name: Check compliance
         if: inputs.pr != 0 && steps.changed-files-specific.outputs.any_changed == 'true'
