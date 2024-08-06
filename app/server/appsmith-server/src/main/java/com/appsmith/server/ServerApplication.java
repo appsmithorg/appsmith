@@ -73,7 +73,7 @@ public class ServerApplication {
          b.allowBlockingCallsInside(org.springframework.session.data.redis.ReactiveRedisSessionRepository.class.getName(), "changeSessionId");
 
          b.allowBlockingCallsInside(org.springframework.session.web.server.session.SpringSessionWebSessionStore.class.getName(), "$SpringSessionWebSession.lambda$changeSessionId$0");
-         b.allowBlockingCallsInside("com.mongodb.connection.netty.NettyStream", "readAsync");
+//         b.allowBlockingCallsInside("com.mongodb.connection.netty.NettyStream", "readAsync");
 //         b.allowBlockingCallsInside("java.io.FileInputStream", "readBytes");
 //         b.allowBlockingCallsInside("jdk.internal.misc.Unsafe", "#park");
 
