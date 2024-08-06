@@ -41,10 +41,10 @@ const _ToolbarButtonsInner = <T extends ToolbarButtonsItem>(
     () => (props.items as ToolbarButtonsItem[]).slice(visibleItems),
     [props.items, visibleItems],
   );
-  const children = useMemo(() => {
-    const children = [...state.collection];
-    return children.slice(0, visibleItems);
-  }, [state.collection, visibleItems]);
+  const children = useMemo(
+    () => [...state.collection].slice(0, visibleItems),
+    [state.collection, visibleItems],
+  );
 
   return (
     <FocusScope>
