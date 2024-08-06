@@ -7,7 +7,7 @@ export interface AnnouncementModalProps {
   /** the title of the announcement */
   title: string;
   /** the description of the announcement */
-  description: string;
+  description: string | React.ReactNode;
   /** the footer of the announcement */
   footer?: React.ReactNode;
   /** flag to show or hide beta flag  */

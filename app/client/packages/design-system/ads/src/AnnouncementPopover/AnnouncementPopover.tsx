@@ -55,19 +55,21 @@ function AnnouncementPopoverContent({
         {...rest}
         className={clsx(AnnouncementPopoverContentClassName, className)}
       >
-        <StyledBanner
-          backgroundUrl={banner}
-          className={AnnouncementPopoverBannerClassName}
-        >
-          <Button
-            className={AnnouncementPopoverBannerCloseClassName}
-            isIconButton
-            kind="tertiary"
-            onClick={onCloseButtonClick}
-            size="sm"
-            startIcon="close-line"
-          />
-        </StyledBanner>
+        {banner && (
+          <StyledBanner
+            backgroundUrl={banner}
+            className={AnnouncementPopoverBannerClassName}
+          >
+            <Button
+              className={AnnouncementPopoverBannerCloseClassName}
+              isIconButton
+              kind="tertiary"
+              onClick={onCloseButtonClick}
+              size="sm"
+              startIcon="close-line"
+            />
+          </StyledBanner>
+        )}
         <StyledCustomBody className={AnnouncementPopoverBodyClassName}>
           <StyledTitle
             className={AnnouncementPopoverBodyTitleClassName}

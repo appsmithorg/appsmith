@@ -3,11 +3,11 @@ import type { HoverCardContentProps as RadixHoverCardContentProps } from "@radix
 // AnnouncementPopover props
 export type AnnouncementPopoverContentProps = {
   /** the banner url of the announcement */
-  banner: string;
+  banner?: string;
   /** the title of the announcement */
   title: string;
   /** the description of the announcement */
-  description: string;
+  description: string | React.ReactNode;
   /** the footer of the announcement */
   footer?: React.ReactNode;
   /** color for arrow fill */
