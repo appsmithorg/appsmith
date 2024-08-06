@@ -84,9 +84,10 @@ if ! ./build.sh -DskipTests > /dev/null; then
   echo Server build failed >&2
   exit 1
 fi
+popd
+./scripts/prepare_server_artifacts.sh
 pretty_print "Server build successful. Starting client build ..."
 
-popd
 pushd app/client > /dev/null
 yarn > /dev/null
 if ! yarn build > /dev/null; then
