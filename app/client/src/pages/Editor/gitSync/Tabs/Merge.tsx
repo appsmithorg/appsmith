@@ -84,6 +84,8 @@ export default function Merge() {
   const isFetchingBranches = useSelector(getFetchingBranches);
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
   const mergeStatus = useSelector(getMergeStatus);
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const gitStatus: any = useSelector(getGitStatus);
   const mergeError = useSelector(getMergeError);
   const isMergeAble = mergeStatus?.isMergeAble && gitStatus?.isClean;

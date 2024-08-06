@@ -54,6 +54,8 @@ function PageNumberInputComponent(props: {
       onChange={(value) => {
         setPageNumber(value);
       }}
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onKeyDown={(e: any) => {
         if (e.keyCode === Keys.ENTER) {
           handleUpdatePageNo(e);

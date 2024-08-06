@@ -6,5 +6,5 @@ import reactor.core.publisher.Mono;
 
 public interface PartialExportServiceCE {
     Mono<ApplicationJson> getPartialExportResources(
-            String applicationId, String pageId, String branchName, PartialExportFileDTO partialExportFileDTO);
+            String branchedApplicationId, String branchedPageId, PartialExportFileDTO partialExportFileDTO);
 }

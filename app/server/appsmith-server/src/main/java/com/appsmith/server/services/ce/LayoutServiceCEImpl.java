@@ -4,12 +4,10 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -19,7 +17,6 @@ import java.util.List;
 public class LayoutServiceCEImpl implements LayoutServiceCE {
 
     private final NewPageService newPageService;
-    private final ResponseUtils responseUtils;
     private final PagePermission pagePermission;
 
     @Override
@@ -39,16 +36,5 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
                     matchedLayout.setViewMode(viewMode);
                     return matchedLayout;
                 });
-    }
-
-    @Override
-    public Mono<Layout> getLayout(String defaultPageId, String layoutId, Boolean viewMode, String branchName) {
-        if (StringUtils.isEmpty(branchName)) {
-            return getLayout(defaultPageId, layoutId, viewMode);
-        }
-        return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                .flatMap(branchedPage -> getLayout(branchedPage.getId(), layoutId, viewMode))
-                .map(responseUtils::updateLayoutWithDefaultResources);
     }
 }

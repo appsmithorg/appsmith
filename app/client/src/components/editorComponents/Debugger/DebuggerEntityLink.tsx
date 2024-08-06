@@ -21,6 +21,8 @@ export type EntityLinkProps = {
 
 export function DebuggerEntityLink(props: {
   name: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onClick: any;
   entityType: ENTITY_TYPE;
   uiComponent: DebuggerLinkUI;

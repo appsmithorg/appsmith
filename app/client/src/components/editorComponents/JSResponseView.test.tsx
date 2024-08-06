@@ -69,6 +69,7 @@ const collectionData: JSCollectionData = {
   isLoading: false,
   config: {
     id: "12",
+    baseId: "b12",
     applicationId: "app1",
     workspaceId: "w1234",
     name: "asas",
@@ -82,6 +83,8 @@ const collectionData: JSCollectionData = {
 };
 
 describe("JSResponseView", () => {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   let store: any;
 
   beforeEach(() => {

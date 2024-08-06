@@ -79,6 +79,8 @@ function RepoLimitExceededErrorModal() {
   const [workspaceName, setWorkspaceName] = useState("");
   const applications = useMemo(() => {
     if (workspaces) {
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const workspace: any = workspaces.find((workspace: any) => {
         if (!application && workspaceIdForImport) {
           return workspace.id === workspaceIdForImport;

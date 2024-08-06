@@ -49,11 +49,11 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
     const path =
       appMode === APP_MODE.EDIT
         ? builderURL({
-            pageId: page.pageId,
+            basePageId: page.basePageId,
             params,
           })
         : viewerURL({
-            pageId: page.pageId,
+            basePageId: page.basePageId,
             params,
           });
 

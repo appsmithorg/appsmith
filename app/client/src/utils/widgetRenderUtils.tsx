@@ -47,6 +47,8 @@ export const createCanvasWidget = (
     ...evaluatedStaticProps,
     ...evaluatedWidgetConfig,
     ...widgetStaticProps,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } as any;
 
   return widgetProps;

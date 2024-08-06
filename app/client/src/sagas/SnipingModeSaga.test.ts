@@ -36,6 +36,8 @@ describe("SnipingModeSaga", () => {
 
     const store = testStore({
       entities: {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...({} as any),
         actions: [
           {
@@ -45,12 +47,16 @@ describe("SnipingModeSaga", () => {
         canvasWidgets: keyBy([widget], "widgetId"),
       },
       ui: {
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ...({} as any),
         editor: {
           snipModeBindTo: "module-instance-id",
         },
       },
     });
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const dispatched: any[] = [];
 
     await runSaga(

@@ -14,6 +14,9 @@ public class PageNameIdDTO {
     String id;
 
     @JsonView(Views.Public.class)
+    String baseId;
+
+    @JsonView(Views.Public.class)
     String name;
 
     @JsonView(Views.Public.class)
@@ -33,9 +36,4 @@ public class PageNameIdDTO {
 
     @JsonView(Views.Public.class)
     Set<String> userPermissions;
-
-    // This field will represent the default pageId for current page in git system where we are connecting resources
-    // among the branches
-    @JsonView(Views.Internal.class)
-    String defaultPageId;
 }

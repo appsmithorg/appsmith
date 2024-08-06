@@ -15,6 +15,8 @@ import type {
 
 interface Props {
   logEventName?: EventName;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   logEventData?: any;
   featureName?: RampFeature;
   sectionName?: RampSection;

@@ -3,6 +3,8 @@ import memoize from "micro-memoize";
 import { getAllDetachedWidgetIds, getWidgetsMeta } from "sagas/selectors";
 
 const getCurrentlyOpenWidgets = memoize(
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (allExistingDetachedWidgets: string[], metaWidgets: Record<string, any>) => {
     return allExistingDetachedWidgets.filter((detachedWidgetId) => {
       const detachedWidget = metaWidgets[detachedWidgetId];

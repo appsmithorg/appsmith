@@ -81,6 +81,8 @@ function HelpMenu(props: {
                 <Button
                   key={item.label}
                   kind="secondary"
+                  // TODO: Fix this the next time the file is edited
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   onClick={(e: any) => {
                     if (item.link) {
                       window.open(item.link, "_blank");

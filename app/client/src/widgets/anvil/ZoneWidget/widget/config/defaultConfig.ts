@@ -5,7 +5,10 @@ import {
 } from "WidgetProvider/constants";
 import { zonePreset } from "layoutSystems/anvil/layoutComponents/presets/zonePreset";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
+import {
+  FlexVerticalAlignment,
+  ResponsiveBehavior,
+} from "layoutSystems/common/utils/constants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
@@ -15,6 +18,7 @@ export const defaultConfig: WidgetDefaultProps = {
   children: [],
   columns: 0,
   responsiveBehavior: ResponsiveBehavior.Fill,
+  flexVerticalAlignment: FlexVerticalAlignment.Stretch,
   rows: 0,
   version: 1,
   widgetName: "Zone",

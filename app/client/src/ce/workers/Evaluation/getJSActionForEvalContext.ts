@@ -10,6 +10,8 @@ function getJSFunctionsForEntity({
   jsObjectName: string;
   jsObject: JSActionEntity;
 }) {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const jsObjectFunction: Record<string, any> = {};
   const resolvedFunctions = JSObjectCollection.getResolvedFunctions();
   const resolvedObject = Object.assign({}, resolvedFunctions[jsObjectName]);

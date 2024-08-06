@@ -20,6 +20,8 @@ import styled from "styled-components";
 
 interface Props {
   viewType: ViewTypes;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   customStyles: Record<string, any>;
   componentControlType: string;
   configProperty: string;
@@ -32,6 +34,8 @@ interface Props {
 interface HandlerProps {
   configProperty: string;
   formName: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   change: (formName: string, id: string, value: any) => void;
 }
 

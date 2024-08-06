@@ -56,42 +56,33 @@ describe("OnBoarding - Non-AirGap Edition", () => {
     expect(title).toBeInTheDocument();
   });
 
-  it("2. renders the onboarding component when drag and drop is enabled", () => {
+  it("2. does not render onboarding component when in preview mode", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
-    render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
-    const title = screen.getByText(
+    const previewModeStore = {
+      ...storeToUseWithDragDropBuildingBlocksEnabled,
+      ui: {
+        ...storeToUseWithDragDropBuildingBlocksEnabled.ui,
+        gitSync: {
+          protectedBranches: false,
+        },
+        editor: {
+          isPreviewMode: true,
+        },
+      },
+    };
+    render(BaseComponentRender(previewModeStore));
+
+    const buildingBlockOnboardingElement = screen.queryByText(
       createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
     );
-    expect(title).toBeInTheDocument();
-    const description = screen.getByText(
-      createMessage(
-        EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.DESCRIPTION,
-      ),
-    );
-    expect(description).toBeInTheDocument();
-  });
-
-  it("4. renders the onboarding component when drag and drop is enabled, with JS segment enabled", () => {
-    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.JS);
-    render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
-
-    const onboardingElement = screen.getByText(
+    const onboardingElement = screen.queryByText(
       createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
+    expect(buildingBlockOnboardingElement).not.toBeInTheDocument();
     expect(onboardingElement).toBeInTheDocument();
   });
 
-  it("5. renders the onboarding component when drag and drop is enabled, with Queries segment enabled", () => {
-    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.QUERIES);
-    render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
-
-    const onboardingElement = screen.getByText(
-      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
-    );
-    expect(onboardingElement).toBeInTheDocument();
-  });
-
-  it("6. does not render onboarding component when in preview mode", () => {
+  it("3. does not render onboarding component when in preview mode", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
     const previewModeStore = {
       ...storeToUseWithDragDropBuildingBlocksEnabled,

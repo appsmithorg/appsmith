@@ -12,7 +12,7 @@ import { createNavData } from "./common";
 
 export const getJsChildrenNavData = (
   jsAction: JSCollectionData,
-  pageId: string,
+  basePageId: string,
   dataTree: DataTree,
 ) => {
   let childNavData: EntityNavigationData = {};
@@ -27,8 +27,8 @@ export const getJsChildrenNavData = (
         type: ENTITY_TYPE.JSACTION,
         isfunction: true, // use this to identify function
         url: jsCollectionIdURL({
-          pageId,
-          collectionId: jsAction.config.id,
+          basePageId,
+          baseCollectionId: jsAction.config.baseId,
           functionName: jsChild.name,
         }),
         children: {},
@@ -44,8 +44,8 @@ export const getJsChildrenNavData = (
           type: ENTITY_TYPE.JSACTION,
           isfunction: false,
           url: jsCollectionIdURL({
-            pageId,
-            collectionId: jsAction.config.id,
+            basePageId,
+            baseCollectionId: jsAction.config.baseId,
             functionName: jsChild.name,
           }),
           children: {},

@@ -13,6 +13,8 @@ const StyledIframe = styled.iframe`
   height: ${(props) => props.height}px;
 `;
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function ExternalComponent(props: any) {
   const iframe = useRef<HTMLIFrameElement>(null);
 

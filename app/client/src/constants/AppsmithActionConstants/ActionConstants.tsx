@@ -34,6 +34,8 @@ export enum TriggerKind {
 export interface ExecuteTriggerPayload {
   dynamicString: string;
   event: ExecuteActionPayloadEvent;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   callbackData?: Array<any>;
   triggerPropertyName?: string;
   source?: TriggerSource;
@@ -165,6 +167,8 @@ export const POSTMAN = "POSTMAN";
 export const CURL = "CURL";
 export const Swagger = "Swagger";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const defaultActionSettings: Record<PluginType, any> = {
   [PluginType.API]: apiActionSettingsConfig,
   [PluginType.DB]: queryActionSettingsConfig,
@@ -175,6 +179,8 @@ export const defaultActionSettings: Record<PluginType, any> = {
   [PluginType.INTERNAL]: saasActionSettingsConfig,
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const defaultActionEditorConfigs: Record<PluginType, any> = {
   [PluginType.API]: apiActionEditorConfig,
   [PluginType.DB]: [],

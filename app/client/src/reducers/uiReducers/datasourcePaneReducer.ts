@@ -21,10 +21,10 @@ export interface DatasourcePaneReduxState {
   drafts: Record<string, Datasource>;
   expandDatasourceId: string;
   actionRouteInfo: Partial<{
-    apiId: string;
+    baseApiId: string;
     datasourceId: string;
-    parentEntityId: string;
-    applicationId: string;
+    baseParentEntityId: string;
+    baseApplicationId: string;
   }>;
   newDatasource: string;
   viewMode: boolean;

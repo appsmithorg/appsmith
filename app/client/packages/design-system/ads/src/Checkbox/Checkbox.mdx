@@ -1,0 +1,64 @@
+import { Canvas, Meta } from "@storybook/blocks";
+
+import * as CheckboxStories from "./Checkbox.stories";
+
+<Meta of={CheckboxStories} />
+
+# Checkbox
+
+Checkboxes are form based elements. They require an explicit confirmation (usually via a save or a submit button) for their values to be stored. The result of the action should be communicated to the user (how?).
+
+Checkboxes can also be used to allow users to select multiple options from a group. When using checkboxes, ensure clear and accurate labeling to convey the meaning of each checkbox. Provide feedback to users when a checkbox is selected or deselected, such as displaying a message. Avoid using an excessive number of checkboxes on a single page to prevent overwhelming the user with excessive options.
+
+> TODO: How can one provide feedback to users when a checkbox is selected or deselected?
+
+<Canvas of={CheckboxStories.CheckboxStory} />
+
+## Anatomy
+
+1. **Checkbox**: The selection control.
+2. **Checkbox label**: Text label associated with the checkbox
+
+### Copy
+
+- Provide clear and descriptive labels for each checkbox option.
+- Start all checkbox labels with a capital letter.
+- Don't include punctuation after checkbox labels.
+
+![Checkbox anatomy](./docs/checkbox-anatomy.png)
+
+## Spacing
+
+![Checkbox spacing](./docs/checkbox-spacing.png)
+
+## Usage
+
+### When to use
+
+- To present multiple options that can each be selected.
+- For changes that require confirmation after selection.
+
+### When not to use
+
+- When only one of multiple options can be selected — use a [radio group](https://design-system.appsmith.com/?path=/docs/design-system-radio--documentation).
+- You want to group multiple options together into a single basic choice — use a [radio group](https://design-system.appsmith.com/?path=/docs/design-system-radio--documentation).
+- For single on/off settings with an instant response — use a [switch](https://design-system.appsmith.com/?path=/docs/design-system-switch--documentation).
+- Limited space: When there is limited space available for options or when the list of options is lengthy — use a [Select](https://design-system.appsmith.com/?path=/docs/design-system-select--documentation). You can even configure the select to allow picking multiple options.
+
+## States
+
+### Checked
+
+The state of the checkbox is handled internally by default. If you need the state of the checkbox, you can control it yourself via the `isSelected` and `onChange` props.
+
+<Canvas of={CheckboxStories.CheckboxCheckedStory} />
+
+### Disabled
+
+<Canvas of={CheckboxStories.CheckboxDisabledStory} />
+
+### Indeterminate
+
+Indeterminate state is typically used in a table, or some other group, to convey that some of the children checkboxes have been ticked and others have not. You can find an example of this usage in the audit logs.
+
+<Canvas of={CheckboxStories.CheckboxIndeterminateStory} />

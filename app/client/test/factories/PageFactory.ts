@@ -13,6 +13,7 @@ function generateRandomHexId() {
 export const PageFactory = Factory.Sync.makeFactory<Page>({
   pageName: Factory.each((i) => `Page${i + 1}`),
   pageId: Factory.each(() => generateRandomHexId()),
+  basePageId: Factory.each(() => generateRandomHexId()),
   isDefault: false,
   isHidden: false,
   slug: Factory.each((i) => `pageSlug${i + 1}`),

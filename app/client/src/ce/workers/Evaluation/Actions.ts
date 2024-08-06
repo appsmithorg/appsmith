@@ -118,6 +118,8 @@ export const addEntityFunctionsToEvalContext = (
   }
 };
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const addPlatformFunctionsToEvalContext = (context: any) => {
   for (const fnDef of getPlatformFunctions()) {
     addFn(context, fnDef.name, fnDef.fn.bind(context));

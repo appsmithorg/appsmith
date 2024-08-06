@@ -7,10 +7,12 @@ const pageId = "0123456789abcdef00000000";
 export const APIFactory = Factory.Sync.makeFactory<ApiAction>({
   name: Factory.each((i) => `Api${i + 1}`),
   id: "api_id",
+  baseId: "api_base_id",
   pageId: pageId,
   pluginId: PluginIDs[PluginPackageName.REST_API],
   pluginType: PluginType.API,
   workspaceId: "workspaceId",
+  applicationId: "applicationId",
   actionConfiguration: {
     timeoutInMillisecond: 10000,
     paginationType: PaginationType.NONE,

@@ -158,7 +158,9 @@ const Header = () => {
     FEATURE_FLAG.license_private_embeds_enabled,
   );
 
-  const deployLink = useHref(viewerURL, { pageId });
+  const deployLink = useHref(viewerURL, {
+    basePageId: currentPage?.basePageId,
+  });
 
   const updateApplicationDispatch = (
     id: string,

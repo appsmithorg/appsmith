@@ -45,6 +45,8 @@ function* updateZonesCountOfSectionSaga(
       if (sectionWidget && sectionWidget.children) {
         // Determine the current zones' order within the section
         const zoneOrder: string[] = sectionWidget.layout[0].layout.map(
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (each: any) => each.widgetId,
         );
 

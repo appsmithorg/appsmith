@@ -6,6 +6,8 @@ import Group from "./group";
 import { SETTINGS_FORM_NAME } from "@appsmith/constants/forms";
 import { reduxForm } from "redux-form";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let container: any = null;
 const settings: Setting[] = [
   {
@@ -26,6 +28,8 @@ function renderComponent() {
   function GroupComponent() {
     return <Group category="test" name="test" settings={settings} />;
   }
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const Parent = reduxForm<any, any>({
     validate: () => {
       return {};

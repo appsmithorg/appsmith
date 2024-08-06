@@ -4,16 +4,14 @@ import { EditorState } from "@appsmith/entities/IDE/constants";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { useSelector } from "react-redux";
-import {
-  combinedPreviewModeSelector,
-  getCurrentApplication,
-} from "selectors/editorSelectors";
-import { PageViewWrapper } from "pages/AppViewer/AppPage.styled";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { PageViewWrapper } from "pages/AppViewer/AppPage";
 import classNames from "classnames";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import {
   getAppSidebarPinned,
+  getCurrentApplication,
   getSidebarWidth,
 } from "@appsmith/selectors/applicationSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";

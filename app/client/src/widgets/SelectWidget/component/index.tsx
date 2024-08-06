@@ -40,6 +40,8 @@ class SelectComponent extends React.Component<
   SelectComponentProps,
   SelectComponentState
 > {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   listRef: any = React.createRef();
   labelRef = React.createRef<HTMLDivElement>();
   spanRef = React.createRef<HTMLSpanElement>();
@@ -205,6 +207,8 @@ class SelectComponent extends React.Component<
     </MenuItem>
   );
   itemListRenderer = (
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     props: IItemListRendererProps<any>,
   ): JSX.Element | null => {
     if (!this.state.isOpen) return null;
@@ -226,6 +230,8 @@ class SelectComponent extends React.Component<
   renderList = (
     items: DropdownOption[],
     activeItemIndex: number | null,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     renderItem: (item: any, index: number) => JSX.Element | null,
   ): JSX.Element | null => {
     // Don't scroll if the list is filtered.
@@ -236,6 +242,8 @@ class SelectComponent extends React.Component<
       optionsCount * ITEM_SIZE > MAX_RENDER_MENU_ITEMS_HEIGHT
         ? activeItemIndex * ITEM_SIZE
         : 0;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const RowRenderer = (itemProps: any) => (
       <div key={itemProps.index} style={itemProps.style}>
         {renderItem(items[itemProps.index], itemProps.index)}

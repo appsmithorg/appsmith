@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce_compatible;
 
 import com.appsmith.server.applications.base.ApplicationServiceCEImpl;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
@@ -25,7 +24,6 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
             ApplicationRepository repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
-            ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
             NewActionRepository newActionRepository,
             AssetService assetService,
@@ -40,7 +38,6 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
                 repository,
                 analyticsService,
                 policySolution,
-                responseUtils,
                 permissionGroupService,
                 newActionRepository,
                 assetService,

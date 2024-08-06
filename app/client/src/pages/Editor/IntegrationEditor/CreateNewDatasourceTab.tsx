@@ -87,7 +87,8 @@ function CreateNewAPI({
   isCreating,
   isOnboardingScreen,
   pageId,
-  showUnsupportedPluginDialog,
+  showUnsupportedPluginDialog, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const newAPIRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
@@ -126,7 +127,8 @@ function CreateNewDatasource({
   isOnboardingScreen,
   pageId,
   showMostPopularPlugins,
-  showUnsupportedPluginDialog,
+  showUnsupportedPluginDialog, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const editorType = useEditorType(location.pathname);
   const { editorId, parentEntityId, parentEntityType } =
@@ -171,7 +173,8 @@ function CreateNewSaasIntegration({
   active,
   isCreating,
   pageId,
-  showUnsupportedPluginDialog,
+  showUnsupportedPluginDialog, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const newSaasAPIRef = useRef<HTMLDivElement>(null);
   const isMounted = useRef(false);
@@ -210,7 +213,8 @@ function CreateNewSaasIntegration({
 function CreateNewAIIntegration({
   isCreating,
   pageId,
-  showUnsupportedPluginDialog,
+  showUnsupportedPluginDialog, // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 }: any) {
   const isAirgappedInstance = isAirgapped();
 
@@ -353,6 +357,7 @@ const mapStateToProps = (state: AppState) => {
   const pageId = !!onboardingAppId
     ? onboardingApplication?.defaultPageId || ""
     : getCurrentPageId(state);
+
   const showDebugger = showDebuggerFlag(state);
   const userWorkspacePermissions =
     getCurrentAppWorkspace(state).userPermissions ?? [];

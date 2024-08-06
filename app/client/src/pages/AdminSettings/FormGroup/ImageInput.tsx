@@ -11,7 +11,11 @@ import { ContentBox } from "../components";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 interface ImageInputProps {
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value?: any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange?(value?: any): void;
   validate?(
     e: React.ChangeEvent<HTMLInputElement>,
@@ -64,6 +68,8 @@ export const ImageInput = (props: ImageInputProps) => {
       <img
         alt="Preview"
         className="h-8"
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         src={getAssetUrl((preview as any) || value)}
       />
       <div className="absolute inset-0 items-center justify-center hidden gap-2 group-hover:flex bg-opacity-20 hover-state">

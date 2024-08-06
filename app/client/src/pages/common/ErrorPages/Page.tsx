@@ -23,6 +23,8 @@ interface PageProps {
   title?: string;
   description?: string;
   cta?: React.ReactNode;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   flushErrorsAndRedirect?: any;
   errorMessages?: PageErrorMessageProps[];
 }

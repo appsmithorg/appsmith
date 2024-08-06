@@ -116,18 +116,26 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
       positioning: Positioning.Fixed,
       enhancements: {
         child: {
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           autocomplete: (parentProps: any) => {
             return parentProps.childAutoComplete;
           },
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           updateDataTreePath: (parentProps: any, dataTreePath: string) => {
             return `${parentProps.widgetName}.template.${dataTreePath}`;
           },
+          // TODO: Fix this the next time the file is edited
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           shouldHideProperty: (parentProps: any, propertyName: string) => {
             if (propertyName === "dynamicHeight") return true;
 
             return false;
           },
           propertyUpdateHook: (
+            // TODO: Fix this the next time the file is edited
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             parentProps: any,
             widgetName: string,
             propertyPath: string,
@@ -324,13 +332,19 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
               widgets: { [widgetId: string]: FlattenedWidgetProps },
             ) => {
               let template = {};
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const logBlackListMap: any = {};
               const container = get(
                 widgets,
                 `${get(widget, "children.0.children.0")}`,
               );
               const canvas = get(widgets, `${get(container, "children.0")}`);
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               let updatePropertyMap: any = [];
+              // TODO: Fix this the next time the file is edited
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const dynamicBindingPathList: any[] = get(
                 widget,
                 "dynamicBindingPathList",
@@ -628,6 +642,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
    */
   generateChildrenEntityDefinitions(props: ListWidgetProps<WidgetProps>) {
     const template = props.template;
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const childrenEntityDefinitions: Record<string, any> = {};
 
     if (template) {
@@ -812,6 +828,8 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
     return {};
   }
 
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static getMetaPropertiesMap(): Record<string, any> {
     return {
       pageNo: 1,
@@ -1309,9 +1327,17 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
   getCanvasChildren = memoizeOne(
     (
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       template: any,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       listData: any,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       staticTemplate: any,
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       canvasChildren: any,
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -1335,10 +1361,14 @@ class ListWidget extends BaseWidget<ListWidgetProps<WidgetProps>, WidgetState> {
 
       return canvasChildren;
     },
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (prev: any, next: any) => this.compareProps(prev, next),
   );
 
   // DeepEqual Comparison
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   compareProps = (prev: any[], next: any[]) => {
     return (
       equal(prev[0], next[0]) &&

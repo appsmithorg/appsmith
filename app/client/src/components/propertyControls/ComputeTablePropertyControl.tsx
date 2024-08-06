@@ -41,6 +41,8 @@ export function InputText(props: {
   label: string;
   value: string;
   onChange: (event: React.ChangeEvent<HTMLTextAreaElement> | string) => void;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   evaluatedValue?: any;
   expected?: CodeEditorExpected;
   placeholder?: string;
@@ -116,6 +118,8 @@ class ComputeTablePropertyControl extends BaseControl<ComputeTablePropertyContro
 
     const columns: Record<string, ColumnProperties> =
       evaluatedProperties.primaryColumns || {};
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const currentRow: { [key: string]: any } = {};
     Object.keys(columns).forEach((id: string) => {
       currentRow[id] = undefined;

@@ -68,6 +68,7 @@ function CopyUrlForm(props: {
         endIcon="duplicate"
         endIconProps={{
           className: "copy-icon",
+          // @ts-expect-error Fix this the next time the file is edited
           "data-testid": `${fieldName}-copy-icon`,
           onClick: handleCopy,
         }}

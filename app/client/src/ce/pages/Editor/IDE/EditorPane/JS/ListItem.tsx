@@ -16,7 +16,7 @@ export const JSListItem = (props: JSListItemProps) => {
   return (
     <Flex data-testid="t--ide-list-item" flexDirection={"column"}>
       <ExplorerJSCollectionEntity
-        id={item.key}
+        baseCollectionId={item.key}
         isActive={isActive}
         key={item.key}
         parentEntityId={parentEntityId}

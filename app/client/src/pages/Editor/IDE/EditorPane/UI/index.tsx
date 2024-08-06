@@ -18,6 +18,7 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
+import { DEFAULT_EXPLORER_PANE_WIDTH } from "constants/AppConstants";
 
 const UISegment = () => {
   const { path } = useRouteMatch();
@@ -41,6 +42,7 @@ const UISegment = () => {
       flexDirection="column"
       gap="spaces-3"
       overflow="hidden"
+      width={DEFAULT_EXPLORER_PANE_WIDTH - 1 + "px"}
     >
       <Switch>
         <SentryRoute

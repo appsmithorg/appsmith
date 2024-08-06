@@ -21,7 +21,7 @@
     "rollup-plugin-generate-package-json": "^3.2.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-typescript2": "^0.32.0",
-    "typescript": "4.5.5"
+    "typescript": "^5.5.4"
   },
   "devDependencies": {
     "@rollup/plugin-json": "^6.0.0",

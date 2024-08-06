@@ -11,6 +11,7 @@ import { INTEGRATION_TABS } from "constants/routes";
 import {
   getApplicationLastDeployedAt,
   getCurrentApplicationId,
+  getCurrentBasePageId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import history from "utils/history";
@@ -346,6 +347,7 @@ export default function OnboardingChecklist() {
   const dispatch = useDispatch();
   const datasources = useSelector(getSavedDatasources);
   const pageId = useSelector(getCurrentPageId);
+  const basePageId = useSelector(getCurrentBasePageId);
   const actions = useSelector(getPageActions(pageId));
   const widgets = useSelector(getCanvasWidgets);
   const isConnectionPresent = useSelector(isWidgetActionConnectionPresent);
@@ -365,16 +367,16 @@ export default function OnboardingChecklist() {
   const onconnectYourWidget = () => {
     const action = actions[0];
     dispatch(showSignpostingModal(false));
-    if (action && applicationId && pageId) {
+    if (action && applicationId && basePageId) {
       dispatch(
         bindDataOnCanvas({
           queryId: action.config.id,
           applicationId,
-          pageId,
+          basePageId,
         }),
       );
     } else {
-      history.push(builderURL({ pageId }));
+      history.push(builderURL({ basePageId }));
     }
     AnalyticsUtil.logEvent("SIGNPOSTING_MODAL_CONNECT_WIDGET_CLICK");
   };
@@ -496,7 +498,7 @@ export default function OnboardingChecklist() {
 
             history.push(
               integrationEditorURL({
-                pageId,
+                basePageId,
                 selectedTab: INTEGRATION_TABS.NEW,
               }),
             );
@@ -517,7 +519,7 @@ export default function OnboardingChecklist() {
             dispatch(showSignpostingModal(false));
             history.push(
               integrationEditorURL({
-                pageId,
+                basePageId,
                 selectedTab: INTEGRATION_TABS.ACTIVE,
               }),
             );
@@ -543,7 +545,7 @@ export default function OnboardingChecklist() {
             dispatch(showSignpostingModal(false));
             dispatch(toggleInOnboardingWidgetSelection(true));
             dispatch(forceOpenWidgetPanel(true));
-            history.push(builderURL({ pageId }));
+            history.push(builderURL({ basePageId }));
           }}
           step={SIGNPOSTING_STEP.ADD_WIDGETS}
           testid={"checklist-widget"}

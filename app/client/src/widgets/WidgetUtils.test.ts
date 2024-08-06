@@ -346,6 +346,8 @@ describe("Test widget utility functions", () => {
     // Case 1:
     expect(
       boxShadowMigration(
+        // TODO: Fix this the next time the file is edited
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         tableWidgetProps.dynamicBindingPathList as any,
         "action",
         "0px 0px 4px 3px rgba(0, 0, 0, 0.25)",
@@ -372,8 +374,12 @@ describe("Test widget utility functions", () => {
     );
     // Assign values to boxShadow and boxShadowColor
     tableWidgetProps.primaryColumns.action.boxShadow = "VARIANT1";
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tableWidgetProps.primaryColumns.action.boxShadowColor = "blue" as any;
     let newBoxShadow = boxShadowMigration(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableWidgetProps.dynamicBindingPathList as any,
       "action",
       tableWidgetProps.primaryColumns.action.boxShadow,
@@ -382,9 +388,13 @@ describe("Test widget utility functions", () => {
     expect(newBoxShadow).toEqual("0px 0px 4px 3px blue");
 
     tableWidgetProps.primaryColumns.action.boxShadow = "VARIANT1";
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tableWidgetProps.primaryColumns.action.boxShadowColor = "" as any; // Add empty boxShadowColor.
 
     newBoxShadow = boxShadowMigration(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableWidgetProps.dynamicBindingPathList as any,
       "action",
       tableWidgetProps.primaryColumns.action.boxShadow,
@@ -412,6 +422,8 @@ describe("Test widget utility functions", () => {
       "orange",
     ];
     newBoxShadow = boxShadowMigration(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableWidgetProps.dynamicBindingPathList as any,
       "action",
       tableWidgetProps.primaryColumns.action.boxShadow,
@@ -420,10 +432,14 @@ describe("Test widget utility functions", () => {
     expect(newBoxShadow).toEqual("0px 0px 4px 3px orange");
 
     tableWidgetProps.primaryColumns.action.boxShadow = "VARIANT1";
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     tableWidgetProps.primaryColumns.action.boxShadowColor = ["", "", ""] as any; // Add empty boxShadowColor when dynamic
 
     // Add empty boxShadowColor.
     newBoxShadow = boxShadowMigration(
+      // TODO: Fix this the next time the file is edited
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tableWidgetProps.dynamicBindingPathList as any,
       "action",
       tableWidgetProps.primaryColumns.action.boxShadow,
@@ -437,6 +453,8 @@ type composePropertyUpdateHookInputType = Array<
   (
     props: unknown,
     propertyPath: string,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     propertyValue: any,
   ) => PropertyUpdates[] | undefined
 >;
@@ -472,6 +490,8 @@ describe("composePropertyUpdateHook", () => {
   });
 
   it("should test that calling the function without any function returns undefined", () => {
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const input: any = [];
 
     const expected = undefined;

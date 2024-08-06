@@ -122,8 +122,12 @@ export interface SearchCategory {
   show?: () => boolean;
 }
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function getOptionalFilters(optionalFilterMeta: any) {
   return Object.entries(optionalFilterMeta || {}).reduce(
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (acc: Array<string>, [key, value]: any) => {
       value.forEach((value: string) => acc.push(`${key}:${value}`));
       return acc;
@@ -162,6 +166,8 @@ export const getFilterCategoryList = () =>
     return cat.show ? cat.show() : true;
   });
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SearchItem = Datasource | any;
 
 // todo better checks here?
@@ -223,6 +229,8 @@ export const getItemPage = (item: SearchItem): string => {
 
 export const algoliaHighlightTag = "ais-highlight-0000000000";
 
+// TODO: Fix this the next time the file is edited
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const attachKind = (source: any[], kind: string) => {
   return source.map((s) => ({
     ...s,
@@ -232,6 +240,8 @@ export const attachKind = (source: any[], kind: string) => {
 
 export const getEntityId = (entity: {
   entityType: FocusEntity;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   [key: string]: any;
 }) => {
   const { entityType } = entity;
@@ -255,13 +265,19 @@ export const getEntityId = (entity: {
 export interface ActionOperation {
   title: string;
   desc: string;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   icon?: any;
   kind: SEARCH_ITEM_TYPES;
   action?: (
     entityId: string,
     location: EventLocation,
     entityType?: ActionParentEntityTypeInterface,
+    // TODO: Fix this the next time the file is edited
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ) => any;
+  // TODO: Fix this the next time the file is edited
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   redirect?: (entityId: string, location: EventLocation) => any;
   pluginId?: string;
   focusEntityType?: FocusEntity;

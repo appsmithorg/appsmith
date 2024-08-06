@@ -2,8 +2,10 @@ import { JSResponseState } from "./JSResponseView";
 import { getJSResponseViewState } from "./utils";
 
 const TEST_JS_FUNCTION_ID = "627ccff468e1fa5185b7f901";
+const TEST_JS_FUNCTION_BASE_ID = "627ccff468e1fa5185b7f912";
 const TEST_JS_FUNCTION = {
   id: TEST_JS_FUNCTION_ID,
+  baseId: TEST_JS_FUNCTION_BASE_ID,
   applicationId: "627aaf637e9e9b75e43ad2ff",
   workspaceId: "61e52bb4847aa804d79fc7c1",
   pluginType: "JS",
