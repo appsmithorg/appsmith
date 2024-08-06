@@ -19,10 +19,7 @@ describe(
       // EditorNavigation.SelectEntityByName("RichTextEditor1", EntityType.Widget);
       entityExplorer.DragDropWidgetNVerify("richtexteditorwidget", 500, 200);
       cy.waitUntil(() =>
-        cy.validateToolbarVisible(
-          formWidgetsPage.richTextEditorWidget,
-          commonlocators.rteToolbar,
-        ),
+        cy.get(locators._richText_TitleBlock).should("be.visible"),
       );
     });
 

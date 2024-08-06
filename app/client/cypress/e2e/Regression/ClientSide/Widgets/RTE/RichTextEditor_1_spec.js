@@ -1,3 +1,5 @@
+import { locators } from "../../../../../support/Objects/ObjectsCore";
+
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publishPage = require("../../../../../locators/publishWidgetspage.json");
@@ -39,10 +41,7 @@ describe(
     before(() => {
       _.agHelper.AddDsl("formdsl1");
       cy.waitUntil(() =>
-        cy.validateToolbarVisible(
-          formWidgetsPage.richTextEditorWidget,
-          commonlocators.rteToolbar,
-        ),
+        cy.get(locators._richText_TitleBlock).should("be.visible"),
       );
     });
 
