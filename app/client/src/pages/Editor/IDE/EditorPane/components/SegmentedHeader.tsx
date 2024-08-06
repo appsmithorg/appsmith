@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   AnnouncementPopover,
   AnnouncementPopoverContent,
@@ -29,6 +29,11 @@ import clsx from "clsx";
 const Container = styled(Flex)`
   #editor-pane-segment-control {
     max-width: 247px;
+
+    &.overlay-active > [data-selected="true"] {
+      outline: 2px solid #8bb0fa;
+      box-shadow: 0 0 0 0 #8bb0fa;
+    }
   }
 
   button {
@@ -76,6 +81,21 @@ const LabelWithTutorial = ({
 }) => {
   const basePageId = useSelector(getCurrentBasePageId);
   const [open, setOpen] = useState(true);
+  const overlayEle = document.getElementById("editor-pane-segment-control");
+
+  const removeOverlay = useCallback(() => {
+    if (overlayEle) {
+      overlayEle.classList.remove("overlay-active");
+    }
+  }, [overlayEle]);
+
+  useEffect(() => {
+    if (open) {
+      overlayEle?.classList.add("overlay-active");
+    } else {
+      removeOverlay();
+    }
+  }, [open, overlayEle, removeOverlay]);
 
   const nextClickHandler = (_type: EditorEntityTab, backward = false) => {
     switch (_type) {
@@ -100,6 +120,7 @@ const LabelWithTutorial = ({
           );
           localStorage.setItem(LOCAL_STORAGE_KEYS.SEGMENT_INTRO_MODAL, "2");
         } else {
+          removeOverlay();
           setOpen(false);
           localStorage.setItem(LOCAL_STORAGE_KEYS.SEGMENT_INTRO_MODAL, "4");
         }
@@ -201,7 +222,7 @@ const LabelWithTutorial = ({
   return (
     <AnnouncementPopover open={open}>
       <AnnouncementPopoverTrigger>
-        <a className="!no-underline hover:text-inherit">{label}</a>
+        <a className="!no-underline hover:text-inherit p-[4px]">{label}</a>
       </AnnouncementPopoverTrigger>
       <AnnouncementPopoverContent
         collisionPadding={8}
