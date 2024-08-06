@@ -4,7 +4,8 @@
   "description": "",
   "main": "cypress-local-setup.js",
   "scripts": {
-    "setup": "node cypress-local-setup.js"
+    "setup": "node cypress-local-setup.js",
+    "setupWithServer": "node cypress-local-client-server-setup.js"
   },
   "author": "",
   "license": "ISC",
