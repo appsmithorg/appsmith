@@ -1,5 +1,5 @@
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
-import { DataTreeDiffEvent } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
+import { DataTreeDiffEvent } from "ee/workers/Evaluation/evaluationUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { ConfigTree } from "entities/DataTree/dataTreeTypes";

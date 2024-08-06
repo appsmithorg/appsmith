@@ -1,4 +1,4 @@
-import type { Workflow } from "@appsmith/constants/WorkflowConstants";
+import type { Workflow } from "ee/constants/WorkflowConstants";
 
 interface Props {
   workflowsList: Workflow[];

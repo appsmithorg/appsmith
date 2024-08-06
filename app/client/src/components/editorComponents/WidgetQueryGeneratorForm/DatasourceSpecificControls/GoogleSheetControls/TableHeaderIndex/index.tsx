@@ -2,7 +2,7 @@ import {
   createMessage,
   GEN_CRUD_TABLE_HEADER_LABEL,
   GEN_CRUD_TABLE_HEADER_TOOLTIP_DESC,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import { Colors } from "constants/Colors";
 import { Icon } from "design-system";
 import { Tooltip } from "design-system";

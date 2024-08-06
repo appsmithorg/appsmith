@@ -4,7 +4,7 @@ import {
   GOOGLE_RECAPTCHA_KEY_ERROR,
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 import type { ButtonComponentProps } from ".";
 import type { RecaptchaProps } from "./useRecaptcha";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";

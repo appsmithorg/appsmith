@@ -7,7 +7,7 @@ import type {
 } from "components/editorComponents/CodeEditor";
 import type CodeEditor from "components/editorComponents/CodeEditor";
 import CodeEditorFallback from "./CodeEditorFallback";
-import { CODE_EDITOR_LOADING_ERROR } from "@appsmith/constants/messages";
+import { CODE_EDITOR_LOADING_ERROR } from "ee/constants/messages";
 import assertNever from "assert-never/index";
 import log from "loglevel";
 import { toast } from "design-system";

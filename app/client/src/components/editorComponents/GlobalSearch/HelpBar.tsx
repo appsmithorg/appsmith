@@ -4,12 +4,12 @@ import { connect, useSelector } from "react-redux";
 import { getTypographyByKey, Text, TextType } from "design-system-old";
 import { Icon } from "design-system";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
-import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { HELPBAR_PLACEHOLDER } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { modText } from "utils/helpers";
 import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
 const StyledHelpBar = styled.button<{ isSideBySideFlagEnabled?: boolean }>`

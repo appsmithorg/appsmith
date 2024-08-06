@@ -2,7 +2,7 @@ import * as React from "react";
 import type { ComponentProps } from "widgets/BaseComponent";
 import styled from "styled-components";
 import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
-import { createMessage, IMAGE_LOAD_ERROR } from "@appsmith/constants/messages";
+import { createMessage, IMAGE_LOAD_ERROR } from "ee/constants/messages";
 import { importSvg } from "design-system-old";
 
 const RotateLeftIcon = importSvg(

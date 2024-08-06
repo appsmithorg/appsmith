@@ -1,9 +1,9 @@
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { getEntityNameAndPropertyPath } from "ee/workers/Evaluation/evaluationUtils";
 import { klona } from "klona/full";
 import { get, set } from "lodash";
 import TriggerEmitter, { BatchKey } from "../fns/utils/TriggerEmitter";
 import ExecutionMetaData from "../fns/utils/ExecutionMetaData";
-import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
+import type { JSActionEntity } from "ee/entities/DataTree/types";
 
 export enum PatchType {
   "SET" = "SET",

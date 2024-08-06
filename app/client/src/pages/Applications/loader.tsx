@@ -4,7 +4,7 @@ import { retryPromise } from "utils/AppsmithUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { connect } from "react-redux";
 import { showDebugger } from "actions/debuggerActions";
 
@@ -30,7 +30,7 @@ class ApplicationListLoader extends React.PureComponent<any, { Page: any }> {
     retryPromise(
       async () =>
         import(
-          /* webpackChunkName: "applications" */ "@appsmith/pages/Applications/index"
+          /* webpackChunkName: "applications" */ "ee/pages/Applications/index"
         ),
     ).then((module) => {
       this.setState({ Page: module.default });

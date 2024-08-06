@@ -1,4 +1,4 @@
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import { Icon } from "design-system";
 import type { Placement, PopperOptions } from "popper.js";
 import PopperJS from "popper.js";

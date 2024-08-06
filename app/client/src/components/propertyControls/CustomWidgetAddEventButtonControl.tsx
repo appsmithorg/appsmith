@@ -5,11 +5,8 @@ import BaseControl from "./BaseControl";
 import { Button, Input, Icon } from "design-system";
 import type { WidgetProps } from "widgets/BaseWidget";
 import styled from "styled-components";
-import {
-  CUSTOM_WIDGET_FEATURE,
-  createMessage,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { CUSTOM_WIDGET_FEATURE, createMessage } from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 interface ButtonControlState {
   showInput: boolean;

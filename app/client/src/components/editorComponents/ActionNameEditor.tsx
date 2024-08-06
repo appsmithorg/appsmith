@@ -6,14 +6,11 @@ import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
 import { removeSpecialChars } from "utils/helpers";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 
 import { saveActionName } from "actions/pluginActionActions";
 import { Flex } from "design-system";
-import {
-  getActionByBaseId,
-  getPlugin,
-} from "@appsmith/selectors/entitiesSelector";
+import { getActionByBaseId, getPlugin } from "ee/selectors/entitiesSelector";
 import NameEditorComponent, {
   IconBox,
   IconWrapper,
@@ -23,10 +20,10 @@ import {
   ACTION_ID_NOT_FOUND_IN_URL,
   ACTION_NAME_PLACEHOLDER,
   createMessage,
-} from "@appsmith/constants/messages";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+} from "ee/constants/messages";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import { getSavingStatusForActionName } from "selectors/actionSelectors";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 
 interface SaveActionNameParams {
   id: string;

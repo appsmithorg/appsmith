@@ -8,8 +8,8 @@ import {
   createMessage,
   PAGE_NOT_FOUND,
   PAGE_NOT_FOUND_TITLE,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 
 import Page from "./Page";
 

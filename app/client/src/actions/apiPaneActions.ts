@@ -1,8 +1,8 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "ee/constants/ReduxActionConstants";
+import type { EventLocation } from "ee/utils/analyticsUtilTypes";
 import type { SlashCommandPayload } from "entities/Action";
-import type { ApiPaneDebuggerState } from "@appsmith/reducers/uiReducers/apiPaneReducer";
+import type { ApiPaneDebuggerState } from "ee/reducers/uiReducers/apiPaneReducer";
 
 export const changeApi = (
   id: string,

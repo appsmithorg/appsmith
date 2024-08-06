@@ -1,15 +1,15 @@
 import ApplicationApi, {
   type exportApplicationRequest,
-} from "@appsmith/api/ApplicationApi";
+} from "ee/api/ApplicationApi";
 import type {
   ApplicationPayload,
   ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+} from "ee/constants/ReduxActionConstants";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import { toast } from "design-system";
 import { getFlexLayersForSelectedWidgets } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
@@ -22,10 +22,7 @@ import {
 import { validateResponse } from "../ErrorSagas";
 import { createWidgetCopy } from "../WidgetOperationUtils";
 import { getWidgets } from "../selectors";
-import {
-  createMessage,
-  ERROR_IN_EXPORTING_APP,
-} from "@appsmith/constants/messages";
+import { createMessage, ERROR_IN_EXPORTING_APP } from "ee/constants/messages";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 

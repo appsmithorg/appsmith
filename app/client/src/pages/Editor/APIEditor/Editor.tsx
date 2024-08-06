@@ -2,14 +2,14 @@ import React from "react";
 import { connect } from "react-redux";
 import { submit } from "redux-form";
 import RestApiEditorForm from "./RestAPIForm";
-import type { AppState } from "@appsmith/reducers";
+import type { AppState } from "ee/reducers";
 import type { RouteComponentProps } from "react-router";
 import type {
   ActionData,
   ActionDataState,
-} from "@appsmith/reducers/entityReducers/actionsReducer";
+} from "ee/reducers/entityReducers/actionsReducer";
 import _ from "lodash";
-import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import { getCurrentApplication } from "ee/selectors/applicationSelectors";
 import {
   getCurrentApplicationId,
   getCurrentPageName,
@@ -27,14 +27,14 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import * as Sentry from "@sentry/react";
 import EntityNotFoundPane from "pages/Editor/EntityNotFoundPane";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import type { ApplicationPayload } from "ee/constants/ReduxActionConstants";
 import {
   getActionByBaseId,
   getPageList,
   getPlugins,
-} from "@appsmith/selectors/entitiesSelector";
+} from "ee/selectors/entitiesSelector";
 import history from "utils/history";
-import { saasEditorApiIdURL } from "@appsmith/RouteBuilder";
+import { saasEditorApiIdURL } from "ee/RouteBuilder";
 import GraphQLEditorForm from "./GraphQL/GraphQLEditorForm";
 import type { APIEditorRouteParams } from "constants/routes";
 import { ApiEditorContext } from "./ApiEditorContext";

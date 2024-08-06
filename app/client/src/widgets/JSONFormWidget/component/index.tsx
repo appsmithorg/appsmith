@@ -20,7 +20,7 @@ import {
   JSON_FORM_CONNECT_BUTTON_TEXT,
   JSON_FORM_CONNECT_OVERLAY_TEXT,
 } from "../constants/messages";
-import { createMessage } from "@appsmith/constants/messages";
+import { createMessage } from "ee/constants/messages";
 
 interface StyledContainerProps {
   backgroundColor?: string;

@@ -1,6 +1,6 @@
 //check difference for after body change and parsing
 import type { JSCollection, JSAction, Variable } from "entities/JSCollection";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AppsmithConsole from "utils/AppsmithConsole";
 

@@ -1,11 +1,8 @@
-import {
-  createMessage,
-  SELECT_ALL_WIDGETS_MSG,
-} from "@appsmith/constants/messages";
+import { createMessage, SELECT_ALL_WIDGETS_MSG } from "ee/constants/messages";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { uniq } from "lodash";
 import type {

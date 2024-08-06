@@ -6,11 +6,11 @@ import type {
   UpdateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import { updateisBetaCardShownAction } from "actions/appThemingActions";
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { ReduxAction } from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put, select, call } from "redux-saga/effects";
 import { toast } from "design-system";
@@ -19,11 +19,11 @@ import {
   createMessage,
   DELETE_APP_THEME,
   SET_DEFAULT_SELECTED_THEME,
-} from "@appsmith/constants/messages";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+} from "ee/constants/messages";
+import { ENTITY_TYPE } from "ee/entities/AppsmithConsole/utils";
 import { updateReplayEntity } from "actions/pageActions";
-import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { getCanvasWidgets } from "ee/selectors/entitiesSelector";
+import { getAppMode } from "ee/selectors/applicationSelectors";
 import type { APP_MODE } from "entities/App";
 import { getCurrentUser } from "selectors/usersSelectors";
 import type { User } from "constants/userConstants";

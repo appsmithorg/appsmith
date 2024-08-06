@@ -2,7 +2,7 @@ import {
   IMPORT_APPLICATION_MODAL_LABEL,
   IMPORT_APPLICATION_MODAL_TITLE,
   createMessage,
-} from "@appsmith/constants/messages";
+} from "ee/constants/messages";
 
 // In CE this won't look like a hook but in EE proper hook implementation is justified
 function useMessages() {

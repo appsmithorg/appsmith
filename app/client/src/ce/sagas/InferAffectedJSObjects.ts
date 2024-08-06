@@ -1,12 +1,12 @@
 import type {
   BufferedReduxAction,
   ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import { JS_ACTIONS } from "@appsmith/actions/evaluationActionsList";
+} from "ee/constants/ReduxActionConstants";
+import { JS_ACTIONS } from "ee/actions/evaluationActionsList";
 import type { AffectedJSObjects } from "sagas/EvaluationsSagaUtils";
 import type { JSCollection } from "entities/JSCollection";
 

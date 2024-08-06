@@ -1,13 +1,13 @@
 import type {
   ReduxAction,
   ReduxActionType,
-} from "@appsmith/constants/ReduxActionConstants";
+} from "ee/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
   WidgetReduxActionTypes,
-} from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/ReduxActionConstants";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import WidgetFactory from "WidgetProvider/factory";
 import type {
   BatchUpdateDynamicPropertyUpdates,
@@ -72,7 +72,7 @@ import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getWidget, getWidgets, getWidgetsMeta } from "./selectors";
 
-import { builderURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "ee/RouteBuilder";
 import {
   ERROR_PASTE_ANVIL_LAYOUT_SYSTEM_CONFLICT,
   ERROR_PASTE_FIXED_LAYOUT_SYSTEM_CONFLICT,
@@ -83,9 +83,9 @@ import {
   WIDGET_COPY,
   WIDGET_CUT,
   createMessage,
-} from "@appsmith/constants/messages";
-import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
-import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
+} from "ee/constants/messages";
+import type { WidgetEntityConfig } from "ee/entities/DataTree/types";
+import { getAllPaths } from "ee/workers/Evaluation/evaluationUtils";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { stopReflowAction } from "actions/reflowActions";

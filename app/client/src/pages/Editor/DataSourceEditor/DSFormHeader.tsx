@@ -1,7 +1,7 @@
 /* DO NOT INTRODUCE PAGE AND APPLICATION DEPENDENCIES IN THIS COMPONENT */
 import React, { useState } from "react";
 import FormTitle from "./FormTitle";
-import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getAssetUrl } from "ee/utils/airgapHelpers";
 import type { Datasource } from "entities/Datasource";
 import {
   CONFIRM_CONTEXT_DELETING,
@@ -9,8 +9,8 @@ import {
   CONTEXT_DELETE,
   EDIT,
   createMessage,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+} from "ee/constants/messages";
+import AnalyticsUtil from "ee/utils/AnalyticsUtil";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteDatasource } from "actions/datasourceActions";
 import { debounce } from "lodash";
@@ -22,12 +22,12 @@ import { DatasourceEditEntryPoints } from "constants/Datasource";
 import {
   DB_NOT_SUPPORTED,
   isEnvironmentConfigured,
-} from "@appsmith/utils/Environments";
-import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+} from "ee/utils/Environments";
+import { getCurrentEnvironmentId } from "ee/selectors/environmentSelectors";
 import type { PluginType } from "entities/Action";
-import { useEditorType } from "@appsmith/hooks";
+import { useEditorType } from "ee/hooks";
 import { useHistory } from "react-router";
-import { useHeaderActions } from "@appsmith/hooks/datasourceEditorHooks";
+import { useHeaderActions } from "ee/hooks/datasourceEditorHooks";
 
 export const ActionWrapper = styled.div`
   display: flex;
